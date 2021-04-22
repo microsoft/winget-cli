@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 // Since we already did installer selection, just populate the context Data
-                manifest.ApplyLocale();
+                manifest.ApplyLocale(installer->Locale);
                 context.Add<Execution::Data::Manifest>(std::move(manifest));
                 context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
                 context.Add<Execution::Data::Installer>(std::move(installer));

@@ -132,7 +132,7 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                // We have to assume the an unknown scope will match our required scope, or the entire catalog would stop working for upgrade.
+                // We have to assume the unknown scope will match our required scope, or the entire catalog would stop working for upgrade.
                 return installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement;
             }
 
@@ -216,17 +216,150 @@ namespace AppInstaller::CLI::Workflow
             Manifest::ScopeEnum m_preference;
             Manifest::ScopeEnum m_requirement;
         };
+
+        struct InstalledLocaleFilter : public details::FilterField
+        {
+            InstalledLocaleFilter(std::string requirement) :
+                details::FilterField("Installed Locale"), m_requirement(std::move(requirement)) {}
+
+            static std::unique_ptr<InstalledLocaleFilter> Create(const Repository::IPackageVersion::Metadata& installationMetadata)
+            {
+                // Check for an existing install and require a matching scope.
+                auto installerLocaleItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledLocale);
+                if (installerLocaleItr != installationMetadata.end())
+                {
+                    return std::make_unique<InstalledLocaleFilter>(installerLocaleItr->second);
+                }
+
+                return {};
+            }
+
+            bool IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                // We have to assume an unknown installer locale will match our required locale, or the entire catalog would stop working for upgrade.
+                return installer.Locale.empty() || Utility::GetDistanceOfLanguage(m_requirement, installer.Locale) >= Utility::MinimumDistanceScoreAsPerfectMatch;
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "Installer locale does not matched currently installed locale: ";
+                result += installer.Locale;
+                result += " != ";
+                result += m_requirement;
+                return result;
+            }
+
+        private:
+            std::string m_requirement;
+        };
+
+        struct LocaleComparator : public details::ComparisonField
+        {
+            LocaleComparator(std::string preference, std::string requirement) :
+                details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement)) {}
+
+            static std::unique_ptr<LocaleComparator> Create(const Repository::IPackageVersion::Metadata& installationMetadata, const Execution::Args& args)
+            {
+                std::string preference;
+                std::string requirement;
+
+                auto installerLocaleItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledLocale);
+                if (installerLocaleItr != installationMetadata.end())
+                {
+                    // Locale upgrade applicability based on installed locale should already be done by InstalledLocaleFilter.
+                    // For now we only allow perfect match or unknown locale. If we are to relax the rule a bit,
+                    // then for upgrade with known installed locale, use the installed locale as preference.
+                    preference = installerLocaleItr->second;
+                }
+                else
+                {
+                    // Preference will come from winget settings or Preferred Languages settings. winget settings takes precedence.
+                    preference = Settings::User().Get<Settings::Setting::InstallLocalePreference>();
+                    if (preference.empty())
+                    {
+                        auto preferredList = Utility::GetUserPreferredLanguages();
+                        if (!preferredList.empty())
+                        {
+                            // TODO: we only take the first one for now
+                            preference = preferredList.at(0);
+                        }
+                    }
+
+                    // Requirement may come from args or settings; args overrides settings.
+                    if (args.Contains(Execution::Args::Type::Locale))
+                    {
+                        requirement = args.GetArg(Execution::Args::Type::Locale);
+                    }
+                    else
+                    {
+                        requirement = Settings::User().Get<Settings::Setting::InstallLocaleRequirement>();
+                    }
+                }
+
+                if (!preference.empty() || !requirement.empty())
+                {
+                    return std::make_unique<LocaleComparator>(preference, requirement);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            bool IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                return m_requirement.empty() || Utility::GetDistanceOfLanguage(m_requirement, installer.Locale) >= Utility::MinimumDistanceScoreAsPerfectMatch;
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "Installer locale does not match required locale: ";
+                result += installer.Locale;
+                result += " != ";
+                result += m_requirement;
+                return result;
+            }
+
+            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            {
+                if (m_preference.empty())
+                {
+                    return false;
+                }
+
+                double firstScore = first.Locale.empty() ? Utility::UnknownLanguageDistanceScore : Utility::GetDistanceOfLanguage(m_preference, first.Locale);
+                double secondScore = second.Locale.empty() ? Utility::UnknownLanguageDistanceScore : Utility::GetDistanceOfLanguage(m_preference, second.Locale);
+
+                if (firstScore > secondScore)
+                {
+                    return true;
+                }
+                else if (firstScore == secondScore && firstScore == Utility::UnknownLanguageDistanceScore)
+                {
+                    // if first is unknown and second is no match for sure, we might prefer unknown one.
+                    return first.Locale.empty() && !second.Locale.empty();
+                }
+
+                return false;
+            }
+
+        private:
+            std::string m_preference;
+            std::string m_requirement;
+        };
     }
 
     ManifestComparator::ManifestComparator(const Execution::Args& args, const Repository::IPackageVersion::Metadata& installationMetadata)
     {
         AddFilter(std::make_unique<OSVersionFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
+        AddFilter(InstalledLocaleFilter::Create(installationMetadata));
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
         AddComparator(InstalledTypeComparator::Create(installationMetadata));
         AddComparator(ScopeComparator::Create(args));
+        AddComparator(LocaleComparator::Create(installationMetadata, args));
         AddComparator(std::make_unique<MachineArchitectureComparator>());
     }
 

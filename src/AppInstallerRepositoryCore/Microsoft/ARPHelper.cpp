@@ -172,9 +172,17 @@ namespace AppInstaller::Repository::Microsoft
             }
             else if (value->GetType() == Registry::Value::Type::DWord)
             {
-                std::ostringstream strstr;
-                strstr << value->GetValue<Registry::Value::Type::DWord>();
-                valueString = strstr.str();
+                DWORD dwordValue = value->GetValue<Registry::Value::Type::DWord>();
+                if (name == Language)
+                {
+                    valueString = Utility::LocaleIdToBcp47Tag(dwordValue);
+                }
+                else
+                {
+                    std::ostringstream strstr;
+                    strstr << dwordValue;
+                    valueString = strstr.str();
+                }
             }
 
             if (!valueString.empty())
@@ -319,8 +327,7 @@ namespace AppInstaller::Repository::Microsoft
             AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
 
             // Pick up Language to enable proper selection of language for upgrade.
-            // TODO: Determine if InnoSetupLanguage represents the same concept and pick it up if language is not present.
-            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::Locale);
+            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
             // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.

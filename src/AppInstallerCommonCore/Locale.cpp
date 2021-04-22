@@ -9,6 +9,8 @@ namespace AppInstaller::Utility
 {
     namespace
     {
+        constexpr int MAX_LOCALE_SNAME_LEN = 85;
+
         // We will just leak this. The module is shared as both functions will always be together.
         HMODULE g_bcp47 = (HMODULE)(-1);
         typedef bool(WINAPI* IsWellFormedTagFunc)(PCWSTR);
@@ -54,7 +56,7 @@ namespace AppInstaller::Utility
         }
     }
 
-    bool IsWellFormedBcp47Tag(const std::string& bcp47Tag)
+    bool IsWellFormedBcp47Tag(std::string_view bcp47Tag)
     {
         // Before new SDK is released, we need to use LoadLibrary/GetProcAddress
         InitializeBcp47Module();
@@ -77,7 +79,7 @@ namespace AppInstaller::Utility
         return TRUE;
     }
 
-    double GetDistanceOfLanguage(const std::string& target, const std::string& available)
+    double GetDistanceOfLanguage(std::string_view target, std::string_view available)
     {
         // Before new SDK is released, we need to use LoadLibrary/GetProcAddress
         InitializeBcp47Module();
@@ -116,5 +118,22 @@ namespace AppInstaller::Utility
         }
 
         return result;
+    }
+
+    std::string LocaleIdToBcp47Tag(LCID localeId)
+    {
+        WCHAR localeName[MAX_LOCALE_SNAME_LEN] = {0};
+        int ret = LCIDToLocaleName(
+            localeId,
+            localeName,
+            MAX_LOCALE_SNAME_LEN,
+            LOCALE_ALLOW_NEUTRAL_NAMES);
+
+        if (ret <= 0)
+        {
+            return {};
+        }
+
+        return Utility::ConvertToUTF8(std::wstring(localeName));
     }
 }

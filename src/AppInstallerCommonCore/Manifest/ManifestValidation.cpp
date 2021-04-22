@@ -26,7 +26,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
         }
 
-        if (!Utility::IsWellFormedBcp47Tag(manifest.DefaultLocalization.Locale))
+        if (!manifest.DefaultLocalization.Locale.empty() && !Utility::IsWellFormedBcp47Tag(manifest.DefaultLocalization.Locale))
         {
             resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", manifest.DefaultLocalization.Locale);
         }
@@ -141,7 +141,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
             }
 
-            if (!Utility::IsWellFormedBcp47Tag(installer.Locale))
+            if (!installer.Locale.empty() && !Utility::IsWellFormedBcp47Tag(installer.Locale))
             {
                 resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
             }
@@ -150,7 +150,7 @@ namespace AppInstaller::Manifest
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            if (!Utility::IsWellFormedBcp47Tag(localization.Locale))
+            if (!localization.Locale.empty() && !Utility::IsWellFormedBcp47Tag(localization.Locale))
             {
                 resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
             }

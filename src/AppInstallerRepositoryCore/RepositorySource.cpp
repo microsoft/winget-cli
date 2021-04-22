@@ -1148,6 +1148,8 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::InstalledLocation: return "InstalledLocation"sv;
         case PackageVersionMetadata::StandardUninstallCommand: return "StandardUninstallCommand"sv;
         case PackageVersionMetadata::SilentUninstallCommand: return "SilentUninstallCommand"sv;
+        case PackageVersionMetadata::Publisher: return "Publisher"sv;
+        case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
         default: return "Unknown"sv;
         }
     }

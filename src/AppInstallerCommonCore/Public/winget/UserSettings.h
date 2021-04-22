@@ -93,7 +93,7 @@ namespace AppInstaller::Settings
         { \
             using json_t = _json_; \
             using value_t = _value_; \
-            static constexpr value_t DefaultValue = _default_; \
+            inline static const value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
             static std::optional<value_t> Validate(const json_t& value); \
             static constexpr ValuePolicy Policy = _valuePolicy_; \

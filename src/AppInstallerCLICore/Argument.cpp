@@ -43,7 +43,7 @@ namespace AppInstaller::CLI
             return Argument{ "interactive", 'i', Args::Type::Interactive, Resource::String::InteractiveArgumentDescription, ArgumentType::Flag };
         case Args::Type::Silent:
             return Argument{ "silent", 'h', Args::Type::Silent, Resource::String::SilentArgumentDescription, ArgumentType::Flag };
-        case Args::Type::Language:
+        case Args::Type::Locale:
             return Argument{ "locale", NoAlias, Args::Type::Locale, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
         case Args::Type::Log:
             return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
