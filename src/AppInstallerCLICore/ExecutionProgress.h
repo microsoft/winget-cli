@@ -55,9 +55,7 @@ namespace AppInstaller::CLI::Execution
         std::atomic<bool> m_spinnerRunning = false;
         std::future<void> m_spinnerJob;
 
-        void ShowSpinnerInternalNoVT();
-
-        void ShowSpinnerInternalWithVT();
+        void ShowSpinnerInternal();
     };
 
     // Displays progress 

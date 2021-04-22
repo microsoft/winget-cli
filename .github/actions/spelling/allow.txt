@@ -48,6 +48,7 @@ cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+conemu
 config
 Configurability
 constexpr
@@ -421,7 +422,7 @@ tdbuild
 tdd
 tellg
 tempdb
-terabyate
+terabyte
 testcontainer
 testmoniker
 Testrun
@@ -511,6 +512,7 @@ wix
 wmain
 woah
 wofstream
+workaround
 workflow
 wostream
 wpfn
