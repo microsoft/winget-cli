@@ -24,6 +24,7 @@ aspnet
 autocomplete
 auxdata
 azureedge
+bcp47
 bcrypt
 binver
 Bitmask
@@ -46,6 +47,7 @@ cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+comparand
 config
 Configurability
 constexpr
@@ -89,6 +91,7 @@ dll
 dllexport
 docx
 dotnet
+downlevel
 downloader
 dword
 DWORDLONG
@@ -195,6 +198,8 @@ json
 junit
 langutil
 lastwritetime
+LCID
+LEN
 Linux
 LOCALAPPDATA
 localtime
@@ -220,6 +225,7 @@ Minimatch
 MINORVERSION
 monostate
 motw
+mrm
 msbuild
 msdata
 MSDN
@@ -359,6 +365,7 @@ simplesave
 simpletest
 sizeof
 sln
+SNAME
 snprintf
 sourced
 Specv
@@ -521,3 +528,4 @@ XTOKEN
 yaml
 yml
 yy
+zh

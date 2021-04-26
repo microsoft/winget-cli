@@ -113,7 +113,7 @@ namespace AppInstaller::CLI
         {
             if (!Utility::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
             {
-                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Locale, { "bcp 47 language tags"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Locale, { "bcp47 language tags"_lis });
             }
         }
     }
