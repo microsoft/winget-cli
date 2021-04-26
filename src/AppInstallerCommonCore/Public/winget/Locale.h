@@ -7,6 +7,7 @@
 namespace AppInstaller::Utility
 {
     static constexpr double MinimumDistanceScoreAsPerfectMatch = 1.0;
+    static constexpr double MinimumDistanceScoreAsCompatibleMatch = 0.9;
     static constexpr double UnknownLanguageDistanceScore = 0.0;
 
     // Check if a bcp47 language tag is well formed

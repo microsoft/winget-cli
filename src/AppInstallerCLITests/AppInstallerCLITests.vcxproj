@@ -359,6 +359,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidLocale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidManifestVersionValue.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -423,6 +426,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Minimum.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MultiLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Switches.yaml">

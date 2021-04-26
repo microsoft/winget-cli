@@ -217,18 +217,18 @@ namespace AppInstaller::CLI::Workflow
             Manifest::ScopeEnum m_requirement;
         };
 
-        struct InstalledLocaleFilter : public details::FilterField
+        struct InstalledLocaleComparator : public details::ComparisonField
         {
-            InstalledLocaleFilter(std::string requirement) :
-                details::FilterField("Installed Locale"), m_requirement(std::move(requirement)) {}
+            InstalledLocaleComparator(std::string installedLocale) :
+                details::ComparisonField("Installed Locale"), m_installedLocale(std::move(installedLocale)) {}
 
-            static std::unique_ptr<InstalledLocaleFilter> Create(const Repository::IPackageVersion::Metadata& installationMetadata)
+            static std::unique_ptr<InstalledLocaleComparator> Create(const Repository::IPackageVersion::Metadata& installationMetadata)
             {
-                // Check for an existing install and require a matching scope.
+                // Check for an existing install and require a compatible locale.
                 auto installerLocaleItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledLocale);
                 if (installerLocaleItr != installationMetadata.end())
                 {
-                    return std::make_unique<InstalledLocaleFilter>(installerLocaleItr->second);
+                    return std::make_unique<InstalledLocaleComparator>(installerLocaleItr->second);
                 }
 
                 return {};
@@ -236,21 +236,29 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                // We have to assume an unknown installer locale will match our required locale, or the entire catalog would stop working for upgrade.
-                return installer.Locale.empty() || Utility::GetDistanceOfLanguage(m_requirement, installer.Locale) >= Utility::MinimumDistanceScoreAsPerfectMatch;
+                // We have to assume an unknown installer locale will match our installed locale, or the entire catalog would stop working for upgrade.
+                return installer.Locale.empty() || Utility::GetDistanceOfLanguage(m_installedLocale, installer.Locale) >= Utility::MinimumDistanceScoreAsCompatibleMatch;
             }
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installer locale does not matched currently installed locale: ";
+                std::string result = "Installer locale is not compatible with currently installed locale: ";
                 result += installer.Locale;
-                result += " != ";
-                result += m_requirement;
+                result += " not compatible with ";
+                result += m_installedLocale;
                 return result;
             }
 
+            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            {
+                double firstScore = first.Locale.empty() ? Utility::UnknownLanguageDistanceScore : Utility::GetDistanceOfLanguage(m_installedLocale, first.Locale);
+                double secondScore = second.Locale.empty() ? Utility::UnknownLanguageDistanceScore : Utility::GetDistanceOfLanguage(m_installedLocale, second.Locale);
+
+                return firstScore > secondScore;
+            }
+
         private:
-            std::string m_requirement;
+            std::string m_installedLocale;
         };
 
         struct LocaleComparator : public details::ComparisonField
@@ -258,42 +266,31 @@ namespace AppInstaller::CLI::Workflow
             LocaleComparator(std::string preference, std::string requirement) :
                 details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement)) {}
 
-            static std::unique_ptr<LocaleComparator> Create(const Repository::IPackageVersion::Metadata& installationMetadata, const Execution::Args& args)
+            static std::unique_ptr<LocaleComparator> Create(const Execution::Args& args)
             {
                 std::string preference;
                 std::string requirement;
 
-                auto installerLocaleItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledLocale);
-                if (installerLocaleItr != installationMetadata.end())
+                // Preference will come from winget settings or Preferred Languages settings. winget settings takes precedence.
+                preference = Settings::User().Get<Settings::Setting::InstallLocalePreference>();
+                if (preference.empty())
                 {
-                    // Locale upgrade applicability based on installed locale should already be done by InstalledLocaleFilter.
-                    // For now we only allow perfect match or unknown locale. If we are to relax the rule a bit,
-                    // then for upgrade with known installed locale, use the installed locale as preference.
-                    preference = installerLocaleItr->second;
+                    auto preferredList = Utility::GetUserPreferredLanguages();
+                    if (!preferredList.empty())
+                    {
+                        // TODO: we only take the first one for now
+                        preference = preferredList.at(0);
+                    }
+                }
+
+                // Requirement may come from args or settings; args overrides settings.
+                if (args.Contains(Execution::Args::Type::Locale))
+                {
+                    requirement = args.GetArg(Execution::Args::Type::Locale);
                 }
                 else
                 {
-                    // Preference will come from winget settings or Preferred Languages settings. winget settings takes precedence.
-                    preference = Settings::User().Get<Settings::Setting::InstallLocalePreference>();
-                    if (preference.empty())
-                    {
-                        auto preferredList = Utility::GetUserPreferredLanguages();
-                        if (!preferredList.empty())
-                        {
-                            // TODO: we only take the first one for now
-                            preference = preferredList.at(0);
-                        }
-                    }
-
-                    // Requirement may come from args or settings; args overrides settings.
-                    if (args.Contains(Execution::Args::Type::Locale))
-                    {
-                        requirement = args.GetArg(Execution::Args::Type::Locale);
-                    }
-                    else
-                    {
-                        requirement = Settings::User().Get<Settings::Setting::InstallLocaleRequirement>();
-                    }
+                    requirement = Settings::User().Get<Settings::Setting::InstallLocaleRequirement>();
                 }
 
                 if (!preference.empty() || !requirement.empty())
@@ -353,13 +350,22 @@ namespace AppInstaller::CLI::Workflow
     {
         AddFilter(std::make_unique<OSVersionFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
-        AddFilter(InstalledLocaleFilter::Create(installationMetadata));
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
         AddComparator(InstalledTypeComparator::Create(installationMetadata));
+
+        auto installedLocaleComparator = InstalledLocaleComparator::Create(installationMetadata);
+        if (installedLocaleComparator)
+        {
+            AddComparator(std::move(installedLocaleComparator));
+        }
+        else
+        {
+            AddComparator(LocaleComparator::Create(args));
+        }
+
         AddComparator(ScopeComparator::Create(args));
-        AddComparator(LocaleComparator::Create(installationMetadata, args));
         AddComparator(std::make_unique<MachineArchitectureComparator>());
     }
 
