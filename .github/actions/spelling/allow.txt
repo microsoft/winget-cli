@@ -24,6 +24,7 @@ aspnet
 autocomplete
 auxdata
 azureedge
+bcp
 bcp47
 bcrypt
 binver
@@ -199,6 +200,7 @@ junit
 langutil
 lastwritetime
 LCID
+LCIDToLocaleName
 LEN
 Linux
 LOCALAPPDATA
