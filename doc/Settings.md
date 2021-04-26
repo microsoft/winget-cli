@@ -150,16 +150,6 @@ While work is in progress on uninstall, the command is hidden behind a feature t
    },
 ```
 
-### import
-
-While work is in progress for import, the command is hidden behind a feature toggle. One can enable it as below:
-
-```json
-   "experimentalFeatures": {
-       "import": true
-   },
-```
-
 ### restSource
 
 While work is in progress for rest source support, the feature is hidden behind a feature toggle. Enabling this will not change how client works currently and will allow testing any additional rest sources added. One can enable it as below:

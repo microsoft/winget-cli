@@ -66,7 +66,7 @@ The default source reflects that data available from the [Community repo](https:
 We plan to better support additional sources, and additional types of sources, in the future. For now, additional sources can be configured, but only one used at a time.
 
 ### Package Manager Service 
-The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](/doc/ManifestSpecv0.1.md) for spec compliance.
+The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](/doc/ManifestSpecv1.0.md) for spec compliance.
 
 
 ## Building the client
@@ -97,7 +97,8 @@ We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for h
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More 
+information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions

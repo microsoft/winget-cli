@@ -35,6 +35,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // Make search result from json output.
         if (searchResponseObject.is_null())
         {
+            AICLI_LOG(Repo, Error, << "Missing json object.");
             return {};
         }
 

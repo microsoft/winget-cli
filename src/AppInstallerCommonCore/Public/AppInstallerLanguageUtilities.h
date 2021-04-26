@@ -45,6 +45,7 @@ namespace AppInstaller
     };
 
     // Enables a bool to be used as a destruction indicator.
+    // Default construction *sets the value to false!*
     using DestructionToken = ResetWhenMovedFrom<bool>;
 
     // Enable use of folding to execute functions across parameter packs.

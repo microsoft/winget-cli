@@ -29,6 +29,7 @@ bcp47
 bcrypt
 binver
 Bitmask
+blog
 Blog
 boolalpha
 BSTR
@@ -42,6 +43,7 @@ chrono
 cin
 cla
 CLSCTX
+cmake
 cmp
 CNG
 cnt
@@ -49,6 +51,7 @@ codepage
 COMMANDBARFLYOUT
 Commandline
 comparand
+conemu
 config
 Configurability
 constexpr
@@ -87,6 +90,7 @@ deserializing
 dest
 devblogs
 differentpath
+distro
 DIRECTONLY
 dll
 dllexport
@@ -203,6 +207,8 @@ LCID
 LCIDToLocaleName
 LEN
 Linux
+LLVM
+llvmorg
 LOCALAPPDATA
 localtime
 LOGPATH
@@ -220,11 +226,13 @@ MANIFESTSCHEMA
 MANIFESTVERSION
 MBs
 mday
+memset
 metadata
 microsoft
 mimetype
 Minimatch
 MINORVERSION
+mkdir
 monostate
 motw
 mrm
@@ -341,7 +349,9 @@ ruleset
 runsettings
 runtimes
 safecast
+SANITIZERS
 savepoint
+screenshots
 SCROLLER
 SCROLLVIEWER
 sdk
@@ -421,7 +431,7 @@ tdbuild
 tdd
 tellg
 tempdb
-terabyate
+terabyte
 testcontainer
 testmoniker
 Testrun
@@ -479,6 +489,7 @@ utf
 uuidof
 validator
 valijson
+vcvars
 vcxitems
 vcxproj
 vdproj
@@ -510,6 +521,7 @@ wix
 wmain
 woah
 wofstream
+workaround
 workflow
 wostream
 wpfn
