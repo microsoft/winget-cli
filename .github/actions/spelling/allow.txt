@@ -204,7 +204,7 @@ junit
 langutil
 lastwritetime
 LCID
-LCIDToLocaleName
+LCIDTo
 LEN
 Linux
 LLVM
