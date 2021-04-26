@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Rest
 
                 // Check if URL is remote and secure
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
-                // THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
             }
 
             void Update(const SourceDetails& details, IProgressCallback&) override final

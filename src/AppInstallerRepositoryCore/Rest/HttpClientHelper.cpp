@@ -91,6 +91,7 @@ namespace AppInstaller::Repository::Rest
             break;
 
         case web::http::status_codes::NotFound:
+        case web::http::status_codes::NoContent:
             result = {};
             break;
 

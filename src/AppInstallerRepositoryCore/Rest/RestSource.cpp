@@ -285,7 +285,6 @@ namespace AppInstaller::Repository::Rest
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        // Note: Basic search functionality to fetch everything.
         RestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 

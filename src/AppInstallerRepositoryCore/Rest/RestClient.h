@@ -32,11 +32,11 @@ namespace AppInstaller::Repository::Rest
         static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const AppInstaller::Repository::Rest::Schema::IRestClient::Information& information, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
         static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
-        
+
         static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const HttpClientHelper& httpClientHelper);
-        
+
         static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
-        
+
         static RestClient Create(const std::string& restApi, const HttpClientHelper& helper = {});
 
     private:
