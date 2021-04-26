@@ -104,10 +104,10 @@ TEST_CASE("GetRawJsonArrayFromJsonNode", "[RestSource]")
 TEST_CASE("GetRawStringArrayFromJsonNode", "[RestSource]")
 {
     web::json::value jsonObject = GetTestJsonObject();
-    std::vector<AppInstaller::Manifest::string_t> expected = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Array");
+    std::vector<std::string> expected = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Array");
     REQUIRE(expected.size() == 3);
     REQUIRE(expected[0] == "ArrayValue1");
 
-    std::vector<AppInstaller::Manifest::string_t> mismatchFieldTest = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Keyword");
+    std::vector<std::string> mismatchFieldTest = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Keyword");
     REQUIRE(mismatchFieldTest.size() == 0);
 }

@@ -300,6 +300,82 @@ TEST_CASE("Search_GoodResponse", "[RestSource]")
     REQUIRE(package.Versions.at(1).VersionAndChannel.GetVersion().ToString().compare("2.0.0") == 0);
 }
 
+TEST_CASE("Search_GoodResponse_AllFields", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : [
+               {
+              "PackageIdentifier": "git.package",
+              "PackageName": "package",
+              "Publisher": "git",
+              "Versions": [
+                {
+                    "PackageVersion": "1.0.0",
+                    "PackageFamilyNames" : [
+                        "pfn1",
+                        "pfn2"
+                    ],
+                    "ProductCodes" : [
+                        "pc1",
+                        "pc2"
+                    ]
+                }]
+            }]
+        })delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    Schema::IRestClient::SearchResult searchResponse = v1.Search({});
+    REQUIRE(searchResponse.Matches.size() == 1);
+    Schema::IRestClient::Package package = searchResponse.Matches.at(0);
+    REQUIRE(package.PackageInformation.PackageIdentifier.compare("git.package") == 0);
+    REQUIRE(package.PackageInformation.Publisher.compare("git") == 0);
+    REQUIRE(package.PackageInformation.PackageName.compare("package") == 0);
+    REQUIRE(package.Versions.size() == 1);
+    REQUIRE(package.Versions.at(0).VersionAndChannel.GetVersion().ToString().compare("1.0.0") == 0);
+    REQUIRE(package.Versions.at(0).PackageFamilyNames.size() == 2);
+    REQUIRE(package.Versions.at(0).PackageFamilyNames.at(0) == "pfn1");
+    REQUIRE(package.Versions.at(0).PackageFamilyNames.at(1) == "pfn2");
+    REQUIRE(package.Versions.at(0).ProductCodes.at(0) == "pc1");
+    REQUIRE(package.Versions.at(0).ProductCodes.at(1) == "pc2");
+}
+
+TEST_CASE("Search_ContinuationToken", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : [
+               {
+              "PackageIdentifier": "git.package",
+              "PackageName": "package",
+              "Publisher": "git",
+              "Versions": [
+                {   "PackageVersion": "1.0.0" }]
+            },
+            {
+              "PackageIdentifier": "foo.package",
+              "PackageName": "package",
+              "Publisher": "foo",
+              "Versions": [
+                {   "PackageVersion": "1.0.0" }]
+            }],
+           "ContinuationToken" : "abcd-ct="
+        })delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    SearchRequest request{};
+    request.MaximumResults = 9;
+    Schema::IRestClient::SearchResult results = v1.Search(request);
+    REQUIRE(results.Matches.size() == request.MaximumResults);
+
+    SearchRequest requestWithSize1{};
+    requestWithSize1.MaximumResults = 1;
+    Schema::IRestClient::SearchResult resultsWithSize1 = v1.Search(requestWithSize1);
+    REQUIRE(resultsWithSize1.Matches.size() == requestWithSize1.MaximumResults);
+}
+
 TEST_CASE("Search_BadResponse_NoVersions", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(

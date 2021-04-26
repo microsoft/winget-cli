@@ -14,8 +14,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view PackageIdentifier = "PackageIdentifier"sv;
         constexpr std::string_view PackageName = "PackageName"sv;
         constexpr std::string_view Publisher = "Publisher"sv;
-        constexpr std::string_view PackageFamilyName = "PackageFamilyName"sv;
-        constexpr std::string_view ProductCode = "ProductCode"sv;
+        constexpr std::string_view PackageFamilyNames = "PackageFamilyNames"sv;
+        constexpr std::string_view ProductCodes = "ProductCodes"sv;
         constexpr std::string_view Versions = "Versions"sv;
         constexpr std::string_view PackageVersion = "PackageVersion"sv;
         constexpr std::string_view Channel = "Channel"sv;
@@ -61,8 +61,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                     return {};
                 }
 
-                std::string packageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(PackageFamilyName)).value_or("");
-                std::string productCode = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(ProductCode)).value_or("");
                 std::optional<std::reference_wrapper<const web::json::array>> versionValue = JsonHelper::GetRawJsonArrayFromJsonNode(manifestItem, JsonHelper::GetUtilityString(Versions));
                 std::vector<IRestClient::VersionInfo> versionList;
 
@@ -78,8 +76,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                         }
 
                         std::string channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(Channel)).value_or("");
+                        std::vector<std::string> packageFamilyNames = JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(PackageFamilyNames));
+                        std::vector<std::string> productCodes = JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(ProductCodes));
+
                         versionList.emplace_back(IRestClient::VersionInfo{
-                                AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)}, {} });
+                                AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)}, {}, std::move(packageFamilyNames), std::move(productCodes)});
                     }
                 }
 
@@ -94,14 +95,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 IRestClient::Package package{ std::move(packageInfo), std::move(versionList) };
                 result.Matches.emplace_back(std::move(package));
             }
+
+            return result;
+        }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Repo, Error, << "Error encountered while deserializing search result. Reason: " << e.what());
         }
         catch (...)
         {
-            // TODO: Catch known types and log error information from them
             AICLI_LOG(Repo, Error, << "Error encountered while deserializing search result...");
-            return {};
         }
 
-        return result;
+        return {};
     }
 }

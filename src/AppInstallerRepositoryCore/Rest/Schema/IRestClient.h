@@ -26,9 +26,11 @@ namespace AppInstaller::Repository::Rest::Schema
     {
         AppInstaller::Utility::VersionAndChannel VersionAndChannel;
         std::optional<Manifest::Manifest> Manifest;
+        std::vector<std::string> PackageFamilyNames;
+        std::vector<std::string> ProductCodes;
 
-        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest)
-            : VersionAndChannel(versionAndChannel), Manifest(manifest) {}
+        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest, std::vector<std::string> packageFamilyNames = {}, std::vector<std::string> productCodes = {})
+            : VersionAndChannel(versionAndChannel), Manifest(manifest), PackageFamilyNames(packageFamilyNames), ProductCodes(productCodes) {}
     };
 
     // Minimal information retrieved for any search request.

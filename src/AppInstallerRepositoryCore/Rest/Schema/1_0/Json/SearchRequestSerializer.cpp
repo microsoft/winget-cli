@@ -82,9 +82,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
             return json_body;
         }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Repo, Error, << "Error occurred while serializing search request. Reason: " << e.what());
+        }
         catch (...)
         {
-            AICLI_LOG(Repo, Verbose, << "Error occurred while serializing search request");
+            AICLI_LOG(Repo, Error, << "Error occurred while serializing search request");
         }
 
         return {};
