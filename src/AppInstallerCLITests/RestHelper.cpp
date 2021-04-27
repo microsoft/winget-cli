@@ -36,3 +36,21 @@ TEST_CASE("AppendQueryParamsToUri", "[RestSource]")
 
     REQUIRE(RestHelper::AppendQueryParamsToUri(url, queryParams) == L"http://restsource.azurewebsites.net/api?Channel=beta%2B&Version=1.0%20.0");
 }
+
+TEST_CASE("GetUniqueItems", "[RestSource]")
+{
+    std::vector<std::string> list;
+    REQUIRE(RestHelper::GetUniqueItems(list).size() == 0);
+
+    std::vector<std::string> listWithDuplicates;
+    listWithDuplicates.emplace_back("object1");
+    listWithDuplicates.emplace_back("object1");
+    listWithDuplicates.emplace_back("object2");
+    listWithDuplicates.emplace_back("object2");
+    listWithDuplicates.emplace_back("object3");
+    std::vector<std::string> result = RestHelper::GetUniqueItems(listWithDuplicates);
+    REQUIRE(result.size() == 3);
+    REQUIRE(result.at(0) == "object1");
+    REQUIRE(result.at(1) == "object2");
+    REQUIRE(result.at(2) == "object3");
+}

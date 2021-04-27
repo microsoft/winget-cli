@@ -4,6 +4,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/RestHelper.h"
 #include "CommonJsonConstants.h"
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
@@ -76,8 +77,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                         }
 
                         std::string channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(Channel)).value_or("");
-                        std::vector<std::string> packageFamilyNames = JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(PackageFamilyNames));
-                        std::vector<std::string> productCodes = JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(ProductCodes));
+                        std::vector<std::string> packageFamilyNames = RestHelper::GetUniqueItems(JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(PackageFamilyNames)));
+                        std::vector<std::string> productCodes = RestHelper::GetUniqueItems(JsonHelper::GetRawStringArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(ProductCodes)));
 
                         versionList.emplace_back(IRestClient::VersionInfo{
                                 AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)}, {}, std::move(packageFamilyNames), std::move(productCodes)});

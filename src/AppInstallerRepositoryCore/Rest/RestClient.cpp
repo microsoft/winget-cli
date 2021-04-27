@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Rest
     std::set<Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
 
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
-        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(sourceIdentifier)
+        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
     }
 

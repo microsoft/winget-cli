@@ -72,4 +72,16 @@ namespace AppInstaller::Repository::Rest::Schema
 
         return {};
     }
+
+    std::vector<std::string> RestHelper::GetUniqueItems(const std::vector<std::string>& list)
+    {
+        std::set<std::string> set;
+        for (const auto& item : list)
+        {
+            set.emplace(item);
+        }
+
+        std::vector<std::string> result{ set.begin(), set.end() };
+        return result;
+    }
 }

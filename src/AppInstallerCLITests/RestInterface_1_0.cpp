@@ -300,7 +300,7 @@ TEST_CASE("Search_GoodResponse", "[RestSource]")
     REQUIRE(package.Versions.at(1).VersionAndChannel.GetVersion().ToString().compare("2.0.0") == 0);
 }
 
-TEST_CASE("Search_GoodResponse_AllFields", "[RestSource]")
+TEST_CASE("Search_GoodResponse_AllFields", "[RestSource][Rest]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -314,6 +314,7 @@ TEST_CASE("Search_GoodResponse_AllFields", "[RestSource]")
                     "PackageVersion": "1.0.0",
                     "PackageFamilyNames" : [
                         "pfn1",
+                        "pfn2",
                         "pfn2"
                     ],
                     "ProductCodes" : [

@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         std::vector<Manifest::string_t> ConvertToManifestStringArray(const std::vector<std::string>& values)
         {
             std::vector<Manifest::string_t> result;
-            for (auto& value : values)
+            for (const auto& value : values)
             {
                 result.emplace_back(value);
             }

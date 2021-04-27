@@ -23,7 +23,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         std::optional<std::string_view> ConvertPackageMatchFieldToString(AppInstaller::Repository::PackageMatchField field)
         {
-            // Rest API schema supports only a subset of fields.
+            // Match fields supported by Rest API schema.
             switch (field)
             {
             case PackageMatchField::Command:
@@ -40,6 +40,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 return "PackageFamilyName"sv;
             case PackageMatchField::ProductCode:
                 return "ProductCode"sv;
+            case PackageMatchField::NormalizedNameAndPublisher:
+                return "NormalizedPackageNameAndPublisher"sv;
             }
 
             return {};
@@ -47,7 +49,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         std::optional<std::string_view> ConvertMatchTypeToString(AppInstaller::Repository::MatchType type)
         {
-            // Rest API schema supports only a subset of match types.
+            // Match types supported by Rest API schema.
             switch (type)
             {
             case MatchType::Exact:
@@ -58,6 +60,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 return "StartsWith"sv;
             case MatchType::Substring:
                 return "Substring"sv;
+            case MatchType::Wildcard:
+                return "Wildcard"sv;
+            case MatchType::Fuzzy:
+                return "Fuzzy"sv;
+            case MatchType::FuzzySubstring:
+                return "FuzzySubstring"sv;
             }
 
             return {};
@@ -157,7 +165,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         
         if (!matchField)
         {
-            AICLI_LOG(Repo, Warning, << "Skipping unsupported package match field.");
+            AICLI_LOG(Repo, Warning, << "Skipping unsupported package match field: " << packageMatchFilter.Field);
             return {};
         }
 
@@ -183,7 +191,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         std::optional<std::string_view> matchType = ConvertMatchTypeToString(requestMatch.Type);
         if (!matchType)
         {
-            AICLI_LOG(Repo, Warning, << "Skipping unsupported match type.");
+            AICLI_LOG(Repo, Warning, << "Skipping unsupported match type: " << requestMatch.Type);
             return {};
         }
 

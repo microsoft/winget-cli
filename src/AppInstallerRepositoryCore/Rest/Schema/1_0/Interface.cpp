@@ -194,9 +194,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                     }
                 }
 
+                std::vector<std::string> uniquePackageFamilyNames = RestHelper::GetUniqueItems(packageFamilyNames);
+                std::vector<std::string> uniqueProductCodes = RestHelper::GetUniqueItems(productCodes);
+
                 versions.emplace_back(
                     VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
-                    manifestVersion, std::move(packageFamilyNames), std::move(productCodes) });
+                    manifestVersion, std::move(uniquePackageFamilyNames), std::move(uniqueProductCodes) });
             }
 
             Package package = Package{ std::move(packageInfo), std::move(versions) };
