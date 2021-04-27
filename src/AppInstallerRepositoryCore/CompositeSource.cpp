@@ -256,6 +256,11 @@ namespace AppInstaller::Repository
                     return String < other.String;
                 }
 
+                bool operator==(const SystemReferenceString& other) const
+                {
+                    return Field == other.Field && String == other.String;
+                }
+
                 PackageMatchField Field;
                 Utility::LocIndString String;
             };

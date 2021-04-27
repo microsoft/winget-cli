@@ -28,18 +28,6 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Fuzzing|ARM">
-      <Configuration>Fuzzing</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Fuzzing|ARM64">
-      <Configuration>Fuzzing</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Fuzzing|Win32">
-      <Configuration>Fuzzing</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Fuzzing|x64">
       <Configuration>Fuzzing</Configuration>
       <Platform>x64</Platform>
@@ -148,10 +136,6 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -170,20 +154,12 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -270,29 +246,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">true</TreatWarningAsError>
-      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">stdcpp17</LanguageStandard>
-      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">stdcpp17</LanguageStandard>
-      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">stdcpp17</LanguageStandard>
-      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">stdcpp17</LanguageStandard>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <SubSystem Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">Windows</SubSystem>
-      <SubSystem Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">Windows</SubSystem>
-      <SubSystem Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">Windows</SubSystem>
-      <SubSystem Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">Windows</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
