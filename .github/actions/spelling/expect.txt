@@ -8,6 +8,7 @@ amrutha
 anonymized
 APARTMENTTHREADED
 apfn
+apicontract
 apiset
 appinstallertest
 Archs
@@ -52,6 +53,7 @@ commandline
 Concat
 contosa
 contosainstaller
+contractversion
 count'th
 createmanifestmetadata
 cstdint

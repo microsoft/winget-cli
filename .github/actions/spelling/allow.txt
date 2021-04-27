@@ -304,6 +304,7 @@ PVOID
 pwa
 QCol
 RAII
+rclsid
 rdbuf
 README
 READONLY
@@ -311,6 +312,7 @@ READWRITE
 realloc
 REALTIME
 Redistributable
+REFCLSID
 regex
 regexp
 removemanifest
@@ -420,6 +422,7 @@ Timeline
 todo
 tolower
 toupper
+TOutput
 towlower
 TRACELOGGING
 triaged
