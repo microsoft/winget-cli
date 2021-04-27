@@ -10,6 +10,7 @@ amrutha
 anonymized
 APARTMENTTHREADED
 apfn
+apicontract
 apiset
 appinstallertest
 Archs
@@ -58,6 +59,7 @@ commandline
 Concat
 contosa
 contosainstaller
+contractversion
 count'th
 createmanifestmetadata
 cstdint
@@ -146,6 +148,7 @@ LTDA
 MBH
 megamorf
 memcpy
+MIDL
 MMmmbbbb
 monicka
 msdownload
@@ -180,6 +183,7 @@ pkindex
 PMS
 positionals
 productcode
+pseudocode
 pvk
 pvm
 pwabuilder
@@ -200,6 +204,7 @@ rosoft
 rowids
 RRF
 rrr
+runtimeclass
 rzkzqaqjwj
 serializer
 SARL
