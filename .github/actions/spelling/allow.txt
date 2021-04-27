@@ -429,6 +429,7 @@ tt
 ttl
 typedef
 typename
+UAC
 uap
 UBool
 UBreak
@@ -506,6 +507,7 @@ wstring
 wstringstream
 www
 xamarin
+xaml
 xlang
 xml
 xmlns
