@@ -20,8 +20,8 @@ namespace AppInstaller::Repository::Rest
     // Supported versions
     std::set<Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
 
-    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface)
-        : m_interface(std::move(supportedInterface))
+    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
+        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
     }
 
@@ -35,13 +35,18 @@ namespace AppInstaller::Repository::Rest
         return m_interface->Search(request);
     }
 
+    std::string RestClient::GetSourceIdentifier() const
+    {
+        return m_sourceIdentifier;
+    }
+
     utility::string_t RestClient::GetInformationEndpoint(const utility::string_t& restApiUri)
     {
         utility::string_t endpoint = RestHelper::AppendPathToUri(restApiUri, JsonHelper::GetUtilityString(InformationGetEndpoint));
         return endpoint;
     }
 
-    Version RestClient::GetSupportedVersion(const utility::string_t& restApi, const std::set<Version>& wingetSupportedVersions, const HttpClientHelper& clientHelper)
+    IRestClient::Information RestClient::GetInformation(const utility::string_t& restApi, const HttpClientHelper& clientHelper)
     {
         // Call information endpoint
         std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi));
@@ -51,10 +56,7 @@ namespace AppInstaller::Repository::Rest
         Json::InformationResponseDeserializer responseDeserializer;
         IRestClient::Information information = responseDeserializer.Deserialize(response.value());
 
-        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, wingetSupportedVersions);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
-
-        return latestCommonVersion.value();
+        return information;
     }
 
     std::optional<Version> RestClient::GetLatestCommonVersion(
@@ -93,8 +95,11 @@ namespace AppInstaller::Repository::Rest
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        Version version = GetSupportedVersion(restEndpoint, WingetSupportedContracts, helper);
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), version);
-        return RestClient{ std::move(supportedInterface) };
+        IRestClient::Information information = GetInformation(restEndpoint, helper);
+        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
+
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), latestCommonVersion.value());
+        return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

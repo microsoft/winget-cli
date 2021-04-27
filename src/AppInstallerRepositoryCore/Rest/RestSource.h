@@ -35,7 +35,6 @@ namespace AppInstaller::Repository::Rest
 
     private:
         SourceDetails m_details;
-        std::string m_identifier;
         RestClient m_restClient;
     };
 }

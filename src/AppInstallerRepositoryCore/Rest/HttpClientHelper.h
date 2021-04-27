@@ -13,13 +13,13 @@ namespace AppInstaller::Repository::Rest
     {
         HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> = {});
 
-        pplx::task<web::http::http_response> Post(const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers = {}) const;
+        pplx::task<web::http::http_response> Post(const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t> &headers = {}) const;
 
-        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers = {}) const;
+        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
 
-        pplx::task<web::http::http_response> Get(const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers = {}) const;
+        pplx::task<web::http::http_response> Get(const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
 
-        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers = {}) const;
+        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
     
     protected:
         std::optional<web::json::value> ValidateAndExtractResponse(const web::http::http_response& response) const;

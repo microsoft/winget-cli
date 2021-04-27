@@ -82,6 +82,17 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         constexpr std::string_view Capabilities = "Capabilities"sv;
         constexpr std::string_view RestrictedCapabilities = "RestrictedCapabilities"sv;
+
+        std::vector<Manifest::string_t> ConvertToManifestStringArray(const std::vector<std::string>& values)
+        {
+            std::vector<Manifest::string_t> result;
+            for (const auto& value : values)
+            {
+                result.emplace_back(value);
+            }
+
+            return result;
+        }
     }
 
     std::vector<Manifest::Manifest> ManifestDeserializer::Deserialize(const web::json::value& dataJsonObject) const
@@ -206,14 +217,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
                 manifests.emplace_back(std::move(manifest));
             }
+
+            return manifests;
+        }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Repo, Error, << "Error encountered while deserializing manifest. Reason: " << e.what());
         }
         catch (...)
         {
             AICLI_LOG(Repo, Error, << "Error encountered while deserializing manifest...");
-            return {};
         }
 
-        return manifests;
+        return {};
     }
 
     std::optional<Manifest::ManifestLocalization> ManifestDeserializer::DeserializeLocale(const web::json::value& localeJsonObject) const
@@ -266,7 +282,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         locale.Add<AppInstaller::Manifest::Localization::Copyright>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Copyright)).value_or(""));
         locale.Add<AppInstaller::Manifest::Localization::CopyrightUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(CopyrightUrl)).value_or(""));
         locale.Add<AppInstaller::Manifest::Localization::Description>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Description)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::Tags>(JsonHelper::GetRawStringArrayFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Tags)));
+        locale.Add<AppInstaller::Manifest::Localization::Tags>(ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Tags))));
 
         return locale;
     }
@@ -388,9 +404,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             installer.UpdateBehavior = Manifest::ConvertToUpdateBehaviorEnum(updateBehavior.value());
         }
 
-        installer.Commands = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Commands));
-        installer.Protocols = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Protocols));
-        installer.FileExtensions = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(FileExtensions));
+        installer.Commands = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Commands)));
+        installer.Protocols = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Protocols)));
+        installer.FileExtensions = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(FileExtensions)));
 
         // Dependencies
         std::optional<std::reference_wrapper<const web::json::value>> dependenciesObject =
@@ -406,8 +422,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         installer.PackageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(PackageFamilyName)).value_or("");
         installer.ProductCode = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(ProductCode)).value_or("");
-        installer.Capabilities = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Capabilities));
-        installer.RestrictedCapabilities = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(RestrictedCapabilities));
+        installer.Capabilities = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Capabilities)));
+        installer.RestrictedCapabilities = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(RestrictedCapabilities)));
 
         return installer;
     }
@@ -421,9 +437,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         Manifest::Dependency dependency;
 
-        dependency.WindowsFeatures = JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures));
-        dependency.WindowsLibraries = JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries));
-        dependency.ExternalDependencies = JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies));
+        dependency.WindowsFeatures = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
+        dependency.WindowsLibraries = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
+        dependency.ExternalDependencies = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
 
         // Package Dependencies
         std::optional<std::reference_wrapper<const web::json::array>> packageDependencies = JsonHelper::GetRawJsonArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(PackageDependencies));

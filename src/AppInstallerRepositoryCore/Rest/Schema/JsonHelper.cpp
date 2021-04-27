@@ -64,12 +64,12 @@ namespace AppInstaller::Repository::Rest::Schema
         return jsonValue.value().get().as_array();
     }
 
-    std::vector<Manifest::string_t> JsonHelper::GetRawStringArrayFromJsonNode(
+    std::vector<std::string> JsonHelper::GetRawStringArrayFromJsonNode(
         const web::json::value& node, const utility::string_t& keyName)
     {
         std::optional<std::reference_wrapper<const web::json::array>> arrayValue = GetRawJsonArrayFromJsonNode(node, keyName);
 
-        std::vector<Manifest::string_t> result;
+        std::vector<std::string> result;
         if (!arrayValue)
         {
             return result;

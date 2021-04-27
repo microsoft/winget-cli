@@ -19,5 +19,7 @@ namespace AppInstaller::Repository::Rest::Schema
         static utility::string_t AppendQueryParamsToUri(const utility::string_t& uri, const std::map<std::string_view, std::string>& queryParameters);
 
         static std::optional<utility::string_t> GetContinuationToken(const web::json::value& jsonObject);
+
+        static std::vector<std::string> GetUniqueItems(const std::vector<std::string>& list);
     };
 }

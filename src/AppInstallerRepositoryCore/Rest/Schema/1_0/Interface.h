@@ -28,11 +28,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     protected:
         bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;
         IRestClient::SearchResult OptimizedSearch(const SearchRequest& request) const;
+        IRestClient::SearchResult SearchInternal(const SearchRequest& request) const;
 
     private:
         std::string m_restApiUri;
         utility::string_t m_searchEndpoint;
-        std::vector<std::pair<utility::string_t, utility::string_t>> m_requiredRestApiHeaders;
+        std::unordered_map<utility::string_t, utility::string_t> m_requiredRestApiHeaders;
         HttpClientHelper m_httpClientHelper;
     };
 }
