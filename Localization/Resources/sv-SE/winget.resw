@@ -386,7 +386,7 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Filtrera resultat efter namn</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Inga installationsprogram finns för det aktuella systemet.</value>
+    <value>Inget tillämpligt installations program hittades. Mer information finns i loggarna.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Det finns för närvarande inga experimentella funktioner. </value>
@@ -813,5 +813,107 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Sökvägen finns inte:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-filen anger inte ett schema som känns igen.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Välj installationsomfång (användare eller maskin)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Det angivna värdet för argumentet%1är ogiltigt. giltiga värden är</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Den här åtgärden har inaktiverats av grupprincip</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aktivera ytterligare installationskällor för Windows-appar</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Aktivera tillåtna källor i Windows Appinstallationsprogram</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Aktivera standardkälla för Windows Appinstallationsprogram</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Aktivera experimentfunktioner i Windows Appinstallationsprogram</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Aktivera Microsoft Store-källa för Windows Appinstallationsprogram</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Aktivera inställningar för Windows Package Manager</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Aktivera Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Ange intervall i minuter för automatisk uppdatering av Windows Package Manager-källan</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Inaktiverad</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Aktiverat</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Grupprincip</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Tillstånd</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Aktivera lokala manifestfiler för Windows Appinstallationsprogram</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Fält:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ogiltigt fältformat.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ogiltigt fältvärde.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ogiltig inställning från grupprincip.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Läste in inställningar från säkerhetskopian.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Fel vid parsning av fil:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Värde:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Följande experimentella funktioner pågår.
+Konfigurationen har inaktiverats på grund av en grup princip.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installationshash matchar inte.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Aktivera åsidosättning av hash för Windows Appinstallationsprogram</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Exportera aktuella källor som JSON för grup princip.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Exportera aktuella källor</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Ytterligare källa</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Tillåten källa</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

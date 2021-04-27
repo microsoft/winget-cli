@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
 #include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
-#include <winget/UserSettings.h>
 
 #include <AppInstallerErrors.h>
 
@@ -14,6 +14,8 @@
 
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Runtime;
+using namespace TestCommon;
+using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 
@@ -23,25 +25,6 @@ namespace
     static constexpr std::string_view s_badJson = "{";
     static constexpr std::string_view s_settings = "settings.json"sv;
     static constexpr std::string_view s_settingsBackup = "settings.json.backup"sv;
-
-    void DeleteUserSettingsFiles()
-    {
-        auto settingsPath = UserSettings::SettingsFilePath();
-        if (std::filesystem::exists(settingsPath))
-        {
-            std::filesystem::remove(settingsPath);
-        }
-
-        auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
-        if (std::filesystem::exists(settingsBackupPath))
-        {
-            std::filesystem::remove(settingsBackupPath);
-        }
-    }
-
-    struct UserSettingsTest : UserSettings
-    {
-    };
 }
 
 TEST_CASE("UserSettingsFilePaths", "[settings]")
@@ -168,7 +151,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Default value")
     {
         UserSettingsTest userSettingTest;
-        
+
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
@@ -270,9 +253,34 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
+    SECTION("Overridden by Group Policy")
+    {
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, (DWORD)threehundred.count());
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == threehundred);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid Group Policy")
+    {
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Not a number"s);
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
 }
 
-// Test one experimental feature in usersettingstest context because there's no good way to test ExperimentalFeature
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
     DeleteUserSettingsFiles();
@@ -310,5 +318,20 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
 
         REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Disabled by group policy")
+    {
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Not a number"s);
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
+        std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        // Experimental features group policy is applied at the ExperimentalFeature level,
+        // so it doesn't affect the settings.
+        REQUIRE(userSettingTest.Get<Setting::EFExperimentalCmd>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }

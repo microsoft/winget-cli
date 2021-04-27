@@ -18,7 +18,7 @@ namespace AppInstaller::Manifest::YamlParser
 
             if (!entry.Root.IsMap())
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", entry.FileName.c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %hs", entry.FileName.c_str());
             }
 
             if (!entry.Root["PackageIdentifier"])
@@ -99,7 +99,7 @@ namespace AppInstaller::Manifest::YamlParser
             auto& firstYamlManifest = input[0];
             if (!firstYamlManifest.Root.IsMap())
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", firstYamlManifest.FileName.c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %hs", firstYamlManifest.FileName.c_str());
             }
 
             if (firstYamlManifest.Root["ManifestVersion"sv])
@@ -115,7 +115,7 @@ namespace AppInstaller::Manifest::YamlParser
             // Check max supported version
             if (manifestVersion.Major() > s_MaxSupportedMajorVersion)
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", manifestVersion.ToString().c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %hs", manifestVersion.ToString().c_str());
             }
 
             // Preview manifest validations

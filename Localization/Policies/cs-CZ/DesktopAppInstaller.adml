@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalační program aplikací</displayName>
+  <description>Instalační program aplikací</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Desktopový instalační program aplikací</string>
+      <string id="EnableAppInstaller">Povolit instalační program aplikací</string>
+      <string id="EnableAppInstallerExplanation">Tato zásada řídí, jestli můžou uživatelé využívat Správce balíčků systému Windows.
+
+Pokud toto nastavení povolíte nebo je nenakonfigurujete, uživatelé budou moct používat Správce balíčků systému Windows.
+
+Pokud toto nastavení zakážete, uživatelé nebudou moct používat Správce balíčků systému Windows.</string>
+      <string id="EnableSettings">Povolit nastavení instalačního programu aplikací</string>
+      <string id="EnableSettingsExplanation">Tato zásada určuje, zda uživatelé mohou měnit nastavení.
+
+Pokud toto nastavení povolíte nebo nenakonfigurujete, budou uživatelé moci změnit nastavení správce balíčků systému Windows.
+
+Pokud toto nastavení zakážete, uživatelé nebudou moci změnit nastavení správce balíčků systému Windows.</string>
+      <string id="EnableExperimentalFeatures">Povolit experimentální funkce instalačního programu aplikací</string>
+      <string id="EnableExperimentalFeaturesExplanation">Toto nastavení zásad určuje, zda mohou uživatelé povolit experimentální funkce ve Správci balíčků systému Windows.
+
+Pokud toto nastavení povolíte nebo nenakonfigurujete, budou uživatelé moci povolit experimentální funkce Správce balíčků systému Windows.
+
+Pokud toto nastavení zakážete, uživatelé nebudou moci povolit experimentální funkce Správce balíčků systému Windows.</string>
+      <string id="EnableLocalManifestFiles">Povolit místní soubory manifestu pro instalační program aplikací</string>
+      <string id="EnableLocalManifestFilesExplanation">Tato zásada řídí, jestli uživatelé budou moct instalovat balíčky prostřednictvím místních souborů manifestu.
+
+Pokud toto nastavení povolíte nebo je nenakonfigurujete, uživatelé budou moct prostřednictvím Správce balíčků systému Windows instalovat balíčky místních manifestů aplikací.
+
+Pokud toto nastavení zakážete, uživatelé nebudou moct prostřednictvím Správce balíčků systému Windows instalovat balíčky místních manifestů aplikací.</string>
+      <string id="EnableHashOverride">Povolit přepsání hodnoty hash pro instalační program aplikací</string>
+      <string id="EnableHashOverrideExplanation">Tato zásada určuje, jestli se může Správce balíčků systému Windows nakonfigurovat k povolení možnosti přepsat ověřování zabezpečení SHA256 v nastavení.
+
+Pokud tuto zásadu povolíte, nebo ji nenakonfigurujete, uživatele budou moct povolit možnost přepsat ověřování zabezpečení SHA256 v nastavení Správce balíčků systému Windows.
+
+Pokud tuto zásadu zakážete, uživatele nebudou moct povolit možnost přepsat ověřování zabezpečení SHA256 v nastavení Správce balíčků systému Windows.</string>
+      <string id="EnableDefaultSource">Povolit výchozí zdroj instalačního programu aplikací</string>
+      <string id="EnableDefaultSourceExplanation">Tato zásada řídí výchozí zdroj, který je zahrnutý ve Správci balíčků systému Windows.
+
+Pokud toto nastavení nenakonfigurujete, výchozí zdroj bude pro Správce balíčků systému Windows dostupný a bude možné jej odebrat.
+
+Pokud toto nastavení povolíte, výchozí zdroj bude pro Správce balíčků systému Windows dostupný a nebude možné jej odebrat.
+
+Pokud toto nastavení zakážete, výchozí zdroj nebude pro Správce balíčků systému Windows dostupný.</string>
+      <string id="EnableMicrosoftStoreSource">Povolit Microsoft Store jako zdroj pro instalační program aplikací</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Tato zásada řídí zdroj Microsoft Store, který je zahrnutý ve Správci balíčků systému Windows.
+
+Pokud toto nastavení nenakonfigurujete, zdroj Microsoft Store bude pro Správce balíčků systému Windows dostupný a bude možné jej odebrat.
+
+Pokud toto nastavení povolíte, zdroj Microsoft Store bude pro Správce balíčků systému Windows dostupný a nebude možné jej odebrat.
+
+Pokud toto nastavení zakážete, zdroj Microsoft Store nebude pro Správce balíčků systému Windows dostupný.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Nastavit interval automatické aktualizace zdrojů pro Instalační program aplikací v minutách</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Tato zásada řídí interval automatické aktualizace pro zdroje založené na balíčku.
+
+Pokud toto nastavení zakážete nebo nenakonfigurujete, bude správce balíčků systému Windows používat výchozí interval nebo hodnotu zadanou v nastavení.
+
+Pokud toto nastavení povolíte, bude správce balíčků systému Windows používat zadanou dobu v minutách.</string>
+      <string id="EnableAdditionalSources">Povolit další zdroje instalačního programu aplikací</string>
+      <string id="EnableAdditionalSourcesExplanation">Tato zásada řídí další zdroje poskytnuté podnikovým správcem IT.
+
+Pokud tuto zásadu nenakonfigurujete, žádné další zdroje se ve Správci balíčků systému Windows nenakonfigurují.
+
+Pokud tuto zásadu povolíte, do Správce balíčků systému Windows se přidají další zdroje a už je nebude možné odebrat. Znázornění jednotlivých dalších zdrojů se dá získat z nainstalovaných zdrojů prostřednictvím „winget source export“.
+
+Pokud tuto zásadu zakážete, žádné další zdroje nebude možné ve Správci balíčků systému Windows nakonfigurovat.</string>
+      <string id="EnableAllowedSources">Povolit povolené zdroje instalačního programu aplikací</string>
+      <string id="EnableAllowedSourcesExplanation">Tato zásada řídí další zdroje povolené podnikovým správcem IT.
+
+Pokud tuto zásadu nenakonfigurujete, uživatelé budou moct nad rámec zdrojů nakonfigurovaných touto zásadou přidávat nebo odebírat další zdroje.
+
+Pokud tuto zásadu povolíte, do Správce balíčků systému Windows bude možné přidávat nebo z něj odebírat jen vybrané zdroje. Znázornění jednotlivých povolených zdrojů se dá získat z nainstalovaných zdrojů prostřednictvím „winget source export“.
+
+Pokud tuto zásadu zakážete, žádné další zdroje nebude možné ve Správci balíčků systému Windows nakonfigurovat.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval automatické aktualizace zdrojů v minutách</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Další zdroje: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Povolené zdroje: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

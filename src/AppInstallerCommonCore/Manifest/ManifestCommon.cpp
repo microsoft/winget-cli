@@ -178,7 +178,7 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    ScopeEnum ConvertToScopeEnum(const std::string& in)
+    ScopeEnum ConvertToScopeEnum(std::string_view in)
     {
         ScopeEnum result = ScopeEnum::Unknown;
 
@@ -258,7 +258,7 @@ namespace AppInstaller::Manifest
         }
         else
         {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %s", in.c_str());
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %hs", in.c_str());
         }
     }
 

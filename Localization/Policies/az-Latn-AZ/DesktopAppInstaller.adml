@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Proqram Quraşdırıcısı</displayName>
+  <description>Proqram Quraşdırıcısı</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">İş masası Proqram Quraşdırıcısı</string>
+      <string id="EnableAppInstaller">Proqram Quraşdırıcısını Aktiv et</string>
+      <string id="EnableAppInstallerExplanation">Bu siyasət, Windows Paket Menecerinin istifadəçilər tərəfindən istifadə edilə biləcəyinə nəzarət edir.
+
+Bu parametri aktiv etsəniz və ya sazlamasanız, istifadəçilər Windows Paket Menecerindən istifadə edə biləcəklər.
+
+Bu parametri qeyri-aktiv etsəniz, istifadəçilər Windows Paket Menecerindən istifadə edə bilməyəcəklər.</string>
+      <string id="EnableSettings">Proqram Quraşdırıcısı Parametrlərini Aktiv et</string>
+      <string id="EnableSettingsExplanation">Bu siyasət istifadəçilərin parametrlərini dəyişdirə biləcəyinə nəzarət edir.
+
+Bu parametri aktiv etsəniz və ya konfiqurasiya etməsəniz, istifadəçilər Windows Paket Meneceri üçün parametrləri dəyişə biləcəklər.
+
+Bu parametri qeyri-aktiv etsəniz, istifadəçilər Windows Paket Meneceri üçün parametrləri dəyişdirə bilməyəcəklər.</string>
+      <string id="EnableExperimentalFeatures">Proqram Quraşdırıcısı Eksperimental Xüsusiyyətlərini Aktiv et</string>
+      <string id="EnableExperimentalFeaturesExplanation">Bu siyasət, istifadəçilərin Windows Paket Menecerində eksperimental xüsusiyyətləri aktivləşdirib aktivləşdirə bilməyəcəyinə nəzarət edir.
+
+Bu parametri aktiv etsəniz və ya sazlamasanız, istifadəçilər Windows Paket Meneceri üçün eksperimental xüsusiyyətləri aktivləşdirə biləcəklər.
+
+Bu parametri qeyri-aktiv etsəniz, istifadəçilər Windows Paket Meneceri üçün eksperimental xüsusiyyətləri aktiv edə bilməyəcəklər.</string>
+      <string id="EnableLocalManifestFiles">Proqram Quraşdırıcısı Lokal Manifest Fayllarını Aktiv et</string>
+      <string id="EnableLocalManifestFilesExplanation">Bu siyasət, istifadəçilərin lokal manifest sənədləri ilə paketlər qura biləcəyinə nəzarət edir.
+
+Bu parametri aktiv etsəniz və ya konfiqurasiya etməsəniz, istifadəçilər Windows Paket Meneceri istifadə edərək lokal manifestlərlə paketlər qura biləcəklər.
+
+Bu parametri qeyri-aktiv etsəniz, istifadəçilər Windows Paket Menecerindən istifadə edərək lokal manifestlərə malik paketlər qura bilməyəcəklər.</string>
+      <string id="EnableHashOverride">Proqram Quraşdırıcısı Qarışığı Əvəzləməsini Aktiv et</string>
+      <string id="EnableHashOverrideExplanation">Bu siyasət, parametrlərdə SHA256 təhlükəsizlik doğrulamasının ləğv edilməsi xüsusiyyətini Windows Paket Menecerinin konfiqurasiya edib-etməməsinə nəzarət edir.
+
+Bu siyasəti aktivləşdirsəniz və ya konfiqurasiya etməsəniz, istifadəçilər Windows Paket Meneceri parametrlərində SHA256 təhlükəsizlik doğrulamasının ləğv edilməsi xüsusiyyətini aktiv edə biləcəklər.
+
+Bu siyasəti qeyri-aktiv etsəniz, istifadəçilər Windows Paket Meneceri parametrlərində SHA256 təhlükəsizlik doğrulamasının ləğv edilməsi xüsusiyyətini aktiv edə bilməyəcəklər.</string>
+      <string id="EnableDefaultSource">Standart Proqram Quraşdırıcısı Mənbəsini Aktiv et</string>
+      <string id="EnableDefaultSourceExplanation">Bu siyasət, Windows Paket Menecerinə daxil olan standart mənbəyi idarə edir.
+
+Bu parametri konfiqurasiya etməsəniz, Windows Paket meneceri üçün standart mənbə mövcud olacaq və silinə bilər.
+
+Bu parametri aktiv etsəniz, Windows Paket Meneceri üçün standart mənbə mövcud olacaq və silinə bilməz.
+
+Bu parametri ləğv etsəniz, Windows Paket Meneceri üçün standart mənbə mövcud olmayacaq.</string>
+      <string id="EnableMicrosoftStoreSource">Proqram Quraşdırıcısı Microsoft Store Mənbəsini Aktiv et</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Bu siyasət, Windows Paket Menecerinə daxil olan Microsoft Mağazası mənbəyini idarə edir.
+
+Bu parametri konfiqurasiya etməsəniz, Windows Paket meneceri üçün Microsoft Mağazası mənbəyi mövcud olacaq və silinə bilər.
+
+Bu parametri aktiv etsəniz, Windows Paket Meneceri üçün Microsoft Mağazası mənbəyi mövcud olacaq və silinə bilməz.
+
+Bu parametri ləğv etsəniz, Windows Paket Meneceri üçün Microsoft Mağazası mənbəyi mövcud olmayacaq.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Proqram Quraşdırıcısı Mənbə Avtomatik Yeniləmə İntervalını Dəqiqələrlə Təyin edin</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Bu siyasət paket əsaslı mənbələr üçün avtomatik yeniləmə aralığını idarə edir.
+
+Bu parametri qeyri-aktiv etsəniz və ya konfiqurasiya etməsəniz, standart aralıq və ya parametrlərdə göstərilən dəyər Windows Paket Meneceri tərəfindən istifadə ediləcəkdir.
+
+Bu parametri aktiv etsəniz, göstərilən dəqiqə sayını Windows Paket Meneceri istifadə edəcək.</string>
+      <string id="EnableAdditionalSources">Proqram Quraşdırıcısı Əlavə Mənbələri Aktiv et</string>
+      <string id="EnableAdditionalSourcesExplanation">Bu siyasət müəssisə İT administratoru tərəfindən verilən əlavə mənbələrə nəzarət edir.
+
+Bu siyasəti konfiqurasiya etməsəniz, Windows Paket Meneceri üçün əlavə mənbələr konfiqurasiya edilməyəcək.
+
+Bu siyasəti aktiv etsəniz, əlavə mənbələr Windows Paket Menecerinə əlavə ediləcək və silinə bilməz. Hər bir əlavə mənbənin təmsilçiliyi 'qanad mənbəyi ixracı' istifadə edərək quraşdırılmış mənbələrdən əldə edilə bilər.
+
+Bu siyasəti ləğv etsəniz, Windows Paket Meneceri üçün əlavə mənbələr konfiqurasiya edilə bilməz.</string>
+      <string id="EnableAllowedSources">Proqram Quraşdırıcısı İcazə verilən Mənbələri Aktiv et</string>
+      <string id="EnableAllowedSourcesExplanation">Bu siyasət müəssisə İT inzibatçısı tərəfindən verilən əlavə mənbələrə nəzarət edir.
+
+Bu siyasəti konfiqurasiya etməsəniz, istifadəçilər siyasət tərəfindən konfiqurasiya edilmiş mənbələrdən başqa əlavə mənbələr əlavə edə və ya silə biləcəklər.
+
+Bu siyasəti aktivləşdirsəniz, yalnız göstərilən mənbələr Windows Paket Menecerinə əlavə edilə və ya silinə bilər.Hər icazə verilən mənbənin təmsilçiliyi 'qanad mənbəyi ixracı' istifadə edərək quraşdırılmış mənbələrdən əldə edilə bilər.
+
+Bu siyasəti ləğv etsəniz, Windows Paket Meneceri üçün əlavə mənbələr konfiqurasiya edilə bilməz.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Dəqiqələrlə Mənbə Avtomatik Yeniləmə İntervalı</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Əlavə Mənbələr: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">İcazə verilmiş Mənbələr: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

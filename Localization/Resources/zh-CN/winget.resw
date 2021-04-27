@@ -386,7 +386,7 @@
     <value>按名称筛选结果</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>没有适用于当前系统的安装程序。</value>
+    <value>找不到适用的安装程序;有关详细信息，请参阅日志。</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>当前没有实验性功能可用。</value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>路径不存在:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON 文件未指定可识别的架构。</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>选择安装范围(用户或计算机)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>为 "%1" 参数提供的值无效;有效值为</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>此操作已被组策略禁用</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>启用其他 Windows 应用安装程序源</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>启用 Windows 应用安装程序允许的源</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>启用 Windows 应用安装程序默认源</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>启用 Windows 应用安装程序实验性功能</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>启用 Windows 应用安装程序 Microsoft Store 源</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>启用 Windows 程序包管理器设置</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>启用 Windows 程序包管理器</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>设置 Windows 程序包管理器源自动更新间隔(分钟)</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>已禁用</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>已启用</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>组策略</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>状态</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>启用 Windows 应用安装程序本地清单文件</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>字段:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>字段格式无效。</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>字段值无效。</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>组策略中的设置无效。</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>已从备份文件加载设置。</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>分析文件时出错:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>值:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>以下实验功能正在进行中。
+由于组策略，配置已被禁用。</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>安装程序哈希不匹配。</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>启用 Windows 应用安装程序哈希替代</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>将当前源作为组策略的 JSON 导出。</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>导出当前源</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>其他源</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>允许的源</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

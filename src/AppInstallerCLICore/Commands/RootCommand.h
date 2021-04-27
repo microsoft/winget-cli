@@ -16,6 +16,8 @@ namespace AppInstaller::CLI
 
         std::string HelpLink() const override;
 
+        void Execute(Execution::Context& context) const override;
+
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const;
     };

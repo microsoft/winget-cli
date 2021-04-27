@@ -3,7 +3,9 @@
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
 
+#include <cstdint>
 #include <iostream>
+#include <optional>
 #include <string>
 
 
@@ -57,8 +59,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConstructedSequence(const ConstructedSequence& other) : m_str(other.m_str) { Set(m_str); }
         ConstructedSequence& operator=(const ConstructedSequence& other) { m_str = other.m_str; Set(m_str); }
 
-        ConstructedSequence(ConstructedSequence&& other) : m_str(std::move(other.m_str)) { Set(m_str); }
-        ConstructedSequence& operator=(ConstructedSequence&& other) { m_str = std::move(other.m_str); Set(m_str); }
+        ConstructedSequence(ConstructedSequence&& other) noexcept : m_str(std::move(other.m_str)) { Set(m_str); }
+        ConstructedSequence& operator=(ConstructedSequence&& other) noexcept { m_str = std::move(other.m_str); Set(m_str); }
 
         void Append(const Sequence& sequence);
 
@@ -132,6 +134,20 @@ namespace AppInstaller::CLI::VirtualTerminal
         extern const Sequence EraseLineForward;
         extern const Sequence EraseLineBackward;
         extern const Sequence EraseLineEntirely;
+    }
+
+    namespace Progress
+    {
+        enum class State
+        {
+            None,
+            Indeterminate,
+            Normal,
+            Paused,
+            Error
+        };
+
+        ConstructedSequence Construct(State state, std::optional<uint32_t> percentage = std::nullopt);
     }
 }
 

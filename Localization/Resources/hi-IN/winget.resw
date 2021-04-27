@@ -386,7 +386,7 @@
     <value>नाम के अनुसार परिणामों को फ़िल्टर करें</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>वर्तमान सिस्टम पर कोई भी installer लागू नहीं है.</value>
+    <value>कोई लागू इंस्टॉलर नहीं मिला; अधिक विवरण के लिए लॉग्स देखें.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>इस समय कोई प्रयोगात्मक सुविधाएँ उपलब्ध नहीं हैं. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>पथ मौजूद नहीं है:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON फ़ाइल कोई मान्यता प्राप्त स्कीमा निर्दिष्ट नहीं करती है.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>स्थापना क्षेत्र का चयन करें (उपयोगकर्ता या मशीन)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' तर्क के लिए प्रदान किया गया मान अमान्य है; मान्य मान हैं</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>यह कार्रवाई समूह नीति द्वारा अक्षम की गई है</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>अतिरिक्त Windows ऐप इंस्टॉलर स्रोत को सक्षम करें</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows App Installer अनुमत स्रोत सक्षम करें</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows ऐप इंस्टॉलर डिफ़ॉल्ट स्रोत सक्षम करें</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows ऐप इंस्टॉलर प्रयोगात्मक सुविधाएँ सक्षम करें</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows ऐप इंस्टॉलर Microsoft Store स्रोत को सक्षम करें</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows पैकेज प्रबंधक सेटिंग्स सक्षम करें</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows पैकेज प्रबंधक को सक्षम करें</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>मिनटों में Windows पैकेज प्रबंधक स्रोत स्वतः अद्यतन अंतराल सेट करें</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>अक्षम किया गया</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>सक्षम किया गया</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>समूह नीति</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>राज्य</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows ऐप इंस्टॉलर स्थानीय मैनिफ़ेस्ट फ़ाइलें सक्षम करें</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>फ़ील्ड:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>अमान्य फ़ील्ड स्वरूप.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>अमान्य फ़ील्ड मान.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>समूह नीति से अमान्य सेटिंग.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>बैकअप फ़ाइल से लोड की गईं सेटिंग्स.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>त्रुटि पार्सिंग फ़ाइल:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>मान:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>निम्न प्रयोगात्मक सुविधाएँ प्रगति पर हैं.
+समूह नीति के कारण कॉन्फ़िगरेशन अक्षम किया गया है.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>इंस्टॉलर हैश मेल नहीं खाता है.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows ऐप इंस्टॉलर हैश ओवरराइड को सक्षम करें</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>वर्तमान स्रोतों को समूह नीति के लिए JSON के रूप में निर्यात करें.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>वर्तमान स्रोतों का निर्यात करें</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>अतिरिक्त स्रोत</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>अनुमत स्रोत</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

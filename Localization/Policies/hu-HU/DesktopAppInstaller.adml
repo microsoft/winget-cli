@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Alkalmazástelepítő</displayName>
+  <description>Alkalmazástelepítő</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Asztali Alkalmazástelepítő</string>
+      <string id="EnableAppInstaller">Az Alkalmazástelepítő engedélyezése</string>
+      <string id="EnableAppInstallerExplanation">Ez a házirend szabályozza, hogy a Windows csomagkezelője használható-e a felhasználók számára.
+
+Ha engedélyezi vagy nem konfigurálja ezt a beállítást, akkor a felhasználók használhatják a Windows csomagkezelőt.
+
+Ha letiltja ezt a beállítást, a felhasználók nem tudják használni a Windows csomagkezelőt.</string>
+      <string id="EnableSettings">Az Alkalmazástelepítő beállításainak engedélyezése</string>
+      <string id="EnableSettingsExplanation">Ez a házirend szabályozza, hogy a felhasználók módosíthatják-e a beállításaikat.
+
+Ha engedélyezi vagy nem konfigurálja ezt a beállítást, akkor a felhasználók módosíthatják a Windows csomagkezelővel kapcsolatos beállításokat.
+
+Ha letiltja ezt a beállítást, a felhasználók nem tudják módosítani a Windows csomagkezelő beállításait.</string>
+      <string id="EnableExperimentalFeatures">Az Alkalmazástelepítő kísérleti funkcióinak engedélyezése</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ez a házirend szabályozza, hogy a felhasználók engedélyezhetik-e a kísérleti szolgáltatásokat a Windows csomagkezelőben.
+
+Ha engedélyezi vagy nem konfigurálja ezt a beállítást, a felhasználók engedélyezhetik a kísérleti funkciókat a Windows csomagkezelővel.
+
+Ha letiltja ezt a beállítást, a felhasználók nem tudják engedélyezni a Windows Csomagkezelőnek tartozó kísérleti szolgáltatásokat.</string>
+      <string id="EnableLocalManifestFiles">Az Alkalmazástelepítő helyi jegyzékfájljainak engedélyezése</string>
+      <string id="EnableLocalManifestFilesExplanation">Ez a házirend szabályozza, hogy a felhasználók telepíthetik-e a helyi jegyzékfájlban lévő csomagokat.
+
+Ha engedélyezi vagy nem konfigurálja ezt a beállítást, akkor a felhasználók telepíthetnek helyi jegyzékadatokkal rendelkező csomagokat a Windows-csomagkezelővel.
+
+Ha letiltja ezt a beállítást, a felhasználók nem telepíthetnek helyi jegyzékadatokkal rendelkező csomagokat a Windows-csomagkezelővel.</string>
+      <string id="EnableHashOverride">Az Alkalmazástelepítő kivonat felülírásának engedélyezése</string>
+      <string id="EnableHashOverrideExplanation">Ez a házirend határozza meg, hogy a Windows-csomagkezelő beállítható-e úgy, hogy engedélyezze az SHA256 biztonsági ellenőrzés felülbírálatának lehetőségét a beállításokban.
+
+Ha engedélyezi vagy nem konfigurálja ezt a házirendet, a felhasználók engedélyezhetik az SHA256 biztonsági ellenőrzés felülbírálást a Windows-csomagkezelő beállításaiban.
+
+Ha letiltja ezt a házirendet, a felhasználók nem fogják tudni engedélyezni az SHA256 biztonsági ellenőrzés felülbírálását a Windows-csomagkezelő beállításai között.</string>
+      <string id="EnableDefaultSource">Az Alkalmazástelepítő alapértelmezett forrásának engedélyezése</string>
+      <string id="EnableDefaultSourceExplanation">Ez a házirend szabályozza a Windows-csomagkezelővel felvett alapértelmezett forrást.
+
+Ha nem konfigurálja a beállítást, a Windows-csomagkezelőhöz tartozó alapértelmezett forrás elérhető lesz, és el lehet távolítani.
+
+Ha engedélyezi ezt a beállítást, a Windows-csomagkezelő alapértelmezett forrása elérhető lesz, és nem lehet eltávolítani.
+
+Ha letiltja ezt a beállítást, a Windows-csomagkezelőhöz tartozó alapértelmezett forrás nem lesz elérhető.</string>
+      <string id="EnableMicrosoftStoreSource">Az Alkalmazástelepítő Microsoft Store forrásának engedélyezése</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Ez a házirend szabályozza a Windows-csomagkezelővel felvett Microsoft Store-forrást.
+
+Ha nem konfigurálja a beállítást, a Windows-csomagkezelőhöz tartozó Microsoft Store-forrás elérhető lesz, és el lehet távolítani.
+
+Ha engedélyezi ezt a beállítást, a Windows-csomagkezelő Microsoft Store-forrása elérhető lesz, és nem lehet eltávolítani.
+
+Ha letiltja ezt a beállítást, a Windows-csomagkezelőhöz tartozó Microsoft Store-forrás nem lesz elérhető.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Az Alkalmazástelepítő-forrás automatikus frissítési időköze percben</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ez a házirend vezérli a csomagalapú források automatikus frissítési időközét.
+
+Ha letiltja vagy nem konfigurálja ezt a beállítást, a rendszer az alapértelmezett időközt vagy a beállításokban megadott értéket fogja használni a Windows csomagkezelővel.
+
+Ha engedélyezi ezt a beállítást, a rendszer a megadott számú percet használja a Windows csomagkezelővel.</string>
+      <string id="EnableAdditionalSources">Az Alkalmazástelepítő további forrásainak engedélyezése</string>
+      <string id="EnableAdditionalSourcesExplanation">Ez a házirend szabályozza a vállalati rendszergazda által biztosított további forrásokat.
+
+Ha nem konfigurálja ezt a házirendet, nem lesz további forrás konfigurálva a Windows-csomagkezelőhöz.
+
+Ha engedélyezi ezt a házirendet, a rendszer felveszi a további forrásokat a Windows-csomagkezelőhöz, amelyek nem távolíthatók el. Az egyes további források reprezentációjának beszerzése a "winget-forrás exportálása" paranccsal történik.
+
+Ha letiltja ezt a házirendet, akkor nem konfigurálhatók további források a Windows-csomagkezelőhöz.</string>
+      <string id="EnableAllowedSources">Az Alkalmazástelepítő engedélyezett forrásainak engedélyezése</string>
+      <string id="EnableAllowedSourcesExplanation">Ez a házirend szabályozza a vállalati rendszergazda által engedélyezett további forrásokat.
+
+Ha nem konfigurálja ezt a házirendet, a felhasználók hozzáadhatnak vagy eltávolíthatnak forrásokat a házirendben konfiguráltakon kívül is.
+
+Ha engedélyezi ezt a házirendet, csak a megadott forrásokat lehet hozzáadni vagy eltávolítani a Windows-csomagkezelőből. Az egyes engedélyezett források reprezentációit a telepített forrásokból lehet előhívni a „winget-forrás exportálás“ segítségével.
+
+Ha letiltja ezt a házirendet, nem lehet további forrásokat konfigurálni a Windows-csomagkezelőhöz.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Forrás automatikus frissítési időköze percben</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">További források: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Engedélyezett források: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

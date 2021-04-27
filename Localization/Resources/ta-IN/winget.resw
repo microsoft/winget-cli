@@ -386,7 +386,7 @@
     <value>பெயரினபடி முடிவுகளை வடிகட்டு</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>தற்போதைய சிஸ்டத்திற்கு எந்த நிறுவிகளும் பொருந்தாது.</value>
+    <value>பொருந்தக்கூடிய நிறுவி எதுவும் காணப்படவில்லை; மேலும் விவரங்களுக்குப் பதிவுகளைப் பார்.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>தற்போது எந்தவிதப் பரிசோதனை அம்சங்களும் கிடைக்கவில்லை. </value>
@@ -814,5 +814,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>இல்லாத பாதை:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON கோப்பு அங்கீகரிக்கப்பட்ட அமைப்புமுறையைக் குறிப்பிடவில்லை.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>நிறுவல் நோக்கத்தை (பயனர் அல்லது இயந்திரம்) தேர்ந்தெடு</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' வாதத்திற்கு வழங்கப்பட்ட மதிப்புச் செல்லுபடியாகாதது; செல்லத்தக்க மதிப்புகள்</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>குழுக் கொள்கைக் காரணமாக இந்தச் செயல்பாடு முடக்கப்பட்டுள்ளது</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>கூடுதல் Windows செயலி நிறுவி மூலங்களை செயல்படுத்து</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவி அனுமதித்த மூலங்களைச் செயல்படுத்து</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவியின் இயல்புநிலை மூலத்தை இயக்கு</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவி சோதனை அம்சங்களை செயல்படுத்தவும்</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவி Microsoft Store மூலத்தை இயக்கு</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows தொகுப்பு மேலாளர் அமைப்புகளைச் செயல்படுத்தவும்</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows தொகுப்பு மேலாளரைச் செயல்படுத்தவும்</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows தொகுப்பு மேலாளர் மூலத் தானியங்குப் புதுப்பிப்பு இடைவெளியை நிமிடங்களில் அமைக்கவும்</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>முடக்கப்பட்டது</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>இயக்கப்பட்டது</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>குழுக் கொள்கை</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>நிலை</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவி அக பயன்பாட்டுத் தோற்ற கோப்புகளை செயல்படுத்து</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>புலம்:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>தவறான புல வடிவமைப்பு.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>தவறான புல மதிப்பு.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>குழு கொள்கையிலிருந்து செல்லுபடியாகாத அமைப்பு.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>மறுபிரதி கோப்பிலிருந்து ஏற்றப்பட்ட அமைப்புகள்.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>கோப்பை பாகுபடுத்துவதில் பிழை:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>மதிப்பு:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>பின்வரும் ஆய்வு அம்சங்கள் செயல்நிலையில் உள்ளன.
+ குழுக் கொள்கைக் காரணமாக உள்ளமைவு முடக்கப்பட்டுள்ளது.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் பொருந்தவில்லை.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows பயன்பாடு நிறுவி ஹாஷ் மீறலைச் செயல்படுத்து</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>குழுக் கொள்கைக்கு, தற்போதைய ஆதாரங்களை JSON ஆக ஏற்றுமதிச் செய்.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>நடப்பு மூலங்களை ஏற்றுமதி செய்</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>கூடுதல் ஆதாரம்</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>அனுமதிக்கப்பட்ட மூலம்</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -386,7 +386,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Tapis hasil mengikut nama</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Tiada pemasang yang berkenaan untuk sistem semasa.</value>
+    <value>Tidak ada pemasang yang berkenaan; lihat log untuk maklumat lebih lanjut.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Pada masa ini tiada ciri eksperimen yang tersedia. </value>
@@ -813,5 +813,107 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Laluan tidak wujud:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Fail JSON tidak menentukan skema yang dikenali.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Pilih pemasangan skop (pengguna atau mesin)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Nilai yang disediakan untuk argumen '%1' adalah tidak sah; nilai yang sah adalah</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Operasi ini dinyahdayakan oleh Dasar Kumpulan</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Mendayakan Sumber Pemasang Aplikasi Windows Tambahan</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Dayakan Sumber Yang Dibenarkan Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Dayakan Sumber Lalai Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Dayakan Ciri Eksperimen Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Dayakan Sumber Microsoft Store Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Dayakan Tetapan Pengurus Pakej Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Dayakan Pengurus Pakej Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Tetapkan Selang Kemas kini Auto Sumber Pengurus Pakej Windows Dalam Minit</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Dinyahdayakan</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Didayakan</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Dasar Kumpulan</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Negeri</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Dayakan Fail Manifes Tempatan Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Ruang:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Format ruang tidak sah.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Nilai ruang tidak sah.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Tetapan tidak sah daripada Dasar Kumpulan.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Tetapan dimuatkan daripada fail sandaran.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Ralat menguraikan fail:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Nilai:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Ciri-ciri eksperimen yang berikut sedang dijalankan.
+Konfigurasi dinyahdayakan disebabkan Dasar Kumpulan.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Pemasang hash tidak sepadan.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Dayakan Penggantian Hash Pemasang Aplikasi Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Eksport sumber semasa sebagai JSON untuk Dasar Kumpulan.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksport sumber semasa</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Sumber tambahan</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Sumber yang dibenarkan</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

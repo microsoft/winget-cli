@@ -27,6 +27,7 @@ azureedge
 bcrypt
 binver
 Bitmask
+blog
 Blog
 boolalpha
 BSTR
@@ -40,12 +41,14 @@ chrono
 cin
 cla
 CLSCTX
+cmake
 cmp
 CNG
 cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+conemu
 config
 Configurability
 constexpr
@@ -67,10 +70,12 @@ csproj
 CStr
 CURSORPOSITON
 cwctype
+datatelemetry
 dbconn
 DBId
 declspec
 decltype
+declval
 defaultlocale
 delstore
 Demitrius
@@ -82,6 +87,7 @@ deserializing
 dest
 devblogs
 differentpath
+distro
 DIRECTONLY
 dll
 dllexport
@@ -159,6 +165,7 @@ IBuffer
 icu
 IDisposable
 IDX
+IEnumerable
 ifdef
 ifndef
 ifstream
@@ -193,6 +200,8 @@ junit
 langutil
 lastwritetime
 Linux
+LLVM
+llvmorg
 LOCALAPPDATA
 localtime
 LOGPATH
@@ -210,11 +219,13 @@ MANIFESTSCHEMA
 MANIFESTVERSION
 MBs
 mday
+memset
 metadata
 microsoft
 mimetype
 Minimatch
 MINORVERSION
+mkdir
 monostate
 motw
 msbuild
@@ -326,10 +337,13 @@ robuffer
 rowcount
 rowid
 rubengustorage
+ruleset
 runsettings
 runtimes
 safecast
+SANITIZERS
 savepoint
+screenshots
 SCROLLER
 SCROLLVIEWER
 sdk
@@ -408,7 +422,7 @@ tdbuild
 tdd
 tellg
 tempdb
-terabyate
+terabyte
 testcontainer
 testmoniker
 Testrun
@@ -466,6 +480,7 @@ utf
 uuidof
 validator
 valijson
+vcvars
 vcxitems
 vcxproj
 vdproj
@@ -497,6 +512,7 @@ wix
 wmain
 woah
 wofstream
+workaround
 workflow
 wostream
 wpfn
@@ -509,6 +525,8 @@ xamarin
 xlang
 xml
 xmlns
+XElement
+XName
 XResource
 xsd
 XTOKEN

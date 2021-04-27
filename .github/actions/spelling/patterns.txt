@@ -28,8 +28,20 @@ El proyecto .* diferentes
 /NPH(?![a-z])
 /td(?![a-z])
 
+# compile flags
+ -[TD]
+
 # URLs -- Added here instead of allow.txt to facilitate wildcarding them as more are added
 http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 
 # schema regex
 "pattern": .*$
+
+# doc/ManifestSpecv1.0.md
+^ShortDescription: "Le nouveau.*"$
+
+# Ignore test patterns
+REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
+
+# URL escaped characters
+\%[0-9A-F]{2}

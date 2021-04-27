@@ -21,8 +21,7 @@ namespace AppInstaller::Repository::Rest
 
                 RestClient restClient = RestClient::Create(details.Arg);
 
-                // TODO: Change identifier if required.
-                return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
+                return std::make_shared<RestSource>(details, restClient.GetSourceIdentifier(), std::move(restClient));
             }
 
             void Add(SourceDetails& details, IProgressCallback&) override final

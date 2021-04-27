@@ -386,7 +386,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Nəticələri ada görə süzgəcdən keçirin</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Cari sistem üçün heç bir quraşdırıcı tətbiq edilmir.</value>
+    <value>Müvafiq quraşdırıcı tapılmadı; daha ətraflı məlumat üçün qeydlərə baxın.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Hal-hazırda heç bir eksperimental xüsusiyyətlər mövcud deyil. </value>
@@ -813,5 +813,107 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Yol mövcud deyil:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON faylı tanınmış sxem göstərmir.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Quraşdırma sahəsini seçin (istifadəçi və ya maşın)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>`%1` arqumenti üçün verilən qiymət etibarsızdır; etibarlı qiymətlər</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Bu əməliyyat Qrup Siyasəti tərəfindən qeyri-aktiv edilib</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Əlavə Windows Proqram Quraşdırıcısı Mənbələrini Aktiv et</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows Proqram Quraşdırıcısı İcazə verilən Mənbələri Aktiv et</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows Proqram Quraşdırıcısı Standart Mənbəsini Aktiv et</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows Proqram Quraşdırıcısı Eksperimental Xüsusiyyətləri Aktiv et</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows Quraşdırıcısı Proqram Microsoft Store Mənbəsini Aktiv et</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows Paket Meneceri Parametrlərini Aktiv et</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows Paket Menecerini Aktiv et</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Dəqiqələrdə Windows Paket Meneceri Mənbə Avtomatik Yeniləmə Aralığını təyin edin</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Qeyri-aktiv edilib</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Aktiv edilib</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Qrup Siyasəti</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Vəziyyət</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows Proqram Quraşdırıcısı Lokal Manifest Fayllarını Aktiv et</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Sahə:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Yanlış sahə formatı.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Yanlış sahə adı.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Qrup Siyasətindən yanlış parametr.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Nüsxə faylından yüklənmiş parametrlər.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Fayl təhlilində səhv:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Qiymət:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Aşağıdakı eksperimental xüsusiyyətlər icra olunur.
+Konfiqurasiya Qrup Siyasətinə görə qeyri-aktiv edilib.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Quraşdırıcı qarışığı uyğun gəlmir.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows Proqram Quraşdırıcısı Qarışığı Əvəzləməsini Aktiv et</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Mövcud mənbələri Qrup Siyasəti üçün JSON kimi ixrac edin.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Cari mənbələri ixrac et</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Əlavə mənbə</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>İcazə verilmiş mənbə</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

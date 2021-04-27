@@ -15,6 +15,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53D749-D51C-46F8-A162-9371AAA6C2E7}"
 	ProjectSection(SolutionItems) = preProject
 		..\azure-pipelines.loc.yml = ..\azure-pipelines.loc.yml
+		..\azure-pipelines.nuget.yml = ..\azure-pipelines.nuget.yml
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\cgmanifest.json = ..\cgmanifest.json
 		..\README.md = ..\README.md
@@ -77,6 +78,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spelling", "spelling", "{2A
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpprestsdk", "cpprestsdk\cpprestsdk.vcxproj", "{866C3F06-636F-4BE8-BC24-5F86ECC606A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{92637527-6CDA-4F4A-84FD-858793776777}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "JSON", "JSON", "{F2149997-295A-4593-9282-4C675DFEB670}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "settings", "settings", "{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528}"
+	ProjectSection(SolutionItems) = preProject
+		..\schemas\JSON\settings\settings.schema.0.2.json = ..\schemas\JSON\settings\settings.schema.0.2.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{F5CED6B6-C27F-4405-9033-6C273B8B129C}"
+	ProjectSection(SolutionItems) = preProject
+		..\schemas\JSON\packages\packages.schema.1.0.json = ..\schemas\JSON\packages\packages.schema.1.0.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
+	ProjectSection(SolutionItems) = preProject
+		..\doc\admx\en-US\DesktopAppInstaller.adml = ..\doc\admx\en-US\DesktopAppInstaller.adml
+		..\doc\admx\DesktopAppInstaller.admx = ..\doc\admx\DesktopAppInstaller.admx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}"
+	ProjectSection(SolutionItems) = preProject
+		CodeAnalysis.ruleset = CodeAnalysis.ruleset
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -356,7 +382,6 @@ Global
 		{C1624B2F-2BF6-4E28-92FA-1BF85C6B62A8}.Release|ARM64.ActiveCfg = Release
 		{C1624B2F-2BF6-4E28-92FA-1BF85C6B62A8}.Release|x64.ActiveCfg = Release
 		{C1624B2F-2BF6-4E28-92FA-1BF85C6B62A8}.Release|x86.ActiveCfg = Release
-		{C1624B2F-2BF6-4E28-92FA-1BF85C6B62A8}.Release|x86.Build.0 = Release
 		{3B8466CF-4FDD-4329-9C80-91321C4AAC99}.Debug|ARM.ActiveCfg = Debug|x86
 		{3B8466CF-4FDD-4329-9C80-91321C4AAC99}.Debug|ARM64.ActiveCfg = Debug|x86
 		{3B8466CF-4FDD-4329-9C80-91321C4AAC99}.Debug|x64.ActiveCfg = Debug|x64
@@ -383,7 +408,8 @@ Global
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Debug|x86.Build.0 = Debug|Win32
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|ARM.ActiveCfg = Release|ARM
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|ARM64.ActiveCfg = Release|ARM64
-		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|x64.ActiveCfg = Release|x64
+		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|x64.ActiveCfg = Fuzzing|x64
+		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|x64.Build.0 = Fuzzing|x64
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Fuzzing|x86.ActiveCfg = Release|Win32
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Release|ARM.ActiveCfg = Release|ARM
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Release|ARM.Build.0 = Release|ARM
@@ -395,7 +421,8 @@ Global
 		{82B39FDA-E86B-4713-A873-9D56DE00247A}.Release|x86.Build.0 = Release|Win32
 		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|ARM.ActiveCfg = Fuzzing|x64
 		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|ARM64.ActiveCfg = Fuzzing|x64
-		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|x64.ActiveCfg = Fuzzing|x64
+		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|x64.ActiveCfg = Debug|x64
+		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|x64.Build.0 = Debug|x64
 		{1622DA16-914F-4F57-A259-D5169003CC8C}.Debug|x86.ActiveCfg = Fuzzing|x64
 		{1622DA16-914F-4F57-A259-D5169003CC8C}.Fuzzing|ARM.ActiveCfg = Fuzzing|x64
 		{1622DA16-914F-4F57-A259-D5169003CC8C}.Fuzzing|ARM64.ActiveCfg = Fuzzing|x64
@@ -459,6 +486,11 @@ Global
 		{952B513F-8A00-4D74-9271-925AFB3C6252} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{2ACDE176-F13F-42FA-8159-C34FA3D37837} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{866C3F06-636F-4BE8-BC24-5F86ECC606A1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
+		{92637527-6CDA-4F4A-84FD-858793776777} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
+		{F2149997-295A-4593-9282-4C675DFEB670} = {92637527-6CDA-4F4A-84FD-858793776777}
+		{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528} = {F2149997-295A-4593-9282-4C675DFEB670}
+		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
+		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}

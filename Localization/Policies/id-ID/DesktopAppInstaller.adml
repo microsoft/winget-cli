@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Penginstal Aplikasi</displayName>
+  <description>Penginstal Aplikasi</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Penginstal Aplikasi Desktop</string>
+      <string id="EnableAppInstaller">Aktifkan Penginstal Aplikasi</string>
+      <string id="EnableAppInstallerExplanation">Kebijakan ini mengontrol Apakah Pengelola Paket Windows dapat digunakan oleh pengguna.
+
+Jika Anda mengaktifkan atau tidak mengonfigurasi pengaturan ini, pengguna akan dapat menggunakan Manajer paket Windows.
+
+Jika Anda menonaktifkan pengaturan ini, pengguna tidak akan dapat menggunakan Manajer paket Windows.</string>
+      <string id="EnableSettings">Aktifkan Pengaturan Penginstal Aplikasi</string>
+      <string id="EnableSettingsExplanation">Kebijakan ini mengontrol apakah pengguna dapat mengubah pengaturannya.
+
+Jika Anda mengaktifkan atau tidak mengonfigurasi pengaturan ini, pengguna akan dapat mengubah pengaturan untuk pengelola paket Windows.
+
+Jika Anda menonaktifkan pengaturan ini, pengguna tidak akan dapat mengubah pengaturan untuk pengelola paket Windows.</string>
+      <string id="EnableExperimentalFeatures">Aktifkan Fitur Eksperimental Penginstal Aplikasi</string>
+      <string id="EnableExperimentalFeaturesExplanation">Kebijakan ini mengontrol apakah pengguna dapat mengaktifkan fitur eksperimental di manajer paket Windows.
+
+Jika Anda mengaktifkan atau tidak mengonfigurasi pengaturan ini, pengguna akan dapat mengaktifkan fitur eksperimental untuk pengelola paket Windows.
+
+Jika Anda menonaktifkan pengaturan ini, pengguna tidak akan dapat mengaktifkan fitur eksperimental untuk pengelola paket Windows.</string>
+      <string id="EnableLocalManifestFiles">Aktifkan File Manifes Lokal Penginstal Aplikasi</string>
+      <string id="EnableLocalManifestFilesExplanation">Kebijakan ini mengontrol apakah pengguna dapat menginstal paket dengan file manifes lokal.
+
+Jika Anda mengaktifkan atau tidak mengonfigurasi pengaturan ini, pengguna akan dapat menginstal paket dengan manifes lokal menggunakan Manajer paket Windows.
+
+Jika Anda menonaktifkan pengaturan ini, pengguna tidak akan dapat menginstal paket dengan manifes lokal menggunakan Manajer paket Windows.</string>
+      <string id="EnableHashOverride">Aktifkan Penimpaan Hash Penginstal Aplikasi</string>
+      <string id="EnableHashOverrideExplanation">Kebijakan ini mengontrol apakah Pengelola Paket Windows dapat dikonfigurasi atau tidak untuk mengaktifkan kemampuan menimpa validasi keamanan SHA256 di pengaturan.
+
+Jika Anda mengaktifkan atau tidak mengonfigurasi kebijakan ini, pengguna akan dapat mengaktifkan kemampuan menimpa validasi keamanan SHA256 di pengaturan Pengelola Paket Windows.
+
+Jika Anda menonaktifkan kebijakan ini, pengguna tidak akan dapat mengaktifkan kemampuan menimpa validasi keamanan SHA256 di pengaturan Pengelola Paket Windows.</string>
+      <string id="EnableDefaultSource">Aktifkan Sumber Default Penginstal Aplikasi</string>
+      <string id="EnableDefaultSourceExplanation">Kebijakan ini mengontrol sumber default yang disertakan dengan Pengelola Paket Windows.
+
+Jika Anda tidak mengonfigurasi pengaturan ini, sumber default untuk Pengelola Paket Windows akan tersedia dan dapat dihapus.
+
+Jika Anda mengaktifkan pengaturan ini, sumber default untuk Pengelola Paket Windows akan tersedia dan tidak dapat dihapus.
+
+Jika Anda menonaktifkan pengaturan ini, sumber default untuk Pengelola Paket Windows tidak akan tersedia.</string>
+      <string id="EnableMicrosoftStoreSource">Aktifkan Sumber Microsoft Store Penginstal Aplikasi</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Kebijakan ini mengontrol sumber Microsoft Store yang disertakan dengan Pengelola Paket Windows.
+
+Jika Anda tidak mengonfigurasi pengaturan ini, sumber Microsoft Store untuk pengelola Paket Windows akan tersedia dan dapat dihapus.
+
+Jika Anda mengaktifkan pengaturan ini, sumber Microsoft Store untuk Pengelola Paket Windows akan tersedia dan tidak dapat dihapus.
+
+Jika Anda menonaktifkan pengaturan ini sumber Microsoft Store untuk Pengelola Paket Windows tidak akan tersedia.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Atur Interval Pembaruan Otomatis Sumber Penginstal Aplikasi Dalam Menit</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Kebijakan ini mengontrol interval pembaruan otomatis untuk sumber berbasis paket.
+
+Jika Anda menonaktifkan atau tidak mengonfigurasi pengaturan ini, interval default atau nilai yang ditentukan di pengaturan akan digunakan oleh manajer paket Windows.
+
+Jika Anda mengaktifkan pengaturan ini, jumlah menit yang ditentukan akan digunakan oleh manajer paket Windows.</string>
+      <string id="EnableAdditionalSources">Aktifkan Sumber Tambahan Penginstal Aplikasi</string>
+      <string id="EnableAdditionalSourcesExplanation">Kebijakan ini mengontrol sumber tambahan yang disediakan oleh administrator TI perusahaan.
+
+Jika Anda tidak mengonfigurasi kebijakan ini, tidak ada sumber tambahan yang akan dikonfigurasi untuk Pengelola Paket Windows.
+
+Jika Anda mengaktifkan kebijakan ini, sumber tambahan akan ditambahkan ke Pengelola Paket Windows dan tidak dapat dihapus. Representasi untuk setiap sumber tambahan dapat diperoleh dari sumber terinstal menggunakan 'ekspor sumber winget'.
+
+Jika Anda menonaktifkan kebijakan ini, tidak ada sumber tambahan yang dapat dikonfigurasi untuk Pengelola Paket Windows.</string>
+      <string id="EnableAllowedSources">Aktifkan Sumber yang Diperbolehkan Penginstal Aplikasi</string>
+      <string id="EnableAllowedSourcesExplanation">Kebijakan ini mengontrol sumber tambahan yang diperbolehkan oleh administrator TI perusahaan.
+
+Jika Anda tidak mengonfigurasi kebijakan ini, pengguna akan dapat menambahkan atau menghapus sumber tambahan selain yang dikonfigurasi oleh kebijakan.
+
+Jika Anda mengaktifkan kebijakan ini, hanya sumber yang ditentukan yang dapat ditambahkan atau dihapus dari Pengelola Paket Windows. Representasi untuk setiap sumber yang diperbolehkan dapat diperoleh dari sumber terinstal menggunakan 'ekspor sumber winget'.
+
+Jika Anda menonaktifkan kebijakan ini, tidak ada sumber tambahan yang dapat dikonfigurasi untuk Pengelola Paket Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval Pembaruan Otomatis Sumber Dalam Menit</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Sumber Tambahan: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Sumber yang Diperbolehkan: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

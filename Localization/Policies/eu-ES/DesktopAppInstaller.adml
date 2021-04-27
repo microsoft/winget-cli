@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Aplikazio-instalatzailea</displayName>
+  <description>Aplikazio-instalatzailea</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Mahaigaineko aplikazio-instalatzailea</string>
+      <string id="EnableAppInstaller">Gaitu aplikazio-instalatzailea</string>
+      <string id="EnableAppInstallerExplanation">Gidalerro honek erabiltzaileek Windows-en pakete-kudeatzailea erabil dezaketen kontrolatzen du.
+
+Ezarpena gaitzen baduzu edo ez baduzu konfiguratzen, erabiltzaileek Windows-en pakete-kudeatzailea erabili ahalko dute.
+
+Ezarpena desgaitzen baduzu, erabiltzaileek ezingo dute erabili Windows-en pakete-kudeatzailea.</string>
+      <string id="EnableSettings">Gaitu aplikazio-instalatzailearen ezarpenak</string>
+      <string id="EnableSettingsExplanation">Gidalerro honek erabiltzaileek beren ezarpenak alda ditzaketen kontrolatzen du.
+
+Ezarpena gaitzen baduzu edo ez baduzu konfiguratzen, erabiltzaileek Windows-en pakete-kudeatzailearen ezarpenak aldatu ahalko dituzte.
+
+Ezarpena desgaitzen baduzu, erabiltzaileek ezingo dituzte aldatu Windows-en pakete-kudeatzailearen ezarpenak.</string>
+      <string id="EnableExperimentalFeatures">Gaitu aplikazio-instalatzailearen eginbide esperimentalak</string>
+      <string id="EnableExperimentalFeaturesExplanation">Erabiltzaileek Windows-en pakete-kudeatzailean eginbide esperimentalak gai ditzaketen kontrolatzen du gidalerro honek.
+
+Ezarpena gaitzen baduzu edo ez baduzu konfiguratzen, erabiltzaileek Windows-en pakete-kudeatzailearen eginbide esperimentalak gaitu ahalko dituzte.
+
+Ezarpena desgaitzen baduzu, erabiltzaileek ezingo dituzte gaitu Windows-en pakete-kudeatzailearen eginbide esperimentalak.</string>
+      <string id="EnableLocalManifestFiles">Gaitu aplikazio-instalatzailearen manifestu-fitxategi lokalak</string>
+      <string id="EnableLocalManifestFilesExplanation">Gidalerro honek erabiltzaileek manifestu-fitxategi lokalak dituzten paketeak instala ditzaketen kontrolatzen du.
+
+Ezarpena gaitzen baduzu edo ez baduzu konfiguratzen, erabiltzaileek manifestu-fitxategi lokalak dituzten paketeak instalatu ahalko dituzte Windows-en pakete-kudeatzailea erabilita.
+
+Ezarpena desgaitzen baduzu, erabiltzaileek ezingo dituzte instalatu manifestu-fitxategi lokalak dituzten paketeak Windows-en pakete-kudeatzailea erabilita.</string>
+      <string id="EnableHashOverride">Gaitu aplikazio-instalatzailearen hash-a gainidazteko aukera</string>
+      <string id="EnableHashOverrideExplanation">Gidalerro honek kontrolatzen du Windows-en pakete-kudeatzailea konfigurazioan SHA256 segurtasun-baliozkotzea baliogabetzeko ahalmena gaitzeko konfigura daitekeen.
+
+Gidalerro hau gaitzen baduzu edo konfiguratzen ez baduzu, erabiltzaileek SHA256 segurtasun-baliozkotzea baliogabetu ahal izango dute Windows-en pakete-kudeatzailearen konfigurazioan.
+
+Gidalerro hau desgaitzen baduzu, erabiltzaileek ezin izango dute gaitu SHA256 segurtasun-baliozkotzea Windows-en pakete-kudeatzailearen konfigurazioan.</string>
+      <string id="EnableDefaultSource">Gaitu aplikazio-instalatzailearen iturburu lehenetsia</string>
+      <string id="EnableDefaultSourceExplanation">Gidalerro honek Windows-en pakete-kudeatzailearen iturburu lehenetsia kontrolatzen du.
+
+Ezarpena konfiguratzen ez baduzu, Windows-en pakete-kudeatzailearen iturburu lehenetsia erabilgarri egongo da eta kendu egin daiteke.
+
+Ezarpena gaitzen baduzu, Windows-en pakete-kudeatzailearen iturburu lehenetsia erabilgarri egongo da eta ezingo da kendu.
+
+Ezarpena desgaitzen baduzu, Windows-en pakete-kudeatzailearen iturburu lehenetsia ez da erabilgarri egongo.</string>
+      <string id="EnableMicrosoftStoreSource">Gaitu aplikazio-instalatzailearen Microsoft Store-ko iturburua</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Gidalerro honek Windows-en pakete-kudeatzailearen Microsoft Store iturburua kontrolatzen du.
+
+Ezarpena konfiguratzen ez baduzu, Windows-en pakete-kudeatzailearen Microsoft Store iturburua erabilgarri egongo da eta kendu egin daiteke.
+
+Ezarpena gaitzen baduzu, Windows-en pakete-kudeatzailearen Microsoft Store iturburua erabilgarri egongo da eta ezingo da kendu.
+
+Ezarpena desgaitzen baduzu, Windows-en pakete-kudeatzailearen Microsoft Store iturburua ez da erabilgarri egongo.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Ezari aplikazio-instalatzailearen iturburua automatikoki eguneratzeko tartea, minututan</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Gidalerro honek paketeetan oinarritutako iturburuak automatikoki eguneratzeko tartea kontrolatzen du.
+
+Ezarpena desgaitzen baduzu edo ez baduzu konfiguratzen, tarte lehenetsia edo ezarpenetan zehaztutako balioa erabiliko du Windows-en pakete-kudeatzaileak.
+
+Ezarpena gaitzen baduzu, zehaztutako minutu kopurua erabiliko du Windows-en pakete-kudeatzaileak.</string>
+      <string id="EnableAdditionalSources">Gaitu aplikazio-instalatzailearen iturburu gehigarriak</string>
+      <string id="EnableAdditionalSourcesExplanation">Gidalerro honek enpresaren informatika-administratzaileak emandako iturburu gehigarriak kontrolatzen ditu.
+
+Gidalerroa konfiguratzen ez baduzu, ez da iturburu gehigarririk konfiguratuko Windows-en pakete-kudeatzailerako.
+
+Gidalerroa gaitzen baduzu, iturburu gehigarriak Windows-en pakete-kudeatzailean gehituko dira, eta ezingo dira kendu. Iturburu gehigarri bakoitzaren adierazpena instalatutako iturburuetatik lortzeko, “winget source export” erabili behar da.
+
+Gidalerroa desgaitzen baduzu, ezingo da iturburu gehigarririk konfiguratu Windows-en pakete-kudeatzailerako.</string>
+      <string id="EnableAllowedSources">Gaitu aplikazio-instalatzailearen iturburu onartuak</string>
+      <string id="EnableAllowedSourcesExplanation">Gidalerro honek enpresaren informatika-administratzaileak onartutako iturburu gehigarriak kontrolatzen ditu.
+
+Gidalerroa konfiguratzen ez baduzu, erabiltzaileek iturburu gehigarri gehitu edo kendu ahalko dituzte, gidalerroan konfiguratutakoez gain.
+
+Gidalerroa gaitzen baduzu, zehaztutako iturburuak soilik gehitu edo kendu ahalko dira Windows-en pakete-kudeatzailean. Onartutako iturburu bakoitzaren adierazpena instalatutako iturburuetatik lortzeko, “winget source export” erabili behar da.
+
+Gidalerroa desgaitzen baduzu, ezingo da iturburu gehigarririk konfiguratu Windows-en pakete-kudeatzailerako.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Iturburua automatikoki eguneratzeko tartea, minututan</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Iturburu gehigarriak: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Onartutako iturburuak: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

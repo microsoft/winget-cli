@@ -386,7 +386,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Filtrare rezultate după nume</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Nu instalare se aplică la sistemul curent.</value>
+    <value>Niciun program de instalare aplicabil; Consultați jurnalele pentru mai multe detalii.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Momentan nu există caracteristici experimentale disponibile. </value>
@@ -813,5 +813,107 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Calea nu există:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Fișierul JSON nu specifică o schemă recunoscută.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Selectați domeniul de instalare (utilizator sau computer)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Valoarea furnizată pentru argumentul "%1" nu este validă; Valorile valide sunt</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Această operațiune este dezactivată prin politica de grup</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Activarea surselor suplimentare ale programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Activarea surselor permise ale programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Activarea sursei implicite a programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Activarea caracteristicilor experimentale ale programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Activarea sursei Microsoft Store a programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Activarea setărilor managerului de pachete Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Activarea managerului de pachete Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Setarea intervalului de actualizare automată a sursei managerului de pachete Windows, în minute</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Dezactivate</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Activate</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Politică de grup</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Stare</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Activarea fișierelor manifest locale ale programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Câmp:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Format de câmp nevalid.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Valoare câmp nevalidă.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Setare nevalidă din politica de grup.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>S-au încărcat setările din fișierul de backup.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Eroare la analizarea e-mailului:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Valoare:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Următoarele caracteristici experimentale sunt în curs de desfășurare.
+Configurația este dezactivată din cauza politicii de grup.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Codul hash de instalare nu se potrivește.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Activarea înlocuirii hash-ului de instalare a programului de instalare a aplicației Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Exportați sursele curente ca JSON pentru politica de grup.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Exportarea surselor actuale</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Sursă suplimentară</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Sursă permisă</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>
