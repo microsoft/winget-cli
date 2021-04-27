@@ -116,6 +116,7 @@ IPersist
 IService
 ISettings
 ISQ
+ISVs
 itr
 IVector
 IWeb
@@ -137,6 +138,7 @@ Linq
 liv
 llvm
 localhost
+localizationpriority
 LPBYTE
 LPWSTR
 LSTATUS
