@@ -72,7 +72,6 @@ namespace AppInstaller::Utility
 
         // Setup hash engine
         SHA256 hashEngine;
-        std::string contentHash;
 
         const int bufferSize = 1024 * 1024; // 1MB
         auto buffer = std::make_unique<BYTE[]>(bufferSize);
@@ -134,7 +133,8 @@ namespace AppInstaller::Utility
         std::ostream& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash)
+        bool computeHash,
+        std::string_view downloadIdentifier)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
 
@@ -155,7 +155,7 @@ namespace AppInstaller::Utility
 
             if (setting == InstallerDownloader::DeliveryOptimization)
             {
-                return DODownloadToStream(url, dest, progress, computeHash);
+                return DODownloadToStream(url, dest, progress, computeHash, downloadIdentifier);
 
                 // While DO still requires an explicit opt-in, we will let failures through.
                 // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.
@@ -170,7 +170,8 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash)
+        bool computeHash,
+        std::string_view downloadIdentifier)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
@@ -186,7 +187,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return DownloadToStream(url, outfile, type, progress, computeHash);
+        return DownloadToStream(url, outfile, type, progress, computeHash, downloadIdentifier);
     }
 
     using namespace std::string_view_literals;

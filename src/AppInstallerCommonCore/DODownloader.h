@@ -18,5 +18,6 @@ namespace AppInstaller::Utility
         const std::string& url,
         std::ostream& dest,
         IProgressCallback& progress,
-        bool computeHash = false);
+        bool computeHash,
+        std::string_view downloadIdentifier);
 }

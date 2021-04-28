@@ -502,7 +502,7 @@ wil
 WINAPI
 WINEVENT
 winget
-WININET
+wininet
 winmeta
 winres
 winrt

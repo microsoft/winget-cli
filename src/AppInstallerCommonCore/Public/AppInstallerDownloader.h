@@ -15,7 +15,7 @@
 namespace AppInstaller::Utility
 {
     // The type of data being downloaded; determines what code should
-    // be used when dowloading.
+    // be used when downloading.
     enum class DownloadType
     {
         Index,
@@ -33,7 +33,8 @@ namespace AppInstaller::Utility
         std::ostream& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash = false);
+        bool computeHash = false,
+        std::string_view downloadIdentifier = {});
 
     // Downloads a file from the given URL and places it in the given location.
     //   url: The url to be downloaded from. http->https redirection is allowed.
@@ -44,7 +45,8 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash = false);
+        bool computeHash = false,
+        std::string_view downloadIdentifier = {});
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
