@@ -8,23 +8,27 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::AppCatalog>> AppInstaller::GetAppCatalogsAsync()
+    Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetAppCatalogs()
     {
         throw hresult_not_implemented();
     }
-    Windows::Foundation::IAsyncOperation<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetAppCatalogAsync(Microsoft::Management::Deployment::PredefinedAppCatalog predefinedAppCatalog)
+    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog)
     {
         throw hresult_not_implemented();
     }
-    Windows::Foundation::IAsyncOperation<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetAppCatalogAsync(hstring catalogId)
+    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogById(hstring const& catalogId)
     {
         throw hresult_not_implemented();
     }
-    Windows::Foundation::IAsyncOperation<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetCompositeAppCatalogAsync(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions options)
+    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetCompositeAppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions const& options)
     {
         throw hresult_not_implemented();
     }
     Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::InstallPackageAsync(Microsoft::Management::Deployment::InstallOptions options)
+    {
+        throw hresult_not_implemented();
+    }
+    Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::GetInstallProgress(Microsoft::Management::Deployment::CatalogPackage package)
     {
         throw hresult_not_implemented();
     }

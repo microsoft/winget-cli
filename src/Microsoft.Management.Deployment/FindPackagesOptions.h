@@ -12,9 +12,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         FindPackagesOptions() = default;
 
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> Filters();
-        void Filters(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> const& value);
-        uint32_t Limit();
-        void Limit(uint32_t value);
+        uint32_t ResultLimit();
+        void ResultLimit(uint32_t value);
         Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
         void CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
     };

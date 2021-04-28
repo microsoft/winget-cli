@@ -12,15 +12,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    void FindPackagesOptions::Filters(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> const& value)
+    uint32_t FindPackagesOptions::ResultLimit()
     {
         throw hresult_not_implemented();
     }
-    uint32_t FindPackagesOptions::Limit()
-    {
-        throw hresult_not_implemented();
-    }
-    void FindPackagesOptions::Limit(uint32_t value)
+    void FindPackagesOptions::ResultLimit(uint32_t value)
     {
         throw hresult_not_implemented();
     }

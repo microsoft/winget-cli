@@ -15,9 +15,3 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool IsTruncated();
     };
 }
-namespace winrt::Microsoft::Management::Deployment::factory_implementation
-{
-    struct FindPackagesResult : FindPackagesResultT<FindPackagesResult, implementation::FindPackagesResult>
-    {
-    };
-}

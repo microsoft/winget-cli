@@ -8,11 +8,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Microsoft::Management::Deployment::Package InstallOptions::Package()
+    Microsoft::Management::Deployment::CatalogPackage InstallOptions::CatalogPackage()
     {
         throw hresult_not_implemented();
     }
-    void InstallOptions::Package(Microsoft::Management::Deployment::Package const& value)
+    void InstallOptions::CatalogPackage(Microsoft::Management::Deployment::CatalogPackage const& value)
     {
         throw hresult_not_implemented();
     }
@@ -32,19 +32,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    Microsoft::Management::Deployment::InstallScope InstallOptions::InstallScope()
+    Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
     {
         throw hresult_not_implemented();
     }
-    void InstallOptions::InstallScope(Microsoft::Management::Deployment::InstallScope const& value)
+    void InstallOptions::AppInstallScope(Microsoft::Management::Deployment::AppInstallScope const& value)
     {
         throw hresult_not_implemented();
     }
-    Microsoft::Management::Deployment::InstallMode InstallOptions::InstallMode()
+    Microsoft::Management::Deployment::AppInstallMode InstallOptions::AppInstallMode()
     {
         throw hresult_not_implemented();
     }
-    void InstallOptions::InstallMode(Microsoft::Management::Deployment::InstallMode const& value)
+    void InstallOptions::AppInstallMode(Microsoft::Management::Deployment::AppInstallMode const& value)
     {
         throw hresult_not_implemented();
     }

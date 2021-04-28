@@ -11,13 +11,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         ResultMatch() = default;
 
-        Microsoft::Management::Deployment::Package Package();
+        Microsoft::Management::Deployment::CatalogPackage CatalogPackage();
         Microsoft::Management::Deployment::PackageMatchFilter MatchCriteria();
-    };
-}
-namespace winrt::Microsoft::Management::Deployment::factory_implementation
-{
-    struct ResultMatch : ResultMatchT<ResultMatch, implementation::ResultMatch>
-    {
     };
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "InstallResult.g.h"
+#include "PackageVersionId.g.h"
 
 // Note: Remove this static_assert after copying these generated source files to your project.
 // This assertion exists to avoid compiling these generated source files directly.
@@ -7,11 +7,12 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    struct InstallResult : InstallResultT<InstallResult>
+    struct PackageVersionId : PackageVersionIdT<PackageVersionId>
     {
-        InstallResult() = default;
+        PackageVersionId() = default;
 
-        hstring CorrelationId();
-        bool RebootRequired();
+        hstring AppCatalogId();
+        hstring Version();
+        hstring Channel();
     };
 }

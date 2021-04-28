@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "PackageVersion.h"
-#include "PackageVersion.g.cpp"
+#include "PackageVersionInfo.h"
+#include "PackageVersionInfo.g.cpp"
 
 // Note: Remove this static_assert after copying these generated source files to your project.
 // This assertion exists to avoid compiling these generated source files directly.
@@ -8,43 +8,43 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    hstring PackageVersion::GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType)
+    hstring PackageVersionInfo::GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType)
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::Id()
+    hstring PackageVersionInfo::Id()
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::Name()
+    hstring PackageVersionInfo::Name()
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::AppCatalogIdentifier()
+    hstring PackageVersionInfo::AppCatalogIdentifier()
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::AppCatalogName()
+    hstring PackageVersionInfo::AppCatalogName()
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::Version()
+    hstring PackageVersionInfo::Version()
     {
         throw hresult_not_implemented();
     }
-    hstring PackageVersion::Channel()
+    hstring PackageVersionInfo::Channel()
     {
         throw hresult_not_implemented();
     }
-    Windows::Foundation::Collections::IVectorView<hstring> PackageVersion::PackageFamilyName()
+    Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::PackageFamilyName()
     {
         throw hresult_not_implemented();
     }
-    Windows::Foundation::Collections::IVectorView<hstring> PackageVersion::ProductCode()
+    Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::ProductCode()
     {
         throw hresult_not_implemented();
     }
-    Microsoft::Management::Deployment::AppCatalog PackageVersion::AppCatalog()
+    Microsoft::Management::Deployment::AppCatalog PackageVersionInfo::AppCatalog()
     {
         throw hresult_not_implemented();
     }

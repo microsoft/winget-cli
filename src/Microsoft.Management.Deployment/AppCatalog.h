@@ -12,14 +12,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         AppCatalog() = default;
 
         bool IsComposite();
-        Microsoft::Management::Deployment::AppCatalogDetails Details();
+        Microsoft::Management::Deployment::AppCatalogInfo Info();
         Windows::Foundation::IAsyncAction OpenAsync();
         Windows::Foundation::IAsyncOperation<Microsoft::Management::Deployment::FindPackagesResult> FindPackagesAsync(Microsoft::Management::Deployment::FindPackagesOptions options);
-    };
-}
-namespace winrt::Microsoft::Management::Deployment::factory_implementation
-{
-    struct AppCatalog : AppCatalogT<AppCatalog, implementation::AppCatalog>
-    {
     };
 }

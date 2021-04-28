@@ -1,40 +1,50 @@
 namespace Microsoft.Management.Deployment
 {
+    [contractversion(1)]
+    apicontract WindowsPackageManagerContract{};
+
     /// State of the install.
-    enum InstallProgressState
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum AppInstallProgressState
     {
-        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this state will prevent the app from downloading or installing.
-        Queued = 0,
-        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will end the download and prevent the app from installing.
-        Downloading = 1,
-        /// The install is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not stop the installation or the post install cleanup.
-        Installing = 2,
-        /// The installer has completed and cleanup actions are in progress. Cancellation of the IAsyncOperationWithProgress in this state will not stop cleanup or roll back the install.
-        PostInstall = 3,
+        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// state will prevent the app from downloading or installing.
+        Queued,
+        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will 
+        /// end the download and prevent the app from installing.
+        Downloading,
+        /// The install is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
+        /// stop the installation or the post install cleanup.
+        Installing,
+        /// The installer has completed and cleanup actions are in progress. Cancellation of the 
+        /// IAsyncOperationWithProgress in this state will not stop cleanup or roll back the install.
+        PostInstall,
+        /// The operation has completed.
+        Finished,
     };
 
     /// Progress object for the install
-    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to estimate progress when the installer is running.
-    [version(1)]
+    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to 
+    /// estimate progress when the installer is running.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     struct InstallProgress
     {
         /// State of the install
-        InstallProgressState State;
+        AppInstallProgressState State;
         /// DESIGN NOTE: BytesDownloaded may only be available for downloads done by Windows Package Manager itself.
         /// Number of bytes downloaded if known
-        UInt32 BytesDownloaded;
+        UInt64 BytesDownloaded;
         /// DESIGN NOTE: BytesRequired may only be available for downloads done by Windows Package Manager itself.
         /// Number of bytes required if known
-        UInt32 BytesRequired;
+        UInt64 BytesRequired;
         /// Download percentage completed
-        UInt32 DownloadPercentage;
+        Single DownloadPercentage;
     };
 
     /// Result of the install
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass InstallResult
     {
-        InstallResult();
-
         /// Used by a caller to correlate the install with a caller's data.
         String CorrelationId{ get; };
         /// Whether a restart is required to complete the install.
@@ -43,17 +53,18 @@ namespace Microsoft.Management.Deployment
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstallerRepositorySource.h
     /// Defines the origin of the app catalog details.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum AppCatalogOrigin
     {
-        Default,
-        /// User means it was added by the user and could be removed.
-        User,
         /// Predefined means it came as part of the Windows Package Manager package and cannot be removed.
         Predefined,
+        /// User means it was added by the user and could be removed.
+        User,
     };
 
     /// IMPLEMENTATION NOTE: SourceTrustLevel from AppInstallerRepositorySource.h
     /// Defines the trust level of the app catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum AppCatalogTrustLevel
     {
         None,
@@ -62,28 +73,29 @@ namespace Microsoft.Management.Deployment
 
     /// IMPLEMENTATION NOTE: SourceDetails from AppInstallerRepositorySource.h
     /// Interface for retrieving information about an app catalog without acting on it.
-    [version(1)]
-    struct AppCatalogDetails
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass AppCatalogInfo
     {
-        /// The name of the app catalog.
-        String Name;
-        /// The type of the app catalog.
-        String Type;
-        /// The argument used when adding the app catalog.
-        String Arg;
-        /// The app catalog's extra data string.
-        String Data;
         /// The app catalog's unique identifier.
-        String Identifier;
+        String Id { get; };
+        /// The name of the app catalog.
+        String Name { get; };
+        /// The type of the app catalog.
+        String Type { get; };
+        /// The argument used when adding the app catalog.
+        String Arg { get; };
+        /// The app catalog's extra data string.
+        String ExtraData { get; };
         /// The last time that this app catalog was updated.
-        Windows.Foundation.DateTime LastUpdateTime;
+        Windows.Foundation.DateTime LastUpdateTime { get; };
         /// The origin of the app catalog.
-        AppCatalogOrigin Origin;
+        AppCatalogOrigin Origin { get; };
         /// The trust level of the app catalog
-        AppCatalogTrustLevel TrustLevel;
+        AppCatalogTrustLevel TrustLevel { get; };
     };
 
     /// A metadata item of a package version.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageVersionMetadata
     {
         /// The InstallerType of an installed package
@@ -104,12 +116,12 @@ namespace Microsoft.Management.Deployment
 
     /// IMPLEMENTATION NOTE: IPackageVersion from AppInstallerRepositorySearch.h
     /// A single package version.
-    runtimeclass PackageVersion
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass PackageVersionInfo
     {
-        PackageVersion();
-
         /// IMPLEMENTATION NOTE: PackageVersionMetadata fields from AppInstallerRepositorySearch.h
-        /// DESIGN NOTE: These would be a good candidate to leave out in V1. Maybe just keep InstalledLocation and InstalledScope?
+        /// DESIGN NOTE: These would be a good candidate to leave out in V1. Maybe just keep InstalledLocation
+        /// and InstalledScope?
         /// Gets any metadata associated with this package version.
         /// Primarily stores data on installed packages.
         /// Metadata fields may have no value (e.g. packages that aren't installed will not have an InstalledLocation).
@@ -133,35 +145,37 @@ namespace Microsoft.Management.Deployment
         AppCatalog AppCatalog { get; };
 
         /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has a lot of fields and no one requesting it.
+        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
+        /// a lot of fields and no one requesting it.
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
     };
 
     /// IMPLEMENTATION NOTE: PackageVersionKey from AppInstallerRepositorySearch.h
     /// A key to identify a package version within a package.
-    [version(1)]
-    struct PackageVersionId
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass PackageVersionId
     {
         /// The app catalog id that this version came from.
-        String AppCatalogId;
+        String AppCatalogId { get; };
         /// The version.
-        String Version;
+        String Version { get; };
         /// The channel.
-        String Channel;
+        String Channel { get; };
     };
 
     /// IMPLEMENTATION NOTE: IPackage from AppInstallerRepositorySearch.h
     /// A package, potentially containing information about it's local state and the available versions.
-    runtimeclass Package
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass CatalogPackage
     {
-        Package();
-
-        /// IMPLEMENTATION NOTE: This would be new work as Windows Package Manager does not currently create a Package object from a manifest.
-        /// DESIGN NOTE: This is proposed as the preferred alternative to having InstallOptions match the winget command line which
-        /// allows you to pass in a manifestPath directly into install. Allowing creation of a Package object from a manifest allows the install api to 
-        /// consistently use package objects rather than having a "you can either set the manifest path or use a package but not both" problem.
-        Package(String manifestPath);
+        /// IMPLEMENTATION NOTE: This would be new work as Windows Package Manager does not currently create a 
+        /// CatalogPackage object from a manifest.
+        /// DESIGN NOTE: This is proposed as the preferred alternative to having InstallOptions match the winget
+        /// command line which allows you to pass in a manifestPath directly into install. Allowing creation of 
+        /// a CatalogPackage object from a manifest allows the install api to consistently use package objects 
+        /// rather than having a "you can either set the manifest path or use a package but not both" problem.
+        static CatalogPackage TryCreateFromManifest(String manifestPath);
 
         /// IMPLEMENTATION NOTE: PackageProperty fields from AppInstallerRepositorySearch.h
         /// Gets a property of this package.
@@ -169,7 +183,7 @@ namespace Microsoft.Management.Deployment
         String Name { get; };
 
         /// Gets the installed package information if the package is installed.
-        PackageVersion InstalledVersion{ get; };
+        PackageVersionInfo InstalledVersion{ get; };
 
         /// Gets all available versions of this package.
         /// The versions will be returned in sorted, descending order.
@@ -177,18 +191,16 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<PackageVersionId> AvailableVersions { get; };
 
         /// Gets a specific version of this package.
-        PackageVersion LatestAvailableVersion { get; };
+        PackageVersionInfo LatestAvailableVersion { get; };
 
         /// Gets a specific version of this package.
-        PackageVersion GetAvailableVersion(PackageVersionId versionKey);
+        PackageVersionInfo GetAvailableVersion(PackageVersionId versionKey);
 
         /// Gets a value indicating whether an available version is newer than the installed version.
         Boolean IsUpdateAvailable { get; };
 
         /// Gets whether the package is installing
         Boolean IsInstalling { get; };
-        /// Gets the installing progress if the package is installing
-        Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress>  InstallProgress{ get; };
 
         /// DESIGN NOTE:
         /// IsSame from IPackage in AppInstallerRepositorySearch is not implemented in V1.
@@ -200,50 +212,54 @@ namespace Microsoft.Management.Deployment
     /// Search behavior for composite sources.
     /// Only relevant for composite sources with a local source, not for aggregates of multiple available sources.
     /// Installed and available packages in the result are always correlated when possible.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum CompositeSearchBehavior
     {
         /// Search only installed packages
-        Installed = 0,
+        InstalledPackages,
         /// Search only installing packages
-        Installing = 1,
+        InstallingPackages,
         /// Search only local packages (installed and installing)
-        AllLocal = 2,
+        AllLocalPackages,
         /// Search both local and remote sources.
-        AllPackages = 3,
+        AllPackages,
     };
 
     /// IMPLEMENTATION NOTE: MatchType from AppInstallerRepositorySearch.h
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum MatchType
     {
-        Exact = 0,
-        CaseInsensitive = 1,
-        StartsWith = 2,
-        Fuzzy = 3,
-        Substring = 4,
-        FuzzySubstring = 5,
-        Wildcard = 6,
+        Exact,
+        CaseInsensitive,
+        StartsWith,
+        Fuzzy,
+        Substring,
+        FuzzySubstring,
+        Wildcard,
     };
     /// IMPLEMENTATION NOTE: PackageMatchField from AppInstallerRepositorySearch.h
     /// The field to match on.
     /// The values must be declared in order of preference in search results.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageMatchField
     {
-        AppCatalogDefined = 0,
-        Id = 1,
-        Name = 2,
-        Moniker = 3,
-        Command = 4,
-        Tag = 5,
+        AppCatalogDefined,
+        Id,
+        Name,
+        Moniker,
+        Command,
+        Tag,
         /// DESIGN NOTE: The following PackageMatchField from AppInstallerRepositorySearch.h are not implemented in V1.
         /// PackageFamilyName,
         /// ProductCode,
         /// NormalizedNameAndPublisher,
     };
     /// IMPLEMENTATION NOTE: PackageMatchFilter from AppInstallerRepositorySearch.h
-    [version(1)]
-    struct PackageMatchFilter
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass PackageMatchFilter
     {
-        /// Whether the Package must match the filter in order to be included in the matches.
+        PackageMatchFilter();
+        /// Whether the CatalogPackage must match the filter in order to be included in the matches.
         Boolean IsAdditive;
         /// The type of string comparison for matching
         MatchType Type;
@@ -251,36 +267,36 @@ namespace Microsoft.Management.Deployment
         PackageMatchField Field;
         /// The value to match
         String Value;
-        /// DESIGN NOTE: "Additional" from RequestMatch AppInstallerRepositorySearch.h is not implememented here.
+        /// DESIGN NOTE: "Additional" from RequestMatch AppInstallerRepositorySearch.h is not implemented here.
     };
 
     /// IMPLEMENTATION NOTE: ResultMatch from AppInstallerRepositorySearch.h
     /// A single result from the search.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass ResultMatch
     {
-        ResultMatch();
-
         /// The package found by the search request.
-        Package Package { get; };
+        CatalogPackage CatalogPackage { get; };
 
         /// The highest order field on which the package matched the search.
         PackageMatchFilter MatchCriteria { get; };
     }
     /// IMPLEMENTATION NOTE: SearchResult from AppInstallerRepositorySearch.h
     /// Search result data returned from FindPackages
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass FindPackagesResult
     {
-        FindPackagesResult();
-
         /// The full set of results from the search.
         Windows.Foundation.Collections.IVectorView<ResultMatch> Matches { get; };
 
         /// If true, the results were truncated by the given SearchRequest::MaximumResults.
-        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue getting more results.
+        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
+        /// getting more results.
         Boolean IsTruncated{ get; };
     }
 
     /// Options for FindPackages
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass FindPackagesOptions
     {
         FindPackagesOptions();
@@ -299,97 +315,111 @@ namespace Microsoft.Management.Deployment
 
         /// Filters to find packages
         /// USAGE NOTE: Only one filter with PackageMatchField::AppCatalogDefined is allowed.
-        Windows.Foundation.Collections.IVector<PackageMatchFilter> Filters;
+        Windows.Foundation.Collections.IVector<PackageMatchFilter> Filters { get; };
 
         /// Restricts the length of the returned results to the specified count.
-        UInt32 Limit;
+        UInt32 ResultLimit;
 
         /// Overrides the default search behavior for this search if the catalog is a composite catalog.
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports setting the search behavior when creating the source
-        /// so this is new work but is expected to be very small.
+        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports setting the search behavior when 
+        /// creating the source so this is new work but is expected to be very small.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
 
     /// IMPLEMENTATION NOTE: ISource from AppInstallerRepositorySource.h
     /// A catalog for searching for packages
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass AppCatalog
     {
-        AppCatalog();
-
         /// Gets a value indicating whether this app catalog is a composite of other app catalogs,
         /// and thus the packages may come from disparate app catalogs as well.
         Boolean IsComposite { get; };
         /// The details of the app catalog if it is not a composite.
-        AppCatalogDetails Details { get; };
+        AppCatalogInfo Info { get; };
 
-        /// Opens a catalog. Required before searching. For remote catalogs (i.e. note Installed and Installing) this may require downloading information from a server.
+        /// Opens a catalog. Required before searching. For remote catalogs (i.e. note Installed and Installing) this 
+        /// may require downloading information from a server.
         Windows.Foundation.IAsyncAction OpenAsync();
         /// Searches for Packages in the catalog.
         Windows.Foundation.IAsyncOperation<FindPackagesResult> FindPackagesAsync(FindPackagesOptions options);
     }
 
     /// Catalogs with AppCatalogOrigin Predefined
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PredefinedAppCatalog
     {
-        OpenWindowsCatalog = 0,
-        InstalledPackages = 1,
+        OpenWindowsCatalog,
+        InstalledPackages,
         /// IMPLEMENTATION NOTE:  Windows Package Manager does not currently have this concept. 
-        /// This would be a new Orchestration feature to keep track of the installing Package objects and allow search of those objects.
-        /// A less costly version of this might skip the search feature and use something like AppInstaller.GetInstallingPackagesAsync to just return a list of Packages.
-        /// The current expectation is that Installing packages will be stored using the same database tech that InstalledPackages are using and will be able to reuse that code.
-        InstallingPackages = 2
+        /// This would be a new Orchestration feature to keep track of the installing CatalogPackage objects and allow 
+        /// search of those objects.
+        InstallingPackages
     };
 
     /// 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass GetCompositeAppCatalogOptions
     {
         GetCompositeAppCatalogOptions(); 
 
-        /// Get a composite catalog to allow searching a user defined or pre defined source and a local source (Installing, Installed) together  
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports one local source and one remote source per composite catalog.
-        /// DESIGN NOTE: It seems likely that in the future we will want to support letting callers use two local sources (i.e. both Installing and Installed)
+        /// Get a composite catalog to allow searching a user defined or pre defined source
+        /// and a local source (Installing, Installed) together  
+        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports 
+        /// one local source and one remote source per composite catalog.
+        /// DESIGN NOTE: It seems likely that in the future we will want to support 
+        /// letting callers use two local sources (i.e. both Installing and Installed)
         IVector<AppCatalog> Catalogs;
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
 
-    enum InstallScope
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum AppInstallScope
     {
-        User = 0,
-        Machine = 1,
+        User,
+        Machine,
     };
 
-    enum InstallMode
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum AppInstallMode
     {
         /// The default experience for the installer. Installer may show some UI.
-        Default = 0,
-        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent possible (installer may still show some required UI).
-        Silent = 1,
+        Default,
+        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent 
+        /// possible (installer may still show some required UI).
+        Silent,
         /// Runs the installer in interactive mode.
-        Interactive = 2,
+        Interactive,
     };
 
     /// Options when installing a package.
     /// Intended to allow full compatibility with the "winget install" command line interface.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass InstallOptions
     {
         InstallOptions();
 
-        /// DESIGN NOTE: --Exact from the winget install command line is implied here by virtue of the find then install object semantics.
-        /// Likewise --Query from the command line is not implemented here since the query is required up front in order to get the Package object.
-        /// DESIGN NOTE: Using PackageVersion rather than Package felt like it would be too specific here. Package and PackageVersionId (or if unspecified then the latest one) may be nicer
-        /// if we end up having versions that have different applicability or other more complex logic about which version is preferred.
-        Package Package;
-        /// Optionally specifies the version from the package to install. If unspecified the version matching Package.GetLatestVersion() is used.
+        /// DESIGN NOTE: --Exact from the winget install command line is implied here by virtue of the find 
+        /// then install object semantics.
+        /// Likewise --Query from the command line is not implemented here since the query is required up 
+        /// front in order to get the CatalogPackage object.
+        /// DESIGN NOTE: Using PackageVersionInfo rather than CatalogPackage felt like it would be too 
+        /// specific here. CatalogPackage and PackageVersionId (or if unspecified then the latest one) may be nicer
+        /// if we end up having versions that have different applicability or other more complex logic about 
+        /// which version is preferred.
+        CatalogPackage CatalogPackage;
+        /// Optionally specifies the version from the package to install. If unspecified the version matching 
+        /// CatalogPackage.GetLatestVersion() is used.
         PackageVersionId PackageVersionId;
 
         /// Specifies alternate location to install package (if supported).
         String PreferredInstallLocation;
         /// User or Machine. 
-        InstallScope InstallScope;
+        AppInstallScope AppInstallScope;
         /// Silent, Interactive, or Default
-        InstallMode InstallMode;
-        /// Directs the logging to a log file. Callers must provide a path to a file that the Windows Package Manager package has write access to.
+        AppInstallMode AppInstallMode;
+        /// Directs the logging to a log file. Callers must provide a path to a file that the Windows Package 
+        /// Manager package has write access to.
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
@@ -398,29 +428,34 @@ namespace Microsoft.Management.Deployment
         String ReplacementInstallerArguments;
 
         /// Used by a caller to correlate the install with a caller's data.
-        /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to use JSON to encode multiple arguments.
+        /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to 
+        /// use JSON to encode multiple arguments.
         String AdditionalTelemetryArguments;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalAppCatalogArguments;
     }
 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass AppInstaller
     {
         AppInstaller();
 
         /// Get the available catalogs. Each source will have a separate catalog. This list does not include KnownCatalogs.
         /// This does not open the catalog. These catalogs can be used individually or merged with GetCompositeAppCatalogAsync. 
-        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list excluding the predefined sources.
-        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVectorView<AppCatalog> > GetAppCatalogsAsync();
+        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list 
+        /// excluding the predefined sources.
+        Windows.Foundation.Collections.IVectorView<AppCatalog> GetAppCatalogs();
         /// Get a built in catalog
-        [default_overload]
-        Windows.Foundation.IAsyncOperation<AppCatalog> GetAppCatalogAsync(PredefinedAppCatalog predefinedAppCatalog);
+        AppCatalog GetAppCatalog(PredefinedAppCatalog predefinedAppCatalog);
         /// Get a catalog by a known unique identifier
-        Windows.Foundation.IAsyncOperation<AppCatalog> GetAppCatalogAsync(String catalogId);
-        /// Get a composite catalog to allow searching a user defined or pre defined source and a local source (Installing, Installed) together  
-        Windows.Foundation.IAsyncOperation<AppCatalog> GetCompositeAppCatalogAsync(GetCompositeAppCatalogOptions options);
+        AppCatalog GetAppCatalogById(String catalogId);
+        /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
+        /// (Installing, Installed) together  
+        AppCatalog GetCompositeAppCatalog(GetCompositeAppCatalogOptions options);
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(InstallOptions options);
+        /// Get install progress
+        Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package);
     }
 }

@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    Microsoft::Management::Deployment::AppCatalogDetails AppCatalog::Details()
+    Microsoft::Management::Deployment::AppCatalogInfo AppCatalog::Info()
     {
         throw hresult_not_implemented();
     }
