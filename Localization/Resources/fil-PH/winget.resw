@@ -386,7 +386,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>I-filter ang mga resulta ayon sa pangalan</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Walang pang-install na angkop sa kasalukuyang sistema.</value>
+    <value>Walang nakitang naaangkop na installer; tingnan ang mga log para sa higit pang detalye.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Kasalukuyang walang magagamit na mga pang-eksperimentong tampok.</value>
@@ -813,5 +813,107 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Hindi umiiral ang landas:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Hindi tumutukoy ang JSON file ng nakikilalang schema.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Pumili ng saklaw ng pag-install (gumagamit o machine)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Hindi tama ang halaga na ibinigay para sa '%1' na argumento; ang mga tamang halaga ay</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Hindi pinapagana ang operasyong ito ng Patakaran ng Grupo</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Paganahin ang Mga Karagdagang Pinagmulan ng Windows App Installer</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Paganahin ang Mga Pinapayagang Pinagmulan ng Windows App Installer</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Paganahin ang Default na Pinagmulan ng Windows App Installer</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Paganahin ang Mga Eksperimental na Tampok ng Windows App Installer</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Paganahin ang Pinagmulan ng Microsoft Store ng Windows App Installer</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Paganahin ang Mga Setting ng Windows Package Manager</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Paganahin ang Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>I-set Sa Loob Ng Ilang Minuto ang Auto Update Interval ng Pinagmulan ng Windows Package Manager</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Hindi Pinagana</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Pinagana</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Patakaran ng Grupo</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Estado</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Paganahin ang Mga File ng Lokal na Manifest ng Windows App Installer</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Field:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Hindi tamang format ng field.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Hindi tamang halaga ng field.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Hindi tamang setting mula sa Patakaran ng Grupo.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Na-load ang mga setting mula sa backup file.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Error sa pag-parse ng file:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Halaga:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Isinasagawa ang sumusunod na mga pang-eksperimentong tampok.
+Hindi pinagana ang kompigurasyon dahil sa Patakaran ng Grupo.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hindi tumutugma ang installer hash.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Paganahin ang Hash Override ng Windows App Installer</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>I-export ang mga kasalukuyang pinagmulan bilang JSON para sa Patakaran ng Grupo.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>I-export ang mga kasalukuyang pinagmulan</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Karagdagang pinagmulan</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Pinapayagang pinagmulan</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

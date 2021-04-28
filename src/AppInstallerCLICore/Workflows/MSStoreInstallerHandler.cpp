@@ -28,7 +28,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     // We are aggregating all AppInstallItem progresses into one.
                     // Averaging every progress for now until we have a better way to find overall progress.
-                    uint64_t overallProgressMax = 100 * installItems.Size();
+                    uint64_t overallProgressMax = 100 * static_cast<uint64_t>(installItems.Size());
                     uint64_t currentProgress = 0;
 
                     while (currentProgress < overallProgressMax)

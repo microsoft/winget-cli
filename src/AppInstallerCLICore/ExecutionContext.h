@@ -14,8 +14,7 @@
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \
     do { \
-        HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
-        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
+        _context_.Terminate(_hr_, __FILE__, __LINE__); \
         return _ret_; \
     } while(0,0)
 
@@ -101,6 +100,8 @@ namespace AppInstaller::CLI::Execution
             WI_ClearAllFlags(m_flags, flags);
         }
 
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
@@ -112,5 +113,6 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
+        Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
     };
 }

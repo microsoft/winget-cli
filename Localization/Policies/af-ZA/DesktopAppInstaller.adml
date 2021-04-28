@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Toepassinginstalleerder</displayName>
+  <description>Toepassinginstalleerder</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Werkskerm toepassinginstalleerder</string>
+      <string id="EnableAppInstaller">Aktiveer toepassinginstalleerder</string>
+      <string id="EnableAppInstallerExplanation">Hierdie beleid bepaal of die Windows Pakketbestuurder deur gebruikers gebruik kan word.
+
+As jy hierdie instelling aktiveer of nie konfigureer nie, kan gebruikers die Windows Pakketbestuurder gebruik.
+
+As jy hierdie instelling deaktiveer, kan gebruikers nie die Windows Pakketbestuurder gebruik nie.</string>
+      <string id="EnableSettings">Aktiveer toepassinginstalleerderinstellings</string>
+      <string id="EnableSettingsExplanation">Hierdie beleid bepaal of gebruikers hul instellings kan verander.
+
+As jy hierdie instelling aktiveer of nie konfigureer nie, kan gebruikers die instellings vir die Windows Pakketbestuurder verander.
+
+As jy hierdie instelling deaktiveer, kan gebruikers nie die instellings vir die Windows Pakketbestuurder verander nie.</string>
+      <string id="EnableExperimentalFeatures">Aktiveer toepassinginstalleerder eksperimentele kenmerke</string>
+      <string id="EnableExperimentalFeaturesExplanation">Hierdie beleid bepaal of gebruikers eksperimentele kenmerke in die Windows Pakketbestuurder kan aktiveer.
+
+As jy hierdie instelling aktiveer of nie konfigureer nie, kan gebruikers eksperimentele kenmerke vir die Windows Pakketbestuurder aktiveer.
+
+As jy hierdie instelling deaktiveer, sal gebruikers nie eksperimentele kernmerke vir die Windows Pakketbestuurder kan aktiveer nie.</string>
+      <string id="EnableLocalManifestFiles">Aktiveer toepassinginstalleerder plaaslike manifeslêers</string>
+      <string id="EnableLocalManifestFilesExplanation">Hierdie beleid bepaal of gebruikers pakkette met plaaslike manifeslêers kan installeer.
+
+As jy hierdie instelling aktiveer of nie konfigureer nie, kan gebruikers pakkette met plaaslike manifeste installeer met behulp van die Windows Pakketbestuurder.
+
+As jy hierdie instelling deaktiveer, kan gebruikers nie pakkette met plaaslike manifeste installeer met behulp van die Windows Pakketbestuurder nie.</string>
+      <string id="EnableHashOverride">Aktiveer toepassinginstalleerderhuts oorheers</string>
+      <string id="EnableHashOverrideExplanation">Hierdie beleid beheer of die Windows Pakketbestuurder gekonfigureer kan word of nie om die vermoë te aktiveer om die SGA256-sekuriteitsvalidering in instellings te oorheers.
+
+As jy aktiveer of hierdie beleid nie konfigureer nie, sal gebruikers in staat wees om die vermoë te aktiveer om die SGA256-sekuriteitsvalidering in die Windows Pakketbestuurder-instellings te oorheers.
+
+As jy hierdie beleid deaktiveer, sal gebruikers nie in staat wees om die vermoë te aktiveer om die SGA256-sekuriteitsvalidering in die Windows Pakketbestuurder-instellings te oorheers nie.</string>
+      <string id="EnableDefaultSource">Aktiveer toepassinginstalleerder verstekbron</string>
+      <string id="EnableDefaultSourceExplanation">Hierdie beleid beheer die verstekbron wat by die Windows Pakketbestuurder ingesluit is.
+
+As u hierdie instelling nie konfigureer nie, is die verstekbron vir Windows Pakketbestuurder beskikbaar en kan dit verwyder word.
+
+As jy hierdie instelling aktiveer, is die verstekbron vir Windows Pakketbestuurder beskikbaar en kan dit nie verwyder word nie.
+
+As jy hierdie instelling deaktiveer, is die verstekbron vir Windows Pakketbestuurder nie beskikbaar nie.</string>
+      <string id="EnableMicrosoftStoreSource">Aktiveer toepassinginstalleerder Microsoft Store-bron</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Hierdie beleid beheer die Microsoft Store-bron wat by die Windows Pakketbestuurder ingesluit is.
+
+As jy hierdie instelling nie konfigureer nie, is die Microsoft Store-bron vir die Windows Pakketbestuurder beskikbaar en kan dit verwyder word.
+
+As jy hierdie instelling aktiveer, is die Microsoft Store-bron vir die Windows Pakketbestuurder beskikbaar en kan dit nie verwyder word nie.
+
+As jy hierdie instelling deaktiveer, is die Microsoft Store-bron vir die Windows Pakketbestuurder nie beskikbaar nie.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Stel toepassinginstalleerder bron outomatiese bywerking interval in minute</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Hierdie beleid beheer die outomatiese bywerkingsinterval vir pakketgebaseerde bronne.
+
+As jy hierdie instelling deaktiveer of nie konfigureer nie, sal die verstekinterval of die waarde wat in die instellings gespesifiseer word, deur die Windows Pakketbestuurder gebruik word.
+
+As jy hierdie instelling aktiveer, sal die Windows Pakketbestuurder die aantal minute wat gespesifiseer word, gebruik.</string>
+      <string id="EnableAdditionalSources">Aktiveer toepassinginstalleerder bykomende bronne</string>
+      <string id="EnableAdditionalSourcesExplanation">Hierdie beleid beheer bykomende bronne wat deur die onderneming se IT-administrateur voorsien word.
+
+As jy nie hierdie beleid konfigureer nie, sal geen bykomende bronne vir die Windows Pakketbestuurder gekonfigureer word nie.
+
+As jy hierdie beleid aktiveer, sal die bykomende bronne by die Windows Pakketbestuurder gevoeg word en kan dit nie verwyder word nie. Die voorstelling vir elke bykomende bron kan verkry word vanaf geïnstalleerde bronne met behulp van 'winget source export'.
+
+As jy hierdie beleid deaktiveer, kan geen bykomende bronne vir die Windows Pakketbestuurder gekonfigureer word nie.</string>
+      <string id="EnableAllowedSources">Aktiveer toepassinginstalleerder toegelate bronne</string>
+      <string id="EnableAllowedSourcesExplanation">Hierdie beleid beheer bykomende bronne wat deur die onderneming se IT-administrateur toegelaat word.
+
+As jy nie hierdie beleid konfigureer nie, kan gebruikers bykomende bronne byvoeg of verwyder as die wat deur die beleid gekonfigureer is.
+
+As jy hierdie beleid aktiveer, kan slegs die gespesifiseerde bronne bygevoeg of verwyder word uit die Windows Pakketbestuurder. Die voorstelling vir elke toegelate bron kan verkry word vanaf geïnstalleerde bronne met behulp van 'winget source export'.
+
+As jy hierdie beleid deaktiveer, kan geen bykomende bronne vir die Windows Pakketbestuurder gekonfigureer word nie.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Bron Outomatiese Bywerking Interval binne minute</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Bykomende bronne: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Toegelate bronne: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

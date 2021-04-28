@@ -386,7 +386,7 @@
     <value>تصفية النتائج حسب الاسم</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>لا توجد أي مثبتات قابلة للتطبيق على النظام الحالي.</value>
+    <value>لم يتم العثور على مثبت قابل للتطبيق؛ انظر السجلات لمزيد من التفاصيل.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>لا توجد حاليا أي ميزات تجريبية متاحة. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>‏‏المسار غير موجود:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>لا يحدد ملف JSON مخطط قاعدة بيانات تم التعرف عليه.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>حدد نطاق التثبيت (مستخدم أو جهاز)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>القيمة المقدمة للوسيطة `%1` غير صالحة؛ القيم الصالحة هي</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>تم تعطيل هذه العملية بواسطة نهج المجموعة</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>قم بتمكين مصادر مثبت تطبيقات Windows الإضافية</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>تمكين المصادر المسموح بها لمثبت تطبيقات Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>تمكين المصدر الافتراضي لمثبت تطبيقات Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>تمكين الميزات التجريبية لمثبت تطبيقات Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>تمكين مصدر Microsoft Store لمثبت تطبيقات Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>تمكين إعدادات مدير حزم Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>تمكين مدير حزم Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>قم بتعيين الفاصل الزمني للتحديث التلقائي لمصدر مدير حزم Windows بالدقائق</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>معطّلة</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>ممكّنة</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>نهج المجموعة</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>الحالة</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>تمكين ملفات البيان المحلي لبرنامج مثبت تطبيق Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>الحقل:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>تنسيق الحقل غير صالح.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>قيمة حقل غير صالحة.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>إعداد غير صالح من "نهج المجموعة".</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>الإعدادات المحملة من ملف النسخة الاحتياطية.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>خطأ في تحليل الملف:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>القيمة:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>الميزات التجريبية التالية قيد التقدم.
+ التكوين معطل بسبب نهج المجموعة.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>تجزئة المثبت غير متطابقة.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>تمكين تجاوز التجزئة لمثبت تطبيقات Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>تصدير المصادر الحالية كـ JSON لنهج المجموعة.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>تصدير المصادر الحالية</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>مصدر إضافي</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>المصدر المسموح به</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

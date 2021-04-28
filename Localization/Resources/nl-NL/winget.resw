@@ -386,7 +386,7 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
     <value>Resultaten filteren op naam</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Er zijn geen installatieprogramma's van toepassing op het huidige systeem.</value>
+    <value>Geen toepasselijk installatieprogramma gevonden. Zie de logboeken voor meer informatie.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Er zijn momenteel geen experimentele functies beschikbaar.</value>
@@ -813,5 +813,107 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Pad bestaat niet:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>In het JSON-bestand wordt geen bekend schema opgegeven.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Installatiebereik selecteren (gebruiker of computer)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>De opgegeven waarde voor het argument%1is ongeldig. geldige waarden zijn</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Deze bewerking is uitgeschakeld door het groepsbeleid</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aanvullende bronnen voor het installatieprogramma van Windows-apps inschakelen</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Toegestane bronnen van Windows-app-installatieprogramma inschakelen</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Standaardbron voor installatieprogramma van Windows-app inschakelen</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Experimentele functies van het installatieprogramma voor Windows- app inschakelen</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Microsoft Store-bron voor Windows-app-installatieprogramma inschakelen</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Instellingen voor Windows-pakketbeheerder inschakelen</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows-pakketbeheerder inschakelen</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Interval voor automatische updates van bron voor Windows-pakketbeheerder instellen in minuten</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Uitgeschakeld</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Ingeschakeld</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Groepsbeleid</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Staat</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Lokale manifestbestanden van het Windows-app-installatieprogramma inschakelen</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Veld:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ongeldige veldindeling.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ongeldige veldwaarde.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ongeldige instelling van groepsbeleid.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>De instellingen zijn geladen uit het back-upbestand.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Fout bij parseren van bestand:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Waarde:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>De volgende experimentele functies worden uitgevoerd.
+Configuratie is uitgeschakeld vanwege Groepsbeleid.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hash-installatieprogramma komt niet overeen.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Hash-overschrijving van Windows-app-installatieprogramma inschakelen</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>De huidige bronnen als JSON exporteren voor Groepsbeleid.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Huidige bronnen exporteren</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Extra bron</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Toegestane bron</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

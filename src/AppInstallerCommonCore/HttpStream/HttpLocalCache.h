@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "pch.h"
+
 #include "HttpClientWrapper.h"
 
 namespace AppInstaller::Utility::HttpStream
@@ -10,7 +10,7 @@ namespace AppInstaller::Utility::HttpStream
     // Represents an entry in the cache.
     struct CachedPage
     {
-        int lastAccessCounter;
+        int lastAccessCounter = 0;
         winrt::Windows::Storage::Streams::IBuffer buffer;
     };
 

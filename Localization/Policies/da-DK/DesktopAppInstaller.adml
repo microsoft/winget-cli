@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Appinstallation</displayName>
+  <description>Appinstallation</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Appinstallation til Skrivebord</string>
+      <string id="EnableAppInstaller">Aktivér Appinstallation</string>
+      <string id="EnableAppInstallerExplanation">Denne politik styrer, om Windows-Pakkestyring kan bruges af brugerne.
+
+Hvis du aktiverer eller undlader at konfigurere denne politikindstilling, kan brugerne bruge Windows-pakke håndtering.
+
+Hvis du deaktiverer denne indstilling, kan brugere ikke bruge Windows Pakkestyring.</string>
+      <string id="EnableSettings">Aktivér indstillinger for Appinstallation</string>
+      <string id="EnableSettingsExplanation">Denne politik styrer, om brugerne kan ændre deres indstillinger.
+
+Hvis du aktiverer eller undlader at konfigurere denne indstilling, kan brugerne ændre indstillingerne for Windows Pakkestyring.
+
+Hvis du deaktiverer denne indstilling, kan brugerne ikke ændre indstillingerne for Windows Pakkestyring.</string>
+      <string id="EnableExperimentalFeatures">Aktivér eksperimentelle funktioner i Appinstallation</string>
+      <string id="EnableExperimentalFeaturesExplanation">Denne politik styrer, om brugerne kan aktivere eksperimentelle funktioner i Windows Pakkestyring.
+
+Hvis du aktiverer eller undlader at konfigurere denne indstilling, kan brugerne aktivere eksperimentelle funktioner for Windows Pakkestyring.
+
+Hvis du deaktiverer denne indstilling, kan brugerne ikke aktivere eksperimentelle funktioner for Windows Pakkestyring.</string>
+      <string id="EnableLocalManifestFiles">Aktivér lokale manifest-filer til Appinstallation</string>
+      <string id="EnableLocalManifestFilesExplanation">Denne politik styrer, om brugerne kan installere pakker med lokale manifestfiler.
+
+Hvis du aktiverer eller undlader at konfigurere denne politikindstilling, kan brugerne installere pakker med lokale manifester ved hjælp af Windows Pakkestyring.
+
+Hvis du deaktiverer denne indstilling, kan brugerne ikke installere pakker med lokale manifester ved hjælp af Windows Pakkestyring.</string>
+      <string id="EnableHashOverride">Aktivér tilsidesættelse af hash-kode i Appinstallation</string>
+      <string id="EnableHashOverrideExplanation">Denne politik styrer, om Windows Pakkestyring kan konfigureres til at aktivere muligheden for at tilsidesætte SHA256-sikkerhedsvalideringen i indstillingerne.
+
+Hvis du aktiverer eller undlader at konfigurere denne politik, kan brugerne aktivere muligheden for at tilsidesætte SHA256-sikkerhedsvalideringen i indstillingerne for Windows Pakkestyring.
+
+Hvis du deaktiverer denne politik, kan brugerne ikke aktivere muligheden for at tilsidesætte SHA256-sikkerhedsvalideringen i indstillingerne for Windows Pakkestyring.</string>
+      <string id="EnableDefaultSource">Aktivér standardkilde til Appinstallation</string>
+      <string id="EnableDefaultSourceExplanation">Denne politik styrer den standardkilde, der følger med Windows Pakkestyring.
+
+Hvis du ikke konfigurerer denne indstilling, vil standardkilden til Windows Pakkestyring være tilgængelig og kunne fjernes.
+
+Hvis du aktiverer denne indstilling, vil standardkilden til Windows Pakkestyring være tilgængelig og ikke kunne fjernes.
+
+Hvis du deaktiverer denne indstilling, vil standardkilden til Windows Pakkestyring ikke være tilgængelig.</string>
+      <string id="EnableMicrosoftStoreSource">Aktivér Microsoft Store-kilden til Appinstallation</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Denne politik styrer den Microsoft Store-kilde, der følger med Windows Pakkestyring.
+
+Hvis du ikke konfigurerer denne indstilling, vil Microsoft Store-kilden til Windows Pakkestyring være tilgængelig og kunne fjernes.
+
+Hvis du aktiverer denne indstilling, vil Microsoft Store-kilden til Windows Pakkestyring være tilgængelig og ikke kunne fjernes.
+
+Hvis du deaktiverer denne indstilling, vil Microsoft Store-kilden til Windows Pakkestyring ikke være tilgængelig.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Angiv interval i minutter for automatisk opdatering af kilde til Appinstallation</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Denne politik styrer intervallet for automatisk opdatering for pakke baserede kilder.
+
+Hvis du deaktiverer eller undlader at konfigurere denne indstilling, bruges det Standardinterval eller den værdi, der er angivet i indstillingerne, af Windows Pakkestyring.
+
+Hvis du aktiverer denne indstilling, bruges det antal minutter, der er angivet i Windows Pakkestyring.</string>
+      <string id="EnableAdditionalSources">Aktivér ekstra kilder til Appinstallation</string>
+      <string id="EnableAdditionalSourcesExplanation">Denne politik styrer ekstra kilder, der leveres af virksomhedens IT-administrator.
+
+Hvis du undlader at konfigurere denne politik, konfigureres der ingen yderligere kilder for Windows Pakkestyring.
+
+Hvis du aktiverer denne politik, bliver ekstra kilder føjet til Windows Pakkestyring og kan ikke fjernes. Repræsentationen for hver ekstra kilde kan hentes fra installerede kilder ved hjælp af ' winget kildeeksport '.
+
+Hvis du deaktiverer denne politik, kan der ikke konfigureres yderligere kilder til Windows Pakkestyring.</string>
+      <string id="EnableAllowedSources">Aktivér tilladte kilder til Appinstallation</string>
+      <string id="EnableAllowedSourcesExplanation">Denne politik styrer de ekstra kilder, der er tilladt af virksomhedens IT-administrator.
+
+Hvis du undlader at konfigurere denne politik, vil brugere kunne tilføje og fjerne ekstra kilder, udover dem, der er konfigureret af politikken.
+
+Hvis du aktiverer denne politik, er det kun de angivne kilder, der kan føjes til eller fjernes fra Windows Pakkestyring. Repræsentationen for hver ekstra kilde kan hentes fra installerede kilder ved hjælp af ' winget kildeeksport '.
+
+Hvis du deaktiverer denne politik, kan der ikke konfigureres yderligere kilder til Windows Pakkestyring.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval i minutter for automatisk opdatering af kilde</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Ekstra kilder: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Tilladte kilder: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

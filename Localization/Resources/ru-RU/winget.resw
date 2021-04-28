@@ -386,7 +386,7 @@
     <value>Фильтровать результаты по имени</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Отсутствуют установщики, применимые к текущей системе.</value>
+    <value>Применимый установщик не найден. Дополнительные сведения см. в журналах.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>В настоящее время нет доступных экспериментальных компонентов. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Путь не существует:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>В JSON-файле не указана распознанная схема.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Выберите область установки (пользователь или компьютер)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Для аргумента "%1" задано недопустимое значение; Допустимые значения</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Эта операция отключена групповой политикой</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Включить дополнительные источники Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Включить разрешенные источники Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Включить источник по умолчанию Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Включить экспериментальные функции Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Включить источник Microsoft Store Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Включить параметры Диспетчера пакетов Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Включить Диспетчер пакетов Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Задать интервал автоматического обновления источника Диспетчера пакетов Windows в минутах</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Отключено</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Включено</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Групповая политика</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Состояние</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Включить локальные файлы манифестов Установщика приложений для Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Поле:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Недопустимый формат поля.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Недопустимое значение поля.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Недопустимый параметр из групповой политики.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Загруженные параметры из файла резервной копии.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Ошибка при анализе файла:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Значение:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Выполняются следующие экспериментальные функции.
+Конфигурация отключена из-за групповой политики.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Хэш-код установщика не совпадает.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Включить переопределение хэша Установщика приложений для Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Экспорт текущих источников в формате JSON для групповой политики.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Экспорт текущих источников</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Дополнительный источник</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Разрешенный источник</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

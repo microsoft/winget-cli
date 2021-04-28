@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>מתקין האפליקציות</displayName>
+  <description>מתקין האפליקציות</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">מתקין האפליקציות של שולחן העבודה</string>
+      <string id="EnableAppInstaller">הפוך את מתקין האפליקציות לזמין</string>
+      <string id="EnableAppInstallerExplanation">מדיניות זו קובעת אם ניתן להשתמש במנהל החבילות של Windows באמצעות משתמשים.
+
+אם תהפוך הגדרה זו לזמינה או לא לקביעת התצורה, המשתמשים יוכלו להשתמש במנהל החבילות של Windows.
+
+אם תהפוך הגדרה זו ללא זמינה, משתמשים לא יוכלו להשתמש ב-Windows Package Manager.</string>
+      <string id="EnableSettings">הפוך את הגדרות מתקין האפליקציות לזמינות</string>
+      <string id="EnableSettingsExplanation">מדיניות זו קובעת אם משתמשים יכולים לשנות את ההגדרות שלהם.
+
+אם תהפוך הגדרה זו לזמינה או לא לקביעת התצורה, המשתמשים יוכלו לשנות הגדרות עבור מנהל החבילות של Windows.
+
+אם תהפוך הגדרה זו ללא זמינה, משתמשים לא יוכלו לשנות הגדרות עבור מנהל החבילות של Windows.</string>
+      <string id="EnableExperimentalFeatures">הפוך תכונות ניסיוניות של מתקין האפליקציות לזמינות</string>
+      <string id="EnableExperimentalFeaturesExplanation">מדיניות זו קובעת אם משתמשים יכולים להפוך תכונות ניסיוניות לזמינות ב-Windows Package Manager.
+
+אם תהפוך הגדרה זו לזמינה או לא לקביעת התצורה, המשתמשים יוכלו להפוך תכונות ניסיוניות לזמינות עבור מנהל החבילות של Windows.
+
+אם תהפוך הגדרה זו ללא זמינה, המשתמשים לא יוכלו להפוך תכונות ניסיוניות לזמינות עבור מנהל החבילות של Windows.</string>
+      <string id="EnableLocalManifestFiles">הפוך קבצי מניפסט מקומיים של מתקין האפליקציות לזמינים</string>
+      <string id="EnableLocalManifestFilesExplanation">מדיניות זו קובעת אם משתמשים יכולים להתקין חבילות עם קבצי מניפסט מקומיים.
+
+אם תהפוך הגדרה זו לזמינה או לא לקביעת התצורה, המשתמשים יוכלו להתקין חבילות עם מניפסטים מקומיים באמצעות Windows Package Manager.
+
+אם תהפוך הגדרה זו ללא זמינה, משתמשים לא יוכלו להתקין חבילות עם מניפסטים מקומיים באמצעות Windows Package Manager.</string>
+      <string id="EnableHashOverride">הפוך עקיפת קוד Hash של מתקין האפליקציות לזמינה</string>
+      <string id="EnableHashOverrideExplanation">מדיניות זו קובעת האם ניתן לקבוע את תצורת מנהל החבילות של Windows כך שהיכולת לעקוף את אימות האבטחה SHA256 תהיה זמינה בהגדרות.
+
+אם תהפוך מדיניות זו לזמינה או לא תקבע את תצורתה, משתמשים יוכלו להפוך את היכולת לעקוף את אימות האבטחה SHA256 לזמינה בהגדרות מנהל החבילות של Windows.
+
+אם תהפוך מדיניות זו ללא זמינה, משתמשים לא יוכלו להפוך את היכולת לעקוף את אימות האבטחה SHA256 לזמינה בהגדרות מנהל החבילות של Windows.</string>
+      <string id="EnableDefaultSource">הפוך את מקור ברירת המחדל של מתקין האפליקציות לזמין</string>
+      <string id="EnableDefaultSourceExplanation">מדיניות זו חלה על מקור ברירת המחדל הכלול במנהל החבילות של Windows.
+
+אם לא תקבע תצורה עבור הגדרה זו, מקור ברירת המחדל עבור מנהל החבילות של Windows יהיה זמין ויהיה ניתן להסירו.
+
+אם תהפוך הגדרה זו לזמינה, מקור ברירת המחדל עבור מנהל החבילות של Windows יהיה זמין ולא יהיה ניתן להסירו.
+
+אם תהפוך הגדרה זו ללא זמינה, מקור ברירת המחדל עבור מנהל החבילות של Windows לא יהיה זמין.</string>
+      <string id="EnableMicrosoftStoreSource">הפוך את מקור Microsoft Store של מתקין האפליקציות לזמין</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">מדיניות זו חלה על מקור Microsoft Store הכלול במנהל החבילות של Windows.
+
+אם לא תקבע תצורה עבור הגדרה זו, מקור Microsoft Store עבור מנהל החבילות של Windows יהיה זמין ויהיה ניתן להסירו.
+
+אם תהפוך הגדרה זו לזמינה, מקור Microsoft Store עבור מנהל החבילות של Windows יהיה זמין ולא יהיה ניתן להסירו.
+
+אם תהפוך הגדרה זו ללא זמינה, מקור Microsoft Store עבור מנהל החבילות של Windows לא יהיה זמין.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">הגדר בדקות מרווח זמן לעדכון אוטומטי של מקור מתקין האפליקציות</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">מדיניות זו קובעת את מרווח העדכון האוטומטי עבור מקורות מבוססי חבילה.
+
+אם תהפוך הגדרה זו ללא זמינה או לא תגדיר את ההגדרה, מרווח ברירת המחדל או הערך שצוין בהגדרות ישתמש ב-Windows Package Manager.
+
+אם תהפוך הגדרה זו לזמינה, מספר הדקות שצוין ישמש את מנהל החבילות של Windows.</string>
+      <string id="EnableAdditionalSources">הפוך מקורות נוספים של מתקין האפליקציות לזמינים</string>
+      <string id="EnableAdditionalSourcesExplanation">מדיניות זו חלה על מקורות נוספים שסופקו על-ידי מנהל ה- IT של הארגון.
+
+אם לא תקבע תצורה עבור מדיניות זו, לא תיקבע תצורתם של מקורות נוספים עבור מנהל החבילות של Windows.
+
+אם תהפוך מדיניות זו לזמינה, המקורות הנוספים יוספו למנהל החבילות של Windows ולא יהיה ניתן להסירם. ניתן להשיג את הייצוג עבור כל מקור נוסף ממקורות מותקנים באמצעות 'ייצוא מקור של WinGet'.
+
+אם תהפוך מדיניות זו ללא זמינה, לא יהיה ניתן לקבוע את התצורה של מקורות נוספים עבור מנהל החבילות של Windows.</string>
+      <string id="EnableAllowedSources">הפוך מקורות מורשים של מתקין האפליקציות לזמינים</string>
+      <string id="EnableAllowedSourcesExplanation">מדיניות זו חלה על מקורות נוספים שהורשו על-ידי מנהל ה- IT של הארגון.
+
+אם לא תקבע תצורה עבור מדיניות זו, משתמשים יוכלו להוסיף או להסיר מקורות נוספים בנוסף לאלו שתצורתם נקבעה על-ידי המדיניות.
+
+אם תהפוך מדיניות זו לזמינה, יהיה ניתן להוסיף רק את המקורות שצוינו למנהל החבילות של Windows, או להסירם ממנו. ניתן להשיג את הייצוג עבור כל מקור מורשה ממקורות מותקנים באמצעות 'ייצוא מקור של WinGet'.
+
+אם תהפוך מדיניות זו ללא זמינה, לא יהיה ניתן לקבוע את התצורה של מקורות נוספים עבור מנהל החבילות של Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">מרווח זמן בדקות לעדכון אוטומטי של מקור</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">מקורות נוספים: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">מקורות מורשים: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

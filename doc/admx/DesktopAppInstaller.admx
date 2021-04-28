@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="appinstaller" namespace="Microsoft.Policies.AppInstaller" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <categories>
+    <category name="AppInstaller" displayName="$(string.AppInstaller)">
+      <parentCategory ref="windows:WindowsComponents" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="EnableAppInstaller" class="Machine" displayName="$(string.EnableAppInstaller)" explainText="$(string.EnableAppInstallerExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableSettings" class="Machine" displayName="$(string.EnableSettings)" explainText="$(string.EnableSettingsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableSettings">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableExperimentalFeatures" class="Machine" displayName="$(string.EnableExperimentalFeatures)" explainText="$(string.EnableExperimentalFeaturesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableExperimentalFeatures">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalManifestFiles">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableHashOverride" class="Machine" displayName="$(string.EnableHashOverride)" explainText="$(string.EnableHashOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableHashOverride">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableDefaultSource" class="Machine" displayName="$(string.EnableDefaultSource)" explainText="$(string.EnableDefaultSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableDefaultSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableMicrosoftStoreSource" class="Machine" displayName="$(string.EnableMicrosoftStoreSource)" explainText="$(string.EnableMicrosoftStoreSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMicrosoftStoreSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="SourceAutoUpdateIntervalInMinutes" class="Machine" displayName="$(string.SourceAutoUpdateIntervalInMinutes)" explainText="$(string.SourceAutoUpdateIntervalInMinutesExplanation)" presentation="$(presentation.SourceAutoUpdateIntervalInMinutes)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <elements>
+        <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
+      </elements>
+    </policy>
+    <policy name="EnableAdditionalSources" class="Machine" displayName="$(string.EnableAdditionalSources)" explainText="$(string.EnableAdditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAdditionalSources">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AdditionalSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AdditionalSources" valuePrefix="" />
+      </elements>
+    </policy>
+    <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAllowedSources">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSources" valuePrefix="" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

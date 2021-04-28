@@ -386,7 +386,7 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Suodata tulokset nimen mukaan</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Asennus ei sovellu nykyiseen järjestelmään.</value>
+    <value>Soveltuvia asennus ohjelmaa ei löytynyt; lisä tietoja on lokeissa.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Tällä hetkellä ei ole saatavilla kokeellisia ominaisuuksia. </value>
@@ -813,5 +813,107 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Polkua ei ole:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-tiedosto ei määritä tunnistettua rakennetta.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Valitse asennuksen vaikutusalue (käyttäjä tai kone)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>%1-argumentin annettu arvo on virheellinen; kelvollisia arvoja ovat</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Ryhmäkäytäntö on poistanut tämän toiminnon käytöstä</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman lisälähteitä</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman sallitut lähteet</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman oletuslähde</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman kokeiluominaisuudet</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman Microsoft Storen lähde</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Ota käyttöön Windows Package Managerin asetukset</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Ota käyttöön Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Aseta Windows Package Managerin lähteiden automaattisen päivityksen aikaväli minuutteina</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Poissa käytöstä</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Käytössä</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Ryhmäkäytäntö</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Tila</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman paikalliset sovellusvaatimustiedostot</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Kenttä:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Virheellinen kentän muoto.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Virheellinen kentän arvo.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Virheellinen asetus ryhmäkäytännöstä.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Asetukset ladattiin varmuuskopiotiedostosta.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Virhe jäsennettäessä tiedostoa:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Arvo:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Seuraavat kokeelliset ominaisuudet ovat käynnissä.
+Määritys on poistettu käytöstä ryhmä käytännön vuoksi.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Asennusohjelman hajautusarvo ei täsmää.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Ota käyttöön Windows-sovellusten asennusohjelman hajautusarvon ohitus</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Vie nykyiset lähteet JSON-muodossa ryhmäkäytännölle.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Vie nykyiset lähteet</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Lisälähde</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Sallittu lähde</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

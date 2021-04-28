@@ -17,7 +17,7 @@ namespace AppInstaller::Manifest::YamlParser
         // File name of the manifest file if applicable for error reporting
         std::string FileName;
 
-        ManifestTypeEnum ManifestType;
+        ManifestTypeEnum ManifestType = ManifestTypeEnum::Preview;
     };
 
     // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.

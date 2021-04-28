@@ -386,7 +386,7 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
     <value>Ukaz »Filtriraj rezultate po imenu«</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>V trenutnem sistemu ni nobenega programi.</value>
+    <value>Najden ni bil noben ustrezen namestitveni program; glej dnevnike za več podrobnosti.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Trenutno ni na voljo nobena funkcija eksperimentiranja. </value>
@@ -813,5 +813,107 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Pot ne obstaja:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Datoteka JSON ne navaja prepoznane sheme.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Izberite obseg namestitve (uporabnik ali računalnik)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Vrednost, podana za argument »%1«, ni veljavna; veljavne vrednosti so</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Ta postopek je onemogočil pravilnik skupine</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Omogoči dodatne vire za namestitveni program za aplikacije Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Omogoči vire, ki so dovoljeni za namestitveni program za aplikacije sistema Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Omogoči privzeti vir namestitvenega programa za aplikacije sistema Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Omogoči eksperimentalne funkcije namestitvenega programa za aplikacije sistema Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Omogoči vir trgovine Microsoft Store namestitvenega programa za aplikacije sistema Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Omogoči nastavitve upravitelja paketov sistema Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Omogoči upravitelja paketov sistema Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Nastavitev intervala samodejnega posodabljanja vira upravitelja paketov sistema Windows v minutah</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Onemogočeno</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Omogočeno</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Pravilnik skupine</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Zvezna država</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Omogoči lokalne datoteke namestitvenega programa za aplikacije sistema Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Polje:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Neveljavna oblika polja.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Neveljavna vrednost polja</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Neveljavna nastavitev iz pravilnika skupine.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Naložene nastavitve iz datoteke varnostne kopije.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Napaka pri razčlenjevanju datoteke:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Vrednost:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>V teku so ti eksperimentalne funkcije.
+Konfiguracija je onemogočena zaradi pravilnika skupine.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Zgoščena vrednost namestitvenega programa se ne ujema.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Omogoči preglasitev zgoščene vrednosti namestitvenega programa za aplikacije sistema Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Izvozite trenutne vire kot JSON za pravilnik skupine.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Izvozi trenutne vire</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Dodatni vir</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Dovoljen vir</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

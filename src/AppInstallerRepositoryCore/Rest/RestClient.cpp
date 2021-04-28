@@ -4,18 +4,24 @@
 #include "RestClient.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/HttpClientHelper.h"
-#include "Rest/Schema/Json/InformationResponseDeserializer.h"
-#include "Rest/Schema/Json/JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
+#include "Rest/Schema/1_0/Json/InformationResponseDeserializer.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+#include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/RestHelper.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
-using namespace AppInstaller::Repository::Rest::Schema::Json;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
+using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Repository::Rest
 {
-    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface)
-        : m_interface(std::move(supportedInterface))
+    // Supported versions
+    std::set<Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
+
+    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
+        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
     }
 
@@ -29,37 +35,71 @@ namespace AppInstaller::Repository::Rest
         return m_interface->Search(request);
     }
 
-    utility::string_t RestClient::GetInformationEndpoint(const std::string& restApiUri)
+    std::string RestClient::GetSourceIdentifier() const
     {
-        std::string informationApi = RestHelper::GetRestAPIBaseUri(restApiUri);
-        return utility::conversions::to_string_t(informationApi.append(InformationGetEndpoint));
+        return m_sourceIdentifier;
     }
 
-    std::string RestClient::GetSupportedVersion(const std::string& restApi)
+    utility::string_t RestClient::GetInformationEndpoint(const utility::string_t& restApiUri)
+    {
+        utility::string_t endpoint = RestHelper::AppendPathToUri(restApiUri, JsonHelper::GetUtilityString(InformationGetEndpoint));
+        return endpoint;
+    }
+
+    IRestClient::Information RestClient::GetInformation(const utility::string_t& restApi, const HttpClientHelper& clientHelper)
     {
         // Call information endpoint
-        HttpClientHelper httpClientHelper{ GetInformationEndpoint(restApi) };
-        web::json::value response = httpClientHelper.HandleGet();
+        std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi));
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
 
         Json::InformationResponseDeserializer responseDeserializer;
-        IRestClient::Information info = responseDeserializer.Deserialize(response);
+        IRestClient::Information information = responseDeserializer.Deserialize(response.value());
 
-        // TODO: Get a version that winget client and rest source both support. Using first version given for now.
-        IRestClient::Information information{ std::move(info) };
-        return information.ServerSupportedVersions[0];
+        return information;
     }
 
-    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(const std::string& api, const std::string& version)
+    std::optional<Version> RestClient::GetLatestCommonVersion(
+        const IRestClient::Information& information, const std::set<Version>& wingetSupportedVersions)
     {
-        // TODO: Add supported version logic. Use V1_0 for now.
-        UNREFERENCED_PARAMETER(version);
-        return std::make_unique<Schema::V1_0::Interface>(api);
+        std::set<Version> commonVersions;
+        for (auto& version : information.ServerSupportedVersions)
+        {
+            Version versionInfo(version);
+            if (wingetSupportedVersions.find(versionInfo) != wingetSupportedVersions.end())
+            {
+                commonVersions.insert(std::move(versionInfo));
+            }
+        }
+
+        if (commonVersions.empty())
+        {
+            return {};
+        }
+
+        return *commonVersions.rbegin();
     }
 
-    RestClient RestClient::Create(const std::string& restApi)
+    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(const std::string& api, const Version& version)
     {
-        std::string version = GetSupportedVersion(restApi);
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(restApi, version);
-        return RestClient{ std::move(supportedInterface) };
+        if (version == Version_0_2_0 || version == Version_1_0_0)
+        {
+            return std::make_unique<Schema::V1_0::Interface>(api);
+        }
+       
+        THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
+    }
+
+    RestClient RestClient::Create(const std::string& restApi, const HttpClientHelper& helper)
+    {
+        utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
+
+        IRestClient::Information information = GetInformation(restEndpoint, helper);
+        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
+
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), latestCommonVersion.value());
+        return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

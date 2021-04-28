@@ -44,7 +44,9 @@ namespace AppInstaller::Manifest
                 return in1.Locale < in2.Locale;
             }
 
-            if (in1.Scope != in2.Scope)
+            // Unknown is considered equal to all other values for uniqueness.
+            // If either value is unknown, don't compare them.
+            if (in1.Scope != in2.Scope && in1.Scope != ScopeEnum::Unknown && in2.Scope != ScopeEnum::Unknown)
             {
                 return in1.Scope < in2.Scope;
             }

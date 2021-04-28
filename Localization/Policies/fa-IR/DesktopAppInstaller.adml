@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>نصب‌کننده برنامه</displayName>
+  <description>نصب‌کننده برنامه</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">نصب‌کننده برنامه دسک‌تاپ</string>
+      <string id="EnableAppInstaller">فعال کردن نصب‌کننده برنامه</string>
+      <string id="EnableAppInstallerExplanation">این خط مشی کنترل می‌کند که آیا کاربران می‌توانند از «مدیر بسته Windows» استفاده کنند یا خیر.
+
+اگر این تنظیم را فعال کنید یا پیکربندی نکنید، کاربران می‌توانند از «مدیر بسته Windows» استفاده کنند.
+
+اگر این تنظیم را غیرفعال کنید، کاربران نمی‌توانند از «مدیر بسته Windows» استفاده کنند.</string>
+      <string id="EnableSettings">فعال کردن تنظیمات نصب‌کننده برنامه</string>
+      <string id="EnableSettingsExplanation">این خط مشی کنترل می‌کند که آیا کاربران می‌توانند تنظیمات خود را تغییر دهند یا خیر.
+
+اگر این تنظیم را فعال کنید یا پیکربندی نکنید، کاربران می‌توانند تنظیمات را برای «مدیر بسته Windows» تغییر دهند.
+
+اگر این تنظیم را غیرفعال کنید، کاربران نمی‌توانند تنظیمات مربوط به «مدیر بسته Windows» را تغییر دهند.</string>
+      <string id="EnableExperimentalFeatures">فعال کردن ویژگی‌های آزمایشی نصب‌کننده برنامه</string>
+      <string id="EnableExperimentalFeaturesExplanation">این خط مشی کنترل می‌کند که آیا کاربران می‌توانند ویژگی‌های آزمایشی را در «مدیر بسته Windows» فعال کنند یا خیر.
+
+اگر این تنظیم را فعال کنید یا پیکربندی نکنید، کاربران می‌توانند ویژگی‌های آزمایشی را برای «مدیر بسته Windows» فعال کنند.
+
+اگر این تنظیم را غیرفعال کنید، کاربران نمی‌توانند ویژگی‌های آزمایشی را برای «مدیر بسته Windows» فعال کنند.</string>
+      <string id="EnableLocalManifestFiles">فعال کردن فایل‌های مانیفست محلی نصب‌کننده برنامه</string>
+      <string id="EnableLocalManifestFilesExplanation">این خط مشی کنترل می‌کند که آیا کاربران می توانند بسته‌های حاوی فایل‌های مانیفست محلی را نصب کنند یا خیر.
+
+اگر این تنظیم را فعال کنید یا پیکربندی نکنید، کاربران می‌توانند بسته‌های حاوی مانیفست‌های محلی را با استفاده از «مدیر بسته Windows» نصب کنند.
+
+اگر این تنظیم را غیرفعال کنید، کاربران نمی‌توانند بسته‌های حاوی مانیفست‌های محلی را با استفاده از «مدیر بسته Windows» نصب کنند.</string>
+      <string id="EnableHashOverride">فعال کردن نادیده گرفتن هش نصب‌کننده برنامه</string>
+      <string id="EnableHashOverrideExplanation">این خط مشی کنترل می‌کند که آیا می‌توان «مدیر بسته Windows» را به‌گونه‌ای پیکربندی کرد که قابلیت نادیده گرفتن تأیید اعتبار امنیتی SHA256 را در تنظیمات فعال کند یا خیر.
+
+اگر این خط مشی را فعال کنید یا پیکربندی نکنید، کاربران می‌توانند قابلیت نادیده گرفتن تأیید اعتبار امنیتی SHA256 را در تنظیمات «مدیر بسته Windows» فعال کنند.
+
+اگر این خط مشی را غیرفعال کنید، کاربران نمی‌توانند قابلیت نادیده گرفتن تأیید اعتبار امنیتی SHA256 را در تنظیمات «مدیر بسته Windows» فعال کنند.</string>
+      <string id="EnableDefaultSource">فعال کردن منبع پیش‌فرض نصب‌کننده برنامه</string>
+      <string id="EnableDefaultSourceExplanation">این خط مشی، منبع پیش‌فرض عرضه‌شده با «مدیر بسته Windows» را کنترل می‌کند.
+
+اگر این تنظیم را پیکربندی نکنید، منبع پیش‌فرض مربوط به «مدیر بسته Windows» در دسترس و قابل حذف خواهد بود.
+
+اگر این تنظیم را فعال کنید، منبع پیش‌فرض مربوط به «مدیر بسته Windows» در دسترس خواهد بود و قابل حذف نخواهد بود.
+
+اگر این تنظیم را غیرفعال کنید، منبع پیش‌فرض مربوط به «مدیر بسته Windows» در دسترس نخواهد بود.</string>
+      <string id="EnableMicrosoftStoreSource">فعال کردن منبع Microsoft Store نصب‌کننده برنامه</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">این خط مشی، منبع Microsoft Store عرضه‌شده با «مدیر بسته Windows» را کنترل می‌کند.
+
+اگر این تنظیم را پیکربندی نکنید، منبع Microsoft Store مربوط به «مدیر بسته Windows» در دسترس و قابل حذف خواهد بود.
+
+اگر این تنظیم را فعال کنید، منبع Microsoft Store مربوط به «مدیر بسته Windows» در دسترس خواهد بود و قابل حذف نخواهد بود.
+
+اگر این تنظیم را غیرفعال کنید، منبع Microsoft Store مربوط به «مدیر بسته Windows» در دسترس نخواهد بود.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">تنظیم فاصله زمانی به‌روزرسانی خودکار منبع نصب‌کننده برنامه برحسب دقیقه</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">این خط مشی، فاصله زمانی به‌روزرسانی خودکار را برای منابع مبتنی بر بسته کنترل می‌کند.
+
+اگر این تنظیم را غیرفعال کنید یا پیکربندی نکنید، «مدیر بسته Windows» از فاصله زمانی پیش‌فرض یا مقدار مشخص‌شده در تنظیمات استفاده خواهد کرد.
+
+اگر این تنظیم را فعال کنید، «مدیر بسته Windows» از تعداد دقایق مشخص‌شده استفاده خواهد کرد.</string>
+      <string id="EnableAdditionalSources">فعال کردن منابع اضافی نصب‌کننده برنامه</string>
+      <string id="EnableAdditionalSourcesExplanation">این خط مشی، منابع اضافی ارائه‌شده توسط سرپرست IT سازمان را کنترل می‌کند.
+
+اگر این خط مشی را پیکربندی نکنید، هیچ منبع اضافی‌ای برای «مدیر بسته Windows» پیکربندی نخواهد شد.
+
+اگر این خط مشی را فعال کنید، منابع اضافی به «مدیر بسته Windows» اضافه خواهند شد و قابل حذف نخواهند بود. نمایش مربوط به هر منبع اضافی را می‌توان با استفاده از «صادر کردن منبع winget»، از منابع نصب‌شده به دست آورد.
+
+اگر این خط مشی را غیرفعال کنید، هیچ منبع اضافی‌ای را نمی‌توان برای «مدیر بسته Windows» پیکربندی کرد.</string>
+      <string id="EnableAllowedSources">فعال کردن منابع مجاز نصب‌کننده برنامه</string>
+      <string id="EnableAllowedSourcesExplanation">این خط مشی، منابع اضافی مجازشده توسط سرپرست IT سازمان را کنترل می‌کند.
+
+اگر این خط مشی را پیکربندی نکنید، کاربران می‌توانند منابع اضافی دیگری غیر از منابع پیکربندی‌شده توسط خط مشی را اضافه یا حذف کنند.
+
+اگر این خط مشی را فعال کنید، تنها منابع مشخص‌شده را می‌توان به «مدیر بسته Windows» اضافه یا از آن حذف کرد. نمایش مربوط به هر منبع مجاز را می‌توان با استفاده از «صادر کردن منبع winget»، از منابع نصب‌شده به دست آورد.
+
+اگر این خط مشی را غیرفعال کنید، هیچ منبع اضافی‌ای را نمی‌توان برای «مدیر بسته Windows» پیکربندی کرد.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">فاصله زمانی به‌روزرسانی خودکار منبع برحسب دقیقه</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">منابع اضافی: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">منابع مجاز: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

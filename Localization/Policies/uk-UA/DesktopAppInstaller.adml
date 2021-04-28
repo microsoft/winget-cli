@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Інсталятор програм</displayName>
+  <description>Інсталятор програм</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Інсталятор класичних програм</string>
+      <string id="EnableAppInstaller">Увімкнути Інсталятор програм</string>
+      <string id="EnableAppInstallerExplanation">Ця політика визначає, чи можна використовувати диспетчер пакетів Windows для користувачів.
+
+Якщо ввімкнути або не настроїти цей параметр, користувачі зможуть використовувати диспетчер пакетів Windows.
+
+Якщо вимкнути цей параметр, користувачі не зможуть використовувати диспетчер пакетів Windows.</string>
+      <string id="EnableSettings">Увімкнути параметри Інсталятора програм</string>
+      <string id="EnableSettingsExplanation">Ця політика визначає, чи можуть користувачі змінювати їх параметри.
+
+Якщо ввімкнути або не настроїти цей параметр, користувачі зможуть змінювати настройки диспетчера пакетів Windows.
+
+Якщо вимкнути цей параметр, користувачі не зможуть змінювати настройки диспетчера пакета Windows.</string>
+      <string id="EnableExperimentalFeatures">Увімкнути експериментальні функції Інсталятора програм</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ця політика визначає, чи можуть користувачі вмикати експериментальні функції в диспетчері пакетів Windows.
+
+Якщо ввімкнути або не настроїти цей параметр, користувачі зможуть вмикати експериментальні функції для диспетчера пакетів Windows.
+
+Якщо вимкнути цей параметр, користувачі не зможуть вмикати експериментальні функції для диспетчера пакетів Windows.</string>
+      <string id="EnableLocalManifestFiles">Увімкнути локальні файли маніфесту Інсталятора програм</string>
+      <string id="EnableLocalManifestFilesExplanation">Ця політика визначає, чи можуть користувачі інсталювати пакети з локальними файлами маніфесту.
+
+Якщо ввімкнути або не настроїти цей параметр, користувачі зможуть інсталювати пакети з локальними маніфести за допомогою диспетчера пакетів Windows.
+
+Якщо вимкнути цей параметр, користувачі не зможуть інсталювати пакети з локальними маніфести за допомогою диспетчера пакетів Windows.</string>
+      <string id="EnableHashOverride">Увімкнути перевизначення геш-коду Інсталятора програм</string>
+      <string id="EnableHashOverrideExplanation">Ця політика визначає, чи можна налаштувати Диспетчер пакетів Windows, щоб активувати можливість перевизначати перевірку безпеки SHA256 в параметрах.
+
+Якщо ввімкнути або не налаштувати цю політику, користувачі зможуть активувати можливість перевизначати перевірку безпеки SHA256 у параметрах Диспетчера пакетів Windows.
+
+Якщо вимкнути цю політику, користувачі не зможуть активувати можливість перевизначати перевірку безпеки SHA256 у параметрах Диспетчера пакетів Windows.</string>
+      <string id="EnableDefaultSource">Увімкнути джерело за замовчуванням Інсталятор програм</string>
+      <string id="EnableDefaultSourceExplanation">Ця політика керує джерелом за замовчуванням, що входить до складу Диспетчера пакетів Windows.
+
+Якщо не налаштувати цей параметр, джерело за замовчуванням для Диспетчера пакетів Windows буде доступне, і його можна буде видалити.
+
+Якщо ввімкнути цей параметр, джерело за замовчуванням для Диспетчера пакетів Windows буде доступне, і його не можна буде видалити.
+
+Якщо вимкнути цей параметр, джерело за замовчуванням для Диспетчера пакетів Windows буде недоступне.</string>
+      <string id="EnableMicrosoftStoreSource">Увімкнути джерело Microsoft Store Інсталятора програм</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Ця політика керує джерелом Microsoft Store, що входить до складу Диспетчера пакетів Windows.
+
+Якщо не налаштувати цей параметр, джерело Microsoft Store для Диспетчера пакетів Windows буде доступне, і його можна буде видалити.
+
+Якщо ввімкнути цей параметр, джерело Microsoft Store для Диспетчера пакетів Windows буде доступне, і його не можна буде видалити.
+
+Якщо вимкнути цей параметр, джерело Microsoft Store для Диспетчера пакетів Windows буде недоступне.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Установити інтервал автоматичного оновлення джерела Інсталятора програм у хвилинах</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ця політика визначає інтервал автоматичного оновлення для джерел на основі пакетів.
+
+Якщо вимкнути або не настроїти цей параметр, інтервал за замовчуванням або значення, указане в настройках, буде використано диспетчером пакетів Windows.
+
+Якщо ввімкнути цей параметр, кількість хвилин, указаних у диспетчері пакетів Windows, буде використано.</string>
+      <string id="EnableAdditionalSources">Увімкнути додаткові джерела Інсталятора програм</string>
+      <string id="EnableAdditionalSourcesExplanation">Ця політика керує додатковими джерелами, наданими ІТ-адміністратором підприємства.
+
+Якщо не налаштувати цю політику, для Диспетчера пакетів Windows не буде налаштовано додаткові джерела.
+
+Якщо ввімкнути цю політику, до Диспетчера пакетів Windows буде додано додаткові джерела, і їх не можна буде видалити. Подання для кожного додаткового джерела можна отримати з інстальованих джерел за допомогою команди "winget source export".
+
+Якщо вимкнути цю політику, для Диспетчера пакетів Windows не можна буде налаштувати додаткові джерела.</string>
+      <string id="EnableAllowedSources">Увімкнути дозволені джерела Інсталятора програм</string>
+      <string id="EnableAllowedSourcesExplanation">Ця політика керує додатковими джерелами, наданими ІТ-адміністратором підприємства.
+
+Якщо не налаштувати цю політику, користувачі зможуть додавати й видаляти додаткові джерела окрім визначених у політиці.
+
+Якщо ввімкнути цю політику, до Диспетчера пакетів Windows можна буде додавати або видаляти лише вказані джерела. Подання для кожного дозволеного джерела можна отримати з інстальованих джерел за допомогою команди "winget source export".
+
+Якщо вимкнути цю політику, для Диспетчера пакетів Windows не можна буде налаштувати додаткові джерела.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Інтервал автоматичного оновлення джерела у хвилинах</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Додаткові джерела: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Дозволені джерела: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

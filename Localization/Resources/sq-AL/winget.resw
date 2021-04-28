@@ -386,7 +386,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Filtro rezultate sipas emrit</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Asnjë instalues nuk është i aplikueshëm për sistemin aktual.</value>
+    <value>Nuk u gjet instaluesi i zbatueshëm; shiko evidencat për më shumë detaje.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Nuk ka aktualisht asnjë tipar eksperimental në dispozicion. </value>
@@ -813,5 +813,107 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Shtegu nuk ekziston:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Skedari JSON nuk specifikon një skemë të njohur.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Përzgjidh fushëveprimin e instalimit (përdorues ose kompjuter)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Vlera e dhënë për argumentin `%1` është e pavlefshme; janë të vlefshme vlerat</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Ky operacion është çaktivizuar nga Rregullorja e Grupit</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aktivizo Burimet Shtesë për Instaluesit të Aplikacionit Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Aktivizo Burimet e Lejuara për Instaluesin e Aplikacionit të Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Aktivizo Burimin e Parazgjedhur të Instaluesit të Aplikacionit të Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Aktivizo Tiparet Eksperimentale të Instaluesit të Aplikacionit Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Aktivizo Burimin e Microsoft Store të Instaluesit të Aplikacionit të Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Aktivizo Parametrat e Menaxherit të Paketës së Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Aktivizo Menaxherin e Paketës së Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Vendos në minuta Intervalin Automatik të Burimit të Menaxherit të Paketës së Windows</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Çaktivizuar</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Aktivizuar</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Rregullorja e grupit</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Gjendja</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Aktivizo Skedarët Lokalë të Manifestit për Instaluesin e Aplikacionit të Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Fusha:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Format i pavlefshëm i fushës.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Vlerë e pavlefshme e fushës.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Parametër i pavlefshëm nga Politika e Grupit.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Parametrat e ngarkuara nga skedari rezervë.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Gabim i analizimit të skedarit:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Vlera:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Tiparet eksperimentale vijuese janë në progres.
+Konfigurimi është çaktivizuar për shkak të Rregullores së Grupit.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Kompilimi i Instaluesit nuk përputhet.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Aktivizo Injorimin e Kompilimit për Instaluesin e Aplikacionit të Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Eksporto burimet aktuale si JSON për Rregulloren e Grupit.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporto burimet aktuale</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Burim tjetër</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Burimi i lejuar</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

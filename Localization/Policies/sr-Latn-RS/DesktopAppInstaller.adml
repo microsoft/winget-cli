@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalacioni program za aplikacije</displayName>
+  <description>Instalacioni program za aplikacije</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalacioni program aplikacije za računare</string>
+      <string id="EnableAppInstaller">Omogući instalacioni program aplikacije</string>
+      <string id="EnableAppInstallerExplanation">Ove smernice kontrolišu da li korisnici mogu da koriste Upravljač za pakete za Windows.
+
+Ako omogućite ovu postavku ili je ne konfigurišete, korisnici će moći da koriste Upravljač za pakete za Windows.
+
+Ako onemogućite ovu postavku, korisnici neće moći da koriste Upravljač za pakete za Windows.</string>
+      <string id="EnableSettings">Omogući postavke instalacionog programa za aplikacije</string>
+      <string id="EnableSettingsExplanation">Ove smernice kontrolišu da li korisnici mogu da promene postavke.
+
+Ako omogućite ovu postavku ili je ne konfigurišete, korisnici će moći da promene postavke za Upravljač za pakete za Windows.
+
+Ako onemogućite ovu postavku, korisnici neće moći da promene postavke za Upravljač za pakete za Windows.</string>
+      <string id="EnableExperimentalFeatures">Omogućavanje eksperimentalnih funkcija za instalacioni program za aplikacije</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ove smernice kontrolišu da li korisnici mogu da omoguće eksperimentalne funkcije u programu Upravljač za pakete za Windows.
+
+Ako omogućite ovu postavku ili je ne konfigurišete, korisnici će moći da omoguće eksperimentalne funkcije za Upravljač za pakete za Windows.
+
+Ako onemogućite ovu postavku, korisnici neće moći da omoguće eksperimentalne funkcije za Upravljač za pakete za Windows.</string>
+      <string id="EnableLocalManifestFiles">Omogući datoteke lokalnog manifesta za instalacioni program za aplikacije</string>
+      <string id="EnableLocalManifestFilesExplanation">Ove smernice kontrolišu da li korisnici mogu da instaliraju pakete sa datotekama lokalnih manifesta.
+
+Ako omogućite ili ne konfigurišete ovu postavku, korisnici će moći da instaliraju pakete sa lokalnim manifestima pomoću programa Upravljač za pakete za Windows.
+
+Ako onemogućite ovu postavku, korisnici neće moći da instaliraju pakete sa lokalnim manifestima pomoću Upravljač za pakete za Windows.</string>
+      <string id="EnableHashOverride">Omogući zamenu hash instalacionog programa za aplikacije</string>
+      <string id="EnableHashOverrideExplanation">Ove smernice kontrolišu da li se Upravljač za pakete za Windows može ili ne može konfigurisati tako da omogući mogućnost poništavanja SHA256 validacije bezbednosti u postavkama.
+
+Ako omogućite ili ne konfigurišete ove smernice, korisnici će moći da omoguće poništavanje SHA256 validacije bezbednosti u Upravljaču za pakete za Windows.
+
+Ako onemogućite ove smernice, korisnici neće moći da omoguće poništavanje SHA256 validacije bezbednosti u Upravljaču za pakete za Windows.</string>
+      <string id="EnableDefaultSource">Omogući podrazumevani izvor za instalacioni program za aplikacije</string>
+      <string id="EnableDefaultSourceExplanation">Ove smernice kontrolišu podrazumevani izvor uključen uz Windows Package Upravljač za pakete za Windows.
+
+Ako ne konfigurišete ovu postavku, podrazumevani izvor za Upravljač za pakete za Windows biće dostupan i može se ukloniti.
+
+Ako omogućite ovu postavku, podrazumevani izvor za Upravljač za pakete za Windows biće dostupan i ne može se ukloniti.
+
+Ako onemogućite ovu postavku, podrazumevani izvor za Upravljač za pakete za Windows neće biti dostupan.</string>
+      <string id="EnableMicrosoftStoreSource">Omogućavanje izvora Microsoft Store za instalacioni program za aplikacije</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Ove smernice kontrolišu izvor Microsoft Store uključen uz Upravljač za pakete za Windows.
+
+Ako ne konfigurišete ovu postavku, biće dostupan izvor Microsoft Store za Upravljač za pakete za Windows i može se ukloniti.
+
+Ako omogućite ovu postavku, izvor Microsoft Store za Upravljač za pakete za Windows biće dostupan i ne može se ukloniti.
+
+Ako onemogućite ovu postavku izvor Microsoft Store za Upravljač za pakete za Windows neće biti dostupan.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Podešavanje intervala automatskog ažuriranja izvora instalacije aplikacije za nekoliko minuta</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ove smernice kontrolišu interval automatskog ažuriranja za izvore zasnovane na paketu.
+
+Ako onemogućite ili ne konfigurišete ovu postavku, Upravljač za pakete za Windows će koristiti zadati interval ili vrednost navedenu u postavkama.
+
+Ako omogućite ovu postavku, Upravljač za pakete za Windows će koristiti navedeni broj minuta.</string>
+      <string id="EnableAdditionalSources">Omogući dodatne izvore za instalacioni program za aplikacije</string>
+      <string id="EnableAdditionalSourcesExplanation">Ove smernice kontrolišu dodatne izvore koje je obezbedio IT administrator preduzeća.
+
+Ako ne konfigurišete ove smernice, za Upravljač za pakete za Windows neće biti konfigurisan nijedan dodatni izvor.
+
+Ako omogućite ove smernice, dodatni izvori će biti dodati u Upravljač za pakete za Windows i ne mogu se ukloniti. Prikaz za svaki dodatni izvor može da se dobije iz instaliranih izvora pomoću "winget izvornog izvoza".
+
+Ako onemogućite ove smernice, za Upravljač za pakete za Windows ne mogu se konfigurisati dodatni izvori.</string>
+      <string id="EnableAllowedSources">Omogućavanje dozvoljenih izvora za instalacioni program za aplikacije</string>
+      <string id="EnableAllowedSourcesExplanation">Ove smernice kontrolišu dodatne izvore koje je omogućio IT administrator preduzeća.
+
+ako ne konfigurišete ove smernice, korisnici će moći da dodaju ili uklanjaju dodatne izvore osim onih koje konfiguriše smernica.
+
+Ako omogućite ove smernice, samo navedeni izvori mogu da se dodaju ili uklone iz programa Windows Package Manager. Prikaz za svaki dozvoljeni izvor može da se dobije iz instaliranih izvora pomoću "winget izvornog izvoza".
+
+Ako onemogućite ove smernice, za Windows Package Manager ne može da se konfiguriše nijedan dodatni izvor.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval automatskog ažuriranja izvora u minutima</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Dodatni izvori: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Dozvoljeni izvori: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

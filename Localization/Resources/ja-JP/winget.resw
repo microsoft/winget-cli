@@ -386,7 +386,7 @@
     <value>名前で結果をフィルター処理</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>現在のシステムに適用できるインストーラーはありません。</value>
+    <value>該当するインストーラーが見つかりません。 詳細については、ログを参照してください。</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>現在、試験的な機能はありません。</value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>パスが存在しません:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON ファイルでは、認識されるスキーマが指定されていません。</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>インストールの範囲 (ユーザーまたはコンピューター) の選択</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' 引数に指定された値が無効です。有効な値は</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>この操作はグループ ポリシーによって無効になっています</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>追加の Windows アプリ インストーラー ソースを有効にする</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows アプリ インストーラーの許可されたソースを有効にする</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows アプリ インストーラーの既定のソースを有効にする</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows アプリ インストーラーの試験的な機能を有効にする</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows アプリインストーラー Microsoft Store ソースを有効にする</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows パッケージ マネージャーを有効にする</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows パッケージ マネージャーを有効にする</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows パッケージ マネージャーのソース自動更新間隔を分単位で設定する</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>無効</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>有効</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>グループ ポリシー</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>都道府県</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows アプリ インストーラーのローカル マニフェスト ファイルを有効にする</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>フィールド:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>フィールド形式が無効です。</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>無効なフィールド値です。</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>グループ ポリシーの設定が無効です。</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>バックアップ ファイルから設定を読み込みました。</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ファイルの解析エラー:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>値:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>次の試験的な機能が進行中です。
+グループポリシーにより、構成が無効になっています。</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>インストーラーのハッシュが一致しません。</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows アプリ インストーラーのハッシュ上書きを有効にする</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>グループポリシーの JSON として現在のソースをエクスポートします。</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>現在のソースをエクスポートする</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>追加のソース</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>許可されたソース</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -386,7 +386,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Filtrer resultater efter navn</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Intet installationsprogram er relevant for det aktuelle system.</value>
+    <value>Der blev ikke fundet noget relevant installationsprogram. Se logfilerne for at få flere oplysninger.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Der er i øjeblikket ingen tilgængelige eksperimentale funktioner. </value>
@@ -813,5 +813,107 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Stien findes ikke:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-filen angiver ikke et genkendt skema.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Vælg installationsområde (bruger eller computer)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Den værdi, der er angivet for argumentet '%1', er ugyldig; gyldige værdier er</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Denne handling er deaktiveret af gruppepolitikken</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aktivér yderligere kilder til Windows Appinstallation</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Aktivér tilladte kilder til Windows Appinstallation</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Aktivér standardkilde til Windows Appinstallation</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Aktivér eksperimentelle funktioner i Windows Appinstallation</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Aktivér Microsoft Store-kilden til Windows Appinstallation</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Aktivér indstillinger for Windows Pakkestyring</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Aktivér Windows Pakkestyring</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Angiv interval i minutter for automatisk opdatering af Windows Pakkestyring</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Deaktiveret</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Aktiveret</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Gruppepolitik</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Tilstand</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Aktivér lokale manifest-filer til Windows Appinstallation</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Felt:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ugyldigt feltformat.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ugyldig feltværdi.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ugyldig indstilling fra Gruppepolitikken.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Indstillingerne blev indlæst fra sikkerhedskopifilen.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Der opstod en fejl under parsing af filen:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Værdi:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Følgende eksperimentelle funktioner er i gang.
+Konfiguration er deaktiveret på grund af en gruppepolitik.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installationsprogrammets hash-kode stemmer ikke overens.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Aktivér tilsidesættelse af hash-kode i Windows Appinstallation</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Eksportér aktuelle kilder som JSON for gruppepolitik.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportér aktuelle kilder</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Ekstra kilde</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Tilladt kilde</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>
