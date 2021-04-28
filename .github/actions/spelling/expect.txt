@@ -1,4 +1,6 @@
 abcd
+adml
+admx
 AFX
 agg
 aicli
@@ -20,6 +22,8 @@ Atest
 AType
 AUrl
 Aysnc
+azurewebsites
+Baz
 Beigi
 bfd
 bght
@@ -27,10 +31,12 @@ bitmask
 bkup
 blargle
 blogs
+Bluetooth
 bomgar
 BOMs
 brk
 Buf
+BUILTINS
 casemap
 casemappings
 cch
@@ -102,7 +108,6 @@ IConfiguration
 IHost
 IID
 IInstalled
-incosistencies
 IName
 INET
 inor
@@ -111,6 +116,7 @@ IPersist
 IService
 ISettings
 ISQ
+ISVs
 itr
 IVector
 IWeb
@@ -132,6 +138,7 @@ Linq
 liv
 llvm
 localhost
+localizationpriority
 LPBYTE
 LPWSTR
 LSTATUS
@@ -181,10 +188,12 @@ PWSTR
 pz
 qb
 qword
+rbegin
 readonly
 regexes
 REGSAM
 REINSTALLMODE
+restsource
 rhs
 roblox
 rosoft
@@ -192,6 +201,7 @@ rowids
 RRF
 rrr
 rzkzqaqjwj
+serializer
 SARL
 schematab
 sddl
@@ -203,6 +213,7 @@ sid
 SIGNATUREHASH
 Sku
 sortof
+sourc
 spamming
 SPAPI
 Srinivasan
@@ -210,6 +221,7 @@ SRL
 srs
 Standalone
 startswith
+streambuf
 strtoull
 subdir
 subkey
@@ -242,13 +254,9 @@ UPSERT
 URIs
 URLZONE
 userfilesetting
-usersettingstest
 USHORT
 Utils
 UWP
-validator
-valijson
-valueiterator
 vamus
 VERSI
 VERSIE
@@ -267,9 +275,12 @@ wingetdev
 winreg
 withstarts
 wn
-wsv
 Workflows
+WSL
+wsv
 wto
 Wunused
 WZDNCRFJ
+XPLATSTR
+xsi
 zy

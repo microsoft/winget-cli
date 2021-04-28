@@ -386,7 +386,7 @@
     <value>ఫలితాలను పేరు ద్వారా ఫిల్టర్ చేయండి</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>ప్రస్తుత వ్యవస్థకు ఇన్‌స్టాలర్లు వర్తించవు.</value>
+    <value>వర్తించే ఇన్‌స్టాలర్ కనుగొనబడలేదు; మరిన్ని వివరాల కోసం లాగ్‌లను చూడండి.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ప్రస్తుతం ఎటువంటి ప్రయోగాత్మక ఫీచర్లు అందుబాటులో లేవు. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>పథం ఉనికిలో లేదు:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON ఫైల్ గుర్తించబడిన స్కీమా పేర్కొనలేదు.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>పరిధిని వ్యవస్థాపించడాన్ని ఎంచుకోండి (వినియోగదారు లేదా యంత్రం)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>`%1` కారకం కోసం అందించిన విలువ చెల్లదు; చెల్లుబాటు అయ్యే విలువలు</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>ఈ ఆపరేషన్ సమూహ విధానం ద్వారా నిలిపివేయబడింది</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>అదనపు Windows అప్లికేషన్ ఇన్‌స్టాలర్‌ వనరులను ప్రారంభించు</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ అనుమతించిన వనరులను ప్రారంభించు</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ డిఫాల్ట్ వనరుని ప్రారంభించు</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ ప్రయోగాత్మక ఫీచర్లను ప్రారంభించు</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ Microsoft Store వనరుని ప్రారంభించు</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows ప్యాకేజ్ మేనేజర్‌ సెట్టింగ్‌లను ప్రారంభించు</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows ప్యాకేజ్ మేనేజర్‌ని ప్రారంభించు</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows ప్యాకేజ్ మేనేజర్ వనరు స్వీయ నవీకరణ విరామాన్ని నిమిషాల్లో సెట్ చేయండి</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>నిలిపివేయబడింది</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>ప్రారంభించబడింది</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>సమూహ విధానం</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>స్థితి</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ స్థానిక మానిఫెస్ట్ ఫైల్‌లను ప్రారంభించు</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>ఫీల్డ్:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>చెల్లని ఫీల్డ్ ఫార్మాట్.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>చెల్లని ఫీల్డ్ విలువ.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>సమూహ విధానం నుంచి చెల్లని సెట్టింగ్.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>బ్యాకప్ ఫైల్‌ నుంచి లోడ్ చేయబడిన సెట్టింగ్‌లు.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ఫైల్‌ అన్వయంలో దోషం:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>విలువ:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>కింది ప్రయోగాత్మక ఫీచర్లు పురోగతిలో ఉన్నాయి.
+సమూహ విధానం కారణంగా నిర్మితీకరణ నిలిపివేయబడింది.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>ఇన్‌స్టాలర్ హాష్ సరిపోలలేదు.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows అప్లికేషన్ ఇన్‌స్టాలర్ హాష్ భర్తీని ప్రారంభించు</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>సమూహ విధానం కోసం ప్రస్తుత వనరులను JSON మాదిరి ఎగుమతి చేయండి.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>ప్రస్తుత వనరులను ఎగుమతి చేయండి</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>అదనపు వనరు</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>అనుమతించిన వనరు</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -386,7 +386,7 @@
     <value>ಹೆಸರಿನ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>ಪ್ರಸ್ತುತ ವ್ಯವಸ್ಥೆಗೆ ಯಾವುದೇ ಸ್ಥಾಪಕಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ.</value>
+    <value>ಯಾವುದೇ ಅಪ್ಲಿಕೇಶನ್‌ ಇನ್‌ಸ್ಟಾಲರ್ ಕಂಡುಬಂದಿಲ್ಲ; ಹೆಚ್ಚಿನ ವಿವರಗಳಿಗೆ ಲಾಗ್‌ಗಳನ್ನು ನೋಡಿ.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಲಭ್ಯವಿಲ್ಲ. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>ಹಾದಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON ಫೈಲ್ ಗುರುತಿಸಲಾದ ಸ್ಕೀಮಾ ನಿರ್ದಿಷ್ಟಪಡಿಸುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆ ವ್ಯಾಪ್ತಿಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ (ಬಳಕೆದಾರ ಅಥವಾ ಯಂತ್ರ)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' ತರ್ಕಕ್ಕೆ ಒದಗಿಸಿದ ಮೌಲ್ಯವು ಅಮಾನ್ಯವಾಗಿದೆ; ಮಾನ್ಯ ಮೌಲ್ಯಗಳು</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>ಈ ಕಾರ್ಯಾಚರಣೆಯನ್ನು ಸಮೂಹ ನೀತಿಯಿಂದ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>ಹೆಚ್ಚುವರಿ Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್ ಮೂಲಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್‌ ಅನುಮತಿಸಿದ ಮೂಲಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್ ಡೀಫಾಲ್ಟ್ ಮೂಲ ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್ Microsoft Store ಮೂಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows ಪ್ಯಾಕೇಜ್ ಮ್ಯಾನೇಜರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows ಪ್ಯಾಕೇಜ್ ಮ್ಯಾನೇಜರ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>ನಿಮಿಷಗಳ ಅಂತರದಲ್ಲಿ Windows ಪ್ಯಾಕೇಜ್ ಮ್ಯಾನೇಜರ್ ಮೂಲ ಸ್ವಯಂ ಪರಿಷ್ಕರಣೆಯನ್ನು ನಿಗದಿಸಿ</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>ಗುಂಪು ನೀತಿ</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>ಸ್ಥಿತಿ</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್‌ ಸ್ಥಳೀಯ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೈಲ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>ಕ್ಷೇತ್ರ:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>ಅಮಾನ್ಯ ಕ್ಷೇತ್ರ ಸ್ವರೂಪ.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>ಅಮಾನ್ಯ ಕ್ಷೇತ್ರ ಮೌಲ್ಯ.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>ಸಮೂಹ ನೀತಿಯಿಂದ ನಿಂದ ಅಮಾನ್ಯ ಸೆಟ್ಟಿಂಗ್.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>ಬ್ಯಾಕಪ್ ಫೈಲ್‌ನಿಂದ ಲೋಡ್ ಮಾಡಿದ ಸೆಟ್ಟಿಂಗ್‌ಗಳು.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ಫೈಲ್ ಪಾರ್ಸ್‌ ಮಾಡುವಲ್ಲಿ ದೋಷ:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>ಮೌಲ್ಯ:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>ಈ ಮುಂದಿನ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಪ್ರಗತಿಯಲ್ಲಿವೆ.
+ಸಮೂಹ ನೀತಿಯಿಂದಾಗಿ ಕಾನ್ಫಿಗರೇಶನ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>ಇನ್‌ಸ್ಟಾಲರ್ ಹ್ಯಾಶ್ ಹೊಂದಾಣಿಕೆಯಾಗುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows ಆಪ್‌ ಇನ್‌ಸ್ಟಾಲರ್‌ ಹ್ಯಾಶ್ ಅತಿಕ್ರಮಣವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>ಸಮೂಹ ನೀತಿಗಾಗಿ JSON ನಂತೆ ಪ್ರಸ್ತುತ ಮೂಲಗಳನ್ನು ರಫ್ತು ಮಾಡಿ.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>ಪ್ರಸ್ತುತ ಮೂಲಗಳನ್ನು ರಫ್ತು ಮಾಡಿ</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>ಹೆಚ್ಚುವರಿ ಮೂಲ</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>ಅನುಮತಿಸಲಾದ ಮೂಲ</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

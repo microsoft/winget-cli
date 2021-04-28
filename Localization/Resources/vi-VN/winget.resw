@@ -386,7 +386,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Lọc kết quả theo tên</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Không có trình cài đặt nào được áp dụng cho hệ thống hiện tại.</value>
+    <value>Không tìm thấy trình cài đặt có thể áp dụng; xem nhật ký để biết thêm chi tiết.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Hiện tại không có tính năng thử nghiệm nào sẵn có. </value>
@@ -813,5 +813,107 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Đường dẫn không tồn tại:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Tệp JSON không chỉ định một sơ đồ được nhận dạng.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Chọn phạm vi cài đặt (người dùng hoặc máy)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Giá trị được cung cấp cho đối số `%1` không hợp lệ; giá trị hợp lệ là</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Thao tác này bị vô hiệu hóa bởi Chính sách Nhóm</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Bật Nguồn Trình cài đặt Ứng dụng Windows Bổ sung</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Bật Nguồn được cho phép của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Bật Nguồn Mặc định của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Bật Tính năng Thử nghiệm của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Bật Nguồn Microsoft Store của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Bật Cài đặt Trình quản lý gói Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Bật Trình quản lý gói Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Đặt Khoảng thời gian Tự động Cập nhật Nguồn Trình quản lý gói Windows theo phút</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Đã vô hiệu hóa</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Đã kích hoạt</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Chính sách Nhóm</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Trạng thái</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Bật Tệp kê khai Cục bộ của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Trường:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Định dạng trường không hợp lệ.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Giá trị trường không hợp lệ.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Cài đặt không hợp lệ từ Chính sách Nhóm.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Đã tải cài đặt từ tệp sao lưu.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Lỗi khi phân tích tệp:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Giá trị:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Các tính năng thử nghiệm sau đang được tiến hành. 
+Cấu hình bị tắt do Chính sách Nhóm.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hàm băm của trình cài đặt không khớp.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Bật tính năng Ghi đè Hàm băm của Trình cài đặt Ứng dụng Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Xuất các nguồn hiện tại dưới dạng JSON cho Chính sách Nhóm.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Xuất các nguồn hiện tại</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Nguồn bổ sung</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Nguồn được phép</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -386,7 +386,7 @@
     <value>Нәтижелерді аты бойынша сүзгілеу</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Ағымдағы жүйе үшін жарамды орнату құралдары жоқ.</value>
+    <value>Қолданылатын қондырғы табылған жоқ; толығырақ журналдарды қараңыз.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Қазіргі уақытта қолжетімді эксперименттік мүмкіндіктер жоқ. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Мұндай жол жоқ:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON файлы танылған схеманы көрсетпейді.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Орнату ауқымын таңдаңыз (пайдаланушы немесе машина)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>`%1` аргументі үшін берілген мән жарамсыз; жарамды мәндер</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Бұл әрекет Топтық саясатпен ажыратылған</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Қосымша Windows қолданбаларын орнатушы көздерін қосыңыз</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows Бағдарлама орнату құралдың Рұқсат етілген ақпарат көзін қосу</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows Бағдарлама орнату құралдың Әдепкі ақпарат көзін қосу</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows Бағдарлама орнату құралдың Эксперименталды Мүмкіндіктерді қосу</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Microsoft Store көзін Windows App Installer қосыңыз</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows бума реттеушісі параметрлерін қосу</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows бума реттеушісін қосу</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows бума реттеушісі бағдарламасын автоматты түрде жаңарту аралығын минут ішінде орнатыңыз</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Ажыратылған</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Іске қосулы</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Топтық саясат</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Күй</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows Бағдарлама орнату құралдың Жергілікті Манифестін қосу</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Өріс:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Өріс форматы жарамсыз.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Жарамсыз өріс мәні.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Топтық саясат параметрі жарамсыз.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Сақтық көшірме файлы жүктелген параметрлер.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Файлды талдау қателігі:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Мән:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Келесі эксперименттік ерекшеліктер орындалуда.
+Конфигурация топтық саясатқа байланысты ажыратылған.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Орнатушының хэші сәйкес келмейді.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows Бағдарлама орнату құралдың Хэшті қайта анықтауын қосу</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Ағымдағы дереккөздерді топтық саясат үшін JSON ретінде экспорттаңыз.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Ағымдағы дерек көздерін экспорттау</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Қосымша ақпарат көзі</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Рұқсат етілген ақпарат көзі</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

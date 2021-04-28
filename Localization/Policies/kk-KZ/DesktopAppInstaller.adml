@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Бағдарлама орнату құралы</displayName>
+  <description>Бағдарлама орнату құралы</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Desktop App Installer</string>
+      <string id="EnableAppInstaller">Қолданба орнатушысын қосыңыз</string>
+      <string id="EnableAppInstallerExplanation">Бұл саясат Windows пакет менеджерін пайдаланушылардың пайдалана алатынын басқарады.
+
+Егер сіз бұл параметрді қоссаңыз немесе теңшемесеңіз, пайдаланушылар Windows бума реттеушісін қолдана алады.
+
+Егер сіз бұл параметрді өшірсеңіз, пайдаланушылар Windows пакет менеджерін қолдана алмайды.</string>
+      <string id="EnableSettings">Қолданба орнатушысының параметрлерін қосыңыз</string>
+      <string id="EnableSettingsExplanation">Бұл саясат пайдаланушылардың параметрлерін өзгерте алатынын бақылайды.
+
+Егер сіз бұл параметрді қоссаңыз немесе теңшемесеңіз, пайдаланушылар Windows бума реттеушісі үшін параметрлерді өзгерте алады.
+
+Егер сіз бұл параметрді өшірсеңіз, пайдаланушылар Windows Package Manager үшін параметрлерді өзгерте алмайды.</string>
+      <string id="EnableExperimentalFeatures">Бағдарлама орнату құралдың Эксперименталды Мүмкіндіктерді қосу</string>
+      <string id="EnableExperimentalFeaturesExplanation">Бұл саясат пайдаланушылардың Windows пакет менеджерінде эксперименттік мүмкіндіктерді қосуға болатындығын не басқармайтындығын басқарады.
+
+Егер сіз бұл параметрді қоссаңыз немесе реттемесеңіз, пайдаланушылар Windows бума реттеушісі үшін эксперименттік мүмкіндіктерді қоса алады.
+
+Егер сіз бұл параметрді өшірсеңіз, пайдаланушылар Windows Package Manager үшін эксперименттік мүмкіндіктерді қоса алмайды.</string>
+      <string id="EnableLocalManifestFiles">Бағдарлама орнату құралдың Жергілікті Манифестін қосу</string>
+      <string id="EnableLocalManifestFilesExplanation">Бұл саясат пайдаланушылардың жергілікті манифест файлдарымен бумалар орната алатынын бақылайды.
+
+Егер сіз бұл параметрді қоссаңыз немесе теңшемесеңіз, пайдаланушылар Windows бума реттеушісі көмегімен жергілікті манифесттері бар бумаларды орната алады.
+
+Егер сіз бұл параметрді өшірсеңіз, пайдаланушылар Windows Package Manager көмегімен жергілікті манифесттері бар бумаларды орната алмайды.</string>
+      <string id="EnableHashOverride">Бағдарлама орнату құралдың Хэшті қайта анықтауын қосу</string>
+      <string id="EnableHashOverrideExplanation">Бұл саясат параметрлерде SHA256 қауіпсіздік тексерісін қайта анықтау мүмкіндігін қосу үшін Windows бума реттеушісін теңшеуге болатындығын анықтайды.
+
+Егер бұл саясат қосылған немесе конфигурацияланбаған болса, онда пайдаланушылар Windows бума реттеушісінің параметрлерінде SHA256 қауіпсіздік тексерісін қайта анықтай алады.
+
+Егер бұл саясат өшірілген болса, пайдаланушылар Windows бума реттеушісінің параметрлерінде SHA256 қауіпсіздік тексерісін қайта анықтай алмайды.</string>
+      <string id="EnableDefaultSource">Бағдарлама орнату құралдың Әдепкі ақпарат көзін қосу</string>
+      <string id="EnableDefaultSourceExplanation">Бұл саясат Windows пакет реттеушісіне қосылған әдепкі көзді басқарады.
+
+Егер сіз бұл параметрді теңшемесеңіз, Windows бума реттеушісі үшін әдепкі көзі қол жетімді болады және оны жоюға болады.
+
+Егер сіз осы параметрді қоссаңыз, Windows Package Manager үшін әдепкі көзі қол жетімді болады және оны жою мүмкін емес.
+
+Егер сіз бұл параметрді өшірсеңіз, Windows Package Manager үшін әдепкі дереккөз қол жетімді болмайды.</string>
+      <string id="EnableMicrosoftStoreSource">Microsoft Store көзін App Installer қосыңыз</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Бұл саясат Windows пакет менеджерімен қамтылған Microsoft дүкенінің көзін басқарады.
+
+Егер сіз бұл параметрді теңшемесеңіз, Windows бума реттеушісі үшін Microsoft Store көзі қол жетімді болады және оны жоюға болады.
+
+Егер сіз осы параметрді қоссаңыз, Windows Package Manager үшін Microsoft Store көзі қол жетімді болады және оны жою мүмкін емес.
+
+Егер сіз бұл параметрді өшірсеңіз, Windows Package Manager үшін Microsoft Store көзі қол жетімді болмайды.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Қолданба орнатушысының көзін автоматты түрде жаңарту аралығын минут ішінде орнатыңыз</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Бұл саясат пакетке негізделген дереккөздердің автоматты жаңарту аралығын басқарады.
+
+Егер сіз бұл параметрді өшірсеңіз немесе конфигурацияламасаңыз, әдепкі аралықты немесе параметрлерде көрсетілген мәнді Windows бума реттеушісі қолданады.
+
+Егер сіз осы параметрді қоссаңыз, көрсетілген минуттар санын Windows пакет менеджері қолданады.</string>
+      <string id="EnableAdditionalSources">Қолданба орнатушысының қосымша дереккөздерін қосыңыз</string>
+      <string id="EnableAdditionalSourcesExplanation">Бұл саясат АТ әкімшісі ұсынатын қосымша дереккөздерді басқарады.
+
+Егер сіз бұл саясатты конфигурацияламасаңыз, Windows Package Manager үшін қосымша көздер конфигурацияланбайды.
+
+Егер сіз осы саясатты қоссаңыз, қосымша көздер Windows Package Manager-ге қосылады және оларды жою мүмкін емес. Әрбір қосымша дереккөзді «дерек көздерінің экспорты» көмегімен орнатылған көздерден алуға болады.
+
+Егер сіз бұл саясатты өшірсеңіз, Windows Package Manager үшін қосымша дереккөздерді конфигурациялау мүмкін емес.</string>
+      <string id="EnableAllowedSources">Бағдарлама орнату құралдың Рұқсат етілген ақпарат көзін қосу</string>
+      <string id="EnableAllowedSourcesExplanation">Бұл саясат АТ әкімшісі рұқсат берген қосымша дереккөздерді басқарады.
+
+Егер сіз бұл саясатты конфигурацияламасаңыз, пайдаланушылар саясатпен конфигурацияланғаннан басқа қосымша дереккөздерді қосып немесе жоя алады.
+
+Егер сіз осы саясатты қоссаңыз, тек Windows 10 менеджеріне көрсетілген дереккөздерді қосуға немесе жоюға болады. Әрбір рұқсат етілген дерек көзі үшін ұсынысты «көздің экспорты» көмегімен орнатылған көздерден алуға болады.
+
+Егер сіз бұл саясатты өшірсеңіз, Windows Package Manager үшін қосымша дереккөздерді конфигурациялау мүмкін емес.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Автоматты түрде жаңарту интервьюсі минут ішінде</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Қосымша ақпарат көздері: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Рұқсат етілген көздер: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

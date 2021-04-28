@@ -98,7 +98,7 @@ namespace AppInstaller::Utility {
 
         char resultBuffer[65];
 
-        for (int i = 0; i < 32; i++)
+        for (size_t i = 0; i < 32; i++)
         {
             sprintf_s(resultBuffer + i * 2, 3, "%02x", hashBuffer[i]);
         }
@@ -120,7 +120,7 @@ namespace AppInstaller::Utility {
 
         resultBuffer.resize(32);
 
-        for (int i = 0; i < 32; i++)
+        for (size_t i = 0; i < 32; i++)
         {
             sscanf_s(hashCStr + 2 * i, "%02hhx", &resultBuffer[i]);
         }

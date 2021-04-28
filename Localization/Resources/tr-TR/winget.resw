@@ -386,7 +386,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Sonuçları ada göre filtreleme ölçütü:</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Geçerli sisteme uygulanabilen yükleyici yok.</value>
+    <value>Uygun yükleyici bulunamadı; daha fazla ayrıntı için günlüğe bakın.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Şu anda kullanılabilir deneysel özellik yok. </value>
@@ -813,5 +813,107 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Yol yok:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON dosyası tanınan bir şema belirtmiyor.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Yükleme kapsamını seçin (kullanıcı veya makine)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' bağımsız değişkeni için sağlanan değer geçersiz; geçerli değerler</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Bu işlem Grup İlkesi tarafından devre dışı bırakıldı</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Ek Windows Uygulama Yükleyicisi Kaynaklarını Etkinleştir</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi İzin Verilerin Kaynaklarını Etkinleştir</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi Varsayılan Kaynağını Etkinleştir</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi Deneysel Özelliklerini Etkinleştir</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi Microsoft Store Kaynağını Etkinleştir</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows Paket Yöneticisi Ayarlarını Etkinleştir</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows Paket Yöneticisi’ni Etkinleştir</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows Package Manager kaynak otomatik güncelleştirme aralığını dakika olarak ayarla</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Devre dışı</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Etkin</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Grup İlkesi</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Durum</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi Yerel Bildirim Dosyalarını Etkinleştir</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Alan:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Geçersiz alan biçimi.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Geçersiz alan değeri.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Grup İlkesinden geçersiz ayar.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Ayarlar yedeklemede dosyasından yüklendi.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Dosya ayrıştırılırken hata oluştu:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Değer:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Aşağıdaki deneysel Özellikler devam ediyor.
+Grup Ilkesi nedeniyle yapılandırma devre dışı bırakıldı.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Yükleyici karması eşleşmiyor.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows Uygulama Yükleyicisi Karmasını Geçersiz Kılmayı Etkinleştir</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Grup Ilkesi için geçerli kaynakları JSON olarak dışarı aktarın.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Geçerli kaynakları dışarı aktarın</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Ek kaynak</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>İzin verilen kaynak</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -22,9 +22,92 @@
 #include "Resources.h"
 #include "TableOutput.h"
 
+using namespace AppInstaller::Utility::literals;
+
 namespace AppInstaller::CLI
 {
-    using namespace Utility::literals;
+    namespace
+    {
+        void OutputGroupPolicySourceList(Execution::Context& context, const std::vector<Settings::SourceFromPolicy>& sources, Resource::StringId header)
+        {
+            Execution::TableOutput<3> sourcesTable{ context.Reporter, { header, Resource::String::SourceListType, Resource::String::SourceListArg } };
+            for (const auto& source : sources)
+            {
+                sourcesTable.OutputLine({ source.Name, source.Type, source.Arg });
+            }
+
+            sourcesTable.Complete();
+        }
+
+        void OutputGroupPolicies(Execution::Context& context)
+        {
+            const auto& groupPolicies = Settings::GroupPolicies();
+
+            // Get the state of policies that are a simple enabled/disabled toggle
+            std::map<Settings::TogglePolicy::Policy, Settings::PolicyState> activePolicies;
+            for (const auto& togglePolicy : Settings::TogglePolicy::GetAllPolicies())
+            {
+                auto state = groupPolicies.GetState(togglePolicy.GetPolicy());
+                if (state != Settings::PolicyState::NotConfigured)
+                {
+                    activePolicies[togglePolicy.GetPolicy()] = state;
+                }
+            }
+
+            // The source update interval is the only ValuePolicy that is not gated by a TogglePolicy.
+            // We need to output the table if there is a TogglePolicy configured or if this one is configured.
+            // We can rework this when more policies are added.
+            auto sourceAutoUpdateIntervalPolicy = groupPolicies.GetValue<Settings::ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+
+            if (!activePolicies.empty() || sourceAutoUpdateIntervalPolicy.has_value())
+            {
+                auto info = context.Reporter.Info();
+                info << std::endl;
+
+                Execution::TableOutput<2> policiesTable{ context.Reporter, { Resource::String::PoliciesPolicy, Resource::String::PoliciesState } };
+
+                // Output the toggle policies.
+                for (const auto& activePolicy : activePolicies)
+                {
+                    auto policy = Settings::TogglePolicy::GetPolicy(activePolicy.first);
+                    policiesTable.OutputLine({
+                        Resource::LocString{ policy.PolicyName() }.get(),
+                        Resource::LocString{ activePolicy.second == Settings::PolicyState::Enabled ? Resource::String::PoliciesEnabled : Resource::String::PoliciesDisabled }.get() });
+                }
+
+                // Output the update interval in the same table if needed.
+                if (sourceAutoUpdateIntervalPolicy.has_value())
+                {
+                    policiesTable.OutputLine({
+                        Resource::LocString{ AppInstaller::StringResource::String::PolicySourceAutoUpdateInterval },
+                        std::to_string(sourceAutoUpdateIntervalPolicy.value()) });
+                }
+
+                policiesTable.Complete();
+
+                // Output the additional and allowed sources as separate tables.
+                if (groupPolicies.GetState(Settings::TogglePolicy::Policy::AdditionalSources) == Settings::PolicyState::Enabled)
+                {
+                    info << std::endl;
+                    auto sources = groupPolicies.GetValueRef<Settings::ValuePolicy::AdditionalSources>();
+                    if (sources.has_value() && !sources->get().empty())
+                    {
+                        OutputGroupPolicySourceList(context, sources->get(), Resource::String::SourceListAdditionalSource);
+                    }
+                }
+
+                if (groupPolicies.GetState(Settings::TogglePolicy::Policy::AllowedSources) == Settings::PolicyState::Enabled)
+                {
+                    info << std::endl;
+                    auto sources = groupPolicies.GetValueRef<Settings::ValuePolicy::AllowedSources>();
+                    if (sources.has_value() && !sources->get().empty())
+                    {
+                        OutputGroupPolicySourceList(context, sources->get(), Resource::String::SourceListAllowedSource);
+                    }
+                }
+            }
+        }
+    }
 
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
     {
@@ -66,6 +149,19 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-help";
     }
 
+    void RootCommand::Execute(Execution::Context& context) const
+    {
+        AICLI_LOG(CLI, Info, << "Executing command: " << Name());
+        if (context.Args.Contains(Execution::Args::Type::Help))
+        {
+            OutputHelp(context.Reporter);
+        }
+        else
+        {
+            ExecuteInternal(context);
+        }
+    }
+
     void RootCommand::ExecuteInternal(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::Info))
@@ -94,6 +190,8 @@ namespace AppInstaller::CLI
             links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
 
             links.Complete();
+
+            OutputGroupPolicies(context);
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {

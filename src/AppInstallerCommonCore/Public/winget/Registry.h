@@ -61,11 +61,13 @@ namespace AppInstaller::Registry
     }
 
     struct Key;
+    struct ValueList;
 
     // A registry value.
     struct Value
     {
         friend Key;
+        friend ValueList;
 
         // The type of data stored in the Value.
         enum class Type : DWORD
@@ -87,17 +89,92 @@ namespace AppInstaller::Registry
         template <Type T>
         typename details::ValueTypeSpecifics<static_cast<DWORD>(T)>::value_t GetValue() const
         {
-            EnsureType(T);
-            return details::ValueTypeSpecifics<static_cast<DWORD>(T)>::Convert(m_data);
+            auto value = TryGetValue<T>();
+            if (!value.has_value())
+            {
+                THROW_HR(E_INVALIDARG);
+            }
+
+            return std::move(value.value());
+        }
+
+        template <Type T>
+        typename std::optional<typename details::ValueTypeSpecifics<static_cast<DWORD>(T)>::value_t> TryGetValue() const
+        {
+            if (HasCompatibleType(T))
+            {
+                return details::ValueTypeSpecifics<static_cast<DWORD>(T)>::Convert(m_data);
+            }
+            else
+            {
+                return std::nullopt;
+            }
         }
 
     private:
         Value(DWORD type, std::vector<BYTE>&& data);
 
-        void EnsureType(Type type) const;
+        bool HasCompatibleType(Type type) const;
 
         Type m_type;
         std::vector<BYTE> m_data;
+    };
+
+    // Value iteration
+    struct ValueList
+    {
+        friend Key;
+
+        struct const_iterator;
+
+        struct ValueRef : Value
+        {
+            friend const_iterator;
+
+            // Gets the name of the value.
+            std::string Name() const;
+
+        private:
+            ValueRef(std::wstring&& valueName, DWORD type, std::vector<BYTE>&& data);
+
+            std::wstring m_valueName;
+        };
+
+        struct const_iterator
+        {
+            friend ValueList;
+
+            const_iterator& operator++();
+            const_iterator operator++(int);
+
+            bool operator==(const const_iterator& other) const;
+            bool operator!=(const const_iterator& other) const;
+
+            const ValueRef& operator*() const;
+            const ValueRef* operator->() const;
+
+        private:
+            // Create an iterator
+            const_iterator(const wil::shared_hkey& key, DWORD index = 0);
+
+            // Create an iterator for end
+            const_iterator() = default;
+
+            void GetValue();
+
+            // An empty handle represents the end iterator.
+            wil::shared_hkey m_key;
+            DWORD m_index = 0;
+            std::optional<ValueRef> m_value;
+        };
+
+        const_iterator begin() const;
+        const_iterator end() const;
+
+    private:
+        ValueList(wil::shared_hkey key);
+
+        wil::shared_hkey m_key;
     };
 
     // A registry key.
@@ -168,6 +245,11 @@ namespace AppInstaller::Registry
         std::optional<Value> operator[](std::string_view name) const;
         std::optional<Value> operator[](const std::wstring& name) const;
 
+        std::optional<Key> SubKey(std::string_view name, DWORD options = 0) const;
+        std::optional<Key> SubKey(const std::wstring& name, DWORD options = 0) const;
+
+        ValueList Values() const;
+
         operator bool() const { return m_key.operator bool(); }
 
         // Open a Key; will return an empty Key if the subkey does not exist.
@@ -175,7 +257,8 @@ namespace AppInstaller::Registry
         static Key OpenIfExists(HKEY key, const std::wstring& subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
 
     private:
-        void Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
+        // When ignoring error, returns whether the key existed
+        bool Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
 
         wil::shared_hkey m_key;
         REGSAM m_access = KEY_READ;

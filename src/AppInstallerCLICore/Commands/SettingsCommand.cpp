@@ -36,7 +36,35 @@ namespace AppInstaller::CLI
             context.Reporter.Warn() << Resource::String::SettingLoadFailure << std::endl;
             for (const auto& warning : User().GetWarnings())
             {
-                context.Reporter.Warn() << warning << std::endl;
+                auto warn = context.Reporter.Warn();
+                warn << warning.Message;
+                if (!warning.Path.empty())
+                {
+                    if (warning.IsFieldWarning)
+                    {
+                        warn << ' ' << Resource::String::SettingsWarningField << ' ' << warning.Path;
+                    }
+                    else
+                    {
+                        warn << ' ' << warning.Path;
+                    }
+                }
+
+                if (!warning.Data.empty())
+                {
+                    if (warning.IsFieldWarning)
+                    {
+                        warn << ' ' << Resource::String::SettingsWarningValue << ' ' << warning.Data;
+                    }
+                    else
+                    {
+                        warn <<
+                            std::endl <<
+                            warning.Data;
+                    }
+                }
+
+                warn << std::endl;
             }
         }
 

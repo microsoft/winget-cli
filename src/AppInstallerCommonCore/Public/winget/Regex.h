@@ -26,8 +26,8 @@ namespace AppInstaller::Regex
         Expression(const Expression&);
         Expression& operator=(const Expression&);
 
-        Expression(Expression&&);
-        Expression& operator=(Expression&&);
+        Expression(Expression&&) noexcept;
+        Expression& operator=(Expression&&) noexcept;
 
         ~Expression();
 

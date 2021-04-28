@@ -386,7 +386,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
     <value>Filtriranje rezultata po imenu</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Nijedan instalator nije važeći za aktuelni sistem.</value>
+    <value>Nije pronađen nijedan primenljivi instalacioni program; pogledajte evidenciju za više detalja.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Trenutno nema dostupnih eksperimentalnih funkcija. </value>
@@ -813,5 +813,107 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Putanja ne postoji:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON datoteka ne navodi prepoznat šemu.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Izaberite opseg instalacije (korisnik ili računar)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Vrednost navedena za argument `%1` je nevažeća; važeće vrednosti su</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Ovu operaciju su onemogućile smernice grupe</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Omogući dodatne izvore Windows aplikacija za instalaciju</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Omogućavanje dozvoljenih izvora Windows instalacioni program za aplikacije</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Omogući podrazumevani izvor za Windows instalacioni program za aplikacije</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Omogućavanje eksperimentalne funkcije za Windows instalacioni program za aplikacije</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Omogućite izvor Microsoft Store za instalacioni program za Windows aplikacije</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Omogućavanje postavki programa Upravljač za pakete za Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Omogućavanje programa Upravljač za pakete za Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Postavi interval automatskog ažuriranja izvora za Upravljač za pakete za Windows u minutama</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Onemogućeno</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Omogućeno</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Smernice grupe</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Država</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Omogući datoteke lokalnog manifesta za instalacioni program za aplikacije Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Polje:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Nevažeći format polja.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Nevažeća vrednost polja.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Nevažeća postavka iz smernica grupe.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Učitane su postavke iz rezervne kopije datoteke.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Greška pri raščlanjivanju datoteke:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Vrednost:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Sledeće eksperimentalne funkcije su u toku.
+Konfiguracija je onemogućena zbog smernica grupe.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hash instalacioni program se ne podudara.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Omogući zamenu hash instalacionog programa za Windows aplikacije</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Izvezite trenutne izvore kao JSON za smernice grupe.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Izvoz trenutnih izvora</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Dodatni izvor</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Dozvoljeni izvor</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

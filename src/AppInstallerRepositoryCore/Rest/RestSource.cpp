@@ -58,11 +58,25 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
-            // TODO
             std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
             {
-                UNREFERENCED_PARAMETER(property);
                 std::vector<Utility::LocIndString> result;
+                switch (property)
+                {
+                case PackageVersionMultiProperty::PackageFamilyName:
+                    for (std::string pfn : m_versionInfo.PackageFamilyNames)
+                    {
+                        result.emplace_back(Utility::LocIndString{ pfn });
+                    }
+                    break;
+                case PackageVersionMultiProperty::ProductCode:
+                    for (std::string productCode : m_versionInfo.ProductCodes)
+                    {
+                        result.emplace_back(Utility::LocIndString{ productCode });
+                    }
+                    break;
+                }
+
                 return result;
             }
 
@@ -249,8 +263,9 @@ namespace AppInstaller::Repository::Rest
     }
 
     RestSource::RestSource(const SourceDetails& details, std::string identifier, RestClient&& restClient)
-        : m_details(details), m_identifier(std::move(identifier)), m_restClient(std::move(restClient))
+        : m_details(details), m_restClient(std::move(restClient))
     {
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& RestSource::GetDetails() const
@@ -265,12 +280,11 @@ namespace AppInstaller::Repository::Rest
 
     const std::string& RestSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        // Note: Basic search functionality to fetch everything.
         RestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 

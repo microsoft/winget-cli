@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Uppsetningarforrit</displayName>
+  <description>Uppsetningarforrit</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Uppsetningarforrit fyrir skjáborðsforrit</string>
+      <string id="EnableAppInstaller">Virkja uppsetningarforrit</string>
+      <string id="EnableAppInstallerExplanation">Þessi regla stjórnar því hvort notendur geti notað Windows-pakkastjóra.
+
+Ef þú virkjar eða grunnstillir ekki þessa stillingu, munu notendur geta notast við Windows-pakkastjórann.
+
+Ef þú slekkur á þessari stillingu munu notendur ekki geta notast við Windows-pakkastjórann.</string>
+      <string id="EnableSettings">Virkja stillingar uppsetningarforrits</string>
+      <string id="EnableSettingsExplanation">Þessi stefna stjórnar því hvort notendur geti breytt stillingum sínum.
+
+Ef þú virkjar eða grunnstillir ekki þessa stillingu, munu notendur geta breytt stillingum fyrir Windows-pakkastjóra.
+
+Ef þú slekkur á þessari stillingu munu notendur ekki geta breytt stillingum fyrir Windows-pakkastjóra.</string>
+      <string id="EnableExperimentalFeatures">Virkja tilraunaeiginleika uppsetningarforrits</string>
+      <string id="EnableExperimentalFeaturesExplanation">Þessi regla stjórnar því hvort notendur geti virkjað tilraunaeiginleika í Windows-pakkastjóra.
+
+Ef þú virkjar eða grunnstillir ekki þessa stillingu, munu notendur geta virkjað tilraunaeiginleika fyrir Windows-pakkastjóra.
+
+Ef þú slekkur á þessari stillingu munu notendur ekki geta virkjað tilraunaeiginleika fyrir Windows-pakkastjóra.</string>
+      <string id="EnableLocalManifestFiles">Virkja staðbundnar upplýsingaskrár uppsetningarforrits</string>
+      <string id="EnableLocalManifestFilesExplanation">Þessi regla stjórnar því hvort notendur geti sett upp pakka með staðbundnum upplýsingaskrám.
+
+Ef þú virkjar eða stillir ekki þessa stillingu, munu notendur geta sett upp pakka með staðbundnum upplýsingaskrám með Windows-pakkastjóranum.
+
+Ef þú slekkur á þessari stillingu munu notendur ekki geta sett upp pakka með staðbundnum upplýsingaskrám með Windows-pakkastjóranum.</string>
+      <string id="EnableHashOverride">Virkja hnekkingu tætigildis uppsetningarforrits</string>
+      <string id="EnableHashOverrideExplanation">Þessi stefna stjórnar því hvort hægt sé að stilla Windows-pakkastjóra til að virkja möguleikann á að hnekkja SHA256-öryggisprófun í stillingum.
+
+Ef þú virkjar eða hefur ekki grunnstillt þessa reglu munu notendur geta virkjað möguleikann á að hnekkja SHA256-öryggisprófun í stillingum Windows-pakkastjóra.
+
+Ef þessi regla er gerð óvirk geta notendur ekki virkjað möguleikann til að hnekkja SHA256-öryggisprófun í stillingum Windows-pakkastjóra.</string>
+      <string id="EnableDefaultSource">Virkja sjálfgefinn uppruna uppsetningarforrits</string>
+      <string id="EnableDefaultSourceExplanation">Þessi regla stjórnar sjálfgefnum uppruna sem fylgir með Windows-pakkastjóranum.
+
+Ef þessi stilling er ekki grunnstillt verður sjálfgefinn uppruni fyrir Windows-pakkastjóra tiltækur og hægt að fjarlægja hann.
+
+Ef þú virkjar þessa stillingu verður sjálfgefinn uppruni fyrir Windows-pakkastjóra tiltækur og ekki hægt að fjarlægja hann.
+
+Ef þessi stilling er gerð óvirk verður sjálfgefinn uppruni Windows-pakkastjórans ekki tiltækur.</string>
+      <string id="EnableMicrosoftStoreSource">Virkja Microsoft Store-uppruna uppsetningarforrits</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Þessi regla stjórnar Microsoft Store-uppruna sem fylgir með Windows-pakkastjóranum.
+
+Ef þessi stilling er ekki grunnstillt verður Microsoft Store-uppruni fyrir Windows-pakkastjóra tiltækur og hægt að fjarlægja hann.
+
+Ef þú virkjar þessa stillingu verður Microsoft Store-uppruni fyrir Windows-pakkastjóra tiltækur og ekki hægt að fjarlægja hann.
+
+Ef þessi stilling er gerð óvirk verður Microsoft Store-uppruni Windows-pakkastjórans ekki tiltækur.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Stilla millibil sjálfvirkrar uppfærslu uppsetningarforrits fyrir uppruna í mínútum</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Þessi regla stýrir sjálfvirka uppfærslumillibilinu fyrir uppruna sem byggjast á pökkum.
+
+Ef þú slekkur á þessari stillingu eða grunnstillir hana ekki verður sjálfgefið millibil eða gildið sem er tilgreint í stillingunum notað af Windows-pakkastjóranum.
+
+Ef þú virkjar þessa stillingu verður fjöldi mínútna sem tilgreindur er notaður af Windows-pakkastjóranum.</string>
+      <string id="EnableAdditionalSources">Virkja viðbótaruppruna uppsetningarforrits</string>
+      <string id="EnableAdditionalSourcesExplanation">Þessi regla stjórnar viðbótaruppruna sem upplýsingatæknistjóri veitir.
+
+Ef þessi regla er ekki grunnstillt verða engir fleiri viðbótarupprunar grunnstilltir fyrir Windows-pakkastjóra.
+
+Ef þessi regla er gerð virk verður viðbótaruppruna bætt við Windows-pakkastjóra og ekki er hægt að fjarlægja hann. Hægt er að sækja framsetninguna fyrir hvern viðbótaruppruna úr uppsettum uppruna með því að nota „WinGet upprunaútflutning“.
+
+Ef þessi regla er gerð óvirk er ekki hægt að grunnstilla viðbótaruppruna fyrir Windows-pakkastjóra.</string>
+      <string id="EnableAllowedSources">Virkja leyfða uppruna uppsetningarforrits</string>
+      <string id="EnableAllowedSourcesExplanation">Þessi regla stjórnar viðbótaruppruna sem leyfðir eru af upplýsingatæknistjóra fyrirtækisins.
+
+Ef þessi regla er ekki grunnstillt geta notendur bætt við eða fjarlægt viðbótaruppruna aðra en þá sem grunnstilltir eru af reglu.
+
+Ef þessi regla er gerð virk verður aðeins hægt að bæta við eða fjarlægja tilgreinda uppruna. Hægt er að sækja framsetninguna fyrir hvern leyfðan uppruna úr uppsettum uppruna með því að nota „WinGet upprunaútflutning“.
+
+Ef þessi regla er gerð óvirk er ekki hægt að grunnstilla viðbótaruppruna fyrir Windows-pakkastjóra.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Millibil sjálfvirkrar uppfærslu fyrir uppruna í mínútum</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Fleiri upprunar: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Leyfðir upprunar: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

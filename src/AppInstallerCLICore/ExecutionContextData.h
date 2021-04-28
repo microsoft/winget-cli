@@ -36,7 +36,6 @@ namespace AppInstaller::CLI::Execution
         InstallerArgs,
         CompletionData,
         InstalledPackageVersion,
-        ExecutionStage,
         UninstallString,
         PackageFamilyNames,
         ProductCodes,
@@ -49,6 +48,12 @@ namespace AppInstaller::CLI::Execution
         Sources,
         ARPSnapshot,
         Max
+    };
+
+    struct PackagesToInstall
+    {
+        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        PackageCollection::Package PackageRequest;
     };
 
     namespace details
@@ -138,12 +143,6 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::ExecutionStage>
-        {
-            using value_t = Workflow::ExecutionStage;
-        };
-
-        template <>
         struct DataMapping<Data::UninstallString>
         {
             using value_t = std::string;
@@ -170,7 +169,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {
-            using value_t = std::vector<std::shared_ptr<Repository::IPackageVersion>>;
+            using value_t = std::vector<PackagesToInstall>;
         };
 
         template <>
