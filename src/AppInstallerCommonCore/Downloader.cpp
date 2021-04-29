@@ -131,37 +131,12 @@ namespace AppInstaller::Utility
     std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
         std::ostream& dest,
-        DownloadType type,
+        DownloadType,
         IProgressCallback& progress,
         bool computeHash,
-        std::string_view downloadIdentifier)
+        std::string_view)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
-
-        // Only Installers should be downloaded with DO currently, as:
-        //  - Index :: Constantly changing blob at same location is not what DO is for
-        //  - Manifest :: DO overhead is not needed for small files
-        //  - WinGetUtil :: Intentionally not using DO at this time
-        if (type == DownloadType::Installer)
-        {
-            // Determine whether to try DO first or not, as this is the only choice currently supported.
-            InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
-
-            // Currently, the default remains WinINet until the DO path is proven.
-            if (setting == InstallerDownloader::Default)
-            {
-                setting = InstallerDownloader::WinInet;
-            }
-
-            if (setting == InstallerDownloader::DeliveryOptimization)
-            {
-                return DODownloadToStream(url, dest, progress, computeHash, downloadIdentifier);
-
-                // While DO still requires an explicit opt-in, we will let failures through.
-                // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.
-            }
-        }
-
         return WinINetDownloadToStream(url, dest, progress, computeHash);
     }
 
@@ -180,6 +155,30 @@ namespace AppInstaller::Utility
 
         std::filesystem::create_directories(dest.parent_path());
 
+        // Only Installers should be downloaded with DO currently, as:
+        //  - Index :: Constantly changing blob at same location is not what DO is for
+        //  - Manifest :: DO overhead is not needed for small files
+        //  - WinGetUtil :: Intentionally not using DO at this time
+        if (type == DownloadType::Installer)
+        {
+            // Determine whether to try DO first or not, as this is the only choice currently supported.
+            InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
+
+            // Currently, the default remains WinINet until the DO path is proven.
+            if (setting == InstallerDownloader::Default)
+            {
+                setting = InstallerDownloader::WinInet;
+            }
+
+            if (setting == InstallerDownloader::DeliveryOptimization)
+            {
+                return DODownload(url, dest, progress, computeHash, downloadIdentifier);
+
+                // While DO still requires an explicit opt-in, we will let failures through.
+                // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.
+            }
+        }
+
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
         ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
@@ -187,7 +186,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return DownloadToStream(url, outfile, type, progress, computeHash, downloadIdentifier);
+        return WinINetDownloadToStream(url, outfile, progress, computeHash);
     }
 
     using namespace std::string_view_literals;

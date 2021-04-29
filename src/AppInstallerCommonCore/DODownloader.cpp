@@ -5,6 +5,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "winget/UserSettings.h"
 
 // Until it is in the Windows SDK, get it from here
 #include "external/do.h"
@@ -13,6 +14,8 @@ namespace AppInstaller::Utility
 {
     namespace DeliveryOptimization
     {
+#define DO_E_DOWNLOAD_NO_PROGRESS HRESULT(0x80D02002L) // Download of a file saw no progress within the defined period
+
         // Represents a download work item for Delivery Optimization.
         struct Download
         {
@@ -54,13 +57,18 @@ namespace AppInstaller::Utility
                 }
             }
 
-            void SetProperty(DODownloadProperty prop, std::string_view value)
+            void SetProperty(DODownloadProperty prop, const std::wstring& value)
             {
                 wil::unique_variant var;
-                var.bstrVal = ::SysAllocString(Utility::ConvertToUTF16(value).c_str());
+                var.bstrVal = ::SysAllocString(value.c_str());
                 THROW_IF_NULL_ALLOC(var.bstrVal);
                 var.vt = VT_BSTR;
                 THROW_IF_FAILED(m_download->SetProperty(prop, &var));
+            }
+
+            void SetProperty(DODownloadProperty prop, std::string_view value)
+            {
+                SetProperty(prop, Utility::ConvertToUTF16(value));
             }
 
             void SetProperty(DODownloadProperty prop, uint32_t value)
@@ -107,6 +115,11 @@ namespace AppInstaller::Utility
                 SetProperty(DODownloadProperty_DisplayName, displayName);
             }
 
+            void LocalPath(const std::filesystem::path& localPath)
+            {
+                SetProperty(DODownloadProperty_LocalPath, localPath.wstring());
+            }
+
             void CorrelationVector(std::string_view correlationVector)
             {
                 SetProperty(DODownloadProperty_CorrelationVector, correlationVector);
@@ -148,10 +161,15 @@ namespace AppInstaller::Utility
                 THROW_IF_FAILED(m_download->Start(&emptyRanges));
             }
 
-            // Returns true if Cancel was successful; false if not.
+            // Returns true if Abort was successful; false if not.
             bool Cancel()
             {
                 return SUCCEEDED_LOG(m_download->Abort());
+            }
+
+            void Finalize()
+            {
+                THROW_IF_FAILED(m_download->Finalize());
             }
 
             DO_DOWNLOAD_STATUS Status()
@@ -186,119 +204,6 @@ namespace AppInstaller::Utility
             wil::com_ptr<IDOManager> m_manager;
         };
 
-        // An IStream that wraps a std::ostream for writes from DO.
-        class IStreamOnOStream : public Microsoft::WRL::RuntimeClass<
-            Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
-            IStream>
-        {
-        public:
-            IStreamOnOStream(std::ostream& dest, bool computeHash) :
-                m_dest(dest)
-            {
-                if (computeHash)
-                {
-                    m_hashEngine = std::make_unique<SHA256>();
-                }
-            }
-
-            // IStream methods :
-            // Only the Write method is implemented since this only serves as a bridge to the ostream.
-            // DO will call IStream::Write to send back data downloaded.
-            IFACEMETHOD(Read)(void*, ULONG, ULONG*)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(Write)(const void* pv, ULONG cb, ULONG* /*pcbWritten*/)
-            {
-                try
-                {
-                    if (m_hashEngine)
-                    {
-                        m_hashEngine->Add(reinterpret_cast<const uint8_t*>(pv), cb);
-                    }
-
-                    m_dest.write(reinterpret_cast<const char*>(pv), cb);
-
-                    return S_OK;
-                }
-                CATCH_RETURN();
-            }
-
-            IFACEMETHOD(Seek)(LARGE_INTEGER, DWORD, ULARGE_INTEGER*)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(SetSize)(ULARGE_INTEGER)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(CopyTo)(IStream*, ULARGE_INTEGER, ULARGE_INTEGER*, ULARGE_INTEGER*)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(Commit)(DWORD)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(Revert)()
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(LockRegion)(ULARGE_INTEGER, ULARGE_INTEGER, DWORD)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(UnlockRegion)(ULARGE_INTEGER, ULARGE_INTEGER, DWORD)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(Stat)(STATSTG*, DWORD)
-            {
-                return E_NOTIMPL;
-            }
-
-            IFACEMETHOD(Clone)(IStream**)
-            {
-                return E_NOTIMPL;
-            }
-
-            static HRESULT Create(
-                std::ostream& dest,
-                bool computeHash,
-                IStreamOnOStream** result)
-            {
-                Microsoft::WRL::ComPtr<IStreamOnOStream> localResult = Microsoft::WRL::Make<IStreamOnOStream>(dest, computeHash);
-                RETURN_IF_NULL_ALLOC(localResult);
-
-                *result = localResult.Detach();
-                return S_OK;
-            }
-
-            std::optional<std::vector<BYTE>> Hash()
-            {
-                std::vector<BYTE> result;
-                if (m_hashEngine)
-                {
-                    result = m_hashEngine->Get();
-                    AICLI_LOG(Core, Info, << "Download hash: " << SHA256::ConvertToString(result));
-                }
-
-                return result;
-            }
-
-        private:
-            std::ostream& m_dest;
-            std::unique_ptr<SHA256> m_hashEngine;
-        };
-
         // Status callback handler
         class DODownloadStatusCallback : public Microsoft::WRL::RuntimeClass<
             Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
@@ -331,20 +236,50 @@ namespace AppInstaller::Utility
                 return S_OK;
             }
 
+            // Simply breaks the wait in Wait; the progress object must already be cancelled to force it out.
+            void Cancel()
+            {
+                m_statusCV.notify_all();
+            }
+
             // Returns true on successful completion, false on cancellation, and throws on an error.
             bool Wait()
             {
                 std::unique_lock<std::mutex> lock(m_statusMutex);
 
-                while (true)
+                // If there is no transfer status update for m_doNoProgressTimeout from startTime, we will fail.
+                auto timeoutTime = std::chrono::steady_clock::now() + Settings::User().Get<Settings::Setting::NetworkDOProgressTimeoutInSeconds>();
+                std::optional<UINT64> initialTransferAmount;
+                bool transferChange = false;
+
+                while (!m_progress.IsCancelled())
                 {
-                    // TODO: Implement DO no progress timeout
-                    m_statusCV.wait(lock);
+                    if (!transferChange)
+                    {
+                        if (m_statusCV.wait_until(lock, timeoutTime) == std::cv_status::timeout)
+                        {
+                            THROW_HR(DO_E_DOWNLOAD_NO_PROGRESS);
+                        }
+                    }
+                    else
+                    {
+                        m_statusCV.wait(lock);
+                    }
+
+                    // Since we just finished a wait, check for cancellation before handling anything else
+                    if (m_progress.IsCancelled())
+                    {
+                        return false;
+                    }
+
+                    AICLI_LOG(Core, Verbose, << "DO State " << m_currentStatus.State << ", " << m_currentStatus.BytesTransferred << " / " << m_currentStatus.BytesTotal <<
+                        ", Error 0x" << Logging::SetHRFormat << m_currentStatus.Error << ", extended error 0x" << Logging::SetHRFormat << m_currentStatus.ExtendedError);
 
                     // No matter the state, we are considering any error set to be a failure
                     if (FAILED(m_currentStatus.Error))
                     {
-                        AICLI_LOG(Core, Error, << "DeliveryOptimization error: " << m_currentStatus.Error << ", extended error: " << m_currentStatus.ExtendedError);
+                        AICLI_LOG(Core, Error, << "DeliveryOptimization error: 0x" << Logging::SetHRFormat << m_currentStatus.Error <<
+                            ", extended error: 0x" << Logging::SetHRFormat << m_currentStatus.ExtendedError);
                         THROW_HR(m_currentStatus.Error);
                     }
 
@@ -356,9 +291,18 @@ namespace AppInstaller::Utility
                         break;
 
                     case DODownloadState_Transferring:
-                        if (m_currentStatus.BytesTransferred)
+                        if (m_currentStatus.BytesTransferred || m_currentStatus.BytesTotal)
                         {
                             m_progress.OnProgress(m_currentStatus.BytesTransferred, m_currentStatus.BytesTotal, ProgressType::Bytes);
+                        }
+
+                        if (!initialTransferAmount)
+                        {
+                            initialTransferAmount = m_currentStatus.BytesTransferred;
+                        }
+                        else if (m_currentStatus.BytesTransferred != initialTransferAmount.value())
+                        {
+                            transferChange = true;
                         }
                         break;
 
@@ -376,6 +320,8 @@ namespace AppInstaller::Utility
                         return false;
                     }
                 }
+
+                return false;
             }
 
         private:
@@ -386,20 +332,23 @@ namespace AppInstaller::Utility
         };
     }
 
-    std::optional<std::vector<BYTE>> DODownloadToStream(
+    // Debugging tip:
+    // From an elevated PowerShell, run:
+    // > Get-DeliveryOptimizationLog | Set-Content dologs.txt
+    std::optional<std::vector<BYTE>> DODownload(
         const std::string& url,
-        std::ostream& dest,
+        const std::filesystem::path& dest,
         IProgressCallback& progress,
         bool computeHash,
         std::string_view downloadIdentifier)
     {
         AICLI_LOG(Core, Info, << "DeliveryOptimization downloading from url: " << url);
 
+        // Remove the target file since DO will not overwrite
+        std::filesystem::remove(dest);
+
         DeliveryOptimization::Manager manager;
         DeliveryOptimization::Download download = manager.CreateDownload();
-
-        wil::com_ptr<DeliveryOptimization::IStreamOnOStream> writeStream;
-        THROW_IF_FAILED(DeliveryOptimization::IStreamOnOStream::Create(dest, computeHash, &writeStream));
 
         wil::com_ptr<DeliveryOptimization::DODownloadStatusCallback> callback;
         THROW_IF_FAILED(DeliveryOptimization::DODownloadStatusCallback::Create(progress, &callback));
@@ -407,15 +356,16 @@ namespace AppInstaller::Utility
         download.Uri(url);
         download.ContentId(downloadIdentifier);
         download.ForegroundPriority(true);
-        download.StreamInterface(writeStream.get());
+        download.LocalPath(dest);
         download.CallbackInterface(callback.get());
 
         download.Start();
 
-        auto cancelLifetime = progress.SetCancellationFunction([&download]()
+        auto cancelLifetime = progress.SetCancellationFunction([&download, &callback]()
             {
                 AICLI_LOG(Core, Info, << "Download cancelled.");
                 download.Cancel();
+                callback->Cancel();
             });
 
         // Check to handle cancellation between Start and SetCancellationFunction
@@ -429,13 +379,17 @@ namespace AppInstaller::Utility
         // Wait returns true for success, false for cancellation, and throws on error.
         if (callback->Wait())
         {
-            dest.flush();
+            // Finalize is required to flush the data and change the file name.
+            download.Finalize();
             AICLI_LOG(Core, Info, << "Download completed.");
-            return writeStream->Hash();
+
+            if (computeHash)
+            {
+                std::ifstream inStream{ dest, std::ifstream::binary };
+                return SHA256::ComputeHash(inStream);
+            }
         }
-        else
-        {
-            return {};
-        }
+
+        return {};
     }
 }
