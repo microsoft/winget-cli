@@ -334,7 +334,7 @@ namespace AppInstaller::Utility
 
     // Debugging tip:
     // From an elevated PowerShell, run:
-    // > Get-DeliveryOptimizationLog | Set-Content dologs.txt
+    // > Get-DeliveryOptimizationLog | Set-Content doLogs.txt
     std::optional<std::vector<BYTE>> DODownload(
         const std::string& url,
         const std::filesystem::path& dest,

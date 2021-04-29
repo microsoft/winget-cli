@@ -35,6 +35,7 @@ Bluetooth
 bomgar
 BOMs
 brk
+bstr
 Buf
 BUILTINS
 casemap
