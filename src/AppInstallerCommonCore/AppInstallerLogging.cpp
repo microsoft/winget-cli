@@ -8,6 +8,8 @@
 #include "Public/AppInstallerDateTime.h"
 #include "Public/AppInstallerRuntime.h"
 
+thread_local AppInstaller::Logging::ThreadGlobals* t_pThreadGlobals = nullptr;
+
 namespace AppInstaller::Logging
 {
     namespace
@@ -47,12 +49,6 @@ namespace AppInstaller::Logging
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
-
-    DiagnosticLogger& DiagnosticLogger::GetInstance()
-    {
-        static DiagnosticLogger instance;
-        return instance;
-    }
 
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
@@ -142,6 +138,36 @@ namespace AppInstaller::Logging
     std::ostream& SetHRFormat(std::ostream& out)
     {
         return out << std::hex << std::setw(8) << std::setfill('0');
+    }
+
+    DiagnosticLogger& ThreadGlobals::GetDiagnosticLogger()
+    {
+        if (!m_pDiagnosticLogger)
+        {
+            InitDiagnosticLogger();
+        }
+
+        return *(m_pDiagnosticLogger.get());
+    }
+
+    void ThreadGlobals::InitDiagnosticLogger()
+    {
+        m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
+    }
+
+    TelemetryTraceLogger& ThreadGlobals::GetTelemetryLogger()
+    {
+        if (!m_pTelemetryLogger)
+        {
+            InitTelemetryLogger();
+        }
+
+        return *(m_pTelemetryLogger.get());
+    }
+
+    void ThreadGlobals::InitTelemetryLogger()
+    {
+        m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();
     }
 }
 

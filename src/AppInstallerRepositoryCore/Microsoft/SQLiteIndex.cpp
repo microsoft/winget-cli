@@ -111,7 +111,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_dbconn.EnableICU();
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
-        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
+        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime().time_since_epoch().count() << "]");
         m_interface = m_version.CreateISQLiteIndex();
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLite::Connection::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }

@@ -15,6 +15,8 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
+        TelemetryTraceLogger();
+
         virtual ~TelemetryTraceLogger();
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
@@ -22,9 +24,6 @@ namespace AppInstaller::Logging
 
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
-
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
 
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
@@ -115,7 +114,6 @@ namespace AppInstaller::Logging
             std::string_view arpLanguage) const noexcept;
 
     protected:
-        TelemetryTraceLogger();
 
         bool IsTelemetryEnabled() const noexcept;
 

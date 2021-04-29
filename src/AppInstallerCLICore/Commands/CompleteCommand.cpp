@@ -67,7 +67,7 @@ namespace AppInstaller::CLI
         }
         catch (const CommandException& ce)
         {
-            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
+            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message().get());
         }
         catch (...)
         {

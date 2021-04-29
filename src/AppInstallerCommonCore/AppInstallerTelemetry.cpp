@@ -71,12 +71,6 @@ namespace AppInstaller::Logging
         UnRegisterTraceLogging();
     }
 
-    TelemetryTraceLogger& TelemetryTraceLogger::GetInstance()
-    {
-        static TelemetryTraceLogger instance;
-        return instance;
-    }
-
     bool TelemetryTraceLogger::DisableRuntime()
     {
         return m_isRuntimeEnabled.exchange(false);
@@ -524,7 +518,7 @@ namespace AppInstaller::Logging
         }
 #endif
 
-        return TelemetryTraceLogger::GetInstance();
+        return t_pThreadGlobals->GetTelemetryLogger();
     }
 
     void EnableWilFailureTelemetry()

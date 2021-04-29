@@ -46,6 +46,9 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
+        Execution::Context context{ std::cout, std::cin };
+        context.EnableCtrlHandler();
+
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
@@ -59,9 +62,6 @@ namespace AppInstaller::CLI
 
         // Initiate the background cleanup of the log file location.
         Logging::BeginLogFileCleanup();
-
-        Execution::Context context{ std::cout, std::cin };
-        context.EnableCtrlHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
@@ -112,7 +112,7 @@ namespace AppInstaller::CLI
         catch (const CommandException& ce)
         {
             command->OutputHelp(context.Reporter, &ce);
-            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
+            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message().get());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
