@@ -6,6 +6,7 @@ agg
 aicli
 AICLIC
 ajor
+ALLOC
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -21,6 +22,8 @@ ASwitch
 Atest
 AType
 AUrl
+AUTHN
+AUTHZ
 Aysnc
 azurewebsites
 Baz
@@ -75,6 +78,7 @@ dw
 endian
 enr
 enums
+EOAC
 ERANGE
 errno
 etest
@@ -106,6 +110,7 @@ hre
 HRESULTs
 IAttachment
 IConfiguration
+IFACEMETHOD
 IHost
 IID
 IInstalled
@@ -241,6 +246,7 @@ UChars
 uec
 uild
 uintptr
+ul
 Uninitialize
 uninstallation
 uninstaller
