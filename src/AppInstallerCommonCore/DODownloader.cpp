@@ -152,7 +152,7 @@ namespace AppInstaller::Utility
 
             // Properties that may be interesting for future use:
             // https://docs.microsoft.com/en-us/windows/win32/delivery_optimization/deliveryoptimizationdownloadtypes/ne-deliveryoptimizationdownloadtypes-dodownloadproperty
-            //  - DODownloadProperty_CostPolicy :: Allow user to specify how to behave one metered networks
+            //  - DODownloadProperty_CostPolicy :: Allow user to specify how to behave on metered networks
 
             void Start()
             {
@@ -183,7 +183,7 @@ namespace AppInstaller::Utility
             wil::com_ptr<IDODownload> m_download;
         };
 
-        // The tope level Delivery Optimization manager object.
+        // The top level Delivery Optimization manager object.
         struct Manager
         {
             Manager()
@@ -247,7 +247,7 @@ namespace AppInstaller::Utility
             {
                 std::unique_lock<std::mutex> lock(m_statusMutex);
 
-                // If there is no transfer status update for m_doNoProgressTimeout from startTime, we will fail.
+                // If there is no transfer status update for m_doNoProgressTimeout, we will fail.
                 auto timeoutTime = std::chrono::steady_clock::now() + Settings::User().Get<Settings::Setting::NetworkDOProgressTimeoutInSeconds>();
                 std::optional<UINT64> initialTransferAmount;
                 bool transferChange = false;
@@ -309,7 +309,7 @@ namespace AppInstaller::Utility
                         // These are considered to be 'done'
                     case DODownloadState_Transferred:
                     case DODownloadState_Finalized:
-                        if (m_currentStatus.BytesTransferred)
+                        if (m_currentStatus.BytesTransferred || m_currentStatus.BytesTotal)
                         {
                             m_progress.OnProgress(m_currentStatus.BytesTransferred, m_currentStatus.BytesTotal, ProgressType::Bytes);
                         }

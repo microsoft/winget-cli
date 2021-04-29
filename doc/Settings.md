@@ -89,8 +89,9 @@ The `network` settings influence how winget uses the network to retrieve package
 
 ### Downloader
 
-The `downloader` setting controls which code is used when downloading packages. The default is `default`, which may be any of the options based on our determination of which is best.
-`wininet` uses the [WinINet](https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet) APIs, while `do` uses the [Delivery Optimization](https://support.microsoft.com/en-us/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service first, falling back to the wininet functionality if that fails for any reason.
+The `downloader` setting controls which code is used when downloading packages. The default is `default`, which may be any of the options based on our determination.
+`wininet` uses the [WinINet](https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet) APIs, while `do` uses the
+[Delivery Optimization](https://support.microsoft.com/en-us/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
 
 ```json
    "network": {
