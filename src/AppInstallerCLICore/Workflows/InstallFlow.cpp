@@ -105,6 +105,9 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        // Use the SHA256 hash of the installer as the identifier for the download
+        std::string hashString = SHA256::ConvertToString(installer.Sha256);
+
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
@@ -120,8 +123,10 @@ namespace AppInstaller::CLI::Workflow
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     tempInstallerPath,
+                    Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    true));
+                    true,
+                    hashString));
 
                 success = true;
             }

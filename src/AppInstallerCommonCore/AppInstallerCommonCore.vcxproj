@@ -260,6 +260,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DODownloader.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
     <ClInclude Include="HttpStream\HttpLocalCache.h" />
@@ -307,6 +308,7 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="GroupPolicy.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>

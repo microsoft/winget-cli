@@ -16,7 +16,7 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 
     // Todo: point to files from our repo when the repo goes public
     ProgressCallback callback;
-    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), callback, true);
+    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback, true);
 
     REQUIRE(result.has_value());
     auto resultHash = result.value();
@@ -49,7 +49,7 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
     std::optional<std::vector<BYTE>> waitResult;
     std::thread waitThread([&]
         {
-            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), callback, true);
+            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback, true);
         });
 
     callback.Cancel();
@@ -66,5 +66,5 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS_HR(Download("blargle-flargle-fluff", tempFile.GetPath(), callback, true), WININET_E_UNRECOGNIZED_SCHEME);
+    REQUIRE_THROWS_HR(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true), WININET_E_UNRECOGNIZED_SCHEME);
 }

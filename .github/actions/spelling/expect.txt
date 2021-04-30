@@ -242,6 +242,7 @@ UChars
 uec
 uild
 uintptr
+ul
 Uninitialize
 uninstallation
 uninstaller

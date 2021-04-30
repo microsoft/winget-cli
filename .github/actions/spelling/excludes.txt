@@ -22,3 +22,4 @@
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
+^src/AppInstallerCommonCore/external/do.h$

@@ -40,7 +40,8 @@
           "description": "The scope of a package install",
           "type": "string",
           "enum": [
-              "user", "machine"
+            "user",
+            "machine"
           ],
           "default": "user"
         }
@@ -50,8 +51,8 @@
       "description": "Install settings",
       "type": "object",
       "properties": {
-        "preferences": { "$ref": "#/definitions/InstallPrefReq"},
-        "requirements": { "$ref": "#/definitions/InstallPrefReq"}
+        "preferences": { "$ref": "#/definitions/InstallPrefReq" },
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
       }
     },
     "Telemetry": {
@@ -62,6 +63,29 @@
           "description": "Controls whether telemetry events are written",
           "type": "boolean",
           "default": false
+        }
+      }
+    },
+    "Network": {
+      "description": "Network settings",
+      "type": "object",
+      "properties": {
+        "downloader": {
+          "description": "Control which download code is used for packages",
+          "type": "string",
+          "enum": [
+            "default",
+            "wininet",
+            "do"
+          ],
+          "default": "default"
+        },
+        "doProgressTimeoutInSeconds": {
+          "description": "Number of seconds to wait without progress before fallback",
+          "type": "integer",
+          "default": 20,
+          "minimum": 1,
+          "maximum": 600
         }
       }
     },
@@ -99,11 +123,6 @@
           "type": "boolean",
           "default": false
         },
-        "import": {
-          "description": "Enable the import command while it is in development",
-          "type": "boolean",
-          "default": false
-        },
         "restSource": {
           "description": "Enable the rest source support while it is in development",
           "type": "boolean",
@@ -121,25 +140,31 @@
     },
     {
       "properties": {
-        "source": { "$ref": "#/definitions/Source"}
+        "source": { "$ref": "#/definitions/Source" }
       },
       "additionalItems": true
     },
     {
       "properties": {
-        "installBehavior": { "$ref": "#/definitions/InstallBehavior"}
+        "installBehavior": { "$ref": "#/definitions/InstallBehavior" }
       },
       "additionalItems": true
     },
     {
       "properties": {
-        "telemetry": { "$ref": "#/definitions/Telemetry"}
+        "telemetry": { "$ref": "#/definitions/Telemetry" }
       },
       "additionalItems": true
     },
     {
       "properties": {
-        "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
+        "network": { "$ref": "#/definitions/Network" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experimentalFeatures": { "$ref": "#/definitions/Experimental" }
       },
       "additionalItems": true
     }
