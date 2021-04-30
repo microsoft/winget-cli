@@ -267,6 +267,8 @@ namespace AppInstaller::CLI::Workflow
                 details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
             {
                 m_requirementAsString = GetLocalesListAsString(m_requirement);
+                m_preferenceAsString = GetLocalesListAsString(m_preference);
+                AICLI_LOG(CLI, Verbose, << "Locale Comparator created with Required Locales: " << m_requirementAsString << " , Preferred Locales: " << m_preferenceAsString);
             }
 
             static std::unique_ptr<LocaleComparator> Create(const Execution::Args& args)
@@ -355,6 +357,7 @@ namespace AppInstaller::CLI::Workflow
             std::vector<std::string> m_preference;
             std::vector<std::string> m_requirement;
             std::string m_requirementAsString;
+            std::string m_preferenceAsString;
 
             std::string GetLocalesListAsString(const std::vector<std::string>& locales)
             {
