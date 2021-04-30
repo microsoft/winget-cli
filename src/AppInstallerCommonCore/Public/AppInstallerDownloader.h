@@ -28,6 +28,7 @@ namespace AppInstaller::Utility
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The stream to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
+    //   downloadIdentifier: Optional. Currently only used by DO to identify the download.
     std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
         std::ostream& dest,
@@ -40,6 +41,7 @@ namespace AppInstaller::Utility
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The path to local file to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
+    //   downloadIdentifier: Optional. Currently only used by DO to identify the download.
     std::optional<std::vector<BYTE>> Download(
         const std::string& url,
         const std::filesystem::path& dest,

@@ -3,7 +3,7 @@ ACCESSDENIED
 addmanifest
 addstore
 admins
-Alloc
+alloc
 api
 appdata
 appinst
@@ -21,6 +21,8 @@ argv
 ARRAYSIZE
 aspirational
 aspnet
+authn
+authz
 autocomplete
 auxdata
 azureedge
@@ -30,7 +32,7 @@ Bitmask
 blog
 Blog
 boolalpha
-BSTR
+bstr
 bugfix
 BUILDNUMBER
 bytearray
@@ -103,6 +105,7 @@ ensureandinsert
 ensurepathexists
 ENU
 enum
+EOAC
 errorlevel
 errstr
 esrp
@@ -165,6 +168,7 @@ icu
 IDisposable
 IDX
 IEnumerable
+IFACEMETHOD
 ifdef
 ifndef
 ifstream

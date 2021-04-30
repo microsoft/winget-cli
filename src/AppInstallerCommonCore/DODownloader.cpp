@@ -7,7 +7,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "winget/UserSettings.h"
 
-// Until it is in the Windows SDK, get it from here
+// TODO: Get this from the Windows SDK when available
 #include "external/do.h"
 
 namespace AppInstaller::Utility
@@ -328,7 +328,7 @@ namespace AppInstaller::Utility
             IProgressCallback& m_progress;
             std::mutex m_statusMutex;
             std::condition_variable m_statusCV;
-            DO_DOWNLOAD_STATUS m_currentStatus{};
+            DO_DOWNLOAD_STATUS m_currentStatus = {};
         };
     }
 
