@@ -20,6 +20,56 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view MatchType = "MatchType"sv;
         constexpr std::string_view PackageMatchField = "PackageMatchField"sv;
         constexpr std::string_view FetchAllManifests = "FetchAllManifests"sv;
+
+        std::optional<std::string_view> ConvertPackageMatchFieldToString(AppInstaller::Repository::PackageMatchField field)
+        {
+            // Match fields supported by Rest API schema.
+            switch (field)
+            {
+            case PackageMatchField::Command:
+                return "Command"sv;
+            case PackageMatchField::Id:
+                return "PackageIdentifier"sv;
+            case PackageMatchField::Moniker:
+                return "Moniker"sv;
+            case PackageMatchField::Name:
+                return "PackageName"sv;
+            case PackageMatchField::Tag:
+                return "Tag"sv;
+            case PackageMatchField::PackageFamilyName:
+                return "PackageFamilyName"sv;
+            case PackageMatchField::ProductCode:
+                return "ProductCode"sv;
+            case PackageMatchField::NormalizedNameAndPublisher:
+                return "NormalizedPackageNameAndPublisher"sv;
+            }
+
+            return {};
+        }
+
+        std::optional<std::string_view> ConvertMatchTypeToString(AppInstaller::Repository::MatchType type)
+        {
+            // Match types supported by Rest API schema.
+            switch (type)
+            {
+            case MatchType::Exact:
+                return "Exact"sv;
+            case MatchType::CaseInsensitive:
+                return "CaseInsensitive"sv;
+            case MatchType::StartsWith:
+                return "StartsWith"sv;
+            case MatchType::Substring:
+                return "Substring"sv;
+            case MatchType::Wildcard:
+                return "Wildcard"sv;
+            case MatchType::Fuzzy:
+                return "Fuzzy"sv;
+            case MatchType::FuzzySubstring:
+                return "FuzzySubstring"sv;
+            }
+
+            return {};
+        }
     }
 
     web::json::value SearchRequestSerializer::Serialize(const SearchRequest& searchRequest) const
@@ -51,7 +101,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             {
                 auto& requestMatch = searchRequest.Query.value();
                 web::json::value requestMatchObject = web::json::value::object();
-                json_body[JsonHelper::GetUtilityString(Query)] = GetRequestMatchJsonObject(requestMatch);;
+                std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(requestMatch);
+                if (requestMatchJson)
+                {
+                    json_body[JsonHelper::GetUtilityString(Query)] = std::move(requestMatchJson.value());
+                }
             }
 
             if (!searchRequest.Filters.empty())
@@ -61,7 +115,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 int i = 0;
                 for (auto& filter : searchRequest.Filters)
                 {
-                    filters[i++] = GetPackageMatchFilterJsonObject(filter);
+                    std::optional<web::json::value> jsonObject = GetPackageMatchFilterJsonObject(filter);
+
+                    if (jsonObject)
+                    {
+                        filters[i++] = std::move(jsonObject.value());
+                    }
                 }
 
                 json_body[JsonHelper::GetUtilityString(Filters)] = filters;
@@ -74,7 +133,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 int i = 0;
                 for (auto& inclusion : searchRequest.Inclusions)
                 {
-                    inclusions[i++] = GetPackageMatchFilterJsonObject(inclusion);
+                    std::optional<web::json::value> jsonObject = GetPackageMatchFilterJsonObject(inclusion);
+
+                    if (jsonObject)
+                    {
+                        inclusions[i++] = std::move(jsonObject.value());
+                    }
                 }
 
                 json_body[JsonHelper::GetUtilityString(Inclusions)] = inclusions;
@@ -82,31 +146,56 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
             return json_body;
         }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Repo, Error, << "Error occurred while serializing search request. Reason: " << e.what());
+        }
         catch (...)
         {
-            AICLI_LOG(Repo, Verbose, << "Error occurred while serializing search request");
+            AICLI_LOG(Repo, Error, << "Error occurred while serializing search request");
         }
 
         return {};
     }
 
-    web::json::value SearchRequestSerializer::GetPackageMatchFilterJsonObject(const PackageMatchFilter& packageMatchFilter) const
+    std::optional<web::json::value> SearchRequestSerializer::GetPackageMatchFilterJsonObject(const PackageMatchFilter& packageMatchFilter) const
     {
         web::json::value filter = web::json::value::object();
-        filter[JsonHelper::GetUtilityString(PackageMatchField)] = web::json::value::string(JsonHelper::GetUtilityString(
-            PackageMatchFieldToString(packageMatchFilter.Field)));
-        AppInstaller::Repository::RequestMatch requestMatch{ packageMatchFilter.Type, packageMatchFilter.Value };
-        filter[JsonHelper::GetUtilityString(RequestMatch)] = GetRequestMatchJsonObject(requestMatch);
+        std::optional<std::string_view> matchField = ConvertPackageMatchFieldToString(packageMatchFilter.Field);
+        
+        if (!matchField)
+        {
+            AICLI_LOG(Repo, Warning, << "Skipping unsupported package match field: " << packageMatchFilter.Field);
+            return {};
+        }
 
+        filter[JsonHelper::GetUtilityString(PackageMatchField)] = web::json::value::string(JsonHelper::GetUtilityString(matchField.value()));
+        AppInstaller::Repository::RequestMatch requestMatch{ packageMatchFilter.Type, packageMatchFilter.Value };
+        std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(requestMatch);
+
+        if (!requestMatchJson)
+        {
+            AICLI_LOG(Repo, Warning, << "Skipping unsupported request match object.");
+            return {};
+        }
+
+        filter[JsonHelper::GetUtilityString(RequestMatch)] = std::move(requestMatchJson.value());
         return filter;
     }
 
-    web::json::value SearchRequestSerializer::GetRequestMatchJsonObject(const AppInstaller::Repository::RequestMatch& requestMatch) const
+    std::optional<web::json::value> SearchRequestSerializer::GetRequestMatchJsonObject(const AppInstaller::Repository::RequestMatch& requestMatch) const
     {
         web::json::value match = web::json::value::object();
         match[JsonHelper::GetUtilityString(KeyWord)] = web::json::value::string(JsonHelper::GetUtilityString(requestMatch.Value));
-        match[JsonHelper::GetUtilityString(MatchType)] = web::json::value::string(JsonHelper::GetUtilityString(MatchTypeToString(requestMatch.Type)));
 
+        std::optional<std::string_view> matchType = ConvertMatchTypeToString(requestMatch.Type);
+        if (!matchType)
+        {
+            AICLI_LOG(Repo, Warning, << "Skipping unsupported match type: " << requestMatch.Type);
+            return {};
+        }
+
+        match[JsonHelper::GetUtilityString(MatchType)] = web::json::value::string(JsonHelper::GetUtilityString(matchType.value()));
         return match;
     }
 }

@@ -44,7 +44,7 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), invalid));
 }
 
-TEST_CASE("GetSupportedVersion_Success", "[RestSource]")
+TEST_CASE("GetInformation_Success", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -56,11 +56,14 @@ TEST_CASE("GetSupportedVersion_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.3.0"}, Version {"0.2.0"}, Version {"1.10.0"} };
-    REQUIRE(RestClient::GetSupportedVersion(TestRestUri, wingetSupportedContracts, std::move(helper)) == Version{ "0.2.0" });
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, std::move(helper));
+    REQUIRE(information.SourceIdentifier == "Source123");
+    REQUIRE(information.ServerSupportedVersions.size() == 2);
+    REQUIRE(information.ServerSupportedVersions.at(0) == "0.2.0");
+    REQUIRE(information.ServerSupportedVersions.at(1) == "1.0.0");
 }
 
-TEST_CASE("GetSupportedVersion_UnexpectedVersion", "[RestSource]")
+TEST_CASE("RestClientCreate_UnexpectedVersion", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -72,12 +75,11 @@ TEST_CASE("GetSupportedVersion_UnexpectedVersion", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.0.0"}, Version {"0.2.0"} };
-    REQUIRE_THROWS_HR(RestClient::GetSupportedVersion(TestRestUri, wingetSupportedContracts, std::move(helper)),
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", std::move(helper)),
         APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
-TEST_CASE("RestClientCreate", "[RestSource]")
+TEST_CASE("RestClientCreate_Success", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -89,5 +91,6 @@ TEST_CASE("RestClientCreate", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_NOTHROW(RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper)));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper));
+    REQUIRE(client.GetSourceIdentifier() == "Source123");
 }

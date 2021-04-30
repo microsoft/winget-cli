@@ -57,8 +57,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
 
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
-        m_requiredRestApiHeaders.emplace_back(
-            std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString())));
+        m_requiredRestApiHeaders.emplace(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString()));
     }
 
     Utility::Version Interface::GetVersion() const
@@ -74,18 +73,47 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return OptimizedSearch(request);
         }
 
-        // TODO: Handle continuation token
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(
-            m_searchEndpoint, GetSearchBody(request), m_requiredRestApiHeaders);
+        return SearchInternal(request);
+    }
 
-        if (!jsonObject)
+    IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
+    {
+        SearchResult results;
+        utility::string_t continuationToken;
+        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
+        do
+        {
+            if (!continuationToken.empty())
+            {
+                AICLI_LOG(Repo, Verbose, << "Received continuation token. Retrieving more results.");
+                searchHeaders.insert_or_assign(JsonHelper::GetUtilityString(ContinuationToken), continuationToken);
+            }
+
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetSearchBody(request), searchHeaders);
+
+            utility::string_t ct;
+            if (jsonObject)
+            {
+                SearchResponseDeserializer searchResponseDeserializer;
+                SearchResult currentResult = searchResponseDeserializer.Deserialize(jsonObject.value());
+                
+                size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
+                    std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
+
+                std::move(currentResult.Matches.begin(), std::next(currentResult.Matches.begin(), insertElements), std::inserter(results.Matches, results.Matches.end()));
+                ct = RestHelper::GetContinuationToken(jsonObject.value()).value_or(L"");
+            }
+
+            continuationToken = ct;
+
+        } while (!continuationToken.empty() && (!request.MaximumResults || results.Matches.size() < request.MaximumResults));
+
+        if (results.Matches.empty())
         {
             AICLI_LOG(Repo, Verbose, << "No search results returned by rest source");
-            return {};
         }
 
-        SearchResponseDeserializer searchResponseDeserializer;
-        return searchResponseDeserializer.Deserialize(jsonObject.value());
+        return results;
     }
 
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
@@ -103,10 +131,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         std::vector<Manifest::Manifest> manifests = GetManifests(packageId, queryParams);
 
-        // TODO: Handle multiple manifest selection.
         if (!manifests.empty())
         {
-            return manifests.at(0);
+            for (Manifest::Manifest manifest : manifests)
+            {
+                if (Utility::CaseInsensitiveEquals(manifest.Version, version) &&
+                    Utility::CaseInsensitiveEquals(manifest.Channel, channel))
+                {
+                    return manifest;
+                }
+            }
         }
 
         return {};
@@ -144,8 +178,28 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             std::vector<VersionInfo> versions;
             for (auto& manifestVersion : manifests)
             {
+                std::vector<std::string> packageFamilyNames;
+                std::vector<std::string> productCodes;
+
+                for (auto& installer : manifestVersion.Installers)
+                {
+                    if (!installer.PackageFamilyName.empty())
+                    {
+                        packageFamilyNames.emplace_back(installer.PackageFamilyName);
+                    }
+
+                    if (!installer.ProductCode.empty())
+                    {
+                        productCodes.emplace_back(installer.ProductCode);
+                    }
+                }
+
+                std::vector<std::string> uniquePackageFamilyNames = RestHelper::GetUniqueItems(packageFamilyNames);
+                std::vector<std::string> uniqueProductCodes = RestHelper::GetUniqueItems(productCodes);
+
                 versions.emplace_back(
-                    VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel}, manifestVersion });
+                    VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
+                    manifestVersion, std::move(uniquePackageFamilyNames), std::move(uniqueProductCodes) });
             }
 
             Package package = Package{ std::move(packageInfo), std::move(versions) };

@@ -8,7 +8,7 @@ namespace AppInstaller::Repository::Rest
     HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
-        const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
+        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
         AICLI_LOG(Repo, Verbose, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::Rest
     }
 
     std::optional<web::json::value> HttpClientHelper::HandlePost(
-        const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
+        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
         web::http::http_response httpResponse;
         HttpClientHelper::Post(uri, body, headers).then([&httpResponse](const web::http::http_response& response)
@@ -39,7 +39,7 @@ namespace AppInstaller::Repository::Rest
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(
-        const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
+        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
         AICLI_LOG(Repo, Verbose, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -56,7 +56,7 @@ namespace AppInstaller::Repository::Rest
     }
 
     std::optional<web::json::value> HttpClientHelper::HandleGet(
-        const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
+        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
         web::http::http_response httpResponse;
         Get(uri, headers).then([&httpResponse](const web::http::http_response& response)
@@ -91,6 +91,7 @@ namespace AppInstaller::Repository::Rest
             break;
 
         case web::http::status_codes::NotFound:
+        case web::http::status_codes::NoContent:
             result = {};
             break;
 

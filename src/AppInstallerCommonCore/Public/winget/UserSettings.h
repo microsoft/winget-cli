@@ -46,6 +46,14 @@ namespace AppInstaller::Settings
         Machine,
     };
 
+    // The download code to use for *installers*.
+    enum class InstallerDownloader
+    {
+        Default,
+        WinInet,
+        DeliveryOptimization,
+    };
+
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -68,6 +76,8 @@ namespace AppInstaller::Settings
         EFRestSource,
         InstallScopePreference,
         InstallScopeRequirement,
+        NetworkDownloader,
+        NetworkDOProgressTimeoutInSeconds,
         InstallLocalePreference,
         InstallLocaleRequirement,
         Max
@@ -116,6 +126,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 20s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
 

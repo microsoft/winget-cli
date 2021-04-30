@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
 #include <cwctype>
 #include <filesystem>
 #include <fstream>
@@ -38,6 +39,7 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <ostream>
 #include <regex>
 #include <set>
@@ -55,6 +57,7 @@
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
 #include <wil/token_helpers.h>
+#include <wil/com.h>
 #pragma warning( pop )
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
@@ -76,6 +79,7 @@
 #endif
 
 #include <wrl/client.h>
+#include <wrl/implements.h>
 
 // Stream/buffer helper APIs
 #include <robuffer.h>

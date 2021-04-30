@@ -271,6 +271,33 @@ namespace AppInstaller::Settings
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
         }
+
+        WINGET_VALIDATE_SIGNATURE(NetworkDownloader)
+        {
+            static constexpr std::string_view s_downloader_default = "default";
+            static constexpr std::string_view s_downloader_wininet = "wininet";
+            static constexpr std::string_view s_downloader_do = "do";
+
+            if (Utility::CaseInsensitiveEquals(value, s_downloader_default))
+            {
+                return InstallerDownloader::Default;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_downloader_wininet))
+            {
+                return InstallerDownloader::WinInet;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_downloader_do))
+            {
+                return InstallerDownloader::DeliveryOptimization;
+            }
+
+            return {};
+        }
+
+        WINGET_VALIDATE_SIGNATURE(NetworkDOProgressTimeoutInSeconds)
+        {
+            return std::chrono::seconds(value);
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

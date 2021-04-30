@@ -77,6 +77,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             IRestClient::Information info{ std::move(sourceId.value()), std::move(allVersions) };
             return info;
         }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Repo, Error, << "Error encountered while deserializing Information. Reason: " << e.what());
+        }
         catch (...)
         {
             AICLI_LOG(Repo, Error, << "Received invalid information.");

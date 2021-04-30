@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Rest::Schema
 
         static utility::string_t GetUtilityString(std::string_view nodeName);
 
-        static std::vector<Manifest::string_t> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
+        static std::vector<std::string> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
         static bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
     };

@@ -15,6 +15,7 @@ TEST_CASE("SearchRequestSerializer_InclusionsFilters", "[RestSource]")
 {
     SearchRequest searchRequest;
     searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Substring, "Foo.Bar"));
+    searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::Substring, "Foo"));
     searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, MatchType::Exact, "FooBar"));
     searchRequest.MaximumResults = 10;
 
@@ -27,8 +28,9 @@ TEST_CASE("SearchRequestSerializer_InclusionsFilters", "[RestSource]")
 
     // Inclusions
     web::json::array inclusions = actual.at(L"Inclusions").as_array();
-    REQUIRE(inclusions.size() == 1);
-    REQUIRE(inclusions.at(0).at(L"PackageMatchField").as_string() == L"Id");
+    REQUIRE(inclusions.size() == 2);
+    REQUIRE(inclusions.at(0).at(L"PackageMatchField").as_string() == L"PackageIdentifier");
+    REQUIRE(inclusions.at(1).at(L"PackageMatchField").as_string() == L"PackageName");
     web::json::value requestMatch = inclusions.at(0).at(L"RequestMatch");
     REQUIRE(!requestMatch.is_null());
     REQUIRE(requestMatch.at(L"KeyWord").as_string() == L"Foo.Bar");

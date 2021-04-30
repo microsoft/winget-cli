@@ -192,7 +192,7 @@ namespace AppInstaller::Repository::Microsoft
                     tempFile = Runtime::GetPathTo(Runtime::PathName::Temp);
                     tempFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
-                    Utility::Download(packageLocation, tempFile, progress);
+                    Utility::Download(packageLocation, tempFile, Utility::DownloadType::Index, progress);
 
                     uri = winrt::Windows::Foundation::Uri(tempFile.c_str());
                 }

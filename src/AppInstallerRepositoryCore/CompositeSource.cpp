@@ -256,6 +256,11 @@ namespace AppInstaller::Repository
                     return String < other.String;
                 }
 
+                bool operator==(const SystemReferenceString& other) const
+                {
+                    return Field == other.Field && String == other.String;
+                }
+
                 PackageMatchField Field;
                 Utility::LocIndString String;
             };
@@ -303,32 +308,33 @@ namespace AppInstaller::Repository
                 bool foundExistingPackage = false;
                 PackageData result;
 
-                auto latestVersion = match.Package->GetLatestAvailableVersion();
-
-                foundExistingPackage = HandleSystemReferenceStringTypeForCheckForExistingResultFromAvailablePackageMatch(
-                    match,
-                    latestVersion.get(),
-                    PackageVersionMultiProperty::PackageFamilyName,
-                    PackageMatchField::PackageFamilyName,
-                    "package family name"sv,
-                    result);
-
-                foundExistingPackage = HandleSystemReferenceStringTypeForCheckForExistingResultFromAvailablePackageMatch(
-                    match,
-                    latestVersion.get(),
-                    PackageVersionMultiProperty::ProductCode,
-                    PackageMatchField::ProductCode,
-                    "product code"sv,
-                    result) || foundExistingPackage;
-
-                if (foundExistingPackage)
+                for (auto const& versionKey : match.Package->GetAvailableVersionKeys())
                 {
-                    return {};
+                    auto packageVersion = match.Package->GetAvailableVersion(versionKey);
+
+                    foundExistingPackage = HandleSystemReferenceStringTypeForCheckForExistingResultFromAvailablePackageMatch(
+                        match,
+                        packageVersion.get(),
+                        PackageVersionMultiProperty::PackageFamilyName,
+                        PackageMatchField::PackageFamilyName,
+                        "package family name"sv,
+                        result);
+
+                    foundExistingPackage = HandleSystemReferenceStringTypeForCheckForExistingResultFromAvailablePackageMatch(
+                        match,
+                        packageVersion.get(),
+                        PackageVersionMultiProperty::ProductCode,
+                        PackageMatchField::ProductCode,
+                        "product code"sv,
+                        result) || foundExistingPackage;
+
+                    if (foundExistingPackage)
+                    {
+                        return {};
+                    }
                 }
-                else
-                {
-                    return result;
-                }
+
+                return result;
             }
 
         private:
@@ -381,7 +387,10 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    data.SystemReferenceStrings.emplace_back(std::move(srs));
+                    if (std::find(data.SystemReferenceStrings.begin(), data.SystemReferenceStrings.end(), srs) == data.SystemReferenceStrings.end())
+                    {
+                        data.SystemReferenceStrings.emplace_back(std::move(srs));
+                    }
                 }
 
                 return foundExistingPackage;
