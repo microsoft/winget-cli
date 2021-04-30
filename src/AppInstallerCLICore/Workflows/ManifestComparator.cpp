@@ -264,7 +264,10 @@ namespace AppInstaller::CLI::Workflow
         struct LocaleComparator : public details::ComparisonField
         {
             LocaleComparator(std::vector<std::string> preference, std::vector<std::string> requirement) :
-                details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement)) {}
+                details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
+            {
+                m_requirementAsString = GetRequiredLocalesAsString();
+            }
 
             static std::unique_ptr<LocaleComparator> Create(const Execution::Args& args)
             {
@@ -320,6 +323,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 std::string result = "Installer locale does not match required locale: ";
                 result += installer.Locale;
+                result += "Required locales: ";
+                result += m_requirementAsString;
                 return result;
             }
 
@@ -335,9 +340,9 @@ namespace AppInstaller::CLI::Workflow
                     double firstScore = first.Locale.empty() ? Locale::UnknownLanguageDistanceScore : Locale::GetDistanceOfLanguage(preferredLocale, first.Locale);
                     double secondScore = second.Locale.empty() ? Locale::UnknownLanguageDistanceScore : Locale::GetDistanceOfLanguage(preferredLocale, second.Locale);
 
-                    if (firstScore > secondScore && firstScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+                    if (firstScore >= Locale::MinimumDistanceScoreAsCompatibleMatch || secondScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
                     {
-                        return true;
+                        return firstScore > secondScore;
                     }
                 }
 
@@ -349,6 +354,31 @@ namespace AppInstaller::CLI::Workflow
         private:
             std::vector<std::string> m_preference;
             std::vector<std::string> m_requirement;
+            std::string m_requirementAsString;
+
+            std::string GetRequiredLocalesAsString()
+            {
+                std::string result = "[";
+
+                bool first = true;
+                for (auto const& locale : m_requirement)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        result += ", ";
+                    }
+
+                    result += locale;
+                }
+
+                result += ']';
+
+                return result;
+            }
         };
     }
 
