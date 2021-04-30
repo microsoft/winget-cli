@@ -44,6 +44,31 @@ namespace AppInstaller::Settings
             return convertedValue;
         }
 
+        template<>
+        inline std::string GetValueString(std::vector<std::string> value)
+        {
+            std::string convertedValue = "[";
+
+            bool first = true;
+            for (auto const& entry : value)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    convertedValue += ", ";
+                }
+
+                convertedValue += entry;
+            }
+
+            convertedValue += ']';
+
+            return convertedValue;
+        }
+
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<UserSettings::Warning>& warnings)
         {
             auto stream = GetSettingStream(setting);
@@ -231,12 +256,15 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(InstallLocalePreference)
         {
-            if (Utility::IsWellFormedBcp47Tag(value))
+            for (auto const& entry : value)
             {
-                return value;
+                if (!Locale::IsWellFormedBcp47Tag(entry))
+                {
+                    return {};
+                }
             }
 
-            return {};
+            return value;
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)

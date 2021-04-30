@@ -100,6 +100,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentSpecifierError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentValueError);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentValueErrorWithoutValidValues);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);

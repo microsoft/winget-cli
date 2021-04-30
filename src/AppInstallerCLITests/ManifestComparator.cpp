@@ -287,7 +287,7 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comp
     SECTION("Nothing Installed en-US preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallLocalePreference>("en-US");
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc({}, {});
         auto result = mc.GetPreferredInstaller(manifest);
@@ -326,7 +326,7 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]
     SECTION("Nothing Installed en-US preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallLocalePreference>("en-US");
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc({}, {});
         auto result = mc.GetPreferredInstaller(manifest);
@@ -386,7 +386,7 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
     SECTION("en-US Preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallLocalePreference>("en-US");
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc({}, {});
         auto result = mc.GetPreferredInstaller(manifest);
@@ -396,7 +396,7 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
     SECTION("zh-CN Preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallLocalePreference>("zh-CN");
+        settings.Set<Setting::InstallLocalePreference>({ "zh-CN" });
 
         ManifestComparator mc({}, {});
         auto result = mc.GetPreferredInstaller(manifest);

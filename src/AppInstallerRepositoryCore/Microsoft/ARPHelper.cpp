@@ -155,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft
         return Utility::Version::CreateUnknown().ToString();
     }
 
-    void ARPHelper::AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata)
+    void ARPHelper::AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata) const
     {
         auto value = key[name];
         if (value)
@@ -175,7 +175,7 @@ namespace AppInstaller::Repository::Microsoft
                 DWORD dwordValue = value->GetValue<Registry::Value::Type::DWord>();
                 if (name == Language)
                 {
-                    valueString = Utility::LocaleIdToBcp47Tag(dwordValue);
+                    valueString = Locale::LocaleIdToBcp47Tag(dwordValue);
                 }
                 else
                 {

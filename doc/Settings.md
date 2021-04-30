@@ -71,12 +71,10 @@ The `scope` behavior affects the choice between installing a package for the cur
 
 The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses bcp47 language tag.
 
-Note the locale preference will also be applied to `winget show` command if applicable.
-
 ```json
     "installBehavior": {
         "preferences": {
-            "locale": "en-US"
+            "locale": [ "en-US", "fr-FR" ]
         }
     },
 ```

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace AppInstaller::Utility
+namespace AppInstaller::Locale
 {
     static constexpr double MinimumDistanceScoreAsPerfectMatch = 1.0;
     static constexpr double MinimumDistanceScoreAsCompatibleMatch = 0.9;

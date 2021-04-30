@@ -5,7 +5,7 @@
 #include "AppInstallerStrings.h"
 #include "AppInstallerLogging.h"
 
-namespace AppInstaller::Utility
+namespace AppInstaller::Locale
 {
     namespace
     {
@@ -71,7 +71,7 @@ namespace AppInstaller::Utility
         IsWellFormedTagFunc func = (IsWellFormedTagFunc)(GetProcAddress(g_bcp47, "IsWellFormedTag"));
         if (func != nullptr)
         {
-            auto wBcp47Tag = ConvertToUTF16(bcp47Tag);
+            auto wBcp47Tag = Utility::ConvertToUTF16(bcp47Tag);
             return func(wBcp47Tag.c_str());
         }
 
@@ -96,8 +96,8 @@ namespace AppInstaller::Utility
         if (func != nullptr)
         {
             double distance = 0;
-            auto wTarget = ConvertToUTF16(target);
-            auto wAvailable = ConvertToUTF16(available);
+            auto wTarget = Utility::ConvertToUTF16(target);
+            auto wAvailable = Utility::ConvertToUTF16(available);
 
             // Do not check HRESULT because the method returns ERROR_NO_MATCH on no match, which is a valid case.
             (void)func(wTarget.c_str(), wAvailable.c_str(), L';' /* Not used, we compare one at a time */, &distance);

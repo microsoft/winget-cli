@@ -1482,7 +1482,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceNoBetterLocale", "[InstallFlow][work
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
 
     TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>("zh-CN");
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "zh-CN" });
 
     InstallCommand install({});
     install.Execute(context);
@@ -1507,7 +1507,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
 
     TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>("en-US");
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "en-US" });
 
     InstallCommand install({});
     install.Execute(context);

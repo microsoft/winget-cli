@@ -17,7 +17,6 @@ namespace AppInstaller::CLI
     namespace
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Locale = "locale"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -111,9 +110,9 @@ namespace AppInstaller::CLI
 
         if (execArgs.Contains(Args::Type::Locale))
         {
-            if (!Utility::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
+            if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
             {
-                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Locale, { "bcp47 language tags"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
             }
         }
     }

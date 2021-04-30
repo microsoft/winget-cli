@@ -11,43 +11,38 @@ namespace AppInstaller::Manifest
     {
         CurrentLocalization = DefaultLocalization;
 
-        // Get target locale from winget settings or Preferred Languages settings if applicable
-        std::string targetLocale = locale;
-        if (targetLocale.empty())
+        // Get target locale from Preferred Languages settings if applicable
+        std::vector<std::string> targetLocales;
+        if (locale.empty())
         {
-            targetLocale = Settings::User().Get<Settings::Setting::InstallLocalePreference>();
-            if (targetLocale.empty())
+            targetLocales = Locale::GetUserPreferredLanguages();
+        }
+        else
+        {
+            targetLocales.emplace_back(locale);
+        }
+
+        for (auto const& targetLocale : targetLocales)
+        {
+            const ManifestLocalization* bestLocalization = nullptr;
+            double bestScore = Locale::GetDistanceOfLanguage(targetLocale, DefaultLocalization.Locale);
+
+            for (auto const& localization : Localizations)
             {
-                auto preferredList = Utility::GetUserPreferredLanguages();
-                if (!preferredList.empty())
+                double score = Locale::GetDistanceOfLanguage(targetLocale, localization.Locale);
+                if (score > bestScore)
                 {
-                    // TODO: we only take the first one for now
-                    targetLocale = preferredList.at(0);
+                    bestLocalization = &localization;
+                    bestScore = score;
                 }
             }
-        }
 
-        if (targetLocale.empty())
-        {
-            return;
-        }
-
-        const ManifestLocalization* bestLocalization = nullptr;
-        double bestScore = Utility::GetDistanceOfLanguage(targetLocale, DefaultLocalization.Locale);
-
-        for (auto const& localization : Localizations)
-        {
-            double score = Utility::GetDistanceOfLanguage(targetLocale, localization.Locale);
-            if (score > bestScore)
+            // If there's better locale than default And is compatible with target locale, merge and return;
+            if (bestLocalization != nullptr && bestScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
             {
-                bestLocalization = &localization;
-                bestScore = score;
+                CurrentLocalization.ReplaceOrMergeWith(*bestLocalization);
+                break;
             }
-        }
-
-        if (bestLocalization != nullptr)
-        {
-            CurrentLocalization.ReplaceOrMergeWith(*bestLocalization);
         }
     }
 
