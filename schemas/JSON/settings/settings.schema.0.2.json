@@ -44,6 +44,17 @@
             "machine"
           ],
           "default": "user"
+        },
+        "locale": {
+          "description": "The locales of a package install",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+            "maxLength": 20
+          },
+          "minItems": 1,
+          "maxItems": 10
         }
       }
     },

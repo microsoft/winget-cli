@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Execution
             // Install behavior
             Interactive,
             Silent,
-            Language,
+            Locale,
             Log,
             Override, //Override args are (and the only args) directly passed to installer
             InstallLocation,

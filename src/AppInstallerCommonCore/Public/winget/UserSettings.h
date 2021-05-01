@@ -78,6 +78,8 @@ namespace AppInstaller::Settings
         InstallScopeRequirement,
         NetworkDownloader,
         NetworkDOProgressTimeoutInSeconds,
+        InstallLocalePreference,
+        InstallLocaleRequirement,
         Max
     };
 
@@ -100,7 +102,7 @@ namespace AppInstaller::Settings
         { \
             using json_t = _json_; \
             using value_t = _value_; \
-            static constexpr value_t DefaultValue = _default_; \
+            inline static const value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
             static std::optional<value_t> Validate(const json_t& value); \
             static constexpr ValuePolicy Policy = _valuePolicy_; \
@@ -126,6 +128,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 20s, ".network.doProgressTimeoutInSeconds"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

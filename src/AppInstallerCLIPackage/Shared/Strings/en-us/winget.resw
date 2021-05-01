@@ -298,8 +298,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument name was not recognized for the current command</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Language to install (if supported)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Locale to use (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>License Agreement</value>
@@ -915,5 +916,9 @@ Configuration is disabled due to Group Policy.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Allowed source</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>The value provided for the `%1` argument is invalid</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -26,6 +26,8 @@ authz
 autocomplete
 auxdata
 azureedge
+bcp
+bcp47
 bcrypt
 binver
 Bitmask
@@ -50,6 +52,7 @@ cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+comparand
 conemu
 config
 Configurability
@@ -95,6 +98,7 @@ dll
 dllexport
 docx
 dotnet
+downlevel
 downloader
 dword
 DWORDLONG
@@ -203,6 +207,9 @@ json
 junit
 langutil
 lastwritetime
+LCID
+LCIDTo
+LEN
 Linux
 LLVM
 llvmorg
@@ -232,6 +239,7 @@ MINORVERSION
 mkdir
 monostate
 motw
+mrm
 msbuild
 msdata
 MSDN
@@ -373,6 +381,7 @@ simplesave
 simpletest
 sizeof
 sln
+SNAME
 snprintf
 sourced
 Specv
@@ -537,3 +546,4 @@ XTOKEN
 yaml
 yml
 yy
+zh

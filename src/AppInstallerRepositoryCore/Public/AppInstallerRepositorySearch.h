@@ -145,7 +145,7 @@ namespace AppInstaller::Repository
         // The publisher of the package
         Publisher,
         // The locale of the package
-        Locale,
+        InstalledLocale,
     };
 
     // Convert a PackageVersionMetadata to a string.

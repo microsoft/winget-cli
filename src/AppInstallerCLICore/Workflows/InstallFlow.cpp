@@ -644,7 +644,7 @@ namespace AppInstaller::CLI::Workflow
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
             );
         }
     }

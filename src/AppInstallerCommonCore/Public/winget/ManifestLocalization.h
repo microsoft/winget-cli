@@ -87,6 +87,16 @@ namespace AppInstaller::Manifest
             }
         }
 
+        void ReplaceOrMergeWith(const ManifestLocalization& other)
+        {
+            for (auto const& entry : other.m_data)
+            {
+                this->m_data[entry.first] = entry.second;
+            }
+
+            this->Locale = other.Locale;
+        }
+
     private:
         std::map<Localization, details::LocalizationVariant> m_data;
     };
