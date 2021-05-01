@@ -1,15 +1,12 @@
 #pragma once
 #include "AppCatalogInfo.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct AppCatalogInfo : AppCatalogInfoT<AppCatalogInfo>
     {
         AppCatalogInfo() = default;
+        AppCatalogInfo(::AppInstaller::Repository::SourceDetails sourceDetails);
 
         hstring Id();
         hstring Name();
@@ -19,5 +16,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Windows::Foundation::DateTime LastUpdateTime();
         Microsoft::Management::Deployment::AppCatalogOrigin Origin();
         Microsoft::Management::Deployment::AppCatalogTrustLevel TrustLevel();
+    private:
+        ::AppInstaller::Repository::SourceDetails m_sourceDetails;
     };
 }

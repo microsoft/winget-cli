@@ -33,9 +33,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AdditionalAppCatalogArguments(hstring const& value);
     private:
         Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
+        std::wstring m_preferredInstallLocation = L"";
         Microsoft::Management::Deployment::AppInstallScope m_appInstallScope = Microsoft::Management::Deployment::AppInstallScope::User;
         Microsoft::Management::Deployment::AppInstallMode m_appInstallMode = Microsoft::Management::Deployment::AppInstallMode::Default;
+        std::wstring m_logOutputPath = L"";
+        bool m_allowHashMismatch = false;
+        std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_additionalTelemetryArguments = L"";
+        std::wstring m_additionalAppCatalogArguments = L"";
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

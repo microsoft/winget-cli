@@ -23,6 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool IsInstalling();
     private:
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
+        Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };
+        Microsoft::Management::Deployment::PackageVersionInfo m_latestAvailableVersion{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

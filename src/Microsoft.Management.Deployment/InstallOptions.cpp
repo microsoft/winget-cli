@@ -26,11 +26,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     hstring InstallOptions::PreferredInstallLocation()
     {
-        throw hresult_not_implemented();
+        return hstring(m_preferredInstallLocation);
     }
     void InstallOptions::PreferredInstallLocation(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_preferredInstallLocation = value;
     }
     Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
     {
@@ -50,27 +50,27 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     hstring InstallOptions::LogOutputPath()
     {
-        throw hresult_not_implemented();
+        return hstring(m_logOutputPath);
     }
     void InstallOptions::LogOutputPath(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_logOutputPath = value;
     }
     bool InstallOptions::AllowHashMismatch()
     {
-        throw hresult_not_implemented();
+        return m_allowHashMismatch;
     }
     void InstallOptions::AllowHashMismatch(bool value)
     {
-        throw hresult_not_implemented();
+        m_allowHashMismatch = value;
     }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
-        throw hresult_not_implemented();
+        return hstring(m_replacementInstallerArguments);
     }
     void InstallOptions::ReplacementInstallerArguments(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_replacementInstallerArguments = value;
     }
     hstring InstallOptions::AdditionalTelemetryArguments()
     {
@@ -78,14 +78,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     void InstallOptions::AdditionalTelemetryArguments(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_additionalTelemetryArguments = value;
     }
     hstring InstallOptions::AdditionalAppCatalogArguments()
     {
-        throw hresult_not_implemented();
+        return hstring(m_additionalAppCatalogArguments);
     }
     void InstallOptions::AdditionalAppCatalogArguments(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_additionalAppCatalogArguments = value;
     }
 }

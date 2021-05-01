@@ -3,10 +3,7 @@
 #include <AppInstallerRepositorySearch.h>
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
-
-
-
-
+#include "PackageVersionInfo.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -28,7 +25,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
-        throw hresult_not_implemented();
+        if (!m_installedVersion)
+        {
+            Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
+            packageVersionInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(m_package.get()->GetLatestAvailableVersion());
+        }
+        return m_installedVersion;
     }
     Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::PackageVersionId> CatalogPackage::AvailableVersions()
     {

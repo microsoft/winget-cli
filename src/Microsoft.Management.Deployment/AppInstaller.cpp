@@ -13,20 +13,26 @@
 #include "InstallResult.h"
 #include "AppCatalog.h"
 
-
-
 using namespace std::literals::chrono_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetAppCatalogs()
     {
-        throw hresult_not_implemented();
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::AppCatalog>() };
+        std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
+        for (uint32_t i = 0; i < sources.size(); i++)
+        {
+            winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
+            appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(winrt::to_hstring(sources.at(i).Name));
+            catalogs.Append(appCatalog);
+        }
+        return catalogs.GetView();
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog)
     {
         winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
-        appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(L"winget");
+        appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(predefinedAppCatalog);
         return appCatalog;
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogById(hstring const& catalogId)
@@ -123,7 +129,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::InstallPackageAsync(Microsoft::Management::Deployment::InstallOptions options)
     {
-        auto report_progress = co_await winrt::get_progress_token();
+        auto report_progress{ co_await winrt::get_progress_token() };
+        auto cancellationToken{ co_await winrt::get_cancellation_token() };
         if (!g_event)
         {
             g_event = make_auto_reset_event();
@@ -197,6 +204,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (g_progressValue.State == AppInstallProgressState::Finished)
             {
                 break;
+            }
+            if (cancellationToken())
+            {
+                context.Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
             }
             co_await winrt::resume_on_signal(g_event.get(), 2000ms);
         }
