@@ -121,6 +121,7 @@ int main(int argc, char** argv)
     }
     Logging::Log().SetLevel(Logging::Level::Verbose);
     Logging::Telemetry().EnableWilFailureTelemetry();
+    AppInstaller::Logging::Telemetry().SetUserSettingsStatus();
 
     // Force all tests to run against settings inside this container.
     // This prevents test runs from trashing the users actual settings.

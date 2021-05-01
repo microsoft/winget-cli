@@ -27,6 +27,7 @@ extern "C"
             AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
             AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
             AppInstaller::Logging::Telemetry().EnableWilFailureTelemetry();
+            AppInstaller::Logging::Telemetry().SetUserSettingsStatus();
             });
 
         std::filesystem::path pathAsPath = logPath;

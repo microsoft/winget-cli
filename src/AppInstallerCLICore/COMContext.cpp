@@ -35,7 +35,11 @@ namespace AppInstaller
 
     void COMContext::SetLoggers()
     {
+        // Diagostic Trace Logging should be set first and then Telemetry Trace  Logging
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         Logging::Telemetry().EnableWilFailureTelemetry();
+        Logging::Telemetry().SetUserSettingsStatus();
         Logging::Telemetry().LogStartup(true);
     }
 }

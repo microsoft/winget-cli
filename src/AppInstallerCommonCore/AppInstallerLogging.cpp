@@ -56,7 +56,7 @@ namespace AppInstaller::Logging
             "Diagnostics",
             t_pThreadGlobals->GetTelemetryLogger().GetActivityId(),
             nullptr,
-            TraceLoggingString(str.c_str()));
+            TraceLoggingString(str.c_str(), "LogMessage"));
     }
     catch (...)
     {
@@ -166,11 +166,13 @@ namespace AppInstaller::Logging
             {
                 std::call_once(diagLoggerInitOnceFlag, [this]()
                 {
-                        InitDiagnosticLogger();
+                    InitDiagnosticLogger();
                 });
             }
             catch (...)
             {
+                // May throw std::system_error if any condition prevents calls to call_once from executing as specified
+                // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
             }
         }
         return *(m_pDiagnosticLogger.get());
@@ -178,7 +180,15 @@ namespace AppInstaller::Logging
 
     void ThreadGlobals::InitDiagnosticLogger()
     {
-        m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
+        try
+        {
+            m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
+        }
+        catch (...)
+        {
+            // May throw std::bad_alloc or any exception thrown by the constructor of DiagnosticLogger
+            // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
+        }
     }
 
     TelemetryTraceLogger& ThreadGlobals::GetTelemetryLogger()
@@ -194,6 +204,8 @@ namespace AppInstaller::Logging
             }
             catch (...)
             {
+                // May throw std::system_error if any condition prevents calls to call_once from executing as specified
+                // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
             }
         }
         return *(m_pTelemetryLogger.get());
@@ -201,7 +213,15 @@ namespace AppInstaller::Logging
 
     void ThreadGlobals::InitTelemetryLogger()
     {
-        m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();
+        try
+        {
+            m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();
+        }
+        catch (...)
+        {
+            // May throw std::bad_alloc or any exception thrown by the constructor of TelemetryTraceLogger
+            // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
+        }
     }
 }
 

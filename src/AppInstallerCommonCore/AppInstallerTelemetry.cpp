@@ -51,8 +51,6 @@ namespace AppInstaller::Logging
         RegisterTraceLogging();
 
         (void)CoCreateGuid(&m_activityId);
-
-        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -73,6 +71,16 @@ namespace AppInstaller::Logging
     void TelemetryTraceLogger::EnableRuntime()
     {
         m_isRuntimeEnabled = true;
+    }
+
+    void TelemetryTraceLogger::SetUserSettingsStatus()
+    {
+        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
+    }
+
+    void TelemetryTraceLogger::SetTelemetryCorelationJson(std::string jsonStr)
+    {
+        m_telemetryCorelationJson = jsonStr;
     }
 
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept

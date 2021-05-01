@@ -35,6 +35,12 @@ namespace AppInstaller::Logging
         // Turns on wil failure telemetry and logging.
         void EnableWilFailureTelemetry();
 
+        // Capture if UserSettings is enabled
+        void SetUserSettingsStatus();
+
+        // Capture any passed in Telemetry Corelation Json
+        void SetTelemetryCorelationJson(std::string jsonStr);
+
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
@@ -125,8 +131,8 @@ namespace AppInstaller::Logging
 
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
-        
-        GUID m_activityId;
+        GUID m_activityId = GUID_NULL;
+        std::string m_telemetryCorelationJson = "";
     };
 
     // Helper to make the call sites look clean.
