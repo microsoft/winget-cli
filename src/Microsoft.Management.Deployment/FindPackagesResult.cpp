@@ -2,18 +2,22 @@
 #include "FindPackagesResult.h"
 #include "FindPackagesResult.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    FindPackagesResult::FindPackagesResult(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches)
+    {
+        m_matches = matches;
+    }
     Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::ResultMatch> FindPackagesResult::Matches()
     {
-        throw hresult_not_implemented();
+        return m_matches.GetView();
     }
     bool FindPackagesResult::IsTruncated()
     {
-        throw hresult_not_implemented();
+        return m_isTruncated;
     }
 }

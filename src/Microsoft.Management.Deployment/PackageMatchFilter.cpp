@@ -2,42 +2,42 @@
 #include "PackageMatchFilter.h"
 #include "PackageMatchFilter.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     bool PackageMatchFilter::IsAdditive()
     {
-        throw hresult_not_implemented();
+        return m_isAdditive;
     }
     void PackageMatchFilter::IsAdditive(bool value)
     {
-        throw hresult_not_implemented();
+        m_isAdditive = value;
     }
     Microsoft::Management::Deployment::MatchType PackageMatchFilter::Type()
     {
-        throw hresult_not_implemented();
+        return m_matchType;
     }
     void PackageMatchFilter::Type(Microsoft::Management::Deployment::MatchType const& value)
     {
-        throw hresult_not_implemented();
+        m_matchType = value;
     }
     Microsoft::Management::Deployment::PackageMatchField PackageMatchFilter::Field()
     {
-        throw hresult_not_implemented();
+        return m_matchField;
     }
     void PackageMatchFilter::Field(Microsoft::Management::Deployment::PackageMatchField const& value)
     {
-        throw hresult_not_implemented();
+        m_matchField = value;
     }
     hstring PackageMatchFilter::Value()
     {
-        throw hresult_not_implemented();
+        return hstring(m_value);
     }
     void PackageMatchFilter::Value(hstring const& value)
     {
-        throw hresult_not_implemented();
+        m_value = value;
     }
 }

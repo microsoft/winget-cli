@@ -1,8 +1,8 @@
 #pragma once
 #include "ResultMatch.g.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -10,8 +10,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct ResultMatch : ResultMatchT<ResultMatch>
     {
         ResultMatch() = default;
+        ResultMatch(Microsoft::Management::Deployment::CatalogPackage package, Microsoft::Management::Deployment::PackageMatchFilter matchCriteria);
 
         Microsoft::Management::Deployment::CatalogPackage CatalogPackage();
         Microsoft::Management::Deployment::PackageMatchFilter MatchCriteria();
+    private:
+        Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
+        Microsoft::Management::Deployment::PackageMatchFilter m_matchCriteria;
     };
 }

@@ -1,8 +1,8 @@
 #pragma once
 #include "InstallOptions.g.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -31,6 +31,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AdditionalTelemetryArguments(hstring const& value);
         hstring AdditionalAppCatalogArguments();
         void AdditionalAppCatalogArguments(hstring const& value);
+    private:
+        Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
+        Microsoft::Management::Deployment::AppInstallScope m_appInstallScope = Microsoft::Management::Deployment::AppInstallScope::User;
+        Microsoft::Management::Deployment::AppInstallMode m_appInstallMode = Microsoft::Management::Deployment::AppInstallMode::Default;
+        std::wstring m_additionalTelemetryArguments = L"";
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

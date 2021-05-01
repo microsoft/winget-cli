@@ -2,8 +2,8 @@
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation

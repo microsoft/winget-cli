@@ -1,8 +1,8 @@
 #pragma once
 #include "PackageMatchFilter.g.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -19,6 +19,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Field(Microsoft::Management::Deployment::PackageMatchField const& value);
         hstring Value();
         void Value(hstring const& value);
+    private:
+        std::wstring m_value = L"";
+        Microsoft::Management::Deployment::PackageMatchField m_matchField = Microsoft::Management::Deployment::PackageMatchField::AppCatalogDefined;
+        Microsoft::Management::Deployment::MatchType m_matchType = Microsoft::Management::Deployment::MatchType::Exact;
+        bool m_isAdditive = false;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

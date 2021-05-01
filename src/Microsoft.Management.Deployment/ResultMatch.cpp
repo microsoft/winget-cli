@@ -1,19 +1,27 @@
 #include "pch.h"
+#include <AppInstallerRepositorySource.h>
+#include <AppInstallerRepositorySearch.h>
 #include "ResultMatch.h"
 #include "ResultMatch.g.cpp"
+#include "CatalogPackage.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    ResultMatch::ResultMatch(Microsoft::Management::Deployment::CatalogPackage package, Microsoft::Management::Deployment::PackageMatchFilter matchCriteria)
+    {
+        m_catalogPackage = package;
+        m_matchCriteria = matchCriteria;
+    }
     Microsoft::Management::Deployment::CatalogPackage ResultMatch::CatalogPackage()
     {
-        throw hresult_not_implemented();
+        return m_catalogPackage;
     }
     Microsoft::Management::Deployment::PackageMatchFilter ResultMatch::MatchCriteria()
     {
-        throw hresult_not_implemented();
+        return m_matchCriteria;
     }
 }

@@ -1,24 +1,30 @@
 #include "pch.h"
+#include <AppInstallerRepositorySource.h>
+#include <AppInstallerRepositorySearch.h>
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    CatalogPackage::CatalogPackage(std::shared_ptr<::AppInstaller::Repository::IPackage> package)
+        : m_package(std::move(package))
+    {
+    }
     Microsoft::Management::Deployment::CatalogPackage CatalogPackage::TryCreateFromManifest(hstring const& manifestPath)
     {
         throw hresult_not_implemented();
     }
     hstring CatalogPackage::Id()
     {
-        throw hresult_not_implemented();
+        return  winrt::to_hstring(m_package->GetProperty(::AppInstaller::Repository::PackageProperty::Id).get());
     }
     hstring CatalogPackage::Name()
     {
-        throw hresult_not_implemented();
+        return  winrt::to_hstring(m_package->GetProperty(::AppInstaller::Repository::PackageProperty::Name).get());
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
@@ -38,10 +44,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     bool CatalogPackage::IsUpdateAvailable()
     {
-        throw hresult_not_implemented();
+        return m_package->IsUpdateAvailable();
     }
     bool CatalogPackage::IsInstalling()
     {
-        throw hresult_not_implemented();
+        return false;
     }
 }

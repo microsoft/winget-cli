@@ -2,30 +2,30 @@
 #include "FindPackagesOptions.h"
 #include "FindPackagesOptions.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Filters()
     {
-        throw hresult_not_implemented();
+        return m_filters;
     }
     uint32_t FindPackagesOptions::ResultLimit()
     {
-        throw hresult_not_implemented();
+        return m_resultLimit;
     }
     void FindPackagesOptions::ResultLimit(uint32_t value)
     {
-        throw hresult_not_implemented();
+        m_resultLimit = value;
     }
     Microsoft::Management::Deployment::CompositeSearchBehavior FindPackagesOptions::CompositeSearchBehavior()
     {
-        throw hresult_not_implemented();
+        return m_compositeSearchBehavior;
     }
     void FindPackagesOptions::CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value)
     {
-        throw hresult_not_implemented();
+        m_compositeSearchBehavior = value;
     }
 }

@@ -1,8 +1,8 @@
 #pragma once
 #include "InstallResult.g.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -10,8 +10,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct InstallResult : InstallResultT<InstallResult>
     {
         InstallResult() = default;
+        InstallResult(hstring const& sessionId, bool rebootRequired);
 
         hstring CorrelationId();
         bool RebootRequired();
+    private:
+        std::wstring m_sessionId = L"";
+        bool m_rebootRequired = false;
     };
 }

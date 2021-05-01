@@ -2,18 +2,23 @@
 #include "InstallResult.h"
 #include "InstallResult.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    InstallResult::InstallResult(hstring const& sessionId, bool rebootRequired)
+    {
+        m_sessionId = sessionId;
+        m_rebootRequired = rebootRequired;
+    }
     hstring InstallResult::CorrelationId()
     {
-        throw hresult_not_implemented();
+        return hstring(m_sessionId);
     }
     bool InstallResult::RebootRequired()
     {
-        throw hresult_not_implemented();
+        return m_rebootRequired;
     }
 }

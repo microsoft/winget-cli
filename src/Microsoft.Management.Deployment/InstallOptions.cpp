@@ -2,19 +2,19 @@
 #include "InstallOptions.h"
 #include "InstallOptions.g.cpp"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Microsoft::Management::Deployment::CatalogPackage InstallOptions::CatalogPackage()
     {
-        throw hresult_not_implemented();
+        return m_catalogPackage;
     }
     void InstallOptions::CatalogPackage(Microsoft::Management::Deployment::CatalogPackage const& value)
     {
-        throw hresult_not_implemented();
+        m_catalogPackage = value;
     }
     Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
@@ -34,19 +34,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
     {
-        throw hresult_not_implemented();
+        return m_appInstallScope;
     }
     void InstallOptions::AppInstallScope(Microsoft::Management::Deployment::AppInstallScope const& value)
     {
-        throw hresult_not_implemented();
+        m_appInstallScope = value;
     }
     Microsoft::Management::Deployment::AppInstallMode InstallOptions::AppInstallMode()
     {
-        throw hresult_not_implemented();
+        return m_appInstallMode;
     }
     void InstallOptions::AppInstallMode(Microsoft::Management::Deployment::AppInstallMode const& value)
     {
-        throw hresult_not_implemented();
+        m_appInstallMode = value;
     }
     hstring InstallOptions::LogOutputPath()
     {
@@ -74,7 +74,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     hstring InstallOptions::AdditionalTelemetryArguments()
     {
-        throw hresult_not_implemented();
+        return hstring(m_additionalTelemetryArguments);
     }
     void InstallOptions::AdditionalTelemetryArguments(hstring const& value)
     {

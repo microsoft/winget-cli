@@ -1,8 +1,8 @@
 #pragma once
 #include "AppInstaller.g.h"
 
-// Note: Remove this static_assert after copying these generated source files to your project.
-// This assertion exists to avoid compiling these generated source files directly.
+
+
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -16,6 +16,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::AppCatalog GetCompositeAppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions const& options);
         Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> InstallPackageAsync(Microsoft::Management::Deployment::InstallOptions options);
         Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> GetInstallProgress(Microsoft::Management::Deployment::CatalogPackage package);
+        
+        static winrt::handle GetProgressEvent();
+        static void SetProgressValue(Microsoft::Management::Deployment::InstallProgress progress);
+    private:
+        static Microsoft::Management::Deployment::InstallProgress g_progressValue;
+        static winrt::handle g_event;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

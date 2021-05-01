@@ -9,6 +9,9 @@ using namespace Microsoft::Management::Deployment;
 
 const CLSID CLSID_AppInstaller = { 0xC53A4F16, 0x787E, 0x42A4, 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
 const CLSID CLSID_InstallOptions = { 0x1095f097, 0xEB96, 0x453B, 0xB4, 0xE6, 0x16, 0x13, 0x63, 0x7F, 0x3B, 0x14 };  //1095F097-EB96-453B-B4E6-1613637F3B14
+const CLSID CLSID_FindPackagesOptions = { 0x572DED96, 0x9C60, 0x4526, { 0x8F, 0x92, 0xEE, 0x7D, 0x91, 0xD3, 0x8C, 0x1A } }; //572DED96-9C60-4526-8F92-EE7D91D38C1A
+const CLSID CLSID_PackageMatchFilter = { 0xD02C9DAF, 0x99DC, 0x429C, { 0xB5, 0x03, 0x4E, 0x50, 0x4E, 0x4A, 0xB0, 0x00 } }; //D02C9DAF-99DC-429C-B503-4E504E4AB000
+const CLSID CLSID_GetCompositeAppCatalogOptions = { 0x526534B8, 0x7E46, 0x47C8, { 0x84, 0x16, 0xB1, 0x68, 0x5C, 0x32, 0x7D, 0x37 } }; //526534B8-7E46-47C8-8416-B1685C327D37
 
 HANDLE g_hEvent;
 
@@ -117,12 +120,129 @@ struct InstallOptionsClassFactory : implements<InstallOptionsClassFactory, IClas
     }
 };
 
+struct FindPackagesOptionsClassFactory : implements<FindPackagesOptionsClassFactory, IClassFactory>
+{
+    HRESULT __stdcall CreateInstance(
+        IUnknown* outer,
+        GUID const& iid,
+        void** result) noexcept final
+    {
+        *result = nullptr;
+
+        if (outer)
+        {
+            return CLASS_E_NOAGGREGATION;
+        }
+
+        HRESULT hr = S_OK;
+        FindPackagesOptions findPackagesOptions;
+        auto iUnknown = findPackagesOptions.as<IUnknown>();
+        hr = iUnknown->QueryInterface(iid, result);
+        return hr;
+    }
+
+    HRESULT __stdcall LockServer(BOOL lock) noexcept final
+    {
+        if (lock)
+        {
+            CoAddRefServerProcess();
+        }
+        else
+        {
+            if (CoReleaseServerProcess() == 0)
+            {
+                CheckModuleCanUnload();
+            }
+        }
+        return S_OK;
+    }
+};
+
+struct PackageMatchFilterClassFactory : implements<PackageMatchFilterClassFactory, IClassFactory>
+{
+    HRESULT __stdcall CreateInstance(
+        IUnknown* outer,
+        GUID const& iid,
+        void** result) noexcept final
+    {
+        *result = nullptr;
+
+        if (outer)
+        {
+            return CLASS_E_NOAGGREGATION;
+        }
+
+        HRESULT hr = S_OK;
+        PackageMatchFilter packageMatchFilter;
+        auto iUnknown = packageMatchFilter.as<IUnknown>();
+        hr = iUnknown->QueryInterface(iid, result);
+        return hr;
+    }
+
+    HRESULT __stdcall LockServer(BOOL lock) noexcept final
+    {
+        if (lock)
+        {
+            CoAddRefServerProcess();
+        }
+        else
+        {
+            if (CoReleaseServerProcess() == 0)
+            {
+                CheckModuleCanUnload();
+            }
+        }
+        return S_OK;
+    }
+};
+
+struct GetCompositeAppCatalogOptionsFactory : implements<GetCompositeAppCatalogOptionsFactory, IClassFactory>
+{
+    HRESULT __stdcall CreateInstance(
+        IUnknown* outer,
+        GUID const& iid,
+        void** result) noexcept final
+    {
+        *result = nullptr;
+
+        if (outer)
+        {
+            return CLASS_E_NOAGGREGATION;
+        }
+
+        HRESULT hr = S_OK;
+        GetCompositeAppCatalogOptions getCompositeAppCatalogOptions;
+        auto iUnknown = getCompositeAppCatalogOptions.as<IUnknown>();
+        hr = iUnknown->QueryInterface(iid, result);
+        return hr;
+    }
+
+    HRESULT __stdcall LockServer(BOOL lock) noexcept final
+    {
+        if (lock)
+        {
+            CoAddRefServerProcess();
+        }
+        else
+        {
+            if (CoReleaseServerProcess() == 0)
+            {
+                CheckModuleCanUnload();
+            }
+        }
+        return S_OK;
+    }
+};
+
 void RegisterWinGetFactory()
 {
     g_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
     DWORD appInstallerRegistration{};
     DWORD installOptionsRegistration{};
+    DWORD findPackagesOptionsRegistration{};
+    DWORD packageMatchFilterRegistration{};
+    DWORD getCompositeAppCatalogOptionsRegistration{};
 
     winrt::check_hresult(::CoInitializeSecurity(
         NULL,
@@ -141,7 +261,7 @@ void RegisterWinGetFactory()
         CLSID_AppInstaller,
         appInstallerFactory.get(),
         CLSCTX_LOCAL_SERVER,
-        REGCLS_SUSPENDED | REGCLS_SINGLEUSE,
+        REGCLS_SUSPENDED | REGCLS_MULTIPLEUSE,
         &appInstallerRegistration));
 
     auto installFactory = make<InstallOptionsClassFactory>();
@@ -149,8 +269,33 @@ void RegisterWinGetFactory()
         CLSID_InstallOptions,
         installFactory.get(),
         CLSCTX_LOCAL_SERVER,
-        REGCLS_SUSPENDED | REGCLS_SINGLEUSE,
+        REGCLS_SUSPENDED | REGCLS_MULTIPLEUSE,
         &installOptionsRegistration));
+
+    auto findPackagesOptionsFactory = make<FindPackagesOptionsClassFactory>();
+    winrt::check_hresult(::CoRegisterClassObject(
+        CLSID_FindPackagesOptions,
+        findPackagesOptionsFactory.get(),
+        CLSCTX_LOCAL_SERVER,
+        REGCLS_SUSPENDED | REGCLS_MULTIPLEUSE,
+        &findPackagesOptionsRegistration));
+
+    auto packageMatchFilterFactory = make<PackageMatchFilterClassFactory>();
+    winrt::check_hresult(::CoRegisterClassObject(
+        CLSID_PackageMatchFilter,
+        packageMatchFilterFactory.get(),
+        CLSCTX_LOCAL_SERVER,
+        REGCLS_SUSPENDED | REGCLS_MULTIPLEUSE,
+        &packageMatchFilterRegistration));
+
+    auto getCompositeAppCatalogOptionsFactory = make<GetCompositeAppCatalogOptionsFactory>();
+    winrt::check_hresult(::CoRegisterClassObject(
+        CLSID_GetCompositeAppCatalogOptions,
+        installFactory.get(),
+        CLSCTX_LOCAL_SERVER,
+        REGCLS_SUSPENDED | REGCLS_MULTIPLEUSE,
+        &getCompositeAppCatalogOptionsRegistration));
+
     winrt::check_hresult(::CoResumeClassObjects());
 
     while (WaitForSingleObject(g_hEvent, 30000) == WAIT_TIMEOUT)
@@ -161,6 +306,9 @@ void RegisterWinGetFactory()
 
     winrt::check_hresult(::CoRevokeClassObject(appInstallerRegistration));
     winrt::check_hresult(::CoRevokeClassObject(installOptionsRegistration));
+    winrt::check_hresult(::CoRevokeClassObject(findPackagesOptionsRegistration));
+    winrt::check_hresult(::CoRevokeClassObject(packageMatchFilterRegistration));
+    winrt::check_hresult(::CoRevokeClassObject(getCompositeAppCatalogOptionsRegistration));
     return;
 }
 
