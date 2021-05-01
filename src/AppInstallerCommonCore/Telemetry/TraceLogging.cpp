@@ -6,7 +6,7 @@
 
 // GUID for Microsoft.PackageManager.Client : {c0cf606f-569b-5c20-27d9-88a745fa2175}
 TRACELOGGING_DEFINE_PROVIDER(
-    g_hTelemetryProvider,
+    g_hTraceProvider,
     "Microsoft.PackageManager.Client",
     (0xc0cf606f, 0x569b, 0x5c20, 0x27, 0xd9, 0x88, 0xa7, 0x45, 0xfa, 0x21, 0x75),
     TraceLoggingOptionMicrosoftTelemetry());
@@ -34,13 +34,13 @@ void RegisterTraceLogging()
 {
     HRESULT hr = S_OK;
 
-    TraceLoggingRegisterEx(g_hTelemetryProvider, TelemetryProviderEnabledCallback, nullptr);
+    TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
     //Generate the ActivityId used to track the session
     hr = CoCreateGuid(&g_TelemetryProviderActivityId);
     if (FAILED(hr))
     {
         TraceLoggingWriteActivity(
-            g_hTelemetryProvider,
+            g_hTraceProvider,
             "CreateGuidError",
             nullptr,
             nullptr,
@@ -54,5 +54,5 @@ void RegisterTraceLogging()
 
 void UnRegisterTraceLogging()
 {
-    TraceLoggingUnregister(g_hTelemetryProvider);
+    TraceLoggingUnregister(g_hTraceProvider);
 }

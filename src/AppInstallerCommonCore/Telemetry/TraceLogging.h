@@ -60,7 +60,7 @@
 // TraceLogging provider name for telemetry.
 #define TELEMETRY_PROVIDER_NAME "Microsoft.PackageManager.Client"
 
-TRACELOGGING_DECLARE_PROVIDER(g_hTelemetryProvider);
+TRACELOGGING_DECLARE_PROVIDER(g_hTraceProvider);
 extern bool g_IsTelemetryProviderEnabled;
 extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;

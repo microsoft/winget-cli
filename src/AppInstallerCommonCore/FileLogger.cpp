@@ -59,12 +59,9 @@ namespace AppInstaller::Logging
         return m_name;
     }
 
-    void FileLogger::Write(Channel channel, Level, std::string_view message) noexcept try
+    void FileLogger::Write(std::string str) noexcept try
     {
-        // Send to a string first to create a single block to write to a file.
-        std::stringstream strstr;
-        strstr << std::chrono::system_clock::now() << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message;
-        m_stream << strstr.str() << std::endl;
+        m_stream << str.c_str() << std::endl;
     }
     catch (...)
     {

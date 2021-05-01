@@ -50,6 +50,19 @@ namespace AppInstaller::Logging
 
     size_t GetMaxChannelNameLength() { return 4; }
 
+    void TraceLogger::LogMessage(std::string str) noexcept try
+    {
+        TraceLoggingWriteActivity(g_hTraceProvider,
+            "Diagnostics",
+            t_pThreadGlobals->GetTelemetryLogger().GetActivityId(),
+            nullptr,
+            TraceLoggingString(str.c_str()));
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better to lose logs than functionality
+    }
+
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
         m_loggers.emplace_back(std::move(logger));
@@ -116,13 +129,18 @@ namespace AppInstaller::Logging
     {
         THROW_HR_IF_MSG(E_INVALIDARG, channel == Channel::All, "Cannot write to all channels");
 
+        // Send to a string first to create a single block to write to a file.
+        std::stringstream strstr;
+        strstr << std::chrono::system_clock::now() << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message;
+
         if (IsEnabled(channel, level))
         {
             for (auto& logger : m_loggers)
             {
-                logger->Write(channel, level, message);
+                logger->Write(strstr.str());
             }
         }
+        traceLogger.LogMessage(strstr.str());
     }
 
     void AddFileLogger(const std::filesystem::path& filePath)
@@ -144,9 +162,17 @@ namespace AppInstaller::Logging
     {
         if (!m_pDiagnosticLogger)
         {
-            InitDiagnosticLogger();
+            try
+            {
+                std::call_once(diagLoggerInitOnceFlag, [this]()
+                {
+                        InitDiagnosticLogger();
+                });
+            }
+            catch (...)
+            {
+            }
         }
-
         return *(m_pDiagnosticLogger.get());
     }
 
@@ -159,9 +185,17 @@ namespace AppInstaller::Logging
     {
         if (!m_pTelemetryLogger)
         {
-            InitTelemetryLogger();
+            try
+            {
+                std::call_once(telLoggerInitOnceFlag, [this]()
+                {
+                    InitTelemetryLogger();
+                });
+            }
+            catch (...)
+            {
+            }
         }
-
         return *(m_pTelemetryLogger.get());
     }
 

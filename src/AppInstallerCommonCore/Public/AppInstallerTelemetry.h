@@ -29,11 +29,17 @@ namespace AppInstaller::Logging
         bool DisableRuntime();
         void EnableRuntime();
 
+        // Return address of m_activityId
+        GUID* GetActivityId();
+
+        // Turns on wil failure telemetry and logging.
+        void EnableWilFailureTelemetry();
+
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup() const noexcept;
+        void LogStartup(bool isCOMCall = false) const noexcept;
 
         // Logs the invoked command.
         void LogCommand(std::string_view commandName) const noexcept;
@@ -119,13 +125,12 @@ namespace AppInstaller::Logging
 
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
+        
+        GUID m_activityId;
     };
 
     // Helper to make the call sites look clean.
     TelemetryTraceLogger& Telemetry();
-
-    // Turns on wil failure telemetry and logging.
-    void EnableWilFailureTelemetry();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.

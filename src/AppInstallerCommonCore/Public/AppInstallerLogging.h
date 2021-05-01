@@ -66,7 +66,16 @@ namespace AppInstaller::Logging
         virtual std::string GetName() const = 0;
 
         // Informs the logger of the given log.
-        virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
+        virtual void Write(std::string str) noexcept = 0;
+    };
+
+    struct TraceLogger
+    {
+        TraceLogger() = default;
+
+        ~TraceLogger() = default;
+
+        void LogMessage(std::string str) noexcept;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -121,6 +130,7 @@ namespace AppInstaller::Logging
 
     private:
 
+        TraceLogger traceLogger;
         std::vector<std::unique_ptr<ILogger>> m_loggers;
         uint64_t m_enabledChannels = 0;
         Level m_enabledLevel = Level::Info;
@@ -181,8 +191,11 @@ namespace AppInstaller::Logging
 
         void InitTelemetryLogger(void);
 
-        std::unique_ptr<TelemetryTraceLogger> m_pTelemetryLogger;
         std::unique_ptr<DiagnosticLogger> m_pDiagnosticLogger;
+        std::unique_ptr<TelemetryTraceLogger> m_pTelemetryLogger;
+        std::once_flag diagLoggerInitOnceFlag;
+        std::once_flag telLoggerInitOnceFlag;
+
     };
 
 }

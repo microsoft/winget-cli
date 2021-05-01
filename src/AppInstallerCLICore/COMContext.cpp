@@ -32,4 +32,10 @@ namespace AppInstaller
         m_executionStage = executionStage;
         m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
     }
+
+    void COMContext::SetLoggers()
+    {
+        Logging::Telemetry().EnableWilFailureTelemetry();
+        Logging::Telemetry().LogStartup(true);
+    }
 }
