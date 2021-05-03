@@ -64,7 +64,7 @@ If a single application is detected, the following data will be displayed.
 | **AppMoniker** | AppMoniker of the application. |
 | **Description** | Description of the application. |
 | **License**  | License of the application. |
-| **LicenseUrl** | The URL to the license file of the applicatio. |
+| **LicenseUrl** | The URL to the license file of the application. |
 | **Homepage**  | Homepage of the application. |
 | **Tags** | The tags provided to assist in searching.  |
 | **Command** | The commands supported by the application. |
