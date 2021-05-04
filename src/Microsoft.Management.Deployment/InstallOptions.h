@@ -27,19 +27,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AllowHashMismatch(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
-        hstring AdditionalTelemetryArguments();
-        void AdditionalTelemetryArguments(hstring const& value);
+        hstring CorrelationData();
+        void CorrelationData(hstring const& value);
         hstring AdditionalAppCatalogArguments();
         void AdditionalAppCatalogArguments(hstring const& value);
     private:
         Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
+        Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         std::wstring m_preferredInstallLocation = L"";
         Microsoft::Management::Deployment::AppInstallScope m_appInstallScope = Microsoft::Management::Deployment::AppInstallScope::User;
         Microsoft::Management::Deployment::AppInstallMode m_appInstallMode = Microsoft::Management::Deployment::AppInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         std::wstring m_replacementInstallerArguments = L"";
-        std::wstring m_additionalTelemetryArguments = L"";
+        std::wstring m_correlationData = L"";
         std::wstring m_additionalAppCatalogArguments = L"";
     };
 }

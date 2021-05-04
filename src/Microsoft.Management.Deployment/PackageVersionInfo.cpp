@@ -2,12 +2,13 @@
 #include <AppInstallerRepositorySource.h>
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
+#include "AppCatalog.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     PackageVersionInfo::PackageVersionInfo(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion)
-        : m_packageVersion(std::move(packageVersion))
     {
+        m_packageVersion = packageVersion;
     }
     hstring PackageVersionInfo::GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType)
     {
@@ -48,14 +49,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Name).get());
     }
-    hstring PackageVersionInfo::AppCatalogIdentifier()
-    {
-        return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::SourceIdentifier).get());
-    }
-    hstring PackageVersionInfo::AppCatalogName()
-    {
-        return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::SourceName).get());
-    }
     hstring PackageVersionInfo::Version()
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Version).get());
@@ -69,7 +62,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (m_packageFamilyNames.Size() == 0)
         {
             auto packageFamilyNameVector = m_packageVersion->GetMultiProperty(::AppInstaller::Repository::PackageVersionMultiProperty::PackageFamilyName);
-            for (int i = 0; i < packageFamilyNameVector.size(); i++)
+            for (int i = 0; i < packageFamilyNameVector.size(); ++i)
             {
                 m_packageFamilyNames.Append(winrt::to_hstring(packageFamilyNameVector.at(i)));
             }
@@ -92,6 +85,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::AppCatalog PackageVersionInfo::AppCatalog()
     {
-        throw hresult_not_implemented();
+        if (!m_appCatalog)
+        {
+            m_appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(winrt::to_hstring(m_packageVersion->GetSource().get()->GetDetails().Name));
+        }
+        return m_appCatalog;
     }
 }

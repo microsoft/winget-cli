@@ -18,11 +18,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
-        throw hresult_not_implemented();
+        return m_packageVersionId;
     }
     void InstallOptions::PackageVersionId(Microsoft::Management::Deployment::PackageVersionId const& value)
     {
-        throw hresult_not_implemented();
+        m_packageVersionId = value;
     }
     hstring InstallOptions::PreferredInstallLocation()
     {
@@ -72,13 +72,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_replacementInstallerArguments = value;
     }
-    hstring InstallOptions::AdditionalTelemetryArguments()
+    hstring InstallOptions::CorrelationData()
     {
-        return hstring(m_additionalTelemetryArguments);
+        return hstring(m_correlationData);
     }
-    void InstallOptions::AdditionalTelemetryArguments(hstring const& value)
+    void InstallOptions::CorrelationData(hstring const& value)
     {
-        m_additionalTelemetryArguments = value;
+        m_correlationData = value;
     }
     hstring InstallOptions::AdditionalAppCatalogArguments()
     {

@@ -46,7 +46,7 @@ namespace Microsoft.Management.Deployment
     runtimeclass InstallResult
     {
         /// Used by a caller to correlate the install with a caller's data.
-        String CorrelationId{ get; };
+        String CorrelationData{ get; };
         /// Whether a restart is required to complete the install.
         Boolean RebootRequired { get; };
     }
@@ -129,8 +129,6 @@ namespace Microsoft.Management.Deployment
         /// IMPLEMENTATION NOTE: PackageVersionProperty fields from AppInstallerRepositorySearch.h
         String Id { get; };
         String Name { get; };
-        String AppCatalogIdentifier { get; };
-        String AppCatalogName { get; };
         String Version { get; };
         String Channel { get; };
         /// DESIGN NOTE: RelativePath from AppInstallerRepositorySearch.h is excluded as not needed.
@@ -430,7 +428,7 @@ namespace Microsoft.Management.Deployment
         /// Used by a caller to correlate the install with a caller's data.
         /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to 
         /// use JSON to encode multiple arguments.
-        String AdditionalTelemetryArguments;
+        String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalAppCatalogArguments;
     }

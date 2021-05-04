@@ -46,10 +46,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 m_source = ::AppInstaller::Repository::OpenPredefinedSource(predefinedSource, progress);
                 break;
             case Microsoft::Management::Deployment::PredefinedAppCatalog::InstallingPackages :
-                // TODO SREADING
+                // TODO - installing source does not exist yet.
                 throw hresult_not_implemented();
             case Microsoft::Management::Deployment::PredefinedAppCatalog::OpenWindowsCatalog :
-                // TODO SREADING - fix when there's a better option than names
+                // TODO - creating source by enum or id is not supported yet.
                 m_source = ::AppInstaller::Repository::OpenSource(winrt::to_string(L"winget"), progress).Source;
                 break;
             }

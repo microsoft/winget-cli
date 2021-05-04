@@ -10,12 +10,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct InstallResult : InstallResultT<InstallResult>
     {
         InstallResult() = default;
-        InstallResult(hstring const& sessionId, bool rebootRequired);
+        InstallResult(hstring const& correlationData, bool rebootRequired);
 
-        hstring CorrelationId();
+        hstring CorrelationData();
         bool RebootRequired();
     private:
-        std::wstring m_sessionId = L"";
+        std::wstring m_correlationData = L"";
         bool m_rebootRequired = false;
     };
 }

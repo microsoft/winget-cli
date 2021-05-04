@@ -8,14 +8,14 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    InstallResult::InstallResult(hstring const& sessionId, bool rebootRequired)
+    InstallResult::InstallResult(hstring const& correlationData, bool rebootRequired)
     {
-        m_sessionId = sessionId;
+        m_correlationData = correlationData;
         m_rebootRequired = rebootRequired;
     }
-    hstring InstallResult::CorrelationId()
+    hstring InstallResult::CorrelationData()
     {
-        return hstring(m_sessionId);
+        return hstring(m_correlationData);
     }
     bool InstallResult::RebootRequired()
     {

@@ -12,6 +12,8 @@
 #include "AppInstaller.g.cpp"
 #include "InstallResult.h"
 #include "AppCatalog.h"
+#include "PackageVersionInfo.h"
+#include "PackageVersionId.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -136,66 +138,32 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             g_event = make_auto_reset_event();
         }
 
-        // Enable all logging for this phase; we will update once we have the arguments
-        ::AppInstaller::Logging::Log().EnableChannel(::AppInstaller::Logging::Channel::All);
-        ::AppInstaller::Logging::Log().SetLevel(::AppInstaller::Logging::Level::Verbose);
-        ::AppInstaller::Logging::AddFileLogger();
-        ::AppInstaller::Logging::EnableWilFailureTelemetry();
+        Microsoft::Management::Deployment::PackageVersionId versionId{ options.PackageVersionId() };
+        Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
+        if (versionId)
+        {
+            packageVersionInfo = options.CatalogPackage().GetAvailableVersion(versionId);
+        }
+        else
+        {
+            packageVersionInfo = options.CatalogPackage().LatestAvailableVersion();
+        }
+        Microsoft::Management::Deployment::AppCatalog catalog = packageVersionInfo.AppCatalog();
+        co_await catalog.OpenAsync();
 
-        ::AppInstaller::Logging::Telemetry().LogStartup();
-
-        // Initiate the background cleanup of the log file location.
-        ::AppInstaller::Logging::BeginLogFileCleanup();
-
-        ::AppInstaller::COMContext context{ std::cout, std::cin };
-
+        ::AppInstaller::COMContext context;
         context.SetProgressCallbackFunction(ProgressCallback);
         context.EnableCtrlHandler();
 
-        context << ::AppInstaller::CLI::Workflow::ReportExecutionStage(::AppInstaller::CLI::Workflow::ExecutionStage::ParseArgs);
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(options.CatalogPackage().Id()));
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(catalog.Info().Name()));
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Exact);
 
-        // Convert incoming wide char args to UTF8
-        std::vector<std::string> utf8Args;
-        utf8Args.emplace_back(::AppInstaller::Utility::ConvertToUTF8(L"install"));
-        utf8Args.emplace_back(::AppInstaller::Utility::ConvertToUTF8(L"--id"));
-        utf8Args.emplace_back(::AppInstaller::Utility::ConvertToUTF8(options.CatalogPackage().Id()));
-        ::AppInstaller::CLI::Invocation invocation{ std::move(utf8Args) };
-
-        // The root command is our fallback in the event of very bad or very little input
-        std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::RootCommand>();
-
-        try
-        {
-            std::unique_ptr<::AppInstaller::CLI::Command> subCommand = command->FindSubCommand(invocation);
-            while (subCommand)
-            {
-                command = std::move(subCommand);
-                subCommand = command->FindSubCommand(invocation);
-            }
-            ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
-
-            
-            command->ParseArguments(invocation, context.Args);
-
-            // Change logging level to Info if Verbose not requested
-            //if (!context.Args.Contains(::AppInstaller::CLI::Execution::Args::Type::VerboseLogs))
-            //{
-                ::AppInstaller::Logging::Log().SetLevel(::AppInstaller::Logging::Level::Info);
-            //}
-
-            context.UpdateForArgs();
-
-            command->ValidateArguments(context.Args);
-        }
-        // Exceptions specific to parsing the arguments of a command
-        catch (const ::AppInstaller::CLI::CommandException& ce)
-        {
-            //command->OutputHelp(context.Reporter, &ce);
-            //AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
-            throw APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
-        }
-
-        auto executeOperation = ExecuteInstallAsync(context, command);
+        ::AppInstaller::CLI::RootCommand rootCommand;
+        std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
+        Windows::Foundation::IAsyncAction executeOperation = ExecuteInstallAsync(context, command);
 
         co_await winrt::resume_on_signal(g_event.get(), 2000ms);
         while (true)
@@ -215,7 +183,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         g_event.close();
 
         winrt::Microsoft::Management::Deployment::InstallResult installResult{ nullptr };
-        installResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::InstallResult>(options.AdditionalTelemetryArguments(), false);
+        installResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::InstallResult>(options.CorrelationData(), false);
         co_return installResult;
     }
     Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::GetInstallProgress(Microsoft::Management::Deployment::CatalogPackage package)
