@@ -106,7 +106,6 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#158](https://github.com/microsoft/winget-cli/issues/158) App Config Files | Support for silent installers that require a configuration file. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#163](https://github.com/microsoft/winget-cli/issues/163) Dependencies | The client should be able to install package dependencies. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#140](https://github.com/microsoft/winget-cli/issues/140) Install .zip | The client should be able to install programs in a .zip file. |
-| [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#194](https://github.com/microsoft/winget-cli/issues/194) Install .exe | The client should be able to install a static .exe file. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#182](https://github.com/microsoft/winget-cli/issues/182) Install portable app | The client should be able to install portable Apps. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#201](https://github.com/microsoft/winget-cli/issues/201) Specify install directory | The client should be able to install to an alternate directory. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#161](https://github.com/microsoft/winget-cli/issues/161) Client Verbosity Settings | The client should support different verbosity settings. |
