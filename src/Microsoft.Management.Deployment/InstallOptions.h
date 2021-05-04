@@ -1,10 +1,6 @@
 #pragma once
 #include "InstallOptions.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct InstallOptions : InstallOptionsT<InstallOptions>

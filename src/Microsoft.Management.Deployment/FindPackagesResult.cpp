@@ -2,10 +2,6 @@
 #include "FindPackagesResult.h"
 #include "FindPackagesResult.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     FindPackagesResult::FindPackagesResult(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches)

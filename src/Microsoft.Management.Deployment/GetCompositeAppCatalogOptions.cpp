@@ -2,10 +2,6 @@
 #include "GetCompositeAppCatalogOptions.h"
 #include "GetCompositeAppCatalogOptions.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> GetCompositeAppCatalogOptions::Catalogs()

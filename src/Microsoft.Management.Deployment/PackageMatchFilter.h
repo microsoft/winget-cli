@@ -1,10 +1,6 @@
 #pragma once
 #include "PackageMatchFilter.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter>

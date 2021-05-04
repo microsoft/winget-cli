@@ -2,10 +2,6 @@
 #include "InstallOptions.h"
 #include "InstallOptions.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Microsoft::Management::Deployment::CatalogPackage InstallOptions::CatalogPackage()

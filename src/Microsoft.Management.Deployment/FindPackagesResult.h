@@ -1,10 +1,6 @@
 #pragma once
 #include "FindPackagesResult.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct FindPackagesResult : FindPackagesResultT<FindPackagesResult>

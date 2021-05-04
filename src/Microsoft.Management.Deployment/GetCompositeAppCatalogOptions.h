@@ -1,10 +1,6 @@
 #pragma once
 #include "GetCompositeAppCatalogOptions.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct GetCompositeAppCatalogOptions : GetCompositeAppCatalogOptionsT<GetCompositeAppCatalogOptions>

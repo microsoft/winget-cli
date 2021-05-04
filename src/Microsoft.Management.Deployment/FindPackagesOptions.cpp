@@ -2,10 +2,6 @@
 #include "FindPackagesOptions.h"
 #include "FindPackagesOptions.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Filters()

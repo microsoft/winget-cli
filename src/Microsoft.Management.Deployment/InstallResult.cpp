@@ -2,10 +2,6 @@
 #include "InstallResult.h"
 #include "InstallResult.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     InstallResult::InstallResult(hstring const& correlationData, bool rebootRequired)

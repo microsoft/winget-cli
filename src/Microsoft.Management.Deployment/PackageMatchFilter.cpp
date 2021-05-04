@@ -2,10 +2,6 @@
 #include "PackageMatchFilter.h"
 #include "PackageMatchFilter.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     bool PackageMatchFilter::IsAdditive()

@@ -85,9 +85,9 @@
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
+    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">

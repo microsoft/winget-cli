@@ -5,10 +5,6 @@
 #include "ResultMatch.g.cpp"
 #include "CatalogPackage.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     ResultMatch::ResultMatch(Microsoft::Management::Deployment::CatalogPackage package, Microsoft::Management::Deployment::PackageMatchFilter matchCriteria)

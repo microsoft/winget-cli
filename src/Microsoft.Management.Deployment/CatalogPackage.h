@@ -1,10 +1,6 @@
 #pragma once
 #include "CatalogPackage.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct CatalogPackage : CatalogPackageT<CatalogPackage>

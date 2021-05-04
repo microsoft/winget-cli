@@ -1,10 +1,6 @@
 #pragma once
 #include "FindPackagesOptions.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions>

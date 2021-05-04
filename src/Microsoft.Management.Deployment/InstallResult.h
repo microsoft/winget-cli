@@ -1,10 +1,6 @@
 #pragma once
 #include "InstallResult.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct InstallResult : InstallResultT<InstallResult>

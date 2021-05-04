@@ -1,10 +1,6 @@
 #pragma once
 #include "ResultMatch.g.h"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct ResultMatch : ResultMatchT<ResultMatch>

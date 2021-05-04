@@ -1,9 +1,6 @@
 #pragma once
 #include "AppInstaller.g.h"
 
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct AppInstaller : AppInstallerT<AppInstaller>
