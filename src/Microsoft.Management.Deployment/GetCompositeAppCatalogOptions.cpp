@@ -6,18 +6,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> GetCompositeAppCatalogOptions::Catalogs()
     {
-        throw hresult_not_implemented();
-    }
-    void GetCompositeAppCatalogOptions::Catalogs(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> const& value)
-    {
-        throw hresult_not_implemented();
+        return m_catalogs;
     }
     Microsoft::Management::Deployment::CompositeSearchBehavior GetCompositeAppCatalogOptions::CompositeSearchBehavior()
     {
-        throw hresult_not_implemented();
+        return m_compositeSearchBehavior;
     }
     void GetCompositeAppCatalogOptions::CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value)
     {
-        throw hresult_not_implemented();
+        m_compositeSearchBehavior = value;
     }
 }

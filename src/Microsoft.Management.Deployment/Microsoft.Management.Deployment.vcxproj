@@ -79,8 +79,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -88,37 +88,43 @@
     <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(Platform)\$(Configuration)\JsonCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(Platform)\$(Configuration)\YamlCppLib;$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -153,22 +159,22 @@
     </Link>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <Link>
@@ -195,22 +201,22 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
     </Link>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -229,6 +235,7 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ResultMatch.h" />
+    <ClInclude Include="Vectors.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppCatalog.cpp" />
@@ -248,6 +255,7 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="ResultMatch.cpp" />
+    <ClCompile Include="Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="AppInstaller.idl" />

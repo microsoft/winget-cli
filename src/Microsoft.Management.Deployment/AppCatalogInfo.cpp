@@ -31,7 +31,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Windows::Foundation::DateTime AppCatalogInfo::LastUpdateTime()
     {
-        throw hresult_not_implemented();
+        return winrt::clock::from_time_t(std::chrono::system_clock::to_time_t(m_sourceDetails.LastUpdateTime));
     }
     Microsoft::Management::Deployment::AppCatalogOrigin AppCatalogInfo::Origin()
     {

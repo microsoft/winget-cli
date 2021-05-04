@@ -60,6 +60,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.AppCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
         packageVersionInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(m_package.get()->GetAvailableVersion(internalVersionKey));
+        return packageVersionInfo;
     }
     bool CatalogPackage::IsUpdateAvailable()
     {

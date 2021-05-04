@@ -366,7 +366,7 @@ namespace Microsoft.Management.Deployment
         /// one local source and one remote source per composite catalog.
         /// DESIGN NOTE: It seems likely that in the future we will want to support 
         /// letting callers use two local sources (i.e. both Installing and Installed)
-        IVector<AppCatalog> Catalogs;
+        IVector<AppCatalog> Catalogs { get; };
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
@@ -455,5 +455,15 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(InstallOptions options);
         /// Get install progress
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package);
+    }
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass Vectors
+    {
+        Vectors();
+        Windows.Foundation.Collections.IVector<CatalogPackage> GetCatalogPackageVector();
+        Windows.Foundation.Collections.IVectorView<CatalogPackage> GetCatalogPackageVectorView();
+        Windows.Foundation.Collections.IVector<PackageVersionInfo> GetPackageVersionInfoVector();
+        Windows.Foundation.Collections.IVectorView<PackageVersionInfo> GetPackageVersionInfoVectorView();
     }
 }

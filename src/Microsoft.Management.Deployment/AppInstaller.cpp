@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Commands/RootCommand.h"
 #include "ComContext.h"
 #include "ExecutionContext.h"
@@ -45,7 +46,39 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetCompositeAppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions const& options)
     {
-        throw hresult_not_implemented();
+        if (options.Catalogs().Size() == 0)
+        {
+            throw hresult_invalid_argument();
+        }
+        if (options.Catalogs().Size() > 2)
+        {
+            throw hresult_not_implemented();
+        }
+        bool includeInstalledCatalog = false;
+        bool includeNonLocalCatalog = false;
+        for (int i = 0; i < options.Catalogs().Size(); ++i)
+        {
+            auto catalog = options.Catalogs().GetAt(i);
+            if (catalog.IsComposite())
+            {
+                throw hresult_invalid_argument();
+            }
+            if (winrt::to_string(catalog.Info().Name()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0)
+            {
+                includeInstalledCatalog = true;
+            }
+            else
+            {
+                includeNonLocalCatalog = true;
+            }
+        }
+        if (!includeInstalledCatalog || !includeNonLocalCatalog)
+        {
+            throw hresult_not_implemented();
+        }
+        winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
+        appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(options);
+        return appCatalog;
     }
 
     winrt::handle AppInstaller::g_event;

@@ -8,9 +8,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         GetCompositeAppCatalogOptions() = default;
 
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> Catalogs();
-        void Catalogs(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> const& value);
         Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
         void CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
+    private:
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> m_catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::AppCatalog>() };
+        Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
