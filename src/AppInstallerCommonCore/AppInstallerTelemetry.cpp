@@ -47,10 +47,24 @@ namespace AppInstaller::Logging
 
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
-        // TODO: Needs to be made a singleton registration/removal in the future
+        HRESULT hr = S_OK;
+
         RegisterTraceLogging();
 
-        (void)CoCreateGuid(&m_activityId);
+        RegisterTraceLogging();
+
+        hr = CoCreateGuid(&m_activityId);
+        if (FAILED(hr))
+        {
+            TraceLoggingWriteActivity(
+                g_hTraceProvider,
+                "CreateActivityIdError",
+                nullptr,
+                nullptr,
+                TraceLoggingHResult(hr),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -78,9 +92,14 @@ namespace AppInstaller::Logging
         m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
     }
 
-    void TelemetryTraceLogger::SetTelemetryCorelationJson(std::string jsonStr)
+    void TelemetryTraceLogger::SetTelemetryCorelationJson(std::wstring jsonStr)
     {
         m_telemetryCorelationJson = jsonStr;
+    }
+
+    void TelemetryTraceLogger::SetCOMCaller(std::wstring comCaller)
+    {
+        m_comCaller = comCaller;
     }
 
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
@@ -130,6 +149,13 @@ namespace AppInstaller::Logging
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
                 TraceLoggingBool(isCOMCall, "IsCOMCall"),
+                TraceLoggingPackedFieldEx(
+                    m_telemetryCorelationJson.c_str(),
+                    static_cast<ULONG>(m_telemetryCorelationJson.length() + 1) * sizeof(wchar_t),
+                    TlgInUNICODESTRING,
+                    TlgOutJSON,
+                    "COMCallerCj"),
+                TraceLoggingWideString(m_comCaller.c_str(), "COMCaller"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }

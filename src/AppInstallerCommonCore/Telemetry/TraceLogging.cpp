@@ -15,6 +15,7 @@ bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
 GUID g_TelemetryProviderActivityId{};
+std::once_flag g_registerTraceProvideOnlyOnce{};
 
 void WINAPI TelemetryProviderEnabledCallback(
     _In_      LPCGUID /*sourceId*/,
@@ -32,24 +33,37 @@ void WINAPI TelemetryProviderEnabledCallback(
 
 void RegisterTraceLogging()
 {
-    HRESULT hr = S_OK;
-
-    TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
-    //Generate the ActivityId used to track the session
-    hr = CoCreateGuid(&g_TelemetryProviderActivityId);
-    if (FAILED(hr))
+    try
     {
-        TraceLoggingWriteActivity(
-            g_hTraceProvider,
-            "CreateGuidError",
-            nullptr,
-            nullptr,
-            TraceLoggingHResult(hr),
-            TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-            TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        std::call_once(g_registerTraceProvideOnlyOnce, []()
+        {
+            HRESULT hr = S_OK;
 
-        g_TelemetryProviderActivityId = GUID_NULL;
-    };
+            TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
+
+            // Generate the ActivityId used to track the session
+            // This is never used. Should this be removed ? Or can be this purposed for anything good ?
+            hr = CoCreateGuid(&g_TelemetryProviderActivityId);
+            if (FAILED(hr))
+            {
+                TraceLoggingWriteActivity(
+                    g_hTraceProvider,
+                    "CreateGuidError",
+                    nullptr,
+                    nullptr,
+                    TraceLoggingHResult(hr),
+                    TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                    TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+                g_TelemetryProviderActivityId = GUID_NULL;
+            };
+        });
+    }
+    catch (...)
+    {
+        // May throw std::system_error if any condition prevents calls to call_once from executing as specified
+        // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
+    }
 }
 
 void UnRegisterTraceLogging()

@@ -40,13 +40,11 @@ namespace AppInstaller
         COMContext() : NullStream(), CLI::Execution::Context(*m_nullOut, *m_nullIn)
         {
             Reporter.SetProgressSink(this);
-            SetLoggers();
         }
 
         COMContext(std::ostream& out, std::istream& in) : CLI::Execution::Context(out, in) 
         {
             Reporter.SetProgressSink(this);
-            SetLoggers();
         }
 
         ~COMContext() = default;
@@ -66,7 +64,7 @@ namespace AppInstaller
 
     private:
 
-        void SetLoggers();
+        void SetLoggers(std::wstring telemetryCorelationJson, std::wstring comCaller);
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         ProgressCallBackFunction m_comProgressCallback;

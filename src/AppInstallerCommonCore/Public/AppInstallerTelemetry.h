@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -39,7 +40,10 @@ namespace AppInstaller::Logging
         void SetUserSettingsStatus();
 
         // Capture any passed in Telemetry Corelation Json
-        void SetTelemetryCorelationJson(std::string jsonStr);
+        void SetTelemetryCorelationJson(std::wstring jsonStr);
+
+        // Capture the name of the Caller for COM calls
+        void SetCOMCaller(std::wstring comCaller);
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -132,7 +136,8 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
         GUID m_activityId = GUID_NULL;
-        std::string m_telemetryCorelationJson = "";
+        std::wstring m_telemetryCorelationJson = L"";
+        std::wstring m_comCaller = L"";
     };
 
     // Helper to make the call sites look clean.

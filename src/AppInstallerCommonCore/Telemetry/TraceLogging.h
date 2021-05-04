@@ -5,6 +5,7 @@
 
 #include "WinEventLogLevels.h"
 #include <TraceLoggingProvider.h>
+#include <mutex>
 
 #include "MicrosoftTelemetry.h"
 
@@ -65,6 +66,7 @@ extern bool g_IsTelemetryProviderEnabled;
 extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;
 extern GUID g_TelemetryProviderActivityId;
+extern std::once_flag g_registerTraceProvideOnlyOnce;
 
 extern void RegisterTraceLogging();
 extern void UnRegisterTraceLogging();

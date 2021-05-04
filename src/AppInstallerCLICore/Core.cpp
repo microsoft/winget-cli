@@ -50,7 +50,7 @@ namespace AppInstaller::CLI
         context.EnableCtrlHandler();
 
         // Enable all logging for this phase; we will update once we have the arguments
-        //Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddFileLogger();
         Logging::Telemetry().EnableWilFailureTelemetry();
