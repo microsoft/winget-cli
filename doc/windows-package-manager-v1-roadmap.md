@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines our aspirational roadmap to delivering Windows Package Manager v1.0 by Spring (March-May) 2021. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
+This document outlines our aspirational roadmap to delivering Windows Package Manager v1.0 by March-May 2021. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
 
 ## Milestones
 
@@ -37,7 +37,7 @@ Releases will be available here on GitHub first. We will release to the App Inst
 
 ## Windows Package Manager Roadmap / Timeline
 
-Ultimately, we're aiming for Windows Package Manager v1.0 to be released in Spring (March-May) 2021:
+Ultimately, we're aiming for Windows Package Manager v1.0 to be released in March-May 2021:
 
 | Release or Milestone end date | Release or Milestone | Key Features |
 | --- | --- | --- |
@@ -86,20 +86,20 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 | [v0.1.41821](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
 | [v0.1.41821](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
 | [v0.1.42241](https://github.com/microsoft/winget-cli/releases/tag/v0.1.42241-preview) | Autocomplete | The client will support autocomplete for all commands and packages in the local cache. |
+| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#132](https://github.com/microsoft/winget-cli/issues/132) Multiple Architectures | The client should support multiple architectures in the same manifest. |
+| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#137](https://github.com/microsoft/winget-cli/issues/137) Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success. |
+| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#279](https://github.com/microsoft/winget-cli/issues/279) Opt-Out of Telemetry | The client should be able to Opt-Out of Telemetry. |
+| [v0.2.10971](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10971-preview) | [#149](https://github.com/microsoft/winget-cli/issues/149) User vs. System | Applications may be installed for the local user or for the system. |
+| [v0.2.10971](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10971-preview) | [#154](https://github.com/microsoft/winget-cli/issues/154) Group Policy | Support for Group Policy control. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#119](https://github.com/microsoft/winget-cli/issues/119) `winget list` | The client should be able to tell you what Apps are installed including the Control Panel. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#120](https://github.com/microsoft/winget-cli/issues/120) `winget upgrade` | The client should be able to update one or "all" installed Apps. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#121](https://github.com/microsoft/winget-cli/issues/121) `winget uninstall` | The client should be able to uninstall Apps. |
-| [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#220](https://github.com/microsoft/winget-cli/issues/220) Export/Import | The client should be able to export the list of installed Apps and import the exported list. |
-| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#132](https://github.com/microsoft/winget-cli/issues/132) Multiple Architectures | The client should support multiple architectures in the same manifest. |
-| [v0.2.10971](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10971-preview) | [#149](https://github.com/microsoft/winget-cli/issues/149) User vs. System | Applications may be installed for the local user or for the system. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#124](https://github.com/microsoft/winget-cli/issues/124) Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#226](https://github.com/microsoft/winget-cli/issues/226) REST Repository | Support for a REST based repository. |
-| [v0.2.10971](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10971-preview) | [#154](https://github.com/microsoft/winget-cli/issues/154) Group Policy | Support for Group Policy control. |
+| [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#220](https://github.com/microsoft/winget-cli/issues/220) Export/Import | The client should be able to export the list of installed Apps and import the exported list. |
+| [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#157](https://github.com/microsoft/winget-cli/issues/157) Manifest Wizard | Help a user generate a manifest. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#151](https://github.com/microsoft/winget-cli/issues/151) Delivery Optimization | Delivery Optimization should be leveraged for large Apps. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#150](https://github.com/microsoft/winget-cli/issues/150) Metered Networks | The client should download responsibly when on metered networks. |
-| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#137](https://github.com/microsoft/winget-cli/issues/137) Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success. |
-| [v0.2.10771](https://github.com/microsoft/winget-cli/releases/tag/v-0.2.10771-preview) | [#279](https://github.com/microsoft/winget-cli/issues/279) Opt-Out of Telemetry | The client should be able to Opt-Out of Telemetry. |
-| [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | [#157](https://github.com/microsoft/winget-cli/issues/157) Manifest Wizard | Help a user generate a manifest. |
 | [1.0 Milestone](https://github.com/microsoft/winget-cli/milestone/1) | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver). |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34) | [#161](https://github.com/microsoft/winget-cli/issues/161) Verbosity | Client Verbosity Settings. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34) | [#117](https://github.com/microsoft/winget-cli/issues/117) Microsoft Store | Support for installing Apps from the Microsoft Store. |
