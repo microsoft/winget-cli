@@ -101,9 +101,9 @@ be used to get availability information or start an install.
         return appInstaller.InstallPackageAsync(installOptions);
     }
 
-    IAsyncAction UpdateUIProgress(
-        InstallProgress progress,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+   IAsyncAction UpdateUIProgress(
+        InstallProgress progress, 
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         co_await winrt::resume_foreground(progressBar.Dispatcher());
@@ -121,22 +121,25 @@ be used to get availability information or start an install.
             break;
         case AppInstallProgressState::Installing:
             statusText.Text(L"Installing");
+            progressBar.IsIndeterminate(true);
             break;
         case AppInstallProgressState::PostInstall:
             statusText.Text(L"Finishing install");
             break;
         case AppInstallProgressState::Finished:
             statusText.Text(L"Finished install.");
+            progressBar.IsIndeterminate(false);
             break;
         default:
             statusText.Text(L"");
         }
     }
 
-    IAsyncAction UpdateUIForInstall(
-        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation,
-        winrt::Windows::UI::Xaml::Controls::Button button,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+   IAsyncAction UpdateUIForInstall(
+        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation, 
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         installPackageOperation.Progress([=](
@@ -155,6 +158,7 @@ be used to get availability information or start an install.
         }
         catch (hresult_canceled const&)
         {
+            errorMessage = L"Cancelled";
             OutputDebugString(L"Operation was cancelled");
         }
         catch (winrt::hresult_error const& ex)
@@ -170,42 +174,57 @@ be used to get availability information or start an install.
         // Switch back to ui thread context.
         co_await winrt::resume_foreground(progressBar.Dispatcher());
 
+        cancelButton.IsEnabled(false);
+        installButton.IsEnabled(true);
+        progressBar.IsIndeterminate(false);
+
         if (installPackageOperation.Status() == AsyncStatus::Canceled)
         {
-            button.Content(box_value(L"Retry"));
+            installButton.Content(box_value(L"Retry"));
             statusText.Text(L"Install cancelled.");
         }
         if (installPackageOperation.Status() == AsyncStatus::Error || installResult == nullptr)
         {
-            button.Content(box_value(L"Error"));
+            installButton.Content(box_value(L"Retry"));
             statusText.Text(errorMessage.c_str());
         }
         else if (installResult.RebootRequired())
         {
-            button.Content(box_value(L"Reboot Required."));
+            installButton.Content(box_value(L"Install"));
             statusText.Text(L"Reboot to finish installation.");
         }
         else
         {
-            button.Content(box_value(L"Installed"));
+            installButton.Content(box_value(L"Install"));
+            statusText.Text(L"Finished.");
         }
     }
 
     IAsyncAction MainPage::StartInstall(
-        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
+        installButton.IsEnabled(false);
+        cancelButton.IsEnabled(true);
+
         co_await winrt::resume_background();
 
         AppInstaller appInstaller = CreateAppInstaller();
         AppCatalog catalog{ appInstaller.GetAppCatalog(PredefinedAppCatalog::OpenWindowsCatalog) };
         catalog.OpenAsync().get();
-        CatalogPackage package{ FindPackageInCatalog(catalog, m_installAppId).get() };
+        //CatalogPackage package{ FindPackageInCatalog(catalog, m_installAppId).get() };
+        FindPackagesResult findPackagesResult{ TryFindPackageInCatalog(catalog, m_installAppId).get() };
 
-        m_installPackageOperation = InstallPackage(package);
-        UpdateUIForInstall(m_installPackageOperation, button, progressBar, statusText);
+        winrt::IVectorView<ResultMatch> matches = findPackagesResult.Matches();
+        if (matches.Size() > 0)
+        {
+            m_installPackageOperation = InstallPackage(matches.GetAt(0).CatalogPackage());
+            UpdateUIForInstall(m_installPackageOperation, installButton, cancelButton, progressBar, statusText);
+        }
     }
+
 ```
 
 ## 3.3.1 Cancel
@@ -231,18 +250,16 @@ Cancel the async operation
         std::wstring installAppId)
     {
         co_await winrt::resume_background();
-        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created
+        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created 
         // by an out of proc com server.
         AppInstaller appInstaller = CreateAppInstaller();
         AppCatalog windowsCatalog{ appInstaller.GetAppCatalog(PredefinedAppCatalog::OpenWindowsCatalog) };
         windowsCatalog.OpenAsync().get();
-        AppCatalog installingCatalog{ appInstaller.GetAppCatalog(PredefinedAppCatalog::InstallingPackages) };
-        installingCatalog.OpenAsync().get();
         GetCompositeAppCatalogOptions getCompositeAppCatalogOptions = CreateGetCompositeAppCatalogOptions();
         getCompositeAppCatalogOptions.Catalogs().Append(windowsCatalog);
-        getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
+        getCompositeAppCatalogOptions.LocalAppCatalog(LocalAppCatalog::InstallingPackages);
         // Specify that the search behavior is to only query for local packages.
-        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is
+        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is 
         // currently installing.
         getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::InstallingPackages);
         AppCatalog compositeCatalog{ appInstaller.GetCompositeAppCatalog(getCompositeAppCatalogOptions) };
@@ -282,29 +299,28 @@ and reopens while an install is still in progress.
         InitializeInstallUI(m_installAppId, installButton(), installProgressBar(), installStatusText());
     }
 
+
     IAsyncAction MainPage::InitializeInstallUI(
         std::wstring installAppId,
-        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         co_await winrt::resume_background();
-        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created
+        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created 
         // by an out of proc com server.
         AppInstaller appInstaller = CreateAppInstaller();
         AppCatalog windowsCatalog{ appInstaller.GetAppCatalog(PredefinedAppCatalog::OpenWindowsCatalog) };
         windowsCatalog.OpenAsync().get();
-        AppCatalog installingCatalog{ appInstaller.GetAppCatalog(PredefinedAppCatalog::InstallingPackages) };
-        installingCatalog.OpenAsync().get();
-        Windows::Foundation::Collections::IVector<AppCatalog> catalogs{ winrt::single_threaded_vector<AppCatalog>() };
         // Get a composite catalog that allows search of both the OpenWindowsCatalog and InstallingPackages.
-        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created
+        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created 
         // by an out of proc com server.
         GetCompositeAppCatalogOptions getCompositeAppCatalogOptions = CreateGetCompositeAppCatalogOptions();
         getCompositeAppCatalogOptions.Catalogs().Append(windowsCatalog);
-        getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
+        getCompositeAppCatalogOptions.LocalAppCatalog(LocalAppCatalog::InstallingPackages);
         // Specify that the search behavior is to only query for local packages.
-        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is
+        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is 
         // currently installing.
         getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::AllLocalPackages);
         AppCatalog compositeCatalog{ appInstaller.GetCompositeAppCatalog(getCompositeAppCatalogOptions) };
@@ -324,7 +340,7 @@ and reopens while an install is still in progress.
         if (package.IsInstalling())
         {
             m_installPackageOperation = appInstaller.GetInstallProgress(package);
-            UpdateUIForInstall(m_installPackageOperation, button, progressBar, statusText);
+            UpdateUIForInstall(m_installPackageOperation, installButton, cancelButton, progressBar, statusText);
         }
     }
 ```
@@ -393,16 +409,16 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum AppInstallProgressState
     {
-        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this
+        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
         /// state will prevent the app from downloading or installing.
         Queued,
-        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will
+        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will 
         /// end the download and prevent the app from installing.
         Downloading,
         /// The install is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
         /// stop the installation or the post install cleanup.
         Installing,
-        /// The installer has completed and cleanup actions are in progress. Cancellation of the
+        /// The installer has completed and cleanup actions are in progress. Cancellation of the 
         /// IAsyncOperationWithProgress in this state will not stop cleanup or roll back the install.
         PostInstall,
         /// The operation has completed.
@@ -410,7 +426,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Progress object for the install
-    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to
+    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to 
     /// estimate progress when the installer is running.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     struct InstallProgress
@@ -425,6 +441,8 @@ namespace Microsoft.Management.Deployment
         UInt64 BytesRequired;
         /// Download percentage completed
         Single DownloadPercentage;
+        /// Install percentage if known.
+        Single InstallPercentage;
     };
 
     /// Result of the install
@@ -432,7 +450,7 @@ namespace Microsoft.Management.Deployment
     runtimeclass InstallResult
     {
         /// Used by a caller to correlate the install with a caller's data.
-        String CorrelationId{ get; };
+        String CorrelationData{ get; };
         /// Whether a restart is required to complete the install.
         Boolean RebootRequired { get; };
     }
@@ -506,8 +524,6 @@ namespace Microsoft.Management.Deployment
     runtimeclass PackageVersionInfo
     {
         /// IMPLEMENTATION NOTE: PackageVersionMetadata fields from AppInstallerRepositorySearch.h
-        /// DESIGN NOTE: These would be a good candidate to leave out in V1. Maybe just keep InstalledLocation
-        /// and InstalledScope?
         /// Gets any metadata associated with this package version.
         /// Primarily stores data on installed packages.
         /// Metadata fields may have no value (e.g. packages that aren't installed will not have an InstalledLocation).
@@ -515,8 +531,6 @@ namespace Microsoft.Management.Deployment
         /// IMPLEMENTATION NOTE: PackageVersionProperty fields from AppInstallerRepositorySearch.h
         String Id { get; };
         String Name { get; };
-        String AppCatalogIdentifier { get; };
-        String AppCatalogName { get; };
         String Version { get; };
         String Channel { get; };
         /// DESIGN NOTE: RelativePath from AppInstallerRepositorySearch.h is excluded as not needed.
@@ -531,7 +545,7 @@ namespace Microsoft.Management.Deployment
         AppCatalog AppCatalog { get; };
 
         /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has
+        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
         /// a lot of fields and no one requesting it.
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
@@ -555,11 +569,11 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass CatalogPackage
     {
-        /// IMPLEMENTATION NOTE: This would be new work as Windows Package Manager does not currently create a
+        /// IMPLEMENTATION NOTE: This would be new work as Windows Package Manager does not currently create a 
         /// CatalogPackage object from a manifest.
         /// DESIGN NOTE: This is proposed as the preferred alternative to having InstallOptions match the winget
-        /// command line which allows you to pass in a manifestPath directly into install. Allowing creation of
-        /// a CatalogPackage object from a manifest allows the install api to consistently use package objects
+        /// command line which allows you to pass in a manifestPath directly into install. Allowing creation of 
+        /// a CatalogPackage object from a manifest allows the install api to consistently use package objects 
         /// rather than having a "you can either set the manifest path or use a package but not both" problem.
         static CatalogPackage TryCreateFromManifest(String manifestPath);
 
@@ -676,7 +690,7 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<ResultMatch> Matches { get; };
 
         /// If true, the results were truncated by the given SearchRequest::MaximumResults.
-        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue
+        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
         /// getting more results.
         Boolean IsTruncated{ get; };
     }
@@ -687,14 +701,14 @@ namespace Microsoft.Management.Deployment
     {
         FindPackagesOptions();
 
-        /// DESIGN NOTE:
-        /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h
+        /// DESIGN NOTE: 
+        /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h 
         /// That class is a container for data used to filter the available manifests in an app catalog.
         /// Its properties can be thought of as:
         /// (Query || Inclusions...) && Filters...
         /// If Query and Inclusions are both empty, the starting data set will be the entire database.
         /// Everything && Filters...
-        /// That has been translated in this api so that
+        /// That has been translated in this api so that 
         /// Query is PackageMatchField::AppCatalogDefined and PackageMatchFilter.IsAdditive = true
         /// Inclusions are PackageMatchFilter.IsAdditive = true
         /// Filters are PackageMatchFilter.IsAdditive = false
@@ -707,7 +721,7 @@ namespace Microsoft.Management.Deployment
         UInt32 ResultLimit;
 
         /// Overrides the default search behavior for this search if the catalog is a composite catalog.
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports setting the search behavior when
+        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports setting the search behavior when 
         /// creating the source so this is new work but is expected to be very small.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
@@ -723,7 +737,7 @@ namespace Microsoft.Management.Deployment
         /// The details of the app catalog if it is not a composite.
         AppCatalogInfo Info { get; };
 
-        /// Opens a catalog. Required before searching. For remote catalogs (i.e. note Installed and Installing) this
+        /// Opens a catalog. Required before searching. For remote catalogs (i.e. note Installed and Installing) this 
         /// may require downloading information from a server.
         Windows.Foundation.IAsyncAction OpenAsync();
         /// Searches for Packages in the catalog.
@@ -735,26 +749,34 @@ namespace Microsoft.Management.Deployment
     enum PredefinedAppCatalog
     {
         OpenWindowsCatalog,
+    };
+    /// Local Catalogs with AppCatalogOrigin Predefined
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum LocalAppCatalog
+    {
         InstalledPackages,
-        /// IMPLEMENTATION NOTE:  Windows Package Manager does not currently have this concept.
-        /// This would be a new Orchestration feature to keep track of the installing CatalogPackage objects and allow
+        /// IMPLEMENTATION NOTE:  Windows Package Manager does not currently have this concept. 
+        /// This would be a new Orchestration feature to keep track of the installing CatalogPackage objects and allow 
         /// search of those objects.
-        InstallingPackages
+        InstallingPackages,
+        AllLocalPackages
     };
 
-    ///
+    /// 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass GetCompositeAppCatalogOptions
     {
-        GetCompositeAppCatalogOptions();
+        GetCompositeAppCatalogOptions(); 
 
         /// Get a composite catalog to allow searching a user defined or pre defined source
-        /// and a local source (Installing, Installed) together
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports
+        /// and a local source (Installing, Installed) together  
+        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports 
         /// one local source and one remote source per composite catalog.
-        /// DESIGN NOTE: It seems likely that in the future we will want to support
+        /// DESIGN NOTE: It seems likely that in the future we will want to support 
         /// letting callers use two local sources (i.e. both Installing and Installed)
-        IVector<AppCatalog> Catalogs;
+        IVector<AppCatalog> Catalogs { get; };
+        /// The local source(s)
+        LocalAppCatalog LocalAppCatalog;
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
@@ -771,7 +793,7 @@ namespace Microsoft.Management.Deployment
     {
         /// The default experience for the installer. Installer may show some UI.
         Default,
-        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent
+        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent 
         /// possible (installer may still show some required UI).
         Silent,
         /// Runs the installer in interactive mode.
@@ -785,38 +807,38 @@ namespace Microsoft.Management.Deployment
     {
         InstallOptions();
 
-        /// DESIGN NOTE: --Exact from the winget install command line is implied here by virtue of the find
+        /// DESIGN NOTE: --Exact from the winget install command line is implied here by virtue of the find 
         /// then install object semantics.
-        /// Likewise --Query from the command line is not implemented here since the query is required up
+        /// Likewise --Query from the command line is not implemented here since the query is required up 
         /// front in order to get the CatalogPackage object.
-        /// DESIGN NOTE: Using PackageVersionInfo rather than CatalogPackage felt like it would be too
+        /// DESIGN NOTE: Using PackageVersionInfo rather than CatalogPackage felt like it would be too 
         /// specific here. CatalogPackage and PackageVersionId (or if unspecified then the latest one) may be nicer
-        /// if we end up having versions that have different applicability or other more complex logic about
+        /// if we end up having versions that have different applicability or other more complex logic about 
         /// which version is preferred.
         CatalogPackage CatalogPackage;
-        /// Optionally specifies the version from the package to install. If unspecified the version matching
+        /// Optionally specifies the version from the package to install. If unspecified the version matching 
         /// CatalogPackage.GetLatestVersion() is used.
         PackageVersionId PackageVersionId;
 
         /// Specifies alternate location to install package (if supported).
         String PreferredInstallLocation;
-        /// User or Machine.
+        /// User or Machine. 
         AppInstallScope AppInstallScope;
         /// Silent, Interactive, or Default
         AppInstallMode AppInstallMode;
-        /// Directs the logging to a log file. Callers must provide a path to a file that the Windows Package
+        /// Directs the logging to a log file. Callers must provide a path to a file that the Windows Package 
         /// Manager package has write access to.
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
-        /// A string that will be passed to the installer.
+        /// A string that will be passed to the installer. 
         /// IMPLEMENTATION NOTE: maps to "--override" in the winget cmd line
         String ReplacementInstallerArguments;
 
         /// Used by a caller to correlate the install with a caller's data.
-        /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to
+        /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to 
         /// use JSON to encode multiple arguments.
-        String AdditionalTelemetryArguments;
+        String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalAppCatalogArguments;
     }
@@ -827,16 +849,18 @@ namespace Microsoft.Management.Deployment
         AppInstaller();
 
         /// Get the available catalogs. Each source will have a separate catalog. This list does not include KnownCatalogs.
-        /// This does not open the catalog. These catalogs can be used individually or merged with GetCompositeAppCatalogAsync.
-        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list
+        /// This does not open the catalog. These catalogs can be used individually or merged with GetCompositeAppCatalogAsync. 
+        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list 
         /// excluding the predefined sources.
         Windows.Foundation.Collections.IVectorView<AppCatalog> GetAppCatalogs();
         /// Get a built in catalog
         AppCatalog GetAppCatalog(PredefinedAppCatalog predefinedAppCatalog);
+        /// Get a built in catalog
+        AppCatalog GetAppCatalogByLocalAppCatalog(LocalAppCatalog localAppCatalog);
         /// Get a catalog by a known unique identifier
         AppCatalog GetAppCatalogById(String catalogId);
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
-        /// (Installing, Installed) together
+        /// (Installing, Installed) together  
         AppCatalog GetCompositeAppCatalog(GetCompositeAppCatalogOptions options);
 
         /// Install the specified package
@@ -844,7 +868,21 @@ namespace Microsoft.Management.Deployment
         /// Get install progress
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package);
     }
+
+    /// Force midl3 to generate vector marshalling info. 
+    /// I'm assuming there is a better way to do this, adding this here as a TODO to figure that out.
+    /// If there is somehow no better way then I would add these for every class.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    runtimeclass Vectors
+    {
+        Vectors();
+        Windows.Foundation.Collections.IVector<CatalogPackage> GetCatalogPackageVector();
+        Windows.Foundation.Collections.IVectorView<CatalogPackage> GetCatalogPackageVectorView();
+        Windows.Foundation.Collections.IVector<PackageVersionInfo> GetPackageVersionInfoVector();
+        Windows.Foundation.Collections.IVectorView<PackageVersionInfo> GetPackageVersionInfoVectorView();
+    }
 }
+
 
 ```
 
