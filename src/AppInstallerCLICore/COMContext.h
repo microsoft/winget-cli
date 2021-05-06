@@ -64,7 +64,7 @@ namespace AppInstaller
 
     private:
 
-        void SetLoggers(std::wstring telemetryCorelationJson, std::wstring comCaller);
+        void SetLoggers(std::string telemetryCorelationJson, std::string comCaller);
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         ProgressCallBackFunction m_comProgressCallback;

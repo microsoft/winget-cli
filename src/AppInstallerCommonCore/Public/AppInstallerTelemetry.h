@@ -31,19 +31,16 @@ namespace AppInstaller::Logging
         void EnableRuntime();
 
         // Return address of m_activityId
-        GUID* GetActivityId();
-
-        // Turns on wil failure telemetry and logging.
-        void EnableWilFailureTelemetry();
+        const GUID* GetActivityId() const;
 
         // Capture if UserSettings is enabled
         void SetUserSettingsStatus();
 
-        // Capture any passed in Telemetry Corelation Json
-        void SetTelemetryCorelationJson(std::wstring jsonStr);
-
         // Capture the name of the Caller for COM calls
-        void SetCOMCaller(std::wstring comCaller);
+        void SetCOMCaller(std::string comCaller);
+
+        // Capture any passed in Telemetry Corelation Json
+        void SetTelemetryCorelationJson(std::string jsonStr);
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -131,13 +128,16 @@ namespace AppInstaller::Logging
 
     protected:
 
+        // Check for valid Json string and return a valid Json
+        std::string GetTelemetryCorelationJson() const;
+
         bool IsTelemetryEnabled() const noexcept;
 
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
         GUID m_activityId = GUID_NULL;
-        std::wstring m_telemetryCorelationJson = L"";
-        std::wstring m_comCaller = L"";
+        std::string m_telemetryCorelationJson = "{}";
+        std::string m_comCaller = "";
     };
 
     // Helper to make the call sites look clean.
@@ -160,6 +160,9 @@ namespace AppInstaller::Logging
     private:
         DestructionToken m_token;
     };
+
+    // Turns on wil failure telemetry and logging.
+    void EnableWilFailureTelemetry();
 
     // Sets an execution stage to be reported when failures occur.
     void SetExecutionStage(uint32_t stage);

@@ -31,7 +31,7 @@ namespace AppInstaller::Logging
         // ILogger
         virtual std::string GetName() const override;
 
-        virtual void Write(std::string str) noexcept override;
+        virtual void Write(Channel channel, Level, std::string_view message) noexcept override;
 
         // Starts a background task to clean up old log files.
         static void BeginCleanup(const std::filesystem::path& filePath);

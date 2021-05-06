@@ -10,8 +10,6 @@
 #include <string_view>
 #include <vector>
 
-#include "AppInstallerTelemetry.h"
-
 #define AICLI_LOG(_channel_,_level_,_outstream_) \
     do { \
         auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
@@ -38,6 +36,7 @@ namespace AppInstaller::Logging
         YAML,
         Core,
         Test,
+        Log,
         All,
     };
 
@@ -66,16 +65,7 @@ namespace AppInstaller::Logging
         virtual std::string GetName() const = 0;
 
         // Informs the logger of the given log.
-        virtual void Write(std::string str) noexcept = 0;
-    };
-
-    struct TraceLogger
-    {
-        TraceLogger() = default;
-
-        ~TraceLogger() = default;
-
-        void LogMessage(std::string str) noexcept;
+        virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -130,14 +120,19 @@ namespace AppInstaller::Logging
 
     private:
 
-        TraceLogger traceLogger;
         std::vector<std::unique_ptr<ILogger>> m_loggers;
         uint64_t m_enabledChannels = 0;
         Level m_enabledLevel = Level::Info;
     };
 
+    // Helper to make the call sites look clean.
+    DiagnosticLogger& Log();
+
     // Adds the default file logger to the DiagnosticLogger.
     void AddFileLogger(const std::filesystem::path& filePath = {});
+
+    // Adds the trace logger to the DiagnosticLogger.
+    void AddTraceLogger();
 
     // Starts a background task to clean up old log files.
     void BeginLogFileCleanup();
@@ -175,40 +170,6 @@ namespace AppInstaller::Logging
     private:
         std::stringstream m_out;
     };
-
-    struct ThreadGlobals
-    {
-        ThreadGlobals() = default;
-        ~ThreadGlobals() = default;
-
-        DiagnosticLogger& GetDiagnosticLogger();
-        
-        TelemetryTraceLogger& GetTelemetryLogger();
-
-    private:
-
-        void InitDiagnosticLogger(void);
-
-        void InitTelemetryLogger(void);
-
-        std::unique_ptr<DiagnosticLogger> m_pDiagnosticLogger;
-        std::unique_ptr<TelemetryTraceLogger> m_pTelemetryLogger;
-        std::once_flag diagLoggerInitOnceFlag;
-        std::once_flag telLoggerInitOnceFlag;
-
-    };
-
-}
-
-extern thread_local AppInstaller::Logging::ThreadGlobals* t_pThreadGlobals;
-
-namespace AppInstaller::Logging
-{
-    // Helper to make the call sites look clean.
-    inline DiagnosticLogger& Log()
-    {
-        return t_pThreadGlobals->GetDiagnosticLogger();
-    }
 }
 
 // Enable output of system_clock time_points.

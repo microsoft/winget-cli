@@ -33,16 +33,23 @@ namespace AppInstaller
         m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
     }
 
-    void COMContext::SetLoggers(std::wstring telemetryCorelationJson, std::wstring comCaller)
+    void COMContext::SetLoggers(std::string telemetryCorelationJson, std::string comCaller)
     {
-        Logging::Log().SetLevel(Logging::Level::Verbose);
+        SetThreadGlobalsActive();
 
-        Logging::Telemetry().EnableWilFailureTelemetry();
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::AddTraceLogger();
+
+#ifdef _DEBUG
+        // Log to file for COM API calls only when debugging in visual studio
+        Logging::AddFileLogger();
+        Logging::BeginLogFileCleanup();
+#endif
+
+        Logging::EnableWilFailureTelemetry();
         Logging::Telemetry().SetTelemetryCorelationJson(telemetryCorelationJson);
         Logging::Telemetry().SetCOMCaller(comCaller);
-
         Logging::Telemetry().SetUserSettingsStatus();
-        
         Logging::Telemetry().LogStartup(true);
     }
 }

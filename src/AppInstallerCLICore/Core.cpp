@@ -49,11 +49,16 @@ namespace AppInstaller::CLI
         Execution::Context context{ std::cout, std::cin };
         context.EnableCtrlHandler();
 
+        context.SetThreadGlobalsActive();
+
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
+
         Logging::AddFileLogger();
-        Logging::Telemetry().EnableWilFailureTelemetry();
+        Logging::AddTraceLogger();
+        Logging::EnableWilFailureTelemetry();
+
         Logging::Telemetry().SetUserSettingsStatus();
 
         // Set output to UTF8
@@ -113,7 +118,7 @@ namespace AppInstaller::CLI
         catch (const CommandException& ce)
         {
             command->OutputHelp(context.Reporter, &ce);
-            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message().get());
+            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 

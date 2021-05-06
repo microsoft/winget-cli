@@ -120,7 +120,7 @@ int main(int argc, char** argv)
         Logging::Log().DisableChannel(Logging::Channel::SQL);
     }
     Logging::Log().SetLevel(Logging::Level::Verbose);
-    Logging::Telemetry().EnableWilFailureTelemetry();
+    Logging::EnableWilFailureTelemetry();
     AppInstaller::Logging::Telemetry().SetUserSettingsStatus();
 
     // Force all tests to run against settings inside this container.

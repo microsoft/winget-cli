@@ -159,6 +159,12 @@
     <ClInclude Include="Public\winget\JsonSchemaValidation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerTraceLogger.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\ThreadGlobals.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -267,6 +273,12 @@
       <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="JsonSchemaValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Public\TraceLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

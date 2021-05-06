@@ -14,7 +14,6 @@ TRACELOGGING_DEFINE_PROVIDER(
 bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
-GUID g_TelemetryProviderActivityId{};
 std::once_flag g_registerTraceProvideOnlyOnce{};
 
 void WINAPI TelemetryProviderEnabledCallback(
@@ -37,26 +36,7 @@ void RegisterTraceLogging()
     {
         std::call_once(g_registerTraceProvideOnlyOnce, []()
         {
-            HRESULT hr = S_OK;
-
             TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
-
-            // Generate the ActivityId used to track the session
-            // This is never used. Should this be removed ? Or can be this purposed for anything good ?
-            hr = CoCreateGuid(&g_TelemetryProviderActivityId);
-            if (FAILED(hr))
-            {
-                TraceLoggingWriteActivity(
-                    g_hTraceProvider,
-                    "CreateGuidError",
-                    nullptr,
-                    nullptr,
-                    TraceLoggingHResult(hr),
-                    TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                    TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-
-                g_TelemetryProviderActivityId = GUID_NULL;
-            };
         });
     }
     catch (...)

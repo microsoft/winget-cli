@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerLogging.h>
+#include <ThreadGlobals.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
@@ -51,10 +51,7 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context : EnumBasedVariantMap<Data, details::DataMapping>
     {
-        Context(std::ostream& out, std::istream& in) : Reporter(out, in) 
-        {
-            t_pThreadGlobals = &m_threadGlobals;
-        }
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
         // Clone the reporter for this constructor.
         Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
@@ -106,7 +103,7 @@ namespace AppInstaller::CLI::Execution
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
         
-        void SetThreadLocalThreadGlobals();
+        void SetThreadGlobalsActive();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
@@ -120,6 +117,6 @@ namespace AppInstaller::CLI::Execution
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
-        AppInstaller::Logging::ThreadGlobals m_threadGlobals;
+        AppInstaller::ThreadLocalStorage::ThreadGlobals m_threadGlobals;
     };
 }
