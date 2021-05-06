@@ -134,7 +134,7 @@ namespace AppInstaller::Utility
         DownloadType,
         IProgressCallback& progress,
         bool computeHash,
-        std::string_view)
+        std::optional<DownloadInfo>)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
         return WinINetDownloadToStream(url, dest, progress, computeHash);
@@ -146,7 +146,7 @@ namespace AppInstaller::Utility
         DownloadType type,
         IProgressCallback& progress,
         bool computeHash,
-        std::string_view downloadIdentifier)
+        std::optional<DownloadInfo> info)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
@@ -172,7 +172,7 @@ namespace AppInstaller::Utility
 
             if (setting == InstallerDownloader::DeliveryOptimization)
             {
-                return DODownload(url, dest, progress, computeHash, downloadIdentifier);
+                return DODownload(url, dest, progress, computeHash, info);
 
                 // While DO still requires an explicit opt-in, we will let failures through.
                 // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.

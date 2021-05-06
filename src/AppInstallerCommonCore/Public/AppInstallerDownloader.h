@@ -24,6 +24,13 @@ namespace AppInstaller::Utility
         Installer,
     };
 
+    // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).
+    struct DownloadInfo
+    {
+        std::string DisplayName;
+        std::string ContentId;
+    };
+
     // Downloads a file from the given URL and places it in the given location.
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The stream to be downloaded to.
@@ -35,7 +42,7 @@ namespace AppInstaller::Utility
         DownloadType type,
         IProgressCallback& progress,
         bool computeHash = false,
-        std::string_view downloadIdentifier = {});
+        std::optional<DownloadInfo> info = {});
 
     // Downloads a file from the given URL and places it in the given location.
     //   url: The url to be downloaded from. http->https redirection is allowed.
@@ -48,7 +55,7 @@ namespace AppInstaller::Utility
         DownloadType type,
         IProgressCallback& progress,
         bool computeHash = false,
-        std::string_view downloadIdentifier = {});
+        std::optional<DownloadInfo> info = {});
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);

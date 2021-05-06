@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerDownloader.h>
 #include <AppInstallerProgress.h>
 
 #include <optional>
@@ -19,5 +20,5 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         IProgressCallback& progress,
         bool computeHash,
-        std::string_view downloadIdentifier);
+        std::optional<DownloadInfo> info);
 }
