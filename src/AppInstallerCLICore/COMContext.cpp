@@ -49,7 +49,6 @@ namespace AppInstaller
         Logging::EnableWilFailureTelemetry();
         Logging::Telemetry().SetTelemetryCorelationJson(telemetryCorelationJson);
         Logging::Telemetry().SetCOMCaller(comCaller);
-        Logging::Telemetry().SetUserSettingsStatus();
         Logging::Telemetry().LogStartup(true);
     }
 }

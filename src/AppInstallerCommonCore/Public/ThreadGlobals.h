@@ -17,12 +17,15 @@ namespace AppInstaller::ThreadLocalStorage
 
         TelemetryTraceLogger& GetTelemetryLogger();
 
+        // Set Globals for Current Thread
         void SetForCurrentThread();
 
+        // Return Globals for Current Thread
         static ThreadGlobals* GetForCurrentThread();
 
     private:
 
+        // Set and return Globals for Current Thread
         static ThreadGlobals* ActivateThreadGlobals(ThreadGlobals* pThreadGlobals = nullptr);
 
         std::unique_ptr<DiagnosticLogger> m_pDiagnosticLogger;

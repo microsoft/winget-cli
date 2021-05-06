@@ -103,6 +103,7 @@ namespace AppInstaller::CLI::Execution
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
         
+        // Set Globals for Current Thread
         void SetThreadGlobalsActive();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

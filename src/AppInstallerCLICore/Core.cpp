@@ -59,8 +59,6 @@ namespace AppInstaller::CLI
         Logging::AddTraceLogger();
         Logging::EnableWilFailureTelemetry();
 
-        Logging::Telemetry().SetUserSettingsStatus();
-
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 

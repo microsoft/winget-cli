@@ -9,14 +9,16 @@
 
 namespace AppInstaller::Logging
 {
+    // Log ETW events for tracing.
+    // Doesn't save events to a file on disk.
     struct TraceLogger : ILogger
     {
         TraceLogger() = default;
 
         ~TraceLogger() = default;
 
+        // ILogger
         virtual std::string GetName() const override;
-
         virtual void Write(Channel channel, Level, std::string_view message) noexcept override;
     };
 }

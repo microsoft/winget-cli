@@ -57,6 +57,7 @@ namespace AppInstaller
         //Execution::Context
         void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase, bool);
 
+        // Set Progress Callback function
         void SetProgressCallbackFunction(ProgressCallBackFunction&& f)
         {
             m_comProgressCallback = std::move(f);
@@ -64,6 +65,7 @@ namespace AppInstaller
 
     private:
 
+        // Set diagnostic and telemetry loggers
         void SetLoggers(std::string telemetryCorelationJson, std::string comCaller);
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;

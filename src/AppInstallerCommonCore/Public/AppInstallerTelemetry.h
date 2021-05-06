@@ -39,7 +39,7 @@ namespace AppInstaller::Logging
         // Capture the name of the Caller for COM calls
         void SetCOMCaller(std::string comCaller);
 
-        // Capture any passed in Telemetry Corelation Json
+        // Capture any passed in Telemetry Corelation Json for COM calls
         void SetTelemetryCorelationJson(std::string jsonStr);
 
         // Logs the failure info.
