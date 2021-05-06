@@ -4,6 +4,8 @@
 #include "pch.h"
 #include "Resources.h"
 
+using namespace AppInstaller::Utility::literals;
+
 
 namespace AppInstaller::CLI::Resource
 {
@@ -24,5 +26,15 @@ namespace AppInstaller::CLI::Resource
         std::wstring_view resKey) const
     {
         return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
+    }
+
+    Utility::LocIndView GetFixedString(FixedString fs)
+    {
+        switch (fs)
+        {
+        case FixedString::ProductName: return "Windows Package Manager"_liv;
+        }
+
+        THROW_HR(E_UNEXPECTED);
     }
 }

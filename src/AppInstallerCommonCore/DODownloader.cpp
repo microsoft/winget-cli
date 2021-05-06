@@ -340,7 +340,7 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         IProgressCallback& progress,
         bool computeHash,
-        std::string_view downloadIdentifier)
+        std::optional<DownloadInfo> info)
     {
         AICLI_LOG(Core, Info, << "DeliveryOptimization downloading from url: " << url);
 
@@ -354,10 +354,22 @@ namespace AppInstaller::Utility
         THROW_IF_FAILED(DeliveryOptimization::DODownloadStatusCallback::Create(progress, &callback));
 
         download.Uri(url);
-        download.ContentId(downloadIdentifier);
         download.ForegroundPriority(true);
         download.LocalPath(dest);
         download.CallbackInterface(callback.get());
+
+        if (info)
+        {
+            if (!info->DisplayName.empty())
+            {
+                download.DisplayName(info->DisplayName);
+            }
+
+            if (!info->ContentId.empty())
+            {
+                download.ContentId(info->ContentId);
+            }
+        }
 
         download.Start();
 

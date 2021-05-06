@@ -287,9 +287,22 @@ namespace AppInstaller::CLI::Resource
 
         Loader();
     };
+
+    // Fixed strings are not localized, but we use a similar system to prevent duplication
+    enum class FixedString
+    {
+        ProductName,
+    };
+
+    Utility::LocIndView GetFixedString(FixedString fs);
 }
 
 inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::StringId si)
 {
     return (out << AppInstaller::CLI::Resource::LocString{ si });
+}
+
+inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::FixedString fs)
+{
+    return (out << GetFixedString(fs));
 }
