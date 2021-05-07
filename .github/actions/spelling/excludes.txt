@@ -2,6 +2,7 @@
 (?:^|/)(?i)LICENSE
 /shared\.manifest$
 \.cer$
+\.gif$
 \.msix$
 \.png$
 \.vcxitems$
