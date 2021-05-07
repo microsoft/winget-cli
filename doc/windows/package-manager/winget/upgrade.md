@@ -42,10 +42,10 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **-v, --version**  |  Enables you to specify an exact version to upgrade. If not specified, latest will upgrade the highest versioned application. |  
 | **-s, --source**   |  Restricts the search to the source name provided. Must be followed by the source name. |  
 | **-e, --exact**   |   Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
-| **-i, --interactive** |  Runs the upgradeer in interactive mode. The default experience shows upgradeer progress. |  
-| **-h, --silent** |  Runs the upgradeer in silent mode. This suppresses all UI. The default experience shows upgradeer progress. |  
+| **-i, --interactive** |  Runs the installer in interactive mode. The default experience shows installer progress. |  
+| **-h, --silent** |  Runs the installer in silent mode. This suppresses all UI. The default experience shows installer progress. |  
 | **-o, --log**  |  Directs the logging to a log file. You must provide a path to a file that you have the write rights to. |
-| **--override** | A string that will be passed directly to the upgradeer.    |
+| **--override** | A string that will be passed directly to the installer.    |
 | **-l, --location** |    Location to upgrade to (if supported). |
 | **--force** | When a hash mismatch is discovered will ignore the error and attempt to install the package.    |
 | **--all** | Updates all available packages to the latest application. |

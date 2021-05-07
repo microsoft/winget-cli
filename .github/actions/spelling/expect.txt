@@ -25,6 +25,7 @@ AUrl
 Aysnc
 azurewebsites
 Baz
+bcp
 Beigi
 bfd
 bght
@@ -205,6 +206,7 @@ pvm
 pwabuilder
 PWAs
 PWSTR
+px
 pz
 qb
 qword
