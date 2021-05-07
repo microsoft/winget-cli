@@ -54,13 +54,19 @@ The current preview of the **winget** tool supports the following commands.
 
 | Command | Description |
 |---------|-------------|
-| [hash](hash.md) | Generates the SHA256 hash for the installer. |
-| [help](help.md) | Displays help for the **winget** tool commands. |
 | [install](install.md) | Installs the specified application. |
-| [search](search.md) | Searches for an application. |
 | [show](show.md) | Displays details for the specified application. |
 | [source](source.md) | Adds, removes, and updates the Windows Package Manager repositories accessed by the **winget** tool. |
-| [validate](validate.md) | Validates a manifest file for submission to the Windows Package Manager repository. |
+| [search](search.md) | Searches for an application. |
+| [list](list.md) | Display installed packages. |
+| [upgrade](upgrade.md) |  Upgrades the given package. |
+| [uninstall](uninstall.md) | Uninstalls the given package. |
+| [hash](hash.md) | Generates the SHA256 hash for the installer. |
+| [validate](validate.md) | Validates a manifest file for submission to the Windows Package Manager repository. | 
+| [settings](settings.md) | Open settings. |
+| [features](features.md) | Shows the status of experimental features. |
+| [export](export.md) | Exports a list of the installed packages. |
+| [import](import.md) | Installs all the packages in a file. |
 
 ### Options
 
