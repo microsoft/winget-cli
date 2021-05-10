@@ -70,6 +70,7 @@ ctc
 Ctx
 curated
 CYRL
+Debian
 deigh
 deleteifnotneeded
 dirs
@@ -134,8 +135,10 @@ itr
 IVector
 IWeb
 IZone
+JDKs
 JObject
 jp
+JREs
 jrsoftware
 jsoncpp
 kayone
@@ -148,6 +151,7 @@ LATN
 ldcase
 learnxinyminutes
 lhs
+libsolv
 libyaml
 Linq
 liv
@@ -252,6 +256,7 @@ subdir
 subkey
 superstring
 suppy
+SUSE
 swervy
 sysrefcomp
 Tagit
