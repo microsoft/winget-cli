@@ -11,7 +11,7 @@ issue id: 163
 
 ## Abstract
 
-Several packages require other packages as dependencies. The Windows Package Manager should be able to support declared dependencies. In the best case scenario the Windows Package Manager should be able to install any necessary dependies a package needs. In the worst case scenario the Windows Package manger should be able to inform a user about any required dependencies not able to be installed automatically.
+Several packages require other packages as dependencies. The Windows Package Manager should be able to support declared dependencies. In the best case scenario the Windows Package Manager should be able to install any necessary dependencies a package needs. In the worst case scenario the Windows Package manger should be able to inform a user about any required dependencies not able to be installed automatically.
 
 ## Inspiration
 
@@ -42,7 +42,9 @@ Do you have these dependencies installed [y/n]?
 ```
 If the user chooses "yes", the installation will proceed.
 
-Note: This is essentially the complete implementation for External Dependencies. It is not required at this stage to deal with nested dependencies.
+Note: This is essentially the complete implementation for External Dependencies. It is not required at this stage to deal with nested dependencies. 
+
+In addition, the consumes and provides concept is not in scope with this implementation. 
 
 ### Windows Features
 These include items like .NET Frameworks, Internet Information Services, and Windows Subsystem for Linux. In some cases, turning these features on may require a reboot.
@@ -74,11 +76,11 @@ MSI and .exe installers may include dependencies.
 
 ### Accessibility
 
-The Windows Package Manager has been built in such a way that screen readers will still provide audible output as the command is executed keepin the user informed of progress, warnings, and errors. This should have no direct impact on accessibility.
+The Windows Package Manager has been built in such a way that screen readers will still provide audible output as the command is executed keeping the user informed of progress, warnings, and errors. This should have no direct impact on accessibility.
 
 ### Security
 
-There should be no security impact directly, although we must remember that different sources may not gurantee the safety of packages. The Windows Package Manager community repository performs static and dynamic analysis, and in some cases additional manual validation before accepting a package.
+There should be no security impact directly, although we must remember that different sources may not guarantee the safety of packages. The Windows Package Manager community repository performs static and dynamic analysis, and in some cases additional manual validation before accepting a package.
 
 ### Reliability
 
@@ -94,7 +96,7 @@ The time needed to download and install a package and it's dependencies is direc
 
 ## Potential Issues
 
-Not all dependencies are identified using [semantic versioning](https://semver.org/). This may cause complications for packages depending on a range of versions. It is possible a breaking change is introduced in a newer version of a dependency the Windows Package Manager cannot heuristicly reason about.
+Not all dependencies are identified using [semantic versioning](https://semver.org/). This may cause complications for packages depending on a range of versions. It is possible a breaking change is introduced in a newer version of a dependency the Windows Package Manager cannot heuristically reason about.
 
 Some systems have limited storage, and may not have suitable space to install a package and all of it's dependencies.
 
