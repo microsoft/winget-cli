@@ -94,12 +94,6 @@ namespace AppInstaller::CLI::Workflow
                 installerArgs += experienceArgsItr->second;
             }
 
-            // Construct language arg if necessary.
-            if (context.Args.Contains(Execution::Args::Type::Language) && installerSwitches.find(InstallerSwitchType::Language) != installerSwitches.end())
-            {
-                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Language);
-            }
-
             // Construct log path arg.
             if (installerSwitches.find(InstallerSwitchType::Log) != installerSwitches.end())
             {

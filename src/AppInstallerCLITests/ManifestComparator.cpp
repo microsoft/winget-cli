@@ -17,13 +17,14 @@ using namespace AppInstaller::Utility;
 
 using Manifest = ::AppInstaller::Manifest::Manifest;
 
-const ManifestInstaller& AddInstaller(Manifest& manifest, Architecture architecture, InstallerTypeEnum installerType, ScopeEnum scope = ScopeEnum::Unknown, std::string minOSVersion = {})
+const ManifestInstaller& AddInstaller(Manifest& manifest, Architecture architecture, InstallerTypeEnum installerType, ScopeEnum scope = ScopeEnum::Unknown, std::string minOSVersion = {}, std::string locale = {})
 {
     ManifestInstaller toAdd;
     toAdd.Arch = architecture;
     toAdd.InstallerType = installerType;
     toAdd.Scope = scope;
     toAdd.MinOSVersion = minOSVersion;
+    toAdd.Locale = locale;
 
     manifest.Installers.emplace_back(std::move(toAdd));
 
@@ -37,6 +38,7 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
     REQUIRE(actual->InstallerType == expected.InstallerType);
     REQUIRE(actual->Scope == expected.Scope);
     REQUIRE(actual->MinOSVersion == expected.MinOSVersion);
+    REQUIRE(actual->Locale == expected.Locale);
 }
 
 TEST_CASE("ManifestComparator_OSFilter_Low", "[manifest_comparator]")
@@ -273,5 +275,132 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
         auto result = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, machine);
+    }
+}
+
+TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+    ManifestInstaller enGB = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "en-GB");
+
+    SECTION("Nothing Installed en-US preference")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
+
+        ManifestComparator mc({}, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        // Only because it is first
+        RequireInstaller(result, enGB);
+    }
+    SECTION("en-US Installed")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
+
+        ManifestComparator mc({}, metadata);
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, enGB);
+    }
+    SECTION("zh-CN Installed")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "zh-CN";
+
+        ManifestComparator mc({}, metadata);
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, unknown);
+    }
+}
+
+TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller frFR = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "fr-FR");
+    ManifestInstaller enGB = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "en-GB");
+
+    SECTION("Nothing Installed en-US preference")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
+
+        ManifestComparator mc({}, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        // Only because it is first
+        RequireInstaller(result, enGB);
+    }
+    SECTION("en-US Installed")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
+
+        ManifestComparator mc({}, metadata);
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, enGB);
+    }
+    SECTION("zh-CN Installed")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "zh-CN";
+
+        ManifestComparator mc({}, metadata);
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+    }
+}
+
+TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+    ManifestInstaller frFR = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "fr-FR");
+    ManifestInstaller enGB = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "en-GB");
+
+    SECTION("en-GB Required")
+    {
+        Args args;
+        args.AddArg(Args::Type::Locale, "en-GB"s);
+
+        ManifestComparator mc(args, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, enGB);
+    }
+    SECTION("zh-CN Required")
+    {
+        Args args;
+        args.AddArg(Args::Type::Locale, "zh-CN"s);
+
+        ManifestComparator mc(args, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+    }
+    SECTION("en-US Preference")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallLocalePreference>({ "en-US" });
+
+        ManifestComparator mc({}, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, enGB);
+    }
+    SECTION("zh-CN Preference")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallLocalePreference>({ "zh-CN" });
+
+        ManifestComparator mc({}, {});
+        auto result = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, unknown);
     }
 }

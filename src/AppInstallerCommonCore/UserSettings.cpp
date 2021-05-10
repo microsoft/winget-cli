@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <AppInstallerRuntime.h>
+#include "AppInstallerRuntime.h"
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerLogging.h"
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+#include "winget/Locale.h"
 
 namespace AppInstaller::Settings
 {
@@ -39,6 +40,31 @@ namespace AppInstaller::Settings
             {
                 convertedValue = value;
             }
+
+            return convertedValue;
+        }
+
+        template<>
+        inline std::string GetValueString(std::vector<std::string> value)
+        {
+            std::string convertedValue = "[";
+
+            bool first = true;
+            for (auto const& entry : value)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    convertedValue += ", ";
+                }
+
+                convertedValue += entry;
+            }
+
+            convertedValue += ']';
 
             return convertedValue;
         }
@@ -226,6 +252,24 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallScopeRequirement)
         {
             return SettingMapping<Setting::InstallScopePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocalePreference)
+        {
+            for (auto const& entry : value)
+            {
+                if (!Locale::IsWellFormedBcp47Tag(entry))
+                {
+                    return {};
+                }
+            }
+
+            return value;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
+        {
+            return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(NetworkDownloader)

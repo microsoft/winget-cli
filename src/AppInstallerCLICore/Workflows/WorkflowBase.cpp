@@ -528,7 +528,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest->Version);
-        manifest->ApplyLocale();
+
+        std::string targetLocale;
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+        }
+        manifest->ApplyLocale(targetLocale);
+
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
     }
@@ -576,7 +583,14 @@ namespace AppInstaller::CLI::Workflow
         {
             Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
-            manifest.ApplyLocale();
+
+            std::string targetLocale;
+            if (context.Args.Contains(Execution::Args::Type::Locale))
+            {
+                targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+            }
+            manifest.ApplyLocale(targetLocale);
+
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }

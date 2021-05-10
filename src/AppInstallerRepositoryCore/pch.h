@@ -27,6 +27,7 @@
 #include <AppInstallerVersions.h>
 #include <winget/ExtensionCatalog.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Locale.h>
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
 #include <winget/Yaml.h>

@@ -245,6 +245,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
+        { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
     };
 
     for (auto const& testCase : TestCases)
@@ -572,4 +573,27 @@ TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest };
         REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest is incomplete"));
     }
+}
+
+TEST_CASE("ManifestApplyLocale", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
+
+    // No better alternative locale, default is used.
+    manifest.ApplyLocale("zh-CN");
+    REQUIRE(manifest.CurrentLocalization.Locale == "es-MX");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "es-MX package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "es-MX publisher");
+
+    // en-US results in en-GB, which is better than default.
+    manifest.ApplyLocale("en-US");
+    REQUIRE(manifest.CurrentLocalization.Locale == "en-GB");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "en-GB package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "en-GB publisher");
+
+    // fr-FR results in fr-FR, but only package name is localized.
+    manifest.ApplyLocale("fr-FR");
+    REQUIRE(manifest.CurrentLocalization.Locale == "fr-FR");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "fr-FR package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "es-MX publisher");
 }

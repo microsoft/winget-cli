@@ -1,6 +1,6 @@
 # WinGet CLI Settings
 
-You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor, if no editor is configured, notepad.exe is used.
+You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is sensible option if you have no other preference.
 
 ## File Location
 
@@ -63,6 +63,18 @@ The `scope` behavior affects the choice between installing a package for the cur
     "installBehavior": {
         "preferences": {
             "scope": "user"
+        }
+    },
+```
+
+### Locale
+
+The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses bcp47 language tag.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "locale": [ "en-US", "fr-FR" ]
         }
     },
 ```

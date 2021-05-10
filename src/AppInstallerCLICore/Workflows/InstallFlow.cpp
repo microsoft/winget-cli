@@ -105,8 +105,10 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        Utility::DownloadInfo downloadInfo{};
+        downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
         // Use the SHA256 hash of the installer as the identifier for the download
-        std::string hashString = SHA256::ConvertToString(installer.Sha256);
+        downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
@@ -126,7 +128,7 @@ namespace AppInstaller::CLI::Workflow
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
                     true,
-                    hashString));
+                    downloadInfo));
 
                 success = true;
             }
@@ -644,7 +646,7 @@ namespace AppInstaller::CLI::Workflow
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
             );
         }
     }
