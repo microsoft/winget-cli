@@ -36,122 +36,150 @@ A package manifest must include a set of required items, and can also include fu
 
 Each field in the manifest file must be Pascal-cased and cannot be duplicated.
 
-For a complete list and descriptions of items in a manifest, see the [manifest specification](https://github.com/microsoft/winget-cli/blob/master/doc/ManifestSpecv0.1.md) in the [https://github.com/microsoft/winget-cli](https://github.com/microsoft/winget-cli) repository.
+For a complete list and descriptions of items in a manifest, see the [manifest specification](https://github.com/microsoft/winget-cli/blob/master/doc/ManifestSpecv1.0.md) in the [https://github.com/microsoft/winget-cli](https://github.com/microsoft/winget-cli) repository.
 
 ### Minimal required schema
 
 #### [Minimal required schema](#tab/minschema/)
 
+As specified in the [singleton JSON schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.singleton.1.0.0.json),
+only a number of fields are required.  The minimal supported YAML file would look like the example below. The singleton format is only valid for packages containing
+a single installer and a single locale. If more than one installer or locale is provided, the multiple YAML file format and schema must be used.
+
+The partitioning scheme was added to help with GitHub's UX. Folders with thousands of children do not render well in the browser.
+
+
 ```yaml
-Id: string # Publisher.package format.
-Publisher: string # The name of the publisher.
-Name: string # The name of the application.
-Version: string # Version numbering format.
-License: string # The open source license or copyright.
-InstallerType: string # Enumeration of supported installer types (exe, msi, msix, inno, wix, nullsoft, appx).
-Installers:
-  - Arch: string # Enumeration of supported architectures.
-    Url: string # Path to download installation file.
-    Sha256: string # SHA256 calculated from installer.
-ManifestVersion: 0.1.0
+PackageIdentifier:  # Publisher.package format.
+PackageVersion:     # Version numbering format.
+PackageLocale:      # BCP 47 format (e.g. en-US)
+Publisher:          # The name of the publisher.
+PackageName:        # The name of the application.
+License:            # The license of the application.
+ShortDescription:   # The description of the application.
+Installers: 
+ - Architecture:    # Enumeration of supported architectures.
+   InstallerType:   # Enumeration of supported installer types (exe, msi, msix, inno, wix, nullsoft, appx).
+   InstallerUrl:    # Path to download installation file.
+   InstallerSha256: # SHA256 calculated from installer.
+ManifestType:       # The manifest file type
+ManifestVersion: 1.0.0
 ```
 
 #### [Example](#tab/minexample/)
 
-```yaml
-Id: microsoft.teams
-Publisher: Microsoft Corporation
-Name: Microsoft Teams
-Version: 1.3.0.4461
-License: Copyright (c) Microsoft Corporation. All rights reserved.
-InstallerType: exe
-Installers:
-  - Arch: x64
-    Url: https://statics.teams.cdn.office.net/production-windows-x64/1.3.00.4461/Teams_windows_x64.exe
-    Sha256: 712f139d71e56bfb306e4a7b739b0e1109abb662dfa164192a5cfd6adb24a4e1
-ManifestVersion: 0.1.0
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / WindowsTerminal.yaml
+
+```YAML
+PackageIdentifier: Microsoft.WindowsTerminal
+PackageVersion: 1.6.10571.0
+PackageLocale: en-US
+Publisher: Microsoft
+PackageName: Windows Terminal
+License: MIT
+ShortDescription: The new Windows Terminal, a tabbed command line experience for Windows.
+Installers: 
+ - Architecture: x64
+   InstallerType: msix
+   InstallerUrl: https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle
+   InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
+   SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
+ManifestType: singleton
+ManifestVersion: 1.0.0
 ```
 
-* * *
+#### Multiple File Example
+In order to provide the best user experience, manifests should contain as much meta-data as possible. In order to separate concerns for validating installers
+and providing localized meta-data manifests will be split into multiple files. The minimum number of YAML files for this kind of manifest is three. Additional
+locales should also be provided. 
+* A [version](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.version.1.0.0.json) file
+* The [default locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.defaultLocale.1.0.0.json) file
+* An [installer](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.installer.1.0.0.json) file
+* Additional [locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.locale.1.0.0.json) files
 
-### Complete schema
+The example below shows many optional meta-data fields and multiple locales. Note the default locale has more requirements than additional locales. In the show
+command, any required fields that aren't provided for additional locales will display fields from the default locale.
 
-#### [Complete schema](#tab/compschema/)
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.yaml
 
-```yaml
-Id: string # Publisher.package format.
-Publisher: string # The name of the publisher.
-Name: string # The name of the application.
-AppMoniker: string # The common name someone may use to search for the package.
-Version: string # Version numbering format for package version.
-Channel: string # A string representing the flight ring.
-License: string # The open source license or copyright.
-LicenseUrl: string # Valid secure URL to license.
-MinOSVersion: string # Version numbering format for minimum version of Windows supported.
-Description: string # Description of the package.
-Homepage: string # Valid secure URL for the package.
-Tags: list # Additional strings a user would use to search for the package.
-FileExtensions: list # List of file extensions the package could support.
-Protocols: list # List of protocols the package provides a handler for.
-Commands: list # List of commands or aliases the user would use to run the package.
-InstallerType: string # Enumeration of supported installer types (exe, msi, msix, inno, wix, nullsoft, appx).
-Switches: # These can be used to change the install behavior if supported by the InstallerType.
-  Custom: string # Custom switches passed to the installer.
-  Silent: string # Switches passed to the installer for silent installation.
-  SilentWithProgress: string # Switches passed to the installer for non-interactive install.
-  Interactive: string # Experimental.
-  Language: string # Experimental.
-  Log: string # Specifies log redirection switches and path.
-  InstallLocation: string # Specifies alternate location to install package.
-Installers: # Nested map of keys for specific installer.
-  - Arch: string # Enumeration of supported architectures.
-    Url: string # Path to download installation file.
-    Sha256: string # SHA256 calculated from installer.
-    SignatureSha256: string # SHA256 calculated from signature file's hash of MSIX file.
-    Switches: # Collection of entries to override root keys. The primary supported values are: Custom, Silent, SilentWithProgress, Interactive. For a complete list see the specification at https://github.com/microsoft/winget-cli/blob/master/doc/ManifestSpecv0.1.md.
-    Scope: string # Experimental.
-    SystemAppId: string # Experimental.
-Localization: # Nested map of keys for localization.
-  - Language: string # Locale for display fields and localized URLs.
-ManifestVersion: string # Version number format for manifest version.
+```YAML
+PackageIdentifier: "Microsoft.WindowsTerminal"
+PackageVersion: "1.6.10571.0"
+DefaultLocale: "en-US"
+ManifestType: "version"
+ManifestVersion: "1.0.0"
 ```
 
-#### [Good example](#tab/good/)
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.locale.en-US.yaml
 
-```yaml
-Id: microsoft.teams
-Publisher: Microsoft Corporation
-Name: Microsoft Teams
-Version: 1.3.0.4461
-License: Copyright (c) Microsoft Corporation. All rights reserved.
-LicenseUrl: https://docs.microsoft.com/en-us/MicrosoftTeams/assign-teams-licenses
-InstallerType: exe
-Installers:
-  - Arch: x64
-    Url: https://statics.teams.cdn.office.net/production-windows-x64/1.3.00.4461/Teams_windows_x64.exe
-    Sha256: 712f139d71e56bfb306e4a7b739b0e1109abb662dfa164192a5cfd6adb24a4e1
-ManifestVersion: 0.1.0
+```YAML
+PackageIdentifier: "Microsoft.WindowsTerminal"
+PackageVersion: "1.6.10571.0"
+PackageLocale: "en-US"
+Publisher: "Microsoft"
+PublisherURL: "https://www.microsoft.com/"
+PrivacyURL: "https://privacy.microsoft.com/"
+PackageName: "Windows Terminal"
+PackageURL: "https://docs.microsoft.com/windows/terminal/"
+License: "MIT"
+LicenseURL: "https://github.com/microsoft/terminal/blob/master/LICENSE"
+ShortDescription: "The new Windows Terminal, a tabbed command line experience for Windows."
+Tags: 
+- "Console"
+- "Command-Line"
+- "Shell"
+- "Command-Prompt"
+- "PowerShell"
+- "WSL"
+- "Developer-Tools"
+- "Utilities"
+- "cli"
+- "cmd"
+- "ps"
+- "terminal"
+ManifestType: "defaultLocale"
+ManifestVersion: "1.0.0"
 ```
 
-#### [Better example](#tab/better/)
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.locale.fr-FR.yaml
 
-```yaml
-Id: microsoft.teams
-Publisher: Microsoft Corporation
-Name: Microsoft Teams
-Version: 1.3.0.4461
-AppMoniker: teams
-MinOSVersion: 10.0.0.0
-Description: The hub for teamwork in Microsoft 365
-Homepage: https://www.microsoft.com/microsoft/teams
-License: Copyright (c) Microsoft Corporation. All rights reserved.
-LicenseUrl: https://docs.microsoft.com/en-us/MicrosoftTeams/assign-teams-licenses
-InstallerType: exe
-Installers:
-  - Arch: x64
-    Url: https://statics.teams.cdn.office.net/production-windows-x64/1.3.00.4461/Teams_windows_x64.exe
-    Sha256: 712f139d71e56bfb306e4a7b739b0e1109abb662dfa164192a5cfd6adb24a4e1
-ManifestVersion: 0.1.0
+```YAML
+PackageIdentifier: "Microsoft.WindowsTerminal"
+PackageVersion: "1.6.10571.0"
+PackageLocale: "fr-FR"
+Publisher: "Microsoft"
+ShortDescription: "Le nouveau terminal Windows, une expérience de ligne de commande à onglets pour Windows."
+ManifestType: "locale"
+ManifestVersion: "1.0.0"
+```
+
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.installer.yaml
+
+```YAML
+PackageIdentifier: "Microsoft.WindowsTerminal"
+PackageVersion: "1.6.10571.0"
+Platform: 
+ - "Windows.Desktop"
+MinimumOSVersion: "10.0.18362.0"
+InstallerType: "msix"
+InstallModes: 
+ - "silent"
+PackageFamilyName: "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+Installers: 
+ - Architecture: "x64"
+   InstallerUrl: "https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle"
+   InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
+   SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
+ - Architecture: "arm64"
+   InstallerUrl: "https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle"
+   InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
+   SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
+ - Architecture: "x86"
+   InstallerUrl: "https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle"
+   InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
+   SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
+ManifestType: "installer"
+ManifestVersion: "1.0.0"
 ```
 
 * * *
@@ -172,9 +200,20 @@ You can often figure out what silent `Switches` are available for an installer b
 
 ## Tips and best practices
 
-* For the best customer experience when finding and installing your software, we recommend that you include as many optional items beyond the required schema as possible. For example, the `AppMoniker` field is optional. However, if you include this field, customers will see results associated with the `AppMoniker` value when performing the [search](../winget/search.md) command (for example, **vscode** for **Visual Studio Code**). If there is only one app with the specified `AppMoniker` value, customers can install your application by specifying the moniker rather than the fully qualified ID.
-* The `Id` must be unique. You cannot have multiple submissions with the same package identifier. Avoid spaces, because this will require users to put quotation marks around the `Id` when using the [winget](../index.md) client.
-* Avoid creating multiple publisher folders. For example, do not create "Contoso Ltd" if there is already a "Contoso" folder. Also avoid spaces when creating folders.
-* All packages should be submitted with a silent install if possible. If you have an executable that does not support a silent install, the user experience will be diminished.
+* The package identifier must be unique.  You cannot have multiple submissions with the same package identifier. Only one pull request per package version is allowed.
+
+* Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contoso" folder.
+
+* All tools must support a silent install.  If you have an executable that does not support a silent install, then we cannot provide that tool at this time.
+
+* Provide as many fields as possible.  The more meta-data you provide the better the user experience will be. In some cases, the fields may not yet be supported
+by the Windows Package Manager client (winget.exe). For example, the `AppMoniker` field is optional. However, if you include this field, customers will see results associated with the `AppMoniker` value when performing the [search](../winget/search.md) command (for example, **vscode** for **Visual Studio Code**). If there is only one app with the specified `AppMoniker` value, customers can install your application by specifying the moniker rather than the fully qualified package identifier.
+
+* The length of strings in this specification should be limited to 100 characters before a line break.
+
+* The "PackageName" should match the entry made in Add / Remove Programs to help the correlation with manifests to support **export**, and **upgrade**.
+
+* The "Publisher" should match the entry made in Add / Remove Programs to help the correlation with manifests to support **export**, and **upgrade**.
+
 * Limit the length of strings in your manifest to 100 characters before a line break.
 * When more than one installer type exists for the specified version of the package, an instance of `InstallerType` can be placed under each of the `Installers`.
