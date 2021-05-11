@@ -179,7 +179,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool IsSame(const PackageBase& other) const
             {
-                return m_idId == other.m_idId;
+                return GetReferenceSource()->IsSame(other.GetReferenceSource().get()) && m_idId == other.m_idId;
             }
 
         protected:
@@ -360,5 +360,10 @@ namespace AppInstaller::Repository::Microsoft
         }
         result.Truncated = indexResults.Truncated;
         return result;
+    }
+
+    bool SQLiteIndexSource::IsSame(const SQLiteIndexSource* other) const
+    {
+        return (other && GetIdentifier() == other->GetIdentifier());
     }
 }
