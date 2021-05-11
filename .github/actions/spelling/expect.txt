@@ -70,10 +70,12 @@ ctc
 Ctx
 curated
 CYRL
+Debian
 deigh
 deleteifnotneeded
 dirs
 dnld
+dustojnikhummer
 dvinns
 dw
 endian
@@ -87,6 +89,7 @@ execustom
 EXEHASH
 experimentalfeatures
 fd
+fedorapeople
 fintimes
 Fixfor
 flargle
@@ -129,13 +132,18 @@ IService
 ISettings
 ishelp
 ISQ
+issuecomment
 ISVs
 itr
 IVector
 IWeb
 IZone
+JDKs
+jfearn
 JObject
 jp
+jpalardy
+JREs
 jrsoftware
 jsoncpp
 kayone
@@ -148,6 +156,7 @@ LATN
 ldcase
 learnxinyminutes
 lhs
+libsolv
 libyaml
 Linq
 liv
@@ -180,6 +189,7 @@ mylog
 mysilent
 mysilentwithprogress
 mytool
+netlify
 Newtonsoft
 NOEXPAND
 normer
@@ -227,6 +237,7 @@ SARL
 schematab
 Screenshot
 sddl
+semver
 seof
 serializer
 setmetadatabymanifestid
@@ -252,6 +263,7 @@ subdir
 subkey
 superstring
 suppy
+SUSE
 swervy
 sysrefcomp
 Tagit
