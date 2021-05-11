@@ -17,7 +17,8 @@ The **source** command of the [winget](index.md) tool manages the repositories a
 
 A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.
 
-Note: making changes to sources requires administrative privileges.
+> [!NOTE] 
+> Making changes to sources requires administrative privileges.
 
 ## Usage
 
