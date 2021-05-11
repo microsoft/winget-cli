@@ -34,7 +34,7 @@ The options allow you to customize the import experience to meet your needs.
 | Option      | Description |
 |-------------|-------------|  
 | **--ignore-unavailable**  |  Suppresses errors if the app requested is unavailable  |
-| **--ignore-versions** |  Ignores versions specified in the JSON file and installs available |
+| **--ignore-versions** |  Ignores versions specified in the JSON file and installs the latest available version |
 
 ## JSON Schema
 The driving force behind the **import** command is the JSON file.  You can find the schema for the JSON file [here](https://aka.ms/winget-packages.schema.1.0.json).
@@ -42,9 +42,9 @@ The driving force behind the **import** command is the JSON file.  You can find 
 The JSON file includes the following hierarchy:
 | Entry      | Description |
 |-------------|-------------|  
-| **Sources**  |  The repo that the the application is installed from.  |
+| **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
-| **Id**  |  The Windows Package Manager id used to identify the package.  |
+| **Id**  |  The Windows Package Manager package identifier used to specify the package.  |
 | **Version**  |  [optional] The specific version of the package to install.  |
 
 ## Importing files
