@@ -247,7 +247,15 @@ namespace AppInstaller::Repository
             // Data relevant to correlation for a package.
             struct PackageData
             {
-                std::vector<SystemReferenceString> SystemReferenceStrings;
+                std::set<SystemReferenceString> SystemReferenceStrings;
+
+                void AddIfNotPresent(SystemReferenceString&& srs)
+                {
+                    if (SystemReferenceStrings.find(srs) == SystemReferenceStrings.end())
+                    {
+                        SystemReferenceStrings.emplace(std::move(srs));
+                    }
+                }
             };
 
             // For a given package version, prepares the results for it.
@@ -348,7 +356,7 @@ namespace AppInstaller::Repository
             {
                 for (auto&& string : installedVersion->GetMultiProperty(prop))
                 {
-                    data.SystemReferenceStrings.emplace_back(field, std::move(string));
+                    data.AddIfNotPresent(SystemReferenceString{ field, std::move(string) });
                 }
             }
 
@@ -361,10 +369,10 @@ namespace AppInstaller::Repository
 
                 for (size_t i = 0; i < names.size() && i < publishers.size(); ++i)
                 {
-                    data.SystemReferenceStrings.emplace_back(
+                    data.AddIfNotPresent(SystemReferenceString{
                         PackageMatchField::NormalizedNameAndPublisher,
                         std::move(names[i]),
-                        std::move(publishers[i]));
+                        std::move(publishers[i]) });
                 }
             }
         };
@@ -513,41 +521,44 @@ namespace AppInstaller::Repository
         }
 
         // Search available sources
-        auto availableResult = SearchAvailable(request);
-
-        for (auto&& match : availableResult.Matches)
+        for (const auto& source : m_availableSources)
         {
-            // Check for a package already in the result that should have been correlated already.
-            auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
+            auto availableResult = source->Search(request);
 
-            // If no package was found that was already in the results, do a correlation lookup with the installed
-            // source to create a new composite package entry if we find any packages there.
-            bool foundInstalledMatch = false;
-            if (packageData && !packageData->SystemReferenceStrings.empty())
+            for (auto&& match : availableResult.Matches)
             {
-                // Create a search request to run against the installed source
-                SearchRequest systemReferenceSearch;
-                for (const auto& srs : packageData->SystemReferenceStrings)
-                {
-                    srs.AddToFilters(systemReferenceSearch.Inclusions);
-                }
+                // Check for a package already in the result that should have been correlated already.
+                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
 
-                SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
-
-                for (auto&& crossRef : installedCrossRef.Matches)
+                // If no package was found that was already in the results, do a correlation lookup with the installed
+                // source to create a new composite package entry if we find any packages there.
+                bool foundInstalledMatch = false;
+                if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
-                    if (!result.ContainsInstalledPackage(match.Package.get()))
+                    // Create a search request to run against the installed source
+                    SearchRequest systemReferenceSearch;
+                    for (const auto& srs : packageData->SystemReferenceStrings)
                     {
-                        foundInstalledMatch = true;
-                        result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(crossRef.Package), std::move(match.Package)), match.MatchCriteria);
+                        srs.AddToFilters(systemReferenceSearch.Inclusions);
+                    }
+
+                    SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
+
+                    for (auto&& crossRef : installedCrossRef.Matches)
+                    {
+                        if (!result.ContainsInstalledPackage(crossRef.Package.get()))
+                        {
+                            foundInstalledMatch = true;
+                            result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(crossRef.Package), std::move(match.Package)), match.MatchCriteria);
+                        }
                     }
                 }
-            }
 
-            // If there was no correlation for this package, add it without one.
-            if (m_searchBehavior == CompositeSearchBehavior::AllPackages && !foundInstalledMatch)
-            {
-                result.Matches.emplace_back(std::make_shared<CompositePackage>(std::shared_ptr<IPackage>{}, std::move(match.Package)), match.MatchCriteria);
+                // If there was no correlation for this package, add it without one.
+                if (m_searchBehavior == CompositeSearchBehavior::AllPackages && !foundInstalledMatch)
+                {
+                    result.Matches.emplace_back(std::make_shared<CompositePackage>(std::shared_ptr<IPackage>{}, std::move(match.Package)), match.MatchCriteria);
+                }
             }
         }
 
