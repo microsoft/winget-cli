@@ -78,11 +78,17 @@ The best way to limit the selection to one file is to use the **id** of the appl
 winget install --id Git.Git -e 
 ```
 
+If multiple sources are configured, it is possible to have duplicate entries. Specifying a source is required to further disambiguate.
+
+```CMD
+winget install --id Git.Git -e -source winget
+```
+
 ## Local install
 
-The **manifest** option enables you to install an application by passing in a YAML file directly to the client. The **manifest** option has the following usage.
+The **manifest** option enables you to install an application by passing in a YAML file directly to the client. If the manifest is a multi file manifest, the directory containing the files must be used. The **manifest** option has the following usage.
 
-Usage: `winget install --manifest \<file>`
+Usage: `winget install --manifest \<path>`
 
 | Option  | Description |
 |-------------|-------------|  
