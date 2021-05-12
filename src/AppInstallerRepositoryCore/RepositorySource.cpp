@@ -1123,7 +1123,12 @@ namespace AppInstaller::Repository
 
         for (const auto& include : Inclusions)
         {
-            result << " Inclusions:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
+            result << " Include:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'";
+            if (include.Additional)
+            {
+                result << "+'" << include.Additional.value() << "'";
+            }
+            result << "[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)
