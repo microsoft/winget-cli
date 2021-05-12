@@ -230,11 +230,13 @@ namespace AppInstaller::Repository::Microsoft
                     std::wstring pfn = packageInfo.GetPackageFullNameWide();
 
                     PackageOrigin origin = PackageOrigin::PackageOrigin_Unknown;
-                    if (FAILED_WIN32_LOG(GetStagedPackageOrigin(pfn.c_str(), &origin)) ||
-                        origin != PackageOrigin::PackageOrigin_Store)
+                    if (SUCCEEDED_WIN32_LOG(GetStagedPackageOrigin(pfn.c_str(), &origin)))
                     {
-                        Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), progress);
-                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                        if (origin != PackageOrigin::PackageOrigin_Store)
+                        {
+                            Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), progress);
+                            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                        }
                     }
                 }
             }
