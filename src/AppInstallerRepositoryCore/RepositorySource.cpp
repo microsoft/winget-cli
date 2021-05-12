@@ -402,7 +402,7 @@ namespace AppInstaller::Repository
                     details.Arg = s_Source_WingetCommunityDefault_Arg;
                     details.Data = s_Source_WingetCommunityDefault_Data;
                     details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
 
@@ -414,7 +414,7 @@ namespace AppInstaller::Repository
                     details.Arg = s_Source_WingetMSStoreDefault_Arg;
                     details.Data = s_Source_WingetMSStoreDefault_Data;
                     details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
             }
