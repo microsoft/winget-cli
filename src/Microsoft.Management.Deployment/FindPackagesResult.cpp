@@ -1,10 +1,15 @@
 #include "pch.h"
 #include "FindPackagesResult.h"
 #include "FindPackagesResult.g.cpp"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     FindPackagesResult::FindPackagesResult(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches)
+    {
+        m_matches = matches;
+    }
+    void FindPackagesResult::Initialize(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches)
     {
         m_matches = matches;
     }
@@ -16,4 +21,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_isTruncated;
     }
+    CoCreatableCppWinRtClass(FindPackagesResult);
 }

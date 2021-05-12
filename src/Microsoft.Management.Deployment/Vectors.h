@@ -3,6 +3,7 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    [uuid("b627e5eb-38d0-4879-a94e-06b0dc5aa624")]
     struct Vectors : VectorsT<Vectors>
     {
         Vectors() = default;

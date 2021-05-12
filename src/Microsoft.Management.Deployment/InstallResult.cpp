@@ -1,10 +1,16 @@
 #include "pch.h"
 #include "InstallResult.h"
 #include "InstallResult.g.cpp"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     InstallResult::InstallResult(hstring const& correlationData, bool rebootRequired)
+    {
+        m_correlationData = correlationData;
+        m_rebootRequired = rebootRequired;
+    }
+    void InstallResult::Initialize(hstring const& correlationData, bool rebootRequired)
     {
         m_correlationData = correlationData;
         m_rebootRequired = rebootRequired;
@@ -17,4 +23,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_rebootRequired;
     }
+    CoCreatableCppWinRtClass(InstallResult);
 }

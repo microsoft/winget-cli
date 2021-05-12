@@ -3,6 +3,7 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    [uuid("D02C9DAF-99DC-429C-B503-4E504E4AB000")]
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter>
     {
         PackageMatchFilter() = default;

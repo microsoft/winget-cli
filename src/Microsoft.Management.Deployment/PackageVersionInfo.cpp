@@ -3,10 +3,15 @@
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
 #include "AppCatalog.h"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     PackageVersionInfo::PackageVersionInfo(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion)
+    {
+        m_packageVersion = packageVersion;
+    }
+    void PackageVersionInfo::Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion)
     {
         m_packageVersion = packageVersion;
     }
@@ -87,8 +92,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (!m_appCatalog)
         {
-            m_appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(winrt::to_hstring(m_packageVersion->GetSource().get()->GetDetails().Name));
+            //m_appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(winrt::to_hstring(m_packageVersion->GetSource().get()->GetDetails().Name));
+            auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
+            appCatalogImpl->Initialize(winrt::to_hstring(m_packageVersion->GetSource().get()->GetDetails().Name));
+            m_appCatalog = *appCatalogImpl;
         }
         return m_appCatalog;
     }
+    CoCreatableCppWinRtClass(PackageVersionInfo);
 }

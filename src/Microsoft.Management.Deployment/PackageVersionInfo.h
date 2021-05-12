@@ -3,10 +3,12 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    [uuid("83559159-eb8d-4dae-bf59-a6c1dac0212d")]
     struct PackageVersionInfo : PackageVersionInfoT<PackageVersionInfo>
     {
         PackageVersionInfo() = default;
         PackageVersionInfo(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion);
+        void Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion);
 
         hstring GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType);
         hstring Id();

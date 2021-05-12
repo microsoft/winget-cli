@@ -39,6 +39,8 @@ namespace Microsoft.Management.Deployment
         UInt64 BytesRequired;
         /// Download percentage completed
         Single DownloadPercentage;
+        /// Install percentage if known.
+        Single InstallPercentage;
     };
 
     /// Result of the install
@@ -120,8 +122,6 @@ namespace Microsoft.Management.Deployment
     runtimeclass PackageVersionInfo
     {
         /// IMPLEMENTATION NOTE: PackageVersionMetadata fields from AppInstallerRepositorySearch.h
-        /// DESIGN NOTE: These would be a good candidate to leave out in V1. Maybe just keep InstalledLocation
-        /// and InstalledScope?
         /// Gets any metadata associated with this package version.
         /// Primarily stores data on installed packages.
         /// Metadata fields may have no value (e.g. packages that aren't installed will not have an InstalledLocation).
@@ -347,11 +347,17 @@ namespace Microsoft.Management.Deployment
     enum PredefinedAppCatalog
     {
         OpenWindowsCatalog,
+    };
+    /// Local Catalogs with AppCatalogOrigin Predefined
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum LocalAppCatalog
+    {
         InstalledPackages,
         /// IMPLEMENTATION NOTE:  Windows Package Manager does not currently have this concept. 
         /// This would be a new Orchestration feature to keep track of the installing CatalogPackage objects and allow 
         /// search of those objects.
-        InstallingPackages
+        InstallingPackages,
+        AllLocalPackages
     };
 
     /// 
@@ -367,6 +373,8 @@ namespace Microsoft.Management.Deployment
         /// DESIGN NOTE: It seems likely that in the future we will want to support 
         /// letting callers use two local sources (i.e. both Installing and Installed)
         IVector<AppCatalog> Catalogs { get; };
+        /// The local source(s)
+        LocalAppCatalog LocalAppCatalog;
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
@@ -445,6 +453,8 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<AppCatalog> GetAppCatalogs();
         /// Get a built in catalog
         AppCatalog GetAppCatalog(PredefinedAppCatalog predefinedAppCatalog);
+        /// Get a built in catalog
+        AppCatalog GetAppCatalogByLocalAppCatalog(LocalAppCatalog localAppCatalog);
         /// Get a catalog by a known unique identifier
         AppCatalog GetAppCatalogById(String catalogId);
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
@@ -457,6 +467,9 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package);
     }
 
+    /// Force midl3 to generate vector marshalling info. 
+    /// I'm assuming there is a better way to do this, adding this here as a TODO to figure that out.
+    /// If there is somehow no better way then I would add these for every class.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass Vectors
     {

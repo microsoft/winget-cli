@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FindPackagesOptions.h"
 #include "FindPackagesOptions.g.cpp"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -24,4 +25,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_compositeSearchBehavior = value;
     }
+    CoCreatableCppWinRtClass(FindPackagesOptions);
 }

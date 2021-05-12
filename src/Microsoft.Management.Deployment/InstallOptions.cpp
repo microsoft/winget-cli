@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "InstallOptions.h"
 #include "InstallOptions.g.cpp"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -84,4 +85,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_additionalAppCatalogArguments = value;
     }
+    CoCreatableCppWinRtClass(InstallOptions);
 }

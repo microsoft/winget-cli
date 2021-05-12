@@ -3,6 +3,7 @@
 #include "Vectors.h"
 #include "Vectors.g.cpp"
 #include "CatalogPackage.h"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -22,4 +23,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
+    CoCreatableCppWinRtClass(Vectors);
 }

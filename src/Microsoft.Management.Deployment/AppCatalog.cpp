@@ -7,7 +7,8 @@
 #include "ResultMatch.h"
 #include "CatalogPackage.h"
 #include "PackageMatchFilter.h"
-#include "Microsoft\PredefinedInstalledSourceFactory.h"
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -20,13 +21,39 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_isPredefinedSource = true;
         m_predefinedAppCatalog = predefinedAppCatalog;
     }
+    AppCatalog::AppCatalog(Microsoft::Management::Deployment::LocalAppCatalog localAppCatalog)
+    {
+        m_isLocalSource = true;
+        m_localAppCatalog = localAppCatalog;
+    }
     AppCatalog::AppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions options)
     {
+        m_isCompositeSource = true;
+        m_compositeAppCatalogOptions = options;
+    }
+    void AppCatalog::Initialize(hstring const& catalogId)
+    {
+        m_catalogId = catalogId;
+    }
+    void AppCatalog::Initialize(Microsoft::Management::Deployment::PredefinedAppCatalog predefinedAppCatalog)
+    {
+        m_isPredefinedSource = true;
+        m_predefinedAppCatalog = predefinedAppCatalog;
+    }
+    void AppCatalog::Initialize(Microsoft::Management::Deployment::LocalAppCatalog localAppCatalog)
+    {
+        m_isLocalSource = true;
+        m_localAppCatalog = localAppCatalog;
+    }
+    void AppCatalog::Initialize(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions options)
+    {
+        m_isCompositeSource = true;
         m_compositeAppCatalogOptions = options;
     }
     bool AppCatalog::IsComposite()
     {
-        return m_source->IsComposite();
+        // Don't use m_source->IsComposite(), just store it directly so the source doesn't have to be Open to use this.
+        return m_isCompositeSource;
     }
     Microsoft::Management::Deployment::AppCatalogInfo AppCatalog::Info()
     {
@@ -34,9 +61,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             throw hresult_illegal_method_call();
         }
-        winrt::Microsoft::Management::Deployment::AppCatalogInfo appCatalogInfo{ nullptr };
-        appCatalogInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>(m_source->GetDetails());
-        return appCatalogInfo;
+        //winrt::Microsoft::Management::Deployment::AppCatalogInfo appCatalogInfo{ nullptr };
+        //appCatalogInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>(m_source->GetDetails());
+        //return appCatalogInfo;
+        auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
+        appCatalogInfo->Initialize(m_source->GetDetails());
+        return *appCatalogInfo;
     }
     Windows::Foundation::IAsyncAction AppCatalog::OpenAsync()
     {
@@ -46,23 +76,33 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             ::AppInstaller::Repository::PredefinedSource predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
             switch (m_predefinedAppCatalog)
             {
-            case Microsoft::Management::Deployment::PredefinedAppCatalog::InstalledPackages :
-                predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
-                m_source = ::AppInstaller::Repository::OpenPredefinedSource(predefinedSource, progress);
-                break;
-            case Microsoft::Management::Deployment::PredefinedAppCatalog::InstallingPackages :
-                // TODO - installing source does not exist yet.
-                throw hresult_not_implemented();
-            case Microsoft::Management::Deployment::PredefinedAppCatalog::OpenWindowsCatalog :
-                // TODO - creating source by enum or id is not supported yet.
-                m_source = ::AppInstaller::Repository::OpenSource(winrt::to_string(L"winget"), progress).Source;
-                break;
+                case Microsoft::Management::Deployment::PredefinedAppCatalog::OpenWindowsCatalog :
+                    // TODO - creating source by enum or id is not supported yet.
+                    m_source = ::AppInstaller::Repository::OpenSource(winrt::to_string(L"winget"), progress).Source;
+                    break;
+                default:
+                    throw hresult_invalid_argument();
+            }
+        }
+        if (m_isLocalSource)
+        {
+            ::AppInstaller::Repository::PredefinedSource predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
+            switch (m_localAppCatalog)
+            {
+                case Microsoft::Management::Deployment::LocalAppCatalog::InstalledPackages :
+                    predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
+                    m_source = ::AppInstaller::Repository::OpenPredefinedSource(predefinedSource, progress);
+                    break;
+                case Microsoft::Management::Deployment::LocalAppCatalog::InstallingPackages :
+                    // TODO - installing source does not exist yet.
+                    throw hresult_not_implemented();
+                default:
+                    throw hresult_invalid_argument();
             }
         }
         else if (m_compositeAppCatalogOptions)
         {
             std::shared_ptr<::AppInstaller::Repository::ISource> nonLocalSource;
-            bool includeInstalledCatalog = false;
             for (int i = 0; i < m_compositeAppCatalogOptions.Catalogs().Size(); ++i)
             {
                 auto catalog = m_compositeAppCatalogOptions.Catalogs().GetAt(i);
@@ -79,23 +119,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             ::AppInstaller::Repository::CompositeSearchBehavior searchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AllPackages;
             switch (m_compositeAppCatalogOptions.CompositeSearchBehavior())
             {
-            case Microsoft::Management::Deployment::CompositeSearchBehavior::AllLocalPackages:
-                // TODO - installing source does not exist yet.
-                throw hresult_not_implemented();
-            case Microsoft::Management::Deployment::CompositeSearchBehavior::InstalledPackages:
-                if (!includeInstalledCatalog)
-                {
-                    throw hresult_invalid_argument();
-                }
-                searchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::Installed;
-                break;
-            case Microsoft::Management::Deployment::CompositeSearchBehavior::InstallingPackages:
-                // TODO - installing source does not exist yet.
-                throw hresult_not_implemented();
-            case Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages:
-            default:
-                searchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AllPackages;
-                break;
+                case Microsoft::Management::Deployment::CompositeSearchBehavior::AllLocalPackages:
+                    // TODO - installing source does not exist yet.
+                    throw hresult_not_implemented();
+                case Microsoft::Management::Deployment::CompositeSearchBehavior::InstalledPackages:
+                    searchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::Installed;
+                    break;
+                case Microsoft::Management::Deployment::CompositeSearchBehavior::InstallingPackages:
+                    // TODO - installing source does not exist yet.
+                    throw hresult_not_implemented();
+                case Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages:
+                default:
+                    searchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AllPackages;
+                    break;
             }
 
             // TODO: Checks in the AppInstaller.cpp enforce one external source and one Installed source. Need to call AddAdditionalSource to enable multiple external sources.
@@ -111,61 +147,70 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Windows::Foundation::IAsyncOperation<Microsoft::Management::Deployment::FindPackagesResult> AppCatalog::FindPackagesAsync(Microsoft::Management::Deployment::FindPackagesOptions options)
     {
+        if (!m_source.get())
+        {
+            throw hresult_illegal_method_call();
+        }
         ::AppInstaller::Repository::SearchRequest searchRequest;
         for (int i = 0; i < options.Filters().Size(); ++i)
         {
             Microsoft::Management::Deployment::PackageMatchFilter filter = options.Filters().GetAt(0);
 
+            if (filter.Value().size() == 0)
+            {
+                continue;
+            }
+
             ::AppInstaller::Repository::MatchType matchType = ::AppInstaller::Repository::MatchType::Exact;
             switch (filter.Type())
             {
-            case Microsoft::Management::Deployment::MatchType::CaseInsensitive:
-                matchType = ::AppInstaller::Repository::MatchType::CaseInsensitive;
-                break;
-            case Microsoft::Management::Deployment::MatchType::Exact:
-                matchType = ::AppInstaller::Repository::MatchType::Exact;
-                break;
-            case Microsoft::Management::Deployment::MatchType::Fuzzy:
-                matchType = ::AppInstaller::Repository::MatchType::Fuzzy;
-                break;
-            case Microsoft::Management::Deployment::MatchType::FuzzySubstring:
-                matchType = ::AppInstaller::Repository::MatchType::FuzzySubstring;
-                break;
-            case Microsoft::Management::Deployment::MatchType::StartsWith:
-                matchType = ::AppInstaller::Repository::MatchType::StartsWith;
-                break;
-            case Microsoft::Management::Deployment::MatchType::Substring:
-                matchType = ::AppInstaller::Repository::MatchType::Substring;
-                break;
-            case Microsoft::Management::Deployment::MatchType::Wildcard:
-                matchType = ::AppInstaller::Repository::MatchType::Wildcard;
-                break;
-            default:
-                matchType = ::AppInstaller::Repository::MatchType::Exact;
-                break;
+                case Microsoft::Management::Deployment::MatchType::CaseInsensitive:
+                    matchType = ::AppInstaller::Repository::MatchType::CaseInsensitive;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::Exact:
+                    matchType = ::AppInstaller::Repository::MatchType::Exact;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::Fuzzy:
+                    matchType = ::AppInstaller::Repository::MatchType::Fuzzy;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::FuzzySubstring:
+                    matchType = ::AppInstaller::Repository::MatchType::FuzzySubstring;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::StartsWith:
+                    matchType = ::AppInstaller::Repository::MatchType::StartsWith;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::Substring:
+                    matchType = ::AppInstaller::Repository::MatchType::Substring;
+                    break;
+                case Microsoft::Management::Deployment::MatchType::Wildcard:
+                    matchType = ::AppInstaller::Repository::MatchType::Wildcard;
+                    break;
+                default:
+                    matchType = ::AppInstaller::Repository::MatchType::Exact;
+                    break;
             }
 
             ::AppInstaller::Repository::PackageMatchField matchField = ::AppInstaller::Repository::PackageMatchField::Id;
             switch (filter.Field())
             {
-            case Microsoft::Management::Deployment::PackageMatchField::Command:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Command;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Id:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Id;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Moniker:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Moniker;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Name:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Name;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Tag:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Tag;
-                break;
-            default:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Id;
-                break;
+                case Microsoft::Management::Deployment::PackageMatchField::Command:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Command;
+                    break;
+                case Microsoft::Management::Deployment::PackageMatchField::Id:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Id;
+                    break;
+                case Microsoft::Management::Deployment::PackageMatchField::Moniker:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Moniker;
+                    break;
+                case Microsoft::Management::Deployment::PackageMatchField::Name:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Name;
+                    break;
+                case Microsoft::Management::Deployment::PackageMatchField::Tag:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Tag;
+                    break;
+                default:
+                    matchField = ::AppInstaller::Repository::PackageMatchField::Id;
+                    break;
             }
 
             if (filter.Field() == Microsoft::Management::Deployment::PackageMatchField::AppCatalogDefined)
@@ -182,6 +227,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
         }
+        searchRequest.MaximumResults = options.ResultLimit();
         auto searchResult = m_source->Search(searchRequest);
 
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches{ winrt::single_threaded_vector<Microsoft::Management::Deployment::ResultMatch>() };
@@ -189,20 +235,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
             auto match = searchResult.Matches[i]; 
-            Microsoft::Management::Deployment::CatalogPackage catalogPackage{ nullptr };
-            catalogPackage = winrt::make<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(match.Package);
+            //Microsoft::Management::Deployment::CatalogPackage catalogPackage{ nullptr };
+            //catalogPackage = winrt::make<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(match.Package);
+            auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
+            catalogPackage->Initialize(match.Package);
 
-            winrt::Microsoft::Management::Deployment::PackageMatchFilter packageMatchFilter{ nullptr };
-            packageMatchFilter = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>();
+            //winrt::Microsoft::Management::Deployment::PackageMatchFilter packageMatchFilter{ nullptr };
+            //packageMatchFilter = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>();
+            auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
 
-            winrt::Microsoft::Management::Deployment::ResultMatch resultMatch{ nullptr };
-            resultMatch = winrt::make<winrt::Microsoft::Management::Deployment::implementation::ResultMatch>(catalogPackage, packageMatchFilter);
+            //winrt::Microsoft::Management::Deployment::ResultMatch resultMatch{ nullptr };
+            //resultMatch = winrt::make<winrt::Microsoft::Management::Deployment::implementation::ResultMatch>(catalogPackage, packageMatchFilter);
+            auto resultMatch = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ResultMatch>>();
+            resultMatch->Initialize(*catalogPackage, *packageMatchFilter);
 
-            matches.Append(resultMatch);
+            matches.Append(*resultMatch);
         }
-        winrt::Microsoft::Management::Deployment::FindPackagesResult findPackagesResult{ nullptr };
-        findPackagesResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>(matches);
+        //winrt::Microsoft::Management::Deployment::FindPackagesResult findPackagesResult{ nullptr };
+        //findPackagesResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>(matches);
+        auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
+        findPackagesResult->Initialize(matches);
 
-        co_return findPackagesResult;
+        //co_return findPackagesResult;
+        co_return *findPackagesResult;
     }
+    CoCreatableCppWinRtClass(AppCatalog);
 }

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PackageMatchFilter.h"
 #include "PackageMatchFilter.g.cpp"
+#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -36,4 +37,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_value = value;
     }
+    CoCreatableCppWinRtClass(PackageMatchFilter);
 }

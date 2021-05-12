@@ -3,6 +3,7 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    [uuid("1095F097-EB96-453B-B4E6-1613637F3B14")]
     struct InstallOptions : InstallOptionsT<InstallOptions>
     {
         InstallOptions() = default;
