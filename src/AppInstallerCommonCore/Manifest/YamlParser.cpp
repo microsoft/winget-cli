@@ -446,6 +446,12 @@ namespace AppInstaller::Manifest::YamlParser
                 OutputYamlDoc(manifestDoc, mergedManifestPath);
             }
 
+            // If there is only one input file, use its hash for the stream
+            if (input.size() == 1)
+            {
+                manifest.StreamSHA256 = std::move(input[0].StreamSHA256);
+            }
+
             return resultErrors;
         }
     }
@@ -476,7 +482,7 @@ namespace AppInstaller::Manifest::YamlParser
             else
             {
                 YamlManifestInfo doc;
-                doc.Root = YAML::Load(inputPath);
+                doc.Root = YAML::Load(inputPath, doc.StreamSHA256);
                 doc.FileName = inputPath.filename().u8string();
                 docList.emplace_back(std::move(doc));
             }
