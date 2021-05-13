@@ -120,7 +120,7 @@ namespace AppInstaller::Repository
         Version,
         Channel,
         RelativePath,
-        // Returned in hexidecimal format
+        // Returned in hexadecimal format
         ManifestSHA256Hash,
     };
 
