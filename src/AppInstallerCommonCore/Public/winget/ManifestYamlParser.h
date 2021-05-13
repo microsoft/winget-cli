@@ -19,7 +19,7 @@ namespace AppInstaller::Manifest::YamlParser
         std::string FileName;
 
         // The SHA256 hash of the stream
-        Utility::SHA256::HashBuffer StreamSHA256;
+        Utility::SHA256::HashBuffer StreamSha256;
 
         ManifestTypeEnum ManifestType = ManifestTypeEnum::Preview;
     };

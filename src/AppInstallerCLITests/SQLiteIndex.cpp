@@ -2150,7 +2150,7 @@ TEST_CASE("SQLiteIndex_ManifestHash_Present", "[sqliteindex]")
     Manifest manifest;
     manifest.Id = "Foo";
     manifest.Version = "Bar";
-    manifest.StreamSHA256 = hash;
+    manifest.StreamSha256 = hash;
     index.AddManifest(manifest, "path");
 
     Schema::Version testVersion = TestPrepareForRead(index);

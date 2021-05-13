@@ -125,8 +125,8 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     std::ifstream stream(manifestFile, std::ios_base::in | std::ios_base::binary);
     REQUIRE(!stream.fail());
     auto manifestHash = SHA256::ComputeHash(stream);
-    REQUIRE(manifestHash.size() == manifest.StreamSHA256.size());
-    REQUIRE(std::equal(manifestHash.begin(), manifestHash.end(), manifest.StreamSHA256.begin()));
+    REQUIRE(manifestHash.size() == manifest.StreamSha256.size());
+    REQUIRE(std::equal(manifestHash.begin(), manifestHash.end(), manifest.StreamSha256.begin()));
 }
 
 TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")

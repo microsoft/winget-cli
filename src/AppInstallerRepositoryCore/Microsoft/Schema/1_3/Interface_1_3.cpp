@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/1_3/Interface.h"
+#include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
-
-#include <AppInstallerSHA256.h>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
@@ -39,10 +38,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         SQLite::rowid_t manifestId = V1_2::Interface::AddManifest(connection, manifest, relativePath);
 
         // Set the hash value if provided
-        if (!manifest.StreamSHA256.empty())
+        if (!manifest.StreamSha256.empty())
         {
-            THROW_HR_IF(E_INVALIDARG, manifest.StreamSHA256.size() != Utility::SHA256::HashBufferSizeInBytes);
-            V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSHA256);
+            THROW_HR_IF(E_INVALIDARG, manifest.StreamSha256.size() != Utility::SHA256::HashBufferSizeInBytes);
+            V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
         }
 
         savepoint.Commit();
@@ -57,16 +56,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         auto [indexModified, manifestId] = V1_2::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Set the hash value if provided
-        if (!manifest.StreamSHA256.empty())
+        if (!manifest.StreamSha256.empty())
         {
-            THROW_HR_IF(E_INVALIDARG, manifest.StreamSHA256.size() != Utility::SHA256::HashBufferSizeInBytes);
+            THROW_HR_IF(E_INVALIDARG, manifest.StreamSha256.size() != Utility::SHA256::HashBufferSizeInBytes);
 
             auto currentHash = std::get<0>(V1_0::ManifestTable::GetIdsById<HashVirtualTable>(connection, manifestId));
 
             if (currentHash.size() != Utility::SHA256::HashBufferSizeInBytes ||
-                !std::equal(currentHash.begin(), currentHash.end(), manifest.StreamSHA256.begin()))
+                !std::equal(currentHash.begin(), currentHash.end(), manifest.StreamSha256.begin()))
             {
-                V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSHA256);
+                V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
                 indexModified = true;
             }
         }

@@ -163,7 +163,7 @@ namespace AppInstaller::Repository::Microsoft
                     Manifest::Manifest result = Manifest::YamlParser::CreateFromPath(fullPath);
 
                     if (!expectedHash.empty() &&
-                        (result.StreamSHA256.size() != expectedHash.size() || !std::equal(expectedHash.begin(), expectedHash.end(), result.StreamSHA256.begin())))
+                        (result.StreamSha256.size() != expectedHash.size() || !std::equal(expectedHash.begin(), expectedHash.end(), result.StreamSha256.begin())))
                     {
                         THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                     }

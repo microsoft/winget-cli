@@ -46,6 +46,6 @@ namespace AppInstaller::Manifest
         std::vector<string_t> GetAggregatedCommands() const;
 
         // If not empty, the SHA256 hash of the manifest stream itself.
-        Utility::SHA256::HashBuffer StreamSHA256;
+        Utility::SHA256::HashBuffer StreamSha256;
     };
 }
