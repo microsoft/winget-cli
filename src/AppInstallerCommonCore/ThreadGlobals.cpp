@@ -48,20 +48,8 @@ namespace AppInstaller::ThreadLocalStorage
         m_pTelemetryLogger->SetUserSettingsStatus();
     }
 
-    AppInstaller::ThreadLocalStorage::ThreadGlobals* ThreadGlobals::GetForCurrentThread()
+    ThreadGlobals* ThreadGlobals::GetForCurrentThread()
     {
         return ActivateThreadGlobals();
-    }
-
-    AppInstaller::ThreadLocalStorage::ThreadGlobals* ThreadGlobals::ActivateThreadGlobals(AppInstaller::ThreadLocalStorage::ThreadGlobals* pThreadGlobals)
-    {
-        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals* t_pThreadGlobals = nullptr;
-        
-        if (pThreadGlobals)
-        {
-            t_pThreadGlobals = pThreadGlobals;
-        }
-        
-        return t_pThreadGlobals;
     }
 }

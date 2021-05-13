@@ -52,8 +52,6 @@ namespace AppInstaller::Logging
 
         RegisterTraceLogging();
 
-        RegisterTraceLogging();
-
         hr = CoCreateGuid(&m_activityId);
         if (FAILED(hr))
         {
@@ -93,7 +91,8 @@ namespace AppInstaller::Logging
 
     std::string TelemetryTraceLogger::GetTelemetryCorelationJson() const
     {
-        // Check if passed in string is actually Json formatted
+        // Check if passed in string is a valid Json formatted before returning the value
+        // If invalid, return empty Json
         Json::CharReaderBuilder jsonBuilder;
         Json::CharReader* jsonReader = jsonBuilder.newCharReader();;
         Json::Value jsonValue;

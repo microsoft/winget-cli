@@ -49,9 +49,9 @@ namespace AppInstaller::CLI
         Execution::Context context{ std::cout, std::cin };
         context.EnableCtrlHandler();
 
+        // Enable all logging for this phase; we will update once we have the arguments
         context.SetThreadGlobalsActive();
 
-        // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 

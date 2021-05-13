@@ -36,10 +36,10 @@ namespace AppInstaller::Logging
         // Capture if UserSettings is enabled
         void SetUserSettingsStatus();
 
-        // Capture the name of the Caller for COM calls
+        // Store the passed in name of the Caller for COM calls
         void SetCOMCaller(std::string comCaller);
 
-        // Capture any passed in Telemetry Corelation Json for COM calls
+        // Store the passed in Telemetry Corelation Json for COM calls
         void SetTelemetryCorelationJson(std::string jsonStr);
 
         // Logs the failure info.
@@ -143,6 +143,9 @@ namespace AppInstaller::Logging
     // Helper to make the call sites look clean.
     TelemetryTraceLogger& Telemetry();
 
+    // Turns on wil failure telemetry and logging.
+    void EnableWilFailureTelemetry();
+
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.
     struct DisableTelemetryScope
@@ -160,9 +163,6 @@ namespace AppInstaller::Logging
     private:
         DestructionToken m_token;
     };
-
-    // Turns on wil failure telemetry and logging.
-    void EnableWilFailureTelemetry();
 
     // Sets an execution stage to be reported when failures occur.
     void SetExecutionStage(uint32_t stage);

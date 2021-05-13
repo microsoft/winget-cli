@@ -9,6 +9,7 @@
 
 #include <Public/AppInstallerLogging.h>
 #include <Public/AppInstallerTelemetry.h>
+#include <ThreadGlobals.h>
 
 #include "TestCommon.h"
 #include "TestHooks.h"
@@ -18,6 +19,7 @@ using namespace Windows::Foundation;
 using namespace std::string_literals;
 using namespace AppInstaller;
 
+ThreadLocalStorage::ThreadGlobals threadGlobals;
 
 // Logs the the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
@@ -53,6 +55,8 @@ int main(int argc, char** argv)
     bool hasSetTestDataBasePath = false;
     bool waitBeforeReturn = false;
     bool keepSQLLogging = false;
+
+    threadGlobals.SetForCurrentThread();
 
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)
@@ -121,7 +125,6 @@ int main(int argc, char** argv)
     }
     Logging::Log().SetLevel(Logging::Level::Verbose);
     Logging::EnableWilFailureTelemetry();
-    AppInstaller::Logging::Telemetry().SetUserSettingsStatus();
 
     // Force all tests to run against settings inside this container.
     // This prevents test runs from trashing the users actual settings.

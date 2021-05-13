@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "TraceLogging.h"
+#include "AppInstallerLogging.h"
 
 // GUID for Microsoft.PackageManager.Client : {c0cf606f-569b-5c20-27d9-88a745fa2175}
 TRACELOGGING_DEFINE_PROVIDER(
@@ -39,10 +40,11 @@ void RegisterTraceLogging()
             TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
         });
     }
-    catch (...)
+    catch (std::exception ex)
     {
         // May throw std::system_error if any condition prevents calls to call_once from executing as specified
         // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
+        AICLI_LOG(Log, Error, << "Exception caught when registering Trace Logging provider: " << ex.what() << '\n');
     }
 }
 
