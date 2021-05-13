@@ -24,7 +24,7 @@
     "Url": {
       "type": [ "string", "null" ],
       "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
-      "maxLength": 2000,
+      "maxLength": 2048,
       "description": "Optional Url type"
     },
     "Tag": {
@@ -42,6 +42,7 @@
     "Platform": {
       "type": [ "array", "null" ],
       "items": {
+        "title": "Platform",
         "type": "string",
         "enum": [
           "Windows.Desktop",
@@ -71,7 +72,7 @@
         "burn",
         "pwa"
       ],
-      "description": "Enumeration of supported installer types"
+      "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
     "Scope": {
       "type": [ "string", "null" ],
@@ -84,6 +85,7 @@
     "InstallModes": {
       "type": [ "array", "null" ],
       "items": {
+        "title": "InstallModes",
         "type": "string",
         "enum": [
           "interactive",
@@ -189,7 +191,7 @@
       "items": {
         "type": "string",
         "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
-        "maxLength": 40
+        "maxLength": 64
       },
       "maxItems": 256,
       "uniqueItems": true,
@@ -316,6 +318,7 @@
         "InstallerUrl": {
           "type": "string",
           "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+          "maxLength": 2048,
           "description": "The installer Url"
         },
         "InstallerSha256": {

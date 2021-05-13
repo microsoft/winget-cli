@@ -386,7 +386,7 @@
     <value>סינון התוצאות לפי שם</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>אין תוכנות התקנה מתאימות למערכת הנוכחית.</value>
+    <value>לא נמצא מתקין ישים; עיין ביומני הרישום לקבלת פרטים נוספים.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>אין כרגע תכונות ניסיוניות זמינות. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>‏‏הנתיב אינו קיים:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>קובץ ה- JSON אינו מציין סכימה מוכרת.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>בחר היקף התקנה (משתמש או מחשב)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>הערך שסופק עבור הארגומנט '%1' אינו חוקי; ערכים חוקיים הם</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>פעולה זו אינה זמינה עקב מדיניות קבוצתית</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>הפוך מקורות נוספים של מתקין האפליקציות של Windows לזמינים</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>הפוך מקורות מורשים של מתקין האפליקציות של Windows לזמינים</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>הפוך את מקור ברירת המחדל של מתקין האפליקציות של Windows לזמין</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>הפוך תכונות ניסיוניות של מתקין האפליקציות של Windows לזמינות</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>הפוך את מקור Microsoft Store של מתקין האפליקציות של Windows לזמין.</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>הפוך את הגדרות מנהל החבילות של Windows לזמינות</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>הפוך את מנהל החבילות של Windows לזמין</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>הגדר בדקות מרווח זמן לעדכון אוטומטי של מקור מנהל החבילות של Windows</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>לא זמין</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>זמין</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>מדיניות קבוצתית</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>מצב</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>הפוך קבצי מניפסט מקומיים של מתקין האפליקציות של Windows לזמינים</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>שדה:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>תבנית שדה לא חוקית.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>ערך שדה לא חוקי.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>הגדרה לא חוקית מהמדיניות הקבוצתית.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>נטענו הגדרות מקובץ גיבוי.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>שגיאה בניתוח מבנה הטקסט של הקובץ:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>ערך:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>התכונות הניסיוניות הבאות נמצאות כעת בביצוע.
+קביעת תצורה אינה זמינה עקב מדיניות קבוצתית.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>קוד ה- Hash של המתקין אינו תואם.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>הפוך עקיפת קוד Hash של מתקין האפליקציות של Windows לזמינה</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>ייצא את המקורות הנוכחיים כ- JSON עבור מדיניות קבוצתית.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>ייצוא מקורות נוכחיים</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>מקור נוסף</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>מקור מורשה</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

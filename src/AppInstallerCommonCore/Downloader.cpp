@@ -7,20 +7,21 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/winget/UserSettings.h"
+#include "DODownloader.h"
 
 using namespace AppInstaller::Runtime;
+using namespace AppInstaller::Settings;
 
 namespace AppInstaller::Utility
 {
-    std::optional<std::vector<BYTE>> DownloadToStream(
+    std::optional<std::vector<BYTE>> WinINetDownloadToStream(
         const std::string& url,
         std::ostream& dest,
         IProgressCallback& progress,
         bool computeHash)
     {
-        THROW_HR_IF(E_INVALIDARG, url.empty());
-
-        AICLI_LOG(Core, Info, << "Downloading from url: " << url);
+        AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
             "winget-cli",
@@ -71,7 +72,6 @@ namespace AppInstaller::Utility
 
         // Setup hash engine
         SHA256 hashEngine;
-        std::string contentHash;
 
         const int bufferSize = 1024 * 1024; // 1MB
         auto buffer = std::make_unique<BYTE[]>(bufferSize);
@@ -128,11 +128,25 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::optional<std::vector<BYTE>> DownloadToStream(
+        const std::string& url,
+        std::ostream& dest,
+        DownloadType,
+        IProgressCallback& progress,
+        bool computeHash,
+        std::optional<DownloadInfo>)
+    {
+        THROW_HR_IF(E_INVALIDARG, url.empty());
+        return WinINetDownloadToStream(url, dest, progress, computeHash);
+    }
+
     std::optional<std::vector<BYTE>> Download(
         const std::string& url,
         const std::filesystem::path& dest,
+        DownloadType type,
         IProgressCallback& progress,
-        bool computeHash)
+        bool computeHash,
+        std::optional<DownloadInfo> info)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
@@ -141,6 +155,30 @@ namespace AppInstaller::Utility
 
         std::filesystem::create_directories(dest.parent_path());
 
+        // Only Installers should be downloaded with DO currently, as:
+        //  - Index :: Constantly changing blob at same location is not what DO is for
+        //  - Manifest :: DO overhead is not needed for small files
+        //  - WinGetUtil :: Intentionally not using DO at this time
+        if (type == DownloadType::Installer)
+        {
+            // Determine whether to try DO first or not, as this is the only choice currently supported.
+            InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
+
+            // Currently, the default remains WinINet until the DO path is proven.
+            if (setting == InstallerDownloader::Default)
+            {
+                setting = InstallerDownloader::WinInet;
+            }
+
+            if (setting == InstallerDownloader::DeliveryOptimization)
+            {
+                return DODownload(url, dest, progress, computeHash, info);
+
+                // While DO still requires an explicit opt-in, we will let failures through.
+                // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.
+            }
+        }
+
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
         ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
@@ -148,7 +186,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return DownloadToStream(url, outfile, progress, computeHash);
+        return WinINetDownloadToStream(url, outfile, progress, computeHash);
     }
 
     using namespace std::string_view_literals;

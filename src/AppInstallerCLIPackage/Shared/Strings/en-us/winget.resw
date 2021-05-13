@@ -298,8 +298,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument name was not recognized for the current command</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Language to install (if supported)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Locale to use (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>License Agreement</value>
@@ -386,7 +387,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Filter results by name</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>No installers are applicable to the current system.</value>
+    <value>No applicable installer found; see logs for more details.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>There are currently no experimental features available. </value>
@@ -480,7 +481,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shows info about an package</value>
+    <value>Shows information about a package</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Version</value>
@@ -659,11 +660,11 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No applicable update found.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Updates the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Updates the given package</value>
+    <value>Upgrades the given package</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>
@@ -816,5 +817,108 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>The JSON file does not specify a recognized schema.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Select install scope (user or machine)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>The value provided for the `%1` argument is invalid; valid values are</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>This operation is disabled by Group Policy</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Enable Additional Windows App Installer Sources</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Enable Windows App Installer Allowed Sources</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Enable Windows App Installer Default Source</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Enable Windows App Installer Experimental Features</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Enable Windows App Installer Microsoft Store Source</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Enable Windows Package Manager Settings</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Enable Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Group Policy</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>State</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Enable Windows App Installer Local Manifest Files</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Field:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Invalid field format.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Invalid field value.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Invalid setting from Group Policy.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Loaded settings from backup file.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Error parsing file:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Value:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>The following experimental features are in progress.
+Configuration is disabled due to Group Policy.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installer hash does not match.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Enable Windows App Installer Hash Override</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Export current sources as JSON for Group Policy.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Export current sources</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Additional source</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Allowed source</value>
+    <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>The value provided for the `%1` argument is invalid</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

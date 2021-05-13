@@ -188,6 +188,18 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
+            if (input == "TestExeInstallerWithNothingInstalled")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
             return result;
         }
     };
@@ -1346,6 +1358,29 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
 }
 
+TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-MachineScope.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify all packages were installed
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    std::ifstream installResultFile(exeInstallResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/scope=machine") != std::string::npos);
+}
+
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
     std::filesystem::path motwFile(testFile);
@@ -1393,4 +1428,96 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());
+}
+
+TEST_CASE("InstallFlowMultiLocale_RequirementNotSatisfied", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlowMultiLocale_RequirementSatisfied", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Locale, "fr-FR"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/fr-FR") != std::string::npos);
+}
+
+TEST_CASE("InstallFlowMultiLocale_PreferenceNoBetterLocale", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "zh-CN" });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/unknown") != std::string::npos);
+}
+
+TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "en-US" });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
 }

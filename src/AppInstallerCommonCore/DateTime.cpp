@@ -16,10 +16,10 @@ namespace AppInstaller::Utility
 
         stream
             << std::setw(4) << (1900 + localTime.tm_year) << '-'
-            << std::setw(2) << (1 + localTime.tm_mon) << '-'
-            << std::setw(2) << localTime.tm_mday << (useRFC3339 ? 'T' : ' ')
-            << std::setw(2) << std::setfill('0') << localTime.tm_hour << ':' 
-            << std::setw(2) << std::setfill('0') << localTime.tm_min << ':' 
+            << std::setw(2) << std::setfill('0') << (1 + localTime.tm_mon) << '-'
+            << std::setw(2) << std::setfill('0') << localTime.tm_mday << (useRFC3339 ? 'T' : ' ')
+            << std::setw(2) << std::setfill('0') << localTime.tm_hour << ':'
+            << std::setw(2) << std::setfill('0') << localTime.tm_min << ':'
             << std::setw(2) << std::setfill('0') << localTime.tm_sec << '.';
 
         // Get partial seconds
@@ -27,6 +27,14 @@ namespace AppInstaller::Utility
         auto leftoverMillis = duration_cast<milliseconds>(sinceEpoch) - duration_cast<seconds>(sinceEpoch);
 
         stream << std::setw(3) << std::setfill('0') << leftoverMillis.count();
+
+        if (useRFC3339)
+        {
+            // RFC 3339 requires adding time zone info.
+            // No need to bother getting the actual time zone as we don't need it.
+            // -00:00 represents an unspecified time zone, not UTC.
+            stream << "-00:00";
+        }
     }
 
     std::string GetCurrentTimeForFilename()

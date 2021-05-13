@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Rest
         {
             PackageVersion(
                 const std::shared_ptr<const RestSource>& source, IRestClient::PackageInfo packageInfo, IRestClient::VersionInfo versionInfo)
-                : SourceReference(source), m_packageInfo(packageInfo), m_versionInfo(versionInfo) {}
+                : SourceReference(source), m_packageInfo(std::move(packageInfo)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
@@ -58,11 +58,55 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
-            // TODO
             std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
             {
-                UNREFERENCED_PARAMETER(property);
                 std::vector<Utility::LocIndString> result;
+                switch (property)
+                {
+                case PackageVersionMultiProperty::PackageFamilyName:
+                    for (std::string pfn : m_versionInfo.PackageFamilyNames)
+                    {
+                        result.emplace_back(Utility::LocIndString{ pfn });
+                    }
+                    break;
+                case PackageVersionMultiProperty::ProductCode:
+                    for (std::string productCode : m_versionInfo.ProductCodes)
+                    {
+                        result.emplace_back(Utility::LocIndString{ productCode });
+                    }
+                    break;
+                case PackageVersionMultiProperty::Name:
+                    if (m_versionInfo.Manifest)
+                    {
+                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::PackageName>(result);
+                    }
+                    else
+                    {
+                        result.emplace_back(m_packageInfo.PackageName);
+                    }
+                    break;
+                case PackageVersionMultiProperty::Publisher:
+                    if (m_versionInfo.Manifest)
+                    {
+                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::Publisher>(result);
+                    }
+                    else
+                    {
+                        result.emplace_back(m_packageInfo.Publisher);
+                    }
+                    break;
+                case PackageVersionMultiProperty::Locale:
+                    if (m_versionInfo.Manifest)
+                    {
+                        result.emplace_back(m_versionInfo.Manifest->DefaultLocalization.Locale);
+                        for (const auto& loc : m_versionInfo.Manifest->Localizations)
+                        {
+                            result.emplace_back(loc.Locale);
+                        }
+                    }
+                    break;
+                }
+
                 return result;
             }
 
@@ -100,6 +144,24 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
+            template<AppInstaller::Manifest::Localization Field>
+            void BuildPackageVersionMultiPropertyWithFallback(std::vector<Utility::LocIndString>& result) const
+            {
+                result.emplace_back(m_versionInfo.Manifest->DefaultLocalization.Get<Field>());
+                for (const auto& loc : m_versionInfo.Manifest->Localizations)
+                {
+                    auto f = loc.Get<Field>();
+                    if (f.empty())
+                    {
+                        result.emplace_back(loc.Get<Field>());
+                    }
+                    else
+                    {
+                        result.emplace_back(std::move(f));
+                    }
+                }
+            }
+
             IRestClient::PackageInfo m_packageInfo;
             IRestClient::VersionInfo m_versionInfo;
         };
@@ -240,7 +302,8 @@ namespace AppInstaller::Repository::Rest
 
                 if (otherAvailablePackage)
                 {
-                    return Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
+                    return GetReferenceSource()->IsSame(otherAvailablePackage->GetReferenceSource().get()) &&
+                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
                 }
 
                 return false;
@@ -249,8 +312,9 @@ namespace AppInstaller::Repository::Rest
     }
 
     RestSource::RestSource(const SourceDetails& details, std::string identifier, RestClient&& restClient)
-        : m_details(details), m_identifier(std::move(identifier)), m_restClient(std::move(restClient))
+        : m_details(details), m_restClient(std::move(restClient))
     {
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& RestSource::GetDetails() const
@@ -265,12 +329,11 @@ namespace AppInstaller::Repository::Rest
 
     const std::string& RestSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        // Note: Basic search functionality to fetch everything.
         RestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
@@ -286,5 +349,10 @@ namespace AppInstaller::Repository::Rest
         }
 
         return searchResult;
+    }
+
+    bool RestSource::IsSame(const RestSource* other) const
+    {
+        return (other && GetIdentifier() == other->GetIdentifier());
     }
 }

@@ -386,7 +386,7 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Filtrēt rezultātus pēc nosaukuma</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Pašreizējai sistēmai nav lietojama neviena instalēšanas programma.</value>
+    <value>Nav atrasta neviena lietojams instalētājs; detalizētu informāciju skatiet žurnālos.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Pašlaik nav pieejami izmēģinājuma līdzekļi. </value>
@@ -813,5 +813,107 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Ceļš nepastāv:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON failā nav norādīta atpazīta shēma.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Atlasīt instalēšanas tvērumu (lietotājs vai dators)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Argumenta '%1' norādītā vērtība nav derīga; derīgās vērtības ir</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Šīs darbības veikšanu atspējoja grupas politika</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Iespējot papildu Windows lietojumprogrammu instalēšanas avotus</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja atļautos avotus</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja noklusējuma avotu</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja eksperimentālos līdzekļus</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja Microsoft Store avotu</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Iespējot Windows pakotņu pārvaldnieka iestatījumus</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Iespējot Windows pakotņu pārvaldnieku</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Iestatīt Windows pakotņu pārvaldnieka avota automātiskās atjaunināšanas intervālu minūtēs</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Atspējots</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Iespējots</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Grupas politika</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Stāvoklis</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja lokālā manifesta failus</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Lauks:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Nederīgs lauka formāts.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Nederīga lauka vērtība.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Nederīgs iestatījums no grupas politikas.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Iestatījumi ielādēti no dublējuma faila.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Faila parsēšanas kļūda:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Vērtība:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Notiek tālāk norādītie eksperimentālos līdzekļi.
+Konfigurācija ir atspējota grupas politikas dēļ.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Instalētāja jaucējkods neatbilst.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Iespējot Windows lietojumprogrammu instalētāja jaucējkoda ignorēšanu</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Eksportēt pašreizējos avotus kā JSON izmantošanai grupas politikā.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportēt pašreizējos avotus</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Papildu avots</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Atļauts avots</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

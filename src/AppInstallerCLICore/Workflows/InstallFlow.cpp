@@ -105,6 +105,11 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        Utility::DownloadInfo downloadInfo{};
+        downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
+        // Use the SHA256 hash of the installer as the identifier for the download
+        downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
+
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
@@ -120,8 +125,10 @@ namespace AppInstaller::CLI::Workflow
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     tempInstallerPath,
+                    Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    true));
+                    true,
+                    downloadInfo));
 
                 success = true;
             }
@@ -172,7 +179,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const winrt::hresult_error& e)
         {
-            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
                 HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
                 // Failed to get signature hash through HttpStream, use download
@@ -199,7 +206,7 @@ namespace AppInstaller::CLI::Workflow
             hashPair.first.end(),
             hashPair.second.begin()))
         {
-            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
+            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
@@ -214,9 +221,13 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else
+            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
@@ -412,8 +423,11 @@ namespace AppInstaller::CLI::Workflow
             Execution::Context& installContext = *installContextPtr;
 
             // Extract the data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package);
-            installContext.Add<Execution::Data::Manifest>(package->GetManifest());
+            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
+            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+
+            // TODO: In the future, it would be better to not have to convert back and forth from a string
+            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
 
             installContext << InstallPackageVersion;
             if (installContext.IsTerminated())
@@ -629,10 +643,10 @@ namespace AppInstaller::CLI::Workflow
                 changes.size(),
                 findByManifest.Matches.size(),
                 packagesInBoth.size(),
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
             );
         }
     }

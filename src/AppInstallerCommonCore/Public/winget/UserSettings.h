@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerStrings.h"
+#include "winget/GroupPolicy.h"
+#include "winget/Resources.h"
 
 #include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -35,6 +38,22 @@ namespace AppInstaller::Settings
         Rainbow,
     };
 
+    // The preferred scope for installs.
+    enum class ScopePreference
+    {
+        None,
+        User,
+        Machine,
+    };
+
+    // The download code to use for *installers*.
+    enum class InstallerDownloader
+    {
+        Default,
+        WinInet,
+        DeliveryOptimization,
+    };
+
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -52,10 +71,15 @@ namespace AppInstaller::Settings
         EFList,
         EFExperimentalUpgrade,
         EFUninstall,
-        EFImport,
         EFExport,
         TelemetryDisable,
         EFRestSource,
+        InstallScopePreference,
+        InstallScopeRequirement,
+        NetworkDownloader,
+        NetworkDOProgressTimeoutInSeconds,
+        InstallLocalePreference,
+        InstallLocaleRequirement,
         Max
     };
 
@@ -72,29 +96,40 @@ namespace AppInstaller::Settings
             // Validate - Function that does semantic validation.
         };
 
-#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
+#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
         template <> \
         struct SettingMapping<_setting_> \
         { \
             using json_t = _json_; \
             using value_t = _value_; \
-            static constexpr value_t DefaultValue = _default_; \
+            inline static const value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
             static std::optional<value_t> Validate(const json_t& value); \
+            static constexpr ValuePolicy Policy = _valuePolicy_; \
+            using policy_t = GroupPolicy::ValueType<Policy>; \
+            static_assert(Policy == ValuePolicy::None || std::is_same<json_t, policy_t>::value); \
         }
 
+#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
+        SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, ValuePolicy::None)
+
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv);
+        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalMSStore, bool, bool, false, ".experimentalFeatures.experimentalMSStore"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFList, bool, bool, false, ".experimentalFeatures.list"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstall, bool, bool, false, ".experimentalFeatures.uninstall"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFImport, bool, bool, false, ".experimentalFeatures.import"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 20s, ".network.doProgressTimeoutInSeconds"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
@@ -107,15 +142,24 @@ namespace AppInstaller::Settings
         constexpr inline size_t SettingIndex(Setting s) { return static_cast<size_t>(s) + 1; }
     }
 
-
     // Representation of the parsed settings file.
     struct UserSettings
     {
-        static UserSettings const& Instance()
+        // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
+        struct Warning
         {
-            static UserSettings userSettings;
-            return userSettings;
-        }
+            Warning(StringResource::StringId message) : Message(message) {}
+            Warning(StringResource::StringId message, std::string_view settingPath) : Message(message), Path(settingPath) {}
+            Warning(StringResource::StringId message, std::string_view settingPath, std::string_view settingValue, bool isField = true) :
+                Message(message), Path(settingPath), Data(settingValue), IsFieldWarning(isField) {}
+
+            StringResource::StringId Message;
+            std::string Path;
+            std::string Data;
+            bool IsFieldWarning = true;
+        };
+
+        static UserSettings const& Instance();
 
         static std::filesystem::path SettingsFilePath();
 
@@ -126,7 +170,7 @@ namespace AppInstaller::Settings
         UserSettings& operator=(UserSettings&&) = delete;
 
         UserSettingsType GetType() const { return m_type; }
-        std::vector<std::string> const& GetWarnings() const { return m_warnings; }
+        std::vector<Warning> const& GetWarnings() const { return m_warnings; }
 
         void PrepareToShellExecuteFile() const;
 
@@ -143,15 +187,13 @@ namespace AppInstaller::Settings
             return std::get<details::SettingIndex(S)>(itr->second);
         }
 
-    private:
+    protected:
         UserSettingsType m_type = UserSettingsType::Default;
-        std::vector<std::string> m_warnings;
+        std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
-    protected:
         UserSettings();
         ~UserSettings() = default;
-
     };
 
     inline UserSettings const& User()

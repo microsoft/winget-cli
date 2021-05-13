@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
+#include "winget/GroupPolicy.h"
+#include "winget/UserSettings.h"
 
 namespace TestCommon
 {
@@ -194,7 +197,21 @@ namespace TestCommon
 
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value)
     {
-
         THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(DWORD)));
+    }
+
+    TestUserSettings::TestUserSettings(bool keepFileSettings)
+    {
+        if (!keepFileSettings)
+        {
+            m_settings.clear();
+        }
+
+        AppInstaller::Settings::SetUserSettingsOverride(this);
+    }
+
+    TestUserSettings::~TestUserSettings()
+    {
+        AppInstaller::Settings::SetUserSettingsOverride(nullptr);
     }
 }

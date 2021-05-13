@@ -386,7 +386,7 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
     <value>Saate tulemeid nime järgi filtreerida</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Praeguse süsteemi jaoks asjakohaseid installereid ei ole.</value>
+    <value>Sobivat installerit ei leitud; üksikasjad leiate logist.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Praegu pole saadaval ühtegi katsetatavat funktsiooni. </value>
@@ -813,5 +813,107 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Rada puudub:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-fail ei määra tuvastatud skeemi.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Valige installiulatus (kasutaja või arvuti)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Argumendis "%1" esitatud väärtus ei sobi; lubatud väärtused on</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>See toiming on rühmapoliitikaga keelatud</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Luba täiendavad Windowsi rakenduseinstalleri allikad</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri lubatud allikad</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri vaikeallikas</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri katsefunktsioonid</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri Microsoft Store‘i allikas</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Luba Windowsi paketihalduri sätted</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Luba Windowsi paketihaldur</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Määra Windowsi paketihalduri allikate automaatse värskendamise intervall minutites</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Keelatud</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Lubatud</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Rühmapoliitika</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Olek</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri kohaliku manifesti failid</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Väli:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Väljavorming ei sobi.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Väljaväärtus ei sobi.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Rühmapoliitika säte ei sobi.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Sätted laaditi varufailist</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Tõrge faili sõelumisel:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Väärtus:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Järgmised eksperimentaalsed funktsioonid on pooleli.
+Konfiguratsioon on rühmapoliitika tõttu keelatud.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installeri räsiväärtused ei ühti.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Luba Windowsi rakenduseinstalleri räsi alistamine</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Praegused allikad eksporditakse rühmapoliitika jaoks JSON-vormingus.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporditakse praegused allikad</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Täiendav allikas</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Lubatud allikas</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -8,11 +8,17 @@
 #include "Resources.h"
 
 using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::Manifest;
 using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
+    namespace
+    {
+        constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
+    }
+
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
@@ -24,14 +30,15 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Version),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
-            Argument::ForType(Args::Type::Language),
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
-            Argument{ "force", Argument::NoAlias, Args::Type::Force, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::HashOverride),
         };
     }
 
@@ -45,29 +52,29 @@ namespace AppInstaller::CLI
         return { Resource::String::InstallCommandLongDescription };
     }
 
-    void InstallCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    void InstallCommand::Complete(Context& context, Args::Type valueType) const
     {
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
-        case Execution::Args::Type::Manifest:
-        case Execution::Args::Type::Id:
-        case Execution::Args::Type::Name:
-        case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Version:
-        case Execution::Args::Type::Channel:
-        case Execution::Args::Type::Source:
+        case Args::Type::Query:
+        case Args::Type::Manifest:
+        case Args::Type::Id:
+        case Args::Type::Name:
+        case Args::Type::Moniker:
+        case Args::Type::Version:
+        case Args::Type::Channel:
+        case Args::Type::Source:
             context <<
                 Workflow::CompleteWithSingleSemanticsForValue(valueType);
             break;
-        case Execution::Args::Type::Language:
+        case Args::Type::Locale:
             // May well move to CompleteWithSingleSemanticsForValue,
             // but for now output nothing.
             context <<
                 Workflow::CompleteWithEmptySet;
             break;
-        case Execution::Args::Type::Log:
-        case Execution::Args::Type::InstallLocation:
+        case Args::Type::Log:
+        case Args::Type::InstallLocation:
             // Intentionally output nothing to allow pass through to filesystem.
             break;
         }
@@ -78,23 +85,39 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-install";
     }
 
-    void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (execArgs.Contains(Execution::Args::Type::Query) ||
-             execArgs.Contains(Execution::Args::Type::Id) ||
-             execArgs.Contains(Execution::Args::Type::Name) ||
-             execArgs.Contains(Execution::Args::Type::Moniker) ||
-             execArgs.Contains(Execution::Args::Type::Version) ||
-             execArgs.Contains(Execution::Args::Type::Channel) ||
-             execArgs.Contains(Execution::Args::Type::Source) ||
-             execArgs.Contains(Execution::Args::Type::Exact)))
+        if (execArgs.Contains(Args::Type::Manifest) &&
+            (execArgs.Contains(Args::Type::Query) ||
+             execArgs.Contains(Args::Type::Id) ||
+             execArgs.Contains(Args::Type::Name) ||
+             execArgs.Contains(Args::Type::Moniker) ||
+             execArgs.Contains(Args::Type::Version) ||
+             execArgs.Contains(Args::Type::Channel) ||
+             execArgs.Contains(Args::Type::Source) ||
+             execArgs.Contains(Args::Type::Exact)))
         {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
+        }
+
+        if (execArgs.Contains(Args::Type::InstallScope))
+        {
+            if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Scope, { "user"_lis, "machine"_lis });
+            }
+        }
+
+        if (execArgs.Contains(Args::Type::Locale))
+        {
+            if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
+            }
         }
     }
 
-    void InstallCommand::ExecuteInternal(Execution::Context& context) const
+    void InstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<

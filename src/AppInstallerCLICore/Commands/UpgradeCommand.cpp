@@ -37,11 +37,10 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
-            Argument::ForType(Args::Type::Language),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
-            Argument{ "force", Argument::NoAlias, Args::Type::Force, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::HashOverride),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
         };
     }
@@ -87,12 +86,6 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Source:
             context <<
                 Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
-            break;
-        case Execution::Args::Type::Language:
-            // May well move to CompleteWithSingleSemanticsForValue,
-            // but for now output nothing.
-            context <<
-                Workflow::CompleteWithEmptySet;
             break;
         }
     }

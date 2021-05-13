@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>App Installer</displayName>
+  <description>App Installer</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">App Installer ng Desktop</string>
+      <string id="EnableAppInstaller">Paganahin ang App Installer</string>
+      <string id="EnableAppInstallerExplanation">Kinokontrol ng patakarang ito kung maaaring gamitin ng mga gumagamit ang Windows Package Manager.
+
+Kung iyong papaganahin o hindi ikokompigura ang setting na ito, magagamit ng mga gumagamit ang Windows Package Manager.
+
+Kung hindi mo papaganahin ang setting na ito, hindi magagamit ng mga gumagamit ang Windows Package Manager.</string>
+      <string id="EnableSettings">Paganahin ang Mga Setting ng App Installer</string>
+      <string id="EnableSettingsExplanation">Kinokontrol ng patakarang ito kung mababago ng mga gumagamit ang kanilang mga setting.
+
+Kung pinapagana mo o hindi ikokompigura ang setting na ito, mababago ng mga gumagamit ang mga setting para sa Windows Package Manager.
+
+Kung hindi mo papaganahin ang setting na ito, hindi mababago ng mga gumagamit ang mga setting para sa Windows Package Manager.</string>
+      <string id="EnableExperimentalFeatures">Paganahin ang Mga Pang-eksperimentong Tampok ng App Installer</string>
+      <string id="EnableExperimentalFeaturesExplanation">Kinokontrol ng patakarang ito kung maaaring paganahin ng mga gumagamit ang mga pang-eksperimentong tampok sa Windows Package Manager.
+
+Kung pinapagana mo o hindi ikokompigura ang setting na ito, mapapagana ng mga gumagamit ang mga pang-eksperimentong tampok para sa Windows Package Manager.
+
+Kung hindi mo papaganahin ang setting na ito, hindi mapapagana ng mga gumagamit ang mga pang-eksperimentong tampok para sa Windows Package Manager.</string>
+      <string id="EnableLocalManifestFiles">Paganahin ang Mga File ng Lokal na Manifest ng App Installer</string>
+      <string id="EnableLocalManifestFilesExplanation">Kinokontrol ng patakarang ito kung maaaring mag-install ang mga gumagamit ng mga package na may mga file ng lokal na manifest.
+
+Kung pinapagana mo o hindi ikokompigura ang setting na ito, magagawa ng mga gumagamit na mag-install ng mga package sa mga lokal na manifest gamit ang Windows Package Manager.
+
+Kung hindi mo papaganahin ang setting na ito, hindi makakapag-install ang mga gumagamit ng mga package na may mga lokal na manifest gamit ang Windows Package Manager.</string>
+      <string id="EnableHashOverride">Paganahin ang Pag-override ng Hash ng App Installer</string>
+      <string id="EnableHashOverrideExplanation">Kinokontrol ng patakarang ito kung mako-configure ang Windows Package Manager o hindi para i-enable ang kakayahang i-override ang pag-validate sa seguridad ng SHA256 sa mga setting.
+
+Kung ie-enable mo o hindi mo iko-configure ang patakarang ito, mae-enable ng mga user ang kakayahang i-override ang pag-validate sa seguridad ng SHA256 sa mga setting ng Windows Package Manager.
+
+Kung idi-disable mo ang patakarang ito, hindi mae-enable ng mga user ang kakayahang i-override ang pag-validate sa seguridad ng SHA256 sa mga setting ng Windows Package Manager.</string>
+      <string id="EnableDefaultSource">Paganahin ang Default na Pinagmulan ng App Installer</string>
+      <string id="EnableDefaultSourceExplanation">Kinokontrol ng patakarang ito ang default na pinagmulang kasama sa Windows Package Manager.
+
+Kung hindi mo ikokompigura ang setting na ito, magiging available ang default na pinagmulan para sa Windows Package Manager at maaaring alisin.
+
+Kung papaganahin mo ang setting na ito, magiging available ang default na pinagmulan para sa Windows Package Manager at hindi ito maaaring alisin.
+
+Kung hindi mo papaganahin ang setting na ito, hindi magiging available ang default na pinagmulan para sa Windows Package Manager.</string>
+      <string id="EnableMicrosoftStoreSource">Paganahin ang Pinagmulan ng Microsoft Store ng App Installer</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Kinokontrol ng patakarang ito ang pinagmulan ng Microsoft Store na kasama sa Windows Package Manager.
+
+Kung hindi mo ikokompigura ang setting na ito, magiging available ang pinagmulan ng Microsoft Store para sa Windows Package manager at maaaring alisin.
+
+Kung papaganahin mo ang setting na ito, magiging available ang pinagmulan ng Microsoft Store para sa Windows Package Manager at hindi maaaring alisin.
+
+Kung hindi mo papaganahin ang setting na ito, hindi magiging available ang pinagmulan ng Microsoft Store para sa Windows Package Manager.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">I-set Sa Loob Ilang Minuto ang Auto Update Interval ng Pinagmulan ng App Installer</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Kinokontrol ng patakarang ito ang auto update interval para sa mga pinagmulang batay sa package.
+
+Kung hindi mo papaganahin o hindi ikokompigura ang setting na ito, gagamitin ang default na interval o ang halagang tinukoy sa mga setting ng Windows Package Manager.
+
+Kung papaganahin mo ang setting na ito, gagamitin ang bilang ng mga minutong tinukoy ng Windows Package Manager.</string>
+      <string id="EnableAdditionalSources">Paganahin ang Mga Karagdagang Pinagmulan ng App Installer</string>
+      <string id="EnableAdditionalSourcesExplanation">Kinokontrol ng patakarang ito ang mga karagdagang pinagmulang ibinigay ng enterprise IT administrator.
+
+Kung hindi mo ikokompigura ang patakarang ito, walang karagdagang pinagmulan ang makokompigura para sa Windows Package Manager.
+
+Kung papaganahin mo ang patakarang ito, idaragdag ang mga karagdagang pinagmulan sa Windows Package Manager at hindi maaaring alisin. Maaaring makuha ang representasyon para sa bawat karagdagang pinagmulan mula sa mga naka-install na pinagmulan gamit ang 'winget source export'.
+
+Kung hindi mo papaganahin ang patakarang ito, walang karagdagang pinagmulan ang maaaring ikompigura para sa Windows Package Manager.</string>
+      <string id="EnableAllowedSources">Paganahin ang Mga Pinapayagang Pinagmulan ng App Installer</string>
+      <string id="EnableAllowedSourcesExplanation">Kinokontrol ng patakarang ito ang mga karagdagang pinagmulang pinayagan ng enterprise IT administrator.
+
+Kung hindi mo ikokompigura ang patakarang ito, makakapagdagdag o makakapagalis ang mga gumagamit ng mga karagdagang pinagmulan maliban sa mga nakompigura ng patakaran.
+
+Kung papaganahin mo ang patakarang ito, ang mga pinagmulang tinukoy lang ang maaaring idagdag o alisin mula sa Windows Package Manager. Maaaring makuha ang representasyon para sa bawat pinapayagang pinagmulan mula sa mga naka-install na pinagmulan gamit ang 'winget source export'.
+
+Kung hindi mo papaganahin ang patakarang ito, walang karagdagang pinagmulan ang maaaring ikompigura para sa Windows Package Manager.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Auto Update Interval ng Pinagmulan Sa Loob Ng Ilang Minuto</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Mga Karagdagang Pinagmulan: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Mga Pinapayagang Pinagmulan: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

@@ -50,6 +50,12 @@ namespace AppInstaller::CLI::Execution
         Max
     };
 
+    struct PackageToInstall
+    {
+        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        PackageCollection::Package PackageRequest;
+    };
+
     namespace details
     {
         template <Data D>
@@ -163,7 +169,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {
-            using value_t = std::vector<std::shared_ptr<Repository::IPackageVersion>>;
+            using value_t = std::vector<PackageToInstall>;
         };
 
         template <>

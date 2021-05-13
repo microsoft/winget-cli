@@ -386,7 +386,7 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>Filtra els resultats per nom</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>No hi ha instal·ladors aplicables al sistema actual.</value>
+    <value>No s'ha trobat cap instal·lador aplicable; vegeu els registres per obtenir més informació.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Actualment no hi ha cap característica experimental disponible. </value>
@@ -813,5 +813,107 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>El camí no existeix:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>El fitxer JSON no especifica un esquema reconegut.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Selecciona l'àmbit d'instal·lació (usuari o màquina)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>El valor proporcionat per a l'argument "%1" no és vàlid. els valors vàlids són</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Aquesta operació està inhabilitada per l'estratègia de grup</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Habilita orígens addicionals de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Habilita els orígens permesos de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Habilita l'origen per defecte de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Habilita les característiques experimentals de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Habilita l'origen del Microsoft Store de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Habilita la configuració de l'administrador de paquets del Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Habilita l'administrador de paquets del Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Defineix l'interval d'actualització automàtica de l'administrador de paquets del Windows en minuts</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Inhabilitat</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Habilitat</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Estratègia de grup</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Estat</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Habilita els fitxers del manifest local de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Camp:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>El format de camp no és vàlid.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Valor de camp no vàlid.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Configuració no vàlida de l'estratègia de grup.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>S'han carregat els paràmetres del fitxer de còpia de seguretat.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Error en analitzar el fitxer:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Valor:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Les característiques experimentals següents estan en curs.
+La configuració està inhabilitada a causa de la norma de grup.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>El hash de l'instal·lador no coincideix.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Habilita la substitució de hash de l'instal·lador de l'aplicació del Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Exporta els orígens actuals com a JSON per a la norma de grup.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta els orígens actuals</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Origen addicional</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Origen permès</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

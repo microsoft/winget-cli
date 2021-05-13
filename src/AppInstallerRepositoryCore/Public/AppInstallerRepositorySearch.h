@@ -125,8 +125,18 @@ namespace AppInstaller::Repository
     // A property of a package version that can have multiple values.
     enum class PackageVersionMultiProperty
     {
+        // The package family names (PFN) associated with the package version
         PackageFamilyName,
+        // The product codes associated with the package version.
         ProductCode,
+        // TODO: Fully implement these 3; the data is not yet in the index source (name and publisher are hacks and locale is not present)
+        // The package names for the version; these must match in number and order with both Publisher and Locale.
+        Name,
+        // The publisher values for the version; these must match in number and order with both Name and Locale.
+        Publisher,
+        // The locale of the matching Name and Publisher values; these must match in number and order with both Name and Publisher.
+        // May be empty if there is only a single value for Name and Publisher.
+        Locale,
     };
 
     // A metadata item of a package version.
@@ -145,7 +155,7 @@ namespace AppInstaller::Repository
         // The publisher of the package
         Publisher,
         // The locale of the package
-        Locale,
+        InstalledLocale,
     };
 
     // Convert a PackageVersionMetadata to a string.

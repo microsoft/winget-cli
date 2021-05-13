@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalador de aplicación</displayName>
+  <description>Instalador de aplicación</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalador de aplicaciones de escritorio</string>
+      <string id="EnableAppInstaller">Habilitar el instalador de aplicaciones</string>
+      <string id="EnableAppInstallerExplanation">Esta directiva controla si los usuarios pueden usar el administrador de paquetes de Windows.
+
+Si habilita o no configura esta opción, los usuarios podrán usar el administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán usar el administrador de paquetes de Windows.</string>
+      <string id="EnableSettings">Habilitar la configuración del instalador de aplicaciones</string>
+      <string id="EnableSettingsExplanation">Esta directiva controla si los usuarios pueden cambiar su configuración.
+
+Si habilita o no configura esta opción, los usuarios podrán cambiar la configuración del administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán cambiar la configuración del administrador de paquetes de Windows.</string>
+      <string id="EnableExperimentalFeatures">Habilitar las características experimentales del instalador de aplicaciones</string>
+      <string id="EnableExperimentalFeaturesExplanation">Esta directiva controla si los usuarios pueden habilitar las características experimentales en el administrador de paquetes de Windows.
+
+Si habilita o no configura esta opción, los usuarios podrán habilitar las características experimentales para el administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán habilitar las características experimentales para el administrador de paquetes de Windows.</string>
+      <string id="EnableLocalManifestFiles">Habilitar los archivos de manifiesto local del instalador de aplicaciones</string>
+      <string id="EnableLocalManifestFilesExplanation">Esta directiva controla si los usuarios pueden instalar paquetes con archivos de manifiesto locales.
+
+Si habilita o no configura esta opción, los usuarios podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.</string>
+      <string id="EnableHashOverride">Habilitar invalidación del hash del instalador de aplicaciones</string>
+      <string id="EnableHashOverrideExplanation">Esta directiva controla si el administrador de paquetes de Windows puede configurarse para que habilite la posibilidad de invalidar la validación de seguridad SHA256 en la configuración.
+
+Si habilita o no configura esta directiva, los usuarios podrán habilitar la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.
+
+Si deshabilitas esta directiva, los usuarios no podrán habilitar la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.</string>
+      <string id="EnableDefaultSource">Habilitar origen predeterminado del instalador de aplicaciones</string>
+      <string id="EnableDefaultSourceExplanation">Esta directiva controla el origen predeterminado incluido con el administrador de paquetes de Windows.
+
+Si no configura esta opción, el origen predeterminado para el administrador de paquetes de Windows estará disponible y se podrá quitar.
+
+Si habilita esta configuración, el origen predeterminado para el administrador de paquetes de Windows estará disponible y no se podrá quitar.
+
+Si deshabilita esta configuración, el origen predeterminado para el administrador de paquetes de Windows no estará disponible.</string>
+      <string id="EnableMicrosoftStoreSource">Habilitar el origen de Microsoft Store del instalador de aplicaciones</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Esta directiva controla el origen de Microsoft Store incluido con el administrador de paquetes de Windows.
+
+Si no configura esta opción, el origen de Microsoft Store para el administrador de paquetes de Windows estará disponible y se podrá quitar.
+
+Si habilita esta configuración, el origen de Microsoft Store para el administrador de paquetes de Windows estará disponible y no se podrá quitar.
+
+Si deshabilita esta configuración, el origen de Microsoft Store para el administrador de paquetes de Windows no estará disponible.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Establecer en minutos el intervalo de actualización automática del origen del instalador de aplicaciones</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta directiva controla el intervalo de actualización automática de los orígenes basados en paquetes.
+
+Si deshabilita o no configura esta configuración, el administrador de paquetes de Windows usará el valor del intervalo predeterminado o de los valores especificados en la configuración.
+
+Si habilita esta configuración, el administrador de paquetes de Windows usará el número de minutos especificado.</string>
+      <string id="EnableAdditionalSources">Habilitar los orígenes adicionales del instalador de aplicaciones</string>
+      <string id="EnableAdditionalSourcesExplanation">Esta directiva controla los orígenes adicionales proporcionados por el administrador de TI de la empresa.
+
+Si no configura esta directiva, no se configurarán los orígenes adicionales para el administrador de paquetes de Windows.
+
+Si habilita esta directiva, los orígenes adicionales se agregarán al administrador de paquetes de Windows y no se podrán quitar. La representación de cada origen adicional se puede obtener de las fuentes instaladas mediante la 'WinGet Source Export'.
+
+Si deshabilita esta directiva, no se podrán configurar los orígenes adicionales para el administrador de paquetes de Windows.</string>
+      <string id="EnableAllowedSources">Habilitar los orígenes permitidos del instalador de aplicaciones</string>
+      <string id="EnableAllowedSourcesExplanation">Esta directiva controla los orígenes adicionales proporcionados por el administrador de TI de la empresa.
+
+Si no configura esta directiva, los usuarios no podrán agregar o eliminar orígenes adicionales que sean diferentes de los configurados por esta directiva.
+
+Si habilita esta directiva, solo los orígenes especificados se pueden agregar o eliminar del administrador de paquetes de Windows. La representación de cada origen adicional se puede obtener de las fuentes instaladas mediante la 'WinGet Source Export'.
+
+Si deshabilita esta directiva, no se podrán configurar los orígenes adicionales para el administrador de paquetes de Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalo de actualización automática del origen en minutos</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Orígenes adicionales: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Orígenes permitidos: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

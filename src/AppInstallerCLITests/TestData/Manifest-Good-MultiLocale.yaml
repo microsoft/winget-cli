@@ -1,0 +1,41 @@
+PackageIdentifier: AppInstallerCliTest.MultiLocaleTest
+PackageVersion: 1.0.0.0
+PackageLocale: es-MX
+PackageName: es-MX package name
+Publisher: es-MX publisher
+Moniker: AICLITestExe
+License: Test
+InstallerType: exe
+Installers: 
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerSwitches:
+        Custom: /unknownLocale
+        SilentWithProgress: /silentwithprogress
+        Silent: /silence
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerLocale: en-GB
+      InstallerSwitches:
+        Custom: /en-GB
+        SilentWithProgress: /silentwithprogress
+        Silent: /silence
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerLocale: fr-FR
+      InstallerSwitches:
+        Custom: /fr-FR
+        SilentWithProgress: /silentwithprogress
+        Silent: /silence
+Localization:
+    - PackageLocale: en-GB
+      PackageName: en-GB package name
+      Publisher: en-GB publisher
+    - PackageLocale: fr-FR
+      PackageName: fr-FR package name
+
+ManifestType: merged
+ManifestVersion: 1.0.0

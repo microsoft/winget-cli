@@ -386,7 +386,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Találatok szűrése név alapján</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Egyetlen telepítő sem alkalmazható a jelenlegi rendszerben.</value>
+    <value>Nem található megfelelő telepítő; További részleteket a naplókban talál.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Jelenleg nincsenek elérhető kísérleti fázisú funkciók. </value>
@@ -813,5 +813,107 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Az elérési út nem létezik:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>A JSON-fájl nem határoz meg felismerhető sémát.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Telepítési hatókör (felhasználó vagy számítógép) kiválasztása</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>A(z) "%1" argumentumhoz megadott érték érvénytelen; érvényes értéknek számít:</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Ezt a műveletet a csoportházirend letiltotta</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>További Windows Alkalmazástelepítő-források engedélyezése</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő engedélyezett forrásainak engedélyezése</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő alapértelmezett forrásának engedélyezése</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő kísérleti funkcióinak engedélyezése</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő Microsoft Store forrásának engedélyezése</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>A Windows-csomagkezelő beállításainak engedélyezése</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>A Windows-csomagkezelő engedélyezése</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>A Windows-csomagkezelő-forrás automatikus frissítési időköze percben</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Letiltva</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Engedélyezve</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Csoportházirend</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Állam/megyemegye</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő helyi jegyzékfájljainak engedélyezése</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Mező:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Érvénytelen mezőformátum.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Érvénytelen mezőérték.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Érvénytelen beállítás csoportházirendből.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Beállítások betöltve a biztonsági másolat-fájlból.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Nem sikerült elemezni a fájlt:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Érték: </value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>A következő kísérleti funkciók vannak folyamatban.
+A konfiguráció a csoportházirend miatt le van tiltva.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>A telepítő kivonata nem egyezik.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>A Windows Alkalmazástelepítő Kivonatfelülírásának engedélyezése</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Aktuális források exportálása JSON-ként csoportházirendhez.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>A jelenlegi források exportálása</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>További forrás</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Engedélyezett forrás</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

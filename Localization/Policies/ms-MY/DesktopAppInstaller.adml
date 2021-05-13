@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Pemasang Aplikasi</displayName>
+  <description>Pemasang Aplikasi</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Pemasang Aplikasi Desktop</string>
+      <string id="EnableAppInstaller">Dayakan Pemasang Aplikasi</string>
+      <string id="EnableAppInstallerExplanation">Dasar ini mengawal sama ada Pengurus Pakej Windows boleh digunakan oleh pengguna..
+
+Jika anda mendayakan atau tidak mengkonfigurasi tetapan ini, pengguna akan dapat menggunakan Pengurus Pakej Windows.
+
+Jika anda menyahdayakan tetapan ini, pengguna tidak akan dapat menggunakan Pengurus Pakej Windows.</string>
+      <string id="EnableSettings">Dayakan Tetapan Pemasang Aplikasi</string>
+      <string id="EnableSettingsExplanation">Dasar ini mengawal sama ada pengguna boleh mengubah tetapan mereka.
+
+Jika anda mendayakan atau tidak mengkonfigurasi tetapan ini, pengguna akan dapat mengubah tetapan untuk Pengurus Pakej Windows.
+
+Jika anda menyahdayakan tetapan ini, pengguna tidak akan dapat mengubah tetapan untuk Pengurus Pakej Windows.</string>
+      <string id="EnableExperimentalFeatures">Dayakan Ciri Eksperimen Pemasang Aplikasi</string>
+      <string id="EnableExperimentalFeaturesExplanation">Dasar ini mengawal sama ada pengguna boleh mengaktifkan ciri eksperimen dalam Pengurus Pakej Windows.
+
+Sekiranya anda mendayakan atau tidak mengkonfigurasi tetapan ini, pengguna akan dapat mengaktifkan ciri eksperimen untuk Pengurus Pakej Windows.
+
+Sekiranya anda menyahdayakan tetapan ini, pengguna tidak akan dapat mengaktifkan ciri eksperimen untuk Pengurus Pakej Windows.</string>
+      <string id="EnableLocalManifestFiles">Dayakan Fail Manifes Tempatan Pemasang Aplikasi</string>
+      <string id="EnableLocalManifestFilesExplanation">Dasar ini mengawal sama ada pengguna boleh memasang pakej dengan fail nyata tempatan.
+
+Jika anda mendayakan atau tidak mengkonfigurasikan tetapan ini, pengguna akan dapat memasang pakej dengan manifes tempatan menggunakan Pengurus Pakej Windows.
+
+Jika anda menyahdayakan tetapan ini, pengguna tidak akan dapat memasang pakej dengan manifes tempatan menggunakan Pengurus Pakej Windows.</string>
+      <string id="EnableHashOverride">Dayakan Penggantian Hash Pemasang Aplikasi</string>
+      <string id="EnableHashOverrideExplanation">Dasar ini mengawal sama ada Pengurus Pakej Windows boleh dikonfigurasikan atau tidak untuk mendayakan keupayaan mengatasi pengesahan keselamatan SHA256 dalam seting.
+
+Jika anda mendayakan atau tidak mengkonfigurasikan dasar ini, pengguna akan dapat mendayakan keupayaan mengatasi pengesahan keselamatan SHA256 dalam tetapan Windows Package Manager.
+
+Jika anda menyahdayakan dasar ini, pengguna tidak akan dapat mendayakan keupayaan mengatasi pengesahan keselamatan SHA256 dalam tetapan Windows Package Manager.</string>
+      <string id="EnableDefaultSource">Dayakan Sumber Lalai Pemasang Aplikasi</string>
+      <string id="EnableDefaultSourceExplanation">Dasar ini mengawal sumber lalai yang disertakan dengan Pengurus Pakej Windows.
+
+Jika anda tidak mengkonfigurasikan tetapan ini, sumber lalai untuk Pengurus Pakej Windows akan tersedia dan boleh dialih keluar.
+
+Jika anda mendayakan tetapan ini, sumber lalai untuk Pengurus Pakej Windows akan tersedia dan tidak boleh dialih keluar.
+
+Jika anda menyahdayakan tetapan ini, sumber lalai untuk Pengurus Pakej Windows tidak akan tersedia.</string>
+      <string id="EnableMicrosoftStoreSource">Dayakan Sumber Microsoft Store Pemasang Aplikasi</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Dasar ini mengawal sumber Microsoft Store yang disertakan dengan Pengurus Pakej Windows.
+
+Jika anda tidak mengkonfigurasikan tetapan ini, sumber Microsoft Store untuk Pengurus Pakej Windows akan tersedia dan boleh dialih keluar.
+
+Jika anda mendayakan tetapan ini, sumber Microsoft Store untuk Pengurus Pakej Windows akan tersedia dan tidak boleh dialih keluar.
+
+Jika anda menyahdayakan tetapan ini, sumber Microsoft Store untuk Pengurus Pakej Windows tidak akan tersedia.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Tetapkan Selang Kemas kini Auto Sumber Pemasang Aplikasi Dalam Minit</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Dasar ini mengawal selang masa kemas kini auto untuk sumber berasaskan pakej.
+
+Jika anda menyahdayakan atau mengkonfigurasikan tetapan ini, selang lalai atau nilai yang ditentukan dalam tetapan akan digunakan oleh Pengurus Pakej Windows.
+
+Jika anda mendayakan tetapan ini, bilangan minit yang ditentukan akan digunakan oleh Pengurus Pakej Windows.</string>
+      <string id="EnableAdditionalSources">Dayakan Sumber Tambahan Pemasang Aplikasi</string>
+      <string id="EnableAdditionalSourcesExplanation">Dasar ini mengawal sumber tambahan yang disediakan oleh pentadbir IT perusahaan.
+
+Jika anda tidak mengkonfigurasi dasar ini, tiada sumber tambahan akan dikonfigurasikan untuk Pengurus Pakej Windows.
+
+Jika anda mendayakan dasar ini, sumber tambahan akan ditambah kepada Pengurus Pakej Windows dan tidak boleh dialih keluar. Perwakilan untuk setiap sumber tambahan boleh diperolehi daripada sumber yang dipasang menggunakan ‘eksport sumber winget'.
+
+Jika anda menyahdayakan dasar ini, tiada sumber tambahan boleh dikonfigurasikan untuk Pengurus Pakej Windows.</string>
+      <string id="EnableAllowedSources">Dayakan Sumber Yang Dibenarkan Pemasang Aplikasi</string>
+      <string id="EnableAllowedSourcesExplanation">Dasar ini mengawal sumber tambahan yang disediakan oleh pentadbir IT perusahaan.
+
+Jika anda tidak mengkonfigurasi dasar ini, pengguna akan dapat menambahkan atau membuang sumber tambahan selain yang dikonfigurasi oleh dasar.
+
+Jika anda mendayakan polisi ini, hanya sumber yang ditentukan yang dapat ditambahkan atau dikeluarkan dari Pengurus Pakej Windows. Perwakilan untuk setiap sumber yang dibenarkan dapat diperoleh dari sumber yang dipasang menggunakan 'eksport sumber winget'.
+
+Jika anda menyahdayakan dasar ini, tiada sumber tambahan boleh dikonfigurasikan untuk Pengurus Pakej Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Selang Kemas Kini Auto Sumber Dalam Minit</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Sumber tambahan: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Sumber Yang Dibenarkan: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

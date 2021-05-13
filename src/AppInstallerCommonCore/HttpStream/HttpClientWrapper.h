@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "pch.h"
+
 
 namespace AppInstaller::Utility::HttpStream
 {
@@ -38,7 +38,7 @@ namespace AppInstaller::Utility::HttpStream
         winrt::Windows::Foundation::Uri m_requestUri = nullptr;
         winrt::Windows::Foundation::Uri m_redirectUri = nullptr;
         std::wstring m_contentType;
-        unsigned long long m_sizeInBytes;
+        unsigned long long m_sizeInBytes = 0;
         std::wstring m_etagHeader;
         std::wstring m_lastModifiedHeader;
 

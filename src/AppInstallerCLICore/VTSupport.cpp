@@ -164,4 +164,63 @@ namespace AppInstaller::CLI::VirtualTerminal
         const Sequence EraseLineBackward{ AICLI_VT_CSI "1K" };
         const Sequence EraseLineEntirely{ AICLI_VT_CSI "2K" };
     }
+
+    namespace Progress
+    {
+        ConstructedSequence Construct(State state, std::optional<uint32_t> percentage)
+        {
+            // See https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC
+
+            THROW_HR_IF(E_BOUNDS, percentage.has_value() && percentage > 100u);
+
+            // Workaround some quirks in the Windows Terminal implementation of the progress OSC sequence
+            switch (state)
+            {
+            case State::None:
+            case State::Indeterminate:
+                // Windows Terminal does not recognize the OSC sequence if the progress value is left out.
+                // As a workaround, we can specify an arbitrary value since it does not matter for None and Indeterminate states.
+                percentage = percentage.value_or(0);
+                break;
+            case State::Normal:
+            case State::Error:
+            case State::Paused:
+                // Windows Terminal does not support switching progress states without also setting a progress value at the same time,
+                // so we disallow this case for now.
+                THROW_HR_IF(E_INVALIDARG, !percentage.has_value());
+                break;
+            }
+
+            int stateId;
+            switch (state)
+            {
+            case State::None:
+                stateId = 0;
+                break;
+            case State::Indeterminate:
+                stateId = 3;
+                break;
+            case State::Normal:
+                stateId = 1;
+                break;
+            case State::Error:
+                stateId = 2;
+                break;
+            case State::Paused:
+                stateId = 4;
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            std::ostringstream result;
+            result << AICLI_VT_OSC "9;4;" << stateId << ";";
+            if (percentage.has_value())
+            {
+                result << percentage.value();
+            }
+            result << AICLI_VT_ESCAPE << "\\";
+            return ConstructedSequence{ result.str() };
+        }
+    }
 }

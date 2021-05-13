@@ -239,7 +239,7 @@ namespace AppInstaller::CLI::Workflow
     void SearchPackagesForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall = {};
+        std::vector<Execution::PackageToInstall> packagesToInstall = {};
         bool foundAll = true;
 
         // Look for the packages needed from each source independently.
@@ -301,7 +301,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.push_back(std::move(searchContext.Get<Execution::Data::PackageVersion>()));
+                packagesToInstall.push_back({ std::move(searchContext.Get<Execution::Data::PackageVersion>()), packageRequest });
             }
         }
 

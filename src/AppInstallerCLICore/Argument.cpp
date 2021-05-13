@@ -18,7 +18,7 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query", 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles };
         case Args::Type::Id:
             return Argument{ "id", NoAlias, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
@@ -43,14 +43,16 @@ namespace AppInstaller::CLI
             return Argument{ "interactive", 'i', Args::Type::Interactive, Resource::String::InteractiveArgumentDescription, ArgumentType::Flag };
         case Args::Type::Silent:
             return Argument{ "silent", 'h', Args::Type::Silent, Resource::String::SilentArgumentDescription, ArgumentType::Flag };
-        case Args::Type::Language:
-            return Argument{ "lang", 'a', Args::Type::Language, Resource::String::LanguageArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
+        case Args::Type::Locale:
+            return Argument{ "locale", NoAlias, Args::Type::Locale, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
         case Args::Type::Log:
             return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
             return Argument{ "override", NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
+        case Args::Type::HashOverride:
+            return Argument{ "force", Argument::NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
         case Args::Type::HashFile:
             return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:
@@ -94,6 +96,11 @@ namespace AppInstaller::CLI
     Argument::Visibility Argument::GetVisibility() const
     {
         if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Argument::Visibility::Hidden;
+        }
+
+        if (!GroupPolicies().IsEnabled(m_groupPolicy))
         {
             return Argument::Visibility::Hidden;
         }

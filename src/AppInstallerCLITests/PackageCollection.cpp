@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 
+#include <winget/Regex.h>
 #include <PackageCollection.h>
 
 // Duplicating here because a change to these values in the product *REALLY* needs to be thought through.
@@ -52,6 +53,19 @@ namespace
         REQUIRE(node[propertyName].asString() == expectedValue);
     }
 
+    void ValidateJsonStringPropertyRegex(const Json::Value& node, const std::string& propertyName, std::string_view regex, bool allowMissing = false)
+    {
+        if (allowMissing && !node.isMember(propertyName))
+        {
+            return;
+        }
+
+        REQUIRE(node.isMember(propertyName));
+        REQUIRE(node[propertyName].isString());
+        const auto& value = AppInstaller::Utility::ConvertToUTF16(node[propertyName].asString());
+        REQUIRE(AppInstaller::Regex::Expression(regex).IsMatch(value));
+    }
+
     const Json::Value& GetAndValidateJsonProperty(const Json::Value& node, const std::string& propertyName, Json::ValueType valueType)
     {
         REQUIRE(node.isMember(propertyName));
@@ -63,7 +77,13 @@ namespace
     {
         ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_v1_0);
         ValidateJsonStringProperty(root, s_PackagesJson_WinGetVersion, collection.ClientVersion);
-        REQUIRE(root.isMember(s_PackagesJson_CreationDate));
+
+        // valijson does not validate the date-time format, which should follow RFC3339 according to the JSON schema.
+        // Ensure we write something at least reasonable.
+        // The expected format is <Date>T<Time><TimeZone>
+        // with Date="YYYY-MM-DD"; Time="HH:mm:ss.xxx"; TimeZone="Z" or "+HH:mm" or "-HH:mm" (offset from UTC)
+        std::string_view dateTimeRegex = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+(Z|[+-][0-9]{2}:[0-9]{2})"sv;
+        ValidateJsonStringPropertyRegex(root, s_PackagesJson_CreationDate, dateTimeRegex);
 
         const auto& jsonSources = GetAndValidateJsonProperty(root, s_PackagesJson_Sources, Json::ValueType::arrayValue);
         REQUIRE(jsonSources.size() == collection.Sources.size());
@@ -453,4 +473,37 @@ TEST_CASE("PackageCollection_Read_SchemaValidationFail", "[PackageCollection]")
 
     REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed);
     REQUIRE(parseResult.Errors.find("Missing required property 'Sources'.") != std::string::npos);
+}
+
+TEST_CASE("PackageCollection_Read_BadTimeStamp", "[PackageCollection]")
+{
+    // We used to export without padding the creation date with 0s nor adding time zone.
+    // Ensure we don't break with that format.
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+      "CreationDate": "2021- 1- 1 12:00:00.000",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "Id": "test"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ],
+      "WinGetVersion": "1.0.0"
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    INFO(parseResult.Errors);
+
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
 }

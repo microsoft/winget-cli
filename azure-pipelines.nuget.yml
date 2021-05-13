@@ -15,6 +15,7 @@ variables:
 
 jobs:
   - job: "Build"
+    timeoutInMinutes: 120
     variables:
       BuildVer: $[counter(${{ parameters.version }}, 1)]
       version: ${{ parameters.version }}.$(BuildVer)

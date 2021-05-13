@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalador de aplicacións</displayName>
+  <description>Instalador de aplicacións</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalador de aplicacións de escritorio</string>
+      <string id="EnableAppInstaller">Activar o Instalador de aplicacións</string>
+      <string id="EnableAppInstallerExplanation">Esta política controla se os usuarios poden utilizar o Xestor de paquetes de Windows.
+
+Se activas ou non configuras esta configuración, os usuarios poderán utilizar o Xestor de paquetes de Windows.
+
+Se desactivas esta configuración, os usuarios non poderán utilizar o Xestor de paquetes de Windows.</string>
+      <string id="EnableSettings">Activar a Configuración do Instalador de aplicacións</string>
+      <string id="EnableSettingsExplanation">Esta política controla se os usuarios poden modificar a súa configuración.
+
+Se activas ou non configuras esta configuración, os usuarios poderán modificar a configuración para o Xestor de paquetes de Windows.
+
+Se desactivas esta configuración, os usuarios non poderán modificar a configuración para o Xestor de paquetes de Windows.</string>
+      <string id="EnableExperimentalFeatures">Activar as funcionalidades experimentais do Instalador de aplicacións</string>
+      <string id="EnableExperimentalFeaturesExplanation">Esta política controla se os usuarios poden activar as funcionalidades experimentais do Xestor de paquetes de Windows.
+
+Se activas ou non configuras esta configuración, os usuarios poderán activar as funcionalidades experimentais para o Xestor de paquetes de Windows.
+
+Se desactivas esta configuración, os usuarios non poderán activar as funcionalidades experimentais para o Xestor de paquetes de Windows.</string>
+      <string id="EnableLocalManifestFiles">Activar os ficheiros manifestos locais do Instalador de aplicacións</string>
+      <string id="EnableLocalManifestFilesExplanation">Esta política controla se os usuarios poden instalar os paquetes con ficheiros de manifesto locais.
+
+Se activas ou non configuras esta configuración, os usuarios poderán instalar paquetes con manifestos locais usando o Xestor de paquetes de Windows.
+
+Se desactivas esta configuración, os usuarios non poderán instalar paquetes locais usando o Xestor de paquetes de Windows.</string>
+      <string id="EnableHashOverride">Activar anular o hash do Instalador de aplicacións</string>
+      <string id="EnableHashOverrideExplanation">Esta política controla se o Xestor de paquetes de Windows se pode configurar para activar a capacidade de anular a validación de seguranza SHA256 na configuración.
+
+ Se non activas ou non configuras esta política, os usuarios poderán activar a capacidade de anular a validación de seguranza SHA256 na configuración no Xestor de paquetes de Windows.
+
+Se desactivas esta política, os usuarios non poderán activar a capacidade de anular a validación de seguranza SHA256 no Xestor de paquetes de Windows.</string>
+      <string id="EnableDefaultSource">Activar a orixe predefinida do Instalador de aplicacións</string>
+      <string id="EnableDefaultSourceExplanation">A política controla a orixe predefinida que se inclúe no Xestor de paquetes de Windows.
+
+Se non configuras esta configuración, a orixe por defecto para o Xestor de paquetes de Windows estará dispoñible e poderá eliminarse.
+
+Se activas esta configuración, a orixe predefinida para o Xestor de paquetes de Windows estará dispoñible e non poderá eliminarse.
+
+Se desactivas esta configuración, a orixe predefinida para o Xestor de paquetes de Windows non estará dispoñible.</string>
+      <string id="EnableMicrosoftStoreSource">Activar a orixe de Microsoft Store do Instalador de aplicacións</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">A política controla a orixe de Microsoft Store que se inclúe co Xestor de paquetes de Windows.
+
+Se non configuras esta configuración, a orixe de Microsoft Store para o Xestor de paquetes de Windows estará dispoñible e poderá eliminarse.
+
+Se activas esta configuración, a orixe de Microsoft Store para o Xestor de paquetes de Windows estará dispoñible e non poderá eliminarse.
+
+Se desactivas esta configuración, a orixe de Microsoft Store para o Xestor de paquetes de Windows non estará dispoñible.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Definir o intervalo da actualización automática do Instalador de aplicacións en minutos</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta política controla o intervalo da actualización automática para as orixes baseadas en paquetes.
+
+Se desactivas ou non configuras esta configuración, o Xestor de paquetes de Windows utilizará o intervalo predefinido ou o valor especificado na configuración.
+
+Se activas esta configuración, o Xestor de paquetes de Windows utilizará o número especificado de minutos.</string>
+      <string id="EnableAdditionalSources">Activar orixes adicionais do Instalador de aplicacións</string>
+      <string id="EnableAdditionalSourcesExplanation">Esta política controla as orixes adicionais que fornece o administrador de TI da empresa.
+
+Se non configuras esta política, non se configurarán orixes adicionais para o Xestor de paquetes de Windows.
+
+Se activas esta política, as orixes adicionais engadiranse ao Xestor de paquetes de Windows e non se poderán eliminar. Pódese obter a representación de cada orixe adicional das orixes instaladas usando “winget source export”.
+
+Se desactivas esta política, non se poden configurar máis orixes adicionais para o Xestor de paquetes de Windows.</string>
+      <string id="EnableAllowedSources">Activar as orixes permitidas do Instalador de aplicacións</string>
+      <string id="EnableAllowedSourcesExplanation">Esta política controla as orixes adicionais que fornece o administrador de IT da empesa.
+
+Se non configuras esta política, os usuarios poderán engadir e eliminar orixes adicionais distintas ás que configura a política.
+
+Se activas esta política, só se poderán engadir e eliminar do Xestor de paquetes de Windows as orixes específicas. A representación de cada orixe permitida pode obterse das orixes instaladas utilizando “winget source export”.
+
+Se desactivas esta política, non se poderán configurar orixes adicionais para o Xestor de paquetes de Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalo da actualización automática da orixe en minutos</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Orixes adicionais: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Orixes permitidas: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

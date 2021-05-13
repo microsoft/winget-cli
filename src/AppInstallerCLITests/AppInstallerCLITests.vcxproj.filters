@@ -33,6 +33,12 @@
     <ClInclude Include="TestSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestRestRequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -128,6 +134,39 @@
     <ClCompile Include="ActivateThreadGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkflowGroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestComparator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestRestRequestHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpClientHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchRequestSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -198,6 +237,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-SameLang.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidLocale.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidManifestVersionValue.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -262,6 +304,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Minimum-InstallerType.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MultiLocale.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Switches.yaml">
@@ -402,6 +447,11 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml" />
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
