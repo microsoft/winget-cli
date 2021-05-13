@@ -27,10 +27,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
         for (uint32_t i = 0; i < sources.size(); i++)
         {
-            //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
-            //appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(winrt::to_hstring(sources.at(i).Name));
-            //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
-            //appCatalog = winrt::make<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
             auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
             appCatalogImpl->Initialize(winrt::to_hstring(sources.at(i).Name));
             catalogs.Append(*appCatalogImpl);
@@ -39,24 +35,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog)
     {
-        //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
-        //appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(predefinedAppCatalog);
-        //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
         auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
         appCatalogImpl->Initialize(predefinedAppCatalog);
         return *appCatalogImpl;
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogByLocalAppCatalog(Microsoft::Management::Deployment::LocalAppCatalog const& localAppCatalog)
     {
-        //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
         auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
         appCatalogImpl->Initialize(localAppCatalog);
-        //appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(localAppCatalog);
         return *appCatalogImpl;
     }
     Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogById(hstring const& catalogId)
     {
-        //winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
         auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
         appCatalogImpl->Initialize(catalogId);
         return *appCatalogImpl;
@@ -93,9 +83,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             throw hresult_not_implemented();
         }
-        winrt::Microsoft::Management::Deployment::AppCatalog appCatalog{ nullptr };
-        appCatalog = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>(options);
-        return appCatalog;
+        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
+        appCatalogImpl->Initialize(options);
+        return *appCatalogImpl;
     }
 
     Windows::Foundation::IAsyncAction ExecuteInstallAsync(::AppInstaller::CLI::Execution::Context& context, std::unique_ptr<::AppInstaller::CLI::Command>& command)
@@ -199,9 +189,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         co_await executeOperation;
 
         // TODO - RebootRequired not yet populated
-        //winrt::Microsoft::Management::Deployment::InstallResult installResult{ nullptr };
-        //installResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::InstallResult>(options.CorrelationData(), false);
-        //co_return installResult;
         auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
         installResult->Initialize(options.CorrelationData(), false);
         co_return *installResult;

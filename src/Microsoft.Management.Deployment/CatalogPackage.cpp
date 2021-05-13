@@ -10,12 +10,9 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    CatalogPackage::CatalogPackage(std::shared_ptr<::AppInstaller::Repository::IPackage> package)
+    void CatalogPackage::Initialize(std::shared_ptr<::AppInstaller::Repository::ISource> source, std::shared_ptr<::AppInstaller::Repository::IPackage> package)
     {
-        m_package = package;
-    }
-    void CatalogPackage::Initialize(std::shared_ptr<::AppInstaller::Repository::IPackage> package)
-    {
+        m_source = source;
         m_package = package;
     }
     Microsoft::Management::Deployment::CatalogPackage CatalogPackage::TryCreateFromManifest(hstring const& manifestPath)
@@ -28,14 +25,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     hstring CatalogPackage::Name()
     {
-        hstring name = winrt::to_hstring(m_package->GetProperty(::AppInstaller::Repository::PackageProperty::Name).get());
-        return name;
+        return winrt::to_hstring(m_package->GetProperty(::AppInstaller::Repository::PackageProperty::Name));
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
         if (!m_installedVersion)
         {
-            //m_installedVersion = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(m_package.get()->GetInstalledVersion());
             auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
             installedVersionImpl->Initialize(m_package.get()->GetInstalledVersion());
             m_installedVersion = *installedVersionImpl;
@@ -49,9 +44,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             std::vector<::AppInstaller::Repository::PackageVersionKey> keys = m_package.get()->GetAvailableVersionKeys();
             for (int i = 0; i < keys.size(); ++i)
             {
-                //Microsoft::Management::Deployment::PackageVersionId packageVersionId{ nullptr };
-                //packageVersionId = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>(keys[i]);
-                //m_availableVersions.Append(packageVersionId);
                 auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
                 packageVersionId->Initialize(keys[i]);
                 m_availableVersions.Append(*packageVersionId);
@@ -63,7 +55,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (!m_latestAvailableVersion)
         {
-            //m_latestAvailableVersion = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(m_package.get()->GetLatestAvailableVersion());
             auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
             latestVersionImpl->Initialize(m_package.get()->GetLatestAvailableVersion());
             m_latestAvailableVersion = *latestVersionImpl;
@@ -73,9 +64,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetAvailableVersion(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
     {
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.AppCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
-        //Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
-        //packageVersionInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(m_package.get()->GetAvailableVersion(internalVersionKey));
-        //return packageVersionInfo;
         auto packageVersionInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
         packageVersionInfo->Initialize(m_package.get()->GetAvailableVersion(internalVersionKey));
         return *packageVersionInfo;
@@ -89,5 +77,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         //TODO - installing source does not exist yet.
         return false;
     }
-    CoCreatableCppWinRtClass(CatalogPackage);
 }

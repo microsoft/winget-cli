@@ -6,10 +6,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    PackageVersionId::PackageVersionId(::AppInstaller::Repository::PackageVersionKey packageVersionKey)
-    {
-        m_packageVersionKey = packageVersionKey;
-    }
     void PackageVersionId::Initialize(::AppInstaller::Repository::PackageVersionKey packageVersionKey)
     {
         m_packageVersionKey = packageVersionKey;
@@ -26,5 +22,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_packageVersionKey.Channel);
     }
-    CoCreatableCppWinRtClass(PackageVersionId);
 }

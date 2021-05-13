@@ -8,11 +8,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    ResultMatch::ResultMatch(Microsoft::Management::Deployment::CatalogPackage package, Microsoft::Management::Deployment::PackageMatchFilter matchCriteria)
-    {
-        m_catalogPackage = package;
-        m_matchCriteria = matchCriteria;
-    }
     void ResultMatch::Initialize(Microsoft::Management::Deployment::CatalogPackage package, Microsoft::Management::Deployment::PackageMatchFilter matchCriteria)
     {
         m_catalogPackage = package;
@@ -26,5 +21,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_matchCriteria;
     }
-    CoCreatableCppWinRtClass(ResultMatch);
 }

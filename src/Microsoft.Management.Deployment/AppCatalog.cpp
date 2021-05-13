@@ -12,25 +12,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    AppCatalog::AppCatalog(hstring const& catalogId)
-    {
-        m_catalogId = catalogId;
-    }
-    AppCatalog::AppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog predefinedAppCatalog)
-    {
-        m_isPredefinedSource = true;
-        m_predefinedAppCatalog = predefinedAppCatalog;
-    }
-    AppCatalog::AppCatalog(Microsoft::Management::Deployment::LocalAppCatalog localAppCatalog)
-    {
-        m_isLocalSource = true;
-        m_localAppCatalog = localAppCatalog;
-    }
-    AppCatalog::AppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions options)
-    {
-        m_isCompositeSource = true;
-        m_compositeAppCatalogOptions = options;
-    }
     void AppCatalog::Initialize(hstring const& catalogId)
     {
         m_catalogId = catalogId;
@@ -61,9 +42,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             throw hresult_illegal_method_call();
         }
-        //winrt::Microsoft::Management::Deployment::AppCatalogInfo appCatalogInfo{ nullptr };
-        //appCatalogInfo = winrt::make<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>(m_source->GetDetails());
-        //return appCatalogInfo;
         auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
         appCatalogInfo->Initialize(m_source->GetDetails());
         return *appCatalogInfo;
@@ -235,29 +213,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
             auto match = searchResult.Matches[i]; 
-            //Microsoft::Management::Deployment::CatalogPackage catalogPackage{ nullptr };
-            //catalogPackage = winrt::make<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(match.Package);
             auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
-            catalogPackage->Initialize(match.Package);
+            catalogPackage->Initialize(m_source, match.Package);
 
-            //winrt::Microsoft::Management::Deployment::PackageMatchFilter packageMatchFilter{ nullptr };
-            //packageMatchFilter = winrt::make<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>();
             auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
 
-            //winrt::Microsoft::Management::Deployment::ResultMatch resultMatch{ nullptr };
-            //resultMatch = winrt::make<winrt::Microsoft::Management::Deployment::implementation::ResultMatch>(catalogPackage, packageMatchFilter);
             auto resultMatch = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ResultMatch>>();
             resultMatch->Initialize(*catalogPackage, *packageMatchFilter);
 
             matches.Append(*resultMatch);
         }
-        //winrt::Microsoft::Management::Deployment::FindPackagesResult findPackagesResult{ nullptr };
-        //findPackagesResult = winrt::make<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>(matches);
         auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
         findPackagesResult->Initialize(matches);
 
-        //co_return findPackagesResult;
         co_return *findPackagesResult;
     }
-    CoCreatableCppWinRtClass(AppCatalog);
 }

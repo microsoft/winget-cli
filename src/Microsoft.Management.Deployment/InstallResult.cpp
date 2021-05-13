@@ -5,11 +5,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    InstallResult::InstallResult(hstring const& correlationData, bool rebootRequired)
-    {
-        m_correlationData = correlationData;
-        m_rebootRequired = rebootRequired;
-    }
     void InstallResult::Initialize(hstring const& correlationData, bool rebootRequired)
     {
         m_correlationData = correlationData;
@@ -23,5 +18,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_rebootRequired;
     }
-    CoCreatableCppWinRtClass(InstallResult);
 }

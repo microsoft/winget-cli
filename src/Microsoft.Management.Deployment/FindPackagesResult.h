@@ -3,11 +3,9 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    [uuid("64f7bfe9-ee85-4246-9f17-3e5ce401df4b")]
     struct FindPackagesResult : FindPackagesResultT<FindPackagesResult>
     {
         FindPackagesResult() = default;
-        FindPackagesResult(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches);
         void Initialize(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches);
 
         Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::ResultMatch> Matches();

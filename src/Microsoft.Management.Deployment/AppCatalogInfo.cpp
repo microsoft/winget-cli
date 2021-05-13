@@ -6,10 +6,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    AppCatalogInfo::AppCatalogInfo(::AppInstaller::Repository::SourceDetails sourceDetails)
-    {
-        m_sourceDetails = sourceDetails;
-    }
     void AppCatalogInfo::Initialize(::AppInstaller::Repository::SourceDetails sourceDetails)
     {
         m_sourceDetails = sourceDetails;
@@ -62,5 +58,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return AppCatalogTrustLevel::None;
         }
     }
-    CoCreatableCppWinRtClass(AppCatalogInfo);
 }

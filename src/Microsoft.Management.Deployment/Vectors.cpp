@@ -23,5 +23,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    CoCreatableCppWinRtClass(Vectors);
 }
