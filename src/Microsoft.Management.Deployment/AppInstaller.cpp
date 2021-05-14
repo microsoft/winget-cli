@@ -177,6 +177,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(catalog.Info().Name()));
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Exact);
+        if (!options.LogOutputPath().empty())
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::VerboseLogs);
+        }
 
         ::AppInstaller::CLI::RootCommand rootCommand;
         std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
