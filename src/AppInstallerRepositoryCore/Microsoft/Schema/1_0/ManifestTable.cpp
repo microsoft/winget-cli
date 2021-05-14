@@ -253,12 +253,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
-        void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id)
+        SQLite::Statement ManifestTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName)
         {
             SQLite::Builder::StatementBuilder builder;
-            builder.Update(s_ManifestTable_Table_Name).Set().Column(valueName).Equals(value).Where(SQLite::RowIDName).Equals(id);
+            builder.Update(s_ManifestTable_Table_Name).Set().Column(valueName).Equals(SQLite::Builder::Unbound).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
 
-            builder.Execute(connection);
+            return builder.Prepare(connection);
         }
 
         bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, bool log)
@@ -357,6 +357,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             createIndexBuilder.Execute(connection);
         }
+
+        savepoint.Commit();
+    }
+
+    void ManifestTable::AddColumn(SQLite::Connection& connection, AddedColumnInfo value)
+    {
+        using namespace SQLite::Builder;
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addColumnManifestTable_v1_3");
+
+        StatementBuilder alterTableBuilder;
+        alterTableBuilder.AlterTable(s_ManifestTable_Table_Name).Add(value.Name, value.Type);
+
+        alterTableBuilder.Execute(connection);
 
         savepoint.Commit();
     }

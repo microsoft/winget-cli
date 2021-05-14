@@ -33,7 +33,8 @@ bool operator==(const MultiValue& a, const MultiValue& b)
 
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+    auto manifestFile = TestDataFile("Manifest-Good.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(manifestFile);
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
@@ -119,6 +120,13 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.Get<Localization::Description>() == "El proyecto MSIX SDK es habilita desarrolladores de diferentes");
     REQUIRE(localization1.Get<Localization::PackageUrl>() == "https://github.com/microsoft/msix-packaging/es-MX");
     REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
+
+    // Stream hash
+    std::ifstream stream(manifestFile, std::ios_base::in | std::ios_base::binary);
+    REQUIRE(!stream.fail());
+    auto manifestHash = SHA256::ComputeHash(stream);
+    REQUIRE(manifestHash.size() == manifest.StreamSha256.size());
+    REQUIRE(std::equal(manifestHash.begin(), manifestHash.end(), manifest.StreamSha256.begin()));
 }
 
 TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")

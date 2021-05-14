@@ -43,5 +43,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
+
+        // Gets a property already knowing that the manifest id is valid.
+        virtual std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const;
     };
 }
