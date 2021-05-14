@@ -158,24 +158,20 @@
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
     </PostBuildEvent>
     <Link>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -200,24 +196,20 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
-midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
