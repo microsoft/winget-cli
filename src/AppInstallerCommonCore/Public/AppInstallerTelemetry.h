@@ -119,8 +119,15 @@ namespace AppInstaller::Logging
 
         bool IsTelemetryEnabled() const noexcept;
 
+        // Used to anonymize a string to the best of our ability.
+        // Should primarily be used on failure messages or paths if needed.
+        std::wstring AnonymizeString(std::wstring_view input) const noexcept;
+
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
+
+        // Data that is needed by AnonymizeString
+        std::wstring m_userProfile;
     };
 
     // Helper to make the call sites look clean.
