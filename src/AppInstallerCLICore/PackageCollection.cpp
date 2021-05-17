@@ -24,6 +24,7 @@ namespace AppInstaller::CLI
         {
             const std::string PackagesJson_Schema = "$schema";
             const std::string PackagesJson_SchemaUri_v1_0 = "https://aka.ms/winget-packages.schema.1.0.json";
+            const std::string PackagesJson_SchemaUri_v2_0 = "https://aka.ms/winget-packages.schema.2.0.json";
             const std::string PackagesJson_WinGetVersion = "WinGetVersion";
             const std::string PackagesJson_CreationDate = "CreationDate";
 
@@ -36,6 +37,7 @@ namespace AppInstaller::CLI
 
             const std::string PackagesJson_Packages = "Packages";
             const std::string PackagesJson_Package_Id = "Id";
+            const std::string PackagesJson_Package_PackageIdentifier = "PackageIdentifier";
             const std::string PackagesJson_Package_Version = "Version";
             const std::string PackagesJson_Package_Channel = "Channel";
             const std::string PackagesJson_Package_Scope = "Scope";
@@ -62,42 +64,99 @@ namespace AppInstaller::CLI
             return node[propertyName];
         }
 
-        // Reads the description of a package from a Package node in the JSON.
-        PackageCollection::Package ParsePackageNode(const Json::Value& packageNode)
+        // The interface for a package collection parser.
+        struct IPackageCollectionParser
         {
-            const auto& ss = StaticStrings::Instance();
+            virtual ~IPackageCollectionParser() = default;
 
-            std::string id = packageNode[ss.PackagesJson_Package_Id].asString();
-            std::string version = packageNode.isMember(ss.PackagesJson_Package_Version) ? packageNode[ss.PackagesJson_Package_Version].asString() : "";
-            std::string channel = packageNode.isMember(ss.PackagesJson_Package_Channel) ? packageNode[ss.PackagesJson_Package_Channel].asString() : "";
-            std::string scope = packageNode.isMember(ss.PackagesJson_Package_Scope) ? packageNode[ss.PackagesJson_Package_Scope].asString() : "";
+            virtual PackageCollection Parse(const Json::Value& root) = 0;
+        };
 
-            PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
-            package.Scope = Manifest::ConvertToScopeEnum(scope);
-
-            return package;
-        }
-
-        // Reads the description of a Source and all the packages needed from it, from a Source node in the JSON.
-        PackageCollection::Source ParseSourceNode(const Json::Value& sourceNode)
+        // The parsing code for schema v1.0
+        struct PackageCollectionParser_1_0 : public IPackageCollectionParser
         {
-            const auto& ss = StaticStrings::Instance();
-
-            SourceDetails sourceDetails;
-            auto& detailsNode = sourceNode[ss.PackagesJson_Source_Details];
-            sourceDetails.Identifier = Utility::LocIndString{ detailsNode[ss.PackagesJson_Source_Identifier].asString() };
-            sourceDetails.Name = detailsNode[ss.PackagesJson_Source_Name].asString();
-            sourceDetails.Arg = detailsNode[ss.PackagesJson_Source_Argument].asString();
-            sourceDetails.Type = detailsNode[ss.PackagesJson_Source_Type].asString();
-
-            PackageCollection::Source source{ std::move(sourceDetails) };
-            for (const auto& packageNode : sourceNode[ss.PackagesJson_Packages])
+            PackageCollection Parse(const Json::Value& root) override
             {
-                source.Packages.emplace_back(ParsePackageNode(packageNode));
+                PackageCollection result;
+
+                // Regardless of the fact that the value is required in 1.0, allow it to be optional
+                if (root.isMember(ss.PackagesJson_WinGetVersion))
+                {
+                    result.ClientVersion = root[ss.PackagesJson_WinGetVersion].asString();
+                }
+
+                for (const auto& sourceNode : root[ss.PackagesJson_Sources])
+                {
+                    auto newSource = ParseSourceNode(sourceNode);
+                    auto existingSource = std::find_if(result.Sources.begin(), result.Sources.end(), [&](const PackageCollection::Source& s) { return s.Details.Identifier == newSource.Details.Identifier; });
+                    if (existingSource == result.Sources.end())
+                    {
+                        result.Sources.push_back(std::move(newSource));
+                    }
+                    else
+                    {
+                        existingSource->Packages.insert(existingSource->Packages.end(), newSource.Packages.begin(), newSource.Packages.end());
+                    }
+                }
+
+                return result;
             }
 
-            return source;
-        }
+        protected:
+            // Reads the description of a package from a Package node in the JSON.
+            virtual PackageCollection::Package ParsePackageNode(const Json::Value& packageNode)
+            {
+                std::string id = packageNode[ss.PackagesJson_Package_Id].asString();
+                std::string version = packageNode.isMember(ss.PackagesJson_Package_Version) ? packageNode[ss.PackagesJson_Package_Version].asString() : "";
+                std::string channel = packageNode.isMember(ss.PackagesJson_Package_Channel) ? packageNode[ss.PackagesJson_Package_Channel].asString() : "";
+                std::string scope = packageNode.isMember(ss.PackagesJson_Package_Scope) ? packageNode[ss.PackagesJson_Package_Scope].asString() : "";
+
+                PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
+                package.Scope = Manifest::ConvertToScopeEnum(scope);
+
+                return package;
+            }
+
+            // Reads the description of a Source and all the packages needed from it, from a Source node in the JSON.
+            PackageCollection::Source ParseSourceNode(const Json::Value& sourceNode)
+            {
+                SourceDetails sourceDetails;
+                auto& detailsNode = sourceNode[ss.PackagesJson_Source_Details];
+                sourceDetails.Identifier = Utility::LocIndString{ detailsNode[ss.PackagesJson_Source_Identifier].asString() };
+                sourceDetails.Name = detailsNode[ss.PackagesJson_Source_Name].asString();
+                sourceDetails.Arg = detailsNode[ss.PackagesJson_Source_Argument].asString();
+                sourceDetails.Type = detailsNode[ss.PackagesJson_Source_Type].asString();
+
+                PackageCollection::Source source{ std::move(sourceDetails) };
+                for (const auto& packageNode : sourceNode[ss.PackagesJson_Packages])
+                {
+                    source.Packages.emplace_back(ParsePackageNode(packageNode));
+                }
+
+                return source;
+            }
+
+            const StaticStrings& ss = StaticStrings::Instance();
+        };
+
+        // The parsing code for schema v2.0
+        struct PackageCollectionParser_2_0 : public PackageCollectionParser_1_0
+        {
+        protected:
+            // Reads the description of a package from a Package node in the JSON.
+            PackageCollection::Package ParsePackageNode(const Json::Value& packageNode) override
+            {
+                std::string id = packageNode[ss.PackagesJson_Package_PackageIdentifier].asString();
+                std::string version = packageNode.isMember(ss.PackagesJson_Package_Version) ? packageNode[ss.PackagesJson_Package_Version].asString() : "";
+                std::string channel = packageNode.isMember(ss.PackagesJson_Package_Channel) ? packageNode[ss.PackagesJson_Package_Channel].asString() : "";
+                std::string scope = packageNode.isMember(ss.PackagesJson_Package_Scope) ? packageNode[ss.PackagesJson_Package_Scope].asString() : "";
+
+                PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
+                package.Scope = Manifest::ConvertToScopeEnum(scope);
+
+                return package;
+            }
+        };
 
         // Creates a minimal root object of a Packages JSON file.
         Json::Value CreateRoot(const std::string& wingetVersion)
@@ -106,7 +165,8 @@ namespace AppInstaller::CLI
 
             Json::Value root{ Json::ValueType::objectValue };
             root[ss.PackagesJson_WinGetVersion] = wingetVersion;
-            root[ss.PackagesJson_Schema] = ss.PackagesJson_SchemaUri_v1_0;
+            // We only generate the latest schema
+            root[ss.PackagesJson_Schema] = ss.PackagesJson_SchemaUri_v2_0;
 
             std::stringstream currentTimeStream;
             Utility::OutputTimePoint(currentTimeStream, std::chrono::system_clock::now(), true);
@@ -121,7 +181,7 @@ namespace AppInstaller::CLI
             const auto& ss = StaticStrings::Instance();
 
             Json::Value packageNode{ Json::ValueType::objectValue };
-            packageNode[ss.PackagesJson_Package_Id] = package.Id.get();
+            packageNode[ss.PackagesJson_Package_PackageIdentifier] = package.Id.get();
 
             // Only add version and channel if present.
             // Packages may not have a channel, or versions may not have been requested.
@@ -197,9 +257,16 @@ namespace AppInstaller::CLI
 
             const auto& schemaUri = root[ss.PackagesJson_Schema].asString();
             Json::Value schemaJson;
+            std::unique_ptr<IPackageCollectionParser> parser;
             if (schemaUri == ss.PackagesJson_SchemaUri_v1_0)
             {
                 schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
+                parser = std::make_unique<PackageCollectionParser_1_0>();
+            }
+            else if (schemaUri == ss.PackagesJson_SchemaUri_v2_0)
+            {
+                schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V2), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
+                parser = std::make_unique<PackageCollectionParser_2_0>();
             }
             else
             {
@@ -218,23 +285,7 @@ namespace AppInstaller::CLI
             }
 
             // Extract the data from the JSON.
-            PackageCollection packages;
-            packages.ClientVersion = root[ss.PackagesJson_WinGetVersion].asString();
-            for (const auto& sourceNode : root[ss.PackagesJson_Sources])
-            {
-                auto newSource = ParseSourceNode(sourceNode);
-                auto existingSource = std::find_if(packages.Sources.begin(), packages.Sources.end(), [&](const PackageCollection::Source& s) { return s.Details.Identifier == newSource.Details.Identifier; });
-                if (existingSource == packages.Sources.end())
-                {
-                    packages.Sources.push_back(std::move(newSource));
-                }
-                else
-                {
-                    existingSource->Packages.insert(existingSource->Packages.end(), newSource.Packages.begin(), newSource.Packages.end());
-                }
-            }
-
-            return ParseResult{ std::move(packages) };
+            return ParseResult{ parser->Parse(root) };
         }
     }
 }
