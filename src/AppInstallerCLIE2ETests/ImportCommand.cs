@@ -11,15 +11,12 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            InitializeAllFeatures(false);
-            ConfigureFeature("export", true);
             CleanupTestExe();
         }
 
         [TearDown]
         public void TearDown()
         {
-            InitializeAllFeatures(false);
         }
 
         [Test]
@@ -119,7 +116,6 @@ namespace AppInstallerCLIE2ETests
 
         private void UninstallTestExe()
         {
-            ConfigureFeature("uninstall", true);
             TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
         }
 

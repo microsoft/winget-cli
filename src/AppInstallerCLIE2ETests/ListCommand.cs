@@ -10,14 +10,11 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            InitializeAllFeatures(false);
-            ConfigureFeature("list", true);
         }
 
         [TearDown]
         public void TearDown()
         {
-            InitializeAllFeatures(false);
         }
 
         [Test]

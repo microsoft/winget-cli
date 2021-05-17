@@ -23,14 +23,11 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            InitializeAllFeatures(false);
-            ConfigureFeature("uninstall", true);
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            InitializeAllFeatures(false);
         }
 
         [Test]

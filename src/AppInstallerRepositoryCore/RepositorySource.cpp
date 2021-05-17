@@ -438,12 +438,6 @@ namespace AppInstaller::Repository
 
                 for (auto& source : userSources)
                 {
-                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
-                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
-                    {
-                        continue;
-                    }
-
                     // Check source against list of allowed sources and drop tombstones for required sources
                     if (!IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
                     {
@@ -582,8 +576,7 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
                 return Rest::RestSourceFactory::Create();
             }
@@ -879,15 +872,6 @@ namespace AppInstaller::Repository
         details.Arg = arg;
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
-
-        // Check feature flag enablement for rest source.
-        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-            && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
-        {
-            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
-                << " feature is disabled. Execution cancelled.");
-            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
 
         AddSourceFromDetails(details, progress);
 

@@ -68,12 +68,7 @@ namespace AppInstaller::Settings
         EFExperimentalCmd,
         EFExperimentalArg,
         EFExperimentalMSStore,
-        EFList,
-        EFExperimentalUpgrade,
-        EFUninstall,
-        EFExport,
         TelemetryDisable,
-        EFRestSource,
         InstallScopePreference,
         InstallScopeRequirement,
         NetworkDownloader,
@@ -118,12 +113,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalMSStore, bool, bool, false, ".experimentalFeatures.experimentalMSStore"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFList, bool, bool, false, ".experimentalFeatures.list"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstall, bool, bool, false, ".experimentalFeatures.uninstall"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
