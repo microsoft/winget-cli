@@ -7,16 +7,6 @@ namespace AppInstallerCLIE2ETests
 
     public class ListCommand : BaseCommand
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
         [Test]
         public void ListSelf()
         {

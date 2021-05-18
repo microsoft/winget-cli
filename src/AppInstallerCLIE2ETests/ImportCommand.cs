@@ -14,11 +14,6 @@ namespace AppInstallerCLIE2ETests
             CleanupTestExe();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
         [Test]
         public void ImportSuccessful()
         {
