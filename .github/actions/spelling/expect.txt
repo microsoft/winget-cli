@@ -8,6 +8,7 @@ AICLIC
 ajor
 amrutha
 anonymized
+ANSISTRING
 APARTMENTTHREADED
 apfn
 apiset
@@ -50,9 +51,11 @@ certmgr
 certs
 Cfg
 cgmanifest
+cguid
 chcp
 ci
 cinq
+Cj
 CLIE
 cloudapp
 CLSID
@@ -258,6 +261,7 @@ srs
 Standalone
 startswith
 streambuf
+strlen
 strtoull
 subdir
 subkey
@@ -271,6 +275,7 @@ temppath
 testexampleinstaller
 thiscouldbeapc
 threehundred
+Tlg
 tombstoned
 transitioning
 UCase

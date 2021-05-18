@@ -54,8 +54,8 @@ namespace AppInstaller::CLI
 
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
-
         Logging::AddFileLogger();
+
         Logging::AddTraceLogger();
         Logging::EnableWilFailureTelemetry();
 
