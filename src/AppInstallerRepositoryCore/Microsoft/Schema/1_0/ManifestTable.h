@@ -54,8 +54,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::string_view valueAlias,
             bool useLike);
 
-        // Update the value of a single column for the manifest with the given rowid.
-        void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id);
+        // Prepares a statement to update the value of a single column for the manifest with the given rowid.
+        // The first bind value will be the value to set.
+        // The second bind value will be the manifest rowid to modify.
+        SQLite::Statement ManifestTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName);
 
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
@@ -68,6 +70,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::string_view Name;
         bool PrimaryKey;
         bool Unique;
+    };
+
+    // Information on a column being added via ALTER TABLE
+    struct AddedColumnInfo
+    {
+        std::string_view Name;
+        SQLite::Builder::Type Type;
     };
 
     // A value that is 1:1 with the manifest.
@@ -85,6 +94,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
+
+        // Alters the table, adding the columns provided.
+        static void AddColumn(SQLite::Connection& connection, AddedColumnInfo value);
 
         // Creates the table with standard primary keys.
         static void Create_deprecated(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
@@ -148,9 +160,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Update the value of a single column for the manifest with the given rowid.
         template <typename Table>
-        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, SQLite::rowid_t value)
+        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, const typename Table::id_t& value)
         {
-            details::ManifestTableUpdateValueIdById(connection, Table::ValueName(), value, id);
+            auto stmt = details::ManifestTableUpdateValueIdById_Statement(connection, Table::ValueName());
+            stmt.Bind(1, value);
+            stmt.Bind(2, id);
+            stmt.Execute();
         }
 
         // Deletes the manifest row with the given rowid.

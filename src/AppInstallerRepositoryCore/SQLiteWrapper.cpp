@@ -94,6 +94,32 @@ namespace AppInstaller::Repository::SQLite
         {
             return (sqlite3_column_int(stmt, column) != 0);
         }
+
+        std::string ParameterSpecificsImpl<blob_t>::ToLog(const blob_t& v)
+        {
+            std::ostringstream strstr;
+            strstr << "blob[" << v.size() << "]";
+            return strstr.str();
+        }
+
+        void ParameterSpecificsImpl<blob_t>::Bind(sqlite3_stmt* stmt, int index, const blob_t& v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT));
+        }
+
+        blob_t ParameterSpecificsImpl<blob_t>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            const blob_t::value_type* blobPtr = reinterpret_cast<const blob_t::value_type *>(sqlite3_column_blob(stmt, column));
+            if (blobPtr)
+            {
+                int blobBytes = sqlite3_column_bytes(stmt, column);
+                return blob_t{ blobPtr, blobPtr + blobBytes };
+            }
+            else
+            {
+                return {};
+            }
+        }
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)

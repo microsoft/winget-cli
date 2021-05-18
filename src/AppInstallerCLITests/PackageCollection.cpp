@@ -15,7 +15,7 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
 
 const std::string s_PackagesJson_Schema = "$schema";
-const std::string s_PackagesJson_SchemaUri_v1_0 = "https://aka.ms/winget-packages.schema.1.0.json";
+const std::string s_PackagesJson_SchemaUri_v2_0 = "https://aka.ms/winget-packages.schema.2.0.json";
 const std::string s_PackagesJson_WinGetVersion = "WinGetVersion";
 const std::string s_PackagesJson_CreationDate = "CreationDate";
 
@@ -27,7 +27,7 @@ const std::string s_PackagesJson_Source_Argument = "Argument";
 const std::string s_PackagesJson_Source_Type = "Type";
 
 const std::string s_PackagesJson_Packages = "Packages";
-const std::string s_PackagesJson_Package_Id = "Id";
+const std::string s_PackagesJson_Package_PackageIdentifier = "PackageIdentifier";
 const std::string s_PackagesJson_Package_Version = "Version";
 const std::string s_PackagesJson_Package_Channel = "Channel";
 
@@ -75,7 +75,7 @@ namespace
 
     void ValidateJsonWithCollection(const Json::Value& root, const PackageCollection& collection)
     {
-        ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_v1_0);
+        ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_v2_0);
         ValidateJsonStringProperty(root, s_PackagesJson_WinGetVersion, collection.ClientVersion);
 
         // valijson does not validate the date-time format, which should follow RFC3339 according to the JSON schema.
@@ -108,7 +108,7 @@ namespace
             for (; jsonPackageItr != jsonPackages.end(); ++jsonPackageItr, ++packageItr)
             {
                 REQUIRE(jsonPackageItr->isObject());
-                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Id, packageItr->Id);
+                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_PackageIdentifier, packageItr->Id);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Version, packageItr->VersionAndChannel.GetVersion().ToString(), true);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Channel, packageItr->VersionAndChannel.GetChannel().ToString(), true);
             }
@@ -186,7 +186,7 @@ TEST_CASE("PackageCollection_Write_MultipleSources", "[PackageCollection]")
     ValidateJsonWithCollection(PackagesJson::CreateJson(pc), pc);
 }
 
-TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
+TEST_CASE("PackageCollection_Read_SingleSource_1_0", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
@@ -237,7 +237,57 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
     ValidateEqualCollections(parseResult.Packages, expected);
 }
 
-TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
+TEST_CASE("PackageCollection_Read_SingleSource_2_0", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "PackageIdentifier": "test.WithVersion",
+              "Version": "0.1",
+              "Channel": "Preview"
+            },
+            {
+              "PackageIdentifier": "test.NoVersion"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ]
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
+
+    PackageCollection::Source source;
+    source.Details.Name = "TestSource";
+    source.Details.Arg = "https://aka.ms/winget";
+    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Identifier = "TestSourceId";
+
+    source.Packages.emplace_back(LocIndString{ "test.WithVersion"sv }, Version{ "0.1" }, Channel{ "Preview" });
+    source.Packages.emplace_back(LocIndString{ "test.NoVersion"sv }, Version{ "" }, Channel{ "" });
+
+    PackageCollection expected
+    {
+        "",
+        std::vector<PackageCollection::Source>{ source }
+    };
+
+    ValidateEqualCollections(parseResult.Packages, expected);
+}
+
+TEST_CASE("PackageCollection_Read_MultipleSources_1_0", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
@@ -268,6 +318,72 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
           "Packages": [
             {
               "Id": "test2",
+              "Version": "1.0"
+            }
+          ]
+        }
+      ]
+    })");
+
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
+
+    PackageCollection::Source source1;
+    source1.Details.Name = "First";
+    source1.Details.Arg = "//firstSource";
+    source1.Details.Type = "Microsoft.PreIndexed.Package";
+    source1.Details.Identifier = "Id1";
+    source1.Packages.emplace_back(LocIndString{ "test"sv }, Version{ "" }, Channel{ "" });
+
+    PackageCollection::Source source2;
+    source2.Details.Name = "Second";
+    source2.Details.Arg = "//secondSource";
+    source2.Details.Type = "*TestSource";
+    source2.Details.Identifier = "Id2";
+    source2.Packages.emplace_back(LocIndString{ "test2"sv }, Version{ "1.0" }, Channel{ "" });
+
+    PackageCollection expected
+    {
+        "1.0.0",
+        std::vector<PackageCollection::Source>{ source1, source2 }
+    };
+
+    ValidateEqualCollections(parseResult.Packages, expected);
+}
+
+TEST_CASE("PackageCollection_Read_MultipleSources_2_0", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "WinGetVersion": "1.0.0",
+      "Sources": [
+        {
+          "SourceDetails": {
+            "Argument": "//firstSource",
+            "Identifier": "Id1",
+            "Name": "First",
+            "Type": "Microsoft.PreIndexed.Package"
+          },
+          "Packages": [
+            {
+              "PackageIdentifier": "test"
+            }
+          ]
+        },
+        {
+          "SourceDetails": {
+            "Argument": "//secondSource",
+            "Identifier": "Id2",
+            "Name": "Second",
+            "Type": "*TestSource"
+          },
+          "Packages": [
+            {
+              "PackageIdentifier": "test2",
               "Version": "1.0"
             }
           ]
@@ -473,6 +589,37 @@ TEST_CASE("PackageCollection_Read_SchemaValidationFail", "[PackageCollection]")
 
     REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed);
     REQUIRE(parseResult.Errors.find("Missing required property 'Sources'.") != std::string::npos);
+}
+
+TEST_CASE("PackageCollection_Read_SchemaValidationFail_Id", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "NotId": "test.test"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ],
+      "WinGetVersion": "1.0.0"
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    INFO(parseResult.Errors);
+
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed);
+    REQUIRE(parseResult.Errors.find("Missing required property 'Id'.") != std::string::npos);
 }
 
 TEST_CASE("PackageCollection_Read_BadTimeStamp", "[PackageCollection]")

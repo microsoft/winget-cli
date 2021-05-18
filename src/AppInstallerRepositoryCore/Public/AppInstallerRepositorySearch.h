@@ -120,6 +120,8 @@ namespace AppInstaller::Repository
         Version,
         Channel,
         RelativePath,
+        // Returned in hexadecimal format
+        ManifestSHA256Hash,
     };
 
     // A property of a package version that can have multiple values.

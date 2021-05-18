@@ -286,9 +286,9 @@ namespace AppInstaller::YAML
         return Load(static_cast<std::string_view>(input));
     }
 
-    Node Load(std::istream& input)
+    Node Load(std::istream& input, Utility::SHA256::HashBuffer* hashOut)
     {
-        Wrapper::Parser parser(input);
+        Wrapper::Parser parser(input, hashOut);
         Wrapper::Document document = parser.Load();
 
         if (document.HasRoot())
@@ -301,11 +301,21 @@ namespace AppInstaller::YAML
         }
     }
 
-    Node Load(const std::filesystem::path& input)
+    Node Load(const std::filesystem::path& input, Utility::SHA256::HashBuffer* hashOut)
     {
         std::ifstream stream(input, std::ios_base::in | std::ios_base::binary);
         THROW_LAST_ERROR_IF(stream.fail());
-        return Load(stream);
+        return Load(stream, hashOut);
+    }
+
+    Node Load(const std::filesystem::path& input)
+    {
+        return Load(input, nullptr);
+    }
+
+    Node Load(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut)
+    {
+        return Load(input, &hashOut);
     }
 
     Emitter::Emitter() :

@@ -6,10 +6,11 @@
 #include <winget/ManifestYamlParser.h>
 
 
+using namespace AppInstaller::Utility;
+
+
 namespace AppInstaller::Repository::Microsoft
 {
-    using namespace Utility;
-
     namespace
     {
         // The base for the package objects.
@@ -67,9 +68,18 @@ namespace AppInstaller::Repository::Microsoft
             Manifest::Manifest GetManifest() override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
-                return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
+
+                std::optional<std::string> manifestHashString = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::ManifestSHA256Hash);
+                SHA256::HashBuffer manifestSHA256;
+                if (manifestHashString)
+                {
+                    manifestSHA256 = SHA256::ConvertToBytes(manifestHashString.value());
+                }
+
+                return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
             }
 
             std::shared_ptr<const ISource> GetSource() const override
@@ -91,7 +101,7 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            static Manifest::Manifest GetManifestFromArgAndRelativePath(const std::string& arg, const std::string& relativePath)
+            static Manifest::Manifest GetManifestFromArgAndRelativePath(const std::string& arg, const std::string& relativePath, const SHA256::HashBuffer& expectedHash)
             {
                 std::string fullPath = arg;
                 if (fullPath.back() != '/')
@@ -113,7 +123,14 @@ namespace AppInstaller::Repository::Microsoft
                         bool success = false;
                         try
                         {
-                            (void)Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback);
+                            auto downloadHash = Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback, !expectedHash.empty());
+
+                            if (!expectedHash.empty() &&
+                                (!downloadHash || downloadHash->size() != expectedHash.size() || !std::equal(expectedHash.begin(), expectedHash.end(), downloadHash->begin())))
+                            {
+                                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                            }
+
                             success = true;
                         }
                         catch (...)
@@ -143,7 +160,15 @@ namespace AppInstaller::Repository::Microsoft
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Opening manifest from local file: " << fullPath);
-                    return Manifest::YamlParser::CreateFromPath(fullPath);
+                    Manifest::Manifest result = Manifest::YamlParser::CreateFromPath(fullPath);
+
+                    if (!expectedHash.empty() &&
+                        (result.StreamSha256.size() != expectedHash.size() || !std::equal(expectedHash.begin(), expectedHash.end(), result.StreamSha256.begin())))
+                    {
+                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                    }
+
+                    return result;
                 }
             }
 

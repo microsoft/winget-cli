@@ -1,12 +1,12 @@
 {
-  "$id": "https://aka.ms/winget-packages.schema.1.0.json",
+  "$id": "https://aka.ms/winget-packages.schema.2.0.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
 
   "title": "winget Packages List Schema",
   "description": "Describes a list of packages for batch installs",
 
   "type": "object",
-  "required": [ "WinGetVersion", "Sources" ],
+  "required": [ "Sources" ],
   "additionalProperties": true,
 
   "properties": {
@@ -71,9 +71,9 @@
               "description": "A package to be installed from this source",
               "type": "object",
               "additionalProperties": true,
-              "required": [ "Id" ],
+              "required": [ "PackageIdentifier" ],
               "properties": {
-                "Id": {
+                "PackageIdentifier": {
                   "description": "Package ID",
                   "type": "string"
                 },

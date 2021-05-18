@@ -29,10 +29,10 @@ using namespace AppInstaller::Utility;
 
 SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::Version> version = {})
 {
-    // If no specific version requested, then use generator to run against all versions.
+    // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version{ 1, 1 }, Schema::Version::Latest());
+        version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 }, Schema::Version::Latest());
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -42,25 +42,25 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
 {
     // This will only be called for tests that want to support cross version checks.
     // Based on the version of the incoming, we only want to generate versions less or equal to it.
-    if (index.GetVersion() == Schema::Version{ 1, 0 })
+    if (index.GetVersion() == Schema::Version{ 1, 1 })
     {
         // Nothing to do here
     }
-    else if (index.GetVersion() == Schema::Version{ 1, 1 })
-    {
-        auto changeVersion = GENERATE(false, true);
-
-        if (changeVersion)
-        {
-            index.ForceVersion(Schema::Version{ 1, 0 });
-            return { 1, 0 };
-        }
-    }
     else if (index.GetVersion() == Schema::Version{ 1, 2 })
     {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 });
+        Schema::Version version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 });
 
         if (version != Schema::Version{ 1, 2 })
+        {
+            index.ForceVersion(version);
+            return version;
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 3 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
+
+        if (version != Schema::Version{ 1, 3 })
         {
             index.ForceVersion(version);
             return version;
@@ -237,6 +237,12 @@ bool IsManifestMetadataSupported(const SQLiteIndex& index, const Schema::Version
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
     return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
+}
+
+bool AreManifestHashesSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 3 } && testVersion >= Schema::Version{ 1, 3 });
 }
 
 std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
@@ -2129,4 +2135,62 @@ TEST_CASE("SQLiteIndex_NormNameAndPublisher_Complex", "[sqliteindex]")
     {
         REQUIRE(results.Matches.empty());
     }
+}
+
+TEST_CASE("SQLiteIndex_ManifestHash_Present", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    uint8_t data[4] = { 1, 2, 3, 4 };
+    SHA256::HashBuffer hash = SHA256::ComputeHash(data, sizeof(data));
+
+    SQLiteIndex index = CreateTestIndex(tempFile);
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "Bar";
+    manifest.StreamSha256 = hash;
+    index.AddManifest(manifest, "path");
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    auto hashResult = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ManifestSHA256Hash);
+
+    if (AreManifestHashesSupported(index, testVersion))
+    {
+        REQUIRE(hashResult);
+        auto hashResultBytes = SHA256::ConvertToBytes(hashResult.value());
+        REQUIRE(hash.size() == hashResultBytes.size());
+        REQUIRE(std::equal(hash.begin(), hash.end(), hashResultBytes.begin()));
+    }
+    else
+    {
+        REQUIRE(!hashResult);
+    }
+}
+
+TEST_CASE("SQLiteIndex_ManifestHash_Missing", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile);
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "Bar";
+    index.AddManifest(manifest, "path");
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    auto hashResult = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ManifestSHA256Hash);
+
+    REQUIRE(!hashResult);
 }

@@ -90,7 +90,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
-                UpdateInternal(packageLocation, details, progress);
+                UpdateInternal(packageLocation, packageInfo, details, progress);
             }
 
             void Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -98,13 +98,27 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
                 std::string packageLocation = GetPackageLocation(details);
+                Msix::MsixInfo packageInfo(packageLocation);
+
+                // The package should not be a bundle
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+
+                // Ensure that family name has not changed
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.GetPackageFullName()));
+
+                if (progress.IsCancelled())
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                    return;
+                }
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
-                UpdateInternal(packageLocation, details, progress);
+                UpdateInternal(packageLocation, packageInfo, details, progress);
             }
 
-            virtual void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) = 0;
+            virtual void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
 
             void Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -152,22 +166,13 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // Check if the package is newer before calling into deployment.
                 // This can save us a lot of time over letting deployment detect same version.
                 auto extension = GetExtensionFromDetails(details);
                 if (extension)
                 {
-                    Msix::MsixInfo packageInfo(packageLocation);
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-
-                    if (progress.IsCancelled())
-                    {
-                        AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                        return;
-                    }
-
                     if (!packageInfo.IsNewerThan(extension->GetPackageVersion()))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
@@ -204,13 +209,35 @@ namespace AppInstaller::Repository::Microsoft
                 Deployment::AddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
-                    SourceTrustLevel::Trusted == details.TrustLevel,
+                    WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted),
                     progress);
 
                 if (download)
                 {
-                    // If successful, delete the file
-                    std::filesystem::remove(tempFile);
+                    try
+                    {
+                        // If successful, delete the file
+                        std::filesystem::remove(tempFile);
+                    }
+                    CATCH_LOG();
+                }
+
+                // Ensure origin if necessary
+                // TODO: Move to checking this before deploying it. That requires significant code to be written though
+                //       as there is no public API to check the origin directly.
+                if (WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin))
+                {
+                    std::wstring pfn = packageInfo.GetPackageFullNameWide();
+
+                    PackageOrigin origin = PackageOrigin::PackageOrigin_Unknown;
+                    if (SUCCEEDED_WIN32_LOG(GetStagedPackageOrigin(pfn.c_str(), &origin)))
+                    {
+                        if (origin != PackageOrigin::PackageOrigin_Store)
+                        {
+                            Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), progress);
+                            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                        }
+                    }
                 }
             }
 
@@ -260,20 +287,11 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            void UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
                 std::filesystem::create_directories(packageState);
-
-                Msix::MsixInfo packageInfo(packageLocation);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-
-                if (progress.IsCancelled())
-                {
-                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return;
-                }
 
                 std::filesystem::path manifestPath = packageState / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
                 std::filesystem::path indexPath = packageState / s_PreIndexedPackageSourceFactory_IndexFileName;

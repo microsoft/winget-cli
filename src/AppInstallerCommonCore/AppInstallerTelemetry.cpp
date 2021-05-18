@@ -10,6 +10,7 @@
 #include "Public/ThreadGlobals.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
+#define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 
 // Helper to print a GUID
 std::ostream& operator<<(std::ostream& out, const GUID& guid)
@@ -40,6 +41,8 @@ namespace AppInstaller::Logging
 
         std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
 
+        constexpr std::wstring_view s_UserProfileReplacement = L"%USERPROFILE%"sv;
+
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
@@ -57,6 +60,8 @@ namespace AppInstaller::Logging
         {
             AICLI_LOG(Log, Error, << "Failed to Create ActivityId GUID");
         }
+
+        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -128,7 +133,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(failure.hr, "HResult"),
-                TraceLoggingWideString(failure.pszMessage, "Message"),
+                AICLI_TraceLoggingWStringView(AnonymizeString(failure.pszMessage), "Message"),
                 TraceLoggingString(failure.pszModule, "Module"),
                 TraceLoggingUInt32(failure.threadId, "ThreadId"),
                 TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
@@ -252,7 +257,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 AICLI_TraceLoggingStringView(type, "Type"),
-                AICLI_TraceLoggingStringView(message, "Message"),
+                AICLI_TraceLoggingWStringView(AnonymizeString(Utility::ConvertToUTF16(message)), "Message"),
                 TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -553,6 +558,12 @@ namespace AppInstaller::Logging
     {
         return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
     }
+
+    std::wstring TelemetryTraceLogger::AnonymizeString(std::wstring_view input) const noexcept try
+    {
+        return Utility::ReplaceWhileCopying(input, m_userProfile, s_UserProfileReplacement);
+    }
+    catch (...) { return std::wstring{ input }; }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
