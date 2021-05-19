@@ -22,11 +22,9 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        static AppInstaller::ThreadLocalStorage::ThreadGlobals threadGlobals;
         static std::once_flag s_initLogging;
         std::call_once(s_initLogging, []() {
             // Enable all logs for now.
-            threadGlobals.SetForCurrentThread();
             AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
             AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
             AppInstaller::Logging::EnableWilFailureTelemetry();

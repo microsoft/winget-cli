@@ -19,7 +19,7 @@ using namespace Windows::Foundation;
 using namespace std::string_literals;
 using namespace AppInstaller;
 
-ThreadLocalStorage::ThreadGlobals threadGlobals;
+ThreadLocalStorage::ThreadGlobals g_ThreadGlobals;
 
 // Logs the the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     bool waitBeforeReturn = false;
     bool keepSQLLogging = false;
 
-    threadGlobals.SetForCurrentThread();
+    g_ThreadGlobals.SetForCurrentThread();
 
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)

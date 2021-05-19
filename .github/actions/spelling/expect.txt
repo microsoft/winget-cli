@@ -87,6 +87,7 @@ enr
 enums
 EQU
 ERANGE
+errcode
 errno
 etest
 execustom
