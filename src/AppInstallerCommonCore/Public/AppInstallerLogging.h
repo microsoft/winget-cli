@@ -36,6 +36,7 @@ namespace AppInstaller::Logging
         YAML,
         Core,
         Test,
+        Log,
         All,
     };
 
@@ -72,6 +73,8 @@ namespace AppInstaller::Logging
     // desired level, as nothing is enabled by default.
     struct DiagnosticLogger
     {
+        DiagnosticLogger() = default;
+
         ~DiagnosticLogger() = default;
 
         DiagnosticLogger(const DiagnosticLogger&) = delete;
@@ -79,9 +82,6 @@ namespace AppInstaller::Logging
 
         DiagnosticLogger(DiagnosticLogger&&) = delete;
         DiagnosticLogger& operator=(DiagnosticLogger&&) = delete;
-
-        // Gets the singleton instance of this type.
-        static DiagnosticLogger& GetInstance();
 
         // NOTE: The logger management functionality is *SINGLE THREAD SAFE*.
         //       This includes with logging itself.
@@ -119,7 +119,6 @@ namespace AppInstaller::Logging
         void Write(Channel channel, Level level, std::string_view message);
 
     private:
-        DiagnosticLogger() = default;
 
         std::vector<std::unique_ptr<ILogger>> m_loggers;
         uint64_t m_enabledChannels = 0;
@@ -127,13 +126,13 @@ namespace AppInstaller::Logging
     };
 
     // Helper to make the call sites look clean.
-    inline DiagnosticLogger& Log()
-    {
-        return DiagnosticLogger::GetInstance();
-    }
+    DiagnosticLogger& Log();
 
     // Adds the default file logger to the DiagnosticLogger.
     void AddFileLogger(const std::filesystem::path& filePath = {});
+
+    // Adds the trace logger to the DiagnosticLogger.
+    void AddTraceLogger();
 
     // Starts a background task to clean up old log files.
     void BeginLogFileCleanup();

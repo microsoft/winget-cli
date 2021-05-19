@@ -282,7 +282,9 @@
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
+    <ClInclude Include="Public\AppInstallerTraceLogger.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
@@ -309,6 +311,7 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActivateThreadGlobals.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="GroupPolicy.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
@@ -348,6 +351,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="NameNormalization.cpp" />
+    <ClCompile Include="Public\TraceLogger.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Runtime.cpp" />
@@ -360,6 +364,7 @@
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />
+    <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="Yaml.cpp" />

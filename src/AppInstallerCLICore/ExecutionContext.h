@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerLogging.h>
+#include <ThreadGlobals.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
@@ -101,6 +101,9 @@ namespace AppInstaller::CLI::Execution
         }
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
+        
+        // Set Globals for Current Thread
+        void SetThreadGlobalsActive();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
@@ -114,5 +117,6 @@ namespace AppInstaller::CLI::Execution
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
+        AppInstaller::ThreadLocalStorage::ThreadGlobals m_threadGlobals;
     };
 }

@@ -10,6 +10,7 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
+#include <ThreadGlobals.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;

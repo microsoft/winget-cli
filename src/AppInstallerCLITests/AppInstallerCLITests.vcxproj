@@ -182,6 +182,7 @@
     <ClInclude Include="TestSource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActivateThreadGlobals.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />

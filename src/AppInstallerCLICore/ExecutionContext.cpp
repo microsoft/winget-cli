@@ -140,4 +140,9 @@ namespace AppInstaller::CLI::Execution
 
         m_executionStage = stage;
     }
+
+    void Context::SetThreadGlobalsActive()
+    {
+        m_threadGlobals.SetForCurrentThread();
+    }
 }

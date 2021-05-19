@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -15,6 +16,8 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
+        TelemetryTraceLogger();
+
         virtual ~TelemetryTraceLogger();
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
@@ -23,18 +26,27 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
-
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
         void EnableRuntime();
+
+        // Return address of m_activityId
+        const GUID* GetActivityId() const;
+
+        // Capture if UserSettings is enabled
+        void SetUserSettingsStatus();
+
+        // Store the passed in name of the Caller for COM calls
+        void SetCOMCaller(std::string comCaller);
+
+        // Store the passed in Telemetry Corelation Json for COM calls
+        void SetTelemetryCorelationJson(std::string jsonStr);
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup() const noexcept;
+        void LogStartup(bool isCOMCall = false) const noexcept;
 
         // Logs the invoked command.
         void LogCommand(std::string_view commandName) const noexcept;
@@ -115,7 +127,9 @@ namespace AppInstaller::Logging
             std::string_view arpLanguage) const noexcept;
 
     protected:
-        TelemetryTraceLogger();
+
+        // Check for valid Json string and return a valid Json
+        std::string GetTelemetryCorelationJson() const;
 
         bool IsTelemetryEnabled() const noexcept;
 
@@ -125,6 +139,10 @@ namespace AppInstaller::Logging
 
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
+
+        GUID m_activityId = GUID_NULL;
+        std::string m_telemetryCorelationJson = "{}";
+        std::string m_comCaller = "";
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;

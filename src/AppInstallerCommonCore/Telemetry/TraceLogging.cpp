@@ -3,10 +3,11 @@
 
 #include "pch.h"
 #include "TraceLogging.h"
+#include "AppInstallerLogging.h"
 
 // GUID for Microsoft.PackageManager.Client : {c0cf606f-569b-5c20-27d9-88a745fa2175}
 TRACELOGGING_DEFINE_PROVIDER(
-    g_hTelemetryProvider,
+    g_hTraceProvider,
     "Microsoft.PackageManager.Client",
     (0xc0cf606f, 0x569b, 0x5c20, 0x27, 0xd9, 0x88, 0xa7, 0x45, 0xfa, 0x21, 0x75),
     TraceLoggingOptionMicrosoftTelemetry());
@@ -14,7 +15,7 @@ TRACELOGGING_DEFINE_PROVIDER(
 bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
-GUID g_TelemetryProviderActivityId{};
+std::once_flag g_registerTraceProvideOnlyOnce{};
 
 void WINAPI TelemetryProviderEnabledCallback(
     _In_      LPCGUID /*sourceId*/,
@@ -32,27 +33,22 @@ void WINAPI TelemetryProviderEnabledCallback(
 
 void RegisterTraceLogging()
 {
-    HRESULT hr = S_OK;
-
-    TraceLoggingRegisterEx(g_hTelemetryProvider, TelemetryProviderEnabledCallback, nullptr);
-    //Generate the ActivityId used to track the session
-    hr = CoCreateGuid(&g_TelemetryProviderActivityId);
-    if (FAILED(hr))
+    try
     {
-        TraceLoggingWriteActivity(
-            g_hTelemetryProvider,
-            "CreateGuidError",
-            nullptr,
-            nullptr,
-            TraceLoggingHResult(hr),
-            TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-            TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-
-        g_TelemetryProviderActivityId = GUID_NULL;
-    };
+        std::call_once(g_registerTraceProvideOnlyOnce, []()
+        {
+            TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
+        });
+    }
+    catch (std::exception ex)
+    {
+        // May throw std::system_error if any condition prevents calls to call_once from executing as specified
+        // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
+        AICLI_LOG(Log, Error, << "Exception caught when registering Trace Logging provider: " << ex.what() << '\n');
+    }
 }
 
 void UnRegisterTraceLogging()
 {
-    TraceLoggingUnregister(g_hTelemetryProvider);
+    TraceLoggingUnregister(g_hTraceProvider);
 }

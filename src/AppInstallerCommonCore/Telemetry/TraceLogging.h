@@ -5,6 +5,7 @@
 
 #include "WinEventLogLevels.h"
 #include <TraceLoggingProvider.h>
+#include <mutex>
 
 #include "MicrosoftTelemetry.h"
 
@@ -60,11 +61,12 @@
 // TraceLogging provider name for telemetry.
 #define TELEMETRY_PROVIDER_NAME "Microsoft.PackageManager.Client"
 
-TRACELOGGING_DECLARE_PROVIDER(g_hTelemetryProvider);
+TRACELOGGING_DECLARE_PROVIDER(g_hTraceProvider);
 extern bool g_IsTelemetryProviderEnabled;
 extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;
 extern GUID g_TelemetryProviderActivityId;
+extern std::once_flag g_registerTraceProvideOnlyOnce;
 
 extern void RegisterTraceLogging();
 extern void UnRegisterTraceLogging();

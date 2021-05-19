@@ -46,10 +46,17 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
+        Execution::Context context{ std::cout, std::cin };
+        context.EnableCtrlHandler();
+
         // Enable all logging for this phase; we will update once we have the arguments
+        context.SetThreadGlobalsActive();
+
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddFileLogger();
+
+        Logging::AddTraceLogger();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
@@ -59,9 +66,6 @@ namespace AppInstaller::CLI
 
         // Initiate the background cleanup of the log file location.
         Logging::BeginLogFileCleanup();
-
-        Execution::Context context{ std::cout, std::cin };
-        context.EnableCtrlHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 

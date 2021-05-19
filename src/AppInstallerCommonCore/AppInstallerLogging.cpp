@@ -4,9 +4,12 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerFileLogger.h"
+#include "Public/AppInstallerTraceLogger.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/AppInstallerRuntime.h"
+
+#include "Public/ThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -42,17 +45,12 @@ namespace AppInstaller::Logging
         case Channel::YAML: return "YAML";
         case Channel::Core: return "CORE";
         case Channel::Test: return "TEST";
+        case Channel::Log:  return "LOG";
         default:            return "NONE";
         }
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
-
-    DiagnosticLogger& DiagnosticLogger::GetInstance()
-    {
-        static DiagnosticLogger instance;
-        return instance;
-    }
 
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
@@ -129,9 +127,19 @@ namespace AppInstaller::Logging
         }
     }
 
+    DiagnosticLogger& Log()
+    {
+        return AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetDiagnosticLogger();
+    }
+
     void AddFileLogger(const std::filesystem::path& filePath)
     {
         Log().AddLogger(std::make_unique<FileLogger>(filePath));
+    }
+
+    void AddTraceLogger()
+    {
+        Log().AddLogger(std::make_unique<TraceLogger>());
     }
 
     void BeginLogFileCleanup()
@@ -143,6 +151,7 @@ namespace AppInstaller::Logging
     {
         return out << std::hex << std::setw(8) << std::setfill('0');
     }
+
 }
 
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
