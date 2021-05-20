@@ -25,7 +25,7 @@ There are currently no known third party repositories. Microsoft is working with
 
 When you submit a manifest to the [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) repository on GitHub, your manifest will be automatically validated and evaluated for the safety of the Windows ecosystem. Manifests may also be reviewed manually.
 
-For information on the validation process, see [Windows Package Manger validation](.\winget-validation.md)
+For information on the validation process, see [Windows Package Manager validation](.\winget-validation.md)
 
 ## How to submit your manifest
 
