@@ -12,7 +12,7 @@ ms.localizationpriority: medium
 
 After you create a [package manifest](manifest.md) that describes your application, you're ready to submit your manifest to the Windows Package Manager repository. This a public-facing repository that contains a collection of manifests that the **winget** tool can access. To submit your manifest, you'll upload it to the open source [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) repository on GitHub.
 
-After you submit a pull request to add a new manifest to the GitHub repository, an automated process will validate your manifest file and check to make sure the package is not known to be malicious. If this validation is successful, your package will be added to the public-facing Windows Package Manager repository so it can be discovered by the **winget** client tool. Note the distinction between the manifests in the open source GitHub repository and the public-facing Windows Package Manager repository.
+After you submit a **pull request** to add a new manifest to the GitHub repository, an automated process will validate your manifest file and check to make sure the package complies with the [Windows Package Manager polices](.\windows-package-manager-policies.md) and is not known to be malicious. If this validation is successful, your package will be added to the public-facing Windows Package Manager repository so it can be discovered by the **winget** client tool. Note the distinction between the manifests in the open source GitHub repository and the public-facing Windows Package Manager repository.
 
 > [!IMPORTANT]
 > Microsoft reserves the right to refuse a submission for any reason.
@@ -24,6 +24,8 @@ There are currently no known third party repositories. Microsoft is working with
 ## Manifest validation
 
 When you submit a manifest to the [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) repository on GitHub, your manifest will be automatically validated and evaluated for the safety of the Windows ecosystem. Manifests may also be reviewed manually.
+
+For information on the validation process, see [Windows Package Manger validation](.\winget-validation.md)
 
 ## How to submit your manifest
 
@@ -60,15 +62,17 @@ Next, create a fork of the repository and clone it.
 
 You must add your manifest file to the repository in the following folder structure:
 
-**manifests** / **publisher** / **application** / **version.yaml**
+**manifests** / **letter** / **publisher** / **application** / **version** / **Yaml file**
 
 * The **manifests** folder is the root folder for all manifests in the repository.
+* The **letter** folder is the first letter of the publisher name.
 * The **publisher** folder is the name of the company that publishes the software. For example, **Microsoft**.
 * The **application** folder is the name of the application or tool. For example, **VSCode**.
-* **version.yaml** is the file name of the manifest. The file name must be set to the current version of the application. For example, **1.0.0.yaml**.
+* The **version** folder is the version of the application or tool. For example, **1.0.0**.
+* **Yaml File** is the file name of the manifest. The file name must be set to the name and publisher of the application. For example, **Contoso.ContosoApp.yaml**.
 
 >[!IMPORTANT]
-> The `Id` value in the manifest must match the publisher and application names in the manifest folder path, and the `version` value in the manifest must match the version in the file name. For more information, see [Create your package manifest](manifest.md#tips-and-best-practices).
+> The `Id` value in the manifest must match the publisher and application names in the manifest folder path, and the `version` value in the manifest must match the version in the folder name. For more information, see [Create your package manifest](manifest.md#tips-and-best-practices).
 
 ### Step 4: Submit your manifest to the remote repository
 
@@ -76,12 +80,12 @@ You're now ready to push your new manifest to the remote repository.
 
 1. Use the `add` command to prepare for submission.
     ```CMD
-    git add manifests\Contoso\ContosoApp\1.0.0.yaml
+    git add manifests\C\Contoso\ContosoApp\1.0.0\Contoso.ContosoApp.yaml
     ```
 
 2. Use the `commit` command to commit the change and provide information on the submission.
     ```CMD
-    git commit -m "Submitting  ContosoApp version 1.0.0.yaml"
+    git commit -m "Submitting ContosoApp version 1.0.0.yaml"
     ```
 
 3. Use the `push` command to push the changes to the remote repository.
@@ -91,38 +95,16 @@ You're now ready to push your new manifest to the remote repository.
 
 ### Step 5: Create a pull request
 
-After you push your changes, return to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) and create a pull request to merge your fork or branch to the main branch.
+After you push your changes, return to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) and create a **pull request** to merge your fork or branch to the main branch.
 
 ![picture of pull request tab](images\pull-request.png)
 
-## Validation process
+## Submission process
 
-When you create a pull request, this will start an automation process that validates the manifest and processes your pull request. We add labels to your pull request so you can track progress.
+When you create a **pull request**, this will start an automated process that validates the manifests and verifies your **pull request**. During this process we will run tests against the installer and installed binaries to validate the submission.
 
-### Submission expectations
+We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](.\winget-validation.md).  
 
-All application submissions to the Windows Package Manager repository should be well-behaved. Here are some expectations for submissions:
+Once complete, the submission will be automatically merged and the application will get added to the Windows Package Manager catalog.
 
-* The manifest complies with the [schema requirements](manifest.md#manifest-contents).
-* All URLs in the manifest lead to safe websites.
-* The installer and application are virus free. The package may be identified as malware by mistake. If you believe it's a false positive you can submit the installer to the defender team for analysis from [here](https://www.microsoft.com/wdsi/filesubmission).
-* The application installs and uninstalls correctly for both administrators and non-administrators.
-* The installer supports non-interactive modes.
-* All manifest entries are accurate and not misleading.
-* The installer comes directly from the publisher's website.
-
-### Pull request labels
-
-During validation, we apply a series of labels to our pull request to communicate progress.
-
-* **Needs: author feedback**: There is a failure with the submission. We will reassign pull request back to you. If you do not address the issue within 10 days, we will close the pull request.
-* **Manifest-Validation-Error**: The submitted manifest contains a syntax error.
-* **URL-Validation-Error**: One or more URLs in the submission failed [SmartScreen](/windows/security/threat-protection/microsoft-defender-smartscreen/microsoft-defender-smartscreen-overview) validation.
-* **Binary-Validation-Error**: The submitted application installer failed virus scan testing or there is a hash mismatch.
-* **Pull-Request-Error**: There is a problem with the pull request. For example, the folder structure does not have the [required format](#step-3-add-your-manifest-to-the-local-repository).
-* **Validation-Error**: The submitted application failed a general validation test.
-* **Validation-Installation-Error**: The submitted application failed install testing.
-* **Validation-Uninstall-Error**: The submitted application failed uninstall testing.
-* **Validation-Virus-Scan-Error**: The submitted application failed virus scan testing.
-* **Azure-Pipeline-Passed**: The manifest has completed the first portion of validation. After this step, your pull request is assigned to our test team for final validation.
-* **Validation-Completed**: The validation is complete and your pull request will be merged.
+If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](.\winget-validation.md).  
