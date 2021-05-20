@@ -387,6 +387,39 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::wstring ReplaceWhileCopying(std::wstring_view input, std::wstring_view token, std::wstring_view value)
+    {
+        if (token.empty())
+        {
+            return std::wstring{ input };
+        }
+
+        std::wstring result;
+        result.reserve(input.size());
+
+        std::wstring::size_type pos = 0u;
+        do
+        {
+            std::wstring::size_type findPos = input.find(token, pos);
+
+            if (findPos == std::wstring::npos)
+            {
+                result.append(input.substr(pos));
+            }
+            else
+            {
+                result.append(input.substr(pos, findPos - pos));
+                result.append(value);
+                findPos += token.length();
+            }
+
+            pos = findPos;
+        }
+        while (pos != std::wstring::npos);
+
+        return result;
+    }
+
     std::string& Trim(std::string& str)
     {
         if (!str.empty())

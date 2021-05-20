@@ -164,18 +164,21 @@ namespace AppInstaller::Utility
             // Determine whether to try DO first or not, as this is the only choice currently supported.
             InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
 
-            // Currently, the default remains WinINet until the DO path is proven.
-            if (setting == InstallerDownloader::Default)
+            if (setting == InstallerDownloader::Default ||
+                setting == InstallerDownloader::DeliveryOptimization)
             {
-                setting = InstallerDownloader::WinInet;
-            }
+                auto result = DODownload(url, dest, progress, computeHash, info);
+                // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
+                // Only do so if the file exists, because cancellation will not throw here.
+                if (std::filesystem::exists(dest))
+                {
+                    ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
+                }
+                return result;
 
-            if (setting == InstallerDownloader::DeliveryOptimization)
-            {
-                return DODownload(url, dest, progress, computeHash, info);
-
-                // While DO still requires an explicit opt-in, we will let failures through.
-                // When DO becomes the default, we may choose to catch exceptions and fall back to WinINet below.
+                // If DO becomes an issue, we may choose to catch exceptions and fall back to WinINet below.
+                // We would need to be careful not to bypass metered networks or other reasons that might
+                // intentionally cause the download to be blocked.
             }
         }
 

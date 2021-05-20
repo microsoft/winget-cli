@@ -4,6 +4,7 @@ addmanifest
 addstore
 admins
 alloc
+anonymize
 api
 appdata
 appinst
@@ -488,6 +489,7 @@ uri
 url
 urlmon
 userguide
+USERPROFILE
 usersources
 utext
 utf

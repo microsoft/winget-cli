@@ -33,6 +33,9 @@ namespace AppInstaller::Repository::Rest
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 
+        // Determines if the other source refers to the same as this.
+        bool IsSame(const RestSource* other) const;
+
     private:
         SourceDetails m_details;
         RestClient m_restClient;

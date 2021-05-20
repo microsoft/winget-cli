@@ -71,8 +71,7 @@ You must add your manifest file to the repository in the following folder struct
 * The **version** folder is the version of the application or tool. For example, **1.0.0**.
 * **Yaml File** is the file name of the manifest. The file name must be set to the name and publisher of the application. For example, **Contoso.ContosoApp.yaml**.
 
->[!IMPORTANT]
-> The `Id` value in the manifest must match the publisher and application names in the manifest folder path, and the `version` value in the manifest must match the version in the folder name. For more information, see [Create your package manifest](manifest.md#tips-and-best-practices).
+The `PackageIdentifier` value in the manifest must match the publisher and application names in the manifest folder path, and the `PackageVersion` value in the manifest must match the version in the file name. For more information, see [Create your package manifest](manifest.md#tips-and-best-practices).
 
 ### Step 4: Submit your manifest to the remote repository
 

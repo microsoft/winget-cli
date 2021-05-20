@@ -9,6 +9,27 @@ using namespace AppInstaller::Repository;
 
 namespace TestCommon
 {
+    namespace
+    {
+        template<AppInstaller::Manifest::Localization Field>
+        void BuildPackageVersionMultiPropertyWithFallback(std::vector<Utility::LocIndString>& result, const Manifest::Manifest& VersionManifest)
+        {
+            result.emplace_back(VersionManifest.DefaultLocalization.Get<Field>());
+            for (const auto& loc : VersionManifest.Localizations)
+            {
+                auto f = loc.Get<Field>();
+                if (f.empty())
+                {
+                    result.emplace_back(loc.Get<Field>());
+                }
+                else
+                {
+                    result.emplace_back(std::move(f));
+                }
+            }
+        }
+    }
+
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
         VersionManifest(manifest), Metadata(std::move(installationMetadata)), Source(source) {}
 
@@ -50,6 +71,19 @@ namespace TestCommon
             for (const auto& installer : VersionManifest.Installers)
             {
                 AddFoldedIfHasValueAndNotPresent(installer.ProductCode, result);
+            }
+            break;
+        case PackageVersionMultiProperty::Name:
+            BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::PackageName>(result, VersionManifest);
+            break;
+        case PackageVersionMultiProperty::Publisher:
+            BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::Publisher>(result, VersionManifest);
+            break;
+        case PackageVersionMultiProperty::Locale:
+            result.emplace_back(VersionManifest.DefaultLocalization.Locale);
+            for (const auto& loc : VersionManifest.Localizations)
+            {
+                result.emplace_back(loc.Locale);
             }
             break;
         }

@@ -6,8 +6,6 @@
 
 **Effective date: May 22, 2021**
 
-
-
 Thank you for your interest in providing a Product to the Windows Package Manager repository.
 
 "Product" means content in whatever form including, but not limited to, apps, games, titles, and any additional content sold or offered from within a Product.  
@@ -275,8 +273,6 @@ User Generated Content (UGC) is content that users contribute to an app or Produ
 - Publish and make available to users a Product terms of service and/or content guidelines for User Generated Content either in Product or on the Product website.
 - Provide a means for users to report inappropriate content within the Product to the developer for review and removal/disablement if in violation of content guidelines and/or implement a method for proactive detection of inappropriate or harmful UGC.
 - Remove or disable UGC when requested by Microsoft.
-
----
 
 ### See also
 

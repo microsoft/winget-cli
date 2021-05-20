@@ -4,6 +4,7 @@
 #include <winget/ManifestValidation.h>
 #include <winget/Manifest.h>
 #include <winget/Yaml.h>
+#include <AppInstallerSHA256.h>
 
 #include <filesystem>
 
@@ -16,6 +17,9 @@ namespace AppInstaller::Manifest::YamlParser
 
         // File name of the manifest file if applicable for error reporting
         std::string FileName;
+
+        // The SHA256 hash of the stream
+        Utility::SHA256::HashBuffer StreamSha256;
 
         ManifestTypeEnum ManifestType = ManifestTypeEnum::Preview;
     };
