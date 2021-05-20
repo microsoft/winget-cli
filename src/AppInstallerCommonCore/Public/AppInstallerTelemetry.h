@@ -121,6 +121,7 @@ namespace AppInstaller::Logging
 
         // Used to anonymize a string to the best of our ability.
         // Should primarily be used on failure messages or paths if needed.
+        std::wstring AnonymizeString(const wchar_t* input) const noexcept;
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
         bool m_isSettingEnabled = true;

@@ -95,13 +95,15 @@ namespace AppInstaller::Logging
     {
         if (IsTelemetryEnabled())
         {
+            auto anonMessage = AnonymizeString(failure.pszMessage);
+
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "FailureInfo",
                 GetActivityId(),
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(failure.hr, "HResult"),
-                AICLI_TraceLoggingWStringView(AnonymizeString(failure.pszMessage), "Message"),
+                AICLI_TraceLoggingWStringView(anonMessage, "Message"),
                 TraceLoggingString(failure.pszModule, "Module"),
                 TraceLoggingUInt32(failure.threadId, "ThreadId"),
                 TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
@@ -206,6 +208,8 @@ namespace AppInstaller::Logging
     {
         if (IsTelemetryEnabled())
         {
+            auto anonMessage = AnonymizeString(Utility::ConvertToUTF16(message));
+
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "Exception",
                 GetActivityId(),
@@ -213,7 +217,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 AICLI_TraceLoggingStringView(type, "Type"),
-                AICLI_TraceLoggingWStringView(AnonymizeString(Utility::ConvertToUTF16(message)), "Message"),
+                AICLI_TraceLoggingWStringView(anonMessage, "Message"),
                 TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -513,6 +517,11 @@ namespace AppInstaller::Logging
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
         return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
+    }
+
+    std::wstring TelemetryTraceLogger::AnonymizeString(const wchar_t* input) const noexcept
+    {
+        return input ? AnonymizeString(std::wstring_view{ input }) : std::wstring{};
     }
 
     std::wstring TelemetryTraceLogger::AnonymizeString(std::wstring_view input) const noexcept try

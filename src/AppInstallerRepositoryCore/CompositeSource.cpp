@@ -39,7 +39,11 @@ namespace AppInstaller::Repository
                 // Grab the installed version's channel to allow for filtering in calls to get available info.
                 if (m_installedPackage)
                 {
-                    m_installedChannel = m_installedPackage->GetInstalledVersion()->GetProperty(PackageVersionProperty::Channel);
+                    auto installedVersion = m_installedPackage->GetInstalledVersion();
+                    if (installedVersion)
+                    {
+                        m_installedChannel = installedVersion->GetProperty(PackageVersionProperty::Channel);
+                    }
                 }
             }
 
