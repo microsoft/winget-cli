@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerStrings.h>
+#include <AppInstallerSHA256.h>
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
@@ -43,5 +44,8 @@ namespace AppInstaller::Manifest
 
         // Get all commands across installers
         std::vector<string_t> GetAggregatedCommands() const;
+
+        // If not empty, the SHA256 hash of the manifest stream itself.
+        Utility::SHA256::HashBuffer StreamSha256;
     };
 }

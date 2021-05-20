@@ -247,11 +247,16 @@ namespace AppInstaller::YAML::Wrapper
         yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());
     }
 
-    Parser::Parser(std::istream& input) : m_token(true)
+    Parser::Parser(std::istream& input, Utility::SHA256::HashBuffer* hashOut) : m_token(true)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_parser_initialize(&m_parser));
 
         m_input = Utility::ReadEntireStream(input);
+
+        if (hashOut)
+        {
+            *hashOut = Utility::SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(m_input.data()), static_cast<uint32_t>(m_input.size()));
+        }
 
         PrepareInput();
         yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());

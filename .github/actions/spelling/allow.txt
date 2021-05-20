@@ -3,7 +3,8 @@ ACCESSDENIED
 addmanifest
 addstore
 admins
-Alloc
+alloc
+anonymize
 api
 appdata
 appinst
@@ -21,16 +22,20 @@ argv
 ARRAYSIZE
 aspirational
 aspnet
+authn
+authz
 autocomplete
 auxdata
 azureedge
+bcp
+bcp47
 bcrypt
 binver
 Bitmask
 blog
 Blog
 boolalpha
-BSTR
+bstr
 bugfix
 BUILDNUMBER
 bytearray
@@ -48,6 +53,7 @@ cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+comparand
 conemu
 config
 Configurability
@@ -93,7 +99,9 @@ dll
 dllexport
 docx
 dotnet
+downlevel
 downloader
+downloaders
 dword
 DWORDLONG
 elseif
@@ -104,6 +112,7 @@ ensureandinsert
 ensurepathexists
 ENU
 enum
+EOAC
 errorlevel
 errstr
 esrp
@@ -166,6 +175,7 @@ icu
 IDisposable
 IDX
 IEnumerable
+IFACEMETHOD
 ifdef
 ifndef
 ifstream
@@ -199,6 +209,9 @@ json
 junit
 langutil
 lastwritetime
+LCID
+LCIDTo
+LEN
 Linux
 LLVM
 llvmorg
@@ -228,6 +241,7 @@ MINORVERSION
 mkdir
 monostate
 motw
+mrm
 msbuild
 msdata
 MSDN
@@ -369,6 +383,7 @@ simplesave
 simpletest
 sizeof
 sln
+SNAME
 snprintf
 sourced
 Specv
@@ -474,6 +489,7 @@ uri
 url
 urlmon
 userguide
+USERPROFILE
 usersources
 utext
 utf
@@ -503,7 +519,7 @@ wil
 WINAPI
 WINEVENT
 winget
-WININET
+wininet
 winmeta
 winres
 winrt
@@ -533,3 +549,4 @@ XTOKEN
 yaml
 yml
 yy
+zh

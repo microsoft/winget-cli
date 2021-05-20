@@ -62,6 +62,7 @@ namespace AppInstaller::Msix
         std::vector<byte> GetSignature();
 
         // Gets the package full name.
+        std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
         // Gets a value indicating whether the referenced info is newer than the given manifest.

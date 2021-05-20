@@ -307,6 +307,7 @@
         "InstallerUrl": {
           "type": "string",
           "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+          "maxLength": 2048,
           "description": "The installer Url"
         },
         "InstallerSha256": {

@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <AppInstallerRuntime.h>
+#include "AppInstallerRuntime.h"
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerLogging.h"
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+#include "winget/Locale.h"
 
 namespace AppInstaller::Settings
 {
@@ -39,6 +40,31 @@ namespace AppInstaller::Settings
             {
                 convertedValue = value;
             }
+
+            return convertedValue;
+        }
+
+        template<>
+        inline std::string GetValueString(std::vector<std::string> value)
+        {
+            std::string convertedValue = "[";
+
+            bool first = true;
+            for (auto const& entry : value)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    convertedValue += ", ";
+                }
+
+                convertedValue += entry;
+            }
+
+            convertedValue += ']';
 
             return convertedValue;
         }
@@ -199,12 +225,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalMSStore)
-        WINGET_VALIDATE_PASS_THROUGH(EFList)
-        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalUpgrade)
-        WINGET_VALIDATE_PASS_THROUGH(EFUninstall)
-        WINGET_VALIDATE_PASS_THROUGH(EFExport)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
-        WINGET_VALIDATE_PASS_THROUGH(EFRestSource)
 
         WINGET_VALIDATE_SIGNATURE(InstallScopePreference)
         {
@@ -226,6 +247,51 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallScopeRequirement)
         {
             return SettingMapping<Setting::InstallScopePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocalePreference)
+        {
+            for (auto const& entry : value)
+            {
+                if (!Locale::IsWellFormedBcp47Tag(entry))
+                {
+                    return {};
+                }
+            }
+
+            return value;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
+        {
+            return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(NetworkDownloader)
+        {
+            static constexpr std::string_view s_downloader_default = "default";
+            static constexpr std::string_view s_downloader_wininet = "wininet";
+            static constexpr std::string_view s_downloader_do = "do";
+
+            if (Utility::CaseInsensitiveEquals(value, s_downloader_default))
+            {
+                return InstallerDownloader::Default;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_downloader_wininet))
+            {
+                return InstallerDownloader::WinInet;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_downloader_do))
+            {
+                return InstallerDownloader::DeliveryOptimization;
+            }
+
+            return {};
+        }
+
+        WINGET_VALIDATE_SIGNATURE(NetworkDOProgressTimeoutInSeconds)
+        {
+            return std::chrono::seconds(value);
         }
     }
 

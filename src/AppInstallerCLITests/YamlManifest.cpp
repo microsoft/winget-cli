@@ -33,7 +33,8 @@ bool operator==(const MultiValue& a, const MultiValue& b)
 
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+    auto manifestFile = TestDataFile("Manifest-Good.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(manifestFile);
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
@@ -119,6 +120,13 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.Get<Localization::Description>() == "El proyecto MSIX SDK es habilita desarrolladores de diferentes");
     REQUIRE(localization1.Get<Localization::PackageUrl>() == "https://github.com/microsoft/msix-packaging/es-MX");
     REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
+
+    // Stream hash
+    std::ifstream stream(manifestFile, std::ios_base::in | std::ios_base::binary);
+    REQUIRE(!stream.fail());
+    auto manifestHash = SHA256::ComputeHash(stream);
+    REQUIRE(manifestHash.size() == manifest.StreamSha256.size());
+    REQUIRE(std::equal(manifestHash.begin(), manifestHash.end(), manifest.StreamSha256.begin()));
 }
 
 TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
@@ -245,6 +253,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
+        { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
     };
 
     for (auto const& testCase : TestCases)
@@ -572,4 +581,27 @@ TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest };
         REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest is incomplete"));
     }
+}
+
+TEST_CASE("ManifestApplyLocale", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
+
+    // No better alternative locale, default is used.
+    manifest.ApplyLocale("zh-CN");
+    REQUIRE(manifest.CurrentLocalization.Locale == "es-MX");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "es-MX package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "es-MX publisher");
+
+    // en-US results in en-GB, which is better than default.
+    manifest.ApplyLocale("en-US");
+    REQUIRE(manifest.CurrentLocalization.Locale == "en-GB");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "en-GB package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "en-GB publisher");
+
+    // fr-FR results in fr-FR, but only package name is localized.
+    manifest.ApplyLocale("fr-FR");
+    REQUIRE(manifest.CurrentLocalization.Locale == "fr-FR");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "fr-FR package name");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "es-MX publisher");
 }

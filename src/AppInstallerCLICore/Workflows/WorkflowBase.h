@@ -170,6 +170,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportMultiplePackageFoundResult(Execution::Context& context);
 
+    // Outputs the search results when multiple packages found but only one expected.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context);
+
     // Ensures that there is at least one result in the search.
     // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult

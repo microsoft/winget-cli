@@ -153,7 +153,7 @@ struct TestContext : public Context
 
             auto metadata = version->GetMetadata();
             REQUIRE(metadata[PackageVersionMetadata::Publisher] == ARPPublisher);
-            REQUIRE(metadata[PackageVersionMetadata::Locale] == ARPLanguage);
+            REQUIRE(metadata[PackageVersionMetadata::InstalledLocale] == ARPLanguage);
         }
         else
         {

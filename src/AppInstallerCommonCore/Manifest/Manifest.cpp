@@ -2,13 +2,48 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Manifest.h"
+#include "winget/Locale.h"
+#include "winget/UserSettings.h"
 
 namespace AppInstaller::Manifest
 {
-    void Manifest::ApplyLocale(const std::string&)
+    void Manifest::ApplyLocale(const std::string& locale)
     {
-        // TODO: need more work in locale processing
         CurrentLocalization = DefaultLocalization;
+
+        // Get target locale from Preferred Languages settings if applicable
+        std::vector<std::string> targetLocales;
+        if (locale.empty())
+        {
+            targetLocales = Locale::GetUserPreferredLanguages();
+        }
+        else
+        {
+            targetLocales.emplace_back(locale);
+        }
+
+        for (auto const& targetLocale : targetLocales)
+        {
+            const ManifestLocalization* bestLocalization = nullptr;
+            double bestScore = Locale::GetDistanceOfLanguage(targetLocale, DefaultLocalization.Locale);
+
+            for (auto const& localization : Localizations)
+            {
+                double score = Locale::GetDistanceOfLanguage(targetLocale, localization.Locale);
+                if (score > bestScore)
+                {
+                    bestLocalization = &localization;
+                    bestScore = score;
+                }
+            }
+
+            // If there's better locale than default And is compatible with target locale, merge and return;
+            if (bestLocalization != nullptr && bestScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+            {
+                CurrentLocalization.ReplaceOrMergeWith(*bestLocalization);
+                break;
+            }
+        }
     }
 
     std::vector<string_t> Manifest::GetAggregatedTags() const

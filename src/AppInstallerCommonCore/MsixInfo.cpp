@@ -345,7 +345,7 @@ namespace AppInstaller::Msix
         return signatureContent;
     }
 
-    std::string MsixInfo::GetPackageFullName()
+    std::wstring MsixInfo::GetPackageFullNameWide()
     {
         ComPtr<IAppxManifestPackageId> packageId;
         if (m_isBundle)
@@ -364,7 +364,12 @@ namespace AppInstaller::Msix
         wil::unique_cotaskmem_string fullName;
         THROW_IF_FAILED(packageId->GetPackageFullName(&fullName));
 
-        return Utility::ConvertToUTF8(fullName.get());
+        return { fullName.get() };
+    }
+
+    std::string MsixInfo::GetPackageFullName()
+    {
+        return Utility::ConvertToUTF8(GetPackageFullNameWide());
     }
 
     bool MsixInfo::IsNewerThan(const std::filesystem::path& otherManifest)

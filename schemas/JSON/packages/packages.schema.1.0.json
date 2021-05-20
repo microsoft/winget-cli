@@ -1,5 +1,5 @@
 {
-  "$id": "https://aka.ms/winget-packages.schema.json",
+  "$id": "https://aka.ms/winget-packages.schema.1.0.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
 
   "title": "winget Packages List Schema",
@@ -17,7 +17,7 @@
     },
 
     "CreationDate": {
-      "description": "Date when this list was generated",
+      "description": "Date when this list was generated (ex. 2021-05-16T22:24:39.287-00:00)",
       "type": "string",
       "format": "date-time"
     },
@@ -65,13 +65,13 @@
           "Packages": {
             "description": "Packages installed from this source",
             "type": "array",
-            "required": [ "Id" ],
             "minItems": 1,
 
             "items": {
               "description": "A package to be installed from this source",
               "type": "object",
               "additionalProperties": true,
+              "required": [ "Id" ],
               "properties": {
                 "Id": {
                   "description": "Package ID",

@@ -45,5 +45,27 @@ namespace AppInstaller::Utility
         return value;
     }
 
+    template<>
+    std::optional<std::vector<std::string>> GetValue(const Json::Value& node)
+    {
+        std::vector<std::string> result;
+
+        if (node.isArray())
+        {
+            for (const Json::Value& entry : node)
+            {
+                if (!entry.isString())
+                {
+                    return std::nullopt;
+                }
+
+                result.emplace_back(entry.asString());
+            }
+
+            return result;
+        }
+
+        return std::nullopt;
+    }
 }
 

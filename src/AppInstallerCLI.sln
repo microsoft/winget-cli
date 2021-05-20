@@ -91,6 +91,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{F5CED6B6-C27F-4405-9033-6C273B8B129C}"
 	ProjectSection(SolutionItems) = preProject
 		..\schemas\JSON\packages\packages.schema.1.0.json = ..\schemas\JSON\packages\packages.schema.1.0.json
+		..\schemas\JSON\packages\packages.schema.2.0.json = ..\schemas\JSON\packages\packages.schema.2.0.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"

@@ -12,7 +12,7 @@ namespace AppInstaller::Registry
     {
         std::wstring_view ConvertBytesToWideStringView(const std::vector<BYTE>& data)
         {
-            THROW_HR_IF(E_NOT_VALID_STATE, (data.size() % sizeof(wchar_t)) != 0);
+            // Remove any extra bytes because the data could just be dirty; better to not have a bad character than outright fail.
             std::wstring_view result{ reinterpret_cast<const wchar_t*>(data.data()), data.size() / sizeof(wchar_t) };
 
             // Registry values may or may not be null terminated; we will remove any trailing nulls
