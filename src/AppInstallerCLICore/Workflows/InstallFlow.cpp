@@ -461,10 +461,13 @@ namespace AppInstaller::CLI::Workflow
             for (const auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                entries.emplace_back(std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel)));
+                if (installed)
+                {
+                    entries.emplace_back(std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel)));
+                }
             }
 
             std::sort(entries.begin(), entries.end());
@@ -492,15 +495,19 @@ namespace AppInstaller::CLI::Workflow
             for (auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel));
 
-                auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
-                if (itr == entries.end() || *itr != entryKey)
+                if (installed)
                 {
-                    changes.emplace_back(std::move(entry));
+                    auto entryKey = std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel));
+
+                    auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
+                    if (itr == entries.end() || *itr != entryKey)
+                    {
+                        changes.emplace_back(std::move(entry));
+                    }
                 }
             }
 
