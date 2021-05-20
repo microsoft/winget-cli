@@ -498,21 +498,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return {};
         }
 
-        switch (property)
-        {
-        case AppInstaller::Repository::PackageVersionProperty::Id:
-            return std::get<0>(ManifestTable::GetValuesById<IdTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageVersionProperty::Name:
-            return std::get<0>(ManifestTable::GetValuesById<NameTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageVersionProperty::Version:
-            return std::get<0>(ManifestTable::GetValuesById<VersionTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageVersionProperty::Channel:
-            return std::get<0>(ManifestTable::GetValuesById<ChannelTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageVersionProperty::RelativePath:
-            return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
-        default:
-            return {};
-        }
+        return GetPropertyByManifestIdInternal(connection, manifestId, property);
     }
 
     std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection&, SQLite::rowid_t, PackageVersionMultiProperty) const
@@ -600,6 +586,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 filter.Field = field;
                 resultsTable.SearchOnField(filter);
             }
+        }
+    }
+
+    std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    {
+        switch (property)
+        {
+        case AppInstaller::Repository::PackageVersionProperty::Id:
+            return std::get<0>(ManifestTable::GetValuesById<IdTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Name:
+            return std::get<0>(ManifestTable::GetValuesById<NameTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Version:
+            return std::get<0>(ManifestTable::GetValuesById<VersionTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Channel:
+            return std::get<0>(ManifestTable::GetValuesById<ChannelTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::RelativePath:
+            return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
+        default:
+            return {};
         }
     }
 }

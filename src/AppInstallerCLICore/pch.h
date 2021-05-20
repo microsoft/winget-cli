@@ -63,3 +63,4 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/Locale.h>

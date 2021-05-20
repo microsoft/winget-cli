@@ -110,6 +110,11 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         namespace Foreground
         {
+            // Applies brightness/intensity flag to foreground color
+            extern const Sequence Bright;
+            // Removes brightness/intensity flag from foreground color
+            extern const Sequence NoBright;
+
             extern const Sequence BrightRed;
             extern const Sequence BrightGreen;
             extern const Sequence BrightYellow;

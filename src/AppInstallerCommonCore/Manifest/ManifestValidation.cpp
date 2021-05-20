@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/ManifestValidation.h"
+#include "winget/Locale.h"
 
 namespace AppInstaller::Manifest
 {
@@ -23,6 +24,11 @@ namespace AppInstaller::Manifest
         catch (const std::exception&)
         {
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
+        }
+
+        if (!manifest.DefaultLocalization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(manifest.DefaultLocalization.Locale))
+        {
+            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", manifest.DefaultLocalization.Locale);
         }
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
@@ -133,6 +139,20 @@ namespace AppInstaller::Manifest
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
+            }
+
+            if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))
+            {
+                resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
+            }
+        }
+
+        // Validate localizations
+        for (auto const& localization : manifest.Localizations)
+        {
+            if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
+            {
+                resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
             }
         }
 

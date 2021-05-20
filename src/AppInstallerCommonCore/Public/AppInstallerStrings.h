@@ -121,6 +121,9 @@ namespace AppInstaller::Utility
     // Returns a value indicating whether a replacement occurred.
     bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value);
 
+    // Replaces the token in the input string with value while copying to a new result.
+    std::wstring ReplaceWhileCopying(std::wstring_view input, std::wstring_view token, std::wstring_view value);
+
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
     std::string Trim(std::string&& str);

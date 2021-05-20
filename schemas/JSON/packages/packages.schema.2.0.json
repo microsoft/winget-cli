@@ -1,0 +1,107 @@
+{
+  "$id": "https://aka.ms/winget-packages.schema.2.0.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+
+  "title": "winget Packages List Schema",
+  "description": "Describes a list of packages for batch installs",
+
+  "type": "object",
+  "required": [ "Sources" ],
+  "additionalProperties": true,
+
+  "properties": {
+    "WinGetVersion": {
+      "description": "Version of winget that generated this file",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+
+    "CreationDate": {
+      "description": "Date when this list was generated (ex. 2021-05-16T22:24:39.287-00:00)",
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "Sources": {
+      "description": "Sources from which each package comes from",
+      "type": "array",
+
+      "items": {
+        "description": "A source and the list of packages to install from it",
+        "type": "object",
+        "required": [ "SourceDetails", "Packages" ],
+        "additionalProperties": true,
+
+        "properties": {
+          "SourceDetails": {
+            "description": "Details about this source",
+            "type": "object",
+            "required": [ "Name", "Identifier", "Argument", "Type" ],
+            "additionalProperties": true,
+
+            "properties": {
+              "Name": {
+                "description": "Name of the source",
+                "type": "string"
+              },
+
+              "Identifier": {
+                "description": "Identifier for the source",
+                "type": "string"
+              },
+
+              "Argument": {
+                "description": "Argument used to install the source",
+                "type": "string"
+              },
+
+              "Type": {
+                "description": "Type of the source",
+                "type": "string"
+              }
+            }
+          },
+
+          "Packages": {
+            "description": "Packages installed from this source",
+            "type": "array",
+            "minItems": 1,
+
+            "items": {
+              "description": "A package to be installed from this source",
+              "type": "object",
+              "additionalProperties": true,
+              "required": [ "PackageIdentifier" ],
+              "properties": {
+                "PackageIdentifier": {
+                  "description": "Package ID",
+                  "type": "string"
+                },
+
+                "Version": {
+                  "description": "Package version",
+                  "type": "string"
+                },
+
+                "Channel": {
+                  "description": "Package channel",
+                  "type": "string"
+                },
+
+                "Scope": {
+                  "description": "Required package scope",
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "machine"
+                  ],
+                  "default": "user"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

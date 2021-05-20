@@ -18,6 +18,14 @@ namespace AppInstaller::Settings
                 return true;
             }
 
+            // Even if all experimental features are disabled, if the store policy is enabled then override it.
+            if (feature == ExperimentalFeature::Feature::ExperimentalMSStore &&
+                GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
+            {
+                // Force enable the feature
+                return true;
+            }
+
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
                 AICLI_LOG(Core, Info, <<
@@ -35,23 +43,7 @@ namespace AppInstaller::Settings
             case ExperimentalFeature::Feature::ExperimentalArg:
                 return userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalMSStore:
-                if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
-                {
-                    // Force enable the feature
-                    return true;
-                }
-
                 return userSettings.Get<Setting::EFExperimentalMSStore>();
-            case ExperimentalFeature::Feature::ExperimentalList:
-                return userSettings.Get<Setting::EFList>();
-            case ExperimentalFeature::Feature::ExperimentalUpgrade:
-                return userSettings.Get<Setting::EFExperimentalUpgrade>();
-            case ExperimentalFeature::Feature::ExperimentalUninstall:
-                return userSettings.Get<Setting::EFUninstall>();
-            case ExperimentalFeature::Feature::ExperimentalExport:
-                return userSettings.Get<Setting::EFExport>();
-            case ExperimentalFeature::Feature::ExperimentalRestSource:
-                return userSettings.Get<Setting::EFRestSource>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -80,16 +72,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::ExperimentalMSStore:
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
-        case Feature::ExperimentalList:
-            return ExperimentalFeature{ "List Command", "list", "https://aka.ms/winget-settings", Feature::ExperimentalList };
-        case Feature::ExperimentalUpgrade:
-            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
-        case Feature::ExperimentalUninstall:
-            return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
-        case Feature::ExperimentalExport:
-            return ExperimentalFeature{ "Export Command", "export", "https://aka.ms/winget-settings", Feature::ExperimentalExport };
-        case Feature::ExperimentalRestSource:
-            return ExperimentalFeature{ "Rest Source Support", "restSource", "https://aka.ms/winget-settings", Feature::ExperimentalRestSource };
         default:
             THROW_HR(E_UNEXPECTED);
         }

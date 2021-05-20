@@ -357,8 +357,7 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet")},
                 {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
-                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")},
-                {InstallerSwitchType::Update, ManifestInstaller::string_t("REINSTALL=ALL REINSTALLMODE=vamus")}
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         case InstallerTypeEnum::Nullsoft:
             return

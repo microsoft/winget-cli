@@ -1,6 +1,6 @@
 # WinGet CLI Settings
 
-You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor, if no editor is configured, notepad.exe is used.
+You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is sensible option if you have no other preference.
 
 ## File Location
 
@@ -67,6 +67,18 @@ The `scope` behavior affects the choice between installing a package for the cur
     },
 ```
 
+### Locale
+
+The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses bcp47 language tag.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "locale": [ "en-US", "fr-FR" ]
+        }
+    },
+```
+
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
@@ -82,6 +94,22 @@ See [details on telemetry](../README.md#datatelemetry), and our [primary privacy
 ```
 
 If set to true, the `telemetry.disable` setting will prevent any event from being written by the program.
+
+## Network
+
+The `network` settings influence how winget uses the network to retrieve packages and metadata.
+
+### Downloader
+
+The `downloader` setting controls which code is used when downloading packages. The default is `default`, which may be any of the options based on our determination.
+`wininet` uses the [WinINet](https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet) APIs, while `do` uses the
+[Delivery Optimization](https://support.microsoft.com/en-us/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
+
+```json
+   "network": {
+       "downloader": "do"
+   }
+```
 
 ## Experimental Features
 

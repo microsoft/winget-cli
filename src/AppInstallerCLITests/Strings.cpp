@@ -164,3 +164,12 @@ TEST_CASE("PathOutput", "[strings]")
     std::string output = out.str();
     REQUIRE(output.substr(output.size() - original.size()) == original);
 }
+
+TEST_CASE("ReplaceWhileCopying", "[strings]")
+{
+    REQUIRE(ReplaceWhileCopying(L"A red apple", L"red", L"green") == L"A green apple");
+    REQUIRE(ReplaceWhileCopying(L"A red, red apple", L"red", L"green") == L"A green, green apple");
+    REQUIRE(ReplaceWhileCopying(L"A red, red apple", L"ed", L"ad") == L"A rad, rad apple");
+    REQUIRE(ReplaceWhileCopying(L"A red apple", L"p", L"f") == L"A red affle");
+    REQUIRE(ReplaceWhileCopying(L"A red apple", L"", L"green") == L"A red apple");
+}

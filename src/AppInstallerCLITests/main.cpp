@@ -9,6 +9,7 @@
 
 #include <Public/AppInstallerLogging.h>
 #include <Public/AppInstallerTelemetry.h>
+#include <Telemetry/TraceLogging.h>
 
 #include "TestCommon.h"
 #include "TestHooks.h"
@@ -121,6 +122,9 @@ int main(int argc, char** argv)
     }
     Logging::Log().SetLevel(Logging::Level::Verbose);
     Logging::EnableWilFailureTelemetry();
+
+    // Forcibly enable event writing to catch bugs in that code
+    g_IsTelemetryProviderEnabled = true;
 
     // Force all tests to run against settings inside this container.
     // This prevents test runs from trashing the users actual settings.

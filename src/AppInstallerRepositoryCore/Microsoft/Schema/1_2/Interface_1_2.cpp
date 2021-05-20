@@ -154,6 +154,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return result;
     }
 
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    {
+        switch (property)
+        {
+            // These values are not right, as they are normalized.  But they are good enough for now and all we have.
+        case PackageVersionMultiProperty::Name:
+            return NormalizedPackageNameTable::GetValuesByManifestId(connection, manifestId);
+        case PackageVersionMultiProperty::Publisher:
+            return NormalizedPackagePublisherTable::GetValuesByManifestId(connection, manifestId);
+        default:
+            return V1_1::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+        }
+    }
+
     Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
     {
         return m_normalizer.Normalize(name, publisher);

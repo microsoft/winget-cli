@@ -41,6 +41,8 @@ namespace AppInstaller::Runtime
         UserFileSettings,
         // The location where secure settings data is stored.
         SecureSettings,
+        // The value of %USERPROFILE%.
+        UserProfile,
     };
 
     // Gets the path to the requested location.

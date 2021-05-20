@@ -5,6 +5,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include <urlmon.h>
+#include <appmodel.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6340 6388 )
@@ -27,6 +28,7 @@
 #include <AppInstallerVersions.h>
 #include <winget/ExtensionCatalog.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Locale.h>
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
 #include <winget/Yaml.h>
