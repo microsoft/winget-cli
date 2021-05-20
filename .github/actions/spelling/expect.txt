@@ -134,7 +134,6 @@ IID
 IInstalled
 img
 IName
-inary
 INET
 inor
 installshield

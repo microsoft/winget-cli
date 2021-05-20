@@ -53,7 +53,7 @@ immediately. Some may trigger manual validation.
 | **Label** | **Details** |
 |--------------|-------------|
 |<img width=200/>|<img width=500/>|
-| **Binary-Validation-Error** | The application included in this **Pull Request** failed to pass the **Installers Scan** test. This test is designed to ensure that the application installs on all environments without warningsFor further details on this error, see [binary validation errors](.\b. inary-validation-errors.md). |
+| **Binary-Validation-Error** | The application included in this **Pull Request** failed to pass the **Installers Scan** test. This test is designed to ensure that the application installs on all environments without warnings.  For further details on this error, see [binary validation errors](.\binary-validation-errors.md). |
 | **Error-Analysis-Timeout** | This label indicates that the **Binary-Validation-Test** test timed out. The **Pull Request** will get assigned to a Windows Package Manager developer to look at it. |
 | **Error-Hash-Mismatch** | The submitted manifest could not be processed because the **InstallerSha256** hash provided for the **InstallerURL** did not match. Update the **InstallerSha256** in the **Pull Request** and try again. |
 | **Error-Installer-Availability** | The validation service was unable to download the installer. This may be related to Azure IP ranges being blocked, or the installer URL may be incorrect. Check that the **InstallerURL** is correct and try again. If you feel this has failed in error, please add a comment and the **Pull Request** will get assigned to a Windows Package Manager developer to look investigate. |
