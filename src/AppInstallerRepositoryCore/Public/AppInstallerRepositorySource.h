@@ -25,11 +25,14 @@ namespace AppInstaller::Repository
     };
 
     // Defines the trust level of the source.
-    enum class SourceTrustLevel
+    enum class SourceTrustLevel : uint32_t
     {
-        None,
-        Trusted,
+        None        = 0x00000000,
+        Trusted     = 0x00000001,
+        StoreOrigin = 0x00000002,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(SourceTrustLevel);
 
     std::string_view ToString(SourceOrigin origin);
 

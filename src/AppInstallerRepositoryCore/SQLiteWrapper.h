@@ -13,8 +13,11 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
+
+using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::SQLite
 {
@@ -24,11 +27,18 @@ namespace AppInstaller::Repository::SQLite
     // The type of a rowid column in code.
     using rowid_t = int64_t;
 
+    // The type to use for blob data.
+    using blob_t = std::vector<uint8_t>;
+
     namespace details
     {
         template <typename T, typename = void>
         struct ParameterSpecificsImpl
         {
+            static T& ToLog(T&&)
+            {
+                static_assert(false, "No type specific override has been supplied");
+            }
             static void Bind(sqlite3_stmt*, int, T&&)
             {
                 static_assert(false, "No type specific override has been supplied");
@@ -42,12 +52,14 @@ namespace AppInstaller::Repository::SQLite
         template <>
         struct ParameterSpecificsImpl<nullptr_t>
         {
+            inline static std::string_view ToLog(nullptr_t) { return "null"sv; }
             static void Bind(sqlite3_stmt* stmt, int index, nullptr_t);
         };
 
         template <>
         struct ParameterSpecificsImpl<std::string>
         {
+            inline static const std::string& ToLog(const std::string& v) { return v; }
             static void Bind(sqlite3_stmt* stmt, int index, const std::string& v);
             static std::string GetColumn(sqlite3_stmt* stmt, int column);
         };
@@ -55,12 +67,14 @@ namespace AppInstaller::Repository::SQLite
         template <>
         struct ParameterSpecificsImpl<std::string_view>
         {
+            inline static const std::string_view& ToLog(const std::string_view& v) { return v; }
             static void Bind(sqlite3_stmt* stmt, int index, std::string_view v);
         };
 
         template <>
         struct ParameterSpecificsImpl<int>
         {
+            inline static int ToLog(int v) { return v; }
             static void Bind(sqlite3_stmt* stmt, int index, int v);
             static int GetColumn(sqlite3_stmt* stmt, int column);
         };
@@ -68,6 +82,7 @@ namespace AppInstaller::Repository::SQLite
         template <>
         struct ParameterSpecificsImpl<int64_t>
         {
+            inline static int64_t ToLog(int64_t v) { return v; }
             static void Bind(sqlite3_stmt* stmt, int index, int64_t v);
             static int64_t GetColumn(sqlite3_stmt* stmt, int column);
         };
@@ -75,13 +90,26 @@ namespace AppInstaller::Repository::SQLite
         template <>
         struct ParameterSpecificsImpl<bool>
         {
+            inline static bool ToLog(bool v) { return v; }
             static void Bind(sqlite3_stmt* stmt, int index, bool v);
             static bool GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <>
+        struct ParameterSpecificsImpl<blob_t>
+        {
+            static std::string ToLog(const blob_t& v);
+            static void Bind(sqlite3_stmt* stmt, int index, const blob_t& v);
+            static blob_t GetColumn(sqlite3_stmt* stmt, int column);
         };
 
         template <typename E>
         struct ParameterSpecificsImpl<E, typename std::enable_if_t<std::is_enum_v<E>>>
         {
+            static auto ToLog(E v)
+            {
+                return ToIntegral(v);
+            }
             static void Bind(sqlite3_stmt* stmt, int index, E v)
             {
                 ParameterSpecificsImpl<std::underlying_type_t<E>>::Bind(stmt, index, ToIntegral(v));
@@ -192,7 +220,7 @@ namespace AppInstaller::Repository::SQLite
         template <typename Value>
         void Bind(int index, Value&& v)
         {
-            AICLI_LOG(SQL, Verbose, << "Binding statement #" << m_id << ": " << index << " => " << std::forward<Value>(v));
+            AICLI_LOG(SQL, Verbose, << "Binding statement #" << m_id << ": " << index << " => " << details::ParameterSpecifics<Value>::ToLog(std::forward<Value>(v)));
             details::ParameterSpecifics<Value>::Bind(m_stmt.get(), index, std::forward<Value>(v));
         }
 

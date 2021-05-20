@@ -27,7 +27,8 @@
     <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackage.json" />
     <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackageVersion.json" />
     <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Good.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Good.1.0.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Good.2.0.json" />
   </ItemGroup>
 
   <ItemGroup>

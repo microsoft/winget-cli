@@ -5,6 +5,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include <urlmon.h>
+#include <appmodel.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6340 6388 )

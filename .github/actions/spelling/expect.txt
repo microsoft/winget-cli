@@ -1,6 +1,7 @@
 abcd
 adml
 admx
+affle
 AFX
 agg
 aicli
@@ -25,6 +26,7 @@ AUrl
 Aysnc
 azurewebsites
 Baz
+bcp
 Beigi
 bfd
 bght
@@ -72,10 +74,12 @@ ctc
 Ctx
 curated
 CYRL
+Debian
 deigh
 deleteifnotneeded
 dirs
 dnld
+dustojnikhummer
 dvinns
 dw
 ecfr
@@ -93,6 +97,7 @@ EXEHASH
 experimentalfeatures
 fcb
 fd
+fedorapeople
 fintimes
 Fixfor
 flargle
@@ -139,13 +144,18 @@ IService
 ISettings
 ishelp
 ISQ
+issuecomment
 ISVs
 itr
 IVector
 IWeb
 IZone
+JDKs
+jfearn
 JObject
 jp
+jpalardy
+JREs
 jrsoftware
 jsoncpp
 kayone
@@ -158,6 +168,7 @@ LATN
 ldcase
 learnxinyminutes
 lhs
+libsolv
 libyaml
 Linq
 liv
@@ -192,6 +203,7 @@ mylog
 mysilent
 mysilentwithprogress
 mytool
+netlify
 Newtonsoft
 NOEXPAND
 normer
@@ -219,6 +231,7 @@ pvm
 pwabuilder
 PWAs
 PWSTR
+px
 pz
 qb
 qword
@@ -240,6 +253,7 @@ SARL
 schematab
 Screenshot
 sddl
+semver
 seof
 serializer
 setmetadatabymanifestid
@@ -265,6 +279,7 @@ subdir
 subkey
 superstring
 suppy
+SUSE
 swervy
 sysrefcomp
 Tagit

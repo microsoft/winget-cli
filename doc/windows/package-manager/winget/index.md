@@ -54,13 +54,19 @@ The current preview of the **winget** tool supports the following commands.
 
 | Command | Description |
 |---------|-------------|
+| [export](export.md) | Exports a list of the installed packages. |
+| [features](features.md) | Shows the status of experimental features. |
 | [hash](hash.md) | Generates the SHA256 hash for the installer. |
-| [help](help.md) | Displays help for the **winget** tool commands. |
+| [import](import.md) | Installs all the packages in a file. |
 | [install](install.md) | Installs the specified application. |
+| [list](list.md) | Display installed packages. |
 | [search](search.md) | Searches for an application. |
+| [settings](settings.md) | Open settings. |
 | [show](show.md) | Displays details for the specified application. |
 | [source](source.md) | Adds, removes, and updates the Windows Package Manager repositories accessed by the **winget** tool. |
 | [validate](validate.md) | Validates a manifest file for submission to the Windows Package Manager repository. |
+| [uninstall](uninstall.md) | Uninstalls the given package. |
+| [upgrade](upgrade.md) |  Upgrades the given package. | 
 
 ### Options
 
@@ -68,8 +74,8 @@ The current preview of the **winget** tool supports the following options.
 
 | Option | Description |
 |--------------|-------------|
-| **-v,--version** | Returns the current version of winget. |
-| **--info** |  Provides you with all detailed information on winget, including the links to the license and privacy statement. |
+| **-v, --version** | Returns the current version of winget. |
+| **--info** |  Provides you with all detailed information on winget, including the links to the license, privacy statement, and configured group policies. |
 | **-?, --help** |  Shows additional help for winget. |
 
 ## Supported installer formats
