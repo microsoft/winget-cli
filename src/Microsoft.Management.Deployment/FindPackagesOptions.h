@@ -8,15 +8,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         FindPackagesOptions() = default;
 
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> Filters();
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> Selectors();
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> Filters();
         uint32_t ResultLimit();
         void ResultLimit(uint32_t value);
-        Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
-        void CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
+        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
+        void CompositeSearchBehavior(winrt::Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
     private:
         uint32_t m_resultLimit = 0;
-        Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages;
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_filters{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageMatchFilter>() };
+        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages;
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_selectors{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_filters{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

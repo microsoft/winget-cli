@@ -15,7 +15,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_source = source;
         m_package = package;
     }
-    Microsoft::Management::Deployment::CatalogPackage CatalogPackage::TryCreateFromManifest(hstring const& manifestPath)
+    Microsoft::Management::Deployment::CatalogPackage CatalogPackage::TryCreateFromManifestPath(hstring const& manifestPath)
     {
         throw hresult_not_implemented();
     }
@@ -29,7 +29,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
-        if (!m_installedVersion)
+        if (!m_installedVersion && (m_package.get()->GetInstalledVersion() != nullptr))
         {
             auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
             installedVersionImpl->Initialize(m_package.get()->GetInstalledVersion());

@@ -12,7 +12,8 @@
 #include "AppInstaller.h"
 #include "AppInstaller.g.cpp"
 #include "InstallResult.h"
-#include "AppCatalog.h"
+#include "AppCatalogInfo.h"
+#include "AppCatalogReference.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
 #include <wil\cppwinrt_wrl.h>
@@ -21,37 +22,53 @@ using namespace std::literals::chrono_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::AppCatalog> AppInstaller::GetAppCatalogs()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::AppCatalogReference> AppInstaller::GetAppCatalogs()
     {
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalog> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::AppCatalog>() };
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::AppCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::AppCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
         for (uint32_t i = 0; i < sources.size(); i++)
         {
-            auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
-            appCatalogImpl->Initialize(winrt::to_hstring(sources.at(i).Name));
+            auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
+            appCatalogInfo->Initialize(sources.at(i));
+            auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
+            appCatalogImpl->Initialize(*appCatalogInfo);
             catalogs.Append(*appCatalogImpl);
         }
         return catalogs.GetView();
     }
-    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog)
+    winrt::Microsoft::Management::Deployment::AppCatalogReference AppInstaller::GetPredefinedAppCatalog(winrt::Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog)
     {
-        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
-        appCatalogImpl->Initialize(predefinedAppCatalog);
+        return GetAppCatalogById(L"winget");
+    }
+    winrt::Microsoft::Management::Deployment::AppCatalogReference AppInstaller::GetLocalAppCatalog(winrt::Microsoft::Management::Deployment::LocalAppCatalog const& localAppCatalog)
+    {
+        ::AppInstaller::Repository::SourceDetails details;
+        details.Origin = ::AppInstaller::Repository::SourceOrigin::Predefined;
+        details.Type = ::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type();
+        details.Arg = ::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::FilterToString(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::None);
+        auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
+        appCatalogInfo->Initialize(details);
+        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
+        appCatalogImpl->Initialize(localAppCatalog, *appCatalogInfo);
         return *appCatalogImpl;
     }
-    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogByLocalAppCatalog(Microsoft::Management::Deployment::LocalAppCatalog const& localAppCatalog)
+    winrt::Microsoft::Management::Deployment::AppCatalogReference AppInstaller::GetAppCatalogById(hstring const& catalogId)
     {
-        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
-        appCatalogImpl->Initialize(localAppCatalog);
-        return *appCatalogImpl;
+        std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSource(winrt::to_string(catalogId));
+        if (source.has_value())
+        {
+            auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
+            appCatalogInfo->Initialize(source.value());
+            auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
+            appCatalogImpl->Initialize(*appCatalogInfo);
+            return *appCatalogImpl;
+        }
+        else
+        {
+            return nullptr;
+        }
     }
-    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetAppCatalogById(hstring const& catalogId)
-    {
-        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
-        appCatalogImpl->Initialize(catalogId);
-        return *appCatalogImpl;
-    }
-    Microsoft::Management::Deployment::AppCatalog AppInstaller::GetCompositeAppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions const& options)
+    winrt::Microsoft::Management::Deployment::AppCatalogReference AppInstaller::CreateCompositeAppCatalog(winrt::Microsoft::Management::Deployment::CreateCompositeAppCatalogOptions const& options)
     {
         if (options.Catalogs().Size() == 0)
         {
@@ -61,9 +78,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             throw hresult_not_implemented();
         }
-        bool includeInstalledCatalog = false;
         bool includeNonLocalCatalog = false;
-        for (int i = 0; i < options.Catalogs().Size(); ++i)
+        for (uint32_t i = 0; i < options.Catalogs().Size(); ++i)
         {
             auto catalog = options.Catalogs().GetAt(i);
             if (catalog.IsComposite())
@@ -72,18 +88,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             if (winrt::to_string(catalog.Info().Name()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0)
             {
-                includeInstalledCatalog = true;
+                //includeInstalledCatalog = true;
             }
             else
             {
                 includeNonLocalCatalog = true;
             }
         }
-        if (!includeInstalledCatalog || !includeNonLocalCatalog)
+        if (!includeNonLocalCatalog)
         {
             throw hresult_not_implemented();
         }
-        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
+        auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
         appCatalogImpl->Initialize(options);
         return *appCatalogImpl;
     }
@@ -93,7 +109,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         co_await winrt::resume_background();
         ::AppInstaller::CLI::Execute(context, command);
     }
-    Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::InstallPackageAsync(Microsoft::Management::Deployment::InstallOptions options)
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> AppInstaller::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
         auto report_progress{ co_await winrt::get_progress_token() };
         auto cancellationToken{ co_await winrt::get_cancellation_token() };
@@ -102,19 +118,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
         if (versionId)
         {
-            packageVersionInfo = options.CatalogPackage().GetAvailableVersion(versionId);
+            packageVersionInfo = package.GetAvailableVersion(versionId);
         }
         else
         {
-            packageVersionInfo = options.CatalogPackage().LatestAvailableVersion();
+            packageVersionInfo = package.LatestAvailableVersion();
         }
-        Microsoft::Management::Deployment::AppCatalog catalog = packageVersionInfo.AppCatalog();
-        // TODO: shouldn't be necessary, should already be open if using the same object.
-        co_await catalog.OpenAsync();
+        Microsoft::Management::Deployment::AppCatalogReference catalogRef = packageVersionInfo.AppCatalogReference();
+        Microsoft::Management::Deployment::ConnectResult connectResult = catalogRef.Connect();
+        Microsoft::Management::Deployment::AppCatalog catalog = connectResult.AppCatalog();
+
 
         InstallProgress queuedProgress{ AppInstallProgressState::Queued, 0, 0, 0 };
         report_progress(queuedProgress);
-
 
         ::AppInstaller::COMContext context;
         context.SetProgressCallbackFunction([=](
@@ -125,10 +141,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
             { 
                 AppInstallProgressState progressState = AppInstallProgressState::Queued;
-                float downloadPercentage = 0;
-                float installPercentage = 0;
-                float downloadBytesDownloaded = 0;
-                float downloadBytesRequired = 0;
+                double downloadPercentage = 0;
+                double installPercentage = 0;
+                uint64_t downloadBytesDownloaded = 0;
+                uint64_t downloadBytesRequired = 0;
                 switch (executionPhase)
                 {
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Initial:
@@ -144,7 +160,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                         downloadBytesRequired = maximum;
                         if (downloadBytesRequired > 0)
                         {
-                            downloadPercentage = current / maximum;
+                            downloadPercentage = downloadBytesDownloaded / downloadBytesRequired;
                         }
                     }
                     break;
@@ -156,7 +172,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     downloadPercentage = 100;
                     if (progressType == ::AppInstaller::ProgressType::Percent)
                     {
-                        installPercentage = current;
+                        installPercentage = current / maximum;
                     }
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
@@ -165,14 +181,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     installPercentage = 100;
                     break;
                 }
-                InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadPercentage, installPercentage };
+                winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadPercentage, installPercentage };
                 report_progress(contextProgress);
                 return; 
             }
         );
         context.EnableCtrlHandler();
 
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(options.CatalogPackage().Id()));
+        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(package.Id()));
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
         context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(catalog.Info().Name()));
@@ -182,6 +198,41 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
             context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::VerboseLogs);
         }
+        if (options.AllowHashMismatch())
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::HashOverride);
+        }
+
+        if (options.AppInstallScope() == AppInstallScope::Machine)
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::Machine));
+        }
+        else
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::User));
+        }
+
+        if (options.AppInstallMode() == AppInstallMode::Interactive)
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Interactive);
+        }
+        else if (options.AppInstallMode() == AppInstallMode::Silent)
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Silent);
+        }
+
+        if (!options.PreferredInstallLocation().empty())
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallLocation, ::AppInstaller::Utility::ConvertToUTF8(options.PreferredInstallLocation()));
+        }
+
+        if (!options.ReplacementInstallerArguments().empty())
+        {
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
+        }    
+
+        // TODO: AdditionalAppCatalogArguments is not currently supported by the underlying implementation.
+        // TODO: CorrelationData is not currently supported by the underlying implementation.
 
         ::AppInstaller::CLI::RootCommand rootCommand;
         std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
@@ -198,7 +249,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         installResult->Initialize(options.CorrelationData(), false);
         co_return *installResult;
     }
-    Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> AppInstaller::GetInstallProgress(Microsoft::Management::Deployment::CatalogPackage package)
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> AppInstaller::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package)
     {
         throw hresult_not_implemented();
     }

@@ -11,11 +11,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Id();
         hstring Name();
         hstring Type();
-        hstring Arg();
+        hstring Argument();
         hstring ExtraData();
-        Windows::Foundation::DateTime LastUpdateTime();
-        Microsoft::Management::Deployment::AppCatalogOrigin Origin();
-        Microsoft::Management::Deployment::AppCatalogTrustLevel TrustLevel();
+        winrt::Windows::Foundation::DateTime LastUpdateTime();
+        winrt::Microsoft::Management::Deployment::AppCatalogOrigin Origin();
+        winrt::Microsoft::Management::Deployment::AppCatalogTrustLevel TrustLevel();
     private:
         ::AppInstaller::Repository::SourceDetails m_sourceDetails;
     };

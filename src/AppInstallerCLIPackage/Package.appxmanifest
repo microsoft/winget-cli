@@ -43,7 +43,7 @@
               </com:Class>
               <com:Class Id ="572DED96-9C60-4526-8F92-EE7D91D38C1A" DisplayName="FindPackagesOptions Server">
               </com:Class>
-              <com:Class Id ="526534B8-7E46-47C8-8416-B1685C327D37" DisplayName="GetCompositeAppCatalogOptions Server">
+              <com:Class Id ="526534B8-7E46-47C8-8416-B1685C327D37" DisplayName="CreateCompositeAppCatalogOptions Server">
               </com:Class>
               <com:Class Id ="1095F097-EB96-453B-B4E6-1613637F3B14" DisplayName="InstallOptions Server">
               </com:Class>

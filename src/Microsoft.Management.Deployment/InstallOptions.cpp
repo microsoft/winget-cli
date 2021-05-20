@@ -5,19 +5,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Microsoft::Management::Deployment::CatalogPackage InstallOptions::CatalogPackage()
-    {
-        return m_catalogPackage;
-    }
-    void InstallOptions::CatalogPackage(Microsoft::Management::Deployment::CatalogPackage const& value)
-    {
-        m_catalogPackage = value;
-    }
-    Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
+    winrt::Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
         return m_packageVersionId;
     }
-    void InstallOptions::PackageVersionId(Microsoft::Management::Deployment::PackageVersionId const& value)
+    void InstallOptions::PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value)
     {
         m_packageVersionId = value;
     }
@@ -29,19 +21,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_preferredInstallLocation = value;
     }
-    Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
+    winrt::Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
     {
         return m_appInstallScope;
     }
-    void InstallOptions::AppInstallScope(Microsoft::Management::Deployment::AppInstallScope const& value)
+    void InstallOptions::AppInstallScope(winrt::Microsoft::Management::Deployment::AppInstallScope const& value)
     {
         m_appInstallScope = value;
     }
-    Microsoft::Management::Deployment::AppInstallMode InstallOptions::AppInstallMode()
+    winrt::Microsoft::Management::Deployment::AppInstallMode InstallOptions::AppInstallMode()
     {
         return m_appInstallMode;
     }
-    void InstallOptions::AppInstallMode(Microsoft::Management::Deployment::AppInstallMode const& value)
+    void InstallOptions::AppInstallMode(winrt::Microsoft::Management::Deployment::AppInstallMode const& value)
     {
         m_appInstallMode = value;
     }

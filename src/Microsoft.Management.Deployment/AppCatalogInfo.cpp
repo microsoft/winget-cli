@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_sourceDetails.Type);
     }
-    hstring AppCatalogInfo::Arg()
+    hstring AppCatalogInfo::Argument()
     {
         return winrt::to_hstring(m_sourceDetails.Arg);
     }
@@ -30,11 +30,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_sourceDetails.Data);
     }
-    Windows::Foundation::DateTime AppCatalogInfo::LastUpdateTime()
+    winrt::Windows::Foundation::DateTime AppCatalogInfo::LastUpdateTime()
     {
         return winrt::clock::from_time_t(std::chrono::system_clock::to_time_t(m_sourceDetails.LastUpdateTime));
     }
-    Microsoft::Management::Deployment::AppCatalogOrigin AppCatalogInfo::Origin()
+    winrt::Microsoft::Management::Deployment::AppCatalogOrigin AppCatalogInfo::Origin()
     {
         switch (m_sourceDetails.Origin)
         {
@@ -47,7 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return AppCatalogOrigin::User;
         }
     }
-    Microsoft::Management::Deployment::AppCatalogTrustLevel AppCatalogInfo::TrustLevel()
+    winrt::Microsoft::Management::Deployment::AppCatalogTrustLevel AppCatalogInfo::TrustLevel()
     {
         switch (m_sourceDetails.TrustLevel)
         {

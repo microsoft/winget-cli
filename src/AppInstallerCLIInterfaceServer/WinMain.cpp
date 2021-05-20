@@ -7,7 +7,7 @@ using namespace winrt::Microsoft::Management::Deployment;
 
 CoCreatableClassWrlCreatorMapInclude(AppInstaller);
 CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
-CoCreatableClassWrlCreatorMapInclude(GetCompositeAppCatalogOptions);
+CoCreatableClassWrlCreatorMapInclude(CreateCompositeAppCatalogOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 

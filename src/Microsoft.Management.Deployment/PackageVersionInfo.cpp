@@ -2,7 +2,8 @@
 #include <AppInstallerRepositorySource.h>
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
-#include "AppCatalog.h"
+#include "AppCatalogInfo.h"
+#include "AppCatalogReference.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -11,31 +12,31 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageVersion = packageVersion;
     }
-    hstring PackageVersionInfo::GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType)
+    hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField)
     {
         ::AppInstaller::Repository::IPackageVersion::Metadata metadata = m_packageVersion->GetMetadata();
         ::AppInstaller::Repository::PackageVersionMetadata metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledLocation;
-        switch (metadataType)
+        switch (metadataField)
         {
-        case Microsoft::Management::Deployment::PackageVersionMetadata::InstalledLocation :
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::InstalledLocation :
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledLocation;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::InstalledScope:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::InstalledScope:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledScope;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::InstalledType:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::InstallerType:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledType;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::Locale:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::Locale:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::Locale;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::Publisher:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::Publisher:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::Publisher;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::SilentUninstallCommand:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::SilentUninstallCommand:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::SilentUninstallCommand;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadata::StandardUninstallCommand:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::StandardUninstallCommand:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::StandardUninstallCommand;
             break;
         }
@@ -58,7 +59,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Channel).get());
     }
-    Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::PackageFamilyName()
+    winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::PackageFamilyNames()
     {
         if (m_packageFamilyNames.Size() == 0)
         {
@@ -71,7 +72,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return m_packageFamilyNames.GetView();
     }
-    Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::ProductCode()
+    winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageVersionInfo::ProductCodes()
     {
         if (m_productCodes.Size() == 0)
         {
@@ -84,14 +85,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return m_productCodes.GetView();
     }
-    Microsoft::Management::Deployment::AppCatalog PackageVersionInfo::AppCatalog()
+    winrt::Microsoft::Management::Deployment::AppCatalogReference PackageVersionInfo::AppCatalogReference()
     {
-        if (!m_appCatalog)
+        if (!m_appCatalogReference)
         {
-            auto appCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalog>>();
-            appCatalogImpl->Initialize(winrt::to_hstring(m_packageVersion->GetSource().get()->GetDetails().Name));
-            m_appCatalog = *appCatalogImpl;
+            auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
+            appCatalogInfo->Initialize(m_packageVersion->GetSource().get()->GetDetails());
+            auto appCatalogRefImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
+            appCatalogRefImpl->Initialize(*appCatalogInfo);
+            m_appCatalogReference = *appCatalogRefImpl;
         }
-        return m_appCatalog;
+        return m_appCatalogReference;
     }
 }

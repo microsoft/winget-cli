@@ -8,16 +8,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         AppInstaller() = default;
 
-        Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::AppCatalog> GetAppCatalogs();
-        Microsoft::Management::Deployment::AppCatalog GetAppCatalog(Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog);
-        Microsoft::Management::Deployment::AppCatalog GetAppCatalogByLocalAppCatalog(Microsoft::Management::Deployment::LocalAppCatalog const& localAppCatalog);
-        Microsoft::Management::Deployment::AppCatalog GetAppCatalogById(hstring const& catalogId);
-        Microsoft::Management::Deployment::AppCatalog GetCompositeAppCatalog(Microsoft::Management::Deployment::GetCompositeAppCatalogOptions const& options);
-        Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> InstallPackageAsync(Microsoft::Management::Deployment::InstallOptions options);
-        Windows::Foundation::IAsyncOperationWithProgress<Microsoft::Management::Deployment::InstallResult, Microsoft::Management::Deployment::InstallProgress> GetInstallProgress(Microsoft::Management::Deployment::CatalogPackage package);
-        
-    private:
-        static std::mutex g_executionLock;
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::AppCatalogReference> GetAppCatalogs();
+        winrt::Microsoft::Management::Deployment::AppCatalogReference GetPredefinedAppCatalog(winrt::Microsoft::Management::Deployment::PredefinedAppCatalog const& predefinedAppCatalog);
+        winrt::Microsoft::Management::Deployment::AppCatalogReference GetLocalAppCatalog(winrt::Microsoft::Management::Deployment::LocalAppCatalog const& localAppCatalog);
+        winrt::Microsoft::Management::Deployment::AppCatalogReference GetAppCatalogById(hstring const& catalogId);
+        winrt::Microsoft::Management::Deployment::AppCatalogReference CreateCompositeAppCatalog(winrt::Microsoft::Management::Deployment::CreateCompositeAppCatalogOptions const& options);
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options);
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package);
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

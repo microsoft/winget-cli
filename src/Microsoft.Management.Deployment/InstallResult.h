@@ -10,8 +10,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         hstring CorrelationData();
         bool RebootRequired();
+        winrt::hresult ErrorCode();
+        winrt::hresult ExtendedErrorCode();
     private:
         std::wstring m_correlationData = L"";
         bool m_rebootRequired = false;
+        winrt::hresult m_errorCode = S_OK;
+        winrt::hresult m_extendedErrorCode = S_OK;
     };
 }

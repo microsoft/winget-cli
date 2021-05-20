@@ -5,7 +5,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Filters()
+    winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Selectors()
+    {
+        return m_selectors;
+    }
+    winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Filters()
     {
         return m_filters;
     }
@@ -17,7 +21,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_resultLimit = value;
     }
-    Microsoft::Management::Deployment::CompositeSearchBehavior FindPackagesOptions::CompositeSearchBehavior()
+    winrt::Microsoft::Management::Deployment::CompositeSearchBehavior FindPackagesOptions::CompositeSearchBehavior()
     {
         return m_compositeSearchBehavior;
     }

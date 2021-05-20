@@ -18,4 +18,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_rebootRequired;
     }
+    winrt::hresult InstallResult::ErrorCode()
+    {
+        return m_errorCode;
+    }
+    winrt::hresult InstallResult::ExtendedErrorCode()
+    {
+        return m_extendedErrorCode;
+    }
 }

@@ -8,16 +8,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageVersionInfo() = default;
         void Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion);
 
-        hstring GetMetadata(Microsoft::Management::Deployment::PackageVersionMetadata const& metadataType);
+        hstring GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField);
         hstring Id();
         hstring Name();
         hstring Version();
         hstring Channel();
-        Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyName();
-        Windows::Foundation::Collections::IVectorView<hstring> ProductCode();
-        Microsoft::Management::Deployment::AppCatalog AppCatalog();
+        winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();
+        winrt::Windows::Foundation::Collections::IVectorView<hstring> ProductCodes();
+        winrt::Microsoft::Management::Deployment::AppCatalogReference AppCatalogReference();
     private:
-        Microsoft::Management::Deployment::AppCatalog m_appCatalog{ nullptr };
+        winrt::Microsoft::Management::Deployment::AppCatalogReference m_appCatalogReference{ nullptr };
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> m_packageVersion;
         Windows::Foundation::Collections::IVector<hstring> m_packageFamilyNames{ winrt::single_threaded_vector<hstring>() };
         Windows::Foundation::Collections::IVector<hstring> m_productCodes{ winrt::single_threaded_vector<hstring>() };

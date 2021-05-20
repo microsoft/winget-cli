@@ -8,16 +8,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         InstallOptions() = default;
 
-        Microsoft::Management::Deployment::CatalogPackage CatalogPackage();
-        void CatalogPackage(Microsoft::Management::Deployment::CatalogPackage const& value);
-        Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
-        void PackageVersionId(Microsoft::Management::Deployment::PackageVersionId const& value);
+        winrt::Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
+        void PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value);
         hstring PreferredInstallLocation();
         void PreferredInstallLocation(hstring const& value);
-        Microsoft::Management::Deployment::AppInstallScope AppInstallScope();
-        void AppInstallScope(Microsoft::Management::Deployment::AppInstallScope const& value);
-        Microsoft::Management::Deployment::AppInstallMode AppInstallMode();
-        void AppInstallMode(Microsoft::Management::Deployment::AppInstallMode const& value);
+        winrt::Microsoft::Management::Deployment::AppInstallScope AppInstallScope();
+        void AppInstallScope(winrt::Microsoft::Management::Deployment::AppInstallScope const& value);
+        winrt::Microsoft::Management::Deployment::AppInstallMode AppInstallMode();
+        void AppInstallMode(winrt::Microsoft::Management::Deployment::AppInstallMode const& value);
         hstring LogOutputPath();
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
@@ -29,11 +27,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring AdditionalAppCatalogArguments();
         void AdditionalAppCatalogArguments(hstring const& value);
     private:
-        Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
-        Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
+        winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         std::wstring m_preferredInstallLocation = L"";
-        Microsoft::Management::Deployment::AppInstallScope m_appInstallScope = Microsoft::Management::Deployment::AppInstallScope::User;
-        Microsoft::Management::Deployment::AppInstallMode m_appInstallMode = Microsoft::Management::Deployment::AppInstallMode::Default;
+        winrt::Microsoft::Management::Deployment::AppInstallScope m_appInstallScope = winrt::Microsoft::Management::Deployment::AppInstallScope::User;
+        winrt::Microsoft::Management::Deployment::AppInstallMode m_appInstallMode = winrt::Microsoft::Management::Deployment::AppInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         std::wstring m_replacementInstallerArguments = L"";

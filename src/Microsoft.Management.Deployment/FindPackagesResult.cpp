@@ -5,11 +5,15 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void FindPackagesResult::Initialize(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ResultMatch> matches)
+    void FindPackagesResult::Initialize(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches)
     {
         m_matches = matches;
     }
-    Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::ResultMatch> FindPackagesResult::Matches()
+    winrt::hresult FindPackagesResult::ErrorCode()
+    {
+        throw hresult_not_implemented();
+    }
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::MatchResult> FindPackagesResult::Matches()
     {
         return m_matches.GetView();
     }
