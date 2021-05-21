@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledType;
             break;
         case Microsoft::Management::Deployment::PackageVersionMetadataField::Locale:
-            metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::Locale;
+            metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledLocale;
             break;
         case Microsoft::Management::Deployment::PackageVersionMetadataField::Publisher:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::Publisher;
