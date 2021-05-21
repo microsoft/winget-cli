@@ -4,17 +4,17 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void ConnectResult::Initialize(winrt::hresult errorCode, winrt::Microsoft::Management::Deployment::AppCatalog appCatalog)
+    void ConnectResult::Initialize(winrt::hresult errorCode, winrt::Microsoft::Management::Deployment::PackageCatalog packageCatalog)
     {
         m_errorCode = errorCode;
-        m_appCatalog = appCatalog;
+        m_packageCatalog = packageCatalog;
     }
     winrt::hresult ConnectResult::ErrorCode()
     {
         return m_errorCode;
     }
-    winrt::Microsoft::Management::Deployment::AppCatalog ConnectResult::AppCatalog()
+    winrt::Microsoft::Management::Deployment::PackageCatalog ConnectResult::PackageCatalog()
     {
-        return m_appCatalog;
+        return m_packageCatalog;
     }
 }

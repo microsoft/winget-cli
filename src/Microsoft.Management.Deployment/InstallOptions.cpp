@@ -21,21 +21,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_preferredInstallLocation = value;
     }
-    winrt::Microsoft::Management::Deployment::AppInstallScope InstallOptions::AppInstallScope()
+    winrt::Microsoft::Management::Deployment::PackageInstallScope InstallOptions::PackageInstallScope()
     {
-        return m_appInstallScope;
+        return m_packageInstallScope;
     }
-    void InstallOptions::AppInstallScope(winrt::Microsoft::Management::Deployment::AppInstallScope const& value)
+    void InstallOptions::PackageInstallScope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value)
     {
-        m_appInstallScope = value;
+        m_packageInstallScope = value;
     }
-    winrt::Microsoft::Management::Deployment::AppInstallMode InstallOptions::AppInstallMode()
+    winrt::Microsoft::Management::Deployment::PackageInstallMode InstallOptions::PackageInstallMode()
     {
-        return m_appInstallMode;
+        return m_packageInstallMode;
     }
-    void InstallOptions::AppInstallMode(winrt::Microsoft::Management::Deployment::AppInstallMode const& value)
+    void InstallOptions::PackageInstallMode(winrt::Microsoft::Management::Deployment::PackageInstallMode const& value)
     {
-        m_appInstallMode = value;
+        m_packageInstallMode = value;
     }
     hstring InstallOptions::LogOutputPath()
     {
@@ -69,13 +69,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_correlationData = value;
     }
-    hstring InstallOptions::AdditionalAppCatalogArguments()
+    hstring InstallOptions::AdditionalPackageCatalogArguments()
     {
-        return hstring(m_additionalAppCatalogArguments);
+        return hstring(m_additionalPackageCatalogArguments);
     }
-    void InstallOptions::AdditionalAppCatalogArguments(hstring const& value)
+    void InstallOptions::AdditionalPackageCatalogArguments(hstring const& value)
     {
-        m_additionalAppCatalogArguments = value;
+        m_additionalPackageCatalogArguments = value;
     }
     CoCreatableCppWinRtClass(InstallOptions);
 }

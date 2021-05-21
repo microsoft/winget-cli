@@ -17,8 +17,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_matches.GetView();
     }
-    bool FindPackagesResult::IsTruncated()
+    bool FindPackagesResult::WasLimitExceeded()
     {
-        return m_isTruncated;
+        return m_wasLimitExceeded;
     }
 }

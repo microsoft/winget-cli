@@ -10,10 +10,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         winrt::hresult ErrorCode();
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::MatchResult> Matches();
-        bool IsTruncated();
+        bool WasLimitExceeded();
 
     private:
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::MatchResult> m_matches{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::MatchResult>() };
-        bool m_isTruncated = false;
+        bool m_wasLimitExceeded = false;
     };
 }

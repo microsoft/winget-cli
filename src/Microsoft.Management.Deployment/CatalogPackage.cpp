@@ -3,7 +3,7 @@
 #include <AppInstallerRepositorySearch.h>
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
-#include "AppCatalog.h"
+#include "PackageCatalog.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
 #include <wil\cppwinrt_wrl.h>
@@ -51,7 +51,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return m_availableVersions.GetView();
     }
-    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::LatestAvailableVersion()
+    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
     {
         if (!m_latestAvailableVersion)
         {
@@ -61,9 +61,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return m_latestAvailableVersion;
     }
-    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetAvailableVersion(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
+    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
     {
-        ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.AppCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
+        ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
         auto packageVersionInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
         packageVersionInfo->Initialize(m_package.get()->GetAvailableVersion(internalVersionKey));
         return *packageVersionInfo;

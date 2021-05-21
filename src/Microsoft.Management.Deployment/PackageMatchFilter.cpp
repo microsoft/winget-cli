@@ -5,13 +5,13 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Microsoft::Management::Deployment::MatchType PackageMatchFilter::Type()
+    winrt::Microsoft::Management::Deployment::PackageFieldMatchOption PackageMatchFilter::Type()
     {
-        return m_matchType;
+        return m_packageFieldMatchOption;
     }
-    void PackageMatchFilter::Type(winrt::Microsoft::Management::Deployment::MatchType const& value)
+    void PackageMatchFilter::Type(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value)
     {
-        m_matchType = value;
+        m_packageFieldMatchOption = value;
     }
     winrt::Microsoft::Management::Deployment::PackageMatchField PackageMatchFilter::Field()
     {

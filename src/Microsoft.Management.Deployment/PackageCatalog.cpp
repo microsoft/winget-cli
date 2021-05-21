@@ -42,23 +42,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 continue;
             }
 
-            ::AppInstaller::Repository::MatchType matchType = ::AppInstaller::Repository::MatchType::Exact;
+            //TODO: make sure mapping here matches casesensitivity of internal enum
+            ::AppInstaller::Repository::MatchType packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
             switch (filter.Type())
             {
             case Microsoft::Management::Deployment::PackageFieldMatchOption::EqualsCaseInsensitive:
-                matchType = ::AppInstaller::Repository::MatchType::CaseInsensitive;
+                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::CaseInsensitive;
                 break;
             case Microsoft::Management::Deployment::PackageFieldMatchOption::Equals:
-                matchType = ::AppInstaller::Repository::MatchType::Exact;
+                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
                 break;
             case Microsoft::Management::Deployment::PackageFieldMatchOption::StartsWith:
-                matchType = ::AppInstaller::Repository::MatchType::StartsWith;
+                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::StartsWith;
                 break;
-            case Microsoft::Management::Deployment::PackageFieldMatchOption::ContainsCaseInsensitive:
-                matchType = ::AppInstaller::Repository::MatchType::Substring;
+            case Microsoft::Management::Deployment::PackageFieldMatchOption::Contains:
+                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Substring;
                 break;
             default:
-                matchType = ::AppInstaller::Repository::MatchType::Exact;
+                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
                 break;
             }
 
@@ -81,13 +82,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 matchField = ::AppInstaller::Repository::PackageMatchField::Tag;
                 break;
             default:
-                matchField = ::AppInstaller::Repository::PackageFieldMatchOption::Id;
+                matchField = ::AppInstaller::Repository::PackageMatchField::Id;
                 break;
             }
 
             if (isAdditive)
             {
-                if (filter.Field() == Microsoft::Management::Deployment::PackageFieldMatchOption::PackageCatalogDefined)
+                if (filter.Field() == Microsoft::Management::Deployment::PackageMatchField::CatalogDefault)
                 {
                     searchRequest->Query = ::AppInstaller::Repository::RequestMatch(packageFieldMatchOption, winrt::to_string(filter.Value()));
                 }
@@ -126,7 +127,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto matchResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::MatchResult>>();
             matchResult->Initialize(*catalogPackage, *packageMatchFilter);
 
-            matches.Packageend(*matchResult);
+            matches.Append(*matchResult);
         }
         auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
         findPackagesResult->Initialize(matches);

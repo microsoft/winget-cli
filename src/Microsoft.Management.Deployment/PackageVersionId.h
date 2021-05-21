@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageVersionId() = default;
         void Initialize(::AppInstaller::Repository::PackageVersionKey packageVersionKey);
 
-        hstring AppCatalogId();
+        hstring PackageCatalogId();
         hstring Version();
         hstring Channel();
     private:

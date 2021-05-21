@@ -8,16 +8,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         PackageMatchFilter() = default;
 
-        winrt::Microsoft::Management::Deployment::MatchType Type();
-        void Type(winrt::Microsoft::Management::Deployment::MatchType const& value);
+        winrt::Microsoft::Management::Deployment::PackageFieldMatchOption Type();
+        void Type(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value);
         winrt::Microsoft::Management::Deployment::PackageMatchField Field();
         void Field(winrt::Microsoft::Management::Deployment::PackageMatchField const& value);
         hstring Value();
         void Value(hstring const& value);
     private:
         std::wstring m_value = L"";
-        winrt::Microsoft::Management::Deployment::PackageMatchField m_matchField = winrt::Microsoft::Management::Deployment::PackageMatchField::AppCatalogDefined;
-        winrt::Microsoft::Management::Deployment::MatchType m_matchType = winrt::Microsoft::Management::Deployment::MatchType::Exact;
+        winrt::Microsoft::Management::Deployment::PackageMatchField m_matchField = winrt::Microsoft::Management::Deployment::PackageMatchField::CatalogDefault;
+        winrt::Microsoft::Management::Deployment::PackageFieldMatchOption m_packageFieldMatchOption = winrt::Microsoft::Management::Deployment::PackageFieldMatchOption::Equals;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

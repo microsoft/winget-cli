@@ -1,61 +1,61 @@
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
-#include "AppCatalogInfo.h"
-#include "AppCatalogInfo.g.cpp"
+#include "PackageCatalogInfo.h"
+#include "PackageCatalogInfo.g.cpp"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void AppCatalogInfo::Initialize(::AppInstaller::Repository::SourceDetails sourceDetails)
+    void PackageCatalogInfo::Initialize(::AppInstaller::Repository::SourceDetails sourceDetails)
     {
         m_sourceDetails = sourceDetails;
     }
-    hstring AppCatalogInfo::Id()
+    hstring PackageCatalogInfo::Id()
     {
         return winrt::to_hstring(m_sourceDetails.Identifier);
     }
-    hstring AppCatalogInfo::Name()
+    hstring PackageCatalogInfo::Name()
     {
         return winrt::to_hstring(m_sourceDetails.Name);
     }
-    hstring AppCatalogInfo::Type()
+    hstring PackageCatalogInfo::Type()
     {
         return winrt::to_hstring(m_sourceDetails.Type);
     }
-    hstring AppCatalogInfo::Argument()
+    hstring PackageCatalogInfo::Argument()
     {
         return winrt::to_hstring(m_sourceDetails.Arg);
     }
-    hstring AppCatalogInfo::ExtraData()
+    hstring PackageCatalogInfo::ExtraData()
     {
         return winrt::to_hstring(m_sourceDetails.Data);
     }
-    winrt::Windows::Foundation::DateTime AppCatalogInfo::LastUpdateTime()
+    winrt::Windows::Foundation::DateTime PackageCatalogInfo::LastUpdateTime()
     {
         return winrt::clock::from_time_t(std::chrono::system_clock::to_time_t(m_sourceDetails.LastUpdateTime));
     }
-    winrt::Microsoft::Management::Deployment::AppCatalogOrigin AppCatalogInfo::Origin()
+    winrt::Microsoft::Management::Deployment::PackageCatalogOrigin PackageCatalogInfo::Origin()
     {
         switch (m_sourceDetails.Origin)
         {
         case ::AppInstaller::Repository::SourceOrigin::Default :
         case ::AppInstaller::Repository::SourceOrigin::Predefined:
-            return AppCatalogOrigin::Predefined;
+            return PackageCatalogOrigin::Predefined;
         case ::AppInstaller::Repository::SourceOrigin::User:
         case ::AppInstaller::Repository::SourceOrigin::GroupPolicy:
         default:
-            return AppCatalogOrigin::User;
+            return PackageCatalogOrigin::User;
         }
     }
-    winrt::Microsoft::Management::Deployment::AppCatalogTrustLevel AppCatalogInfo::TrustLevel()
+    winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel PackageCatalogInfo::TrustLevel()
     {
         switch (m_sourceDetails.TrustLevel)
         {
         case ::AppInstaller::Repository::SourceTrustLevel::Trusted:
-            return AppCatalogTrustLevel::Trusted;
+            return PackageCatalogTrustLevel::Trusted;
         case ::AppInstaller::Repository::SourceTrustLevel::None:
         default:
-            return AppCatalogTrustLevel::None;
+            return PackageCatalogTrustLevel::None;
         }
     }
 }

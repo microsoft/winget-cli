@@ -10,7 +10,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageVersionKey = packageVersionKey;
     }
-    hstring PackageVersionId::AppCatalogId()
+    hstring PackageVersionId::PackageCatalogId()
     {
         return winrt::to_hstring(m_packageVersionKey.SourceId);
     }

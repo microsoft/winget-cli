@@ -2,8 +2,8 @@
 #include <AppInstallerRepositorySource.h>
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
-#include "AppCatalogInfo.h"
-#include "AppCatalogReference.h"
+#include "PackageCatalogInfo.h"
+#include "PackageCatalogReference.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -30,7 +30,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case Microsoft::Management::Deployment::PackageVersionMetadataField::Locale:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::InstalledLocale;
             break;
-        case Microsoft::Management::Deployment::PackageVersionMetadataField::Publisher:
+        case Microsoft::Management::Deployment::PackageVersionMetadataField::PublisherDisplayName:
             metadataKey = ::AppInstaller::Repository::PackageVersionMetadata::Publisher;
             break;
         case Microsoft::Management::Deployment::PackageVersionMetadataField::SilentUninstallCommand:
@@ -47,7 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Id).get());
     }
-    hstring PackageVersionInfo::Name()
+    hstring PackageVersionInfo::DisplayName()
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Name).get());
     }
@@ -85,16 +85,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return m_productCodes.GetView();
     }
-    winrt::Microsoft::Management::Deployment::AppCatalogReference PackageVersionInfo::AppCatalogReference()
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageVersionInfo::PackageCatalogReference()
     {
-        if (!m_appCatalogReference)
+        if (!m_packageCatalogReference)
         {
-            auto appCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogInfo>>();
-            appCatalogInfo->Initialize(m_packageVersion->GetSource().get()->GetDetails());
-            auto appCatalogRefImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AppCatalogReference>>();
-            appCatalogRefImpl->Initialize(*appCatalogInfo);
-            m_appCatalogReference = *appCatalogRefImpl;
+            auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
+            packageCatalogInfo->Initialize(m_packageVersion->GetSource().get()->GetDetails());
+            auto packageCatalogRefImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
+            packageCatalogRefImpl->Initialize(*packageCatalogInfo);
+            m_packageCatalogReference = *packageCatalogRefImpl;
         }
-        return m_appCatalogReference;
+        return m_packageCatalogReference;
     }
 }

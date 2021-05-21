@@ -10,14 +10,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         hstring GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField);
         hstring Id();
-        hstring Name();
+        hstring DisplayName();
         hstring Version();
         hstring Channel();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> ProductCodes();
-        winrt::Microsoft::Management::Deployment::AppCatalogReference AppCatalogReference();
+        winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageCatalogReference();
     private:
-        winrt::Microsoft::Management::Deployment::AppCatalogReference m_appCatalogReference{ nullptr };
+        winrt::Microsoft::Management::Deployment::PackageCatalogReference m_packageCatalogReference{ nullptr };
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> m_packageVersion;
         Windows::Foundation::Collections::IVector<hstring> m_packageFamilyNames{ winrt::single_threaded_vector<hstring>() };
         Windows::Foundation::Collections::IVector<hstring> m_productCodes{ winrt::single_threaded_vector<hstring>() };

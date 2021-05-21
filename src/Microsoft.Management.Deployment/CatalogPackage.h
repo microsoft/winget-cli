@@ -13,8 +13,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Name();
         winrt::Microsoft::Management::Deployment::PackageVersionInfo InstalledVersion();
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageVersionId> AvailableVersions();
-        winrt::Microsoft::Management::Deployment::PackageVersionInfo LatestAvailableVersion();
-        winrt::Microsoft::Management::Deployment::PackageVersionInfo GetAvailableVersion(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo DefaultInstallVersion();
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
         bool IsUpdateAvailable();
         bool IsInstalling();
     private:
