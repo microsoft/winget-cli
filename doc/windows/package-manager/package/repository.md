@@ -84,7 +84,7 @@ You're now ready to push your new manifest to the remote repository.
 
 2. Use the `commit` command to commit the change and provide information on the submission.
     ```CMD
-    git commit -m "Submitting ContosoApp version 1.0.0.yaml"
+    git commit -m "Submitting ContosoApp version 1.0.0"
     ```
 
 3. Use the `push` command to push the changes to the remote repository.
