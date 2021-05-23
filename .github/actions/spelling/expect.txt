@@ -51,6 +51,8 @@ certmgr
 certs
 Cfg
 cgmanifest
+cfr
+cgi
 chcp
 ci
 cinq
@@ -65,6 +67,7 @@ contosa
 contosainstaller
 contoso
 count'th
+countryregion
 createmanifestmetadata
 cstdint
 ctc
@@ -79,16 +82,20 @@ dnld
 dustojnikhummer
 dvinns
 dw
+ecfr
+ecfrbrowse
 endian
 enr
 enums
 EQU
 ERANGE
 errno
+ESRB
 etest
 execustom
 EXEHASH
 experimentalfeatures
+fcb
 fd
 fedorapeople
 fintimes
@@ -100,6 +107,7 @@ foldcase
 FOLDERID
 ftp
 FULLWIDTH
+fundraiser
 fuzzer
 gcpi
 GES
@@ -119,10 +127,12 @@ HRESULTs
 htm
 IAttachment
 IConfiguration
+idx
 IHelp
 IHost
 IID
 IInstalled
+img
 IName
 INET
 inor
@@ -172,10 +182,12 @@ malware
 MBH
 megamorf
 memcpy
+middleware
 minexample
 minschema
 MMmmbbbb
 monicka
+MPNS
 msdownload
 MSFT
 msftrubengu
@@ -203,6 +215,8 @@ oss
 Packagedx
 pathparts
 pathpaths
+PCs
+PEGI
 pfn
 pfxpath
 Pherson
@@ -223,6 +237,7 @@ qb
 qword
 rbegin
 readonly
+redirector
 regexes
 REGSAM
 REINSTALLMODE
@@ -273,6 +288,7 @@ testexampleinstaller
 thiscouldbeapc
 threehundred
 tombstoned
+tpl
 transitioning
 UCase
 ucasemap
