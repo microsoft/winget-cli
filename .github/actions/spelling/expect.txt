@@ -11,6 +11,7 @@ amrutha
 anonymized
 APARTMENTTHREADED
 apfn
+apicontract
 apiset
 appinstallertest
 appname
@@ -66,6 +67,7 @@ Concat
 contosa
 contosainstaller
 contoso
+contractversion
 count'th
 countryregion
 createmanifestmetadata
@@ -183,6 +185,7 @@ MBH
 megamorf
 memcpy
 middleware
+MIDL
 minexample
 minschema
 MMmmbbbb
@@ -226,6 +229,7 @@ PMS
 positionals
 powertoys
 productcode
+pseudocode
 pvk
 pvm
 pwabuilder
@@ -248,6 +252,7 @@ rosoft
 rowids
 RRF
 rrr
+runtimeclass
 rzkzqaqjwj
 SARL
 schematab
