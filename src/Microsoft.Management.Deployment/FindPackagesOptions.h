@@ -12,13 +12,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> Filters();
         uint32_t ResultLimit();
         void ResultLimit(uint32_t value);
-        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
-        void CompositeSearchBehavior(winrt::Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
     private:
         uint32_t m_resultLimit = 0;
-        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages;
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_selectors{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_filters{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_selectors{ 
+            winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> m_filters{ 
+            winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageMatchFilter>() };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

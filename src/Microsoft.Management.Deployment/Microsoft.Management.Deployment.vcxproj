@@ -215,6 +215,7 @@
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
     <ClInclude Include="ConnectResult.h" />
+    <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
@@ -233,6 +234,7 @@
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
+    <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />

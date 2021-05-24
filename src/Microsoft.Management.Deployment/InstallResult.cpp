@@ -5,8 +5,14 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void InstallResult::Initialize(hstring const& correlationData, bool rebootRequired)
+    void InstallResult::Initialize(
+        winrt::Microsoft::Management::Deployment::InstallResultStatus status,
+        winrt::hresult extendedErrorCode, 
+        hstring const& correlationData, 
+        bool rebootRequired)
     {
+        m_status = status;
+        m_extendedErrorCode = extendedErrorCode;
         m_correlationData = correlationData;
         m_rebootRequired = rebootRequired;
     }
@@ -18,9 +24,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_rebootRequired;
     }
-    winrt::hresult InstallResult::ErrorCode()
+    winrt::Microsoft::Management::Deployment::InstallResultStatus InstallResult::Status()
     {
-        return m_errorCode;
+        return m_status;
     }
     winrt::hresult InstallResult::ExtendedErrorCode()
     {

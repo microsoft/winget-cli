@@ -5,13 +5,18 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void FindPackagesResult::Initialize(Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches)
+    void FindPackagesResult::Initialize(
+        winrt::Microsoft::Management::Deployment::FindPackagesResultStatus status,
+        bool wasLimitExceeded, 
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches)
     {
+        m_status = status;
         m_matches = matches;
+        m_wasLimitExceeded = wasLimitExceeded;
     }
-    winrt::hresult FindPackagesResult::ErrorCode()
+    winrt::Microsoft::Management::Deployment::FindPackagesResultStatus FindPackagesResult::Status()
     {
-        throw hresult_not_implemented();
+        return m_status;
     }
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::MatchResult> FindPackagesResult::Matches()
     {

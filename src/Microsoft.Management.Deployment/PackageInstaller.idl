@@ -43,6 +43,16 @@ namespace Microsoft.Management.Deployment
         Double InstallationProgress;
     };
 
+    /// Status of the Install call
+    /// Implementation Note: Errors likely to be mapped from AppInstallerErrors.h
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum InstallResultStatus
+    {
+        Ok, 
+        InternalError,
+        NoApplicableInstallers,
+    };
+
     /// Result of the install
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass InstallResult
@@ -53,7 +63,7 @@ namespace Microsoft.Management.Deployment
         Boolean RebootRequired{ get; };
 
         /// Batched error code, example APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED
-        HRESULT ErrorCode{ get; };
+        InstallResultStatus Status{ get; };
         /// Specific error if known, from downloader or installer itself, example ERROR_INSTALL_PACKAGE_REJECTED
         HRESULT ExtendedErrorCode{ get; };
     }
@@ -124,8 +134,6 @@ namespace Microsoft.Management.Deployment
         SilentUninstallCommand,
         /// The publisher of the package
         PublisherDisplayName,
-        /// The locale of the package
-        Locale,
     };
 
     /// IMPLEMENTATION NOTE: IPackageVersion from AppInstallerRepositorySearch.h
@@ -152,7 +160,7 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<String> ProductCodes { get; };
 
         /// Gets the package catalog  where this package version is from.
-        PackageCatalogReference PackageCatalogReference { get; };
+        PackageCatalog PackageCatalog { get; };
 
         /// DESIGN NOTE:
         /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
@@ -179,14 +187,6 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass CatalogPackage
     {
-        /// IMPLEMENTATION NOTE: This would be new work as Windows Package Manager does not currently create a 
-        /// CatalogPackage object from a manifest.
-        /// DESIGN NOTE: This is proposed as the preferred alternative to having InstallOptions match the winget
-        /// command line which allows you to pass in a manifestPath directly into install. Allowing creation of 
-        /// a CatalogPackage object from a manifest allows the install api to consistently use package objects 
-        /// rather than having a "you can either set the manifest path or use a package but not both" problem.
-        static CatalogPackage TryCreateFromManifestPath(String manifestPath);
-
         /// IMPLEMENTATION NOTE: PackageProperty fields from AppInstallerRepositorySearch.h
         /// Gets a property of this package.
         String Id { get; };
@@ -207,9 +207,6 @@ namespace Microsoft.Management.Deployment
         /// Gets a value indicating whether an available version is newer than the installed version.
         Boolean IsUpdateAvailable { get; };
 
-        /// Gets whether the package is installing
-        Boolean IsInstalling { get; };
-
         /// DESIGN NOTE:
         /// IsSame from IPackage in AppInstallerRepositorySearch is not implemented in V1.
         /// Determines if the given IPackage refers to the same package as this one.
@@ -223,14 +220,10 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum CompositeSearchBehavior
     {
-        /// Search only installed packages
-        InstalledPackages,
-        /// Search only installing packages
-        InstallingPackages,
-        /// Search only local packages (installed and installing)
-        AllLocalPackages,
+        /// Search only local packages
+        LocalCatalogs,
         /// Search both local and remote sources.
-        AllPackages,
+        AllCatalogs,
     };
 
     /// IMPLEMENTATION NOTE: PackageFieldMatchOption from AppInstallerRepositorySearch.h
@@ -239,9 +232,7 @@ namespace Microsoft.Management.Deployment
     {
         Equals,
         EqualsCaseInsensitive,
-        StartsWith,
         StartsWithCaseInsensitive,
-        Contains,
         ContainsCaseInsensitive,
     };
 
@@ -269,7 +260,7 @@ namespace Microsoft.Management.Deployment
     {
         PackageMatchFilter();
         /// The type of string comparison for matching
-        PackageFieldMatchOption Type;
+        PackageFieldMatchOption Option;
         /// The field to search
         PackageMatchField Field;
         /// The value to match
@@ -289,13 +280,20 @@ namespace Microsoft.Management.Deployment
         PackageMatchFilter MatchCriteria { get; };
     }
 
+    /// Status of the FindPackages call
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum FindPackagesResultStatus
+    {
+        Ok,
+    };
+
     /// IMPLEMENTATION NOTE: SearchResult from AppInstallerRepositorySearch.h
     /// Search result data returned from FindPackages
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass FindPackagesResult
     {
         /// Error codes
-        HRESULT ErrorCode{ get; };
+        FindPackagesResultStatus Status{ get; };
 
         /// The full set of results from the search.
         Windows.Foundation.Collections.IVectorView<MatchResult> Matches { get; };
@@ -332,11 +330,6 @@ namespace Microsoft.Management.Deployment
 
         /// Restricts the length of the returned results to the specified count.
         UInt32 ResultLimit;
-
-        /// Overrides the default search behavior for this search if the catalog is a composite catalog.
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports setting the search behavior when 
-        /// creating the source so this is new work but is expected to be very small.
-        CompositeSearchBehavior CompositeSearchBehavior;
     }
 
     /// IMPLEMENTATION NOTE: ISource from AppInstallerRepositorySource.h
@@ -355,12 +348,20 @@ namespace Microsoft.Management.Deployment
         FindPackagesResult FindPackages(FindPackagesOptions options);
     }
 
+    /// Status of the Connect call
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
+    enum ConnectResultStatus
+    {
+        Ok,
+        CatalogNotFound,
+    };
+
     /// Result of the Connect call
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass ConnectResult
     {
         /// Error codes
-        HRESULT ErrorCode{ get; };
+        ConnectResultStatus Status{ get; };
 
         PackageCatalog PackageCatalog { get; };
     }
@@ -390,11 +391,6 @@ namespace Microsoft.Management.Deployment
     enum LocalPackageCatalog
     {
         InstalledPackages,
-        /// IMPLEMENTATION NOTE:  Windows Package Manager does not currently have this concept. 
-        /// This would be a new Orchestration feature to keep track of the installing CatalogPackage objects and allow 
-        /// search of those objects.
-        InstallingPackages,
-        AllLocalPackages
     };
 
     /// 
@@ -419,7 +415,11 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageInstallScope
     {
+        /// An installer with any install scope is valid.
+        Any,
+        /// Only User install scope installers are valid
         User,
+        /// Only System installers will be valid
         System,
     };
 
@@ -490,8 +490,6 @@ namespace Microsoft.Management.Deployment
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
-        /// Get install progress
-        Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package);
     }
 
     /// Force midl3 to generate vector marshalling info. 

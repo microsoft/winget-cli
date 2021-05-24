@@ -16,7 +16,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalog> m_catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalog>() };
         winrt::Microsoft::Management::Deployment::PackageCatalog m_localPackageCatalog { nullptr };
-        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::AllPackages;
+        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::AllCatalogs;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

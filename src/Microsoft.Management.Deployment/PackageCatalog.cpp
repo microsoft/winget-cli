@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
+#include "Converters.h"
 #include "PackageCatalog.h"
 #include "PackageCatalog.g.cpp"
 #include "PackageCatalogInfo.h"
@@ -12,7 +13,9 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void PackageCatalog::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, std::shared_ptr<::AppInstaller::Repository::ISource> source)
+    void PackageCatalog::Initialize(
+        winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, 
+        std::shared_ptr<const ::AppInstaller::Repository::ISource> source)
     {
         m_info = info;
         m_source = source;
@@ -23,70 +26,33 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogInfo PackageCatalog::Info()
     {
-        auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-        packageCatalogInfo->Initialize(m_source->GetDetails());
-        return *packageCatalogInfo;
+        return m_info;
     }
     winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::FindPackagesResult> PackageCatalog::FindPackagesAsync(winrt::Microsoft::Management::Deployment::FindPackagesOptions options)
     {
         co_return FindPackages(options);
     }
-    void Populate(::AppInstaller::Repository::SearchRequest* searchRequest, Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> filters, bool isAdditive)
+    
+    void PopulateSearchRequestFromVector(
+        ::AppInstaller::Repository::SearchRequest* searchRequest, 
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> vector, 
+        bool isSelector)
     {
-        for (uint32_t i = 0; i < filters.Size(); ++i)
+        // Populates either the Filters vector of a searchRequest (if isSelector is false),
+        // or the Inclusions and Query (if true)
+        for (uint32_t i = 0; i < vector.Size(); ++i)
         {
-            Microsoft::Management::Deployment::PackageMatchFilter filter = filters.GetAt(i);
+            Microsoft::Management::Deployment::PackageMatchFilter filter = vector.GetAt(i);
 
             if (filter.Value().size() == 0)
             {
+                // If the caller did not add a value it can't actually be used to filter or include anything so just ignore it.
                 continue;
             }
+            ::AppInstaller::Repository::MatchType packageFieldMatchOption = GetRepositoryMatchType(filter.Option());
+            ::AppInstaller::Repository::PackageMatchField matchField = GetRepositoryMatchField(filter.Field());
 
-            //TODO: make sure mapping here matches casesensitivity of internal enum
-            ::AppInstaller::Repository::MatchType packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
-            switch (filter.Type())
-            {
-            case Microsoft::Management::Deployment::PackageFieldMatchOption::EqualsCaseInsensitive:
-                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::CaseInsensitive;
-                break;
-            case Microsoft::Management::Deployment::PackageFieldMatchOption::Equals:
-                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
-                break;
-            case Microsoft::Management::Deployment::PackageFieldMatchOption::StartsWith:
-                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::StartsWith;
-                break;
-            case Microsoft::Management::Deployment::PackageFieldMatchOption::Contains:
-                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Substring;
-                break;
-            default:
-                packageFieldMatchOption = ::AppInstaller::Repository::MatchType::Exact;
-                break;
-            }
-
-            ::AppInstaller::Repository::PackageMatchField matchField = ::AppInstaller::Repository::PackageMatchField::Id;
-            switch (filter.Field())
-            {
-            case Microsoft::Management::Deployment::PackageMatchField::Command:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Command;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Id:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Id;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Moniker:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Moniker;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Name:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Name;
-                break;
-            case Microsoft::Management::Deployment::PackageMatchField::Tag:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Tag;
-                break;
-            default:
-                matchField = ::AppInstaller::Repository::PackageMatchField::Id;
-                break;
-            }
-
-            if (isAdditive)
+            if (isSelector)
             {
                 if (filter.Field() == Microsoft::Management::Deployment::PackageMatchField::CatalogDefault)
                 {
@@ -94,43 +60,55 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
                 else
                 {
-                    auto inclusion = ::AppInstaller::Repository::PackageMatchFilter(matchField, packageFieldMatchOption, winrt::to_string(filter.Value()));
-                    searchRequest->Inclusions.emplace_back(inclusion);
+                    auto matchFilter = ::AppInstaller::Repository::PackageMatchFilter(matchField, packageFieldMatchOption, winrt::to_string(filter.Value()));
+                    searchRequest->Inclusions.emplace_back(matchFilter);
                 }
             }
             else
             {
-                searchRequest->Filters.emplace_back(::AppInstaller::Repository::PackageMatchFilter(matchField, packageFieldMatchOption, winrt::to_string(filter.Value())));
+                if (filter.Field() == Microsoft::Management::Deployment::PackageMatchField::CatalogDefault)
+                {
+                    // CatalogDefault match fields can't be used in the Filters.
+                    throw hresult_invalid_argument();
+                }
+                auto matchFilter = ::AppInstaller::Repository::PackageMatchFilter(matchField, packageFieldMatchOption, winrt::to_string(filter.Value()));
+                searchRequest->Filters.emplace_back(matchFilter);
             }
         }
-
     }
     winrt::Microsoft::Management::Deployment::FindPackagesResult PackageCatalog::FindPackages(winrt::Microsoft::Management::Deployment::FindPackagesOptions const& options)
     {
         ::AppInstaller::Repository::SearchRequest searchRequest;
         
-        Populate(&searchRequest, options.Filters(), false);
-        Populate(&searchRequest, options.Selectors(), true);
+        // throws if a filter with PackageMatchField::CatalogDefault is included in the options.Filters list
+        PopulateSearchRequestFromVector(&searchRequest, options.Filters(), false);
+        PopulateSearchRequestFromVector(&searchRequest, options.Selectors(), true);
         searchRequest.MaximumResults = options.ResultLimit();
         auto searchResult = m_source->Search(searchRequest);
 
+        // Build the result object from the searchResult
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches{ winrt::single_threaded_vector<Microsoft::Management::Deployment::MatchResult>() };
-
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
             auto match = searchResult.Matches[i];
-            auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
+            auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<
+                winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
             catalogPackage->Initialize(m_source, match.Package);
 
-            auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
+            auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<
+                winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
+            packageMatchFilter->Initialize(match.MatchCriteria);
 
-            auto matchResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::MatchResult>>();
+            auto matchResult = winrt::make_self<wil::details::module_count_wrapper<
+                winrt::Microsoft::Management::Deployment::implementation::MatchResult>>();
             matchResult->Initialize(*catalogPackage, *packageMatchFilter);
 
             matches.Append(*matchResult);
         }
-        auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
-        findPackagesResult->Initialize(matches);
+        auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<
+            winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
+        // TODO: Add search timeout and error code.
+        findPackagesResult->Initialize(winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::Ok, searchResult.Truncated, matches);
 
         return *findPackagesResult;
     }

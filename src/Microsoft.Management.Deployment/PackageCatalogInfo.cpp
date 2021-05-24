@@ -26,10 +26,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_sourceDetails.Arg);
     }
-    hstring PackageCatalogInfo::ExtraData()
-    {
-        return winrt::to_hstring(m_sourceDetails.Data);
-    }
     winrt::Windows::Foundation::DateTime PackageCatalogInfo::LastUpdateTime()
     {
         return winrt::clock::from_time_t(std::chrono::system_clock::to_time_t(m_sourceDetails.LastUpdateTime));

@@ -21,13 +21,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_resultLimit = value;
     }
-    winrt::Microsoft::Management::Deployment::CompositeSearchBehavior FindPackagesOptions::CompositeSearchBehavior()
-    {
-        return m_compositeSearchBehavior;
-    }
-    void FindPackagesOptions::CompositeSearchBehavior(Microsoft::Management::Deployment::CompositeSearchBehavior const& value)
-    {
-        m_compositeSearchBehavior = value;
-    }
     CoCreatableCppWinRtClass(FindPackagesOptions);
 }

@@ -10,14 +10,12 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void CatalogPackage::Initialize(std::shared_ptr<::AppInstaller::Repository::ISource> source, std::shared_ptr<::AppInstaller::Repository::IPackage> package)
+    void CatalogPackage::Initialize(
+        std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+        std::shared_ptr<::AppInstaller::Repository::IPackage> package)
     {
         m_source = source;
         m_package = package;
-    }
-    Microsoft::Management::Deployment::CatalogPackage CatalogPackage::TryCreateFromManifestPath(hstring const& manifestPath)
-    {
-        throw hresult_not_implemented();
     }
     hstring CatalogPackage::Id()
     {
@@ -29,52 +27,73 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
-        if (!m_installedVersion && (m_package.get()->GetInstalledVersion() != nullptr))
+        if (!m_installedVersion)
         {
-            auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-            installedVersionImpl->Initialize(m_package.get()->GetInstalledVersion());
-            m_installedVersion = *installedVersionImpl;
+            // InstalledVersion hasn't been created yet, create and populate it.
+            std::shared_ptr<::AppInstaller::Repository::IPackageVersion> installedVersion = m_package.get()->GetInstalledVersion();
+            if (installedVersion)
+            {
+                auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
+                    winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
+                installedVersionImpl->Initialize(installedVersion);
+                m_installedVersion = *installedVersionImpl;
+            }
         }
         return m_installedVersion;
     }
     Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::PackageVersionId> CatalogPackage::AvailableVersions()
     {
-        if (m_availableVersions.Size() == 0)
+        if (!m_availableVersions)
         {
+            // Vector hasn't been created yet, create and populate it.
+            auto availableVersions = winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>();
             std::vector<::AppInstaller::Repository::PackageVersionKey> keys = m_package.get()->GetAvailableVersionKeys();
             for (int i = 0; i < keys.size(); ++i)
             {
-                auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
+                auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
+                    winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
                 packageVersionId->Initialize(keys[i]);
-                m_availableVersions.Append(*packageVersionId);
+                availableVersions.Append(*packageVersionId);
             }
+            m_availableVersions = availableVersions;
         }
         return m_availableVersions.GetView();
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
     {
-        if (!m_latestAvailableVersion)
+        if (!m_defaultInstallVersion)
         {
-            auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-            latestVersionImpl->Initialize(m_package.get()->GetLatestAvailableVersion());
-            m_latestAvailableVersion = *latestVersionImpl;
+            std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion();
+            if (latestVersion)
+            {
+                // DefaultInstallVersion hasn't been created yet, create and populate it.
+                // DefaultInstallVersion is the LatestAvailableVersion of the internal package object.
+                auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
+                    winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
+                latestVersionImpl->Initialize(latestVersion);
+                m_defaultInstallVersion = *latestVersionImpl;
+            }
+
         }
-        return m_latestAvailableVersion;
+        return m_defaultInstallVersion;
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
     {
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
+
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
-        auto packageVersionInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-        packageVersionInfo->Initialize(m_package.get()->GetAvailableVersion(internalVersionKey));
-        return *packageVersionInfo;
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
+        if (availableVersion)
+        {
+            auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
+                winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
+            packageVersionInfoImpl->Initialize(availableVersion);
+            packageVersionInfo =*packageVersionInfoImpl;
+        }
+        return packageVersionInfo;
     }
     bool CatalogPackage::IsUpdateAvailable()
     {
         return m_package->IsUpdateAvailable();
-    }
-    bool CatalogPackage::IsInstalling()
-    {
-        //TODO - installing source does not exist yet.
-        return false;
     }
 }

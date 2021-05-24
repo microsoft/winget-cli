@@ -15,11 +15,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Channel();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> ProductCodes();
-        winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageCatalogReference();
+        winrt::Microsoft::Management::Deployment::PackageCatalog PackageCatalog();
     private:
-        winrt::Microsoft::Management::Deployment::PackageCatalogReference m_packageCatalogReference{ nullptr };
+        winrt::Microsoft::Management::Deployment::PackageCatalog m_packageCatalog{ nullptr };
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> m_packageVersion;
-        Windows::Foundation::Collections::IVector<hstring> m_packageFamilyNames{ winrt::single_threaded_vector<hstring>() };
-        Windows::Foundation::Collections::IVector<hstring> m_productCodes{ winrt::single_threaded_vector<hstring>() };
+        Windows::Foundation::Collections::IVector<hstring> m_packageFamilyNames{ nullptr };
+        Windows::Foundation::Collections::IVector<hstring> m_productCodes{ nullptr };
     };
 }

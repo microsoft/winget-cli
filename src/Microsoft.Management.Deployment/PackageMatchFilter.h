@@ -7,15 +7,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter>
     {
         PackageMatchFilter() = default;
+        void Initialize(::AppInstaller::Repository::PackageMatchFilter matchFilter);
 
-        winrt::Microsoft::Management::Deployment::PackageFieldMatchOption Type();
-        void Type(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value);
+        winrt::Microsoft::Management::Deployment::PackageFieldMatchOption Option();
+        void Option(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value);
         winrt::Microsoft::Management::Deployment::PackageMatchField Field();
         void Field(winrt::Microsoft::Management::Deployment::PackageMatchField const& value);
         hstring Value();
         void Value(hstring const& value);
     private:
-        std::wstring m_value = L"";
+        hstring m_value = L"";
         winrt::Microsoft::Management::Deployment::PackageMatchField m_matchField = winrt::Microsoft::Management::Deployment::PackageMatchField::CatalogDefault;
         winrt::Microsoft::Management::Deployment::PackageFieldMatchOption m_packageFieldMatchOption = winrt::Microsoft::Management::Deployment::PackageFieldMatchOption::Equals;
     };

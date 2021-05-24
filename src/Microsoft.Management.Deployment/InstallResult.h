@@ -6,16 +6,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct InstallResult : InstallResultT<InstallResult>
     {
         InstallResult() = default;
-        void Initialize(hstring const& correlationData, bool rebootRequired);
+        void Initialize(
+            winrt::Microsoft::Management::Deployment::InstallResultStatus status,
+            winrt::hresult extendedErrorCode, 
+            hstring const& correlationData, 
+            bool rebootRequired);
 
         hstring CorrelationData();
         bool RebootRequired();
-        winrt::hresult ErrorCode();
+        winrt::Microsoft::Management::Deployment::InstallResultStatus Status();
         winrt::hresult ExtendedErrorCode();
     private:
         std::wstring m_correlationData = L"";
         bool m_rebootRequired = false;
-        winrt::hresult m_errorCode = S_OK;
+        winrt::Microsoft::Management::Deployment::InstallResultStatus m_status = winrt::Microsoft::Management::Deployment::InstallResultStatus::Ok;
         winrt::hresult m_extendedErrorCode = S_OK;
     };
 }

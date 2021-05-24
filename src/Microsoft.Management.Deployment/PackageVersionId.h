@@ -12,6 +12,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Version();
         hstring Channel();
     private:
-        ::AppInstaller::Repository::PackageVersionKey m_packageVersionKey;
+        ::AppInstaller::Repository::PackageVersionKey m_packageVersionKey{};
     };
 }
