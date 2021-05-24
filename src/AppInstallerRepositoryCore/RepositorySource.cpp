@@ -666,6 +666,8 @@ namespace AppInstaller::Repository
 
             // Source includes ones in tombstone
             SourceDetailsInternal* GetSource(std::string_view name);
+            // Source includes ones in tombstone
+            SourceDetailsInternal* GetSourceByIdentifier(std::string_view identifier);
 
             // Add/remove a current source
             void AddSource(const SourceDetailsInternal& source);
@@ -679,6 +681,8 @@ namespace AppInstaller::Repository
 
             // calls std::find_if and return the iterator.
             auto FindSource(std::string_view name, bool includeTombstone = false);
+            // calls std::find_if and return the iterator.
+            auto FindSourceByIdentifier(std::string_view identifier, bool includeTombstone = false);
         };
 
         SourceListInternal::SourceListInternal()
@@ -743,6 +747,16 @@ namespace AppInstaller::Repository
                 });
         }
 
+        auto SourceListInternal::FindSourceByIdentifier(std::string_view identifier, bool includeTombstone)
+        {
+            return std::find_if(m_sourceList.begin(), m_sourceList.end(),
+                [identifier, includeTombstone](const SourceDetailsInternal& sd)
+                {
+                    return Utility::ICUCaseInsensitiveEquals(sd.Identifier, identifier) &&
+                        (!sd.IsTombstone || includeTombstone);
+                });
+        }
+
         SourceDetailsInternal* SourceListInternal::GetCurrentSource(std::string_view name)
         {
             auto itr = FindSource(name);
@@ -752,6 +766,12 @@ namespace AppInstaller::Repository
         SourceDetailsInternal* SourceListInternal::GetSource(std::string_view name)
         {
             auto itr = FindSource(name, true);
+            return itr == m_sourceList.end() ? nullptr : &(*itr);
+        }
+
+        SourceDetailsInternal* SourceListInternal::GetSourceByIdentifier(std::string_view identifier)
+        {
+            auto itr = FindSourceByIdentifier(identifier, true);
             return itr == m_sourceList.end() ? nullptr : &(*itr);
         }
 
@@ -837,6 +857,22 @@ namespace AppInstaller::Repository
         SourceListInternal sourceList;
 
         auto source = sourceList.GetCurrentSource(name);
+        if (!source)
+        {
+            return {};
+        }
+        else
+        {
+            return *source;
+        }
+    }
+
+    std::optional<SourceDetails> GetSourceByIdentifier(std::string_view identifier)
+    {
+        // Check all sources for the given name.
+        SourceListInternal sourceList;
+
+        auto source = sourceList.GetSourceByIdentifier(identifier);
         if (!source)
         {
             return {};
@@ -970,6 +1006,47 @@ namespace AppInstaller::Repository
         }
     }
 
+    OpenSourceResult OpenSourceByIdentifier(std::string_view identifier, IProgressCallback& progress)
+    {
+        SourceListInternal sourceList;
+        if (identifier.empty())
+        {
+            return OpenSource(identifier, progress);
+        }
+        else
+        {
+            auto source = sourceList.GetSourceByIdentifier(identifier);
+            if (!source)
+            {
+                AICLI_LOG(Repo, Info, << "Identifier source requested, but not found: " << identifier);
+                return {};
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Identifier source requested, found: " << source->Identifier);
+
+                OpenSourceResult result;
+
+                if (ShouldUpdateBeforeOpen(*source))
+                {
+                    try
+                    {
+                        UpdateSourceFromDetails(*source, progress);
+                        sourceList.SaveMetadata();
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Identifier);
+                        result.SourcesWithUpdateFailure.emplace_back(*source);
+                    }
+                }
+
+                result.Source = CreateSourceFromDetails(*source, progress);
+                return result;
+            }
+        }
+    }
+
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
     {
         SourceDetails details;
@@ -1008,6 +1085,32 @@ namespace AppInstaller::Repository
 
         return result;
     }
+
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
+        CompositeSearchBehavior searchBehavior)
+    {
+        if (availableSources.empty())
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
+
+        for (const auto& availableSource : availableSources)
+        {
+            result->AddAvailableSource(availableSource);
+        }
+
+        if (installedSource)
+        {
+            result->SetInstalledSource(installedSource, searchBehavior);
+        }
+
+        return result;
+    }
+
 
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {

@@ -101,6 +101,9 @@ namespace AppInstaller::Repository
     // Gets the details for a single source.
     std::optional<SourceDetails> GetSource(std::string_view name);
 
+    // Gets the details for a single source by identifier
+    std::optional<SourceDetails> GetSourceByIdentifier(std::string_view identifier);
+
     // Adds a new source for the user.
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
@@ -115,7 +118,12 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
+    // Returns null if the source does not exist.
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
+    // Opens an existing source.
+    // Passing an empty string as the identifier of the source will return a source that aggregates all others.
+    // Returns null if the source does not exist.
+    OpenSourceResult OpenSourceByIdentifier(std::string_view identifier, IProgressCallback& progress);
 
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
@@ -146,6 +154,11 @@ namespace AppInstaller::Repository
     std::shared_ptr<ISource> CreateCompositeSource(
         const std::shared_ptr<ISource>& installedSource,
         const std::shared_ptr<ISource>& availableSource,
+        CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
+
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
         CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     // Updates an existing source.
