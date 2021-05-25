@@ -152,7 +152,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(PreviewVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);

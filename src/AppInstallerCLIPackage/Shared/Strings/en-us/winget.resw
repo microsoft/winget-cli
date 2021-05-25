@@ -419,9 +419,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>The position of the cursor within the command line</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Preview</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privacy Statement</value>
   </data>
