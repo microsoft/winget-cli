@@ -43,7 +43,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceByIdentifier(winrt::to_string(catalog.Info().Id()), progress).Source;
                 if (!remoteSource)
                 {
-                    break;
+                    // In the time since the catalog reference was given back the source must have been deleted.
+                    auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+                    connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogNotFound, nullptr);
+                    return *connectResult;
                 }
                 remoteSources.emplace_back(remoteSource);
             }
@@ -62,7 +65,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         else
         {
-            m_source = ::AppInstaller::Repository::OpenSourceByIdentifier(winrt::to_string(m_info.Id()), progress).Source;
+            m_source = ::AppInstaller::Repository::OpenSource(winrt::to_string(m_info.Name()), progress).Source;
         }
 
         if (!m_source)

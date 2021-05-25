@@ -47,7 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalog:
             // TODO: Mapping of enum to sources should link directly to definition, not copy string.
-            return GetPackageCatalogById(L"Microsoft.Winget.Source_8wekyb3d8bbwe");
+            return GetPackageCatalogByName(L"winget");
         default:
             throw hresult_invalid_argument();
         }
@@ -71,9 +71,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         packageCatalogImpl->Initialize(details, *packageCatalogInfo);
         return *packageCatalogImpl;
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPackageCatalogById(hstring const& catalogId)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPackageCatalogByName(hstring const& catalogName)
     {
-        std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSourceByIdentifier(winrt::to_string(catalogId));
+        std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSource(winrt::to_string(catalogName));
         // Create the catalog object if the source is found, otherwise return null. Don't throw.
         if (source.has_value())
         {

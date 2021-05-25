@@ -482,8 +482,8 @@ namespace Microsoft.Management.Deployment
         PackageCatalogReference GetPredefinedPackageCatalog(PredefinedPackageCatalog predefinedPackageCatalog);
         /// Get a built in catalog
         PackageCatalogReference GetLocalPackageCatalog(LocalPackageCatalog localPackageCatalog);
-        /// Get a catalog by a known unique identifier
-        PackageCatalogReference GetPackageCatalogById(String catalogId);
+        /// Get a catalog by a known name
+        PackageCatalogReference GetPackageCatalogByName(String catalogName);
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
         /// (Installing, Installed) together at the same time.
         PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options);
