@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Το όνομα του ορίσματος δεν αναγνωρίστηκε για την τρέχουσα εντολή</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Γλώσσα εγκατάστασης (εάν υποστηρίζεται)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Τοπικές ρυθμίσεις για χρήση (μορφή BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Άδεια χρήσης</value>
@@ -659,11 +660,11 @@
     <value>Δεν βρέθηκαν ισχύουσες ενημερώσεις.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Ενημερώνει το επιλεγμένο πακέτο, που βρέθηκε με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+    <value>Αναβαθμίζει το επιλεγμένο πακέτο, που βρέθηκε με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Ενημερώνει το συγκεκριμένο πακέτο</value>
+    <value>Αναβαθμίζει το συγκεκριμένο πακέτο</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>χρήση</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Επιτρεπόμενη προέλευση</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Η τιμή που δόθηκε για το όρισμα '%1' δεν είναι έγκυρη</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

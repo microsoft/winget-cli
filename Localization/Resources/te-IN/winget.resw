@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ప్రస్తుత ఆదేశానికి వాదన పేరు గుర్తించబడలేదు</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>వ్యవస్థాపించాల్సిన భాష (మద్దతు ఉంటే)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>ఉపయోగించడానికి స్థానికాంశం (BCP47 ఆకృతి)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>లైసెన్స్ ఒప్పందం</value>
@@ -480,7 +481,7 @@
     <value>నిర్దిష్ట ప్యాకేజీపై సమాచారాన్ని చూపుతుంది. అప్రమేయంగా, ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ప్యాకేజి గురించి సమాచారాన్ని చూపుతుంది</value>
+    <value>ఒక ప్యాకేజీ గురించి సమాచారాన్ని చూపిస్తుంది</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>సంస్కరణ</value>
@@ -659,11 +660,11 @@
     <value>వర్తించే నవీకరణ కనుగొనబడలేదు.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీల జాబితాను శోధించడం ద్వారా లేదా మానిఫెస్ట్ నుండి నేరుగా ఎంచుకున్న ప్యాకేజీని నవీకరిస్తుంది. డిఫాల్ట్‌గా ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో కేస్-ఇన్‌సెన్సిటివ్‌గా సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
+    <value>ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీల జాబితాను శోధించడం ద్వారా లేదా మానిఫెస్ట్ నుండి నేరుగా ఎంచుకున్న ప్యాకేజీని అప్‌గ్రేడ్ చేస్తుంది. డిఫాల్ట్‌గా ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో కేస్-ఇన్‌సెన్సిటివ్‌గా సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>ఇచ్చిన ప్యాకేజీని నవీకరిస్తుంది</value>
+    <value>ఇచ్చిన ప్యాకేజీని అప్‌గ్రేడ్ చేస్తుంది</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ఉపయోగం</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>అనుమతించిన వనరు</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>`%1` కారకం కోసం అందించిన విలువ చెల్లదు</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>
