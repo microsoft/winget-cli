@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>നിലവിലെ കമാൻഡിനായി വാദ നാമം തിരിച്ചറിയാനായില്ല</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള ഭാഷ (പിന്തുണയ്ക്കുന്നുവെങ്കിൽ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>ഉപയോഗിക്കേണ്ട ലോക്കേല്‍ (BCP47 ഫോര്‍മാറ്റ്)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>ലൈസൻസ് കരാർ</value>
@@ -480,7 +481,7 @@
     <value>ഒരു നിർദ്ദിഷ്ട പാക്കേജിലെ വിവരങ്ങൾ കാണിക്കുന്നു. ഡിഫോൾട്ടായി, ചോദ്യ id, പേര് അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കർ എന്നിവ കേസ്-നിർവ്വികാരമായി പൊരുത്തപ്പെട്ടിരിക്കണം. മറ്റ് ഫീൽഡുകൾക്ക് അവരുടെ ഉചിതമായ ഐച്ഛികം കൈമാറുന്നതിലൂടെ ഉപയോഗിക്കാവുന്നതാണ്.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ഒരു പാക്കേജിനെക്കുറിച്ചുള്ള വിവരങ്ങൾ കാണിക്കുന്നു</value>
+    <value>ഒരു പാക്കേജിനെക്കുറിച്ചുള്ള വിവരം കാണിക്കുന്നു.</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>പതിപ്പ്</value>
@@ -659,11 +660,11 @@
     <value>ബാധകമായ അപ്ഡേറ്റുകളൊന്നും കണ്ടെത്തിയില്ല.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>ഇൻസ്റ്റാൾചെയ്‌ത പാക്കേജുകളുടെ ലിസ്റ്റ് തിരയുന്നതിലൂടെ അല്ലെങ്കിൽ ഒരു മാനിഫെസ്റ്റിൽ നിന്ന് നേരിട്ട് കണ്ടെത്തുന്നത് മുഖേന തിരഞ്ഞെടുത്ത പാക്കേജ് ഇൻസ്റ്റാൾ ചെയ്യുന്നു. ഡിഫോൾട്ടായി, നിർവ്വികാരമായ ചോദ്യ id, പേര് അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കർ എന്നിവയുമായി പൊരുത്തപ്പെട്ടിരിക്കണം. മറ്റ് ഫീൽഡുകൾക്ക് ഉചിതമായ ഐച്ഛികം കൈമാറുന്നതിലൂടെ ഉപയോഗിക്കാവുന്നതാണ്.</value>
+    <value>ഇൻസ്റ്റാൾചെയ്‌ത പാക്കേജുകളുടെ ലിസ്റ്റ് തിരയുന്നതിലൂടെ കണ്ടെത്തിയ അല്ലെങ്കിൽ ഒരു മാനിഫെസ്റ്റിൽ നിന്ന് നേരിട്ട് തിരഞ്ഞെടുത്ത പാക്കേജ് അപ്ഗ്രേഡ് ചെയ്യുന്നു. ഡിഫോൾട്ടായി, ചോദ്യം പാക്കേജിന്റെ id, പേര് അല്ലെങ്കിൽ മോണിക്കര്‍ കേസ് ഇൻസെൻസിറ്റീവ് ആയി പൊരുത്തപ്പെടുന്നതായിരിക്കണം. മറ്റ് ഫീൽഡുകൾ ഉചിതമായ ഐച്ഛികം കൈമാറാനായി ഉപയോഗിക്കാവുന്നതാണ്.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>നൽകിയ പാക്കേജ് അപ്‌ഡേറ്റ് ചെയ്യുന്നു</value>
+    <value>നിർദിഷ്ട പാക്കേജ് അപ്ഗ്രേഡ് ചെയ്യുന്നു</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ഉപയോഗം</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>അനുവദിച്ച ഉറവിടം</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>`%1` ആർഗ്യുമെന്റിനായി നൽകിയിരിക്കുന്ന മൂല്യം അസാധുവാണ്</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

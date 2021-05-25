@@ -298,8 +298,9 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="InvalidNameError" xml:space="preserve">
     <value>Tên đối số không nhận diện được cho lệnh hiện tại</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Ngôn ngữ cài đặt (nếu có hỗ trợ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Ngôn ngữ để sử dụng (định dạng BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Thỏa thuận cấp phép</value>
@@ -480,7 +481,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Hiển thị thông tin trên một gói cụ thể. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Hiển thị thông tin về gói</value>
+    <value>Hiển thị thông tin về một gói</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Phiên bản</value>
@@ -659,11 +660,11 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Không tìm thấy bản cập nhật thích hợp.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Cập Nhật gói đã chọn, được tìm thấy bằng cách tìm kiếm danh sách gói đã cài đặt hoặc trực tiếp từ một tệp kê khai. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
+    <value>Nâng cấp gói đã chọn, được tìm thấy bằng cách tìm kiếm danh sách gói đã cài đặt hoặc trực tiếp từ một tệp kê khai. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Cập nhật gói đã cho</value>
+    <value>Nâng cấp gói đã cho</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>mức sử dụng</value>
@@ -915,5 +916,9 @@ Cấu hình bị tắt do Chính sách Nhóm.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Nguồn được phép</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Giá trị được cung cấp cho đối số `%1` không hợp lệ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

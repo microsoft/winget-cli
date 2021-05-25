@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>当前命令无法识别参数名称</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>要安装的语言（如支持）</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>要使用的区域设置(BCP47 格式)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>许可协议</value>
@@ -480,7 +481,7 @@
     <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>显示有关程序包的信息</value>
+    <value>显示包的相关信息</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>版本</value>
@@ -659,11 +660,11 @@
     <value>找不到适用的更新。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>通过搜索 "已安装的包" 列表或直接从清单更新所选的包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
+    <value>通过搜索已安装的程序包列表或直接从清单升级所选的程序包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>更新给定的程序包</value>
+    <value>升级给定的程序包</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用情况</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>允许的源</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>为 "%1" 参数提供的值无效</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Ағымдағы пәрмен үшін аргумент аты анықталмады</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Орнатылатын тіл (егер қолдау көрсетілетін болса)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Қолданылатын тіл стандарты (BCP47 пішімі)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Лицензиялық келісім</value>
@@ -480,7 +481,7 @@
     <value>Белгілі бір бума туралы мәліметтерді көрсетеді. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Бума туралы ақпаратты көрсетеді</value>
+    <value>Бума туралы мәліметтерді көрсетеді</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Нұсқа</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Рұқсат етілген ақпарат көзі</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>`%1` аргументі үшін берілген мән жарамсыз</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

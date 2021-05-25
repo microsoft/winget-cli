@@ -298,8 +298,9 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nama argumen tidak dikenali untuk perintah saat ini</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Bahasa untuk diinstal (jika didukung)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokal yang digunakan (format BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Perjanjian Lisensi</value>
@@ -480,7 +481,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Menampilkan informasi pada paket tertentu. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Tampilkan info tentang paket</value>
+    <value>Menampilkan informasi tentang paket</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versi</value>
@@ -659,11 +660,11 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Tidak ditemukan pembaruan yang dapat diterapkan.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Memperbarui paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+    <value>Memutakhirkan paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Memperbarui paket yang diberikan</value>
+    <value>Memutakhirkan paket yang diberikan</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>penggunaan</value>
@@ -915,5 +916,9 @@ Konfigurasi dinonaktifkan karena kebijakan grup.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Sumber yang diperbolehkan</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Nilai yang diberikan untuk argumen '%1' tidak valid</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

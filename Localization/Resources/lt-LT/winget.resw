@@ -298,8 +298,9 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="InvalidNameError" xml:space="preserve">
     <value>Dabartinės komandos argumento pavadinimas neatpažįstamas</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Įdiegti kalbą (jei palaikoma)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Naudotina lokalė (BCP47 formatas)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licencinė sutartis</value>
@@ -659,7 +660,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Taikomų naujinimų nerasta.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Naujina pasirinktą paketą, rasti įdiegtus paketų sąrašą arba tiesiogiai iš deklaracijos. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
+    <value>Atnaujina pasirinktą paketą, rasti įdiegtus paketų sąrašą arba tiesiogiai iš deklaracijos. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfigūracija išjungta dėl grupės strategijos.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Leidžiamas šaltinis</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Pateikta "%1" argumento reikšmė yra neleistina</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -298,8 +298,9 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumentin nimeä ei tunnistettu nykyiselle komennolle</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Asennettava kieli (jos tuettu)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Käytettävä alue (BCP47-muoto)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Käyttöoikeussopimus</value>
@@ -663,7 +664,7 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Asentaa määritetyn paketin</value>
+    <value>Päivittää tietyn paketin</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>käyttö</value>
@@ -915,5 +916,9 @@ Määritys on poistettu käytöstä ryhmä käytännön vuoksi.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Sallittu lähde</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>%1-argumentin annettu arvo on virheellinen</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

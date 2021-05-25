@@ -38,13 +38,13 @@ Nếu bạn bật hoặc không định cấu hình chính sách này, người 
 
 Nếu bạn tắt chính sách này, người dùng sẽ không thể bật khả năng ghi đè xác thực bảo mật SHA256 trong cài đặt Trình quản lý gói Windows.</string>
       <string id="EnableDefaultSource">Bật Nguồn mặc định của Trình cài đặt Ứng dụng</string>
-      <string id="EnableDefaultSourceExplanation">Chính sách này kiểm soát nguồn mặc định được bao gồm trong Trình quản lý gói Microsoft.
+      <string id="EnableDefaultSourceExplanation">Chính sách này kiểm soát nguồn mặc định được bao gồm trong Trình quản lý gói Windows.
 
-Nếu bạn không định cấu hình cài đặt này, nguồn mặc định cho Trình quản lý gói Microsoft sẽ sẵn có và có thể bị loại bỏ.
+Nếu bạn không định cấu hình cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ khả dụng và có thể bị loại bỏ.
 
-Nếu bạn bật cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ sẵn có và không thể bị loại bỏ.
+Nếu bạn bật cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ khả dụng và không thể bị loại bỏ.
 
-Nếu bạn tắt cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ không sẵn có.</string>
+Nếu bạn tắt cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ không khả dụng.</string>
       <string id="EnableMicrosoftStoreSource">Bật Nguồn Microsoft Store của Trình cài đặt Ứng dụng</string>
       <string id="EnableMicrosoftStoreSourceExplanation">Chính sách này kiểm soát nguồn Microsoft Store đi kèm với Trình quản lý gói Microsoft.
 

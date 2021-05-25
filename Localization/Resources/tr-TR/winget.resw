@@ -298,8 +298,9 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="InvalidNameError" xml:space="preserve">
     <value>Geçerli komut için bağımsız değişken adı tanınmadı</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Yüklenecek dil (destekleniyorsa)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Kullanılacak yerel ayar (BCP47 biçimi)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lisans Sözleşmesi</value>
@@ -480,7 +481,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Belirli bir paketteki bilgileri gösterir. Varsayılan olarak, sorgunun büyük/küçük harf insensitively 'i paketin kimliği, adı veya adıyla eşleşmesi gerekir. Diğer alanlar, uygun seçenekleri geçirerek kullanılabilir.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Bir paketle ilgili bilgileri gösterir</value>
+    <value>Paket hakkındaki bilgileri gösterir</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Sürüm</value>
@@ -659,11 +660,11 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Uygulanabilir güncelleştirme bulunamadı.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Yüklü paketler listesi aranarak bulunan veya doğrudan bir bildirimdeki seçili paketi güncelleştirir. Varsayılan olarak, sorgu, paketin kimliğiyle, adıyla veya bilinen adıyla büyük/küçük harfe duyarlı olmadan eşleşmelidir. Diğer alanlar uygun seçenekleri aktarılarak kullanılabilir.</value>
+    <value>Yüklü paketler listesinde arama yapılarak bulunan veya doğrudan bir bildirimde yer alan seçili paketi yükseltir. Varsayılan olarak, sorgu paketin kimliğiyle, adıyla veya bilinen adıyla büyük/küçük harfe duyarlı olmadan eşleşmelidir. Diğer alanlar uygun seçenekleri aktarılarak kullanılabilir.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Verilen paketi güncelleştirir</value>
+    <value>Belirtilen paketi yükseltir</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>kullanım</value>
@@ -915,5 +916,9 @@ Grup Ilkesi nedeniyle yapılandırma devre dışı bırakıldı.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>İzin verilen kaynak</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>'%1' bağımsız değişkeni için sağlanan değer geçersiz</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

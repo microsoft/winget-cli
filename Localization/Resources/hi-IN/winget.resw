@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>वर्तमान आदेश के लिए तर्क नाम पहचाना नहीं गया</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>स्थापित करने के लिए भाषा (यदि समर्थित हो)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>उपयोग करने के लिए लोकेल (BCP47 फ़ॉर्मेट)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>लायसेंस अनुबंध</value>
@@ -659,11 +660,11 @@
     <value>कोई लागू अद्यतन नहीं मिला.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>चयनित पैकेज का अद्यतन करता है, या तो स्थापित पैकेज सूची को खोज कर या सीधे किसी मैनिफ़ेस्ट से पाया जाता है. डिफ़ॉल्ट रूप से, क्वेरी को केस-संवेदी रूप से पैकेज के id, नाम, या moniker से मेल खाना आवश्यक है. अन्य फ़ील्ड्स का उचित विकल्प पास करके उपयोग किया जा सकता है.</value>
+    <value>चयनित पैकेज को नवीनीकृत करता है, या तो स्थापित पैकेज सूची को खोज कर या सीधे किसी मैनिफ़ेस्ट से मिला है. डिफ़ॉल्ट रूप से, क्वेरी को केस-संवेदी रूप से पैकेज के id, नाम, या moniker से मेल खाना आवश्यक है. अन्य फ़ील्ड्स का उचित विकल्प पास करके उपयोग किया जा सकता है.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>दिए गए पैकेज को अद्यतन करता है</value>
+    <value>दिए गए पैकेज का नवीनीकरण करता है</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>उपयोग</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>अनुमत स्रोत</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>'%1' तर्क के लिए प्रदान किया गया मान अमान्य है</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>نام آرگومان برای فرمان فعلی شناخته نشده است</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>زبانی است برای نصب (در صورت پشتیبانی)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>اولویت‌های محلی مورداستفاده (قالب BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>توافقنامه مجوز</value>
@@ -659,11 +660,11 @@
     <value>هیچ به روزرسانی کاربردی یافت نشد.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>بسته انتخاب شده را به‌روز می کند، یا با جستجو در لیست بسته‌های نصب شده یا مستقیم از یک بیانیه پیدا می شود. به طور پیش‌فرض، پرس‌و‌جو باید از نظر کوچک و بزرگ با شناسه، نام یا مانیتور بسته مطابقت داشته باشد. با عبور از گزینه مناسب می توان از سایر زمینه‌ها استفاده کرد.</value>
+    <value>بسته انتخاب‌شده را به‌روز می‌کند، یا با جستجو در لیست بسته‌های نصب‌شده یا مستقیم از یک بیانیه پیدا می‌شود. به طور پیش‌فرض، پرس‌و‌جو باید از نظر کوچک و بزرگ با شناسه، نام یا مانیتور بسته مطابقت داشته باشد. با عبور از گزینه مناسب می‌توان از سایر زمینه‌ها استفاده کرد.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>بسته داده شده را به‌روز می کند</value>
+    <value>بسته داده‌شده را ارتقا می‌دهد</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>استفاده</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>منبع مجاز</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>مقدار ارائه‌شده برای آرگومان «%1» نامعتبر است</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>
