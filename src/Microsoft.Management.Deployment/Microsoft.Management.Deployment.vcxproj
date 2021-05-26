@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
@@ -67,6 +67,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <LinkIncremental>false</LinkIncremental>
+    <SpectreMitigation>Spectre</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -80,53 +81,14 @@
     <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+  <PropertyGroup>
     <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCLICore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\JsonCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerRepositoryCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\YamlCppLib;$(SolutionDir)$(PlatformTarget)\$(Configuration)\AppInstallerCommonCore;$(SolutionDir)$(PlatformTarget)\$(Configuration)\cpprestsdk;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)JsonCppLib\json;$(SolutionDir)AppInstallerRepositoryCore;$(SolutionDir)AppInstallerRepositoryCore\Public;$(SolutionDir)AppInstallerCommonCore\Public;$(SolutionDir)AppInstallerCLICore;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -135,8 +97,8 @@
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
-      <DisableSpecificWarnings>
-      </DisableSpecificWarnings>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINRT_DLL;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
@@ -144,44 +106,14 @@
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>Microsoft_Management_Deployment.def</ModuleDefinitionFile>
+      <WindowsMetadataFile>$(OutDir)$(ProjectName).winmd</WindowsMetadataFile>
+      <AdditionalDependencies>AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Midl>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Unmerged\$(ProjectName).winmd</MetadataFileName>
-    </Midl>
-    <Link>
-      <WindowsMetadataFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)$(ProjectName).winmd</WindowsMetadataFile>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </Command>
-    </PostBuildEvent>
-    <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -190,27 +122,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -265,15 +177,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210427.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>

@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
     [contractversion(1)]
@@ -393,7 +395,7 @@ namespace Microsoft.Management.Deployment
         InstalledPackages,
     };
 
-    /// 
+    /// Options for creating a composite catalog.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass CreateCompositePackageCatalogOptions
     {

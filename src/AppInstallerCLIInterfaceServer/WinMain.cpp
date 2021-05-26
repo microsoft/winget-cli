@@ -1,4 +1,6 @@
-﻿#include "pch.h"
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
 #include <winrt/Microsoft.Management.Deployment.h>
 #include <wrl/module.h>
 #include <wil/resource.h>
@@ -21,10 +23,11 @@ static void _releaseNotifier() noexcept
     _comServerExitEvent.SetEvent();
 }
 
-int __stdcall wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int)
+int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int)
 {
     winrt::init_apartment();
 
+    // Enable fast rundown of objects so that the server exits faster when clients go away.
     {
         winrt::com_ptr<IGlobalOptions> globalOptions;
         winrt::check_hresult(CoCreateInstance(CLSID_GlobalOptions, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&globalOptions)));
@@ -35,6 +38,7 @@ int __stdcall wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int)
     auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);
     try
     {
+        // Register all the CoCreatableClassWrlCreatorMapInclude classes
         RETURN_IF_FAILED(module.RegisterObjects());
         _comServerExitEvent.wait();
         RETURN_IF_FAILED(module.UnregisterObjects());

@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Converters.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -171,5 +174,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             break;
         }
         return resultStatus;
+    }
+    
+    bool IsLocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info)
+    {
+        return (winrt::to_string(info.Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0);
     }
 }

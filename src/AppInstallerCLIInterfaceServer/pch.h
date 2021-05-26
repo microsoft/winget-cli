@@ -1,12 +1,12 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
 
 #include <windows.h>
 #ifdef GetCurrentTime
 #undef GetCurrentTime
 #endif
 #include <unknwn.h>
-//#include <mutex>
-//#include "cppwinrtprocess.h"
 #include <wil\cppwinrt.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>

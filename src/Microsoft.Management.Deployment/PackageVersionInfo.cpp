@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
 #include "PackageVersionInfo.h"
@@ -80,7 +82,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(m_packageVersion->GetSource()->GetDetails());
             auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
-            packageCatalog->Initialize(*packageCatalogInfo, m_packageVersion->GetSource());
+            packageCatalog->Initialize(*packageCatalogInfo, m_packageVersion->GetSource(), false);
             m_packageCatalog = *packageCatalog;
         }
         return m_packageCatalog;
