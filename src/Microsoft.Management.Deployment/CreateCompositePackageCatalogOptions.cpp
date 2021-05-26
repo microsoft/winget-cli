@@ -12,17 +12,9 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalog> CreateCompositePackageCatalogOptions::Catalogs()
+    Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalogReference> CreateCompositePackageCatalogOptions::Catalogs()
     {
         return m_catalogs;
-    }
-    winrt::Microsoft::Management::Deployment::PackageCatalog CreateCompositePackageCatalogOptions::LocalPackageCatalog()
-    {
-        return m_localPackageCatalog;
-    }
-    void CreateCompositePackageCatalogOptions::LocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalog const& value)
-    {
-        m_localPackageCatalog = value;
     }
     winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CreateCompositePackageCatalogOptions::CompositeSearchBehavior()
     {

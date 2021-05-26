@@ -10,15 +10,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         CreateCompositePackageCatalogOptions() = default;
 
-        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalog> Catalogs();
-        winrt::Microsoft::Management::Deployment::PackageCatalog LocalPackageCatalog();
-        void LocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalog const& value);
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalogReference> Catalogs();
         winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
         void CompositeSearchBehavior(winrt::Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
     private:
-        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalog> m_catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalog>() };
-        winrt::Microsoft::Management::Deployment::PackageCatalog m_localPackageCatalog { nullptr };
-        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::AllCatalogs;
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalogReference> m_catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
+        winrt::Microsoft::Management::Deployment::CompositeSearchBehavior m_compositeSearchBehavior = winrt::Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromAllCatalogs;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

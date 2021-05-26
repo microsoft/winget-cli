@@ -31,17 +31,12 @@ using namespace std::literals::chrono_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageInstaller::GetUserPackageCatalogs()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageInstaller::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
         for (uint32_t i = 0; i < sources.size(); i++)
         {
-            if (sources.at(i).Identifier == "Microsoft.Winget.Source_8wekyb3d8bbwe")
-            {
-                // Skip the predefined source as that can be gotten with GetPredefinedPackageCatalog.
-                continue;
-            }
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(sources.at(i));
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
@@ -99,7 +94,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
-        if (options.Catalogs().Size() == 0 && !options.LocalPackageCatalog())
+        if (options.Catalogs().Size() == 0)
         {
             // Can't create a composite catalog with no arguments.
             throw hresult_invalid_argument();
@@ -112,24 +107,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // Can't make a composite source out of a source that's already a composite.
                 throw hresult_invalid_argument();
             }
-            if (IsLocalPackageCatalog(catalog.Info()))
-            {
-                // Local catalogs are only allowed in the LocalPackageCatalog property
-                throw hresult_invalid_argument();
-            }
-        }
-        if (options.LocalPackageCatalog())
-        {
-            if(!IsLocalPackageCatalog(options.LocalPackageCatalog().Info()))
-            {
-                // Only Local catalogs are allowed in the LocalPackageCatalog property
-                throw hresult_invalid_argument();
-            }
-        }
-        else if (options.CompositeSearchBehavior() == CompositeSearchBehavior::LocalCatalogs)
-        {
-            // No local catalog is specified so CompositeSearchBehavior cannot be LocalCatalogs.
-            throw hresult_invalid_argument();
         }
         auto packageCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
         packageCatalogImpl->Initialize(options);

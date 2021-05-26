@@ -119,6 +119,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case Microsoft::Management::Deployment::CompositeSearchBehavior::LocalCatalogs:
             repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::Installed;
             break;
+        case Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs:
+            repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AvailablePackages;
+            break;
+        case Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromAllCatalogs:
+            repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AvailablePackages;
+            break;
         case Microsoft::Management::Deployment::CompositeSearchBehavior::AllCatalogs:
         default:
             repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AllPackages;
