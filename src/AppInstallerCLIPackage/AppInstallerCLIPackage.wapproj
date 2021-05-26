@@ -139,8 +139,8 @@
     <PRIResource Include="Shared\Strings\en-us\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppInstallerCLIInterfaceServer\AppInstallerCLIInterfaceServer.vcxproj" />
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
+    <ProjectReference Include="..\AppInstallerInterfaceServer\AppInstallerInterfaceServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <PropertyGroup Label="Configuration">
