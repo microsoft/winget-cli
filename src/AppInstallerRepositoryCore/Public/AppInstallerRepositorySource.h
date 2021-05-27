@@ -115,7 +115,6 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    // Returns null if the source does not exist.
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
     // A predefined source.
@@ -151,6 +150,8 @@ namespace AppInstaller::Repository
         const std::shared_ptr<ISource>& availableSource,
         CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
+    // Creates a source that merges the installed packages with the given available packages from multiple sources.
+    // The source can search for installed packages only, or also include non-installed available packages.
     std::shared_ptr<ISource> CreateCompositeSource(
         const std::shared_ptr<ISource>& installedSource,
         const std::vector<std::shared_ptr<ISource>>& availableSources,

@@ -10,7 +10,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ## Installing the client
 
-> The client requires Windows 10 1709 (build 16299) or later at this time.
+> The client requires Windows 10 1809 (build 17763) or later at this time.
 
 ### Microsoft Store [Recommended]
 
@@ -73,7 +73,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 
 ### Prerequisites
 
-* Windows 10 1709 (16299) or later
+* Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)

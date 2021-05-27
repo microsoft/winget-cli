@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ไม่รู้จักชื่ออาร์กิวเมนต์สำหรับคำสั่งปัจจุบัน</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>ภาษาที่จะติดตั้ง (หากสนับสนุน)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>ระบบภาษาที่ใช้ (รูปแบบ BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>ข้อตกลงสิทธิการใช้งาน</value>
@@ -659,11 +660,11 @@
     <value>ไม่พบการอัปเดตที่เกี่ยวข้อง</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>อัปเดตแพคเกจที่เลือก ซึ่งจะพบได้ทั้งจากรายการแพคเกจที่ติดตั้งหรือจากรายการโดยตรง โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
+    <value>อัปเกรดแพคเกจที่เลือก ซึ่งจะพบได้ทั้งจากค้นหารายการแพคเกจที่ติดตั้งหรือจากไฟล์กำกับโดยตรง โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>อัปเดตแพคเกจที่ระบุ</value>
+    <value>อัปเกรดแพคเกจที่ระบุ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>การใช้งาน</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>แหล่งที่มาที่อนุญาต</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>ค่าที่ให้มาสำหรับอาร์กิวเมนต์ '%1' ไม่ถูกต้อง</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -1034,7 +1034,6 @@ namespace AppInstaller::Repository
         return result;
     }
 
-
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());

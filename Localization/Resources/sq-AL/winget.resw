@@ -298,8 +298,9 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="InvalidNameError" xml:space="preserve">
     <value>Emri i argumentit nuk u njoh për komandën aktuale</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Gjuha për t’u instaluar (nëse mbështetet)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Vendi që do të përdoret (formati BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Marrëveshja e licencës</value>
@@ -480,7 +481,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Shfaq informacionin për një paketë specifike. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në edhe në madhësinë e shkronjave, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre të përshtatshëm.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shfaq informacione rreth një pakete</value>
+    <value>Shfaq informacionin rreth një pakete</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versioni</value>
@@ -659,7 +660,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Nuk u gjet asnjë përditësim i aplikueshëm.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Përditëson paketën e përzgjedhur, që është gjetur duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga manifesti. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në, emrin ose pseudonimin e paketës pa ndjeshmëri ndaj kapitaleve. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
+    <value>Përditëson paketën e përzgjedhur, që është gjetur duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga manifesti. Sipas parazgjedhjes, kërkimi duhet të përputhet me ID-në, emrin ose pseudonimin e paketës pa ndjeshmëri ndaj madhësisë së shkronjës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfigurimi është çaktivizuar për shkak të Rregullores së Grupit.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Burimi i lejuar</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Vlera e dhënë për argumentin `%1` është e pavlefshme</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

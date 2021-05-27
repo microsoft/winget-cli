@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>현재 명령에 대해 인수 이름을 인식할 수 없음</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>설치할 언어(지원되는 경우)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>사용할 로캘(BCP47 형식)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>라이선스 계약</value>
@@ -659,11 +660,11 @@
     <value>적용 가능한 업데이트를 찾을 수 없습니다.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 검색하여 선택한 패키지를 업데이트합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
+    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 업그레이드합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>지정된 패키지를 업데이트</value>
+    <value>주어진 패키지 업그레이드</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>사용</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>허용된 원본</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>'%1' 인수에 제공된 값이 잘못되었습니다.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

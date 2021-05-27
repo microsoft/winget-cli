@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>שם הארגומנט לא זוהה עבור הפקודה הנוכחית</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>השפה שיש להתקין (אם היא נתמכת)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>אזור לשימוש (תבנית BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>הסכם רישיון</value>
@@ -659,11 +660,11 @@
     <value>לא נמצא עדכון רלוונטי.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>עדכון החבילה שנבחרה, נמצא על-ידי חיפוש ברשימת החבילות המותקנות או ישירות ממניפסט. כברירת מחדל, השאילתה חייבת להיות מתאימה לרישיות בהתאם למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה שלהם.</value>
+    <value>שדרוג החבילה הנבחרת, נמצא על-ידי חיפוש ברשימת החבילות המותקנות או ישירות ממניפסט. כברירת מחדל, השאילתה חייבת להיות מתאימה לרישיות בהתאם למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה שלהם.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>עדכון החבילה הנתונה</value>
+    <value>עדכונים את החבילה הנתונה</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>שימוש</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>מקור מורשה</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>הערך שסופק עבור הארגומנט '%1' אינו חוקי</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

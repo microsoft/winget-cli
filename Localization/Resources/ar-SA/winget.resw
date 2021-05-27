@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>لم يتم التعرف علي اسم الوسيطة للأمر الحالي</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>اللغة المطلوب تثبيتها (إذا كان مدعماً)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>الإعدادات المحلية المراد استخدامها (تنسيق BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>اتفاقية الترخيص</value>
@@ -480,7 +481,7 @@
     <value>إظهار معلومات حول حزمه معينه. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>عرض معلومات حول إحدى الحزم</value>
+    <value>إظهار معلومات حول حزمة ما</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>الإصدار</value>
@@ -659,7 +660,7 @@
     <value>لم يتم العثور علي تحديث قابل للتطبيق.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>تحديث الحزمة المحددة ، اما ان يتم العثور عليها من خلال البحث في قائمه الحزم المثبتة أو من ملف بيان مباشره. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
+    <value>ترقيه الحزمة المحددة ، اما ان يتم العثور عليها من خلال البحث في قائمه الحزم المثبتة أو من ملف بيان مباشره. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>المصدر المسموح به</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>القيمة التي تم توفيرها للوسيطة '%1' غير صالحه</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

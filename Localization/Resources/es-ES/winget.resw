@@ -298,8 +298,9 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="InvalidNameError" xml:space="preserve">
     <value>No se reconoció el nombre del argumento para el comando actual</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Idioma a instalar (si existe)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Configuración regional para usar (formato BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de licencia</value>
@@ -659,11 +660,11 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>No se encontraron actualizaciones aplicables.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Actualiza el paquete seleccionado, ya que se encuentra buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta no debe distinguir entre mayúsculas y minúsculas y no distingue entre el identificador, el nombre o el moniker del paquete. Puede usar otros campos si pasa su opción adecuada.</value>
+    <value>Actualiza el paquete seleccionado, ya sea buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta no debe distinguir entre mayúsculas y minúsculas y no distingue entre el identificador, el nombre o el moniker del paquete. Puede usar otros campos si pasa su opción adecuada.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Actualiza el paquete proporcionado</value>
+    <value>Actualiza el paquete determinado</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
@@ -915,5 +916,9 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Origen permitido</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>El valor proporcionado para el argumento '%1' no es válido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

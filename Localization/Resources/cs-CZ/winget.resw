@@ -298,8 +298,9 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nebyl rozpoznán název argumentu pro aktuální příkaz.</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Jazyk instalace (pokud se podporuje)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Národní prostředí, které se má použít (formát BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licenční smlouva</value>
@@ -480,7 +481,7 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Zobrazí informace o konkrétním balíčku. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Zobrazuje podrobnosti o balíčku</value>
+    <value>Zobrazí informace o balíčku.</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Verze</value>
@@ -659,11 +660,11 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Žádná vhodná aktualizace nebyla nalezena.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Aktualizuje vybraný balíček, který byl nalezen prohledáním seznamu nainstalovaných balíčků nebo přímo z manifestu. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
+    <value>Upgraduje vybraný balíček nalezený v seznamu nainstalovaných balíčků nebo přímo z manifestu. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Aktualizuje daný balíček</value>
+    <value>Upgraduje daný balíček.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>použití</value>
@@ -915,5 +916,9 @@ Konfigurace je zakázána kvůli zásadám skupiny.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Povolené zdroje</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Hodnota zadaná pro argument%1je neplatná.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

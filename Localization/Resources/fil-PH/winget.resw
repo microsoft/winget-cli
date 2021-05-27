@@ -298,8 +298,9 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="InvalidNameError" xml:space="preserve">
     <value>Ang pangalan ng argumento ay hindi kinikilala para sa kasalukuyang utos</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Wika na mai-install (kung suportado)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokalidad na gagamitin (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Kasunduan sa Lisensiya</value>
@@ -480,7 +481,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Nagpapakita ng impormasyon sa isang parikular na package. Bilang default, ang query ay dapat na case-insensitive na tumutugma sa id, pangalan, o moniker ng package. Maaaring magamit ang iba pang mga field sa pamamagitan ng pagpasa sa kanilang naaangkop na opsyon.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Nagpapakita ng impormasyon tungkol sa package</value>
+    <value>Nagpapakita ng impormasyon tungkol sa isang package</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Bersyon</value>
@@ -659,11 +660,11 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Walang nakitang naaangkop na update.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Ina-update ang napiling package, matatagpuan sa pamamagitan ng paghahanap sa mga naka-install na package o direkta mula sa manifest. Bilang default, dapat na tumugma ng case-insensitively ang query sa id, pangalan, o moniker ng package. Maaaring gamitin ang ibang mga field sa pamamagitan ng pagpasa ng kanilang angkop na opsyon.</value>
+    <value>Ina-update ang napiling package, matatagpuan sa pamamagitan ng paghahanap sa listahan ng mga naka-install na package o direkta mula sa isang manifest. Bilang default, dapat na tumugma nang hindi case-sensitive ang query sa id, pangalan, o moniker ng package. Maaaring gamitin ang ibang mga field sa pamamagitan ng pagpasa ng kanilang angkop na opsyon.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Ina-update ang ibinigay na package</value>
+    <value>Ina-upgrade ang ibinigay na package</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>paggamit</value>
@@ -915,5 +916,9 @@ Hindi pinagana ang kompigurasyon dahil sa Patakaran ng Grupo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Pinapayagang pinagmulan</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Hindi tama ang halaga na ibinigay para sa `%1` na argumento</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

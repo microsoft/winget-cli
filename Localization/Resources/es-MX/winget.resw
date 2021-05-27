@@ -298,8 +298,9 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>No se reconoce el nombre del argumento para el comando corriente.</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Lenguaje que se instalará (si se admite).</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Configuración regional que deseas utilizar (formato BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de licencia</value>
@@ -480,7 +481,7 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
     <value>Muestra información sobre un paquete específico. De forma predeterminada, la consulta debe coincidir, sin distinción entre mayúsculas y minúsculas, con el ID, el nombre o el apodo del paquete. Se pueden usar otros campos si se pasa la opción correspondiente.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Muestra información sobre un paquete.</value>
+    <value>Muestra información sobre un paquete</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versión</value>
@@ -915,5 +916,9 @@ La configuración está deshabilitada debido a la directiva de grupo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Origen permitido</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>El valor proporcionado para el argumento `%1` no es válido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

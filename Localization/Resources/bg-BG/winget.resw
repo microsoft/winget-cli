@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Името на аргумента не е разпознато за текущата команда</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Език за инсталиране (ако се поддържа)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Език за въвеждане, който да се използва (формат BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Лицензионно споразумение</value>
@@ -659,7 +660,7 @@
     <value>Не са намерени приложими актуализации.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Актуализира избрания пакет или е открит чрез търсене в списъка с инсталирани пакети, или директно от манифест. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+    <value>Надстройва избрания пакет или е открит чрез търсене в списъка с инсталирани пакети, или директно от манифест. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Позволен източник</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Стойността, предоставена за аргумента `%1`, е невалидна</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>
