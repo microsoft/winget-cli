@@ -70,7 +70,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 {
                     if (searchRequest->Query.has_value())
                     {
-                        // CatalogDefault match fields can't be used in the Filters.
+                        // CatalogDefault match field can't be used twice.
                         return E_INVALIDARG;
                     }
                     searchRequest->Query = ::AppInstaller::Repository::RequestMatch(packageFieldMatchOption, winrt::to_string(filter.Value()));
