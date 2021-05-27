@@ -291,6 +291,7 @@ namespace Microsoft.Management.Deployment
     enum FindPackagesResultStatus
     {
         Ok,
+        InvalidOptions
     };
 
     /// IMPLEMENTATION NOTE: SearchResult from AppInstallerRepositorySearch.h
@@ -476,9 +477,9 @@ namespace Microsoft.Management.Deployment
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
-    runtimeclass PackageInstaller
+    runtimeclass PackageManager
     {
-        PackageInstaller();
+        PackageManager();
 
         /// Get the available catalogs. Each source will have a separate catalog.
         /// This does not open the catalog. These catalogs can be used individually or merged with CreateCompositePackageCatalogAsync. 

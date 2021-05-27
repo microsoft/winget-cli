@@ -22,8 +22,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
-        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ nullptr };
+        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>() };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_defaultInstallVersion{ nullptr };
+        std::mutex m_installedVersionMutex;
+        std::mutex m_availableVersionsMutex;
+        std::mutex m_defaultInstallVersionMutex;
+        bool m_installedVersionInitialized = false;
+        bool m_availableVersionsInitialized = false;
+        bool m_defaultInstallVersionInitialized = false;
     };
 }

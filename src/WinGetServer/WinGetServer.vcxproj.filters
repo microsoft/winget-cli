@@ -35,10 +35,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="AppInstallerInterfaceServer.exe.manifest" />
+    <Manifest Include="WinGetServer.exe.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="AppInstallerInterfaceServer.rc">
+    <ResourceCompile Include="WinGetServer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <mutex>
 #include <AppInstallerRepositorySource.h>
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
@@ -14,7 +15,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void PackageVersionInfo::Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion)
     {
-        m_packageVersion = packageVersion;
+        m_packageVersion = std::move(packageVersion);
     }
     hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField)
     {

@@ -16,22 +16,25 @@
 // 6388 Allow CreateInstance.
 #include <wil\cppwinrt_wrl.h>
 // 4467 Allow use of uuid attribute for com object creation.
-#include "PackageInstaller.h"
+#include "PackageManager.h"
 #pragma warning( pop )
-#include "PackageInstaller.g.cpp"
+#include "PackageManager.g.cpp"
 #include "InstallResult.h"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
 #include "Converters.h"
-#include <wil\cppwinrt_wrl.h>
+#include "Helpers.h"
 
 using namespace std::literals::chrono_literals;
 
+const GUID PackageManagerCLSID1 = { 0xC53A4F16, 0x787E, 0x42A4, { 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 } };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
+const GUID PackageManagerCLSID2 = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
+
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageInstaller::GetPackageCatalogs()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
@@ -40,12 +43,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(sources.at(i));
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-            packageCatalogRef->Initialize(sources.at(i), *packageCatalogInfo);
+            packageCatalogRef->Initialize(*packageCatalogInfo);
             catalogs.Append(*packageCatalogRef);
         }
         return catalogs.GetView();
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
     {
         switch (predefinedPackageCatalog)
         {
@@ -56,7 +59,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             throw hresult_invalid_argument();
         }
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
         // InstalledPackages is the only one supported right now, so return early if it's not that.
         if(localPackageCatalog != Microsoft::Management::Deployment::LocalPackageCatalog::InstalledPackages)
@@ -72,10 +75,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
         packageCatalogInfo->Initialize(details);
         auto packageCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-        packageCatalogImpl->Initialize(details, *packageCatalogInfo);
+        packageCatalogImpl->Initialize(*packageCatalogInfo);
         return *packageCatalogImpl;
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPackageCatalogByName(hstring const& catalogName)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPackageCatalogByName(hstring const& catalogName)
     {
         std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSource(winrt::to_string(catalogName));
         // Create the catalog object if the source is found, otherwise return null. Don't throw.
@@ -84,7 +87,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(source.value());
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-            packageCatalogRef->Initialize(source.value(), *packageCatalogInfo);
+            packageCatalogRef->Initialize(*packageCatalogInfo);
             return *packageCatalogRef;
         }
         else
@@ -92,7 +95,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return nullptr;
         }
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
         if (options.Catalogs().Size() == 0)
         {
@@ -118,7 +121,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         co_await winrt::resume_background();
         ::AppInstaller::CLI::Execute(context, command);
     }
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageInstaller::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
         auto report_progress{ co_await winrt::get_progress_token() };
         auto cancellationToken{ co_await winrt::get_cancellation_token() };
@@ -283,5 +286,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         installResult->Initialize(installResultStatus, terminationHR, options.CorrelationData(), false);
         co_return *installResult;
     }
-    CoCreatableCppWinRtClass(PackageInstaller);
+    CoCreatableCppWinRtClassWithCLSID(PackageManager, 1, &PackageManagerCLSID1);
+    CoCreatableCppWinRtClassWithCLSID(PackageManager, 2, &PackageManagerCLSID2);
 }

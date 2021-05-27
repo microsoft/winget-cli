@@ -113,6 +113,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName)Debug.pdb</ProgramDataBaseFileName>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -131,13 +132,14 @@
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
     <ClInclude Include="MatchResult.h" />
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
-    <ClInclude Include="PackageInstaller.h" />
+    <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
@@ -156,7 +158,7 @@
     <ClCompile Include="PackageCatalog.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
-    <ClCompile Include="PackageInstaller.cpp" />
+    <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />
     <ClCompile Include="PackageVersionId.cpp" />
     <ClCompile Include="PackageVersionInfo.cpp" />
@@ -173,7 +175,7 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="PackageInstaller.idl" />
+    <Midl Include="PackageManager.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,7 +5,6 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    [uuid("572DED96-9C60-4526-8F92-EE7D91D38C1A")]
     struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions>
     {
         FindPackagesOptions() = default;

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <mutex>
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerRepositorySearch.h>
 #include "CatalogPackage.h"
@@ -16,8 +17,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
         std::shared_ptr<::AppInstaller::Repository::IPackage> package)
     {
-        m_source = source;
-        m_package = package;
+        m_source = std::move(source);
+        m_package = std::move(package);
     }
     hstring CatalogPackage::Id()
     {
@@ -29,7 +30,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::InstalledVersion()
     {
-        if (!m_installedVersion)
+        std::scoped_lock lock(m_installedVersionMutex);
+        if (!m_installedVersionInitialized)
         {
             // InstalledVersion hasn't been created yet, create and populate it.
             std::shared_ptr<::AppInstaller::Repository::IPackageVersion> installedVersion = m_package.get()->GetInstalledVersion();
@@ -37,33 +39,35 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
                     winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-                installedVersionImpl->Initialize(installedVersion);
+                installedVersionImpl->Initialize(std::move(installedVersion));
                 m_installedVersion = *installedVersionImpl;
             }
+            m_installedVersionInitialized = true;
         }
         return m_installedVersion;
     }
     Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::PackageVersionId> CatalogPackage::AvailableVersions()
     {
-        if (!m_availableVersions)
+        std::scoped_lock lock(m_availableVersionsMutex);
+        if (!m_availableVersionsInitialized)
         {
-            // Vector hasn't been created yet, create and populate it.
-            auto availableVersions = winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>();
+            // Vector hasn't been populated yet.
             std::vector<::AppInstaller::Repository::PackageVersionKey> keys = m_package.get()->GetAvailableVersionKeys();
             for (int i = 0; i < keys.size(); ++i)
             {
                 auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
                     winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
                 packageVersionId->Initialize(keys[i]);
-                availableVersions.Append(*packageVersionId);
+                m_availableVersions.Append(*packageVersionId);
             }
-            m_availableVersions = availableVersions;
+            m_availableVersionsInitialized = true;
         }
         return m_availableVersions.GetView();
     }
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
     {
-        if (!m_defaultInstallVersion)
+        std::scoped_lock lock(m_defaultInstallVersionMutex);
+        if (!m_defaultInstallVersionInitialized)
         {
             std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion();
             if (latestVersion)
@@ -72,10 +76,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // DefaultInstallVersion is the LatestAvailableVersion of the internal package object.
                 auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
                     winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-                latestVersionImpl->Initialize(latestVersion);
+                latestVersionImpl->Initialize(std::move(latestVersion));
                 m_defaultInstallVersion = *latestVersionImpl;
             }
-
+            m_defaultInstallVersionInitialized = true;
         }
         return m_defaultInstallVersion;
     }
@@ -89,7 +93,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
                 winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-            packageVersionInfoImpl->Initialize(availableVersion);
+            packageVersionInfoImpl->Initialize(std::move(availableVersion));
             packageVersionInfo =*packageVersionInfoImpl;
         }
         return packageVersionInfo;

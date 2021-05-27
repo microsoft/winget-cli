@@ -20,7 +20,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
         std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
-        ::AppInstaller::Repository::SourceDetails m_sourceDetails{};
         bool m_isComposite = false;
 
     };

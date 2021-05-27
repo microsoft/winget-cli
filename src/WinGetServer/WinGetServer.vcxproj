@@ -9,12 +9,13 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{2b00d362-ac92-41f3-a8d2-5b1599bdca01}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>AppInstallerInterfaceServer</RootNamespace>
+    <RootNamespace>WinGetServer</RootNamespace>
     <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)' == '' ">10.0.18362.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17134.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
     <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
-    <ProjectName>AppInstallerInterfaceServer</ProjectName>
+    <ProjectName>WinGetServer</ProjectName>
+    <TargetName>WindowsPackageManagerServer</TargetName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -137,8 +138,8 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ResourceCompile Include="AppInstallerInterfaceServer.rc" />
-    <Manifest Include="AppInstallerInterfaceServer.exe.manifest" />
+    <ResourceCompile Include="WinGetServer.rc" />
+    <Manifest Include="WinGetServer.exe.manifest" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
   </ItemGroup>

@@ -8,7 +8,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct PackageCatalogInfo : PackageCatalogInfoT<PackageCatalogInfo>
     {
         PackageCatalogInfo() = default;
-        void Initialize(::AppInstaller::Repository::SourceDetails sourceDetails);
+        void Initialize(const ::AppInstaller::Repository::SourceDetails& sourceDetails);
+        ::AppInstaller::Repository::SourceDetails GetSourceDetails();
 
         hstring Id();
         hstring Name();

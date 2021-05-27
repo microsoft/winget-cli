@@ -120,13 +120,6 @@ namespace AppInstaller::Repository
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     // Returns null if the source does not exist.
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
-    // Opens an existing source.
-    // Passing an empty string as the identifier of the source will return a source that aggregates all others.
-    // Returns null if the source does not exist.
-    OpenSourceResult OpenSourceByIdentifier(std::string_view identifier, IProgressCallback& progress);
-
-    // Opens an existing source.
-    OpenSourceResult OpenSourceFromDetails(SourceDetails& source, IProgressCallback& progress);
 
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.

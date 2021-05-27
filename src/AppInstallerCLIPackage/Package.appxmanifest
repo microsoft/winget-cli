@@ -38,12 +38,12 @@
         </uap5:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="AppInstallerInterfaceServer\AppInstallerInterfaceServer.exe" DisplayName="AppInstaller Interface Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
-              <com:Class Id ="C53A4F16-787E-42A4-B304-29EFFB4BF597" DisplayName="AppInstaller Server">
+            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
+              <com:Class Id ="C53A4F16-787E-42A4-B304-29EFFB4BF597" DisplayName="PackageManager Server">
               </com:Class>
               <com:Class Id ="572DED96-9C60-4526-8F92-EE7D91D38C1A" DisplayName="FindPackagesOptions Server">
               </com:Class>
-              <com:Class Id ="526534B8-7E46-47C8-8416-B1685C327D37" DisplayName="CreateCompositeAppCatalogOptions Server">
+              <com:Class Id ="526534B8-7E46-47C8-8416-B1685C327D37" DisplayName="CreateCompositePackageCatalogOptions Server">
               </com:Class>
               <com:Class Id ="1095F097-EB96-453B-B4E6-1613637F3B14" DisplayName="InstallOptions Server">
               </com:Class>

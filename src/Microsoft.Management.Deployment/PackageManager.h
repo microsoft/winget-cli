@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "PackageInstaller.g.h"
+#include "PackageManager.g.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     [uuid("C53A4F16-787E-42A4-B304-29EFFB4BF597")]
-    struct PackageInstaller : PackageInstallerT<PackageInstaller>
+    struct PackageManager : PackageManagerT<PackageManager>
     {
-        PackageInstaller() = default;
+        PackageManager() = default;
 
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> GetPackageCatalogs();
         winrt::Microsoft::Management::Deployment::PackageCatalogReference GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog);
@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct PackageInstaller : PackageInstallerT<PackageInstaller, implementation::PackageInstaller>
+    struct PackageManager : PackageManagerT<PackageManager, implementation::PackageManager>
     {
     };
 }

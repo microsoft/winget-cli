@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Value();
         void Value(hstring const& value);
     private:
-        hstring m_value = L"";
+        hstring m_value;
         winrt::Microsoft::Management::Deployment::PackageMatchField m_matchField = winrt::Microsoft::Management::Deployment::PackageMatchField::CatalogDefault;
         winrt::Microsoft::Management::Deployment::PackageFieldMatchOption m_packageFieldMatchOption = winrt::Microsoft::Management::Deployment::PackageFieldMatchOption::Equals;
     };

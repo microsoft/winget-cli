@@ -181,6 +181,25 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return resultStatus;
     }
+
+    winrt::Microsoft::Management::Deployment::FindPackagesResultStatus FindPackagesResultStatus(winrt::hresult hresult)
+    {
+        // TODO: Error mapping and defining in the idl still needed for all the rest of the errors.
+        winrt::Microsoft::Management::Deployment::FindPackagesResultStatus resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::Ok;
+        switch (hresult)
+        {
+        case(S_OK):
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::Ok;
+            break;
+        case E_INVALIDARG:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
+            break;
+        default:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
+            break;
+        }
+        return resultStatus;
+    }
     
     bool IsLocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info)
     {
