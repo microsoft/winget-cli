@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerRepositorySearch.h>

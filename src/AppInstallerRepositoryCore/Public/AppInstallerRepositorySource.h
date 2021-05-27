@@ -125,6 +125,9 @@ namespace AppInstaller::Repository
     // Returns null if the source does not exist.
     OpenSourceResult OpenSourceByIdentifier(std::string_view identifier, IProgressCallback& progress);
 
+    // Opens an existing source.
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& source, IProgressCallback& progress);
+
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
@@ -147,6 +150,8 @@ namespace AppInstaller::Repository
         Installed,
         // Search both installed and available packages.
         AllPackages,
+        // Search only available packages.
+        AvailablePackages,
     };
 
     // Creates a source that merges the installed packages with the given available packages.

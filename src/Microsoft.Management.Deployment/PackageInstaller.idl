@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
     [contractversion(1)]
@@ -220,8 +222,12 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum CompositeSearchBehavior
     {
-        /// Search only local packages
+        /// Search local packages
         LocalCatalogs,
+        /// Search only remote packages
+        RemotePackagesFromRemoteCatalogs,
+        /// Search remote packages, and check LocalCatalogs for InstalledVersion
+        RemotePackagesFromAllCatalogs,
         /// Search both local and remote sources.
         AllCatalogs,
     };
@@ -370,6 +376,9 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
     {
+        /// Gets a value indicating whether this package catalog is a composite of other package catalogs,
+        /// and thus the packages may come from disparate package catalogs as well.
+        Boolean IsComposite { get; };
         /// The details of the package catalog if it is not a composite.
         PackageCatalogInfo Info { get; };
 
@@ -393,7 +402,7 @@ namespace Microsoft.Management.Deployment
         InstalledPackages,
     };
 
-    /// 
+    /// Options for creating a composite catalog.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass CreateCompositePackageCatalogOptions
     {
@@ -405,9 +414,7 @@ namespace Microsoft.Management.Deployment
         /// one local source per composite catalog.
         /// DESIGN NOTE: It seems likely that in the future we will want to support 
         /// letting callers use two local sources (i.e. both Installing and Installed)
-        IVector<PackageCatalog> Catalogs { get; };
-        /// The local source
-        PackageCatalog LocalPackageCatalog;
+        IVector<PackageCatalogReference> Catalogs { get; };
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
@@ -473,17 +480,16 @@ namespace Microsoft.Management.Deployment
     {
         PackageInstaller();
 
-        /// Get the available catalogs. Each source will have a separate catalog. This list does not include KnownCatalogs.
+        /// Get the available catalogs. Each source will have a separate catalog.
         /// This does not open the catalog. These catalogs can be used individually or merged with CreateCompositePackageCatalogAsync. 
         /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list 
-        /// excluding the predefined sources.
-        Windows.Foundation.Collections.IVectorView<PackageCatalogReference> GetUserPackageCatalogs();
+        Windows.Foundation.Collections.IVectorView<PackageCatalogReference> GetPackageCatalogs();
         /// Get a built in catalog
         PackageCatalogReference GetPredefinedPackageCatalog(PredefinedPackageCatalog predefinedPackageCatalog);
         /// Get a built in catalog
         PackageCatalogReference GetLocalPackageCatalog(LocalPackageCatalog localPackageCatalog);
-        /// Get a catalog by a known unique identifier
-        PackageCatalogReference GetPackageCatalogById(String catalogId);
+        /// Get a catalog by a known name
+        PackageCatalogReference GetPackageCatalogByName(String catalogName);
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
         /// (Installing, Installed) together at the same time.
         PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options);

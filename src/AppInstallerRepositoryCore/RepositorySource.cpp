@@ -1006,45 +1006,29 @@ namespace AppInstaller::Repository
         }
     }
 
-    OpenSourceResult OpenSourceByIdentifier(std::string_view identifier, IProgressCallback& progress)
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& source, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
-        if (identifier.empty())
+        AICLI_LOG(Repo, Info, << "Named source requested, found: " << source.Name);
+
+        OpenSourceResult result;
+
+        if (ShouldUpdateBeforeOpen(source))
         {
-            return OpenSource(identifier, progress);
-        }
-        else
-        {
-            auto source = sourceList.GetSourceByIdentifier(identifier);
-            if (!source)
+            try
             {
-                AICLI_LOG(Repo, Info, << "Identifier source requested, but not found: " << identifier);
-                return {};
+                UpdateSourceFromDetails(source, progress);
+                sourceList.SaveMetadata();
             }
-            else
+            catch (...)
             {
-                AICLI_LOG(Repo, Info, << "Identifier source requested, found: " << source->Identifier);
-
-                OpenSourceResult result;
-
-                if (ShouldUpdateBeforeOpen(*source))
-                {
-                    try
-                    {
-                        UpdateSourceFromDetails(*source, progress);
-                        sourceList.SaveMetadata();
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Identifier);
-                        result.SourcesWithUpdateFailure.emplace_back(*source);
-                    }
-                }
-
-                result.Source = CreateSourceFromDetails(*source, progress);
-                return result;
+                AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.Name);
+                result.SourcesWithUpdateFailure.emplace_back(source);
             }
         }
+
+        result.Source = CreateSourceFromDetails(source, progress);
+        return result;
     }
 
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)

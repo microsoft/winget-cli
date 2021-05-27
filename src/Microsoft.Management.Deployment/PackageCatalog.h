@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #pragma once
 #include "PackageCatalog.g.h"
 
@@ -8,7 +10,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageCatalog() = default;
         void Initialize(
             winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, 
-            std::shared_ptr<const ::AppInstaller::Repository::ISource> source);
+            std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+            bool isComposite);
 
         bool IsComposite();
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo Info();
@@ -18,6 +21,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
         std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
         ::AppInstaller::Repository::SourceDetails m_sourceDetails{};
+        bool m_isComposite = false;
 
     };
 }

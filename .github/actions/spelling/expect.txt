@@ -1,4 +1,5 @@
 abcd
+abifind
 adml
 admx
 affle
@@ -20,6 +21,7 @@ argumentlist
 ARMNT
 arp
 arphelper
+asm
 ASwitch
 Atest
 AType
@@ -61,6 +63,8 @@ CLIE
 cloudapp
 CLSID
 COINIT
+combaseapi
+COMGLB
 commandline
 compschema
 Concat
@@ -70,6 +74,7 @@ contoso
 contractversion
 count'th
 countryregion
+cppwinrtprocess
 createmanifestmetadata
 cstdint
 ctc
@@ -127,12 +132,18 @@ hlocal
 hre
 HRESULTs
 htm
+IApp
 IAttachment
 IConfiguration
+idl
 idx
+IFind
+IGet
+IGlobal
 IHelp
 IHost
 IID
+iinstall
 IInstalled
 img
 IName
@@ -192,6 +203,7 @@ MMmmbbbb
 monicka
 MPNS
 msdownload
+msdn
 MSFT
 msftrubengu
 MSIHASH
@@ -212,10 +224,12 @@ normer
 nsis
 nuffing
 nullopt
+NX
 objbase
 ofile
 oss
 Packagedx
+Packageend
 pathparts
 pathpaths
 PCs
@@ -286,6 +300,8 @@ superstring
 suppy
 SUSE
 swervy
+SYD
+SYG
 sysrefcomp
 Tagit
 temppath
@@ -307,6 +323,7 @@ uninstallation
 uninstaller
 uninstallprevious
 uninstalls
+unknwn
 unparsable
 UNSCOPED
 UParse
@@ -317,6 +334,7 @@ URLZONE
 userfilesetting
 USHORT
 Utils
+uuid
 UWP
 vamus
 VERSI
@@ -342,7 +360,9 @@ WSL
 wsv
 wto
 Wunused
+wwinmain
 WZDNCRFJ
+Xaml
 XPLATSTR
 xsi
 zy

@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
@@ -9,7 +11,13 @@
 #include "Commands/InstallCommand.h"
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+// 6388 Allow CreateInstance.
+#include <wil\cppwinrt_wrl.h>
+// 4467 Allow use of uuid attribute for com object creation.
 #include "PackageInstaller.h"
+#pragma warning( pop )
 #include "PackageInstaller.g.cpp"
 #include "InstallResult.h"
 #include "PackageCatalogInfo.h"
@@ -23,16 +31,12 @@ using namespace std::literals::chrono_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageInstaller::GetUserPackageCatalogs()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageInstaller::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::GetSources();
         for (uint32_t i = 0; i < sources.size(); i++)
         {
-            if (sources.at(i).Identifier == "Microsoft.Winget.Source_8wekyb3d8bbwe")
-            {
-                continue;
-            }
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(sources.at(i));
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
@@ -47,7 +51,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalog:
             // TODO: Mapping of enum to sources should link directly to definition, not copy string.
-            return GetPackageCatalogById(L"Microsoft.Winget.Source_8wekyb3d8bbwe");
+            return GetPackageCatalogByName(L"winget");
         default:
             throw hresult_invalid_argument();
         }
@@ -71,9 +75,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         packageCatalogImpl->Initialize(details, *packageCatalogInfo);
         return *packageCatalogImpl;
     }
-    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPackageCatalogById(hstring const& catalogId)
+    winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::GetPackageCatalogByName(hstring const& catalogName)
     {
-        std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSourceByIdentifier(winrt::to_string(catalogId));
+        std::optional<::AppInstaller::Repository::SourceDetails> source = ::AppInstaller::Repository::GetSource(winrt::to_string(catalogName));
         // Create the catalog object if the source is found, otherwise return null. Don't throw.
         if (source.has_value())
         {
@@ -90,7 +94,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageInstaller::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
-        if (options.Catalogs().Size() == 0 && !options.LocalPackageCatalog())
+        if (options.Catalogs().Size() == 0)
         {
             // Can't create a composite catalog with no arguments.
             throw hresult_invalid_argument();
@@ -103,24 +107,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // Can't make a composite source out of a source that's already a composite.
                 throw hresult_invalid_argument();
             }
-            if (winrt::to_string(catalog.Info().Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0)
-            {
-                // Local catalogs are only allowed in the LocalPackageCatalog property
-                throw hresult_invalid_argument();
-            }
-        }
-        if (options.LocalPackageCatalog())
-        {
-            if (winrt::to_string(options.LocalPackageCatalog().Info().Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) != 0)
-            {
-                // Only Local catalogs are allowed in the LocalPackageCatalog property
-                throw hresult_invalid_argument();
-            }
-        }
-        else if (options.CompositeSearchBehavior() == CompositeSearchBehavior::LocalCatalogs)
-        {
-            // No local catalog is specified so CompositeSearchBehavior cannot be LocalCatalogs.
-            throw hresult_invalid_argument();
         }
         auto packageCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
         packageCatalogImpl->Initialize(options);
@@ -170,7 +156,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Handle the progress from the installer
         ::AppInstaller::COMContext context;
         context.SetProgressCallbackFunction([=](
-            ::AppInstaller::ReportType reportType, 
+            ::AppInstaller::ReportType /*reportType*/, 
             uint64_t current, 
             uint64_t maximum, 
             ::AppInstaller::ProgressType progressType, 
@@ -194,9 +180,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     {
                         downloadBytesDownloaded = current;
                         downloadBytesRequired = maximum;
-                        if (downloadBytesRequired > 0)
+                        if (maximum > 0 && maximum >= current)
                         {
-                            downloadPercentage = downloadBytesDownloaded / downloadBytesRequired;
+                            downloadPercentage = static_cast<double>(current / maximum);
                         }
                     }
                     break;
@@ -207,9 +193,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Execution:
                     progressState = PackageInstallProgressState::Installing;
                     downloadPercentage = 100;
-                    if (progressType == ::AppInstaller::ProgressType::Percent)
+                    // Ensure the double can be safely cast.
+                    if (progressType == ::AppInstaller::ProgressType::Percent && maximum > 0 && maximum >= current)
                     {
-                        installPercentage = current / maximum;
+                        installPercentage = static_cast<double>(current / maximum);
                     }
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:

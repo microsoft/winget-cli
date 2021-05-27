@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Converters.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -116,6 +119,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case Microsoft::Management::Deployment::CompositeSearchBehavior::LocalCatalogs:
             repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::Installed;
             break;
+        case Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs:
+            repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AvailablePackages;
+            break;
+        case Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromAllCatalogs:
+            repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AvailablePackages;
+            break;
         case Microsoft::Management::Deployment::CompositeSearchBehavior::AllCatalogs:
         default:
             repositorySearchBehavior = ::AppInstaller::Repository::CompositeSearchBehavior::AllPackages;
@@ -171,5 +180,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             break;
         }
         return resultStatus;
+    }
+    
+    bool IsLocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info)
+    {
+        return (winrt::to_string(info.Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0);
     }
 }

@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
 #include "Converters.h"
@@ -7,7 +9,13 @@
 #include "FindPackagesResult.h"
 #include "MatchResult.h"
 #include "CatalogPackage.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+// 6388 Allow CreateInstance.
+#include <wil\cppwinrt_wrl.h>
+// 4467 Allow use of uuid attribute for com object creation.
 #include "PackageMatchFilter.h"
+#pragma warning( pop )
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include <wil\cppwinrt_wrl.h>
 
@@ -15,14 +23,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void PackageCatalog::Initialize(
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, 
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> source)
+        std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+        bool isComposite)
     {
         m_info = info;
         m_source = source;
+        m_isComposite = isComposite;
     }
     bool PackageCatalog::IsComposite()
     {
-        return m_source->IsComposite();
+        // Can't use m_source->IsComposite for this because all remote sources are turned into composite sources 
+        // behind the scenes when being opened in PackageCatalogReference.cpp so that CatalogPackage.IsInstalled works.
+        return m_isComposite;
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogInfo PackageCatalog::Info()
     {
