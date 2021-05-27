@@ -666,8 +666,6 @@ namespace AppInstaller::Repository
 
             // Source includes ones in tombstone
             SourceDetailsInternal* GetSource(std::string_view name);
-            // Source includes ones in tombstone
-            SourceDetailsInternal* GetSourceByIdentifier(std::string_view identifier);
 
             // Add/remove a current source
             void AddSource(const SourceDetailsInternal& source);
@@ -681,8 +679,6 @@ namespace AppInstaller::Repository
 
             // calls std::find_if and return the iterator.
             auto FindSource(std::string_view name, bool includeTombstone = false);
-            // calls std::find_if and return the iterator.
-            auto FindSourceByIdentifier(std::string_view identifier, bool includeTombstone = false);
         };
 
         SourceListInternal::SourceListInternal()
@@ -747,16 +743,6 @@ namespace AppInstaller::Repository
                 });
         }
 
-        auto SourceListInternal::FindSourceByIdentifier(std::string_view identifier, bool includeTombstone)
-        {
-            return std::find_if(m_sourceList.begin(), m_sourceList.end(),
-                [identifier, includeTombstone](const SourceDetailsInternal& sd)
-                {
-                    return Utility::ICUCaseInsensitiveEquals(sd.Identifier, identifier) &&
-                        (!sd.IsTombstone || includeTombstone);
-                });
-        }
-
         SourceDetailsInternal* SourceListInternal::GetCurrentSource(std::string_view name)
         {
             auto itr = FindSource(name);
@@ -766,12 +752,6 @@ namespace AppInstaller::Repository
         SourceDetailsInternal* SourceListInternal::GetSource(std::string_view name)
         {
             auto itr = FindSource(name, true);
-            return itr == m_sourceList.end() ? nullptr : &(*itr);
-        }
-
-        SourceDetailsInternal* SourceListInternal::GetSourceByIdentifier(std::string_view identifier)
-        {
-            auto itr = FindSourceByIdentifier(identifier, true);
             return itr == m_sourceList.end() ? nullptr : &(*itr);
         }
 
@@ -857,22 +837,6 @@ namespace AppInstaller::Repository
         SourceListInternal sourceList;
 
         auto source = sourceList.GetCurrentSource(name);
-        if (!source)
-        {
-            return {};
-        }
-        else
-        {
-            return *source;
-        }
-    }
-
-    std::optional<SourceDetails> GetSourceByIdentifier(std::string_view identifier)
-    {
-        // Check all sources for the given name.
-        SourceListInternal sourceList;
-
-        auto source = sourceList.GetSourceByIdentifier(identifier);
         if (!source)
         {
             return {};
