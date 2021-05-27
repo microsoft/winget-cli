@@ -185,7 +185,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                         downloadBytesRequired = maximum;
                         if (maximum > 0 && maximum >= current)
                         {
-                            downloadPercentage = static_cast<double>(current / maximum);
+                            downloadPercentage = static_cast<double>(current) / static_cast<double>(maximum);
                         }
                     }
                     break;
@@ -199,7 +199,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     // Ensure the double can be safely cast.
                     if (progressType == ::AppInstaller::ProgressType::Percent && maximum > 0 && maximum >= current)
                     {
-                        installPercentage = static_cast<double>(current / maximum);
+                        installPercentage = static_cast<double>(current) / static_cast<double>(maximum);
                     }
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
