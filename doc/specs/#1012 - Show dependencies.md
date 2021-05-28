@@ -7,7 +7,7 @@ issue id: 163
 
 # Show dependencies
 
-For [#1](https://github.com/microsoft/winget-cli/issues/1012)
+For [#1012](https://github.com/microsoft/winget-cli/issues/1012)
 
 ## Abstract
 Several packages require other packages as dependencies. The Windows Package Manager should be able to support declared dependencies and inform the user about any required dependencies.
