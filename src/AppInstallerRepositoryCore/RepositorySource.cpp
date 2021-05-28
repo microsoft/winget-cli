@@ -1014,11 +1014,6 @@ namespace AppInstaller::Repository
         const std::vector<std::shared_ptr<ISource>>& availableSources,
         CompositeSearchBehavior searchBehavior)
     {
-        if (availableSources.empty())
-        {
-            THROW_HR(E_UNEXPECTED);
-        }
-
         std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
 
         for (const auto& availableSource : availableSources)
