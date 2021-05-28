@@ -441,8 +441,7 @@ namespace AppInstaller::Repository
         // If the search behavior is for AvailablePackages, then most queries can be resolved by just querying the available source
         // and then correlating it with the installed source, but if the query is for everything then query the installed catalog
         // and only add installed packages that have an AvailableVersion.
-        if ((m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed) ||
-            (m_searchBehavior == CompositeSearchBehavior::AvailablePackages && request.IsForEverything()))
+        if (m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed)
         {
             // Search installed source
             SearchResult installedResult = m_installedSource->Search(request);
@@ -522,12 +521,8 @@ namespace AppInstaller::Repository
                     compositePackage->SetAvailablePackage(std::move(availablePackage));
                 }
 
-                // If using CompositeSearchBehavior::AvailablePackages only add it if an available package was found.
-                if ((m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed) || (compositePackage->GetAvailablePackage() != nullptr))
-                {
-                    // Move the installed result into the composite result
-                    result.Matches.emplace_back(std::move(compositePackage), std::move(match.MatchCriteria));
-                }
+                // Move the installed result into the composite result
+                result.Matches.emplace_back(std::move(compositePackage), std::move(match.MatchCriteria));
             }
 
             // Optimization for the "everything installed" case, no need to allow for reverse correlations

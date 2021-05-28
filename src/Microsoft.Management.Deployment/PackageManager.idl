@@ -216,19 +216,17 @@ namespace Microsoft.Management.Deployment
     }
 
     /// IMPLEMENTATION NOTE: CompositeSearchBehavior from AppInstallerRepositorySource.h
-    /// Search behavior for composite sources.
-    /// Only relevant for composite sources with a local source, not for aggregates of multiple available sources.
-    /// Installed and available packages in the result are always correlated when possible.
+    /// Search behavior for composite catalogs.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum CompositeSearchBehavior
     {
-        /// Search local packages
+        /// Search local catalogs only
         LocalCatalogs,
-        /// Search only remote packages
+        /// Search remote catalogs only, don't check local catalogs for InstalledVersion
         RemotePackagesFromRemoteCatalogs,
-        /// Search remote packages, and check LocalCatalogs for InstalledVersion
+        /// Search remote packages, and check local catalogs for InstalledVersion
         RemotePackagesFromAllCatalogs,
-        /// Search both local and remote sources.
+        /// Search both local and remote catalogs.
         AllCatalogs,
     };
 

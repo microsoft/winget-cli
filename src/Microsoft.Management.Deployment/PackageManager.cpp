@@ -198,7 +198,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     downloadProgress = 1;
                     if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
                     {
-                        // Install is starting. Send progress so callers know the asyncoperation can't be cancelled.
+                        // Install is starting. Send progress so callers know the AsyncOperation can't be cancelled.
                         reportProgress = true;
                     }
                     else if (reportType == ::AppInstaller::ReportType::EndProgress)
