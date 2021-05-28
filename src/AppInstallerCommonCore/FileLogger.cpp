@@ -13,7 +13,7 @@ namespace AppInstaller::Logging
     using namespace std::string_view_literals;
     using namespace std::chrono_literals;
 
-    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet-"sv;
+    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WPM-"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
 
     FileLogger::FileLogger(const std::filesystem::path& filePath)

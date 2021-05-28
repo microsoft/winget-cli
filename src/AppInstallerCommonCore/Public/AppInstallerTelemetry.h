@@ -34,7 +34,7 @@ namespace AppInstaller::Logging
         void SetCaller(const std::string& caller);
 
         // Store the passed in Telemetry Corelation Json for COM calls
-        void SetTelemetryCorelationJson(const std::wstring_view& jsonStr_view) noexcept;
+        void SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;

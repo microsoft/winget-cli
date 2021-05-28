@@ -17,7 +17,7 @@ _eventName_,\
 GetActivityId(false),\
 nullptr,\
 TraceLoggingCountedString(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
-TraceLoggingPackedFieldEx(GetTelemetryCorelationJsonW().c_str(), static_cast<ULONG>((GetTelemetryCorelationJsonW().size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
+TraceLoggingPackedFieldEx(m_telemetryCorelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
 __VA_ARGS__)
 
 // Helper to print a GUID
@@ -109,12 +109,12 @@ namespace AppInstaller::Logging
         m_isRuntimeEnabled = true;
     }
 
-    void TelemetryTraceLogger::SetTelemetryCorelationJson(const std::wstring_view& jsonStr_view) noexcept
+    void TelemetryTraceLogger::SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept
     {
         // Check if passed in string is a valid Json formatted before returning the value
         // If invalid, return empty Json
         Json::CharReaderBuilder jsonBuilder;
-        Json::CharReader* jsonReader = jsonBuilder.newCharReader();
+        std::unique_ptr<Json::CharReader> jsonReader(jsonBuilder.newCharReader());
         std::unique_ptr<Json::Value> pJsonValue = std::make_unique<Json::Value>();
         std::string errors;
         std::wstring jsonStrW{ jsonStr_view };
@@ -125,8 +125,6 @@ namespace AppInstaller::Logging
             pJsonValue.get(),
             &errors);
 
-        delete jsonReader;
-
         if (result)
         {
             m_telemetryCorelationJsonW = jsonStrW;
@@ -134,14 +132,8 @@ namespace AppInstaller::Logging
         }
         else
         {
-            AICLI_LOG(Core, Info, << "Passed in Corelation Vector Json is invalid: " << jsonStr << "; Error: " << errors);
-            m_telemetryCorelationJsonW = L"{}";
+            AICLI_LOG(Core, Error, << "Passed in Corelation Vector Json is invalid: " << jsonStr << "; Error: " << errors);
         }
-    }
-
-    inline std::wstring TelemetryTraceLogger::GetTelemetryCorelationJsonW() const
-    {
-        return m_telemetryCorelationJsonW;
     }
 
     void TelemetryTraceLogger::SetCaller(const std::string& caller)

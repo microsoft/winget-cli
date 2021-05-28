@@ -25,6 +25,6 @@ namespace AppInstaller::Logging
 
     std::string TraceLogger::GetName() const
     {
-        return "";
+        return "Trace";
     }
 }
