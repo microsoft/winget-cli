@@ -62,16 +62,16 @@ namespace AppInstaller::Logging
             (void)CoCreateGuid(&result);
             return result;
         }
+    }
 
-        const GUID* GetActivityId(bool isNewActivity)
+    const GUID* GetActivityId(bool isNewActivity)
+    {
+        static GUID activityId;
+        if (isNewActivity == true)
         {
-            static GUID activityId;
-            if (isNewActivity == true)
-            {
-                activityId = CreateGuid();
-            }
-            return &activityId;
+            activityId = CreateGuid();
         }
+        return &activityId;
     }
 
     void SetActivityId()
@@ -130,11 +130,11 @@ namespace AppInstaller::Logging
         if (result)
         {
             m_telemetryCorelationJsonW = jsonStrW;
-            AICLI_LOG(Core, Info, << "Passed in Corelation Json is valid: " << jsonStr);
+            AICLI_LOG(Core, Info, << "Passed in Corelation Vector Json is valid: " << jsonStr);
         }
         else
         {
-            AICLI_LOG(Core, Info, << "Passed in Corelation Json is invalid: " << jsonStr << "; Error: " << errors);
+            AICLI_LOG(Core, Info, << "Passed in Corelation Vector Json is invalid: " << jsonStr << "; Error: " << errors);
             m_telemetryCorelationJsonW = L"{}";
         }
     }
@@ -205,7 +205,7 @@ namespace AppInstaller::Logging
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
         }
-        AICLI_LOG(Core, Info, << "IsCOMCall:" << isCOMCall << "; Caller: " << m_caller << "; CallerCj: ");
+        AICLI_LOG(Core, Info, << "IsCOMCall:" << isCOMCall << "; Caller: " << m_caller);
     }
 
     void TelemetryTraceLogger::LogCommand(std::string_view commandName) const noexcept

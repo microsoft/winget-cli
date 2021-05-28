@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/TraceLogger.h"
+#include "Public/AppInstallerTelemetry.h"
 
 namespace AppInstaller::Logging
 {
@@ -13,7 +14,7 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            nullptr,
+            AppInstaller::Logging::GetActivityId(false),
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }

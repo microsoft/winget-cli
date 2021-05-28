@@ -149,6 +149,8 @@ namespace AppInstaller::Logging
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
 
+    const GUID* GetActivityId(bool isNewActivity);
+
     // Set ActivityId
     void SetActivityId();
 
