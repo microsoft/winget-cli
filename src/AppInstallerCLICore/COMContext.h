@@ -61,6 +61,9 @@ namespace AppInstaller
             m_comProgressCallback = std::move(f);
         }
 
+        // Set diagnostic and telemetry loggers that can log corelation vector and caller information
+        void SetLoggers(const std::wstring_view& telemetryCorelationJson, const std::string& caller);
+
     private:
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         ProgressCallBackFunction m_comProgressCallback;

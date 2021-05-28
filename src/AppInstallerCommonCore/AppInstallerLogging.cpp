@@ -4,6 +4,7 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerFileLogger.h"
+#include "Public/winget/TraceLogger.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/AppInstallerRuntime.h"
@@ -132,6 +133,11 @@ namespace AppInstaller::Logging
     void AddFileLogger(const std::filesystem::path& filePath)
     {
         Log().AddLogger(std::make_unique<FileLogger>(filePath));
+    }
+
+    void AddTraceLogger()
+    {
+        Log().AddLogger(std::make_unique<TraceLogger>());
     }
 
     void BeginLogFileCleanup()

@@ -55,6 +55,7 @@ namespace AppInstaller::CLI
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
+        Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
         // Initiate the background cleanup of the log file location.
