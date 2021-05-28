@@ -224,7 +224,7 @@ namespace Microsoft.Management.Deployment
         LocalCatalogs,
         /// Search remote catalogs only, don't check local catalogs for InstalledVersion
         RemotePackagesFromRemoteCatalogs,
-        /// Search remote packages, and check local catalogs for InstalledVersion
+        /// Search remote catalogs, and check local catalogs for InstalledVersion
         RemotePackagesFromAllCatalogs,
         /// Search both local and remote catalogs.
         AllCatalogs,
