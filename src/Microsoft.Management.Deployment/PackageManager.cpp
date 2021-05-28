@@ -154,15 +154,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Handle the progress from the installer
         ::AppInstaller::COMContext context;
         context.SetProgressCallbackFunction([=](
-            ::AppInstaller::ReportType /*reportType*/, 
+            ::AppInstaller::ReportType reportType, 
             uint64_t current, 
             uint64_t maximum, 
             ::AppInstaller::ProgressType progressType, 
             ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
-            { 
+            {
+                bool reportProgress = false;
                 PackageInstallProgressState progressState = PackageInstallProgressState::Queued;
-                double downloadPercentage = 0;
-                double installPercentage = 0;
+                double downloadProgress = 0;
+                double installProgress = 0;
                 uint64_t downloadBytesDownloaded = 0;
                 uint64_t downloadBytesRequired = 0;
                 switch (executionPhase)
@@ -170,41 +171,68 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Initial:
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::ParseArgs:
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Discovery:
-                    progressState = PackageInstallProgressState::Queued;
+                    // We already reported queued progress up front.
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Download:
                     progressState = PackageInstallProgressState::Downloading;
-                    if (progressType == ::AppInstaller::ProgressType::Bytes)
+                    if (reportType == ::AppInstaller::ReportType::BeginProgress)
+                    {
+                        reportProgress = true;
+                    }
+                    else if (progressType == ::AppInstaller::ProgressType::Bytes)
                     {
                         downloadBytesDownloaded = current;
                         downloadBytesRequired = maximum;
                         if (maximum > 0 && maximum >= current)
                         {
-                            downloadPercentage = static_cast<double>(current) / static_cast<double>(maximum);
+                            reportProgress = true;
+                            downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
                         }
                     }
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::PreExecution:
-                    progressState = PackageInstallProgressState::Installing;
-                    downloadPercentage = 100;
+                    // Wait until installer starts to report Installing.
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::Execution:
                     progressState = PackageInstallProgressState::Installing;
-                    downloadPercentage = 100;
-                    // Ensure the double can be safely cast.
-                    if (progressType == ::AppInstaller::ProgressType::Percent && maximum > 0 && maximum >= current)
+                    downloadProgress = 1;
+                    if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
                     {
-                        installPercentage = static_cast<double>(current) / static_cast<double>(maximum);
+                        // Install is starting. Send progress so callers know the asyncoperation can't be cancelled.
+                        reportProgress = true;
+                    }
+                    else if (reportType == ::AppInstaller::ReportType::EndProgress)
+                    {
+                        // Install is "finished". May not have succeeded.
+                        reportProgress = true;
+                        installProgress = 1;
+                    }
+                    else if (progressType == ::AppInstaller::ProgressType::Percent)
+                    {
+                        if (maximum > 0 && maximum >= current)
+                        {
+                            // Install is progressing
+                            reportProgress = true;
+                            installProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                        }
                     }
                     break;
                 case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
-                    progressState = PackageInstallProgressState::PostInstall;
-                    downloadPercentage = 100;
-                    installPercentage = 100;
+                    if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
+                    {
+                        // Send PostInstall progress when it switches to PostExecution phase.
+                        reportProgress = true;
+                        progressState = PackageInstallProgressState::PostInstall;
+                        downloadProgress = 1;
+                        installProgress = 1;
+                    }
                     break;
                 }
-                winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadPercentage, installPercentage };
-                report_progress(contextProgress);
+                if (reportProgress)
+                {
+                    winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress, installProgress };
+                    report_progress(contextProgress);
+                }
                 return; 
             }
         );

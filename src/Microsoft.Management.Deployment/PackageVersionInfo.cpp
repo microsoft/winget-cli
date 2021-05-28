@@ -52,10 +52,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             // Vector hasn't been created yet, create and populate it.
             auto packageFamilyNames = winrt::single_threaded_vector<hstring>(); 
-            auto packageFamilyNameVector = m_packageVersion->GetMultiProperty(::AppInstaller::Repository::PackageVersionMultiProperty::PackageFamilyName);
-            for (int i = 0; i < packageFamilyNameVector.size(); ++i)
+            for (auto&& string : m_packageVersion->GetMultiProperty(::AppInstaller::Repository::PackageVersionMultiProperty::PackageFamilyName))
             {
-                packageFamilyNames.Append(winrt::to_hstring(packageFamilyNameVector.at(i)));
+                packageFamilyNames.Append(winrt::to_hstring(string));
             }
             m_packageFamilyNames = packageFamilyNames;
         }
@@ -67,10 +66,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             // Vector hasn't been created yet, create and populate it.
             auto productCodes = winrt::single_threaded_vector<hstring>();
-            auto productCodesVector = m_packageVersion->GetMultiProperty(::AppInstaller::Repository::PackageVersionMultiProperty::ProductCode);
-            for (int i = 0; i < productCodesVector.size(); ++i)
+            for (auto&& string : m_packageVersion->GetMultiProperty(::AppInstaller::Repository::PackageVersionMultiProperty::ProductCode))
             {
-                productCodes.Append(winrt::to_hstring(productCodesVector.at(i)));
+                productCodes.Append(winrt::to_hstring(string));
             }
             m_productCodes = productCodes;
         }

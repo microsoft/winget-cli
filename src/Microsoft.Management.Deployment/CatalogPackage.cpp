@@ -50,12 +50,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             [&]()
             {
                 // Vector hasn't been populated yet.
-                std::vector<::AppInstaller::Repository::PackageVersionKey> keys = m_package.get()->GetAvailableVersionKeys();
-                for (int i = 0; i < keys.size(); ++i)
+                for (auto const& versionKey : m_package.get()->GetAvailableVersionKeys())
                 {
                     auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
-                    packageVersionId->Initialize(keys[i]);
+                    packageVersionId->Initialize(versionKey);
                     m_availableVersions.Append(*packageVersionId);
                 }
             });

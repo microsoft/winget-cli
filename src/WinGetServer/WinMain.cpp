@@ -30,7 +30,7 @@ static void _releaseNotifier() noexcept
     _comServerExitEvent.SetEvent();
 }
 
-// Check whether the packaged api is enabled and the overarching winget groupplicy is enabled.
+// Check whether the packaged api is enabled and the overarching winget group policy is enabled.
 bool IsServerEnabled()
 {
     if (!::AppInstaller::Settings::ExperimentalFeature::IsEnabled(::AppInstaller::Settings::ExperimentalFeature::Feature::ExperimentalPackagedAPI))
