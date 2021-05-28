@@ -58,7 +58,7 @@ These include other packages. The restriction on these dependencies is that they
 ### External Dependencies
 These include dependencies from outside of the source the original package is distributed. In some cases suitable items may exist in the same source, but for licensing or personal preference, no explicit package should be required. One example is Java. Many vendors offer JREs and JDKs so it may be more reasonable to have a user informed, and allow the user to confirm the presence of a dependency.
 
-
+As a first step the Windows Package Manager should show dependency information to the user, see issue [1012](https://github.com/microsoft/winget-cli/issues/1012) with [spec](https://github.com/fzanollo/winget-cli/blob/dependencies/doc/specs/%231012%20-%20Show%20dependencies.md).
 
 ## UI/UX Design
 
