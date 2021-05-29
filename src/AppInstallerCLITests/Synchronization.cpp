@@ -14,10 +14,10 @@ TEST_CASE("CPRWL_MultipleReaders", "[CrossProcessReaderWriteLock]")
     wil::unique_event signal;
     signal.create();
 
-    CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForRead(name);
+    CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockShared(name);
 
     std::thread otherThread([&name, &signal]() {
-            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForRead(name);
+            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockShared(name);
             signal.SetEvent();
         });
     // In the event of bugs, we don't want to block the test waiting forever
@@ -35,10 +35,10 @@ TEST_CASE("CPRWL_WriterBlocksReader", "[CrossProcessReaderWriteLock]")
     signal.create();
 
     {
-        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
+        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockExclusive(name);
 
         std::thread otherThread([&name, &signal]() {
-            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForRead(name);
+            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockShared(name);
             signal.SetEvent();
             });
         // In the event of bugs, we don't want to block the test waiting forever
@@ -59,10 +59,10 @@ TEST_CASE("CPRWL_ReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
     signal.create();
 
     {
-        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForRead(name);
+        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockShared(name);
 
         std::thread otherThread([&name, &signal]() {
-            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
+            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockExclusive(name);
             signal.SetEvent();
             });
         // In the event of bugs, we don't want to block the test waiting forever
@@ -83,10 +83,10 @@ TEST_CASE("CPRWL_WriterBlocksWriter", "[CrossProcessReaderWriteLock]")
     signal.create();
 
     {
-        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
+        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockExclusive(name);
 
         std::thread otherThread([&name, &signal]() {
-            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
+            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockExclusive(name);
             signal.SetEvent();
             });
         // In the event of bugs, we don't want to block the test waiting forever

@@ -23,6 +23,14 @@ namespace AppInstaller::Repository
         // Updates the source from the given details (may not change the details).
         virtual void Update(const SourceDetails& details, IProgressCallback& progress) = 0;
 
+        // Updates the source from the given details (may not change the details).
+        // This version is for use in automatic, background updates to the source.
+        // It is done this way to preserve the signature for use with member function pointers.
+        virtual void BackgroundUpdate(const SourceDetails& details, IProgressCallback& progress)
+        {
+            Update(details, progress);
+        }
+
         // Removes the source from the given details.
         virtual void Remove(const SourceDetails& details, IProgressCallback& progress) = 0;
     };

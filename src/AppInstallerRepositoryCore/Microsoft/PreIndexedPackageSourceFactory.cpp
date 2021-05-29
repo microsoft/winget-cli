@@ -54,7 +54,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details));
                 return CreateInternal(details, std::move(lock), progress);
             }
 
@@ -88,12 +88,60 @@ namespace AppInstaller::Repository::Microsoft
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
                 details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+                auto lock = LockExclusive(details, progress);
+                if (!lock)
+                {
+                    return;
+                }
 
                 UpdateInternal(packageLocation, packageInfo, details, progress);
             }
 
             void Update(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                UpdateBase(details, false, progress);
+            }
+
+            void BackgroundUpdate(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                UpdateBase(details, true, progress);
+            }
+
+            virtual void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
+
+            void Remove(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                auto lock = LockExclusive(details, progress);
+                if (!lock)
+                {
+                    return;
+                }
+
+                RemoveInternal(details, progress);
+            }
+
+            virtual void RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
+
+        private:
+            Synchronization::CrossProcessReaderWriteLock LockExclusive(const SourceDetails& details, IProgressCallback& progress, bool isBackground = false)
+            {
+                if (isBackground)
+                {
+                    // If this is a background update, don't wait on the lock.
+                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), 0ms);
+                }
+                else
+                {
+                    // TODO:
+                    // 1 finish this, check on who sets the update time
+                    // 2 settings streams synchro
+                    // 3 SQLite serialize
+                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), progress);
+                }
+            }
+
+            void UpdateBase(const SourceDetails& details, bool isBackground, IProgressCallback& progress)
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
@@ -113,22 +161,14 @@ namespace AppInstaller::Repository::Microsoft
                     return;
                 }
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+                auto lock = LockExclusive(details, progress, isBackground);
+                if (!lock)
+                {
+                    return;
+                }
 
                 UpdateInternal(packageLocation, packageInfo, details, progress);
             }
-
-            virtual void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
-
-            void Remove(const SourceDetails& details, IProgressCallback& progress) override final
-            {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
-
-                RemoveInternal(details, progress);
-            }
-
-            virtual void RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
         };
 
         // Source factory for running within a packaged context

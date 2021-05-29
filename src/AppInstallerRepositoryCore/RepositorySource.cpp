@@ -621,6 +621,11 @@ namespace AppInstaller::Repository
             AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
+        void BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        {
+            AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
+        }
+
         void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
             auto factory = GetFactoryForType(details.Type);
@@ -915,7 +920,7 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
-                            UpdateSourceFromDetails(source, progress);
+                            BackgroundUpdateSourceFromDetails(source, progress);
                             sourceUpdated = true;
                         }
                         catch (...)
@@ -954,7 +959,7 @@ namespace AppInstaller::Repository
                 {
                     try
                     {
-                        UpdateSourceFromDetails(*source, progress);
+                        BackgroundUpdateSourceFromDetails(*source, progress);
                         sourceList.SaveMetadata();
                     }
                     catch (...)
