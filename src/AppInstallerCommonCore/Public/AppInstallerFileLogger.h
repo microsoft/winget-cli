@@ -13,7 +13,7 @@ namespace AppInstaller::Logging
     // Logs to a file.
     struct FileLogger : public ILogger
     {
-        FileLogger(const std::filesystem::path& filePath = {});
+        FileLogger(const std::string_view fileNamePrefix = {}, const std::filesystem::path& filePath = {});
 
         ~FileLogger();
 
@@ -25,7 +25,7 @@ namespace AppInstaller::Logging
 
         static std::string GetNameForPath(const std::filesystem::path& filePath);
 
-        static std::string_view DefaultPrefix();
+        static std::string_view Prefix();
         static std::string_view DefaultExt();
 
         // ILogger

@@ -5,6 +5,7 @@
 
 namespace AppInstaller
 {
+    static constexpr std::string_view s_comLogFileNamePrefix = "WPM-"sv;
 
     NullStream::NullStream()
     {
@@ -46,7 +47,7 @@ namespace AppInstaller
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
-        Logging::AddFileLogger();
+        Logging::AddFileLogger(s_comLogFileNamePrefix);
         Logging::BeginLogFileCleanup();
 
         Logging::AddTraceLogger();

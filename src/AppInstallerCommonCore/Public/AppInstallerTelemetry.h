@@ -125,9 +125,6 @@ namespace AppInstaller::Logging
 
         bool IsTelemetryEnabled() const noexcept;
 
-        // Check for valid Json string and return a valid Json
-        std::wstring GetTelemetryCorelationJsonW() const;
-
         // Used to anonymize a string to the best of our ability.
         // Should primarily be used on failure messages or paths if needed.
         std::wstring AnonymizeString(const wchar_t* input) const noexcept;

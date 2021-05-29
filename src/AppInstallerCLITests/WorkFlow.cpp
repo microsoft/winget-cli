@@ -584,7 +584,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/passive") != std::string::npos);
-        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::Prefix()) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
@@ -635,7 +635,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
-        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::Prefix()) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }

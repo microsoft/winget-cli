@@ -13,16 +13,20 @@ namespace AppInstaller::Logging
     using namespace std::string_view_literals;
     using namespace std::chrono_literals;
 
-    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WPM-"sv;
+    static std::string_view s_fileLoggerFilePrefix = "WinGet-"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
 
-    FileLogger::FileLogger(const std::filesystem::path& filePath)
+    FileLogger::FileLogger(const std::string_view fileNamePrefix, const std::filesystem::path& filePath)
     {
         if (filePath.empty())
         {
+            if (!fileNamePrefix.empty())
+            { 
+                s_fileLoggerFilePrefix = fileNamePrefix;
+            }
             m_name = "file";
             m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-            m_filePath /= s_fileLoggerDefaultFilePrefix.data() + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data();
+            m_filePath /= s_fileLoggerFilePrefix.data() + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data();
         }
         else
         {
@@ -44,9 +48,9 @@ namespace AppInstaller::Logging
         return "file :: "s + filePath.u8string();
     }
 
-    std::string_view FileLogger::DefaultPrefix()
+    std::string_view FileLogger::Prefix()
     {
-        return s_fileLoggerDefaultFilePrefix;
+        return s_fileLoggerFilePrefix;
     }
 
     std::string_view FileLogger::DefaultExt()
@@ -84,7 +88,7 @@ namespace AppInstaller::Logging
                     {
                         if (file.is_regular_file() &&
                             now - file.last_write_time() > (7 * 24h) &&
-                            Utility::CaseInsensitiveStartsWith(file.path().filename().string(), s_fileLoggerDefaultFilePrefix))
+                            Utility::CaseInsensitiveStartsWith(file.path().filename().string(), s_fileLoggerFilePrefix))
                         {
                             std::filesystem::remove(file.path());
                         }
