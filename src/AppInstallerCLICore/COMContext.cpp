@@ -5,7 +5,7 @@
 
 namespace AppInstaller
 {
-    static constexpr std::string_view s_comLogFileNamePrefix = "WPM-"sv;
+    static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
 
     NullStream::NullStream()
     {

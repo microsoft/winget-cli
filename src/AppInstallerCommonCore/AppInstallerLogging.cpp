@@ -130,9 +130,19 @@ namespace AppInstaller::Logging
         }
     }
 
-    void AddFileLogger(const std::string_view fileNamePrefix, const std::filesystem::path& filePath)
+    void AddFileLogger()
     {
-        Log().AddLogger(std::make_unique<FileLogger>(fileNamePrefix, filePath));
+        Log().AddLogger(std::make_unique<FileLogger>());
+    }
+
+    void AddFileLogger(const std::filesystem::path& filePath)
+    {
+        Log().AddLogger(std::make_unique<FileLogger>(filePath));
+    }
+
+    void AddFileLogger(std::string_view fileNamePrefix)
+    {
+        Log().AddLogger(std::make_unique<FileLogger>(fileNamePrefix));
     }
 
     void AddTraceLogger()

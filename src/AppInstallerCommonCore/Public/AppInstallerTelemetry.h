@@ -134,7 +134,7 @@ namespace AppInstaller::Logging
         std::atomic_bool m_isRuntimeEnabled{ true };
 
         std::wstring m_telemetryCorelationJsonW = L"{}";
-        std::string m_caller = "";
+        std::string m_caller;
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;

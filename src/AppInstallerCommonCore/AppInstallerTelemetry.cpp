@@ -16,7 +16,7 @@ g_hTraceProvider,\
 _eventName_,\
 GetActivityId(false),\
 nullptr,\
-TraceLoggingCountedString(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
+TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
 TraceLoggingPackedFieldEx(m_telemetryCorelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
 __VA_ARGS__)
 
