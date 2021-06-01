@@ -124,6 +124,11 @@ namespace AppInstaller::Manifest
         std::vector<string_t> WindowsLibraries;
         std::vector<PackageDependency> PackageDependencies;
         std::vector<string_t> ExternalDependencies;
+
+        bool HasAny() const {
+            return !WindowsFeatures.empty() || !WindowsLibraries.empty() || !PackageDependencies.empty() ||
+                !ExternalDependencies.empty();
+        }
     };
 
 

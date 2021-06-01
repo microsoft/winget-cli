@@ -74,9 +74,35 @@ namespace AppInstaller::CLI::Workflow
             auto dependencies = installer->Dependencies;
             if (dependencies.HasAny()) 
             {
-                context.Reporter.Info() << dependencies.showDependencies() << std::endl;
+                context.Reporter.Info() << Execution::ManifestKeyEmphasis << "  Dependencies: " << std::endl;
+                
+                auto windowsFeaturesDep = dependencies.WindowsFeatures;
+                for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
+                {
+                    context.Reporter.Info() << Execution::ManifestKeyEmphasis << "    WindowsFeatures: " << windowsFeaturesDep[i] << std::endl;
+                }
 
-                context.Reporter.Info() << Execution::HelpCommandEmphasis << "  Dependencies: " << std::endl;
+                auto windowsLibrariesDep = dependencies.WindowsLibraries;
+                for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
+                {
+                    context.Reporter.Info() << Execution::ManifestKeyEmphasis << "    WindowsLibraries: " << windowsLibrariesDep[i] << std::endl;
+                }
+
+                auto packageDep = dependencies.PackageDependencies;
+                for (size_t i = 0; i < packageDep.size(); i++)
+                {
+                    context.Reporter.Info() << Execution::ManifestKeyEmphasis << "    PackageDependency: " << packageDep[i].Id;
+                    if (!packageDep[i].MinVersion.empty()) {
+                        context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+
+                auto externalDependenciesDep = dependencies.ExternalDependencies;
+                for (size_t i = 0; i < externalDependenciesDep.size(); i++)
+                {
+                    context.Reporter.Info() << Execution::ManifestKeyEmphasis << "    ExternalDependencies: " << externalDependenciesDep[i] << std::endl;
+                }
             }
         }
         else
