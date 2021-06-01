@@ -138,10 +138,6 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 else
                 {
-                    // TODO:
-                    // 1 finish this, bubble up proper cancellation for all source actions
-                    // 2 settings streams synchro
-                    // 3 SQLite serialize
                     return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), progress);
                 }
             }
