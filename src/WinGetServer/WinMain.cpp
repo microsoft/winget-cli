@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#include "pch.h"
+
 #include <winrt/Microsoft.Management.Deployment.h>
 #include <wrl/module.h>
-#include <wil/resource.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
 
