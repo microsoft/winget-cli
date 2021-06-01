@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerProgress.h>
 #include <wil/resource.h>
 
 #include <chrono>
@@ -34,13 +35,17 @@ namespace AppInstaller::Synchronization
         CrossProcessReaderWriteLock& operator=(CrossProcessReaderWriteLock&&) = default;
 
         static CrossProcessReaderWriteLock LockShared(std::string_view name);
+        static CrossProcessReaderWriteLock LockShared(std::string_view name, IProgressCallback& progress);
 
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name);
+        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, IProgressCallback& progress);
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name, std::chrono::milliseconds timeout);
 
         operator bool() const;
 
     private:
+        static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress);
+
         std::vector<wil::unique_mutex> m_mutexesHeld;
     };
 }
