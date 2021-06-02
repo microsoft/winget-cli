@@ -51,6 +51,10 @@ jobs:
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
     displayName: Restore Packages
+    env: {
+    # Due to https://github.com/NuGet/Home/issues/7796, use older behavior
+        RestoreUseSkipNonexistentTargets: false
+    }
     inputs:
       restoreSolution: '$(solution)'
   
