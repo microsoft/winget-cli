@@ -1,21 +1,17 @@
 # Installer with all types of dependencies
-PackageIdentifier: microsoft.msixsdk
-PackageVersion: 1.7.32
+PackageIdentifier: AppInstallerCliTest.TestMsixInstaller
+PackageVersion: 1.0.0.0
 PackageLocale: en-US
-Publisher: Microsoft
-InstallerType: zip
-Scope: machine
-License: MIT License
+PackageName: AppInstaller Test MSIX Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestMsix
+License: Test
 Installers:
-  - Architecture: x86
-    InstallerLocale: en-GB
-    Platform:
-      - Windows.Desktop
-    MinimumOSVersion: 10.0.1.0
+  - Architecture: x64
+    InstallerUrl: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
     InstallerType: msix
-    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
-    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-    SignatureSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    InstallerSha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+    PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
     Dependencies:
       WindowsFeatures:
         - WindowsFeaturesDep

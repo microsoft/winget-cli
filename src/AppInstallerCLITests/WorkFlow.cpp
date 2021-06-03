@@ -1542,3 +1542,26 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
 }
+
+TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(installOutput.str().find("Dependencies") != std::string::npos);
+    REQUIRE(installOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(installOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(installOutput.str().find("PackageDep1\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(installOutput.str().find("PackageDep2") != std::string::npos);
+    REQUIRE(installOutput.str().find("PackageDep2\x1b[0m [") == std::string::npos);
+    REQUIRE(installOutput.str().find("ExternalDep") != std::string::npos);
+}
