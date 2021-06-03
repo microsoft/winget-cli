@@ -3,6 +3,7 @@ PackageIdentifier: AppInstallerCliTest.TestMsixInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test MSIX Installer
+ShortDescription: AppInstaller Test MSIX Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestMsix
 License: Test
@@ -18,9 +19,9 @@ Installers:
       WindowsLibraries:
         - WindowsLibrariesDep
       PackageDependencies:
-        - PackageIdentifier: PackageDep1
+        - PackageIdentifier: Package.Dep1-x64
           MinimumVersion: 1.0
-        - PackageIdentifier: PackageDep2
+        - PackageIdentifier: Package.Dep2-x64
       ExternalDependencies:
         - ExternalDep
 ManifestType: singleton
