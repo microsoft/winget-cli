@@ -450,5 +450,6 @@
     <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml" />
   </ItemGroup>
 </Project>

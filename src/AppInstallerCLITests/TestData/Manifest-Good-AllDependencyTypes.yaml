@@ -1,0 +1,31 @@
+# Installer with all types of dependencies
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-US
+Publisher: Microsoft
+InstallerType: zip
+Scope: machine
+License: MIT License
+Installers:
+  - Architecture: x86
+    InstallerLocale: en-GB
+    Platform:
+      - Windows.Desktop
+    MinimumOSVersion: 10.0.1.0
+    InstallerType: msix
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    SignatureSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    Dependencies:
+      WindowsFeatures:
+        - WindowsFeaturesDep
+      WindowsLibraries:
+        - WindowsLibrariesDep
+      PackageDependencies:
+        - PackageIdentifier: PackageDep1
+          MinimumVersion: 1.0
+        - PackageIdentifier: PackageDep2
+      ExternalDependencies:
+        - ExternalDep
+ManifestType: singleton
+ManifestVersion: 1.0.0

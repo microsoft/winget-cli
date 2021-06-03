@@ -782,6 +782,27 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
 
+TEST_CASE("ShowFlow_ShowDependencies", "[ShowFlow][workflow]")
+{
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    ShowCommand show({});
+    show.Execute(context);
+    INFO(showOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(showOutput.str().find("Dependencies") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(showOutput.str().find("PackageDep1\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(showOutput.str().find("PackageDep2") != std::string::npos);
+    REQUIRE(showOutput.str().find("PackageDep2\x1b[0m [") == std::string::npos);
+    REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
+}
+
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
