@@ -918,4 +918,7 @@ Configuration is disabled due to Group Policy.</value>
     <value>The value provided for the `%1` argument is invalid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
 </root>
