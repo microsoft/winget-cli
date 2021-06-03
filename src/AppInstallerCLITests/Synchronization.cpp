@@ -98,3 +98,28 @@ TEST_CASE("CPRWL_WriterBlocksWriter", "[CrossProcessReaderWriteLock]")
     // Upon release of the writer, the other thread should signal
     REQUIRE(signal.wait(1000));
 }
+
+TEST_CASE("CPRWL_CancelEndsWait", "[CrossProcessReaderWriteLock]")
+{
+    std::string name = "AppInstCPRWLTests";
+
+    wil::unique_event signal;
+    signal.create();
+    AppInstaller::ProgressCallback progress;
+
+    CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockExclusive(name);
+
+    std::thread otherThread([&name, &signal, &progress]() {
+        CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockExclusive(name, progress);
+        signal.SetEvent();
+        });
+    // In the event of bugs, we don't want to block the test waiting forever
+    otherThread.detach();
+
+    REQUIRE(!signal.wait(1000));
+
+    progress.Cancel();
+
+    // Upon release of the writer, the other thread should signal
+    REQUIRE(signal.wait(1000));
+}

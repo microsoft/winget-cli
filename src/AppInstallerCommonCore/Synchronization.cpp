@@ -159,12 +159,12 @@ namespace AppInstaller::Synchronization
         bool waitAgain = true;
         while (waitAgain && (!progress || !progress->IsCancelled()))
         {
-            DWORD millisToWait = 0;
+            DWORD millisecondsToWait = 0;
             if (progress)
             {
                 if (timeout == s_CrossProcessReaderWriteLock_Infinite)
                 {
-                    millisToWait = static_cast<DWORD>(s_CrossProcessReaderWriteLock_WaitLoopTime.count());
+                    millisecondsToWait = static_cast<DWORD>(s_CrossProcessReaderWriteLock_WaitLoopTime.count());
                 }
                 else
                 {
@@ -172,7 +172,7 @@ namespace AppInstaller::Synchronization
                     if (currentDuration >= timeout)
                     {
                         // Allow an attempt to acquire with no wait
-                        millisToWait = 0;
+                        millisecondsToWait = 0;
                         waitAgain = false;
                     }
                     else
@@ -186,7 +186,7 @@ namespace AppInstaller::Synchronization
                         {
                             waitAgain = false;
                         }
-                        millisToWait = static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(durationToWait).count());
+                        millisecondsToWait = static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(durationToWait).count());
                     }
                 }
             }
@@ -197,7 +197,7 @@ namespace AppInstaller::Synchronization
 
                 if (timeout == s_CrossProcessReaderWriteLock_Infinite)
                 {
-                    millisToWait = INFINITE;
+                    millisecondsToWait = INFINITE;
                 }
                 else
                 {
@@ -205,16 +205,16 @@ namespace AppInstaller::Synchronization
                     if (currentDuration >= timeout)
                     {
                         // Allow an attempt to acquire with no wait
-                        millisToWait = 0;
+                        millisecondsToWait = 0;
                     }
                     else
                     {
-                        millisToWait = static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(timeout - currentDuration).count());
+                        millisecondsToWait = static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(timeout - currentDuration).count());
                     }
                 }
             }
 
-            status = WaitForMultipleObjectsEx(s_CrossProcessReaderWriteLock_MaxReaders, waitHandles, (shared ? FALSE : TRUE), millisToWait, FALSE);
+            status = WaitForMultipleObjectsEx(s_CrossProcessReaderWriteLock_MaxReaders, waitHandles, (shared ? FALSE : TRUE), millisecondsToWait, FALSE);
             THROW_LAST_ERROR_IF(status == WAIT_FAILED);
 
             if (status != WAIT_TIMEOUT)
