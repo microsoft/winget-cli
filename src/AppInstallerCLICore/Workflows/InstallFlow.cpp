@@ -425,19 +425,19 @@ namespace AppInstaller::CLI::Workflow
                 auto windowsFeaturesDep = dependencies.WindowsFeatures;
                 for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
                 {
-                    context.Reporter.Info() << Execution::ManifestInfoEmphasis << "    WindowsFeatures: " << windowsFeaturesDep[i] << std::endl;
+                    context.Reporter.Info() << "    WindowsFeatures: " << windowsFeaturesDep[i] << std::endl;
                 }
 
                 auto windowsLibrariesDep = dependencies.WindowsLibraries;
                 for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
                 {
-                    context.Reporter.Info() << Execution::ManifestInfoEmphasis << "    WindowsLibraries: " << windowsLibrariesDep[i] << std::endl;
+                    context.Reporter.Info() << "    WindowsLibraries: " << windowsLibrariesDep[i] << std::endl;
                 }
 
                 auto packageDep = dependencies.PackageDependencies;
                 for (size_t i = 0; i < packageDep.size(); i++)
                 {
-                    context.Reporter.Info() << Execution::ManifestInfoEmphasis << "    PackageDependency: " << packageDep[i].Id;
+                    context.Reporter.Info() << "    PackageDependency: " << packageDep[i].Id;
                     if (!packageDep[i].MinVersion.empty()) {
                         context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
                     }
@@ -447,7 +447,7 @@ namespace AppInstaller::CLI::Workflow
                 auto externalDependenciesDep = dependencies.ExternalDependencies;
                 for (size_t i = 0; i < externalDependenciesDep.size(); i++)
                 {
-                    context.Reporter.Info() << Execution::ManifestInfoEmphasis << "    ExternalDependencies: " << externalDependenciesDep[i] << std::endl;
+                    context.Reporter.Info() << "    ExternalDependencies: " << externalDependenciesDep[i] << std::endl;
                 }
             }
         }
