@@ -409,6 +409,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportDependencies <<
             Workflow::InstallPackageInstaller;
     }
 
@@ -420,7 +421,7 @@ namespace AppInstaller::CLI::Workflow
             auto dependencies = installer->Dependencies;
             if (dependencies.HasAny())
             {
-                context.Reporter.Info() << Execution::ManifestInfoEmphasis << "  Dependencies: " << std::endl;
+                context.Reporter.Info() << "  [Warning] The installer has the following dependencies: " << std::endl;
 
                 auto windowsFeaturesDep = dependencies.WindowsFeatures;
                 for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
