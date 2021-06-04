@@ -129,6 +129,25 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
+            if (input.empty() || input == "AppInstallerCliTest.TestExeInstaller.PackageDep")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_PackageDependency.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller.PackageDep")));
+            }
+
             if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
@@ -142,6 +161,20 @@ namespace
                             this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
+            }
+
+            if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller.WFDep")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msi_WFDependency.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestInstaller.WFDep")));
             }
 
             if (input.empty() || input == "AppInstallerCliTest.TestMSStoreInstaller")
@@ -782,6 +815,27 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
 
+TEST_CASE("ShowFlow_ShowDependencies", "[ShowFlow][workflow]")
+{
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    ShowCommand show({});
+    show.Execute(context);
+    INFO(showOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(showOutput.str().find("Dependencies") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(showOutput.str().find("Package.Dep1-x64\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep2-x64\x1b[0m [") == std::string::npos);
+    REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
+}
+
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
@@ -1381,6 +1435,34 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
     REQUIRE(installResultStr.find("/scope=machine") != std::string::npos);
 }
 
+TEST_CASE("ImportFlow_ShowDependencies", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+
+    //context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify all packages were installed
+    // Since we only show a dependency warning and then continue with the instalation 
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+    
+    // Verify dependencies for all packages are informed
+    REQUIRE(importOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(importOutput.str().find("PackageDep\x1b[0m [>= 1.0]") != std::string::npos);
+}
+
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
     std::filesystem::path motwFile(testFile);
@@ -1520,4 +1602,38 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_AllDependencyTypes.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // For now verify Installer is called and parameters are passed in.
+    // Since we only show a dependency warning and then continue with the instalation 
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+
+    // Verify all types of dependencies are printed
+    REQUIRE(installOutput.str().find("[Warning] The installer has the following dependencies") != std::string::npos);
+    REQUIRE(installOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(installOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(installOutput.str().find("Package.Dep1-x64\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(installOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(installOutput.str().find("Package.Dep2-x64\x1b[0m [") == std::string::npos);
+    REQUIRE(installOutput.str().find("ExternalDep") != std::string::npos);
 }
