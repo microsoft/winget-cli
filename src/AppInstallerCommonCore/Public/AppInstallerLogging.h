@@ -118,6 +118,8 @@ namespace AppInstaller::Logging
         // Writes a log line, if the given channel and level are enabled.
         void Write(Channel channel, Level level, std::string_view message);
 
+        std::string_view GetLogFileNamePrefix();
+
     private:
         DiagnosticLogger() = default;
 

@@ -45,6 +45,7 @@ namespace AppInstaller
     void COMContext::SetLoggers()
     {
         Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::Log().EnableChannel(Logging::Channel::All);
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
         Logging::AddFileLogger(s_comLogFileNamePrefix);

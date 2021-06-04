@@ -27,6 +27,8 @@ namespace AppInstaller::Logging
 
         static std::string GetNameForPath(const std::filesystem::path& filePath);
 
+        std::string_view CurrentPrefix();
+
         static std::string_view DefaultPrefix();
         static std::string_view DefaultExt();
 
@@ -41,6 +43,7 @@ namespace AppInstaller::Logging
     private:
         std::string m_name;
         std::filesystem::path m_filePath;
+        std::string_view m_fileNamePrefix;
         std::ofstream m_stream;
     };
 }

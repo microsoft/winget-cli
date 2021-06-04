@@ -113,8 +113,8 @@ namespace AppInstaller::Logging
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
-                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
-                (AsNum(level) >= AsNum(m_enabledLevel)));
+            (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
+            (AsNum(level) >= AsNum(m_enabledLevel)));
     }
 
     void DiagnosticLogger::Write(Channel channel, Level level, std::string_view message)
@@ -128,6 +128,21 @@ namespace AppInstaller::Logging
                 logger->Write(channel, level, message);
             }
         }
+    }
+
+    std::string_view DiagnosticLogger::GetLogFileNamePrefix()
+    {
+        std::string_view fileNamePrefix{ "" };
+
+        for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i)
+        {
+            if ((*i)->GetName() == "file")
+            {
+                return static_cast<FileLogger*>(i->get())->CurrentPrefix();
+            }
+        }
+
+        return fileNamePrefix;
     }
 
     void AddFileLogger()
