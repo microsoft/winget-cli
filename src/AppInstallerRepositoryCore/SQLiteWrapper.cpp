@@ -125,7 +125,7 @@ namespace AppInstaller::Repository::SQLite
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
         AICLI_LOG(SQL, Info, << "Opening SQLite connection: '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
-        // Always for connection serialization until we determine that there are situations where it is not needed
+        // Always force connection serialization until we determine that there are situations where it is not needed
         int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX;
         THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr));
     }
