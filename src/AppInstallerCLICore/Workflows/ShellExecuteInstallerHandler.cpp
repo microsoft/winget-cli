@@ -137,7 +137,7 @@ namespace AppInstaller::CLI::Workflow
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
 
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-                path /= Logging::FileLogger::DefaultPrefix();
+                path /= Logging::Log().GetLogFileNamePrefix();
                 path += '-';
                 path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
                 path += '-';
