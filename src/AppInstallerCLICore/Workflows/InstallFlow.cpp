@@ -392,6 +392,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::ReportManifestIdentity <<
             Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportDependencies <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
@@ -408,7 +409,49 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportDependencies <<
             Workflow::InstallPackageInstaller;
+    }
+
+    void ReportDependencies(Execution::Context& context)
+    {
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        if (installer)
+        {
+            auto dependencies = installer->Dependencies;
+            if (dependencies.HasAny())
+            {
+                context.Reporter.Info() << "  [Warning] The installer has the following dependencies: " << std::endl;
+
+                auto windowsFeaturesDep = dependencies.WindowsFeatures;
+                for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
+                {
+                    context.Reporter.Info() << "    WindowsFeatures: " << windowsFeaturesDep[i] << std::endl;
+                }
+
+                auto windowsLibrariesDep = dependencies.WindowsLibraries;
+                for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
+                {
+                    context.Reporter.Info() << "    WindowsLibraries: " << windowsLibrariesDep[i] << std::endl;
+                }
+
+                auto packageDep = dependencies.PackageDependencies;
+                for (size_t i = 0; i < packageDep.size(); i++)
+                {
+                    context.Reporter.Info() << "    PackageDependency: " << packageDep[i].Id;
+                    if (!packageDep[i].MinVersion.empty()) {
+                        context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+
+                auto externalDependenciesDep = dependencies.ExternalDependencies;
+                for (size_t i = 0; i < externalDependenciesDep.size(); i++)
+                {
+                    context.Reporter.Info() << "    ExternalDependencies: " << externalDependenciesDep[i] << std::endl;
+                }
+            }
+        }
     }
 
     void InstallMultiple(Execution::Context& context)
