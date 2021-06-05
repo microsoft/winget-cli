@@ -87,7 +87,7 @@ See [details on telemetry](../README.md#datatelemetry), and our [primary privacy
 
 ### disable
 
-```
+```json
     "telemetry": {
         "disable": true
     },

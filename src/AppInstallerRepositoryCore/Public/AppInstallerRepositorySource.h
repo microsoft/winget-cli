@@ -102,7 +102,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
     struct OpenSourceResult
     {

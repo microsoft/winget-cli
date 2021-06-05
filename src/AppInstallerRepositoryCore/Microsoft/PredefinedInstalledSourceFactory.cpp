@@ -131,19 +131,19 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, "*PredefinedInstalledSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
             }
 
-            void Add(SourceDetails&, IProgressCallback&) override final
+            bool Add(SourceDetails&, IProgressCallback&) override final
             {
                 // Add should never be needed, as this is predefined.
                 THROW_HR(E_NOTIMPL);
             }
 
-            void Update(const SourceDetails&, IProgressCallback&) override final
+            bool Update(const SourceDetails&, IProgressCallback&) override final
             {
                 // Update could be used later, but not for now.
                 THROW_HR(E_NOTIMPL);
             }
 
-            void Remove(const SourceDetails&, IProgressCallback&) override final
+            bool Remove(const SourceDetails&, IProgressCallback&) override final
             {
                 // Similar to add, remove should never be needed.
                 THROW_HR(E_NOTIMPL);

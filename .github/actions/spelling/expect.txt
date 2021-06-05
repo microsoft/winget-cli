@@ -114,6 +114,7 @@ foldc
 foldcase
 FOLDERID
 ftp
+FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer

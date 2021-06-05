@@ -54,13 +54,18 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
+                if (!lock)
+                {
+                    return {};
+                }
+
                 return CreateInternal(details, std::move(lock), progress);
             }
 
             virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) = 0;
 
-            void Add(SourceDetails& details, IProgressCallback& progress) override final
+            bool Add(SourceDetails& details, IProgressCallback& progress) override final
             {
                 if (details.Type.empty())
                 {
@@ -88,12 +93,56 @@ namespace AppInstaller::Repository::Microsoft
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
                 details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+                auto lock = LockExclusive(details, progress);
+                if (!lock)
+                {
+                    return false;
+                }
 
-                UpdateInternal(packageLocation, packageInfo, details, progress);
+                return UpdateInternal(packageLocation, packageInfo, details, progress);
             }
 
-            void Update(const SourceDetails& details, IProgressCallback& progress) override final
+            bool Update(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                return UpdateBase(details, false, progress);
+            }
+
+            bool BackgroundUpdate(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                return UpdateBase(details, true, progress);
+            }
+
+            virtual bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
+
+            bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                auto lock = LockExclusive(details, progress);
+                if (!lock)
+                {
+                    return false;
+                }
+
+                return RemoveInternal(details, progress);
+            }
+
+            virtual bool RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
+
+        private:
+            Synchronization::CrossProcessReaderWriteLock LockExclusive(const SourceDetails& details, IProgressCallback& progress, bool isBackground = false)
+            {
+                if (isBackground)
+                {
+                    // If this is a background update, don't wait on the lock.
+                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), 0ms);
+                }
+                else
+                {
+                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), progress);
+                }
+            }
+
+            bool UpdateBase(const SourceDetails& details, bool isBackground, IProgressCallback& progress)
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
@@ -110,25 +159,17 @@ namespace AppInstaller::Repository::Microsoft
                 if (progress.IsCancelled())
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return;
+                    return false;
                 }
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+                auto lock = LockExclusive(details, progress, isBackground);
+                if (!lock)
+                {
+                    return false;
+                }
 
-                UpdateInternal(packageLocation, packageInfo, details, progress);
+                return UpdateInternal(packageLocation, packageInfo, details, progress);
             }
-
-            virtual void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
-
-            void Remove(const SourceDetails& details, IProgressCallback& progress) override final
-            {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
-
-                RemoveInternal(details, progress);
-            }
-
-            virtual void RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
         };
 
         // Source factory for running within a packaged context
@@ -166,7 +207,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // Check if the package is newer before calling into deployment.
                 // This can save us a lot of time over letting deployment detect same version.
@@ -176,14 +217,14 @@ namespace AppInstaller::Repository::Microsoft
                     if (!packageInfo.IsNewerThan(extension->GetPackageVersion()))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
-                        return;
+                        return true;
                     }
                 }
 
                 if (progress.IsCancelled())
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return;
+                    return false;
                 }
 
                 // Due to complications with deployment, download the file and deploy from
@@ -239,9 +280,11 @@ namespace AppInstaller::Repository::Microsoft
                         }
                     }
                 }
+
+                return true;
             }
 
-            void RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
+            bool RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
             {
                 auto fullName = Msix::GetPackageFullNameFromFamilyName(GetPackageFamilyNameFromDetails(details));
 
@@ -254,6 +297,8 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
                     Deployment::RemovePackage(*fullName, callback);
                 }
+
+                return true;
             }
         };
 
@@ -287,7 +332,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
@@ -302,21 +347,23 @@ namespace AppInstaller::Repository::Microsoft
                     if (!packageInfo.IsNewerThan(manifestPath))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
-                        return;
+                        return true;
                     }
                 }
 
                 if (progress.IsCancelled())
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return;
+                    return false;
                 }
 
                 packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, indexPath, progress);
                 packageInfo.WriteManifestToFile(manifestPath, progress);
+
+                return true;
             }
 
-            void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
+            bool RemoveInternal(const SourceDetails& details, IProgressCallback&) override
             {
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
 
@@ -329,6 +376,8 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Removing state found for source: " << packageState.u8string());
                     std::filesystem::remove_all(packageState);
                 }
+
+                return true;
             }
         };
     }

@@ -590,16 +590,20 @@ namespace AppInstaller::Repository
         }
 
         template <typename MemberFunc>
-        void AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
+            bool result = false;
             auto factory = GetFactoryForType(details.Type);
 
             // Attempt; if it fails, wait a short time and retry.
             try
             {
-                (factory.get()->*member)(details, progress);
-                details.LastUpdateTime = std::chrono::system_clock::now();
-                return;
+                result = (factory.get()->*member)(details, progress);
+                if (result)
+                {
+                    details.LastUpdateTime = std::chrono::system_clock::now();
+                }
+                return result;
             }
             CATCH_LOG();
 
@@ -607,25 +611,34 @@ namespace AppInstaller::Repository
             std::this_thread::sleep_for(2s);
 
             // If this one fails, maybe the problem is persistent.
-            (factory.get()->*member)(details, progress);
-            details.LastUpdateTime = std::chrono::system_clock::now();
+            result = (factory.get()->*member)(details, progress);
+            if (result)
+            {
+                details.LastUpdateTime = std::chrono::system_clock::now();
+            }
+            return result;
         }
 
-        void AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
         }
 
-        void UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
+        bool BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        {
+            return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
+        }
+
+        bool RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
             auto factory = GetFactoryForType(details.Type);
 
-            factory->Remove(details, progress);
+            return factory->Remove(details, progress);
         }
 
         // Determines whether (and logs why) a source should be updated before it is opened.
@@ -847,7 +860,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -873,12 +886,16 @@ namespace AppInstaller::Repository
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
 
-        AddSourceFromDetails(details, progress);
+        bool result = AddSourceFromDetails(details, progress);
+        if (result)
+        {
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
 
-        AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-        AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+            sourceList.AddSource(details);
+        }
 
-        sourceList.AddSource(details);
+        return result;
     }
 
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
@@ -915,8 +932,7 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
-                            UpdateSourceFromDetails(source, progress);
-                            sourceUpdated = true;
+                            sourceUpdated = BackgroundUpdateSourceFromDetails(source, progress) || sourceUpdated;
                         }
                         catch (...)
                         {
@@ -954,8 +970,10 @@ namespace AppInstaller::Repository
                 {
                     try
                     {
-                        UpdateSourceFromDetails(*source, progress);
-                        sourceList.SaveMetadata();
+                        if (BackgroundUpdateSourceFromDetails(*source, progress))
+                        {
+                            sourceList.SaveMetadata();
+                        }
                     }
                     catch (...)
                     {
@@ -1045,10 +1063,13 @@ namespace AppInstaller::Repository
         {
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source->Name);
 
-            UpdateSourceFromDetails(*source, progress);
+            bool result = UpdateSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.SaveMetadata();
+            }
 
-            sourceList.SaveMetadata();
-            return true;
+            return result;
         }
     }
 
@@ -1069,10 +1090,14 @@ namespace AppInstaller::Repository
             AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source->Name << " [" << ToString(source->Origin) << ']');
 
             EnsureSourceIsRemovable(*source);
-            RemoveSourceFromDetails(*source, progress);
-            sourceList.RemoveSource(*source);
 
-            return true;
+            bool result = RemoveSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.RemoveSource(*source);
+            }
+
+            return result;
         }
     }
 

@@ -257,6 +257,7 @@ msrc
 Multifile
 Multimatch
 mutex
+mutexes
 namespace
 namespaces
 Nelon
@@ -533,6 +534,7 @@ woah
 wofstream
 workaround
 workflow
+wostringstream
 wostream
 wpfn
 wrl
