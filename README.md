@@ -10,7 +10,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ## Installing the client
 
-> The client requires Windows 10 1709 (build 16299) or later at this time.
+> The client requires Windows 10 1809 (build 16299) or later at this time.
 
 ### Microsoft Store [Recommended]
 
@@ -27,6 +27,10 @@ The same Microsoft Store package will be made available via our [Releases](https
 
 > You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
+
+### Troubleshooting
+
+Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
 ## Administrator considerations
 
