@@ -5,6 +5,7 @@
 
 namespace AppInstaller
 {
+    static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
 
     NullStream::NullStream()
     {
@@ -31,5 +32,27 @@ namespace AppInstaller
     {
         m_executionStage = executionStage;
         m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
+    }
+
+    void COMContext::SetLoggerContext(const std::wstring_view telemetryCorelationJson, const std::string& caller)
+    {
+        Logging::SetActivityId();
+        Logging::Telemetry().SetTelemetryCorelationJson(telemetryCorelationJson);
+        Logging::Telemetry().SetCaller(caller);
+        Logging::Telemetry().LogStartup(true);
+    }
+
+    void COMContext::SetLoggers()
+    {
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::Log().EnableChannel(Logging::Channel::All);
+
+        // TODO: Log to file for COM API calls only when debugging in visual studio
+        Logging::AddFileLogger(s_comLogFileNamePrefix);
+        Logging::BeginLogFileCleanup();
+
+        Logging::AddTraceLogger();
+
+        Logging::EnableWilFailureTelemetry();
     }
 }

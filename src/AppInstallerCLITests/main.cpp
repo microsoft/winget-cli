@@ -73,7 +73,7 @@ int main(int argc, char** argv)
         else if ("-logto"s == argv[i])
         {
             ++i;
-            Logging::AddFileLogger(argv[i]);
+            Logging::AddFileLogger(std::string_view{ argv[i] });
         }
         else if ("-tdd"s == argv[i])
         {
