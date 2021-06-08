@@ -211,134 +211,144 @@ namespace AppInstaller::Repository::Microsoft
 
         for (const auto& arpEntry : key)
         {
-            std::string productCode = arpEntry.Name();
-
-            Manifest::Manifest manifest;
-            manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "ARP" });
-
-            // Use the key name as the Id, as it is supposed to be unique.
-            // TODO: We probably want something better here, like constructing the value as
-            //       `Publisher.DisplayName`. We would need to ensure that there are no matches
-            //       against the rest of the data however (might happen if same package is
-            //       installed for multiple architectures/languages).
-            manifest.Id = productCode;
-
-            manifest.Installers.emplace_back();
-            // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"
-            //       that might vary across machines/installs. There may be other things we want to clean up as well,
-            //       like trimming spaces at the ends, or removing the version string from the product code
-            //       if it is present.
-            manifest.Installers[0].ProductCode = productCode;
-
-            Registry::Key arpKey = arpEntry.Open();
-
-            // Ignore entries that are listed as SystemComponent
-            if (GetBoolValue(arpKey, SystemComponent))
-            {
-                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because it is a SystemComponent");
-                continue;
-            }
-
-            // If no name is provided, ignore this entry
-            auto displayName = arpKey[DisplayName];
-            if (!displayName || displayName->GetType() != Registry::Value::Type::String)
-            {
-                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is not a REG_SZ value");
-                continue;
-            }
-            auto displayNameValue = displayName->GetValue<Registry::Value::Type::String>();
-            manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayNameValue);
-            if (displayNameValue.empty())
-            {
-                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is empty");
-                continue;
-            }
-
-            // If no version can be determined, ignore this entry
-            manifest.Version = DetermineVersion(arpKey);
-            if (manifest.Version.empty())
-            {
-                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because a version could not be determined");
-                continue;
-            }
-
-            auto publisher = arpKey[Publisher];
-            if (publisher && publisher->GetType() == Registry::Value::Type::String)
-            {
-                manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher->GetValue<Registry::Value::Type::String>());
-
-                // If Publisher is set, change the Id using name normalization
-                // TODO: Figure out how to actually make this work since there are often instances of the same
-                // data in x64 and x86 entries that will collide.
-                //auto normalizedName = index.NormalizeName(
-                //    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
-                //    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
-                //manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
-            }
-
-            // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
-            //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
-
-            // TODO: Determine the best way to handle duplicates; sometimes the same package will be listed under
-            //       both x64 and x86 locations for ARP.
-            //       For now, we will attempt to insert and catch.
-            std::optional<SQLiteIndex::IdType> manifestIdOpt;
+            std::string productCode;
 
             try
             {
-                // Use the ProductCode as a unique key for the path
-                manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
+                productCode = arpEntry.Name();
+
+                Manifest::Manifest manifest;
+                manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "ARP" });
+
+                // Use the key name as the Id, as it is supposed to be unique.
+                // TODO: We probably want something better here, like constructing the value as
+                //       `Publisher.DisplayName`. We would need to ensure that there are no matches
+                //       against the rest of the data however (might happen if same package is
+                //       installed for multiple architectures/languages).
+                manifest.Id = productCode;
+
+                manifest.Installers.emplace_back();
+                // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"
+                //       that might vary across machines/installs. There may be other things we want to clean up as well,
+                //       like trimming spaces at the ends, or removing the version string from the product code
+                //       if it is present.
+                manifest.Installers[0].ProductCode = productCode;
+
+                Registry::Key arpKey = arpEntry.Open();
+
+                // Ignore entries that are listed as SystemComponent
+                if (GetBoolValue(arpKey, SystemComponent))
+                {
+                    AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because it is a SystemComponent");
+                    continue;
+                }
+
+                // If no name is provided, ignore this entry
+                auto displayName = arpKey[DisplayName];
+                if (!displayName || displayName->GetType() != Registry::Value::Type::String)
+                {
+                    AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is not a REG_SZ value");
+                    continue;
+                }
+                auto displayNameValue = displayName->GetValue<Registry::Value::Type::String>();
+                manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayNameValue);
+                if (displayNameValue.empty())
+                {
+                    AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is empty");
+                    continue;
+                }
+
+                // If no version can be determined, ignore this entry
+                manifest.Version = DetermineVersion(arpKey);
+                if (manifest.Version.empty())
+                {
+                    AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because a version could not be determined");
+                    continue;
+                }
+
+                auto publisher = arpKey[Publisher];
+                if (publisher && publisher->GetType() == Registry::Value::Type::String)
+                {
+                    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher->GetValue<Registry::Value::Type::String>());
+
+                    // If Publisher is set, change the Id using name normalization
+                    // TODO: Figure out how to actually make this work since there are often instances of the same
+                    // data in x64 and x86 entries that will collide.
+                    //auto normalizedName = index.NormalizeName(
+                    //    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    //    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+                    //manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
+                }
+
+                // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
+                //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
+
+                // TODO: Determine the best way to handle duplicates; sometimes the same package will be listed under
+                //       both x64 and x86 locations for ARP.
+                //       For now, we will attempt to insert and catch.
+                std::optional<SQLiteIndex::IdType> manifestIdOpt;
+
+                try
+                {
+                    // Use the ProductCode as a unique key for the path
+                    manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
+                }
+                catch (...)
+                {
+                    // Ignore errors if they occur, they are most likely a duplicate value
+                }
+
+                if (!manifestIdOpt)
+                {
+                    AICLI_LOG(Repo, Warning,
+                        << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>() << "]");
+                    continue;
+                }
+
+                SQLiteIndex::IdType manifestId = manifestIdOpt.value();
+
+                // Pass scope along to metadata.
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, scope);
+
+                // TODO: Pass along architecture, although there are cases where it is not clear what architecture the package
+                //       is from it's ARP location, despite it very clearly being a specific architecture. And note that user
+                //       scope does not have separate ARP locations, so every architecture would appear as native.
+
+                // Publisher is needed for certain scenarios but we don't store it from the manifest
+                if (manifest.DefaultLocalization.Contains(Manifest::Localization::Publisher))
+                {
+                    index.SetMetadataByManifestId(
+                        manifestId, PackageVersionMetadata::Publisher,
+                        manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+                }
+
+                // Pick up InstallLocation when upgrade supports remove/install to enable this location
+                // to survive across the removal.
+                AddMetadataIfPresent(arpKey, InstallLocation, index, manifestId, PackageVersionMetadata::InstalledLocation);
+
+                // Pick up UninstallString and QuietUninstallString for uninstall.
+                AddMetadataIfPresent(arpKey, UninstallString, index, manifestId, PackageVersionMetadata::StandardUninstallCommand);
+                AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
+
+                // Pick up Language to enable proper selection of language for upgrade.
+                AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
+
+                // Pick up WindowsInstaller to determine if this is an MSI install.
+                // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
+                auto installedType = Manifest::InstallerTypeEnum::Exe;
+
+                if (GetBoolValue(arpKey, WindowsInstaller))
+                {
+                    installedType = Manifest::InstallerTypeEnum::Msi;
+                }
+
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::InstallerTypeToString(installedType));
             }
             catch (...)
             {
-                // Ignore errors if they occur, they are most likely a duplicate value
+                AICLI_LOG(Repo, Warning, << "Failed to read ARP entry, ignoring it: " << scope << '|' << architecture << '|' << productCode);
+                LOG_CAUGHT_EXCEPTION();
             }
-
-            if (!manifestIdOpt)
-            {
-                AICLI_LOG(Repo, Warning,
-                    << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>() << "]");
-                continue;
-            }
-
-            SQLiteIndex::IdType manifestId = manifestIdOpt.value();
-
-            // Pass scope along to metadata.
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, scope);
-
-            // TODO: Pass along architecture, although there are cases where it is not clear what architecture the package
-            //       is from it's ARP location, despite it very clearly being a specific architecture. And note that user
-            //       scope does not have separate ARP locations, so every architecture would appear as native.
-
-            // Publisher is needed for certain scenarios but we don't store it from the manifest
-            if (manifest.DefaultLocalization.Contains(Manifest::Localization::Publisher))
-            {
-                index.SetMetadataByManifestId(
-                    manifestId, PackageVersionMetadata::Publisher,
-                    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
-            }
-
-            // Pick up InstallLocation when upgrade supports remove/install to enable this location
-            // to survive across the removal.
-            AddMetadataIfPresent(arpKey, InstallLocation, index, manifestId, PackageVersionMetadata::InstalledLocation);
-
-            // Pick up UninstallString and QuietUninstallString for uninstall.
-            AddMetadataIfPresent(arpKey, UninstallString, index, manifestId, PackageVersionMetadata::StandardUninstallCommand);
-            AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
-
-            // Pick up Language to enable proper selection of language for upgrade.
-            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
-
-            // Pick up WindowsInstaller to determine if this is an MSI install.
-            // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
-            auto installedType = Manifest::InstallerTypeEnum::Exe;
-
-            if (GetBoolValue(arpKey, WindowsInstaller))
-            {
-                installedType = Manifest::InstallerTypeEnum::Msi;
-            }
-
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::InstallerTypeToString(installedType));
         }
     }
 }

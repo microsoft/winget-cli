@@ -298,8 +298,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nome di argomento non riconosciuto per il comando corrente</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Lingua da installare (se supportata)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Impostazioni locali da usare (formato BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contratto di licenza</value>
@@ -480,7 +481,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Visualizza informazioni su un pacchetto specifico. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Mostra le informazioni relative a un pacchetto</value>
+    <value>Mostra informazioni su un pacchetto</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versione</value>
@@ -915,5 +916,9 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Origine consentita</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Il valore specificato per l'argomento '%1' non è valido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

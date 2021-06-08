@@ -10,7 +10,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ## Installing the client
 
-> The client requires Windows 10 1809 (build 16299) or later at this time.
+> The client requires Windows 10 1809 (build 17763) or later at this time.
 
 ### Microsoft Store [Recommended]
 
@@ -18,6 +18,8 @@ The client is distributed within the [App Installer](https://www.microsoft.com/e
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
+
+Note: it may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next stable release has been added to the Microsoft Store.
 
 Once you have received the updated App Installer you should be able to execute `winget`. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
@@ -77,7 +79,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 
 ### Prerequisites
 
-* Windows 10 1709 (16299) or later
+* Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)

@@ -94,12 +94,39 @@ namespace AppInstaller::Repository::SQLite
         {
             return (sqlite3_column_int(stmt, column) != 0);
         }
+
+        std::string ParameterSpecificsImpl<blob_t>::ToLog(const blob_t& v)
+        {
+            std::ostringstream strstr;
+            strstr << "blob[" << v.size() << "]";
+            return strstr.str();
+        }
+
+        void ParameterSpecificsImpl<blob_t>::Bind(sqlite3_stmt* stmt, int index, const blob_t& v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT));
+        }
+
+        blob_t ParameterSpecificsImpl<blob_t>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            const blob_t::value_type* blobPtr = reinterpret_cast<const blob_t::value_type *>(sqlite3_column_blob(stmt, column));
+            if (blobPtr)
+            {
+                int blobBytes = sqlite3_column_bytes(stmt, column);
+                return blob_t{ blobPtr, blobPtr + blobBytes };
+            }
+            else
+            {
+                return {};
+            }
+        }
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
         AICLI_LOG(SQL, Info, << "Opening SQLite connection: '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
-        int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags);
+        // Always force connection serialization until we determine that there are situations where it is not needed
+        int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX;
         THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr));
     }
 

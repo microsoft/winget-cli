@@ -52,7 +52,7 @@
   <PropertyGroup>
     <ProjectGuid>3e2cba31-ceba-4d63-bf52-49c0718e19ea</ProjectGuid>
     <TargetPlatformVersion>10.0.18362.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <EntryPointProjectUniqueName>..\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.vcxproj</EntryPointProjectUniqueName>

@@ -9,8 +9,8 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
-    const Sequence& HelpCommandEmphasis = TextFormat::Foreground::BrightWhite;
-    const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::BrightWhite;
+    const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;

@@ -298,8 +298,9 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumendi nime pole praeguse käsu jaoks tuvastatud</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Installitav keel (kui seda toetatakse)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokaat kasutamiseks (BCP47 vorming)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Litsentsileping</value>
@@ -659,11 +660,11 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
     <value>Ühtegi kohaldatavat värskendust ei leitud.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Värskendab valitud paketi, mis leitakse kas installitud pakettide loendist või otse manifestist otsides. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima ID, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
+    <value>Täiendab valitud paketi, mis leitakse kas installitud pakettide loendist või otse manifestist otsides. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima ID, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Värskendab antud paketi</value>
+    <value>Täiendab antud paketi</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>kasutus</value>
@@ -915,5 +916,9 @@ Konfiguratsioon on rühmapoliitika tõttu keelatud.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Lubatud allikas</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Argumendis "%1" esitatud väärtus ei sobi</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

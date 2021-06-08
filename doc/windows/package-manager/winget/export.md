@@ -44,14 +44,16 @@ The driving force behind the **export** command is the JSON file.  As mentioned,
 The JSON file includes the following hierarchy:
 | Entry      | Description |
 |-------------|-------------|  
-| **Sources**  |  The repo that the the application is installed from.  |
+| **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
-| **Id**  |  The Windows Package Manager id used to identify the package.  |
+| **Id**  |  The Windows Package Manager package identifier used to specify the package.  |
 | **Version**  |  [optional] The specific version of the package to install.  |
 
 ## exporting files
 
-When the Windows Package Manager exports the JSON file, it attempts to export all the applications installed on the PC. If the **winget export** command is not able to match an application to an application from an available **source**, the export command will show a warning.  
+When the Windows Package Manager exports the JSON file, it attempts to export all the applications installed on the PC. If the **winget export** command is not able to match an application to an application from an available **source**, the export command will show a warning. 
+
+Note: matching an application depends on metadata in the manifest from a configured source, and metadata in Add / Remove Programs in Windows based on the package installer.
 
 In the example below, you will see warnings for _reSearch_ and _Angry Birds_.
 

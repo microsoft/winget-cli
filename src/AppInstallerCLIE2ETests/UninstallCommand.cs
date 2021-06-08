@@ -20,19 +20,6 @@ namespace AppInstallerCLIE2ETests
         // Package name of the test MSIX package
         private const string UninstallTestMsixName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            InitializeAllFeatures(false);
-            ConfigureFeature("uninstall", true);
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            InitializeAllFeatures(false);
-        }
-
         [Test]
         public void UninstallTestExe()
         {

@@ -298,8 +298,9 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="InvalidNameError" xml:space="preserve">
     <value>O nome do argumento não foi reconhecido para o comando atual</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Idioma para instalar (se houver suporte)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Local para usar (formato BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de Licença</value>
@@ -663,7 +664,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Atualizações do pacote fornecido</value>
+    <value>Atualiza o pacote fornecido</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
@@ -915,5 +916,9 @@ A configuração está desabilitada devido à política de grupo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Fonte permitida</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>O valor fornecido para o argumento '%1' é inválido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

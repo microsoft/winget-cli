@@ -66,5 +66,5 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS_HR(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true), WININET_E_UNRECOGNIZED_SCHEME);
+    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true));
 }

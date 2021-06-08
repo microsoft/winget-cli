@@ -298,8 +298,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument Name wurde für den aktuellen Befehl nicht erkannt.</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Zu installierende Sprache (sofern unterstützt)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Zu verwendendes Gebietsschema (BCP47-Format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lizenzvereinbarung</value>
@@ -663,7 +664,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Aktualisiert das angegebene Paket</value>
+    <value>Aktualisiert das gegebene Paket</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>Nutzung</value>
@@ -915,5 +916,9 @@ Die Konfiguration ist aufgrund der Gruppen Richtlinie deaktiviert.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Zulässige Quelle</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Der für das Argument „%1“ angegebene Wert ist ungültig</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

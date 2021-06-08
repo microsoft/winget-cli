@@ -298,8 +298,9 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="InvalidNameError" xml:space="preserve">
     <value>Ime argumenta nije prepoznato za trenutnu komandu</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Jezik koji treba instalirati (ako je podržan)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokalni standard za korišćenje (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Ugovor o licenciranju</value>
@@ -659,11 +660,11 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
     <value>Nije pronađena nijedna primenljiva ispravka.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Ažurira izabrani paket, koji se nalazi ili pretraživanjem instalirane liste paketa ili direktno sa manifesta. Veličina slova upita podrazumevano mora da se poklopi sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
+    <value>Nadograđuje izabrani paket, koji se nalazi ili pretraživanjem instalirane liste paketa ili direktno sa manifesta. Veličina slova upita podrazumevano mora da se poklopi sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Ažurira dati paket</value>
+    <value>Nadograđuje dati paket</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>potrošnja</value>
@@ -915,5 +916,9 @@ Konfiguracija je onemogućena zbog smernica grupe.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Dozvoljeni izvor</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Vrednost navedena za argument `%1` je nevažeća</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

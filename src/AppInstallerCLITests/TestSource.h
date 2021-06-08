@@ -98,9 +98,9 @@ namespace TestCommon
 
         // ISourceFactory
         std::shared_ptr<AppInstaller::Repository::ISource> Create(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
-        void Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
-        void Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
-        void Remove(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        bool Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        bool Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        bool Remove(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
 
         // Make copies of self when requested.
         operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();

@@ -91,26 +91,26 @@ namespace AppInstaller::Utility {
 
     std::string SHA256::ConvertToString(const HashBuffer& hashBuffer)
     {
-        if (hashBuffer.size() != 32)
+        if (hashBuffer.size() != HashBufferSizeInBytes)
         {
             THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToString() is called.");
         }
 
-        char resultBuffer[65];
+        char resultBuffer[HashStringSizeInChars + 1];
 
-        for (size_t i = 0; i < 32; i++)
+        for (size_t i = 0; i < HashBufferSizeInBytes; i++)
         {
             sprintf_s(resultBuffer + i * 2, 3, "%02x", hashBuffer[i]);
         }
 
-        resultBuffer[64] = '\0';
+        resultBuffer[HashStringSizeInChars] = '\0';
 
         return std::string(resultBuffer);
     }
 
     std::vector<uint8_t> SHA256::ConvertToBytes(const std::string& hashStr)
     {
-        if (hashStr.size() != 64)
+        if (hashStr.size() != HashStringSizeInChars)
         {
             THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
         }
@@ -118,9 +118,9 @@ namespace AppInstaller::Utility {
         auto hashCStr = hashStr.c_str();
         std::vector<uint8_t> resultBuffer;
 
-        resultBuffer.resize(32);
+        resultBuffer.resize(HashBufferSizeInBytes);
 
-        for (size_t i = 0; i < 32; i++)
+        for (size_t i = 0; i < HashBufferSizeInBytes; i++)
         {
             sscanf_s(hashCStr + 2 * i, "%02hhx", &resultBuffer[i]);
         }

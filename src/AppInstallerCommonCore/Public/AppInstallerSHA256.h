@@ -19,6 +19,8 @@ namespace AppInstaller::Utility {
     {
     public:
         using HashBuffer = std::vector<uint8_t>;
+        constexpr static size_t HashBufferSizeInBytes = 32;
+        constexpr static size_t HashStringSizeInChars = 64;
 
         SHA256();
 

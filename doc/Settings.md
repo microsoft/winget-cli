@@ -87,7 +87,7 @@ See [details on telemetry](../README.md#datatelemetry), and our [primary privacy
 
 ### disable
 
-```
+```json
     "telemetry": {
         "disable": true
     },
@@ -131,45 +131,5 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
 ```json
    "experimentalFeatures": {
        "experimentalMSStore": true
-   },
-```
-
-### list
-
-While work is in progress on list, the command is hidden behind a feature toggle. One can enable it as below:
-
-```json
-   "experimentalFeatures": {
-       "list": true
-   },
-```
-
-### upgrade
-
-While work is in progress on upgrade, the command is hidden behind a feature toggle. One can enable it as below:
-
-```json
-   "experimentalFeatures": {
-       "upgrade": true
-   },
-```
-
-### uninstall
-
-While work is in progress on uninstall, the command is hidden behind a feature toggle. One can enable it as below:
-
-```json
-   "experimentalFeatures": {
-       "uninstall": true
-   },
-```
-
-### restSource
-
-While work is in progress for rest source support, the feature is hidden behind a feature toggle. Enabling this will not change how client works currently and will allow testing any additional rest sources added. One can enable it as below:
-
-```json
-   "experimentalFeatures": {
-       "restSource": true
    },
 ```

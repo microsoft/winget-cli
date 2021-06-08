@@ -402,7 +402,7 @@ namespace AppInstaller::Repository
                     details.Arg = s_Source_WingetCommunityDefault_Arg;
                     details.Data = s_Source_WingetCommunityDefault_Data;
                     details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
 
@@ -414,7 +414,7 @@ namespace AppInstaller::Repository
                     details.Arg = s_Source_WingetMSStoreDefault_Arg;
                     details.Data = s_Source_WingetMSStoreDefault_Data;
                     details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
             }
@@ -438,12 +438,6 @@ namespace AppInstaller::Repository
 
                 for (auto& source : userSources)
                 {
-                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
-                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
-                    {
-                        continue;
-                    }
-
                     // Check source against list of allowed sources and drop tombstones for required sources
                     if (!IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
                     {
@@ -582,8 +576,7 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
                 return Rest::RestSourceFactory::Create();
             }
@@ -597,16 +590,20 @@ namespace AppInstaller::Repository
         }
 
         template <typename MemberFunc>
-        void AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
+            bool result = false;
             auto factory = GetFactoryForType(details.Type);
 
             // Attempt; if it fails, wait a short time and retry.
             try
             {
-                (factory.get()->*member)(details, progress);
-                details.LastUpdateTime = std::chrono::system_clock::now();
-                return;
+                result = (factory.get()->*member)(details, progress);
+                if (result)
+                {
+                    details.LastUpdateTime = std::chrono::system_clock::now();
+                }
+                return result;
             }
             CATCH_LOG();
 
@@ -614,25 +611,34 @@ namespace AppInstaller::Repository
             std::this_thread::sleep_for(2s);
 
             // If this one fails, maybe the problem is persistent.
-            (factory.get()->*member)(details, progress);
-            details.LastUpdateTime = std::chrono::system_clock::now();
+            result = (factory.get()->*member)(details, progress);
+            if (result)
+            {
+                details.LastUpdateTime = std::chrono::system_clock::now();
+            }
+            return result;
         }
 
-        void AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
         }
 
-        void UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
+        bool BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        {
+            return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
+        }
+
+        bool RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
             auto factory = GetFactoryForType(details.Type);
 
-            factory->Remove(details, progress);
+            return factory->Remove(details, progress);
         }
 
         // Determines whether (and logs why) a source should be updated before it is opened.
@@ -854,7 +860,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -880,21 +886,16 @@ namespace AppInstaller::Repository
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
 
-        // Check feature flag enablement for rest source.
-        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-            && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+        bool result = AddSourceFromDetails(details, progress);
+        if (result)
         {
-            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
-                << " feature is disabled. Execution cancelled.");
-            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+
+            sourceList.AddSource(details);
         }
 
-        AddSourceFromDetails(details, progress);
-
-        AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-        AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
-
-        sourceList.AddSource(details);
+        return result;
     }
 
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
@@ -931,8 +932,7 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
-                            UpdateSourceFromDetails(source, progress);
-                            sourceUpdated = true;
+                            sourceUpdated = BackgroundUpdateSourceFromDetails(source, progress) || sourceUpdated;
                         }
                         catch (...)
                         {
@@ -970,8 +970,10 @@ namespace AppInstaller::Repository
                 {
                     try
                     {
-                        UpdateSourceFromDetails(*source, progress);
-                        sourceList.SaveMetadata();
+                        if (BackgroundUpdateSourceFromDetails(*source, progress))
+                        {
+                            sourceList.SaveMetadata();
+                        }
                     }
                     catch (...)
                     {
@@ -1041,10 +1043,13 @@ namespace AppInstaller::Repository
         {
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source->Name);
 
-            UpdateSourceFromDetails(*source, progress);
+            bool result = UpdateSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.SaveMetadata();
+            }
 
-            sourceList.SaveMetadata();
-            return true;
+            return result;
         }
     }
 
@@ -1065,10 +1070,14 @@ namespace AppInstaller::Repository
             AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source->Name << " [" << ToString(source->Origin) << ']');
 
             EnsureSourceIsRemovable(*source);
-            RemoveSourceFromDetails(*source, progress);
-            sourceList.RemoveSource(*source);
 
-            return true;
+            bool result = RemoveSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.RemoveSource(*source);
+            }
+
+            return result;
         }
     }
 
@@ -1123,7 +1132,12 @@ namespace AppInstaller::Repository
 
         for (const auto& include : Inclusions)
         {
-            result << " Inclusions:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
+            result << " Include:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'";
+            if (include.Additional)
+            {
+                result << "+'" << include.Additional.value() << "'";
+            }
+            result << "[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)

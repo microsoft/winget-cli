@@ -10,7 +10,7 @@ ms.localizationpriority: medium
 
 [!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
 
-The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Use the [**list**](.\list.md) command to identify the application you want to upgrade.  
+The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Optionally, you may use the [**list**](.\list.md) command to identify the application you want to upgrade.  
 
 The **upgrade** command requires that you specify the exact string to upgrade. If there is any ambiguity, you will be prompted to further filter the **upgrade** command to  an exact application.
 

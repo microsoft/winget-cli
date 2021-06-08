@@ -64,3 +64,4 @@ END
 // Packages schema
 //
 IDX_PACKAGES_SCHEMA_V1                    PACKAGESSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\packages\\packages.schema.1.0.json"
+IDX_PACKAGES_SCHEMA_V2                    PACKAGESSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\packages\\packages.schema.2.0.json"
