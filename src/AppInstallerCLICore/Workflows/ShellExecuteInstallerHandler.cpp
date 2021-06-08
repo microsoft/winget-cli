@@ -138,6 +138,7 @@ namespace AppInstaller::CLI::Workflow
 
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
                 path /= Logging::FileLogger::DefaultPrefix();
+                path += '-';
                 path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
                 path += '-';
                 path += Utility::GetCurrentTimeForFilename();

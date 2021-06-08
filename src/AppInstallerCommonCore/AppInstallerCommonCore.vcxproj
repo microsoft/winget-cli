@@ -301,6 +301,7 @@
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Settings.h" />
+    <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
@@ -360,6 +361,7 @@
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />
+    <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="Yaml.cpp" />

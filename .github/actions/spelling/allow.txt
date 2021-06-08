@@ -481,6 +481,7 @@ uncomment
 und
 undef
 unicode
+UNICODESTRING
 uninstall
 uninstalling
 Unregister
