@@ -35,10 +35,12 @@ namespace AppInstaller::Settings
         std::string_view Path;
     };
 
-    // The set of well known settings streams.
-    // Changing these values can result in data loss.
-    struct Streams
+    // A setting stream; provides access to functionality on the stream.
+    struct Stream
     {
+        // The set of well known settings streams.
+        // Changing these values can result in data loss.
+
         // The set of sources as defined by the user.
         constexpr static StreamDefinition UserSources{ Type::Secure, "user_sources"sv };
         // The metadata about all sources.
@@ -47,18 +49,30 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition PrimaryUserSettings{ Type::UserFile, "settings.json"sv };
         // The backup user settings file.
         constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
+
+        // Gets a Stream for the StreamDefinition.
+        // If the setting stream does not exist, returns an empty value (see operator bool).
+        // If the stream is synchronized, attempts to Set the value can fail due to another writer
+        // having changed the underlying stream.
+        Stream(const StreamDefinition& streamDefinition, bool synchronize = true);
+
+        const StreamDefinition& Definition() const { return m_streamDefinition; }
+
+        // Gets the actual stream if present; throws if not.
+        std::unique_ptr<std::istream> Get();
+
+        // Sets the stream to the given value.
+        // Returns true if successful; false if the underlying stream has changed.
+        bool Set(std::string_view value);
+
+        // Deletes the setting stream.
+        void Remove();
+
+        // Gets the path to the stream.
+        std::filesystem::path GetPath() const;
+
+    private:
+        const StreamDefinition& m_streamDefinition;
+        bool m_synchronize;
     };
-
-    // Gets a stream containing the named setting's value, if present.
-    // If the setting does not exist, returns an empty value.
-    std::unique_ptr<std::istream> GetSettingStream(const StreamDefinition& def);
-
-    // Sets the named setting to the given value.
-    void SetSetting(const StreamDefinition& def, std::string_view value);
-
-    // Deletes the given setting.
-    void RemoveSetting(const StreamDefinition& def);
-
-    // Gets the path to the given stream definition.
-    std::filesystem::path GetPathTo(const StreamDefinition& def);
 }
