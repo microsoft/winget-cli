@@ -50,9 +50,21 @@ jobs:
   
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
-    displayName: Restore Packages
+    displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
+  
+  # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
+  # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
+  - task: NuGetCommand@2
+    displayName: Restore AppInstallerCLIPackage
+    inputs:
+      restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
+  
+  - task: NuGetCommand@2
+    displayName: Restore AppInstallerTestMsixInstaller
+    inputs:
+      restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
   
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2

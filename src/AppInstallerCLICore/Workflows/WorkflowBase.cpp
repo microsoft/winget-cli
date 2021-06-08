@@ -363,7 +363,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        Execution::TableOutput<5> table(context.Reporter,
+        Execution::TableOutput<2> table(context.Reporter,
             {
                 Resource::String::SearchName,
                 Resource::String::SearchId
@@ -376,6 +376,47 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({
                 package->GetProperty(PackageProperty::Name),
                 package->GetProperty(PackageProperty::Id)
+                });
+        }
+
+        table.Complete();
+
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
+    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context)
+    {
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Execution::TableOutput<3> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchSource
+            });
+
+        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        {
+            auto package = searchResult.Matches[i].Package;
+
+            std::string sourceName;
+            auto latest = package->GetLatestAvailableVersion();
+            if (latest)
+            {
+                auto source = latest->GetSource();
+                if (source)
+                {
+                    sourceName = source->GetDetails().Name;
+                }
+            }
+
+            table.OutputLine({
+                package->GetProperty(PackageProperty::Name),
+                package->GetProperty(PackageProperty::Id),
+                std::move(sourceName)
                 });
         }
 
@@ -481,13 +522,13 @@ namespace AppInstaller::CLI::Workflow
                 if (m_isFromInstalledSource)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
+                    context << ReportMultiplePackageFoundResult;
                 }
                 else
                 {
                     context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+                    context << ReportMultiplePackageFoundResultWithSource;
                 }
-
-                context << ReportMultiplePackageFoundResult;
 
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }

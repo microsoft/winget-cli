@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Имя аргумента не распознано для текущей команды</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Язык для установки (если поддерживается)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Используемый языковой стандарт (формат BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Лицензионное соглашение</value>
@@ -480,7 +481,7 @@
     <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Отображение сведений о пакете</value>
+    <value>Показывает сведения о пакете</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Версия</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Разрешенный источник</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Для аргумента "%1" задано недопустимое значение</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

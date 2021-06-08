@@ -298,8 +298,9 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   <data name="InvalidNameError" xml:space="preserve">
     <value>Imena argumenta ni bilo mogoče prepoznati za trenutni ukaz</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Jezik, ki ga želite namestiti (če je podprt)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Območne nastavitve za uporabo (oblika zapisa BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licenčna pogodba</value>
@@ -480,7 +481,7 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
     <value>Prikaže informacije o določenem paketu. Privzeto se mora poizvedba, ki ne razlikuje med velikimi in malimi črkami, ujemati z ID-jem, imenom ali vzdevkom paketa. Druga polja lahko uporabite z vnosom ustreznih možnosti.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Iskanje in prikaz osnovnih informacij paketov</value>
+    <value>Prikaži informacije o paketu</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Različica</value>
@@ -659,7 +660,7 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
     <value>Nobene veljavne posodobitve ni mogoče najti.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Posodobi izbrani paket, ki ga najdete tako, da poiščete seznam nameščenih paketov ali neposredno iz manifesta. Poizvedba mora privzeto insensitively ujemanje z ID-jem, imenom ali vzdevek paketa. Druge polja lahko uporabite tako, da vnesete ustrezno možnost.</value>
+    <value>Nadgradi izbrani paket in ga poiščite tako, da poiščete seznam nameščenih paketov ali neposredno iz manifesta. Poizvedba mora privzeto insensitively ujemanje z ID-jem, imenom ali vzdevek paketa. Druge polja lahko uporabite tako, da vnesete ustrezno možnost.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfiguracija je onemogočena zaradi pravilnika skupine.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Dovoljen vir</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Vrednost, navedena za argument »%1«, ni veljavna</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

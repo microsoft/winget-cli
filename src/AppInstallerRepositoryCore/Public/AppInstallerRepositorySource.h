@@ -25,11 +25,14 @@ namespace AppInstaller::Repository
     };
 
     // Defines the trust level of the source.
-    enum class SourceTrustLevel
+    enum class SourceTrustLevel : uint32_t
     {
-        None,
-        Trusted,
+        None        = 0x00000000,
+        Trusted     = 0x00000001,
+        StoreOrigin = 0x00000002,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(SourceTrustLevel);
 
     std::string_view ToString(SourceOrigin origin);
 
@@ -99,7 +102,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
     struct OpenSourceResult
     {

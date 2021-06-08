@@ -74,8 +74,8 @@ The current preview of the **winget** tool supports the following options.
 
 | Option | Description |
 |--------------|-------------|
-| **-v,--version** | Returns the current version of winget. |
-| **--info** |  Provides you with all detailed information on winget, including the links to the license and privacy statement. |
+| **-v, --version** | Returns the current version of winget. |
+| **--info** |  Provides you with all detailed information on winget, including the links to the license, privacy statement, and configured group policies. |
 | **-?, --help** |  Shows additional help for winget. |
 
 ## Supported installer formats

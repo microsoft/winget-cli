@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Не го препознаваме името на аргументот за тековнава наредба</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Јазик за инсталација (ако е поддржан)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Локални стандарди за користење (формат BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Договор за лиценца</value>
@@ -480,7 +481,7 @@
     <value>Прикажува информации за одреден пакет. Стандардно, прашалникот не мора да разликува големи и мали букви и мора да се совпаѓа со идентификаторот, името или моникерот на пакетот. Другите полиња може да се користат со пренесување на нивната соодветна опција.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Прикажува информации за пакетот</value>
+    <value>Прикажува информации за пакет</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Верзија</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Дозволен извор</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Вредноста наведена за аргументот „%1“ е неважечка</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

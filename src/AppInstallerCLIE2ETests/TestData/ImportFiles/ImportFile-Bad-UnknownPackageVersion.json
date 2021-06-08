@@ -1,11 +1,11 @@
 {
-  "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
   "CreationDate": "2021-01-01T12:00:00.000",
   "Sources": [
     {
       "Packages": [
         {
-          "Id": "AppInstallerTest.TestExeInstaller",
+          "PackageIdentifier": "AppInstallerTest.TestExeInstaller",
           "Version": "4.3.2.1"
         }
       ],
@@ -16,6 +16,5 @@
         "Type": "Microsoft.PreIndexed.Package"
       }
     }
-  ],
-  "WinGetVersion": "1.0.0"
+  ]
 }

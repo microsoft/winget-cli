@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ಕಮಾಂಡ್‌‌ಗೆ ವಾದದ ಹೆಸರನ್ನು ಗುರುತಿಸಲಾಗಿಲ್ಲ</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>ಸ್ಥಾಪಿಸಲು ಭಾಷೆ (ಒಂದು ವೇಳೆ ಬೆಂಬಲಿಸಿದರೆ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>(BCP47 ಸ್ವರೂಪ) ಬಳಸಲು ಲೋಕೇಲ್</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>ಪರವಾನಗಿ ಒಪ್ಪಂದ</value>
@@ -480,7 +481,7 @@
     <value>ನಿರ್ದಿಷ್ಟ ಪ್ಯಾಕೇಜ್‍ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೊನಿಕರ್‌‍ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ಒಂದು ಪ್ಯಾಕೇಜ್ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
+    <value>ಪ್ಯಾಕೇಜ್ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>ಆವೃತ್ತಿ</value>
@@ -659,11 +660,11 @@
     <value>ಯಾವುದೇ ಅನ್ವಯವಾಗುವ ನವೀಕರಣ ವು ಕಂಡುಬಂದಿಲ್ಲ.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍ಗಳ ಪಟ್ಟಿಯಿಂದ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‍ನಿಂದ ಶೋಧಿಸುವ ಮೂಲಕ ಆಯ್ಕೆ ಮಾಡಿದ ಪ್ಯಾಕೇಜ್ ಪರಿಷ್ಕರಿಸಿ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್ ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
+    <value>ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍‌ಗಳ ಪಟ್ಟಿಯಿಂದ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಿಂದ ಶೋಧಿಸುವ ಮೂಲಕ ಆಯ್ಕೆ ಮಾಡಿದ ಪ್ಯಾಕೇಜ್ ಪರಿಷ್ಕರಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍‌ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್‌ನೊಂದಿಗೆೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>ನೀಡಲಾದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ನವೀಕರಿಸುತ್ತದೆ</value>
+    <value>ಒದಗಿಸಲಾದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ನವೀಕರಿಸುತ್ತದೆ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ಬಳಕೆ</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>ಅನುಮತಿಸಲಾದ ಮೂಲ</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>'%1' ತರ್ಕಕ್ಕೆ ಒದಗಿಸಿದ ಮೌಲ್ಯವು ಅಮಾನ್ಯವಾಗಿದೆ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

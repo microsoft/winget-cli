@@ -298,8 +298,9 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Pašreizējās komandas argumenta nosaukums netika atpazīts</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Instalējamā valoda (ja tiek atbalstīta)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokalizācija, kuru izmantot (BCP47 formāts)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licences līgums</value>
@@ -659,11 +660,11 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Nav atrasti atbilstoši atjauninājumi.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Atjaunina atlasīto pakotni, atrast, meklējot instalētos pakotņu sarakstu vai tieši no manifesta. Pēc noklusējuma vaicājumā ir jābūt insensitively, kas atbilst pakotnes ID, nosaukumam vai Pavārds neaptver. Citus laukus var izmantot, nodot to atbilstošu opciju.</value>
+    <value>Jaunina atlasīto pakotni, vai nu atradām, meklējot instalētos pakotņu sarakstu vai tieši no manifesta. Pēc noklusējuma vaicājumā ir jābūt insensitively, kas atbilst pakotnes ID, nosaukumam vai Pavārds neaptver. Citus laukus var izmantot, nodot to atbilstošu opciju.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Atjaunina norādīto pakotni</value>
+    <value>Jaunina norādīto pakotni</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>lietojums</value>
@@ -915,5 +916,9 @@ Konfigurācija ir atspējota grupas politikas dēļ.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Atļauts avots</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Argumenta '%1' norādītā vērtība nav derīga</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

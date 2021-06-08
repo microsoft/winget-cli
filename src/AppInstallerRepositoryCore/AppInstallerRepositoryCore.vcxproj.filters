@@ -46,6 +46,9 @@
     <Filter Include="Rest\Schema\1_0\Json">
       <UniqueIdentifier>{6bcbaf7a-289f-4d0b-b128-67bef903745c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_3">
+      <UniqueIdentifier>{15639b2c-ce61-4a18-995a-a73cf1a5817e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -207,6 +210,12 @@
     <ClInclude Include="Rest\Schema\CommonRestConstants.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_3\Interface.h">
+      <Filter>Microsoft\Schema\1_3</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h">
+      <Filter>Microsoft\Schema\1_3</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -316,6 +325,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\JsonHelper.cpp">
       <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
+      <Filter>Microsoft\Schema\1_3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

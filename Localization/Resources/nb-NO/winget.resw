@@ -298,8 +298,9 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumentnavnet ble ikke gjenkjent for gjeldende kommando</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Språk som skal installeres (hvis det støttes)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokaliser for bruk (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lisensavtale</value>
@@ -659,7 +660,7 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Ingen relevant oppdatering funnet.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Oppdaterer den valgte pakken, enten funnet ved å søke i listen over installerte pakker eller direkte fra et manifest. Som standard må spørringen skille mellom store og små bokstaver i ID-en, navnet eller navnet på pakken. Andre felt kan brukes ved å angi riktig alternativ.</value>
+    <value>Oppgraderer den valgte pakken, enten funnet ved å søke i listen over installerte pakker eller direkte fra et manifest. Som standard må spørringen skille mellom store og små bokstaver i ID, navn eller navn på pakken. Andre felt kan brukes ved å angi riktig alternativ.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfigurasjonen er deaktivert på grunn av gruppe policy.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Tillatt kilde</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Verdien som er angitt for argumentet "%1", er ugyldig</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

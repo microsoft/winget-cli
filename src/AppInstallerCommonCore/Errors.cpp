@@ -139,6 +139,8 @@ namespace AppInstaller
                 return "Unsupported MIME type returned by rest source";
             case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
                 return "Invalid rest source contract version";
+            case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+                return "The source data is corrupted or tampered";
             default:
                 return "Unknown Error Code";
             }

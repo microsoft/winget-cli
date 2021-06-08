@@ -298,8 +298,9 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nie rozpoznano nazwy argumentu dla bieżącego polecenia.</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Język do zainstalowania (jeśli jest obsługiwany)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Ustawienia regionalne do użycia (format BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Umowa licencyjna</value>
@@ -480,7 +481,7 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
     <value>Pokaż informacje o określonym pakiecie. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Wyświetla informacje o pakiecie</value>
+    <value>Pokaż informacje o pakiecie</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Wersja</value>
@@ -659,11 +660,11 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
     <value>Nie znaleziono żadnych odpowiednich aktualizacji.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Aktualizuje wybrany pakiet, czyli znaleziony przez przeszukiwanie listy zainstalowanych pakietów lub bezpośrednio z manifestu. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
+    <value>Uaktualnia wybrany pakiet, czyli znaleziony przez przeszukiwanie listy zainstalowanych pakietów lub bezpośrednio z manifestu. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Aktualizuje dany pakiet</value>
+    <value>Uaktualnia dany pakiet</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>użycie</value>
@@ -915,5 +916,9 @@ Konfiguracja jest wyłączona z uwagi na zasady grupy.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Dozwolone źródło</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Wartość podana dla argumentu "%1" jest nieprawidłowa</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

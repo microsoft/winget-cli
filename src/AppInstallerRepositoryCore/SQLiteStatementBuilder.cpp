@@ -137,6 +137,9 @@ namespace AppInstaller::Repository::SQLite::Builder
             case Type::Text:
                 out << "TEXT";
                 break;
+            case Type::Blob:
+                out << "BLOB";
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -602,6 +605,31 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::AlterTable(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "ALTER TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::AlterTable(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "ALTER TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::AlterTable(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "ALTER TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Add(std::string_view column, Type type)
+    {
+        m_stream << " ADD " << column;
+        OutputType(m_stream, type);
         return *this;
     }
 

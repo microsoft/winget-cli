@@ -4,6 +4,7 @@ addmanifest
 addstore
 admins
 alloc
+anonymize
 api
 appdata
 appinst
@@ -256,6 +257,7 @@ msrc
 Multifile
 Multimatch
 mutex
+mutexes
 namespace
 namespaces
 Nelon
@@ -488,6 +490,7 @@ uri
 url
 urlmon
 userguide
+USERPROFILE
 usersources
 utext
 utf
@@ -528,6 +531,7 @@ woah
 wofstream
 workaround
 workflow
+wostringstream
 wostream
 wpfn
 wrl

@@ -298,8 +298,9 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumentnaam is niet herkend voor de huidige opdracht</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Te installeren taal (indien ondersteund)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Landinstelling die u wilt gebruiken (BCP47-indeling)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Gebruiksrechtovereenkomst</value>
@@ -915,5 +916,9 @@ Configuratie is uitgeschakeld vanwege Groepsbeleid.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Toegestane bron</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>De opgegeven waarde voor het argument%1is ongeldig.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

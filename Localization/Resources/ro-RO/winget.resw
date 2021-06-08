@@ -298,8 +298,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Numele argumentului nu a fost recunoscut pentru comanda curentă</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Limba de instalat (dacă este acceptată)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Setări regionale de utilizat (în formatul BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Acord de licență</value>
@@ -659,11 +660,11 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Nu s-au găsit actualizări aplicabile.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Actualizează pachetul selectat, fie găsit prin căutarea în lista de pachete instalate sau direct dintr-un manifest. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+    <value>Face upgrade pachetului selectat, fie a fost găsit prin căutarea în lista de pachete instalate sau direct dintr-un manifest. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Actualizează pachetul dat</value>
+    <value>Efectuează upgrade pachetului dat</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>utilizare</value>
@@ -915,5 +916,9 @@ Configurația este dezactivată din cauza politicii de grup.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Sursă permisă</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Valoarea furnizată pentru argumentul "%1" este nevalidă</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

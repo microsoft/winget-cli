@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>தற்போதைய கட்டளைக்கு மதிப்புருப் பெயர் அறியப்படவில்லை</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>(ஆதரிக்கப்பட்டால்) நிறுவுவதற்கான மொழி</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>பயன்படுத்தவதற்கான உள்ளிடம் (BCP47 வடிவமைப்பு)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>உரிம ஒப்பந்தம்</value>
@@ -480,7 +481,7 @@
     <value>ஒரு குறிப்பிட்ட தொகுப்பைப் பற்றிய தகவலை காண்பிக்கும். இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>தொகுப்பைப் பற்றிய தகவலைக் காட்டுகிறது</value>
+    <value>ஒரு தொகுப்புப் பற்றிய தகவலைக் காண்பிக்கும்</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>பதிப்பு</value>
@@ -659,11 +660,11 @@
     <value>பொருந்தக்கூடிய புதுப்பிப்பு எதுவும் கண்டுபிடிக்கப்படவில்லை.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>நிறுவிய தொகுப்புகளின் பட்டியல் அல்லது வெளியிலிருந்து நேரடியாகத் தேடுவதன் மூலம் கண்டுபிடிக்கப்பட்ட, தேர்ந்தெடுத்த தொகுப்பைப் புதுப்பிக்கிறது. இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
+    <value>நிறுவப்பட்ட தொகுப்புகள் பட்டியலைத் தேடுவதன் மூலம் அல்லது நேரடியாக ஒரு மேனிஃபெஸ்டிலிருந்து தேர்ந்தெடுக்கப்பட்ட தொகுப்பை மேம்படுத்துகிறது. இயல்பாகவே வினவல், தொகுப்பின் ஐடி, பெயர் அல்லது இணைப்புப் பாதையுடன் எழுத்து உணரும்தன்மையற்ற முறையில் பொருந்த வேண்டும். அவற்றின் பொருத்தமான விருப்பத்தைக் கடந்து பிற துறைகளைப் பயன்படுத்தலாம்.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>வழங்கப்பட்ட தொகுப்பை நிறுவும்</value>
+    <value>வழங்கப்பட்ட தொகுப்பை மேம்படுத்தும்</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>பயன்படுத்துதல்</value>
@@ -916,5 +917,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>அனுமதிக்கப்பட்ட மூலம்</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>`%1` வாதத்திற்கு வழங்கப்பட்ட மதிப்பு தவறானது</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

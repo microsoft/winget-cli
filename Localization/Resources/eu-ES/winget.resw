@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Uneko komandoak ez du argumentu izena ezagutu</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Instalatu beharreko hizkuntza (onartzen bada)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Erabili beharreko eskualdeko ezarpenak (BCP47 formatua)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lizentzia-kontratua</value>
@@ -659,11 +660,11 @@
     <value>Ez da aurkitu aplikagarria den eguneratzerik.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Hautatutako paketea eguneratzen du, dela instalatutako paketeen zerrenda bilatzean aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
+    <value>Hautatutako paketea bertsio-berritzen du, dela instalatutako paketeen zerrenda bilatzean aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskula eta minuskulek bat etorri behar dute paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Emandako paketea eguneratzen du</value>
+    <value>Dagokion paketea bertsio-berritzen du</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>erabilera</value>
@@ -915,5 +916,9 @@ Konfigurazioa desgaituta dago talde-gidalerroak direla eta.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Onartutako iturburua</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>"%1" argumenturako emandako balioa ez da egokia</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

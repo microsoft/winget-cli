@@ -28,8 +28,6 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Command Sample"));
-            Assert.True(result.StdOut.Contains("Argument Sample"));
             Assert.True(result.StdOut.Contains("Microsoft Store Support"));
             Assert.False(result.StdOut.Contains("Enabled"));
         }
