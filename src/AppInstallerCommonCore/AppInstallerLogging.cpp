@@ -130,21 +130,6 @@ namespace AppInstaller::Logging
         }
     }
 
-    std::string_view DiagnosticLogger::GetLogFileNamePrefix()
-    {
-        std::string_view fileNamePrefix{ "" };
-
-        for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i)
-        {
-            if ((*i)->GetName() == "file")
-            {
-                return static_cast<FileLogger*>(i->get())->CurrentPrefix();
-            }
-        }
-
-        return fileNamePrefix;
-    }
-
     void AddFileLogger()
     {
         Log().AddLogger(std::make_unique<FileLogger>());

@@ -24,7 +24,6 @@ namespace AppInstaller::Logging
         m_filePath = filePath;
 
         m_stream.open(m_filePath);
-        m_fileNamePrefix = s_fileLoggerDefaultFilePrefix;
     }
 
     FileLogger::FileLogger(const std::string_view fileNamePrefix)
@@ -34,7 +33,6 @@ namespace AppInstaller::Logging
         m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
 
         m_stream.open(m_filePath);
-        m_fileNamePrefix = fileNamePrefix;
     }
 
     FileLogger::~FileLogger()
@@ -51,11 +49,6 @@ namespace AppInstaller::Logging
     std::string_view FileLogger::DefaultPrefix()
     {
         return s_fileLoggerDefaultFilePrefix;
-    }
-
-    std::string_view FileLogger::CurrentPrefix()
-    {
-        return m_fileNamePrefix;
     }
 
     std::string_view FileLogger::DefaultExt()
