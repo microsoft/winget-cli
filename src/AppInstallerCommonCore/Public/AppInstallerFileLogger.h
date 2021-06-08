@@ -13,7 +13,9 @@ namespace AppInstaller::Logging
     // Logs to a file.
     struct FileLogger : public ILogger
     {
-        FileLogger(const std::filesystem::path& filePath = {});
+        FileLogger();
+        explicit FileLogger(const std::filesystem::path& filePath);
+        explicit FileLogger(const std::string_view fileNamePrefix);
 
         ~FileLogger();
 
@@ -29,9 +31,9 @@ namespace AppInstaller::Logging
         static std::string_view DefaultExt();
 
         // ILogger
-        virtual std::string GetName() const override;
+        std::string GetName() const override;
 
-        virtual void Write(Channel channel, Level level, std::string_view message) noexcept override;
+        void Write(Channel channel, Level level, std::string_view message) noexcept override;
 
         // Starts a background task to clean up old log files.
         static void BeginCleanup(const std::filesystem::path& filePath);
