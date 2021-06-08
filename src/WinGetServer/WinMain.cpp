@@ -5,6 +5,7 @@
 #include <wrl/module.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
+#include "COMContext.h"
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -54,6 +55,8 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int
         winrt::check_hresult(CoCreateInstance(CLSID_GlobalOptions, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&globalOptions)));
         winrt::check_hresult(globalOptions->Set(COMGLB_RO_SETTINGS, COMGLB_FAST_RUNDOWN));
     }
+
+    AppInstaller::COMContext::SetLoggers();
 
     _comServerExitEvent.create();
     auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);

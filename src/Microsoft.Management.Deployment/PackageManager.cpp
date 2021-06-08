@@ -153,6 +153,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         // Handle the progress from the installer
         ::AppInstaller::COMContext context;
+
+        // TODO: Exact ComCaller's process name needs to be retrieved from COM Client side in the future
+        context.SetLoggerContext(options.CorrelationData(), "COMCaller");
+
         context.SetProgressCallbackFunction([=](
             ::AppInstaller::ReportType reportType, 
             uint64_t current, 
