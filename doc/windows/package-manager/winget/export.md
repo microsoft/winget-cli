@@ -57,6 +57,6 @@ Note: matching an application depends on metadata in the manifest from a configu
 
 In the example below, you will see warnings for _reSearch_ and _Angry Birds_.
 
-![export](images\export-command.png)
+![export](images/export-command.png)
 
 Once the export is complete, you can edit the resulting JSON file in your favorite editor.  You can remove apps you do not wish to import in the future.
