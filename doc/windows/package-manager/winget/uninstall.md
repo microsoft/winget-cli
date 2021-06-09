@@ -69,7 +69,7 @@ winget uninstall --id "{24559D0F-481C-F3BE-8DD0-D908923A38F8}"
 
 If the query provided to **winget** does not result in a single application to uninstall, then **winget** will display multiple results. You can then use additional filters to refine the search for a correct application.
 
-![uninstall command](images\uninstall-multiple.png)
+![uninstall command](images/uninstall-multiple.png)
 
 ## Uninstalling apps not installed with Windows Package Manager
 As mentioned in [**list**](.\list.md), the **winget list** command will display more than just apps installed with the **winget**.  Therefore you can use these commands to quickly and easily remove apps from your PC.
