@@ -91,17 +91,24 @@ Dependencies will not be uninstalled.
 For this step dependencies will not be validated. 
 
 ### import
-Will show dependencies before installing each of the specified packages on the import; i.e., it will not gather all the dependencies and show them at once before starting.
+Will gather all the dependencies and show them together before starting.
 ```
+The packages found in this import have the following dependencies:
+  - Windows Feature: Hyper-V, Containers
+  - Package: Microsoft.WindowsTerminal
 Found  [Notepad++.Notepad++]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
-This package requires the following dependencies:
-  - Windows Feature: Hyper-V
-  - Package: Microsoft.WindowsTerminal
-Downloading https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v7.9.5/npp.7.9.5.Installer.x64.exe
+Downloading https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8/npp.8.0.Installer.x64.exe
 Successfully verified installer hash
 Starting package install...
+Successfully installed
+Found  [plex.Plex]
+This application is licensed to you by its owner.
+Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Successfully verified installer hash
+Starting package install...
+Successfully installed
 ```
 
 ## Capabilities
