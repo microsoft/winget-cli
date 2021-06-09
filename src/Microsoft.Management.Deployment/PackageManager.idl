@@ -46,7 +46,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Status of the Install call
-    /// Implementation Note: Errors likely to be mapped from AppInstallerErrors.h
+    /// Implementation Note: Errors mapped from AppInstallerErrors.h
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum InstallResultStatus
     {
@@ -367,9 +367,7 @@ namespace Microsoft.Management.Deployment
     enum ConnectResultStatus
     {
         Ok,
-        BlockedByPolicy,
         CatalogError,
-        InternalError,
     };
 
     /// Result of the Connect call
@@ -419,16 +417,14 @@ namespace Microsoft.Management.Deployment
         CreateCompositePackageCatalogOptions();
 
         /// Create a composite catalog to allow searching a user defined or pre defined source
-        /// and a local source (Installing, Installed) together  
-        /// IMPLEMENTATION NOTE: Windows Package Manager currently only supports 
-        /// one local source per composite catalog.
-        /// DESIGN NOTE: It seems likely that in the future we will want to support 
-        /// letting callers use two local sources (i.e. both Installing and Installed)
+        /// and a local source (Installed packages) together
         IVector<PackageCatalogReference> Catalogs { get; };
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
     }
 
+    /// Required install scope for the package. If the package does not have an installer that
+    /// supports the specified scope the Install call will fail with InstallResultStatus.NoApplicableInstallers
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageInstallScope
     {
@@ -478,8 +474,7 @@ namespace Microsoft.Management.Deployment
         String ReplacementInstallerArguments;
 
         /// Used by a caller to correlate the install with a caller's data.
-        /// IMPLEMENTATION NOTE: This area is in flux but right now it's expected that this would allow a caller to 
-        /// use JSON to encode multiple arguments.
+        /// JSON encoded strings are allowed.
         String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalPackageCatalogArguments;

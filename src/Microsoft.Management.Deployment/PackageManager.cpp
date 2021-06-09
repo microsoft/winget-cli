@@ -291,8 +291,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
-        // TODO: CorrelationData is not currently supported by the underlying implementation.
-
         ::AppInstaller::CLI::RootCommand rootCommand;
         std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
         Windows::Foundation::IAsyncAction executeOperation = ExecuteInstallAsync(context, command);

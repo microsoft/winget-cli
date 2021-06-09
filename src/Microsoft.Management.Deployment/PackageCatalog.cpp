@@ -18,6 +18,8 @@
 #include "PackageMatchFilter.h"
 #pragma warning( pop )
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include <winget/GroupPolicy.h>
+#include <AppInstallerErrors.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -44,10 +46,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return FindPackages(options);
     }
-    
+
     HRESULT PopulateSearchRequestFromVector(
-        ::AppInstaller::Repository::SearchRequest* searchRequest, 
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> vector, 
+        ::AppInstaller::Repository::SearchRequest* searchRequest,
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageMatchFilter> vector,
         bool isSelector)
     {
         // Populates either the Filters vector of a searchRequest (if isSelector is false),
@@ -115,27 +117,52 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (SUCCEEDED(hr))
         {
             searchRequest.MaximumResults = options.ResultLimit();
-            auto searchResult = m_source->Search(searchRequest);
-
-            // Build the result object from the searchResult
-            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            try
             {
-                auto match = searchResult.Matches[i];
-                auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<
-                    winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
-                catalogPackage->Initialize(m_source, match.Package);
+                auto searchResult = m_source->Search(searchRequest);
 
-                auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<
-                    winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
-                packageMatchFilter->Initialize(match.MatchCriteria);
+                // Build the result object from the searchResult
+                for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+                {
+                    auto match = searchResult.Matches[i];
+                    auto catalogPackage = winrt::make_self<wil::details::module_count_wrapper<
+                        winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>>();
+                    catalogPackage->Initialize(m_source, match.Package);
 
-                auto matchResult = winrt::make_self<wil::details::module_count_wrapper<
-                    winrt::Microsoft::Management::Deployment::implementation::MatchResult>>();
-                matchResult->Initialize(*catalogPackage, *packageMatchFilter);
+                    auto packageMatchFilter = winrt::make_self<wil::details::module_count_wrapper<
+                        winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter>>();
+                    packageMatchFilter->Initialize(match.MatchCriteria);
 
-                matches.Append(*matchResult);
+                    auto matchResult = winrt::make_self<wil::details::module_count_wrapper<
+                        winrt::Microsoft::Management::Deployment::implementation::MatchResult>>();
+                    matchResult->Initialize(*catalogPackage, *packageMatchFilter);
+
+                    matches.Append(*matchResult);
+                }
+                isTruncated = searchResult.Truncated;
             }
-            isTruncated = searchResult.Truncated;
+            // Exceptions that may occur in the process of executing an arbitrary command
+            catch (const wil::ResultException& re)
+            {
+                hr = re.GetErrorCode();
+            }
+            catch (const winrt::hresult_error& hre)
+            {
+                hr = hre.code();
+            }
+            catch (const ::AppInstaller::Settings::GroupPolicyException&)
+            {
+                // Policy could have changed since server started.
+                hr = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+            catch (const std::exception&)
+            {
+                hr = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            }
+            catch (...)
+            {
+                hr = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            }
         }
         auto findPackagesResult = winrt::make_self<wil::details::module_count_wrapper<
             winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
