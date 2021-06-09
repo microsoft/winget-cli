@@ -169,11 +169,61 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case(S_OK):
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::Ok;
             break;
+        case E_INVALIDARG:
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InvalidOptions;
+            break;
+        case APPINSTALLER_CLI_ERROR_COMMAND_FAILED:
+        case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
+        case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
+        case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:
+        case APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY:
+        case APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY:
+        case APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION:
+        case APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED:
+        case APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE:
+        case APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA:
+        case APPINSTALLER_CLI_ERROR_LIBYAML_ERROR:
         case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
             break;
         case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER:
-            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::NoApplicableInstallers;
+            break;
+        case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
+        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
+        case APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
+        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+        case APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND:
+        case APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED:
+        case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::CatalogError;
+            break;
+        case APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED:
+        case APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH:
+        case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
+        case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::DownloadError;
+            break;
+        case APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InstallError;
+            break;
+        case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED:
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::BlockedByPolicy;
+            break;
+        case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::ManifestError;
             break;
         default:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
@@ -192,15 +242,57 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::Ok;
             break;
         case E_INVALIDARG:
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
             break;
+        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::CatalogError;
+            break;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::BlockedByPolicy;
+            break;
+        case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
+        case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
         default:
-            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InternalError;
             break;
         }
         return resultStatus;
     }
-    
+
+    winrt::Microsoft::Management::Deployment::ConnectResultStatus ConnectResultStatus(winrt::hresult hresult)
+    {
+        // TODO: Error mapping and defining in the idl still needed for all the rest of the errors.
+        winrt::Microsoft::Management::Deployment::ConnectResultStatus resultStatus = winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok;
+        switch (hresult)
+        {
+        case(S_OK):
+            resultStatus = winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok;
+            break;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            resultStatus = winrt::Microsoft::Management::Deployment::ConnectResultStatus::BlockedByPolicy;
+            break;
+        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
+        case APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+        case APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED:
+        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
+        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
+            resultStatus = winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError;
+            break;
+        default:
+            resultStatus = winrt::Microsoft::Management::Deployment::ConnectResultStatus::InternalError;
+            break;
+        }
+        return resultStatus;
+    }
+
     bool IsLocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info)
     {
         return (winrt::to_string(info.Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0);

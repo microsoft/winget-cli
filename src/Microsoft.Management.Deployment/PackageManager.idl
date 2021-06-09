@@ -50,8 +50,14 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum InstallResultStatus
     {
-        Ok, 
+        Ok,
+        BlockedByPolicy,
+        CatalogError,
         InternalError,
+        InvalidOptions,
+        DownloadError,
+        InstallError,
+        ManifestError,
         NoApplicableInstallers,
     };
 
@@ -289,6 +295,9 @@ namespace Microsoft.Management.Deployment
     enum FindPackagesResultStatus
     {
         Ok,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
         InvalidOptions
     };
 
@@ -358,7 +367,9 @@ namespace Microsoft.Management.Deployment
     enum ConnectResultStatus
     {
         Ok,
-        CatalogNotFound,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
     };
 
     /// Result of the Connect call
