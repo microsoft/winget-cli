@@ -31,7 +31,7 @@ This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
   - Windows Feature: Hyper-V
-  - Package: Microsot.WindowsTerminal
+  - Package: Microsoft.WindowsTerminal
 Downloading https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v7.9.5/npp.7.9.5.Installer.x64.exe
 Successfully verified installer hash
 Starting package install...
@@ -57,7 +57,7 @@ Installer:
   SHA256: 4881548cd86491b453520e83c19292c93b9c6ce485a1f9eb9301e3913a9baced
   Dependencies:
     - Windows Feature: Hyper-V
-    - Package: Microsot.WindowsTerminal
+    - Package: Microsoft.WindowsTerminal
 ```
 
 ### upgrade
@@ -69,7 +69,7 @@ This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
   - Windows Feature: Hyper-V
-  - Package: Microsot.WindowsTerminal
+  - Package: Microsoft.WindowsTerminal
 Successfully verified installer hash
 Starting package install...
 ```
@@ -81,7 +81,7 @@ As of now, it will not try to validate nor install any of the dependencies for a
 Found Notepad++ [Notepad++.Notepad++]
 Package had dependencies that may not be needed anymore:
   - Windows Feature: Hyper-V
-  - Package: Microsot.WindowsTerminal
+  - Package: Microsoft.WindowsTerminal
 Starting package uninstall...
 Successfully uninstalled
 ```
@@ -98,7 +98,7 @@ This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
   - Windows Feature: Hyper-V
-  - Package: Microsot.WindowsTerminal
+  - Package: Microsoft.WindowsTerminal
 Downloading https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v7.9.5/npp.7.9.5.Installer.x64.exe
 Successfully verified installer hash
 Starting package install...
