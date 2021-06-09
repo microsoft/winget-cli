@@ -537,7 +537,7 @@ namespace AppInstaller::Logging
             AICLI_TraceLoggingWriteActivity(
                 "NonFatalDOError",
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                AICLI_TraceLoggingStringView(url, "URL"),
+                AICLI_TraceLoggingStringView(url, "Url"),
                 TraceLoggingHResult(hr, "HResult"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance));
         }
