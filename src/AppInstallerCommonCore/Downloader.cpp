@@ -7,6 +7,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
 #include "DODownloader.h"
 
@@ -167,18 +168,40 @@ namespace AppInstaller::Utility
             if (setting == InstallerDownloader::Default ||
                 setting == InstallerDownloader::DeliveryOptimization)
             {
-                auto result = DODownload(url, dest, progress, computeHash, info);
-                // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
-                // Only do so if the file exists, because cancellation will not throw here.
+                try
+                {
+                    auto result = DODownload(url, dest, progress, computeHash, info);
+                    // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
+                    // Only do so if the file exists, because cancellation will not throw here.
+                    if (std::filesystem::exists(dest))
+                    {
+                        ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
+                    }
+                    return result;
+                }
+                catch (const wil::ResultException& re)
+                {
+                    // Fall back to WinINet below unless the specific error is not one that should be ignored.
+                    // We need to be careful not to bypass metered networks or other reasons that might
+                    // intentionally cause the download to be blocked.
+                    HRESULT hr = re.GetErrorCode();
+                    if (IsDOErrorFatal(hr))
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        // Send telemetry so that we can understand the reasons for DO failing
+                        Logging::Telemetry().LogNonFatalDOError(url, hr);
+                    }
+                }
+
+                // If we reach this point, we are intending to fall through to WinINet.
+                // Remove any file that may have been placed in the target location.
                 if (std::filesystem::exists(dest))
                 {
-                    ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
+                    std::filesystem::remove(dest);
                 }
-                return result;
-
-                // If DO becomes an issue, we may choose to catch exceptions and fall back to WinINet below.
-                // We would need to be careful not to bypass metered networks or other reasons that might
-                // intentionally cause the download to be blocked.
             }
         }
 

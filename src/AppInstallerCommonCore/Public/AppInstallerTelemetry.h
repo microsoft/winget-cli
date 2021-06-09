@@ -120,6 +120,8 @@ namespace AppInstaller::Logging
             std::string_view arpPublisher,
             std::string_view arpLanguage) const noexcept;
 
+        void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
+
     protected:
         TelemetryTraceLogger();
 

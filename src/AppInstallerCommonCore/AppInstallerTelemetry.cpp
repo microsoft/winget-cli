@@ -530,6 +530,19 @@ namespace AppInstaller::Logging
         }
     }
 
+    void TelemetryTraceLogger::LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "NonFatalDOError",
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(url, "Url"),
+                TraceLoggingHResult(hr, "HResult"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance));
+        }
+    }
+
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
         return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
