@@ -20,7 +20,7 @@ The **export** command is often used to create a file that you can share with ot
 
 `winget export [-o] <output> [<options>]`
 
-![export](images\export.png)
+![export](images/export.png)
 
 ## Arguments
 
