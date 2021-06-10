@@ -13,10 +13,7 @@ pr:
     - src/*
 
 pool:
-  name: Package ES Standard Build
-  demands:
-  - msbuild
-  - visualstudio
+  vmImage: 'windows-latest'
 
 variables:
   solution: 'src/AppInstallerCLI.sln'
