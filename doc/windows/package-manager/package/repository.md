@@ -46,7 +46,7 @@ If your validation fails, use the errors to locate the line number and make a co
 Next, create a fork of the repository and clone it.
 
 1. Go to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) in your browser and click **Fork**.
-    ![picture of fork](images\fork.png)
+    ![picture of fork](images/fork.png)
 
 2. From a command line environment such as the Windows Command Prompt or PowerShell, use the following command to clone your fork.
     ```CMD
@@ -96,7 +96,7 @@ You're now ready to push your new manifest to the remote repository.
 
 After you push your changes, return to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) and create a **pull request** to merge your fork or branch to the main branch.
 
-![picture of pull request tab](images\pull-request.png)
+![picture of pull request tab](images/pull-request.png)
 
 ## Submission process
 

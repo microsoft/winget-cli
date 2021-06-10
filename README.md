@@ -30,6 +30,10 @@ The same Microsoft Store package will be made available via our [Releases](https
 > You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
+### Troubleshooting
+
+Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
+
 ## Administrator considerations
 
 Installer behavior can be different depending on whether you are running **winget** with administrator privileges.

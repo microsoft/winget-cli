@@ -20,7 +20,7 @@ The **list** command also supports filters which can be used to limit your list 
 
 `winget list [[-q] \<query>] [\<options>]`
 
-![list help command](images\list.png)
+![list help command](images/list.png)
 
 ## Arguments
 
@@ -68,7 +68,7 @@ The following example limits the output of list to 12 apps.
 winget list -n 12
 ```
 
-![list output command](images\list-count.png)
+![list output command](images/list-count.png)
 
 ## List with Update
 
@@ -76,7 +76,7 @@ As stated above, the **list** command allows you to see what apps you have insta
 
 In the image below, you will notice the preview version of Terminal has an update available.
 
-![list output command](images\list-update.png)
+![list output command](images/list-update.png)
 
 The **list** command will show not only the update version available, but the source that the update is available from.
 

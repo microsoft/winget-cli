@@ -85,6 +85,7 @@ CYRL
 Debian
 deigh
 deleteifnotneeded
+desktopappinstaller
 dirs
 dnld
 dustojnikhummer
@@ -335,6 +336,7 @@ URIs
 URLs
 URLZONE
 userfilesetting
+userprofile
 USHORT
 Utils
 uuid

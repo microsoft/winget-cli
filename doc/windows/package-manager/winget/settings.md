@@ -20,7 +20,7 @@ The **settings** command will launch your default MD editor.  Windows by default
 
 Launch your default JSON editing tool: `winget settings`
 
-![Screenshot of the Windows Package Manager Settings.](images\settings.png)
+![Screenshot of the Windows Package Manager Settings.](images/settings.png)
 
 When you launch the settings for the first time, there will be no settings specified. At the top of the JSON we provide a [link](https://aka.ms/winget-settings) where you can discover the latest experimental features and settings.
 
