@@ -134,12 +134,12 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
    },
 ```
 
-### experimentalPackagedAPI
+### packagedAPI
 
-Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use WinGet. You can enable the feature as shown below.
+Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use the Windows Package Manager. You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "experimentalPackagedAPI": true
+       "packagedAPI": true
    },
 ```

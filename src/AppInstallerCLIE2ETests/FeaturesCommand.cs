@@ -38,7 +38,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalArg", true);
             ConfigureFeature("experimentalCmd", true);
             ConfigureFeature("experimentalMSStore", true);
-            ConfigureFeature("experimentalPackagedAPI", true);
+            ConfigureFeature("packagedAPI", true);
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.True(result.StdOut.Contains("Enabled"));
         }

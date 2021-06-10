@@ -474,7 +474,7 @@ namespace Microsoft.Management.Deployment
         String ReplacementInstallerArguments;
 
         /// Used by a caller to correlate the install with a caller's data.
-        /// JSON encoded strings are allowed.
+        /// The string must be JSON encoded.
         String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalPackageCatalogArguments;

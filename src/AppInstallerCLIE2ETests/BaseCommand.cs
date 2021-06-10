@@ -61,7 +61,7 @@ namespace AppInstallerCLIE2ETests
                     list = status,
                     upgrade = status,
                     uninstall = status,
-                    experimentalPackagedAPI = status,
+                    packagedAPI = status,
                 }
             };
 

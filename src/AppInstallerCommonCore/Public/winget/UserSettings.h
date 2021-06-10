@@ -75,7 +75,7 @@ namespace AppInstaller::Settings
         NetworkDOProgressTimeoutInSeconds,
         InstallLocalePreference,
         InstallLocaleRequirement,
-        EFExperimentalPackagedAPI,
+        EFPackagedAPI,
         Max
     };
 
@@ -121,7 +121,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalPackagedAPI, bool, bool, false, ".experimentalFeatures.experimentalPackagedAPI"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFPackagedAPI, bool, bool, false, ".experimentalFeatures.packagedAPI"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
