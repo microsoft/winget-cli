@@ -15,7 +15,8 @@ Installers:
     PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
     Dependencies:
       WindowsFeatures:
-        - WindowsFeaturesDep
+        - WindowsFeaturesDep1
+        - WindowsFeaturesDep2
       WindowsLibraries:
         - WindowsLibrariesDep
       PackageDependencies:

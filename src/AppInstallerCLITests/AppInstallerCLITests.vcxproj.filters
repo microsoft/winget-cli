@@ -169,7 +169,6 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
-    <None Include="TestData\Installer_Msi_WFDependency.yaml" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
@@ -453,7 +452,8 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml" />
     <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json" />
-    <CopyFileToFolders Include="TestData\Installer_Exe_PackageDependency.yaml" />
-    <CopyFileToFolders Include="TestData\Installer_Exe_AllDependencyTypes.yaml" />
+    <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml" />
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml" />
+    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml" />
   </ItemGroup>
 </Project>

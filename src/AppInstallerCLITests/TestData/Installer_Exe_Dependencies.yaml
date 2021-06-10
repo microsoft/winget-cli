@@ -1,4 +1,4 @@
-PackageIdentifier: AppInstallerCliTest.TestExeInstaller.PackageDep
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller.Dependencies
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Exe Installer With Package Dep
@@ -15,8 +15,7 @@ Installers:
         SilentWithProgress: /silentwithprogress
         Silent: /silence
       Dependencies:
-        PackageDependencies:
-            - PackageIdentifier: Package.Dep1-x64
-              MinimumVersion: 1.0
+        WindowsFeatures:
+          - PreviewIIS
 ManifestType: singleton
 ManifestVersion: 1.0.0
