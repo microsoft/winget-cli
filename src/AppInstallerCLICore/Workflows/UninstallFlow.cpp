@@ -126,6 +126,10 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportDependencies(Execution::Context& context)
     {
+        context <<
+            Workflow::GetManifest <<
+            Workflow::SelectInstaller;
+            
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer)
         {
