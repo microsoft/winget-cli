@@ -392,7 +392,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::ReportManifestIdentity <<
             Workflow::ShowInstallationDisclaimer <<
-            Workflow::ReportDependencies <<
+            Workflow::ManageDependencies <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
@@ -412,7 +412,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::InstallPackageInstaller;
     }
 
-    void ReportDependencies(Execution::Context& context)
+    void ManageDependencies(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer)
@@ -422,61 +422,96 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
 
-                auto windowsFeaturesDep = dependencies.WindowsFeatures;
-                if (!windowsFeaturesDep.empty())
-                {
-                    context.Reporter.Info() << "    - Windows Features: ";
-                    for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
-                    {
-                        context.Reporter.Info() << windowsFeaturesDep[i];
-                        if (i < windowsFeaturesDep.size() - 1) context.Reporter.Info() << ", ";
-                    }
-                    context.Reporter.Info() << std::endl;
-                }
+                ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
 
-                auto windowsLibrariesDep = dependencies.WindowsLibraries;
-                if (!windowsLibrariesDep.empty())
-                {
-                    context.Reporter.Info() << "    - Windows Libraries: ";
-                    for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
-                    {
-                        context.Reporter.Info() << windowsLibrariesDep[i];
-                        if (i < windowsLibrariesDep.size() - 1) context.Reporter.Info() << ", ";
-                    }
-                    context.Reporter.Info() << std::endl;
-                }
+                ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
 
-                auto packageDep = dependencies.PackageDependencies;
-                if (!packageDep.empty())
-                {
-                    context.Reporter.Info() << "    - Packages: ";
-                    for (size_t i = 0; i < packageDep.size(); i++)
-                    {
-                        context.Reporter.Info() << packageDep[i].Id;
-                        if (!packageDep[i].MinVersion.empty()) context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
-                        if (i < packageDep.size() - 1) context.Reporter.Info() << ", ";
-                    }
-                    context.Reporter.Info() << std::endl;
-                }
+                ManagePackageDependencies(dependencies.PackageDependencies, context);
 
-                auto externalDependenciesDep = dependencies.ExternalDependencies;
-                if (!externalDependenciesDep.empty())
-                {
-                    context.Reporter.Info() << "    - Externals: ";
-                    for (size_t i = 0; i < externalDependenciesDep.size(); i++)
-                    {
-                        context.Reporter.Info() << externalDependenciesDep[i];
-                        if (i < externalDependenciesDep.size() - 1) context.Reporter.Info() << ", ";
-                    }
-                    context.Reporter.Info() << std::endl;
-                }
+                ManageExternalDependencies(dependencies.ExternalDependencies, context);
             }
+        }
+    }
+
+    void ManageWindowsFeatureDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsFeaturesDep, AppInstaller::CLI::Execution::Context& context)
+    {
+        if (!windowsFeaturesDep.empty())
+        {
+            context.Reporter.Info() << "    - Windows Features: ";
+            for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
+            {
+                context.Reporter.Info() << windowsFeaturesDep[i];
+                if (i < windowsFeaturesDep.size() - 1) context.Reporter.Info() << ", ";
+            }
+            context.Reporter.Info() << std::endl;
+        }
+    }
+
+    void ManageWindowsLibrariesDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsLibrariesDep, AppInstaller::CLI::Execution::Context& context)
+    {
+        if (!windowsLibrariesDep.empty())
+        {
+            context.Reporter.Info() << "    - Windows Libraries: ";
+            for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
+            {
+                context.Reporter.Info() << windowsLibrariesDep[i];
+                if (i < windowsLibrariesDep.size() - 1) context.Reporter.Info() << ", ";
+            }
+            context.Reporter.Info() << std::endl;
+        }
+    }
+
+    void ManagePackageDependencies(std::vector<AppInstaller::Manifest::PackageDependency>& packageDep, AppInstaller::CLI::Execution::Context& context)
+    {
+        if (!packageDep.empty())
+        {
+            context.Reporter.Info() << "    - Packages: ";
+            for (size_t i = 0; i < packageDep.size(); i++)
+            {
+                context.Reporter.Info() << packageDep[i].Id;
+                if (!packageDep[i].MinVersion.empty()) context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
+                if (i < packageDep.size() - 1) context.Reporter.Info() << ", ";
+            }
+            context.Reporter.Info() << std::endl;
+        }
+    }
+
+    void ManageExternalDependencies(std::vector<AppInstaller::Manifest::string_t>& externalDependenciesDep, AppInstaller::CLI::Execution::Context& context)
+    {
+        if (!externalDependenciesDep.empty())
+        {
+            context.Reporter.Info() << "    - Externals: ";
+            for (size_t i = 0; i < externalDependenciesDep.size(); i++)
+            {
+                context.Reporter.Info() << externalDependenciesDep[i];
+                if (i < externalDependenciesDep.size() - 1) context.Reporter.Info() << ", ";
+            }
+            context.Reporter.Info() << std::endl;
         }
     }
 
     void InstallMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
+
+        std::set<AppInstaller::Manifest::string_t> windowsFeaturesDep;
+        std::set<AppInstaller::Manifest::string_t> windowsLibrariesDep;
+        std::set<AppInstaller::Manifest::PackageDependency> packageDep;
+        std::set<AppInstaller::Manifest::string_t> externalDependenciesDep;
+
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            auto manifest = package.PackageVersion->GetManifest();
+
+            /*const auto& installer = context.Get<Execution::Data::Installer>();
+            if (installer)
+            {
+                auto dependencies = installer->Dependencies;
+                if (dependencies.HasAny())
+                {*/
+
+        }
+
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution;

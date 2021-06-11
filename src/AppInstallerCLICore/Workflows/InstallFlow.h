@@ -93,7 +93,12 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    void ReportDependencies(Execution::Context& context);
+    void ManageDependencies(Execution::Context& context);
+
+    void ManageExternalDependencies(std::vector<AppInstaller::Manifest::string_t>& externalDependenciesDep, AppInstaller::CLI::Execution::Context& context);
+    void ManagePackageDependencies(std::vector<AppInstaller::Manifest::PackageDependency>& packageDep, AppInstaller::CLI::Execution::Context& context);
+    void ManageWindowsLibrariesDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsLibrariesDep, AppInstaller::CLI::Execution::Context& context);
+    void ManageWindowsFeatureDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsFeaturesDep, AppInstaller::CLI::Execution::Context& context);
 
     // Installs multiple packages.
     // Required Args: None
