@@ -123,4 +123,66 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
     }
+
+    void ReportDependencies(Execution::Context& context)
+    {
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        if (installer)
+        {
+            auto dependencies = installer->Dependencies;
+            if (dependencies.HasAny())
+            {
+                context.Reporter.Info() << "This package had dependencies that may not be needed anymore:" << std::endl;
+
+                auto windowsFeaturesDep = dependencies.WindowsFeatures;
+                if (!windowsFeaturesDep.empty())
+                {
+                    context.Reporter.Info() << "    - Windows Features: ";
+                    for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
+                    {
+                        context.Reporter.Info() << windowsFeaturesDep[i];
+                        if (i < windowsFeaturesDep.size() - 1) context.Reporter.Info() << ", ";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+
+                auto windowsLibrariesDep = dependencies.WindowsLibraries;
+                if (!windowsLibrariesDep.empty())
+                {
+                    context.Reporter.Info() << "    - Windows Libraries: ";
+                    for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
+                    {
+                        context.Reporter.Info() << windowsLibrariesDep[i];
+                        if (i < windowsLibrariesDep.size() - 1) context.Reporter.Info() << ", ";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+                
+                auto packageDep = dependencies.PackageDependencies;
+                if (!packageDep.empty())
+                {
+                    context.Reporter.Info() << "    - Packages: ";
+                    for (size_t i = 0; i < packageDep.size(); i++)
+                    {
+                        context.Reporter.Info() << packageDep[i].Id;
+                        if (!packageDep[i].MinVersion.empty()) context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
+                        if (i < packageDep.size() - 1) context.Reporter.Info() << ", ";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+
+                auto externalDependenciesDep = dependencies.ExternalDependencies;
+                if (!externalDependenciesDep.empty())
+                {
+                    context.Reporter.Info() << "    - Externals: ";
+                    for (size_t i = 0; i < externalDependenciesDep.size(); i++)
+                    {
+                        context.Reporter.Info() << externalDependenciesDep[i];
+                        if (i < externalDependenciesDep.size() - 1) context.Reporter.Info() << ", ";
+                    }
+                    context.Reporter.Info() << std::endl;
+                }
+            }
+        }
+    }
 }

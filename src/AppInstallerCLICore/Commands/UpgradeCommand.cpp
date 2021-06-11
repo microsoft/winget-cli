@@ -149,6 +149,7 @@ namespace AppInstaller::CLI
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
+                ManageDependencies <<
                 InstallPackageInstaller;
         }
         else
@@ -175,7 +176,9 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << InstallPackageInstaller;
+            context << 
+                ManageDependencies << 
+                InstallPackageInstaller;
         }
     }
 }

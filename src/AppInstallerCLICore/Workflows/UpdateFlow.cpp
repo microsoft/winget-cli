@@ -111,7 +111,9 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            updateContext << InstallPackageInstaller;
+            updateContext << 
+                ManageDependencies << 
+                InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;
 
