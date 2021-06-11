@@ -88,7 +88,13 @@ Successfully uninstalled
 Dependencies will not be uninstalled.
 
 ### validate
-For this step dependencies will not be validated. 
+Will show dependencies for all of the installers found.
+```
+Manifest has the following dependencies:
+  - Windows Feature: Hyper-V
+  - Package: Microsoft.WindowsTerminal
+Manifest validation succeeded.
+```
 
 ### import
 Will gather all the dependencies and show them together before starting.
