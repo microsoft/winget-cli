@@ -534,7 +534,7 @@ namespace AppInstaller::CLI::Workflow
                 allSucceeded = false;
             }
 
-            const auto& installer = context.Get<Execution::Data::Installer>();
+            const auto& installer = installContext.Get<Execution::Data::Installer>();
             installers.push_back(PackagesAndInstallers(installer, package));
             
             if (installer) {
