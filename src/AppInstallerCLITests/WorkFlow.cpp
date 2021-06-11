@@ -27,6 +27,7 @@
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
+#include <Commands/ValidateCommand.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -1105,7 +1106,7 @@ TEST_CASE("UpdateFlow_ShowDependencies", "[UpdateFlow][workflow][showDependencie
 
     std::string updateResultStr = updateOutput.str();
 
-    // Verufy dependencies are informed
+    // Verify dependencies are informed
     REQUIRE(updateResultStr.find("This package requires the following dependencies:") != std::string::npos);
     REQUIRE(updateResultStr.find("PreviewIIS") != std::string::npos);
     REQUIRE(updateResultStr.find("Preview VC Runtime") != std::string::npos);
@@ -1200,6 +1201,27 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     REQUIRE(!std::filesystem::exists(uninstallResultPath.GetPath()));
     REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
+TEST_CASE("UninstallFlow_ShowDependencies", "[UninstallFlow][workflow][showDependencies]")
+{
+    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForExeUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify dependencies are informed
+    REQUIRE(uninstallOutput.str().find("This package had dependencies that may not be needed anymore:") != std::string::npos);
+    REQUIRE(uninstallOutput.str().find("PreviewIIS") != std::string::npos);
+    REQUIRE(uninstallOutput.str().find("Preview VC Runtime") != std::string::npos);
 }
 
 TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
@@ -1637,4 +1659,25 @@ TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow][showDependenc
     // Verify all types of dependencies are printed
     REQUIRE(installOutput.str().find("This package requires the following dependencies:") != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
+{
+    std::ostringstream validateOutput;
+    TestContext context{ validateOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    ValidateCommand validate({});
+    validate.Execute(context);
+    INFO(validateOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(validateOutput.str().find("Manifest has the following dependencies:") != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(validateOutput.str().find("Package.Dep1-x64\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64\x1b[0m [") == std::string::npos);
+    REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
 }
