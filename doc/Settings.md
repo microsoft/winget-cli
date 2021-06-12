@@ -133,3 +133,13 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
        "experimentalMSStore": true
    },
 ```
+
+### experimentalShowDependencies
+
+Experimental feature that shows package dependency information. It simply shows information, doesn't manage dependencies. You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "experimentalShowDependencies": true
+   },
+```
