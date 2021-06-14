@@ -1665,7 +1665,7 @@ TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
 {
     std::ostringstream validateOutput;
     TestContext context{ validateOutput, std::cin };
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
     ValidateCommand validate({});
     validate.Execute(context);
