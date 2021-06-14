@@ -50,11 +50,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
     {
+        ::AppInstaller::Repository::SourceDetails sourceDetails;
         switch (predefinedPackageCatalog)
         {
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalog:
-            // TODO: Mapping of enum to sources should link directly to definition, not copy string.
-            return GetPackageCatalogByName(L"winget");
+            {
+                sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::WinGet);
+                auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
+                packageCatalogInfo->Initialize(sourceDetails);
+                auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
+                packageCatalogRef->Initialize(*packageCatalogInfo);
+                return *packageCatalogRef;
+            }
         default:
             throw hresult_invalid_argument();
         }
@@ -66,14 +73,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             throw hresult_invalid_argument();
         }
-
-        ::AppInstaller::Repository::SourceDetails details;
-        details.Origin = ::AppInstaller::Repository::SourceOrigin::Predefined;
-        details.Type = ::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type();
-        details.Arg = ::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::FilterToString(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-
+        ::AppInstaller::Repository::SourceDetails sourceDetails = GetPredefinedSourceDetails(::AppInstaller::Repository::PredefinedSource::Installed);
         auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-        packageCatalogInfo->Initialize(details);
+        packageCatalogInfo->Initialize(sourceDetails);
         auto packageCatalogImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
         packageCatalogImpl->Initialize(*packageCatalogInfo);
         return *packageCatalogImpl;

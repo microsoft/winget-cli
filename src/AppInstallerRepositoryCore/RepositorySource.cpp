@@ -42,13 +42,6 @@ namespace AppInstaller::Repository
 
     namespace
     {
-        // SourceDetails with additional data used by this file.
-        struct SourceDetailsInternal : public SourceDetails
-        {
-            // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
-            bool IsTombstone = false;
-        };
-
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
         bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, bool onlyExplicit, TogglePolicy::Policy policy)
@@ -396,13 +389,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetCommunityDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetCommunityDefault_Arg;
-                    details.Data = s_Source_WingetCommunityDefault_Data;
-                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                    SourceDetailsInternal details = GetWellKnownSourceDetails(WellKnownSource::WinGet);
                     result.emplace_back(std::move(details));
                 }
 
@@ -964,31 +951,44 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
 
-                OpenSourceResult result;
-
-                if (ShouldUpdateBeforeOpen(*source))
-                {
-                    try
-                    {
-                        if (BackgroundUpdateSourceFromDetails(*source, progress))
-                        {
-                            sourceList.SaveMetadata();
-                        }
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
-                        result.SourcesWithUpdateFailure.emplace_back(*source);
-                    }
-                }
-
-                result.Source = CreateSourceFromDetails(*source, progress);
+                OpenSourceResult result = OpenSourceFromDetails(*source, progress);
                 return result;
             }
         }
     }
 
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+    {
+        SourceListInternal sourceList;
+        OpenSourceResult result;
+
+        if (ShouldUpdateBeforeOpen(details))
+        {
+            try
+            {
+                if (BackgroundUpdateSourceFromDetails(details, progress))
+                {
+                    sourceList.SaveMetadata();
+                }
+            }
+            catch (...)
+            {
+                AICLI_LOG(Repo, Warning, << "Failed to update source: " << (details).Name);
+                result.SourcesWithUpdateFailure.emplace_back(details);
+            }
+        }
+
+        result.Source = CreateSourceFromDetails(details, progress);
+        return result;
+    }
+
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details = GetPredefinedSourceDetails(source);
+        return CreateSourceFromDetails(details, progress);
+    } 
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {
         SourceDetails details;
         details.Origin = SourceOrigin::Predefined;
@@ -998,15 +998,34 @@ namespace AppInstaller::Repository
         case PredefinedSource::Installed:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::ARP:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
-            return CreateSourceFromDetails(details, progress);
+            return details;
+        }
+
+        THROW_HR(E_UNEXPECTED);
+    }
+
+    SourceDetailsInternal GetWellKnownSourceDetails(WellKnownSource source)
+    {
+        switch (source)
+        {
+        case WellKnownSource::WinGet:
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_WingetCommunityDefault_Name;
+            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Arg = s_Source_WingetCommunityDefault_Arg;
+            details.Data = s_Source_WingetCommunityDefault_Data;
+            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            return details;
         }
 
         THROW_HR(E_UNEXPECTED);

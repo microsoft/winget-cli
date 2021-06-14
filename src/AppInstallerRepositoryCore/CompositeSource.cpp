@@ -438,9 +438,6 @@ namespace AppInstaller::Repository
 
         // If the search behavior is for AllPackages or Installed then the result can contain packages that are
         // only in the Installed source, but do not have an AvailableVersion.
-        // If the search behavior is for AvailablePackages, then most queries can be resolved by just querying the available source
-        // and then correlating it with the installed source, but if the query is for everything then query the installed catalog
-        // and only add installed packages that have an AvailableVersion.
         if (m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed)
         {
             // Search installed source
@@ -526,7 +523,7 @@ namespace AppInstaller::Repository
             }
 
             // Optimization for the "everything installed" case, no need to allow for reverse correlations
-            if (request.IsForEverything())
+            if (request.IsForEverything() && m_searchBehavior == CompositeSearchBehavior::Installed)
             {
                 return std::move(result);
             }

@@ -47,7 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                 winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
                 ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSource(sourceDetails.Name, progress).Source;
+                std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
                 if (!remoteSource)
                 {
                     // If source is null, return the error. There's no way to get the hresult that caused the error right now.
@@ -73,7 +73,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
             ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-            source = ::AppInstaller::Repository::OpenSource(sourceDetails.Name, progress).Source;
+            source = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
         }
 
         if (!source)

@@ -64,6 +64,13 @@ namespace AppInstaller::Repository
         SourceTrustLevel TrustLevel = SourceTrustLevel::None;
     };
 
+    // SourceDetails with additional data.
+    struct SourceDetailsInternal : public SourceDetails
+    {
+        // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
+        bool IsTombstone = false;
+    };
+
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
@@ -117,6 +124,9 @@ namespace AppInstaller::Repository
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
+    // Opens an existing source.
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress);
+
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
@@ -125,6 +135,16 @@ namespace AppInstaller::Repository
         ARP,
         MSIX,
     };
+
+    // A well known source.
+    // These come with the app and can be disabled but not removed.
+    enum class WellKnownSource
+    {
+        WinGet,
+    };
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
+    SourceDetailsInternal GetWellKnownSourceDetails(WellKnownSource source);
 
     // Opens a predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
