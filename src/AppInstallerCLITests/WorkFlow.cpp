@@ -821,6 +821,9 @@ TEST_CASE("ShowFlow_ShowDependencies", "[ShowFlow][workflow][showDependencies]")
     TestContext context{ showOutput, std::cin };
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({true});
+
     ShowCommand show({});
     show.Execute(context);
     INFO(showOutput.str());
@@ -1100,6 +1103,9 @@ TEST_CASE("UpdateFlow_ShowDependencies", "[UpdateFlow][workflow][showDependencie
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({ true });
+
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
@@ -1213,6 +1219,9 @@ TEST_CASE("UninstallFlow_ShowDependencies", "[UninstallFlow][workflow][showDepen
     OverrideForExeUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({ true });
 
     UninstallCommand uninstall({});
     uninstall.Execute(context);
@@ -1490,6 +1499,9 @@ TEST_CASE("ImportFlow_ShowDependencies", "[ImportFlow][workflow][ShowDependencie
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({ true });
+
     ImportCommand importCommand({});
     importCommand.Execute(context);
     INFO(importOutput.str());
@@ -1652,6 +1664,9 @@ TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow][showDependenc
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({ true });
+
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -1666,6 +1681,9 @@ TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
     std::ostringstream validateOutput;
     TestContext context{ validateOutput, std::cin };
     context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFExperimentalShowDependencies>({ true });
 
     ValidateCommand validate({});
     validate.Execute(context);
