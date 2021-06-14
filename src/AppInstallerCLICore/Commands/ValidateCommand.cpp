@@ -100,28 +100,31 @@ namespace AppInstaller::CLI
             {
                 auto manifest = Manifest::YamlParser::CreateFromPath(inputFile, true, true);
 
-                std::vector<AppInstaller::Manifest::string_t> windowsFeaturesDep;
-                std::vector<AppInstaller::Manifest::string_t> windowsLibrariesDep;
-                std::vector<AppInstaller::Manifest::PackageDependency> packageDep;
-                std::vector<AppInstaller::Manifest::string_t> externalDep;
-                for (auto installer : manifest.Installers)
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies)) 
                 {
-                    auto dependencies = installer.Dependencies;
-                    windowsFeaturesDep.insert(windowsFeaturesDep.begin(),
-                        dependencies.WindowsFeatures.begin(), dependencies.WindowsFeatures.end());
-                    windowsLibrariesDep.insert(windowsLibrariesDep.begin(),
-                        dependencies.WindowsLibraries.begin(), dependencies.WindowsLibraries.end());
-                    packageDep.insert(packageDep.begin(),
-                        dependencies.PackageDependencies.begin(), dependencies.PackageDependencies.end());
-                    externalDep.insert(externalDep.begin(),
-                        dependencies.ExternalDependencies.begin(), dependencies.ExternalDependencies.end());
+                    std::vector<AppInstaller::Manifest::string_t> windowsFeaturesDep;
+                    std::vector<AppInstaller::Manifest::string_t> windowsLibrariesDep;
+                    std::vector<AppInstaller::Manifest::PackageDependency> packageDep;
+                    std::vector<AppInstaller::Manifest::string_t> externalDep;
+                    for (auto installer : manifest.Installers)
+                    {
+                        auto dependencies = installer.Dependencies;
+                        windowsFeaturesDep.insert(windowsFeaturesDep.begin(),
+                            dependencies.WindowsFeatures.begin(), dependencies.WindowsFeatures.end());
+                        windowsLibrariesDep.insert(windowsLibrariesDep.begin(),
+                            dependencies.WindowsLibraries.begin(), dependencies.WindowsLibraries.end());
+                        packageDep.insert(packageDep.begin(),
+                            dependencies.PackageDependencies.begin(), dependencies.PackageDependencies.end());
+                        externalDep.insert(externalDep.begin(),
+                            dependencies.ExternalDependencies.begin(), dependencies.ExternalDependencies.end());
+                    }
+
+                    context.Reporter.Info() << "Manifest has the following dependencies:" << std::endl;
+                    ShowWindowsFeatureDependencies(windowsFeaturesDep, context);
+                    ShowWindowsLibrariesDependencies(windowsLibrariesDep, context);
+                    ShowPackageDependencies(packageDep, context);
+                    ShowExternalDependencies(externalDep, context);
                 }
-                
-                context.Reporter.Info() << "Manifest has the following dependencies:" << std::endl;
-                ShowWindowsFeatureDependencies(windowsFeaturesDep, context);
-                ShowWindowsLibrariesDependencies(windowsLibrariesDep, context);
-                ShowPackageDependencies(packageDep, context);
-                ShowExternalDependencies(externalDep, context);
 
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }

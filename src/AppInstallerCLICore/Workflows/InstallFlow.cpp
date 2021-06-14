@@ -407,29 +407,31 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
-            Workflow::ManageDependencies <<
-            Workflow::InstallPackageInstaller;
+            Workflow::EnsureApplicableInstaller;
+        
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        {
+            context << Workflow::ManageDependencies;
+        }
+        
+        context << Workflow::InstallPackageInstaller;
     }
 
     void ManageDependencies(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
-        if (installer)
+        if (installer && installer->Dependencies.HasAny())
         {
             auto dependencies = installer->Dependencies;
-            if (dependencies.HasAny())
-            {
-                context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
+            context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
 
-                ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
+            ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
 
-                ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
+            ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
 
-                ManagePackageDependencies(dependencies.PackageDependencies, context);
+            ManagePackageDependencies(dependencies.PackageDependencies, context);
 
-                ManageExternalDependencies(dependencies.ExternalDependencies, context);
-            }
+            ManageExternalDependencies(dependencies.ExternalDependencies, context);
         }
     }
 
@@ -537,24 +539,33 @@ namespace AppInstaller::CLI::Workflow
             const auto& installer = installContext.Get<Execution::Data::Installer>();
             installers.push_back(PackagesAndInstallers(installer, package));
             
-            if (installer) {
-                auto dependencies = installer->Dependencies;
-                windowsFeaturesDep.insert(windowsFeaturesDep.begin(), 
-                    dependencies.WindowsFeatures.begin(), dependencies.WindowsFeatures.end());
-                windowsLibrariesDep.insert(windowsLibrariesDep.begin(), 
-                    dependencies.WindowsLibraries.begin(), dependencies.WindowsLibraries.end());
-                packageDep.insert(packageDep.begin(), 
-                    dependencies.PackageDependencies.begin(), dependencies.PackageDependencies.end());
-                externalDep.insert(externalDep.begin(), 
-                    dependencies.ExternalDependencies.begin(), dependencies.ExternalDependencies.end());
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+            {
+                if (installer) {
+                    auto dependencies = installer->Dependencies;
+                    windowsFeaturesDep.insert(windowsFeaturesDep.begin(), 
+                        dependencies.WindowsFeatures.begin(), dependencies.WindowsFeatures.end());
+                    windowsLibrariesDep.insert(windowsLibrariesDep.begin(), 
+                        dependencies.WindowsLibraries.begin(), dependencies.WindowsLibraries.end());
+                    packageDep.insert(packageDep.begin(), 
+                        dependencies.PackageDependencies.begin(), dependencies.PackageDependencies.end());
+                    externalDep.insert(externalDep.begin(), 
+                        dependencies.ExternalDependencies.begin(), dependencies.ExternalDependencies.end());
+                }
             }
         }
 
-        context.Reporter.Info() << "The packages found in this import have the following dependencies:" << std::endl;
-        ManageWindowsFeatureDependencies(windowsFeaturesDep, context);
-        ManageWindowsLibrariesDependencies(windowsLibrariesDep, context);
-        ManagePackageDependencies(packageDep, context);
-        ManageExternalDependencies(externalDep, context);
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        {
+            if (!windowsFeaturesDep.empty() || !windowsLibrariesDep.empty() || !packageDep.empty() || !externalDep.empty())
+            {
+                context.Reporter.Info() << "The packages found in this import have the following dependencies:" << std::endl;
+                ManageWindowsFeatureDependencies(windowsFeaturesDep, context);
+                ManageWindowsLibrariesDependencies(windowsLibrariesDep, context);
+                ManagePackageDependencies(packageDep, context);
+                ManageExternalDependencies(externalDep, context);
+            }
+        }
 
         for (auto packageAndInstaller : installers)
         {

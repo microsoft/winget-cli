@@ -127,8 +127,14 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::GetInstalledPackageVersion <<
-            Workflow::GetUninstallInfo <<
-            Workflow::ReportDependencies <<
+            Workflow::GetUninstallInfo;
+
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        {
+            context << Workflow::ReportDependencies;
+        }
+        
+        context <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteUninstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution);
