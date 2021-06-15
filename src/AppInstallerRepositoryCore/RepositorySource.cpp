@@ -42,6 +42,13 @@ namespace AppInstaller::Repository
 
     namespace
     {
+        // SourceDetails with additional data.
+        struct SourceDetailsInternal : public SourceDetails
+        {
+            // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
+            bool IsTombstone = false;
+        };
+
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
         bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, bool onlyExplicit, TogglePolicy::Policy policy)
@@ -389,7 +396,13 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details = GetWellKnownSourceDetails(WellKnownSource::WinGet);
+                    SourceDetailsInternal details;
+                    details.Name = s_Source_WingetCommunityDefault_Name;
+                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    details.Arg = s_Source_WingetCommunityDefault_Arg;
+                    details.Data = s_Source_WingetCommunityDefault_Data;
+                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
 
@@ -671,6 +684,8 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
+            void UpdateSourceLastUpdateTime(const SourceDetails& source);
+
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
 
@@ -888,10 +903,10 @@ namespace AppInstaller::Repository
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
-        auto currentSources = sourceList.GetCurrentSourceRefs();
 
         if (name.empty())
         {
+            auto currentSources = sourceList.GetCurrentSourceRefs();
             if (currentSources.empty())
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
@@ -951,7 +966,25 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
 
-                OpenSourceResult result = OpenSourceFromDetails(*source, progress);
+                OpenSourceResult result;
+
+                if (ShouldUpdateBeforeOpen(*source))
+                {
+                    try
+                    {
+                        if (BackgroundUpdateSourceFromDetails(*source, progress))
+                        {
+                            sourceList.SaveMetadata();
+                        }
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
+                        result.SourcesWithUpdateFailure.emplace_back(*source);
+                    }
+                }
+
+                result.Source = CreateSourceFromDetails(*source, progress);
                 return result;
             }
         }
@@ -959,22 +992,35 @@ namespace AppInstaller::Repository
 
     OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
     {
-        SourceListInternal sourceList;
         OpenSourceResult result;
 
-        if (ShouldUpdateBeforeOpen(details))
+        // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
+        // if the details came from the same instance of the list that's being saved.
+        SourceListInternal sourceList;
+        auto source = sourceList.GetSource(details.Name);
+        if (!source)
+        {
+            AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+            return {};
+        }
+        else if (source->IsTombstone)
+        {
+            AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
+            return {};
+        }
+        if (ShouldUpdateBeforeOpen(*source))
         {
             try
             {
-                if (BackgroundUpdateSourceFromDetails(details, progress))
+                if (BackgroundUpdateSourceFromDetails(*source, progress))
                 {
                     sourceList.SaveMetadata();
                 }
             }
             catch (...)
             {
-                AICLI_LOG(Repo, Warning, << "Failed to update source: " << (details).Name);
-                result.SourcesWithUpdateFailure.emplace_back(details);
+                AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                result.SourcesWithUpdateFailure.emplace_back(*source);
             }
         }
 
@@ -1012,7 +1058,7 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    SourceDetailsInternal GetWellKnownSourceDetails(WellKnownSource source)
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
     {
         switch (source)
         {

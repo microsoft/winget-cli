@@ -64,13 +64,6 @@ namespace AppInstaller::Repository
         SourceTrustLevel TrustLevel = SourceTrustLevel::None;
     };
 
-    // SourceDetails with additional data.
-    struct SourceDetailsInternal : public SourceDetails
-    {
-        // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
-        bool IsTombstone = false;
-    };
-
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
@@ -144,7 +137,7 @@ namespace AppInstaller::Repository
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
-    SourceDetailsInternal GetWellKnownSourceDetails(WellKnownSource source);
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source);
 
     // Opens a predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.

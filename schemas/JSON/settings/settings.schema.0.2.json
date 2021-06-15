@@ -119,11 +119,6 @@
           "type": "boolean",
           "default": false
         },
-        "packagedAPI": {
-          "description": "Experimental support for allowing other programs to use the Windows Package Manager",
-          "type": "boolean",
-          "default": false
-        },
         "list": {
           "description": "Enable the list command while it is in development",
           "type": "boolean",
