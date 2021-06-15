@@ -6,6 +6,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 using AppInstaller::CLI::Execution::Args;
@@ -127,14 +128,8 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::GetInstalledPackageVersion <<
-            Workflow::GetUninstallInfo;
-
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            context << Workflow::ReportDependencies;
-        }
-        
-        context <<
+            Workflow::GetUninstallInfo <<
+            Workflow::ReportDependencies <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteUninstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution);

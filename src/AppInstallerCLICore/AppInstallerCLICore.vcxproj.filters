@@ -155,6 +155,9 @@
     <ClInclude Include="COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="DependenciesFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -275,6 +278,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="COMContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DependenciesFlow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

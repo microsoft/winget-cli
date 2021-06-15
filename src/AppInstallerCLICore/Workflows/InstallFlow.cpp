@@ -407,98 +407,91 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller;
-        
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            context << Workflow::ManageDependencies;
-        }
-        
-        context << Workflow::InstallPackageInstaller;
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::ManageDependencies <<
+            Workflow::InstallPackageInstaller;
     }
 
     void ManageDependencies(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>();
-        if (installer && installer->Dependencies.HasAny())
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            auto dependencies = installer->Dependencies;
-            context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            if (installer && installer->Dependencies.HasAny())
+            {
+                const auto& dependencies = installer->Dependencies;
+                context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
 
-            ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
+                ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
 
-            ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
+                ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
 
-            ManagePackageDependencies(dependencies.PackageDependencies, context);
+                ManagePackageDependencies(dependencies.PackageDependencies, context);
 
-            ManageExternalDependencies(dependencies.ExternalDependencies, context);
+                ManageExternalDependencies(dependencies.ExternalDependencies, context);
+            }
         }
     }
 
-    void ManageWindowsFeatureDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsFeaturesDep, AppInstaller::CLI::Execution::Context& context)
+    void ManageWindowsFeatureDependencies(const std::vector<AppInstaller::Manifest::string_t>& windowsFeaturesDep, AppInstaller::CLI::Execution::Context& context)
     {
         if (!windowsFeaturesDep.empty())
         {
             context.Reporter.Info() << "    - Windows Features: ";
-            for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
+            for (const auto& dep : windowsFeaturesDep)
             {
-                context.Reporter.Info() << windowsFeaturesDep[i];
-                if (i < windowsFeaturesDep.size() - 1) context.Reporter.Info() << ", ";
+                context.Reporter.Info() << "  " << dep << std::endl;
             }
-            context.Reporter.Info() << std::endl;
         }
     }
 
-    void ManageWindowsLibrariesDependencies(std::vector<AppInstaller::Manifest::string_t>& windowsLibrariesDep, AppInstaller::CLI::Execution::Context& context)
+    void ManageWindowsLibrariesDependencies(const std::vector<AppInstaller::Manifest::string_t>& windowsLibrariesDep, AppInstaller::CLI::Execution::Context& context)
     {
         if (!windowsLibrariesDep.empty())
         {
             context.Reporter.Info() << "    - Windows Libraries: ";
-            for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
+            for (const auto& dep : windowsLibrariesDep)
             {
-                context.Reporter.Info() << windowsLibrariesDep[i];
-                if (i < windowsLibrariesDep.size() - 1) context.Reporter.Info() << ", ";
+                context.Reporter.Info() << "  " << dep << std::endl;
             }
-            context.Reporter.Info() << std::endl;
         }
     }
 
-    void ManagePackageDependencies(std::vector<AppInstaller::Manifest::PackageDependency>& packageDep, AppInstaller::CLI::Execution::Context& context)
+    void ManagePackageDependencies(const std::vector<AppInstaller::Manifest::PackageDependency>& packageDep, AppInstaller::CLI::Execution::Context& context)
     {
         if (!packageDep.empty())
         {
-            context.Reporter.Info() << "    - Packages: ";
-            for (size_t i = 0; i < packageDep.size(); i++)
+            auto info = context.Reporter.Info();
+
+            info << "    - Packages: ";
+            for (const auto& dep : packageDep)
             {
-                context.Reporter.Info() << packageDep[i].Id;
-                if (!packageDep[i].MinVersion.empty()) context.Reporter.Info() << " [>= " << packageDep[i].MinVersion << "]";
-                if (i < packageDep.size() - 1) context.Reporter.Info() << ", ";
+                info << "  " << dep.Id;
+                if (!dep.MinVersion.empty()) info << " [>= " << dep.MinVersion << "]";
+                info << std::endl;
             }
-            context.Reporter.Info() << std::endl;
         }
     }
 
-    void ManageExternalDependencies(std::vector<AppInstaller::Manifest::string_t>& externalDependenciesDep, AppInstaller::CLI::Execution::Context& context)
+    void ManageExternalDependencies(const std::vector<AppInstaller::Manifest::string_t>& externalDependenciesDep, AppInstaller::CLI::Execution::Context& context)
     {
         if (!externalDependenciesDep.empty())
         {
             context.Reporter.Info() << "    - Externals: ";
-            for (size_t i = 0; i < externalDependenciesDep.size(); i++)
+            for (const auto& dep : externalDependenciesDep)
             {
-                context.Reporter.Info() << externalDependenciesDep[i];
-                if (i < externalDependenciesDep.size() - 1) context.Reporter.Info() << ", ";
+                context.Reporter.Info() << "  " << dep << std::endl;
             }
-            context.Reporter.Info() << std::endl;
         }
     }
 
     const struct PackagesAndInstallers
     {
         PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
-            AppInstaller::CLI::Execution::PackageToInstall pkg) : installer(inst), package(pkg) {}
+            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
 
-        std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
-        AppInstaller::CLI::Execution::PackageToInstall package;
+        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
+        AppInstaller::CLI::Execution::PackageToInstall Package;
     };
 
     void InstallMultiple(Execution::Context& context)
@@ -569,8 +562,8 @@ namespace AppInstaller::CLI::Workflow
 
         for (auto packageAndInstaller : installers)
         {
-            auto package = packageAndInstaller.package;
-            auto installer = packageAndInstaller.installer;
+            auto package = packageAndInstaller.Package;
+            auto installer = packageAndInstaller.Installer;
 
             auto installContextPtr = context.Clone();
             Execution::Context& installContext = *installContextPtr;

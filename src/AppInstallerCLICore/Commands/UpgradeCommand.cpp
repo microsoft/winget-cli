@@ -149,13 +149,10 @@ namespace AppInstaller::CLI
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller;
-
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-            {
-                context << ManageDependencies;
-            }
             
-            context << InstallPackageInstaller;
+            context << 
+                ManageDependencies <<
+                InstallPackageInstaller;
         }
         else
         {
@@ -181,12 +178,9 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-            {
-                context << ManageDependencies;
-            }
-
-            context << InstallPackageInstaller;
+            context << 
+                ManageDependencies << 
+                InstallPackageInstaller;
         }
     }
 }
