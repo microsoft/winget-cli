@@ -298,8 +298,9 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   <data name="InvalidNameError" xml:space="preserve">
     <value>O nome do argumento não foi reconhecido para o comando atual</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Idioma de instalação (se for suportado)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Região a utilizar (formato BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de Licença</value>
@@ -480,7 +481,7 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Mostra informação sobre um pacote específico. Por predefinição, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao id, nome, ou caminho de ligação do pacote. Outros campos podem ser utilizados, passando a sua opção apropriada.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Mostra informações acerca de um pacote</value>
+    <value>Apresenta informações sobre um pacote</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versão</value>
@@ -659,11 +660,11 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Não foi encontrada nenhuma atualização aplicável.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Atualiza o pacote selecionado, quer seja encontrado através de pesquisa na lista de pacotes instalados ou diretamente a partir de um manifesto. Por defeito, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao id, nome, ou caminho da ligação do pacote. Outros campos podem ser utilizados, passando a sua opção apropriada.</value>
+    <value>Atualiza a versão do pacote selecionado, quer seja encontrado através de pesquisa na lista de pacotes instalados ou diretamente a partir de um manifesto. Por defeito, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao id, nome, ou caminho da ligação do pacote. Outros campos podem ser utilizados, ao passar a opção apropriada.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Instala o pacote dado</value>
+    <value>Atualiza a versão de um pacote</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>utilização</value>
@@ -915,5 +916,9 @@ A configuração está desativada devido à política de grupo.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Origem permitida</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>O valor fornecido para o argumento '%1' é inválido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

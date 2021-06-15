@@ -46,7 +46,7 @@ If your validation fails, use the errors to locate the line number and make a co
 Next, create a fork of the repository and clone it.
 
 1. Go to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) in your browser and click **Fork**.
-    ![picture of fork](images\fork.png)
+    ![picture of fork](images/fork.png)
 
 2. From a command line environment such as the Windows Command Prompt or PowerShell, use the following command to clone your fork.
     ```CMD
@@ -96,7 +96,7 @@ You're now ready to push your new manifest to the remote repository.
 
 After you push your changes, return to [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) and create a **pull request** to merge your fork or branch to the main branch.
 
-![picture of pull request tab](images\pull-request.png)
+![picture of pull request tab](images/pull-request.png)
 
 ## Submission process
 
@@ -104,6 +104,6 @@ When you create a **pull request**, this will start an automated process that va
 
 We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](.\winget-validation.md).  
 
-Once complete, the submission will be automatically merged and the application will get added to the Windows Package Manager catalog.
+Once complete, your submission will be manually reviewed by a moderator, and after it is approved, your application will be added to the Windows Package Manager catalog.
 
 If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](.\winget-validation.md).  

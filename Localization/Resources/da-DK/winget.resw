@@ -298,8 +298,9 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument navnet blev ikke genkendt for den aktuelle kommando</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Sprog, der skal installeres (hvis det understøttes)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Landestandard, der skal bruges (BCP47 format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licensaftale</value>
@@ -659,7 +660,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Ingen relevante opdateringer blev fundet.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Opdaterer den valgte pakke, enten ved at søge på listen over installerede pakker eller direkte fra et manifest. Forespørgslen skal som standard skelne mellem store og små bogstaver i pakkens id, navn eller moniker. Andre felter kan bruges ved at videregive de ønskede indstillinger.</value>
+    <value>Opdaterer den valgte pakke, enten fundet ved at søge på listen over installerede pakker eller direkte fra et manifest. Forespørgslen skal som standard skelne mellem store og små bogstaver i pakkens id, navn eller moniker. Andre felter kan bruges ved at videregive de ønskede indstillinger.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfiguration er deaktiveret på grund af en gruppepolitik.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Tilladt kilde</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Den værdi, der er angivet for argumentet '%1', er ugyldig</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

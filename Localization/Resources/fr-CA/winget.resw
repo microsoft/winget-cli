@@ -298,8 +298,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
   <data name="InvalidNameError" xml:space="preserve">
     <value>Le nom de l’argument n’a pas été reconnu pour la commande actuelle</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Langue à installer (si prise en charge)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Paramètre régional à utiliser (format BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrat de licence</value>
@@ -480,7 +481,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
     <value>Affiche des informations sur un paquet précis. Par défaut, la requête doit correspondre, sans respect de la casse, à l’identification, au nom ou au nom du paquet. D’autres champs peuvent être utilisés en passant leur option appropriée.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Affiche des informations sur un paquet</value>
+    <value>Affiche des renseignements à propos d’un paquet</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Version</value>
@@ -659,11 +660,11 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
     <value>Aucune mise à jour applicable trouvée.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Mise à jour du paquet sélectionné, trouvé en recherchant les paquets installés ou directement à partir d'un manifeste. Par défaut, la requête doit correspondre, sans respect de la casse, à l’identification, au nom ou au moniker du paquet. D’autres champs peuvent être utilisés en passant leur option appropriée.</value>
+    <value>Met à jour le paquet sélectionné, trouvé en recherchant les paquets installés ou directement à partir d’un manifeste. Par défaut, la requête doit correspondre, sans respect de la casse, à l’identification, au nom ou au moniker du paquet. D’autres champs peuvent être utilisés en passant leur option appropriée.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Mise à jour du paquet donné</value>
+    <value>Met à jour le paquet donné</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>
@@ -915,5 +916,9 @@ La configuration est désactivée en raison de la Politique de groupe.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Source autorisée</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>La valeur fournie pour l’argument « %1 » n’est pas valide.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

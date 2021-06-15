@@ -298,8 +298,9 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumentnamnet kändes inte igen för det aktuella kommandot</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Språk att installera (om det stöds)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Språk att använda (BCP47-format)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licensavtal</value>
@@ -663,7 +664,7 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Uppdaterar det givna paketet</value>
+    <value>Uppdaterar angivet paket</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>användning</value>
@@ -915,5 +916,9 @@ Konfigurationen har inaktiverats på grund av en grup princip.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Tillåten källa</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Det angivna värdet för argumentet%1är ogiltigt</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

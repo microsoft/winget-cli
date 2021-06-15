@@ -271,28 +271,31 @@ namespace TestCommon
         return OnCreate(details);
     }
 
-    void TestSourceFactory::Add(SourceDetails& details, IProgressCallback&)
+    bool TestSourceFactory::Add(SourceDetails& details, IProgressCallback&)
     {
         if (OnAdd)
         {
             OnAdd(details);
         }
+        return true;
     }
 
-    void TestSourceFactory::Update(const SourceDetails& details, IProgressCallback&)
+    bool TestSourceFactory::Update(const SourceDetails& details, IProgressCallback&)
     {
         if (OnUpdate)
         {
             OnUpdate(details);
         }
+        return true;
     }
 
-    void TestSourceFactory::Remove(const SourceDetails& details, IProgressCallback&)
+    bool TestSourceFactory::Remove(const SourceDetails& details, IProgressCallback&)
     {
         if (OnRemove)
         {
             OnRemove(details);
         }
+        return true;
     }
 
     // Make copies of self when requested.

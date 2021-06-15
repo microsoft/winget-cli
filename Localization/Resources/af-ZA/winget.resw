@@ -298,8 +298,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argumentnaam is nie vir die huidige bevel erken nie</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Taal om te installeer (indien dit ondersteun word)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Lokaliteit om te gebruik (BCP47-formaat)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lisensie-ooreenkoms</value>
@@ -480,7 +481,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Wys inligting oor ’n spesifieke pakket. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle geskikte opsie te slaag.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Wys inligting oor ’n pakket</value>
+    <value>Toon inligting oor 'n pakket</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Weergawe</value>
@@ -659,11 +660,11 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Geen toepaslike bywerking gevind nie.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Werk die geselekteerde pakket by; hetsy gevind deur in die lys van geïnstalleerde pakkette te soek of direk vanaf ’n manifes. By verstek moet die navraag niekassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle toepaslike opsie te slaag.</value>
+    <value>Gradeer die geselekteerde pakket op, gevind deur te soek in die geïnstalleerde pakketlys, of direk vanaf 'n manifes. Die navraag moet by verstek van hooflettergevoelig ooreenstem met die ID, naam of moniker van die pakket. Ander velde kan gebruik word deur hul toepaslike opsie in te dien.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Werk die gegewe pakket by</value>
+    <value>Gradeer die gegewe pakket op</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>gebruik</value>
@@ -915,5 +916,9 @@ Konfigurasie is gedeaktiveer as gevolg van Groepsbeleid.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Toegelate bron</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Die waarde vir die argument `%1` is ongeldig</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

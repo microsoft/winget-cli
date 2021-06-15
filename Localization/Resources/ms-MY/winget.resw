@@ -298,8 +298,9 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>nama argumen tidak dikenali untuk perintah semasa</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Bahasa untuk dipasang (jika disokong)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Tempatan untuk digunakan (format BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Perjanjian Lesen</value>
@@ -659,11 +660,11 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Tiada kemas kini yang berkaitan ditemui.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Mengemas kini pakej yang dipilih, sama ada ditemui dengan mencari di senarai pakej yang dipasang atau terus daripada manifes. Secara lalai, pertanyaan mesti menepati secara tidak sensitif huruf dengan ID, nama atau moniker pakej. Medan lain boleh digunakan dengan lulus pilihan yang sesuai.</value>
+    <value>Menaik taraf pakej yang dipilih, sama ada ditemui dengan mencari senarai pakej yang dipasang atau terus daripada manifes. Secara lalai, pertanyaan mesti sepadan dengan id, nama atau laluan pautan pakej secara tidak sensitif. Medan lain boleh digunakan dengan melepasi opsyen yang sesuai.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Memasang pakej yang diberikan</value>
+    <value>Menaik taraf pakej yang diberikan</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>penggunaan</value>
@@ -915,5 +916,9 @@ Konfigurasi dinyahdayakan disebabkan Dasar Kumpulan.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Sumber yang dibenarkan</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Nilai yang disediakan untuk argumen '%1' tidak sah</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

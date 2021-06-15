@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ບໍ່ຮູ້ຈັກຊື່ອາກິວເມັນສຳລັບຄຳສັ່ງປັດຈຸບັນ</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>ພາສາເພື່ອຕິດຕັ້ງ (ຖ້າຮອງຮັບ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>ຕຳແໜ່ງທີ່ຕັ້ງທີ່ຈະໃຊ້ (ຮູບແບບ BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>ຂໍ້ຕົກລົງໃບອະນຸຍາດ</value>
@@ -480,7 +481,7 @@
     <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດສະເພາະ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດ</value>
+    <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກັດ</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>ເວີຊັນ</value>
@@ -659,11 +660,11 @@
     <value>ບໍ່ພົບການອັບເດດທີ່ເໝາະສົມ.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>ອັບເດດແພັກເກດທີ່ເລືອກ, ບໍ່ວ່າຈະພົບໂດຍການຊອກຫາ​ລາຍ​ການແພັກເກດທີ່ຕິດຕັ້ງແລ້ວ ຫຼື ໂດຍກົງຈາກລາຍການສະແດງ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
+    <value>ອັບເກຣດແພັກເກດທີ່ເລືອກ, ບໍ່ວ່າຈະພົບໂດຍການຊອກຫາລາຍການແພັກເກດທີ່ຕິດຕັ້ງແລ້ວ ຫຼື ໂດຍກົງຈາກລາຍການສະແດງ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>ອັບເດດແພັກເກດທີ່ໃຫ້ມາ</value>
+    <value>ອັບເກຣດແພັກເກດທີ່ໃຫ້ມາ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ການໃຊ້</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>ແຫຼ່ງຂໍ້ມູນທີ່ອະນຸຍາດ</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>ຄ່າທີ່ລະບຸສຳລັບອາກິວເມັນ `%1` ແມ່ນບໍ່ຖືກຕ້ອງ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

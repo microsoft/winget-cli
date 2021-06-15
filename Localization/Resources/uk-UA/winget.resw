@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>Ім’я аргументу не розпізнано для поточної команди</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Мова для інсталяції (якщо підтримується)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>локалізація для використання (формат BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Ліцензійна угода</value>
@@ -659,11 +660,11 @@
     <value>Не знайдено застосовних оновлень.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Оновлення вибраного пакета, знайдено за допомогою пошуку інстальованих списку пакетів або безпосередньо з маніфесту. За замовчуванням запит має insensitively збігається з ідентифікатором, іменем або монікер пакета. Інші поля можна використовувати, достатня відповідний параметр.</value>
+    <value>Оновлює вибраний пакет, знайдено за допомогою пошуку інстальованих списку пакетів або безпосередньо з маніфесту. За замовчуванням запит має insensitively збігається з ідентифікатором, іменем або монікер пакета. Інші поля можна використовувати, достатня відповідний параметр.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Оновлення вказаного пакета</value>
+    <value>Оновлює вказаний пакет</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>використання</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Дозволене джерело</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Неприпустиме значення аргументу ''%1''</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

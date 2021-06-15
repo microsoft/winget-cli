@@ -298,8 +298,9 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="InvalidNameError" xml:space="preserve">
     <value>Heiti frumbreytu þekktist ekki fyrir núverandi skipun</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Tungumál sem á að setja upp (ef stutt)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Landsstaðall sem á að notast við (BCP47 snið)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Leyfissamningur</value>
@@ -659,11 +660,11 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Engin viðeigandi uppfærsla fannst.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Setur upp valinn pakka, sem annað hvort fannst með því að leita að uppsettum pakkalistum eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti.</value>
+    <value>Uppfærðu valinn pakka, sem annað hvort fannst með því að leita að uppsettum pakkalistum eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Setur upp pakkann</value>
+    <value>Uppfærir pakkann</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>notkun</value>
@@ -915,5 +916,9 @@ Grunnstilling er óvirk vegna hópreglu.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Leyfður uppruni</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Gildið sem var sett upp fyrir `%1` frumbreytuna er ógilt</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

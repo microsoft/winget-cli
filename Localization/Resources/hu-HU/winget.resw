@@ -298,8 +298,9 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nem sikerült felismerni a jelenlegi parancs argumentumának nevét</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Telepítendő nyelv (ha támogatott)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Használandó területi beállítás (BCP47 formátum)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licencszerződés</value>
@@ -480,7 +481,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Egy adott csomagra vonatkozó információt jelenít meg. Alapértelmezés szerint a lekérdezésnek kis- és nagybetűk megkülönböztetése nélkül kell egyezést keresnie a csomag azonosítójával, nevével vagy monikerével. Más mezők is használhatók a megfelelő opciók átadásával.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Csomagra vonatkozó adatok megjelenítése</value>
+    <value>Egy csomag adatainak megjelenítése</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Verzió</value>
@@ -659,7 +660,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Nem találhatók alkalmazható frissítések.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>A kijelölt csomag (például a telepített csomagok listája, illetve egy jegyzékből történő) keresése. Alapértelmezés szerint a lekérdezésnek meg kell insensitively, hogy megfeleljen a csomag azonosítója, neve vagy a moniker között. A megfelelő beállítás alapján más mezők is használhatók.</value>
+    <value>A kijelölt csomag frissítése, amely a telepített csomagok listájában vagy egy fájlból közvetlenül a listában található. Alapértelmezés szerint a lekérdezésnek meg kell insensitively, hogy megfeleljen a csomag azonosítója, neve vagy a moniker között. A megfelelő beállítás alapján más mezők is használhatók.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ A konfiguráció a csoportházirend miatt le van tiltva.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Engedélyezett forrás</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Érvénytelen a (z) "%1" argumentum megadott értéke.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

@@ -18,7 +18,7 @@ The **search** command can show all applications available, or it can be filtere
 
 `winget search [[-q] \<query>] [\<options>]`
 
-![Screenshot of the Windows Power Shell window displaying the results of the winget search.](images\search.png)
+![Screenshot of the Windows Power Shell window displaying the results of the winget search.](images/search.png)
 
 ## Arguments
 

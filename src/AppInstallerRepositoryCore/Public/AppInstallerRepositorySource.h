@@ -102,7 +102,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
     struct OpenSourceResult
     {
@@ -117,6 +117,9 @@ namespace AppInstaller::Repository
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
+    // Opens an existing source.
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress);
+
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
@@ -125,6 +128,16 @@ namespace AppInstaller::Repository
         ARP,
         MSIX,
     };
+
+    // A well known source.
+    // These come with the app and can be disabled but not removed.
+    enum class WellKnownSource
+    {
+        WinGet,
+    };
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source);
 
     // Opens a predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
@@ -139,6 +152,8 @@ namespace AppInstaller::Repository
         Installed,
         // Search both installed and available packages.
         AllPackages,
+        // Search only available packages.
+        AvailablePackages,
     };
 
     // Creates a source that merges the installed packages with the given available packages.
@@ -146,6 +161,13 @@ namespace AppInstaller::Repository
     std::shared_ptr<ISource> CreateCompositeSource(
         const std::shared_ptr<ISource>& installedSource,
         const std::shared_ptr<ISource>& availableSource,
+        CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
+
+    // Creates a source that merges the installed packages with the given available packages from multiple sources.
+    // The source can search for installed packages only, or also include non-installed available packages.
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
         CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     // Updates an existing source.

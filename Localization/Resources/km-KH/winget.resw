@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ឈ្មោះអាគុយម៉ង់មិនត្រូវបានទទួលស្គាល់សម្រាប់ពាក្យបញ្ជាបច្ចុប្បន្នទេ</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>ភាសា​ត្រូវ​ដំឡើង (ប្រសិន​បើ​បានគាំទ្រ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>តំបន់ ដើម្បីប្រើប្រាស់ (សូមប្រើទ្រង់ទ្រាយ BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>កិច្ចព្រមព្រៀង​អាជ្ញាប័ណ្ណ</value>
@@ -480,7 +481,7 @@
     <value>បង្ហាញ​ព័ត៌មាន​អំពី​កញ្ចប់​ជាក់លាក់។ តាម​លំនាំដើម សំណួរ​ត្រូវ​តែ​ប្រកាន់អក្សរ​តូ​ចធំ លេខ​សម្គាល់ ឈ្មោះ ឬ​ឈ្មោះ​ក្រៅ​របស់​កញ្ចប់។ កន្លែង​បញ្ចូល​ផ្សេង​ទៀត​អាច​ត្រូវ​បានប្រើ​ដោយ​បញ្ជូន​ជម្រើស​សមស្រប​របស់​ពួកវា។</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>បង្ហាញ​ព័ត៌មាន​អំពីកញ្ចប់</value>
+    <value>បង្ហាញព័ត៌មានអំពីកញ្ចប់</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>កំណែ</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>ប្រភពដែលអនុញ្ញាត</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>តម្លៃដែលបានផ្តល់សម្រាប់អាគុយម៉ង់ '%1' មិនត្រឹមត្រូវទ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

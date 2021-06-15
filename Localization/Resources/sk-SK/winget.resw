@@ -298,8 +298,9 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   <data name="InvalidNameError" xml:space="preserve">
     <value>Názov argumentu nebol rozpoznaný pre aktuálny príkaz</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Jazyk na inštaláciu (ak je podporovaný)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Miestne nastavenie na použitie (formát BCP47)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Licenčná zmluva</value>
@@ -659,7 +660,7 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
     <value>Nenašli sa žiadne použiteľné aktualizácie.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Aktualizuje vybratý balík, a to buď pomocou vyhľadávania v zozname nainštalovaných balíkovna, alebo priamo z manifestu. Predvolene dotaz musí bez rozlišovania malých a veľkých písmen obsahovať ID, meno alebo moniker balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
+    <value>Inovuje vybratý balík, a to buď pomocou vyhľadávania v zozname nainštalovaných balíkov, alebo priamo z manifestu. Predvolene dotaz musí bez rozlišovania malých a veľkých písmen obsahovať ID, meno alebo moniker balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfigurácia je vypnutá z dôvodu skupinovej politiky.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>Povolený zdroj</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>Hodnota zadaná pre argument%1je neplatná.</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

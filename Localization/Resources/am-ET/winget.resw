@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>ነጋሪ እሴት ለአሁኑ ትዕዛዝ አልታወቀም</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>የሚጫን ቋንቋ (የሚደገፍ ከሆነ)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>አካባቢያዊ አጠቃቀም (BCP47 ቅርጸት)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>የፈቃድ ስምምነት</value>
@@ -480,7 +481,7 @@
     <value>በአንድ የተወሰነ ጥቅል ላይ መረጃ ያሳዩ። በነባሪነት ፣መጠይቁ በጥልቀት ከጥቅሉ መታወቂያ ፣ ስም ወይም ሞኒከር ጋር መዛመድ አለበት። ሌሎች መስኮች ተገቢውን አማራጭ በማለፍ ሊያገለግሉ ይችላሉ።</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ስለ አንድ ጥቅል መረጃ ያሳያል</value>
+    <value>ስለ ጥቅል መረጃ ያሳያል</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>ስሪት</value>
@@ -659,11 +660,11 @@
     <value>አግባብ ዝመና አልተገኘም።</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>የተጫኑ ጥቅሎች ዝርዝር በመፈለግ ይሁን በቀጥታ ይገኝ የተመረጠው ጥቅል ይዘምናል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት። ተገቢውን አማራጭ በማለፍ ሌሎች መስኮች ሊያገለግሉ ይችላሉ።</value>
+    <value>የተጫኑ ጥቅሎች ዝርዝርን በመፈለግ ይሁን በቀጥታ ቢገኝ፣ የተመረጠው ጥቅል ይሻሻላል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት።ሌሎች መስኮች ተገቢውን አማራጭ በማለፍ ሊያገለግሉ ይችላሉ።</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>የቀረበውን ጥቅል ይዘምናል</value>
+    <value>የቀረበዉን ጥቅል ያሻሽላል</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>አጠቃቀም</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>የተፈቀደ ምንጭ</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>ለ `%1` ክርክር የቀረበው ዋጋ ልክ ያልሆነ ነው</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

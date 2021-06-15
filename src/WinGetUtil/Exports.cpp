@@ -34,6 +34,7 @@ extern "C"
 
         if (!AppInstaller::Logging::Log().ContainsLogger(loggerName))
         {
+            // Let FileLogger use default file prefix
             AppInstaller::Logging::AddFileLogger(pathAsPath);
         }
 

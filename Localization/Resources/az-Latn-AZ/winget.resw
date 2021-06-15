@@ -298,8 +298,9 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="InvalidNameError" xml:space="preserve">
     <value>Cari əmr üçün arqument adı tanınmadı</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Quraşdırılacaq dil (dəstəklənirsə)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>(BCP47 formatı) istifadə etmək üçün dil standartları</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Lisenziya Razılaşması</value>
@@ -659,7 +660,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Müvafiq yeniləmə tapılmadı.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Ya quraşdırılmış paketlər siyahısını axtarmaqla, ya da birbaşa manifestdən tapılan seçilmiş paketi yeniləyir. Standart olaraq sorğu böyük-kiçik hərfə həssas olmadan paketin identifikatoru, adı və ya ayaması ilə uyğun gəlməlidir. Başqa sahələrdən onların müvafiq seçimini ötürməklə istifadə oluna bilər.</value>
+    <value>Ya quraşdırılmış paketlər siyahısını axtarmaqla, ya da birbaşa manifestdən tapılan seçilmiş paketi yeniləyir. Standart olaraq sorğu böyük-kiçik hərfə həssas olmadan paketin identifikatoru, adı və ya ləqəbi ilə uyğun gəlməlidir. Digər sahələr müvafiq seçimi keçərək istifadə edilə bilər.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -915,5 +916,9 @@ Konfiqurasiya Qrup Siyasətinə görə qeyri-aktiv edilib.</value>
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>İcazə verilmiş mənbə</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>`%1` arqumenti üçün verilən qiymət etibarsızdır</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

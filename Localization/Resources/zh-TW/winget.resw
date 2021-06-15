@@ -298,8 +298,9 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>無法辨識目前命令的引數名稱</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>要安裝的語言 (如果有支援的話)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>要使用的地區設定 (BCP47 格式)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>授權合約</value>
@@ -480,7 +481,7 @@
     <value>顯示特定封裝的資訊。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>顯示與套件的相關資訊</value>
+    <value>顯示套件相關資訊</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>版本</value>
@@ -659,11 +660,11 @@
     <value>找不到適用的更新。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>通過搜尋已安裝的套件清單或直接從資訊清單來更新選取的封裝。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
+    <value>透過搜尋已安裝的套件清單或直接從資訊清單來升級選取的套件。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>更新指定的套件</value>
+    <value>升級指定的套件</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用</value>
@@ -915,5 +916,9 @@
   <data name="SourceListAllowedSource" xml:space="preserve">
     <value>允許的來源</value>
     <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>提供給 '%1' 引數的值無效</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

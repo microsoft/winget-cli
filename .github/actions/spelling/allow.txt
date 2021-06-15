@@ -257,6 +257,7 @@ msrc
 Multifile
 Multimatch
 mutex
+mutexes
 namespace
 namespaces
 Nelon
@@ -329,6 +330,7 @@ PVOID
 pwa
 QCol
 RAII
+rclsid
 rdbuf
 README
 READONLY
@@ -336,6 +338,7 @@ READWRITE
 realloc
 REALTIME
 Redistributable
+REFCLSID
 regex
 regexp
 removemanifest
@@ -458,6 +461,7 @@ tt
 ttl
 typedef
 typename
+UAC
 uap
 UBool
 UBreak
@@ -477,6 +481,7 @@ uncomment
 und
 undef
 unicode
+UNICODESTRING
 uninstall
 uninstalling
 Unregister
@@ -530,6 +535,7 @@ woah
 wofstream
 workaround
 workflow
+wostringstream
 wostream
 wpfn
 wrl

@@ -18,7 +18,7 @@ The **show** command only shows metadata that was submitted with the application
 
 `winget show [[-q] \<query>] [\<options>]`
 
-![show command](images\show.png)
+![show command](images/show.png)
 
 ## Arguments
 

@@ -18,7 +18,7 @@ The **import** command is often used to share your developer environment or buil
 
 `winget import [-i] <import-file> [<options>]`
 
-![import](images\import.png)
+![import](images/import.png)
 
 ## Arguments
 
@@ -51,6 +51,6 @@ The JSON file includes the following hierarchy:
 
 When the Windows Package Manager imports the JSON file, it attempts to install the specified applications in a serial fashion.  If the application is not available or the application is already installed, it will notify the user of that case.
 
-![import](images\import-command.png)
+![import](images/import-command.png)
 
 You will notice in the example above, the Microsoft.WindowsTerminal was already installed. Therefore the import command skipped passed the installation.

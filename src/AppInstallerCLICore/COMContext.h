@@ -61,6 +61,14 @@ namespace AppInstaller
             m_comProgressCallback = std::move(f);
         }
 
+        // Set COM call context for diagnostic and telemetry loggers
+        // This should be called for every COMContext object instance
+        void SetLoggerContext(const std::wstring_view telemetryCorelationJson, const std::string& caller);
+
+        // Set Diagnostic and Telemetry loggers, Wil failure callback
+        // This should be called only once per COM Server instance
+        static void SetLoggers();
+
     private:
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         ProgressCallBackFunction m_comProgressCallback;
