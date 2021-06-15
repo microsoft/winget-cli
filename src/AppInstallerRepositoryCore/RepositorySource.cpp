@@ -42,7 +42,7 @@ namespace AppInstaller::Repository
 
     namespace
     {
-        // SourceDetails with additional data used by this file.
+        // SourceDetails with additional data.
         struct SourceDetailsInternal : public SourceDetails
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
@@ -684,6 +684,8 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
+            void UpdateSourceLastUpdateTime(const SourceDetails& source);
+
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
 
@@ -901,10 +903,10 @@ namespace AppInstaller::Repository
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
-        auto currentSources = sourceList.GetCurrentSourceRefs();
 
         if (name.empty())
         {
+            auto currentSources = sourceList.GetCurrentSourceRefs();
             if (currentSources.empty())
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
@@ -988,7 +990,51 @@ namespace AppInstaller::Repository
         }
     }
 
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+    {
+        OpenSourceResult result;
+
+        // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
+        // if the details came from the same instance of the list that's being saved.
+        SourceListInternal sourceList;
+        auto source = sourceList.GetSource(details.Name);
+        if (!source)
+        {
+            AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+            return {};
+        }
+        else if (source->IsTombstone)
+        {
+            AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
+            return {};
+        }
+        if (ShouldUpdateBeforeOpen(*source))
+        {
+            try
+            {
+                if (BackgroundUpdateSourceFromDetails(*source, progress))
+                {
+                    sourceList.SaveMetadata();
+                }
+            }
+            catch (...)
+            {
+                AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                result.SourcesWithUpdateFailure.emplace_back(*source);
+            }
+        }
+
+        result.Source = CreateSourceFromDetails(details, progress);
+        return result;
+    }
+
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details = GetPredefinedSourceDetails(source);
+        return CreateSourceFromDetails(details, progress);
+    } 
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {
         SourceDetails details;
         details.Origin = SourceOrigin::Predefined;
@@ -998,15 +1044,34 @@ namespace AppInstaller::Repository
         case PredefinedSource::Installed:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::ARP:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
-            return CreateSourceFromDetails(details, progress);
+            return details;
+        }
+
+        THROW_HR(E_UNEXPECTED);
+    }
+
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
+    {
+        switch (source)
+        {
+        case WellKnownSource::WinGet:
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_WingetCommunityDefault_Name;
+            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Arg = s_Source_WingetCommunityDefault_Arg;
+            details.Data = s_Source_WingetCommunityDefault_Data;
+            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            return details;
         }
 
         THROW_HR(E_UNEXPECTED);
@@ -1023,6 +1088,26 @@ namespace AppInstaller::Repository
         }
 
         result->SetInstalledSource(installedSource, searchBehavior);
+
+        return result;
+    }
+
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
+        CompositeSearchBehavior searchBehavior)
+    {
+        std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
+
+        for (const auto& availableSource : availableSources)
+        {
+            result->AddAvailableSource(availableSource);
+        }
+
+        if (installedSource)
+        {
+            result->SetInstalledSource(installedSource, searchBehavior);
+        }
 
         return result;
     }

@@ -133,3 +133,13 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
        "experimentalMSStore": true
    },
 ```
+
+### packagedAPI
+
+Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use the Windows Package Manager. You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "packagedAPI": true
+   },
+```
