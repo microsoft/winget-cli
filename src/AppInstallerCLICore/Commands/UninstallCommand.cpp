@@ -129,7 +129,7 @@ namespace AppInstaller::CLI
             Workflow::GetInstalledPackageVersion <<
             Workflow::GetUninstallInfo;
 
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             context << Workflow::ReportDependencies;
         }

@@ -100,7 +100,7 @@ namespace AppInstaller::CLI
             {
                 auto manifest = Manifest::YamlParser::CreateFromPath(inputFile, true, true);
 
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies)) 
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies)) 
                 {
                     std::vector<AppInstaller::Manifest::string_t> windowsFeaturesDep;
                     std::vector<AppInstaller::Manifest::string_t> windowsLibrariesDep;

@@ -409,7 +409,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller;
         
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             context << Workflow::ManageDependencies;
         }
@@ -539,7 +539,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& installer = installContext.Get<Execution::Data::Installer>();
             installers.push_back(PackagesAndInstallers(installer, package));
             
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
             {
                 if (installer) {
                     auto dependencies = installer->Dependencies;
@@ -555,7 +555,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies))
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             if (!windowsFeaturesDep.empty() || !windowsLibrariesDep.empty() || !packageDep.empty() || !externalDep.empty())
             {

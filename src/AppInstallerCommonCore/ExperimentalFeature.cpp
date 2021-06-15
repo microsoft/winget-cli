@@ -44,8 +44,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalMSStore:
                 return userSettings.Get<Setting::EFExperimentalMSStore>();
-            case ExperimentalFeature::Feature::EFExperimentalShowDependencies:
-                return userSettings.Get<Setting::EFExperimentalShowDependencies>();
+            case ExperimentalFeature::Feature::Dependencies:
+                return userSettings.Get<Setting::EFDependencies>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -74,8 +74,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::ExperimentalMSStore:
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
-        case Feature::EFExperimentalShowDependencies:
-            return ExperimentalFeature{ "Show Dependencies Information", "experimentalShowDependencies", "https://aka.ms/winget-settings", Feature::EFExperimentalShowDependencies };
+        case Feature::Dependencies:
+            return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         default:
             THROW_HR(E_UNEXPECTED);
         }

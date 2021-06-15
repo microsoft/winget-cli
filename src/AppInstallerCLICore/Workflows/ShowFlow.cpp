@@ -70,7 +70,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Execution::ManifestInfoEmphasis << "  ProductId: " << installer->ProductId << std::endl;
             }
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::EFExperimentalShowDependencies)) {
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies)) {
                 auto dependencies = installer->Dependencies;
                 if (dependencies.HasAny())
                 {
