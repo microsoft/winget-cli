@@ -833,9 +833,9 @@ TEST_CASE("ShowFlow_ShowDependencies", "[ShowFlow][workflow][showDependencies]")
     REQUIRE(showOutput.str().find("WindowsFeaturesDep") != std::string::npos);
     REQUIRE(showOutput.str().find("WindowsLibrariesDep") != std::string::npos);
     // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
-    REQUIRE(showOutput.str().find("Package.Dep1-x64\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
     REQUIRE(showOutput.str().find("Package.Dep2-x64") != std::string::npos);
-    REQUIRE(showOutput.str().find("Package.Dep2-x64\x1b[0m [") == std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
     REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
 }
 
@@ -1694,8 +1694,8 @@ TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
     REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
     REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
     // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
-    REQUIRE(validateOutput.str().find("Package.Dep1-x64\x1b[0m [>= 1.0]") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
     REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
-    REQUIRE(validateOutput.str().find("Package.Dep2-x64\x1b[0m [") == std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
     REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
 }
