@@ -432,6 +432,13 @@ namespace AppInstaller::CLI::Workflow
             installContext << InstallPackageVersion;
             if (installContext.IsTerminated())
             {
+                if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                {
+                    // This means that the subcontext being terminated is due to an overall abort
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                    return;
+                }
+
                 allSucceeded = false;
             }
         }
