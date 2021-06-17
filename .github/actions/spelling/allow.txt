@@ -424,6 +424,7 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+subcontext
 SUBLANG
 subresource
 subselect

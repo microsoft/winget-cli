@@ -121,6 +121,12 @@ namespace AppInstaller::CLI::Workflow
             {
                 updateAllHasFailure = true;
             }
+
+            if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                return;
+            }
         }
 
         if (!updateAllFoundUpdate)

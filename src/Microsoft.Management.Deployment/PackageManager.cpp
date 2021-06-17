@@ -299,7 +299,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         cancellationToken.callback([&context]
             {
-                context.Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
+                context.Cancel(false, true);
             });
         // Wait for the execute operation to finish. 
         // The cancellation of the AsyncOperation triggers Terminate which causes the executeOperation to end.
