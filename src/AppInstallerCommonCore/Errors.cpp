@@ -141,6 +141,8 @@ namespace AppInstaller
                 return "Invalid rest source contract version";
             case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
                 return "The source data is corrupted or tampered";
+            case APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE:
+                return "Error reading from the stream";
             default:
                 return "Unknown Error Code";
             }
