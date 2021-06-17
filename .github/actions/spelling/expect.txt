@@ -29,6 +29,7 @@ AType
 AUrl
 Aysnc
 azurewebsites
+badbit
 Baz
 bcp
 Beigi
