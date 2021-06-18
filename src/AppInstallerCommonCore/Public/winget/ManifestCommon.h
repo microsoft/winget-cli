@@ -112,25 +112,40 @@ namespace AppInstaller::Manifest
         Preview,
     };
 
-    struct PackageDependency
+    enum class DependencyType
     {
-        string_t Id;
-        string_t MinVersion;
+        WindowsFeature,
+        WindowsLibraries,
+        Package,
+        External
     };
 
     struct Dependency
     {
-        std::vector<string_t> WindowsFeatures;
-        std::vector<string_t> WindowsLibraries;
-        std::vector<PackageDependency> PackageDependencies;
-        std::vector<string_t> ExternalDependencies;
+        DependencyType Type;
+        string_t Id;
+        std::optional<string_t> MinVersion;
 
-        bool HasAny() const {
-            return !WindowsFeatures.empty() || !WindowsLibraries.empty() || !PackageDependencies.empty() ||
-                !ExternalDependencies.empty();
-        }
+        Dependency(DependencyType type, string_t id, std::optional<string_t> minVersion) : Type(type), Id(id), MinVersion(minVersion) {}
+        Dependency(DependencyType type, string_t id) : Type(type), Id(id) {}
+        Dependency(DependencyType type) : Type(type) {}
     };
 
+    struct DependencyList
+    {
+        std::vector<Dependency> dependencies;
+
+        DependencyList() {}
+
+        void Add(Dependency dep) { dependencies.push_back(dep); }
+        void Add(DependencyList dependencyList)
+        {
+            const auto& deps = dependencyList.dependencies;
+            dependencies.insert(deps.end(), deps.begin(), deps.end());
+        }
+
+        bool HasAny() const { return !dependencies.empty(); }
+    };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 

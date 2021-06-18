@@ -78,46 +78,29 @@ namespace AppInstaller::CLI::Workflow
                 {
                     info << Execution::ManifestInfoEmphasis << "  Dependencies: " << std::endl;
 
-                    const auto& windowsFeaturesDep = dependencies.WindowsFeatures;
-                    if (!windowsFeaturesDep.empty())
-                    {
-                        info << "    - WindowsFeatures: ";
-                        for (const auto& dep : windowsFeaturesDep)
-                        {
-                            info << "  " << dep << std::endl;
-                        }
+                    info << "    - WindowsFeatures: ";
+                    for (const auto& dep : dependencies.dependencies) { //TODO change for lambda function called inside DepList
+                        if (dep.Type == Manifest::DependencyType::WindowsFeature) info << "  " << dep << std::endl;
                     }
 
-                    const auto& windowsLibrariesDep = dependencies.WindowsLibraries;
-                    if (!windowsLibrariesDep.empty())
-                    {
-                        info << "    - WindowsLibraries: ";
-                        for (const auto& dep : windowsLibrariesDep)
-                        {
-                            info << "  " << dep << std::endl;
-                        }
+                    info << "    - WindowsLibraries: ";
+                    for (const auto& dep : dependencies.dependencies) { //TODO change for lambda function called inside DepList
+                        if (dep.Type == Manifest::DependencyType::WindowsLibraries) info << "  " << dep << std::endl;
                     }
 
-                    const auto& packageDep = dependencies.PackageDependencies;
-                    if (!packageDep.empty())
-                    {
-                        info << "    - PackageDependencies: ";
-                        for (const auto& dep : packageDep)
+                    info << "    - PackageDependencies: ";
+                    for (const auto& dep : dependencies.dependencies) { //TODO change for lambda function called inside DepList
+                        if (dep.Type == Manifest::DependencyType::Package)
                         {
                             info << "  " << dep.Id;
-                            if (!dep.MinVersion.empty()) info << " [>= " << dep.MinVersion << "]";
+                            if (dep.MinVersion) info << " [>= " << dep.MinVersion << "]";
                             info << std::endl;
                         }
                     }
 
-                    const auto& externalDependenciesDep = dependencies.ExternalDependencies;
-                    if (!externalDependenciesDep.empty())
-                    {
-                        info << "    - ExternalDependencies: ";
-                        for (const auto& dep : externalDependenciesDep)
-                        {
-                            info << "  " << dep << std::endl;
-                        }
+                    info << "    - ExternalDependencies: ";
+                    for (const auto& dep : dependencies.dependencies) { //TODO change for lambda function called inside DepList
+                        if (dep.Type == Manifest::DependencyType::External) info << "  " << dep << std::endl;
                     }
                 }
             }

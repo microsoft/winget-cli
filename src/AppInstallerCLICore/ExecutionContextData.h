@@ -47,7 +47,8 @@ namespace AppInstaller::CLI::Execution
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
-        Max
+        Max,
+        Dependencies
     };
 
     struct PackageToInstall
@@ -183,6 +184,12 @@ namespace AppInstaller::CLI::Execution
         {
             // Contains the { Id, Version, Channel }
             using value_t = std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>>;
+        };
+
+        template <>
+        struct DataMapping<Data::Dependencies>
+        {
+            using value_t = std::optional<Manifest::DependencyList>;
         };
     }
 }

@@ -413,10 +413,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(Dependencies));
         if (dependenciesObject)
         {
-            std::optional<Manifest::Dependency> dependency = DeserializeDependency(dependenciesObject.value().get());
-            if (dependency)
+            std::optional<Manifest::DependencyList> dependencyList = DeserializeDependency(dependenciesObject.value().get());
+            if (dependencyList)
             {
-                installer.Dependencies = std::move(dependency.value());
+                installer.Dependencies = std::move(dependencyList.value());
             }
         }
 
@@ -428,18 +428,32 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         return installer;
     }
 
-    std::optional<Manifest::Dependency> ManifestDeserializer::DeserializeDependency(const web::json::value& dependenciesObject) const
+    std::optional<Manifest::DependencyList> ManifestDeserializer::DeserializeDependency(const web::json::value& dependenciesObject) const
     {
         if (dependenciesObject.is_null())
         {
             return {};
         }
 
-        Manifest::Dependency dependency;
+        Manifest::DependencyList dependencyList;
 
-        dependency.WindowsFeatures = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
-        dependency.WindowsLibraries = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
-        dependency.ExternalDependencies = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
+        const auto& wfIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
+        for (auto id : wfIds)
+        {
+            dependencyList.Add(Dependency(DependencyType::WindowsFeature, id));
+        };
+
+        const auto& wlIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
+        for (auto id : wlIds)
+        {
+            dependencyList.Add(Dependency(DependencyType::WindowsLibraries, id));
+        };
+
+        const auto& extIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
+        for (auto id : extIds)
+        {
+            dependencyList.Add(Dependency(DependencyType::External, id));
+        };
 
         // Package Dependencies
         std::optional<std::reference_wrapper<const web::json::array>> packageDependencies = JsonHelper::GetRawJsonArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(PackageDependencies));
@@ -450,12 +464,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 std::optional<std::string> id = JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(PackageIdentifier));
                 if (id)
                 {
-                    PackageDependency pkg{ std::move(id.value()) ,  JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(MinimumVersion)).value_or("") };
-                    dependency.PackageDependencies.emplace_back(std::move(pkg));
+                    Dependency pkg{ DependencyType::Package, std::move(id.value()) ,  JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(MinimumVersion)).value_or("") };
+                    dependencyList.Add(std::move(pkg));
                 }
             }
         }
 
-        return dependency;
+        return dependencyList;
     }
 }

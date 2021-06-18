@@ -8,59 +8,36 @@ namespace AppInstaller::CLI::Workflow
 {
     void ReportDependencies(Execution::Context& context)
     {
-        context <<
-            Workflow::GetManifest <<
-            Workflow::SelectInstaller;
-
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies)) return;
+        
+        const auto& dependencies = context.Get<Execution::Data::Dependencies>();
+        if (dependencies && dependencies->HasAny())
         {
-            const auto& installer = context.Get<Execution::Data::Installer>();
-            if (installer && installer->Dependencies.HasAny())
-            {
-                auto info = context.Reporter.Info();
-                auto dependencies = installer->Dependencies;
+            auto info = context.Reporter.Info();
 
-                auto windowsFeaturesDep = dependencies.WindowsFeatures;
-                if (!windowsFeaturesDep.empty())
-                {
-                    info << "    - Windows Features: ";
-                    for (size_t i = 0; i < windowsFeaturesDep.size(); i++)
-                    {
-                        info << "  " << windowsFeaturesDep[i] << std::endl;
-                    }
-                }
+            info << "    - Windows Features: ";
+            for (const auto& dep : dependencies->dependencies) { //TODO change for lambda function called inside DepList
+                if (dep.Type == Manifest::DependencyType::WindowsFeature) info << "  " << dep << std::endl;
+            }
 
-                auto windowsLibrariesDep = dependencies.WindowsLibraries;
-                if (!windowsLibrariesDep.empty())
-                {
-                    info << "    - Windows Libraries: ";
-                    for (size_t i = 0; i < windowsLibrariesDep.size(); i++)
-                    {
-                        info << "  " << windowsLibrariesDep[i] << std::endl;
-                    }
-                }
+            info << "    - Windows Libraries: ";
+            for (const auto& dep : dependencies->dependencies) { //TODO change for lambda function called inside DepList
+                if (dep.Type == Manifest::DependencyType::WindowsLibraries) info << "  " << dep << std::endl;
+            }
 
-                auto packageDep = dependencies.PackageDependencies;
-                if (!packageDep.empty())
+            info << "    - Package: ";
+            for (const auto& dep : dependencies->dependencies) { //TODO change for lambda function called inside DepList
+                if (dep.Type == Manifest::DependencyType::Package)
                 {
-                    info << "    - Packages: ";
-                    for (size_t i = 0; i < packageDep.size(); i++)
-                    {
-                        info << "  " << packageDep[i].Id;
-                        if (!packageDep[i].MinVersion.empty()) info << " [>= " << packageDep[i].MinVersion << "]";
-                        info << std::endl;
-                    }
+                    info << "  " << dep.Id;
+                    if (dep.MinVersion) info << " [>= " << dep.MinVersion << "]";
+                    info << std::endl;
                 }
+            }
 
-                auto externalDependenciesDep = dependencies.ExternalDependencies;
-                if (!externalDependenciesDep.empty())
-                {
-                    info << "    - Externals: ";
-                    for (size_t i = 0; i < externalDependenciesDep.size(); i++)
-                    {
-                        info << "  " << externalDependenciesDep[i] << std::endl;
-                    }
-                }
+            info << "    - External: ";
+            for (const auto& dep : dependencies->dependencies) { //TODO change for lambda function called inside DepList
+                if (dep.Type == Manifest::DependencyType::External) info << "  " << dep << std::endl;
             }
         }
     }

@@ -7,6 +7,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -419,68 +420,9 @@ namespace AppInstaller::CLI::Workflow
             const auto& installer = context.Get<Execution::Data::Installer>();
             if (installer && installer->Dependencies.HasAny())
             {
-                const auto& dependencies = installer->Dependencies;
+                context.Add<Execution::Data::Dependencies>(installer->Dependencies);
                 context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
-
-                ManageWindowsFeatureDependencies(dependencies.WindowsFeatures, context);
-
-                ManageWindowsLibrariesDependencies(dependencies.WindowsLibraries, context);
-
-                ManagePackageDependencies(dependencies.PackageDependencies, context);
-
-                ManageExternalDependencies(dependencies.ExternalDependencies, context);
-            }
-        }
-    }
-
-    void ManageWindowsFeatureDependencies(const std::vector<AppInstaller::Manifest::string_t>& windowsFeaturesDep, AppInstaller::CLI::Execution::Context& context)
-    {
-        if (!windowsFeaturesDep.empty())
-        {
-            context.Reporter.Info() << "    - Windows Features: ";
-            for (const auto& dep : windowsFeaturesDep)
-            {
-                context.Reporter.Info() << "  " << dep << std::endl;
-            }
-        }
-    }
-
-    void ManageWindowsLibrariesDependencies(const std::vector<AppInstaller::Manifest::string_t>& windowsLibrariesDep, AppInstaller::CLI::Execution::Context& context)
-    {
-        if (!windowsLibrariesDep.empty())
-        {
-            context.Reporter.Info() << "    - Windows Libraries: ";
-            for (const auto& dep : windowsLibrariesDep)
-            {
-                context.Reporter.Info() << "  " << dep << std::endl;
-            }
-        }
-    }
-
-    void ManagePackageDependencies(const std::vector<AppInstaller::Manifest::PackageDependency>& packageDep, AppInstaller::CLI::Execution::Context& context)
-    {
-        if (!packageDep.empty())
-        {
-            auto info = context.Reporter.Info();
-
-            info << "    - Packages: ";
-            for (const auto& dep : packageDep)
-            {
-                info << "  " << dep.Id;
-                if (!dep.MinVersion.empty()) info << " [>= " << dep.MinVersion << "]";
-                info << std::endl;
-            }
-        }
-    }
-
-    void ManageExternalDependencies(const std::vector<AppInstaller::Manifest::string_t>& externalDependenciesDep, AppInstaller::CLI::Execution::Context& context)
-    {
-        if (!externalDependenciesDep.empty())
-        {
-            context.Reporter.Info() << "    - Externals: ";
-            for (const auto& dep : externalDependenciesDep)
-            {
-                context.Reporter.Info() << "  " << dep << std::endl;
+                context << Workflow::ReportDependencies;
             }
         }
     }
@@ -498,10 +440,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool allSucceeded = true;
 
-        std::vector<AppInstaller::Manifest::string_t> windowsFeaturesDep;
-        std::vector<AppInstaller::Manifest::string_t> windowsLibrariesDep;
-        std::vector<AppInstaller::Manifest::PackageDependency> packageDep;
-        std::vector<AppInstaller::Manifest::string_t> externalDep;
+        DependencyList allDependencies;
 
         std::vector<PackagesAndInstallers> installers;
 
@@ -520,7 +459,6 @@ namespace AppInstaller::CLI::Workflow
             // TODO: In the future, it would be better to not have to convert back and forth from a string
             installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
 
-            //installContexts.push_back(installContext);
             installContext <<
                 Workflow::SelectInstaller;
             
@@ -534,29 +472,17 @@ namespace AppInstaller::CLI::Workflow
             
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
             {
-                if (installer) {
-                    auto dependencies = installer->Dependencies;
-                    windowsFeaturesDep.insert(windowsFeaturesDep.begin(), 
-                        dependencies.WindowsFeatures.begin(), dependencies.WindowsFeatures.end());
-                    windowsLibrariesDep.insert(windowsLibrariesDep.begin(), 
-                        dependencies.WindowsLibraries.begin(), dependencies.WindowsLibraries.end());
-                    packageDep.insert(packageDep.begin(), 
-                        dependencies.PackageDependencies.begin(), dependencies.PackageDependencies.end());
-                    externalDep.insert(externalDep.begin(), 
-                        dependencies.ExternalDependencies.begin(), dependencies.ExternalDependencies.end());
-                }
+                if (installer) allDependencies.Add(installer->Dependencies);
             }
         }
 
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            if (!windowsFeaturesDep.empty() || !windowsLibrariesDep.empty() || !packageDep.empty() || !externalDep.empty())
+            if (allDependencies.HasAny())
             {
+                context.Add<Execution::Data::Dependencies>(allDependencies);
                 context.Reporter.Info() << "The packages found in this import have the following dependencies:" << std::endl;
-                ManageWindowsFeatureDependencies(windowsFeaturesDep, context);
-                ManageWindowsLibrariesDependencies(windowsLibrariesDep, context);
-                ManagePackageDependencies(packageDep, context);
-                ManageExternalDependencies(externalDep, context);
+                context << Workflow::ReportDependencies;
             }
         }
 

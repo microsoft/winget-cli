@@ -129,6 +129,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::GetUninstallInfo <<
+            Workflow::GetDependencies <<
             Workflow::ReportDependencies <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteUninstaller <<
