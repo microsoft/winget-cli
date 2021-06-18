@@ -472,12 +472,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
 
 bool HasDependency(DependencyList dependencies, DependencyType type, string_t id, string_t minVersion = "")
 {
-    for (const auto& dep : dependencies.dependencies) 
+    for (const auto& dependency : dependencies.dependencies) 
     {
-        if (dep.Type == type && dep.Id == id) 
+        if (dependency.Type == type && dependency.Id == id) 
         {
-            if (dep.MinVersion) {
-                if (dep.MinVersion.value() == minVersion) return true;
+            if (dependency.MinVersion) {
+                if (dependency.MinVersion.value() == minVersion) return true;
             }
             else {
                 return true;

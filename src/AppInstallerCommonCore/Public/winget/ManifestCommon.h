@@ -137,19 +137,19 @@ namespace AppInstaller::Manifest
 
         DependencyList() {}
 
-        void Add(Dependency dep) { dependencies.push_back(dep); }
+        void Add(Dependency dependency) { dependencies.push_back(dependency); }
         void Add(DependencyList dependencyList)
         {
-            const auto& deps = dependencyList.dependencies;
-            dependencies.insert(deps.end(), deps.begin(), deps.end());
+            const auto& dependenciesToAdd = dependencyList.dependencies;
+            dependencies.insert(dependenciesToAdd.end(), dependenciesToAdd.begin(), dependenciesToAdd.end());
         }
 
         bool HasAny() const { return !dependencies.empty(); }
         bool HasAnyOf(DependencyType type) const 
         {
-            for (const auto& dep : dependencies)
+            for (const auto& dependency : dependencies)
             {
-                if (dep.Type == type) return true;
+                if (dependency.Type == type) return true;
             };
             return false;
         }
