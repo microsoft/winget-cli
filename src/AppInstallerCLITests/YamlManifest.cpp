@@ -477,7 +477,7 @@ bool HasDependency(DependencyList dependencies, DependencyType type, string_t id
         if (dep.Type == type && dep.Id == id) 
         {
             if (dep.MinVersion) {
-                if (dep.MinVersion == minVersion) return true;
+                if (dep.MinVersion.value() == minVersion) return true;
             }
             else {
                 return true;

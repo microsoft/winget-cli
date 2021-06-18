@@ -145,6 +145,14 @@ namespace AppInstaller::Manifest
         }
 
         bool HasAny() const { return !dependencies.empty(); }
+        bool HasAnyOf(DependencyType type) const 
+        {
+            for (const auto& dep : dependencies)
+            {
+                if (dep.Type == type) return true;
+            };
+            return false;
+        }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

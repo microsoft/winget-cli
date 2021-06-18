@@ -51,7 +51,7 @@ namespace AppInstaller::CLI
 
                     context.Add<Execution::Data::Dependencies>(allDependencies);
 
-                    context.Reporter.Info() << "Manifest has the following dependencies:" << std::endl;
+                    context.Reporter.Info() << "Manifest has the following dependencies that were not validated, ensure that they are good :" << std::endl;
                     context << Workflow::ReportDependencies;
                 }
 

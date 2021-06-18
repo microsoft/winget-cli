@@ -47,8 +47,8 @@ namespace AppInstaller::CLI::Execution
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
-        Max,
-        Dependencies
+        Dependencies,
+        Max
     };
 
     struct PackageToInstall
@@ -189,7 +189,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Dependencies>
         {
-            using value_t = std::optional<Manifest::DependencyList>;
+            using value_t = Manifest::DependencyList;
         };
     }
 }
