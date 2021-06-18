@@ -8,6 +8,7 @@
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
 #include "CatalogPackage.h"
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include <wil\cppwinrt_wrl.h>
 

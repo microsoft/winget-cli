@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionContext.h"
+#include "COMContext.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::CLI::Execution
@@ -22,6 +23,15 @@ namespace AppInstaller::CLI::Execution
             void AddContext(Context* context)
             {
                 std::lock_guard<std::mutex> lock{ m_contextsLock };
+
+                // TODO: COMContexts are currently only used specifically for install operations, which Windows does not reliably support concurrently.
+                // As a temporary fix, this location which already has locking and is tracking the contexts is convenient to prevent those
+                // installs from happening concurrently. Future work will provide a more robust synchronization mechanism which can queue those requests
+                // rather than failing.
+                for (auto& existingContext : m_contexts)
+                {
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), (dynamic_cast<COMContext*>(existingContext) != 0));
+                }
 
                 auto itr = std::find(m_contexts.begin(), m_contexts.end(), context);
                 THROW_HR_IF(E_NOT_VALID_STATE, itr != m_contexts.end());

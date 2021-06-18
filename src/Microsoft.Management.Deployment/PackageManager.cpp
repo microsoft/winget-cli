@@ -24,6 +24,7 @@
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "Helpers.h"
 
@@ -113,10 +114,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *packageCatalogImpl;
     }
 
-    Windows::Foundation::IAsyncAction ExecuteInstallAsync(::AppInstaller::CLI::Execution::Context& context, std::unique_ptr<::AppInstaller::CLI::Command>& command)
+    Windows::Foundation::IAsyncOperation<winrt::hresult> ExecuteInstallAsync(::AppInstaller::CLI::Execution::Context& context, std::unique_ptr<::AppInstaller::CLI::Command>& command)
     {
         co_await winrt::resume_background();
-        ::AppInstaller::CLI::Execute(context, command);
+        winrt::hresult result = ::AppInstaller::CLI::Execute(context, command);
+        return result;
     }
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
@@ -126,189 +128,223 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
         report_progress(queuedProgress);
 
-        Microsoft::Management::Deployment::PackageVersionId versionId{ nullptr };
-        if (options)
+        winrt::hresult terminationHR = S_OK;
+        ::AppInstaller::CLI::Workflow::ExecutionStage executionStage = ::AppInstaller::CLI::Workflow::ExecutionStage::Initial;
+
+        try
         {
-            versionId = options.PackageVersionId();
-        }
-
-        // If the version of the package is specified use that, otherwise use the default.
-        Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
-        if (versionId)
-        {
-            packageVersionInfo = package.GetPackageVersionInfo(versionId);
-        }
-        else
-        {
-            packageVersionInfo = package.DefaultInstallVersion();
-        }
-
-        if (!packageVersionInfo)
-        {
-            // If no package version was found on the catalog then return a failure. This is unexpected, a catalog with no latest version should not be in the catalog.
-            HRESULT terminationHR = APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER;
-            winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(terminationHR);
-            auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
-            installResult->Initialize(installResultStatus, terminationHR, options.CorrelationData(), false);
-            co_return *installResult;
-        }
-
-        // Handle the progress from the installer
-        ::AppInstaller::COMContext context;
-
-        // TODO: Exact ComCaller's process name needs to be retrieved from COM Client side in the future
-        context.SetLoggerContext(options.CorrelationData(), "COMCaller");
-
-        context.SetProgressCallbackFunction([=](
-            ::AppInstaller::ReportType reportType, 
-            uint64_t current, 
-            uint64_t maximum, 
-            ::AppInstaller::ProgressType progressType, 
-            ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
+            Microsoft::Management::Deployment::PackageVersionId versionId{ nullptr };
+            if (options)
             {
-                bool reportProgress = false;
-                PackageInstallProgressState progressState = PackageInstallProgressState::Queued;
-                double downloadProgress = 0;
-                double installProgress = 0;
-                uint64_t downloadBytesDownloaded = 0;
-                uint64_t downloadBytesRequired = 0;
-                switch (executionPhase)
+                versionId = options.PackageVersionId();
+            }
+
+            // If the version of the package is specified use that, otherwise use the default.
+            Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
+            if (versionId)
+            {
+                packageVersionInfo = package.GetPackageVersionInfo(versionId);
+            }
+            else
+            {
+                packageVersionInfo = package.DefaultInstallVersion();
+            }
+
+            if (!packageVersionInfo)
+            {
+                // If no package version was found on the catalog then return a failure. This is unexpected, a catalog with no latest version should not be in the catalog.
+                terminationHR = APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER;
+                winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(executionStage, terminationHR);
+                auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
+                installResult->Initialize(installResultStatus, terminationHR, options.CorrelationData(), false);
+                co_return *installResult;
+            }
+
+            // Handle the progress from the installer
+            ::AppInstaller::COMContext context;
+
+            // TODO: Exact ComCaller's process name needs to be retrieved from COM Client side in the future
+            context.SetLoggerContext(options.CorrelationData(), "COMCaller");
+
+            // Convert the options to arguments for the installer.
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(package.Id()));
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
+            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Exact);
+            if (options)
+            {
+                if (!options.LogOutputPath().empty())
                 {
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::Initial:
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::ParseArgs:
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::Discovery:
-                    // We already reported queued progress up front.
-                    break;
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::Download:
-                    progressState = PackageInstallProgressState::Downloading;
-                    if (reportType == ::AppInstaller::ReportType::BeginProgress)
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::VerboseLogs);
+                }
+                if (options.AllowHashMismatch())
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::HashOverride);
+                }
+
+                // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
+                if (options.PackageInstallScope() == PackageInstallScope::System)
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::Machine));
+                }
+                else if (options.PackageInstallScope() == PackageInstallScope::User)
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::User));
+                }
+
+                if (options.PackageInstallMode() == PackageInstallMode::Interactive)
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Interactive);
+                }
+                else if (options.PackageInstallMode() == PackageInstallMode::Silent)
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Silent);
+                }
+
+                if (!options.PreferredInstallLocation().empty())
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallLocation, ::AppInstaller::Utility::ConvertToUTF8(options.PreferredInstallLocation()));
+                }
+
+                if (!options.ReplacementInstallerArguments().empty())
+                {
+                    context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
+                }
+            }
+
+            // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
+            ::AppInstaller::CLI::RootCommand rootCommand;
+            std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
+            rootCommand.ValidateArguments(context.Args);
+
+            context.SetProgressCallbackFunction([=](
+                ::AppInstaller::ReportType reportType,
+                uint64_t current,
+                uint64_t maximum,
+                ::AppInstaller::ProgressType progressType,
+                ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
+                {
+                    bool reportProgress = false;
+                    PackageInstallProgressState progressState = PackageInstallProgressState::Queued;
+                    double downloadProgress = 0;
+                    double installProgress = 0;
+                    uint64_t downloadBytesDownloaded = 0;
+                    uint64_t downloadBytesRequired = 0;
+                    switch (executionPhase)
                     {
-                        reportProgress = true;
-                    }
-                    else if (progressType == ::AppInstaller::ProgressType::Bytes)
-                    {
-                        downloadBytesDownloaded = current;
-                        downloadBytesRequired = maximum;
-                        if (maximum > 0 && maximum >= current)
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::Initial:
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::ParseArgs:
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::Discovery:
+                        // We already reported queued progress up front.
+                        break;
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::Download:
+                        progressState = PackageInstallProgressState::Downloading;
+                        if (reportType == ::AppInstaller::ReportType::BeginProgress)
                         {
                             reportProgress = true;
-                            downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
                         }
-                    }
-                    break;
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::PreExecution:
-                    // Wait until installer starts to report Installing.
-                    break;
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::Execution:
-                    progressState = PackageInstallProgressState::Installing;
-                    downloadProgress = 1;
-                    if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
-                    {
-                        // Install is starting. Send progress so callers know the AsyncOperation can't be cancelled.
-                        reportProgress = true;
-                    }
-                    else if (reportType == ::AppInstaller::ReportType::EndProgress)
-                    {
-                        // Install is "finished". May not have succeeded.
-                        reportProgress = true;
-                        installProgress = 1;
-                    }
-                    else if (progressType == ::AppInstaller::ProgressType::Percent)
-                    {
-                        if (maximum > 0 && maximum >= current)
+                        else if (progressType == ::AppInstaller::ProgressType::Bytes)
                         {
-                            // Install is progressing
-                            reportProgress = true;
-                            installProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                            downloadBytesDownloaded = current;
+                            downloadBytesRequired = maximum;
+                            if (maximum > 0 && maximum >= current)
+                            {
+                                reportProgress = true;
+                                downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                            }
                         }
-                    }
-                    break;
-                case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
-                    if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
-                    {
-                        // Send PostInstall progress when it switches to PostExecution phase.
-                        reportProgress = true;
-                        progressState = PackageInstallProgressState::PostInstall;
+                        break;
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::PreExecution:
+                        // Wait until installer starts to report Installing.
+                        break;
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::Execution:
+                        progressState = PackageInstallProgressState::Installing;
                         downloadProgress = 1;
-                        installProgress = 1;
+                        if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
+                        {
+                            // Install is starting. Send progress so callers know the AsyncOperation can't be cancelled.
+                            reportProgress = true;
+                        }
+                        else if (reportType == ::AppInstaller::ReportType::EndProgress)
+                        {
+                            // Install is "finished". May not have succeeded.
+                            reportProgress = true;
+                            installProgress = 1;
+                        }
+                        else if (progressType == ::AppInstaller::ProgressType::Percent)
+                        {
+                            if (maximum > 0 && maximum >= current)
+                            {
+                                // Install is progressing
+                                reportProgress = true;
+                                installProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                            }
+                        }
+                        break;
+                    case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
+                        if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
+                        {
+                            // Send PostInstall progress when it switches to PostExecution phase.
+                            reportProgress = true;
+                            progressState = PackageInstallProgressState::PostInstall;
+                            downloadProgress = 1;
+                            installProgress = 1;
+                        }
+                        break;
                     }
-                    break;
+                    if (reportProgress)
+                    {
+                        winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress, installProgress };
+                        report_progress(contextProgress);
+                    }
+                    return;
                 }
-                if (reportProgress)
+            );
+            context.EnableCtrlHandler();
+
+            Windows::Foundation::IAsyncOperation<winrt::hresult> executeOperation = ExecuteInstallAsync(context, command);
+
+            cancellationToken.callback([&context]
                 {
-                    winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress, installProgress };
-                    report_progress(contextProgress);
-                }
-                return; 
-            }
-        );
-        context.EnableCtrlHandler();
+                    context.Cancel(false, true);
+                });
+            // Wait for the execute operation to finish. 
+            // The cancellation of the AsyncOperation triggers Cancel which causes the executeOperation to end.
+            terminationHR = co_await executeOperation;
+            executionStage = context.GetExecutionStage();
 
-        // Convert the options to arguments for the installer.
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(package.Id()));
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
-        context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Exact);
-        if (options)
-        {
-            if (!options.LogOutputPath().empty())
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::VerboseLogs);
-            }
-            if (options.AllowHashMismatch())
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::HashOverride);
-            }
-
-            // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
-            if (options.PackageInstallScope() == PackageInstallScope::System)
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::Machine));
-            }
-            else if (options.PackageInstallScope() == PackageInstallScope::User)
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::User));
-            }
-
-            if (options.PackageInstallMode() == PackageInstallMode::Interactive)
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Interactive);
-            }
-            else if (options.PackageInstallMode() == PackageInstallMode::Silent)
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Silent);
-            }
-
-            if (!options.PreferredInstallLocation().empty())
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::InstallLocation, ::AppInstaller::Utility::ConvertToUTF8(options.PreferredInstallLocation()));
-            }
-
-            if (!options.ReplacementInstallerArguments().empty())
-            {
-                context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
-            }
         }
-
-        // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
-        ::AppInstaller::CLI::RootCommand rootCommand;
-        std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
-        Windows::Foundation::IAsyncAction executeOperation = ExecuteInstallAsync(context, command);
-
-        cancellationToken.callback([&context]
-            {
-                context.Cancel(false, true);
-            });
-        // Wait for the execute operation to finish. 
-        // The cancellation of the AsyncOperation triggers Terminate which causes the executeOperation to end.
-        co_await executeOperation;
-
-        HRESULT terminationHR = context.GetTerminationHR();
-        winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(terminationHR);
-
+        // Exceptions that may occur in the process of executing an arbitrary command
+        catch (const wil::ResultException& re)
+        {
+            terminationHR = re.GetErrorCode();
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            terminationHR = hre.code();
+        }
+        catch (const ::AppInstaller::CLI::CommandException&)
+        {
+            terminationHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
+        }
+        catch (const ::AppInstaller::Settings::GroupPolicyException&)
+        {
+            // Policy could have changed since server started
+            // or catalog could have been disabled since being returned.
+            terminationHR = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+        }
+        catch (const std::exception&)
+        {
+            terminationHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+        }
+        catch (...)
+        {
+            terminationHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+        }
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
+        winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(executionStage, terminationHR);
         auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
         installResult->Initialize(installResultStatus, terminationHR, options.CorrelationData(), false);
         co_return *installResult;

@@ -5,6 +5,7 @@
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -160,12 +161,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return metadataKey;
     }
 
-    winrt::Microsoft::Management::Deployment::InstallResultStatus GetInstallResultStatus(winrt::hresult hresult)
+    winrt::Microsoft::Management::Deployment::InstallResultStatus GetInstallResultStatus(::AppInstaller::CLI::Workflow::ExecutionStage executionStage, winrt::hresult hresult)
     {
         winrt::Microsoft::Management::Deployment::InstallResultStatus resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::Ok;
+
+        // Map some known hresults to specific statuses, otherwise use the execution stage to determine the status.
         switch (hresult)
         {
-        case(S_OK):
+        case S_OK:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::Ok;
             break;
         case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
@@ -174,43 +177,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::BlockedByPolicy;
             break;
-        case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
-        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
-        case APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
-        case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
-        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
-        case APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND:
-        case APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED:
-        case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
-            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::CatalogError;
+        case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::ManifestError;
             break;
         case E_INVALIDARG:
         case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InvalidOptions;
             break;
-        case APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED:
-        case APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH:
-        case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
-        case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
-            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::DownloadError;
-            break;
-        case APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED:
-        case APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED:
-            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InstallError;
-            break;
-        case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
-            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::ManifestError;
-            break;
         case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::NoApplicableInstallers;
             break;
-        case APPINSTALLER_CLI_ERROR_COMMAND_FAILED:
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
         case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:
@@ -222,10 +198,38 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA:
         case APPINSTALLER_CLI_ERROR_LIBYAML_ERROR:
         case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
-        default:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
             break;
+        default:
+            switch (executionStage)
+            {
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::Initial:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::ParseArgs:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InvalidOptions;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::Discovery:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::CatalogError;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::Download:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::DownloadError;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::PreExecution:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::Execution:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InstallError;
+                break;
+            case ::AppInstaller::CLI::Workflow::ExecutionStage::PostExecution:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
+                break;
+            default:
+                resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::InternalError;
+                break;
+            }
         }
+
         return resultStatus;
     }
 

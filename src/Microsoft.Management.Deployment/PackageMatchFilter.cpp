@@ -3,6 +3,7 @@
 #include "pch.h"
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerRepositorySearch.h>
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)

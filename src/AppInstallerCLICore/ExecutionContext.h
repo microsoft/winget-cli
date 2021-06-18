@@ -107,6 +107,8 @@ namespace AppInstaller::CLI::Execution
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
 
+        Workflow::ExecutionStage GetExecutionStage() const { return m_executionStage; }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
