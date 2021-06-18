@@ -79,29 +79,20 @@ namespace AppInstaller::CLI::Workflow
                     info << Execution::ManifestInfoEmphasis << "  Dependencies: " << std::endl;
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsFeature)) info << "    - WindowsFeatures: " << std::endl;
-                    for (const auto& dependency : dependencies.dependencies) { //TODO change for lambda function called inside DepList
-                        if (dependency.Type == Manifest::DependencyType::WindowsFeature) info << "      " << dependency.Id << std::endl;
-                    }
+                    dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibraries)) info << "    - WindowsLibraries: " << std::endl;
-                    for (const auto& dependency : dependencies.dependencies) { //TODO change for lambda function called inside DepList
-                        if (dependency.Type == Manifest::DependencyType::WindowsLibraries) info << "      " << dependency.Id << std::endl;
-                    }
+                    dependencies.ApplyToType(Manifest::DependencyType::WindowsLibraries, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::Package)) info << "    - PackageDependencies: " << std::endl;
-                    for (const auto& dependency : dependencies.dependencies) { //TODO change for lambda function called inside DepList
-                        if (dependency.Type == Manifest::DependencyType::Package)
-                        {
-                            info << "      " << dependency.Id;
-                            if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
-                            info << std::endl;
-                        }
-                    }
+                    dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency) {
+                        info << "        " << dependency.Id;
+                        if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
+                        info << std::endl;
+                    });
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::External)) info << "    - ExternalDependencies: " << std::endl;
-                    for (const auto& dependency : dependencies.dependencies) { //TODO change for lambda function called inside DepList
-                        if (dependency.Type == Manifest::DependencyType::External) info << "      " << dependency.Id << std::endl;
-                    }
+                    dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
                 }
             }
         }

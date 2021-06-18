@@ -138,10 +138,12 @@ namespace AppInstaller::Manifest
         DependencyList() {}
 
         void Add(Dependency dependency) { dependencies.push_back(dependency); }
-        void Add(DependencyList dependencyList)
+        void Add(DependencyList otherDependencyList)
         {
-            const auto& dependenciesToAdd = dependencyList.dependencies;
-            dependencies.insert(dependenciesToAdd.end(), dependenciesToAdd.begin(), dependenciesToAdd.end());
+            for (const auto& dependency : otherDependencyList.dependencies)
+            {
+                dependencies.push_back(dependency);
+            }
         }
 
         bool HasAny() const { return !dependencies.empty(); }
@@ -152,6 +154,14 @@ namespace AppInstaller::Manifest
                 if (dependency.Type == type) return true;
             };
             return false;
+        }
+
+        void ApplyToType(DependencyType type, std::function<void(Dependency)> func) const
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type) func(dependency);
+            }
         }
     };
 
