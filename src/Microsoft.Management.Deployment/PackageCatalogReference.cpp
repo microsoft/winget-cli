@@ -99,18 +99,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok, *packageCatalog);
             return *connectResult;
         }
-        catch (const wil::ResultException&)
-        {
-        }
-        catch (const winrt::hresult_error&)
-        {
-        }
-        catch (const ::AppInstaller::Settings::GroupPolicyException&)
-        {
-        }
-        catch (const std::exception&)
-        {
-        }
         catch (...)
         {
         }
