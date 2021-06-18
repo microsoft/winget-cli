@@ -7,9 +7,12 @@
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
 #include "ConnectResult.h"
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include <wil\cppwinrt_wrl.h>
+#include <winget/GroupPolicy.h>
+#include <AppInstallerErrors.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -36,62 +39,71 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
     {
-        ::AppInstaller::ProgressCallback progress;
-        std::shared_ptr<::AppInstaller::Repository::ISource> source;
-        if (m_compositePackageCatalogOptions)
+        try
         {
-            std::vector<std::shared_ptr<::AppInstaller::Repository::ISource>> remoteSources;
-
-            for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
+            ::AppInstaller::ProgressCallback progress;
+            std::shared_ptr<::AppInstaller::Repository::ISource> source;
+            if (m_compositePackageCatalogOptions)
             {
-                auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
-                winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
-                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
-                if (!remoteSource)
+                std::vector<std::shared_ptr<::AppInstaller::Repository::ISource>> remoteSources;
+
+                for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
                 {
-                    // If source is null, return the error. There's no way to get the hresult that caused the error right now.
-                    auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-                    connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
-                    return *connectResult;
+                    auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
+                    winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
+                    ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
+                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+                    if (!remoteSource)
+                    {
+                        // If source is null, return the error. There's no way to get the hresult that caused the error right now.
+                        auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+                        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
+                        return *connectResult;
+                    }
+                    remoteSources.emplace_back(std::move(remoteSource));
                 }
-                remoteSources.emplace_back(std::move(remoteSource));
-            }
-            ::AppInstaller::Repository::CompositeSearchBehavior searchBehavior = GetRepositoryCompositeSearchBehavior(m_compositePackageCatalogOptions.CompositeSearchBehavior());
-           
-            std::shared_ptr<::AppInstaller::Repository::ISource> installedSource;
-            // Check if search behavior indicates that the caller does not want to do local correlation.
-            if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
-            {
-                installedSource = ::AppInstaller::Repository::OpenPredefinedSource(::AppInstaller::Repository::PredefinedSource::Installed, progress);
-            }
-            
-            // Create the composite source.
-            source = ::AppInstaller::Repository::CreateCompositeSource(installedSource, remoteSources, searchBehavior);
-        }
-        else
-        {
-            winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
-            ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-            source = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
-        }
+                ::AppInstaller::Repository::CompositeSearchBehavior searchBehavior = GetRepositoryCompositeSearchBehavior(m_compositePackageCatalogOptions.CompositeSearchBehavior());
 
-        if (!source)
-        {
-            // If source is null, return the error. There's no way to get the hresult that caused the error right now.
+                std::shared_ptr<::AppInstaller::Repository::ISource> installedSource;
+                // Check if search behavior indicates that the caller does not want to do local correlation.
+                if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
+                {
+                    installedSource = ::AppInstaller::Repository::OpenPredefinedSource(::AppInstaller::Repository::PredefinedSource::Installed, progress);
+                }
+
+                // Create the composite source.
+                source = ::AppInstaller::Repository::CreateCompositeSource(installedSource, remoteSources, searchBehavior);
+            }
+            else
+            {
+                winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
+                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
+                source = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+            }
+
+            if (!source)
+            {
+                // If source is null, return the error. There's no way to get the hresult that caused the error right now.
+                auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+                connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
+                return *connectResult;
+            }
+
+            // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
+            // Specifically, Rest sources do not have the Ids filled in m_info since they only get the id from the rest server after being Opened.
+            auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
+            packageCatalogInfo->Initialize(source->GetDetails());
             auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-            connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
+            auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
+            packageCatalog->Initialize(*packageCatalogInfo, source, (m_compositePackageCatalogOptions != nullptr));
+            connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok, *packageCatalog);
             return *connectResult;
         }
-
-        // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
-        // Specifically, Rest sources do not have the Ids filled in m_info since they only get the id from the rest server after being Opened.
-        auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-        packageCatalogInfo->Initialize(source->GetDetails());
+        catch (...)
+        {
+        }
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-        auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
-        packageCatalog->Initialize(*packageCatalogInfo, source, (m_compositePackageCatalogOptions != nullptr));
-        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok, *packageCatalog);
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
         return *connectResult;
     }
 }
