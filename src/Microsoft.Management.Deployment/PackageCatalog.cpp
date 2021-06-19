@@ -3,6 +3,7 @@
 #include "pch.h"
 #include <mutex>
 #include <AppInstallerRepositorySource.h>
+#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "PackageCatalog.h"
 #include "PackageCatalog.g.cpp"
