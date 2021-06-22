@@ -6,6 +6,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 using namespace AppInstaller::CLI::Execution;
@@ -150,6 +151,7 @@ namespace AppInstaller::CLI
                 SelectInstaller <<
                 EnsureApplicableInstaller << 
                 GetInstallerDependencies <<
+                ReportDependencies <<
                 InstallPackageInstaller;
         }
         else
@@ -178,6 +180,7 @@ namespace AppInstaller::CLI
 
             context << 
                 GetInstallerDependencies << 
+                ReportDependencies <<
                 InstallPackageInstaller;
         }
     }

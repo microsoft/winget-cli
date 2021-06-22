@@ -1230,7 +1230,6 @@ TEST_CASE("UninstallFlow_ShowDependencies", "[UninstallFlow][workflow][showDepen
     // Verify dependencies are informed
     REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::UninstallCommandReportDependencies).get()) != std::string::npos);
     REQUIRE(uninstallOutput.str().find("PreviewIIS") != std::string::npos);
-    REQUIRE(uninstallOutput.str().find("Preview VC Runtime") != std::string::npos);
 }
 
 TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
