@@ -19,6 +19,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> 
             GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package);
+    private:
+        static std::mutex g_installLock;
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

@@ -28,10 +28,10 @@
 #include "Converters.h"
 #include "Helpers.h"
 
-using namespace std::literals::chrono_literals;
-
 const GUID PackageManagerCLSID1 = { 0xC53A4F16, 0x787E, 0x42A4, { 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 } };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
 const GUID PackageManagerCLSID2 = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
+
+std::mutex winrt::Microsoft::Management::Deployment::implementation::PackageManager::g_installLock;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -114,25 +114,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *packageCatalogImpl;
     }
 
-    Windows::Foundation::IAsyncOperation<winrt::hresult> ExecuteInstallAsync(::AppInstaller::CLI::Execution::Context& context, std::unique_ptr<::AppInstaller::CLI::Command>& command)
-    {
-        co_await winrt::resume_background();
-        winrt::hresult result = ::AppInstaller::CLI::Execute(context, command);
-        return result;
-    }
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
         auto report_progress{ co_await winrt::get_progress_token() };
         auto cancellationToken{ co_await winrt::get_cancellation_token() };
-
-        InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
-        report_progress(queuedProgress);
 
         winrt::hresult terminationHR = S_OK;
         ::AppInstaller::CLI::Workflow::ExecutionStage executionStage = ::AppInstaller::CLI::Workflow::ExecutionStage::Initial;
 
         try
         {
+            // co_await does not guarantee that it will be on a background thread, and it's important that it is, so force it.
+            co_await winrt::resume_background();
+
             Microsoft::Management::Deployment::PackageVersionId versionId{ nullptr };
             if (options)
             {
@@ -219,6 +213,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
             rootCommand.ValidateArguments(context.Args);
 
+            InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
+            report_progress(queuedProgress);
+
+            // The lock must be released on the same thread so co_await should not be used after this point.
+            // It is already on a background thread and the Execute call is one at a time, so there is no
+            // need to do anything asynchronously.
+            std::lock_guard<std::mutex> lock{ g_installLock };
+
             context.SetProgressCallbackFunction([=](
                 ::AppInstaller::ReportType reportType,
                 uint64_t current,
@@ -304,15 +306,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             );
             context.EnableCtrlHandler();
 
-            Windows::Foundation::IAsyncOperation<winrt::hresult> executeOperation = ExecuteInstallAsync(context, command);
-
             cancellationToken.callback([&context]
                 {
                     context.Cancel(false, true);
                 });
             // Wait for the execute operation to finish. 
-            // The cancellation of the AsyncOperation triggers Cancel which causes the executeOperation to end.
-            terminationHR = co_await executeOperation;
+            // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
+            terminationHR = ::AppInstaller::CLI::Execute(context, command);;
             executionStage = context.GetExecutionStage();
 
         }
