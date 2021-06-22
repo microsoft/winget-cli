@@ -336,7 +336,7 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchVersion,
                 Resource::String::SearchMatch,
                 Resource::String::SearchSource
-            });
+            }, 0, 0);
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -367,7 +367,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Resource::String::SearchName,
                 Resource::String::SearchId
-            });
+            }, 0, 0);
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -396,7 +396,7 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchName,
                 Resource::String::SearchId,
                 Resource::String::SearchSource
-            });
+            }, 0, 0);
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -439,7 +439,7 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchVersion,
                 Resource::String::AvailableHeader,
                 Resource::String::SearchSource
-            });
+            }, 0, 0);
 
         for (const auto& match : searchResult.Matches)
         {

@@ -86,6 +86,10 @@ namespace AppInstaller::Utility
     // Determines if string a starts with string b, using ICU for case folding.
     bool ICUCaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
+    // Compares the two UTF8 strings in a case insensitive manner and returns their lexicographical order
+    // (a negative value if a is less than b, a positive value if a is greater than b, zero if a equals b).
+    int ICUCaseInsensitiveCompare(std::string_view a, std::string_view b);
+
     // Returns the number of grapheme clusters (characters) in an UTF8-encoded string.
     size_t UTF8Length(std::string_view input);
 

@@ -4,7 +4,9 @@
 #include "ExecutionReporter.h"
 #include "Resources.h"
 
+#include <algorithm>
 #include <array>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -37,8 +39,8 @@ namespace AppInstaller::CLI::Execution
         using header_t = std::array<Resource::LocString, FieldCount>;
         using line_t = std::array<std::string, FieldCount>;
 
-        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50) :
-            m_reporter(reporter), m_sizingBuffer(sizingBuffer)
+        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50, std::optional<size_t> sortColumn = std::nullopt) :
+            m_reporter(reporter), m_sizingBuffer(sizingBuffer), m_sortColumn(sortColumn)
         {
             for (size_t i = 0; i < FieldCount; ++i)
             {
@@ -52,20 +54,26 @@ namespace AppInstaller::CLI::Execution
         {
             m_empty = false;
 
-            if (m_buffer.size() < m_sizingBuffer)
+            if (!m_bufferEvaluated)
             {
                 m_buffer.emplace_back(std::move(line));
+
+                // Evaluate and flush buffer if the sizing buffer size has been reached, 
+                // (except if sorting is enabled which requires all lines to be buffered)
+                if (m_buffer.size() == m_sizingBuffer && !m_sortColumn.has_value())
+                {
+                    EvaluateAndFlushBuffer();                    
+                }
             }
             else
             {
-                EvaluateAndFlushBuffer();
                 OutputLineToStream(line);
             }
         }
 
         void Complete()
         {
-            if (!m_empty)
+            if (!m_empty && !m_bufferEvaluated)
             {
                 EvaluateAndFlushBuffer();
             }
@@ -89,17 +97,13 @@ namespace AppInstaller::CLI::Execution
         Reporter& m_reporter;
         std::array<Column, FieldCount> m_columns;
         size_t m_sizingBuffer;
+        std::optional<size_t> m_sortColumn;
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
         bool m_empty = true;
 
         void EvaluateAndFlushBuffer()
         {
-            if (m_bufferEvaluated)
-            {
-                return;
-            }
-
             // Determine the maximum length for all columns
             for (const auto& line : m_buffer)
             {
@@ -169,6 +173,14 @@ namespace AppInstaller::CLI::Execution
                 }
 
                 totalRequired = consoleWidth - 1;
+            }
+
+            // Optionally sort the table (case-insensitively)
+            if (m_sortColumn.has_value())
+            {
+                std::sort(m_buffer.begin(), m_buffer.end(), [sortColumn = *m_sortColumn](const line_t& line1, const line_t& line2) {
+                    return Utility::ICUCaseInsensitiveCompare(line1[sortColumn], line2[sortColumn]) < 0;
+                });
             }
 
             // Header line
