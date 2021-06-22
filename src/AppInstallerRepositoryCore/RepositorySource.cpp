@@ -996,31 +996,35 @@ namespace AppInstaller::Repository
 
         // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
         // if the details came from the same instance of the list that's being saved.
-        SourceListInternal sourceList;
-        auto source = sourceList.GetSource(details.Name);
-        if (!source)
+        // Some sources that do not need updating like the Installed source, do not have Name values.
+        if (!details.Name.empty())
         {
-            AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
-            return {};
-        }
-        else if (source->IsTombstone)
-        {
-            AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
-            return {};
-        }
-        if (ShouldUpdateBeforeOpen(*source))
-        {
-            try
+            SourceListInternal sourceList;
+            auto source = sourceList.GetSource(details.Name);
+            if (!source)
             {
-                if (BackgroundUpdateSourceFromDetails(*source, progress))
-                {
-                    sourceList.SaveMetadata();
-                }
+                AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+                return {};
             }
-            catch (...)
+            else if (source->IsTombstone)
             {
-                AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                result.SourcesWithUpdateFailure.emplace_back(*source);
+                AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
+                return {};
+            }
+            if (ShouldUpdateBeforeOpen(*source))
+            {
+                try
+                {
+                    if (BackgroundUpdateSourceFromDetails(*source, progress))
+                    {
+                        sourceList.SaveMetadata();
+                    }
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                    result.SourcesWithUpdateFailure.emplace_back(*source);
+                }
             }
         }
 
