@@ -5,7 +5,6 @@
 #include <AppInstallerSHA256.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Yaml.h>
-#include "YamlManifest.h"
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
@@ -30,6 +29,23 @@ bool operator==(const MultiValue& a, const MultiValue& b)
     }
 
     return true;
+}
+
+bool HasDependency(DependencyList dependencies, DependencyType type, string_t id, string_t minVersion = "")
+{
+    for (const auto& dependency : dependencies.dependencies)
+    {
+        if (dependency.Type == type && dependency.Id == id)
+        {
+            if (dependency.MinVersion) {
+                if (dependency.MinVersion.value() == minVersion) return true;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
@@ -468,23 +484,6 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
         REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
         REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
     }
-}
-
-bool HasDependency(DependencyList dependencies, DependencyType type, string_t id, string_t minVersion = "")
-{
-    for (const auto& dependency : dependencies.dependencies) 
-    {
-        if (dependency.Type == type && dependency.Id == id) 
-        {
-            if (dependency.MinVersion) {
-                if (dependency.MinVersion.value() == minVersion) return true;
-            }
-            else {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")

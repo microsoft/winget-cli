@@ -112,7 +112,7 @@ namespace AppInstaller::CLI::Workflow
             updateAllFoundUpdate = true;
 
             updateContext << 
-                ManageDependencies << 
+                GetInstallerDependencies << 
                 InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;

@@ -180,7 +180,6 @@
     <ClInclude Include="TestHooks.h" />
     <ClInclude Include="TestSettings.h" />
     <ClInclude Include="TestSource.h" />
-    <ClInclude Include="YamlManifest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ARPChanges.cpp" />
@@ -513,24 +512,19 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>

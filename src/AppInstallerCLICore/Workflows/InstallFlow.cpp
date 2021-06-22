@@ -409,11 +409,12 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::ManageDependencies <<
+            Workflow::GetInstallerDependencies << 
+            Workflow::ReportDependencies <<
             Workflow::InstallPackageInstaller;
     }
 
-    void ManageDependencies(Execution::Context& context)
+    void GetInstallerDependencies(Execution::Context& context)
     {
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
@@ -421,8 +422,7 @@ namespace AppInstaller::CLI::Workflow
             if (installer && installer->Dependencies.HasAny())
             {
                 context.Add<Execution::Data::Dependencies>(installer->Dependencies);
-                context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
-                context << Workflow::ReportDependencies;
+                context.Reporter.Info() << Resource::String::InstallAndUpgradeCommandsReportDependencies << std::endl;
             }
         }
     }
@@ -439,9 +439,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
-
         DependencyList allDependencies;
-
         std::vector<PackagesAndInstallers> installers;
 
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
@@ -481,7 +479,7 @@ namespace AppInstaller::CLI::Workflow
             if (allDependencies.HasAny())
             {
                 context.Add<Execution::Data::Dependencies>(allDependencies);
-                context.Reporter.Info() << "The packages found in this import have the following dependencies:" << std::endl;
+                context.Reporter.Info() << Resource::String::ImportCommandReportDependencies << std::endl;
                 context << Workflow::ReportDependencies;
             }
         }

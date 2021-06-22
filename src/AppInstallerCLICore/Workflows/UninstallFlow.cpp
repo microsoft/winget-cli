@@ -124,13 +124,13 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
     }
     
-    void GetDependencies(Execution::Context& context)
+    void GetDependenciesInfo(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer && installer->Dependencies.HasAny())
         {
             context.Add<Execution::Data::Dependencies>(installer->Dependencies);
-            context.Reporter.Info() << "This package requires the following dependencies:" << std::endl;
+            context.Reporter.Info() << Resource::String::UninstallCommandReportDependencies << std::endl;
         }
     }
 }

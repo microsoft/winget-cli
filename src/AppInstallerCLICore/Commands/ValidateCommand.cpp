@@ -4,6 +4,7 @@
 #include "ValidateCommand.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
+#include "Workflows/ValidateFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -44,16 +45,10 @@ namespace AppInstaller::CLI
             {
                 auto manifest = Manifest::YamlParser::CreateFromPath(inputFile, true, true);
 
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies)) 
-                {
-                    Manifest::DependencyList allDependencies;
-                    for (auto installer : manifest.Installers) { allDependencies.Add(installer.Dependencies); }
-
-                    context.Add<Execution::Data::Dependencies>(allDependencies);
-
-                    context.Reporter.Info() << "Manifest has the following dependencies that were not validated, ensure that they are good :" << std::endl;
-                    context << Workflow::ReportDependencies;
-                }
+                context.Add<Execution::Data::Manifest>(manifest);
+                context <<
+                    Workflow::GetDependenciesFromManifest <<
+                    Workflow::ReportDependencies;
 
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }

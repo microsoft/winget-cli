@@ -1113,7 +1113,7 @@ TEST_CASE("UpdateFlow_ShowDependencies", "[UpdateFlow][workflow][showDependencie
     std::string updateResultStr = updateOutput.str();
 
     // Verify dependencies are informed
-    REQUIRE(updateResultStr.find("This package requires the following dependencies:") != std::string::npos);
+    REQUIRE(updateResultStr.find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(updateResultStr.find("PreviewIIS") != std::string::npos);
     REQUIRE(updateResultStr.find("Preview VC Runtime") != std::string::npos);
 }
@@ -1228,7 +1228,7 @@ TEST_CASE("UninstallFlow_ShowDependencies", "[UninstallFlow][workflow][showDepen
     INFO(uninstallOutput.str());
 
     // Verify dependencies are informed
-    REQUIRE(uninstallOutput.str().find("This package had dependencies that may not be needed anymore:") != std::string::npos);
+    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::UninstallCommandReportDependencies).get()) != std::string::npos);
     REQUIRE(uninstallOutput.str().find("PreviewIIS") != std::string::npos);
     REQUIRE(uninstallOutput.str().find("Preview VC Runtime") != std::string::npos);
 }
@@ -1507,7 +1507,7 @@ TEST_CASE("ImportFlow_ShowDependencies", "[ImportFlow][workflow][ShowDependencie
     INFO(importOutput.str());
     
     // Verify dependencies for all packages are informed
-    REQUIRE(importOutput.str().find("The packages found in this import have the following dependencies:") != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportCommandReportDependencies).get()) != std::string::npos);
     REQUIRE(importOutput.str().find("PreviewIIS") != std::string::npos);
     REQUIRE(importOutput.str().find("Preview VC Runtime") != std::string::npos);
     REQUIRE(importOutput.str().find("Hyper-V") != std::string::npos);
@@ -1672,7 +1672,7 @@ TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow][showDependenc
     INFO(installOutput.str());
 
     // Verify all types of dependencies are printed
-    REQUIRE(installOutput.str().find("This package requires the following dependencies:") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
@@ -1690,7 +1690,7 @@ TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
     INFO(validateOutput.str());
 
     // Verify all types of dependencies are printed
-    REQUIRE(validateOutput.str().find("Manifest has the following dependencies:") != std::string::npos);
+    REQUIRE(validateOutput.str().find(Resource::LocString(Resource::String::ValidateCommandReportDependencies).get()) != std::string::npos);
     REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
     REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
     // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])

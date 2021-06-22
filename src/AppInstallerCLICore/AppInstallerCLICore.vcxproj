@@ -263,6 +263,7 @@
     <ClInclude Include="VTSupport.h" />
     <ClInclude Include="PackageCollection.h" />
     <ClInclude Include="Workflows\CompletionFlow.h" />
+    <ClInclude Include="Workflows\ValidateFlow.h" />
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
@@ -317,6 +318,7 @@
     <ClCompile Include="Workflows\SourceFlow.cpp" />
     <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
+    <ClCompile Include="Workflows\ValidateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -89,11 +89,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageVersion(Execution::Context& context);
 
-    // Shows information about dependencies.
+    // Gathers package dependencies information.
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    void ManageDependencies(Execution::Context& context);
+    void GetInstallerDependencies(Execution::Context& context);
 
     // Installs multiple packages.
     // Required Args: None

@@ -27,5 +27,5 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Installer
     // Outputs: None
-    void GetDependencies(Execution::Context& context);
+    void GetDependenciesInfo(Execution::Context& context);
 }

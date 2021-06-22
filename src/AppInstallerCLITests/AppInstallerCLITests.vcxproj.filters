@@ -39,9 +39,6 @@
     <ClInclude Include="TestRestRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YamlManifest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -453,10 +450,20 @@
     <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml" />
-    <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json" />
-    <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml" />
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml" />
-    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml" />
+    <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
