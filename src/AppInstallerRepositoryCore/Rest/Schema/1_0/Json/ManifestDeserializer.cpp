@@ -446,7 +446,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         const auto& wlIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
         for (auto id : wlIds)
         {
-            dependencyList.Add(Dependency(DependencyType::WindowsLibraries, id));
+            dependencyList.Add(Dependency(DependencyType::WindowsLibrary, id));
         };
 
         const auto& extIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));

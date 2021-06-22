@@ -31,23 +31,6 @@ bool operator==(const MultiValue& a, const MultiValue& b)
     return true;
 }
 
-bool HasDependency(DependencyList dependencies, DependencyType type, string_t id, string_t minVersion = "")
-{
-    for (const auto& dependency : dependencies.dependencies)
-    {
-        if (dependency.Type == type && dependency.Id == id)
-        {
-            if (dependency.MinVersion) {
-                if (dependency.MinVersion.value() == minVersion) return true;
-            }
-            else {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     auto manifestFile = TestDataFile("Manifest-Good.yaml");
@@ -399,11 +382,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
 
     auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
-    REQUIRE(HasDependency(dependencies, DependencyType::WindowsFeature, "IIS"));
-    REQUIRE(HasDependency(dependencies, DependencyType::WindowsLibraries, "VC Runtime"));
-    REQUIRE(HasDependency(dependencies, DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
-    REQUIRE(HasDependency(dependencies, DependencyType::External, "Outside dependencies"));
-    REQUIRE(dependencies.dependencies.size() == 4);
+    REQUIRE(dependencies.HasDependency(DependencyType::WindowsFeature, "IIS"));
+    REQUIRE(dependencies.HasDependency(DependencyType::WindowsLibrary, "VC Runtime"));
+    REQUIRE(dependencies.HasDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
+    REQUIRE(dependencies.HasDependency(DependencyType::External, "Outside dependencies"));
+    REQUIRE(dependencies.Size() == 4);
 
     REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
     REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
@@ -446,11 +429,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
 
     auto installer1Dependencies = installer1.Dependencies;
-    REQUIRE(HasDependency(installer1Dependencies, DependencyType::WindowsFeature, "PreviewIIS"));
-    REQUIRE(HasDependency(installer1Dependencies, DependencyType::WindowsLibraries, "Preview VC Runtime"));
-    REQUIRE(HasDependency(installer1Dependencies, DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
-    REQUIRE(HasDependency(installer1Dependencies, DependencyType::External, "Preview Outside dependencies"));
-    REQUIRE(installer1Dependencies.dependencies.size()==4);
+    REQUIRE(installer1Dependencies.HasDependency(DependencyType::WindowsFeature, "PreviewIIS"));
+    REQUIRE(installer1Dependencies.HasDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
+    REQUIRE(installer1Dependencies.HasDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
+    REQUIRE(installer1Dependencies.HasDependency(DependencyType::External, "Preview Outside dependencies"));
+    REQUIRE(installer1Dependencies.Size() == 4);
 
     REQUIRE(installer1.Capabilities == MultiValue{ "internetClientPreview" });
     REQUIRE(installer1.RestrictedCapabilities == MultiValue{ "runFullTrustPreview" });

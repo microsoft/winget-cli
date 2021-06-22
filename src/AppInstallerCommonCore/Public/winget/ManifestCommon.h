@@ -115,7 +115,7 @@ namespace AppInstaller::Manifest
     enum class DependencyType
     {
         WindowsFeature,
-        WindowsLibraries,
+        WindowsLibrary,
         Package,
         External
     };
@@ -126,16 +126,14 @@ namespace AppInstaller::Manifest
         string_t Id;
         std::optional<string_t> MinVersion;
 
-        Dependency(DependencyType type, string_t id, std::optional<string_t> minVersion) : Type(type), Id(id), MinVersion(minVersion) {}
-        Dependency(DependencyType type, string_t id) : Type(type), Id(id) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(std::move(type)), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
+        Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
     };
 
     struct DependencyList
     {
-        std::vector<Dependency> dependencies;
-
-        DependencyList() {}
+        DependencyList() = default;
 
         void Add(Dependency dependency) { dependencies.push_back(dependency); }
         void Add(DependencyList otherDependencyList)
@@ -156,6 +154,31 @@ namespace AppInstaller::Manifest
             return false;
         }
 
+        bool HasDependency(DependencyType type, string_t id, string_t minVersion = "")
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type && dependency.Id == id)
+                {
+                    if (dependency.MinVersion) {
+                        if (dependency.MinVersion.value() == minVersion)
+                        {
+                            return true;
+                        }
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        size_t Size()
+        {
+            return dependencies.size();
+        }
+
         void ApplyToType(DependencyType type, std::function<void(Dependency)> func) const
         {
             for (const auto& dependency : dependencies)
@@ -163,6 +186,9 @@ namespace AppInstaller::Manifest
                 if (dependency.Type == type) func(dependency);
             }
         }
+
+    private:
+        std::vector<Dependency> dependencies;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

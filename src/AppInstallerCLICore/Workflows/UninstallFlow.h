@@ -25,7 +25,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Gathers dependencies from installer.
     // Required Args: None
-    // Inputs: Installer
-    // Outputs: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: Dependencies
     void GetDependenciesInfo(Execution::Context& context);
 }

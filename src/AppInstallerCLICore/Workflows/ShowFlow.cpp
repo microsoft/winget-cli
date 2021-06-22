@@ -84,10 +84,10 @@ namespace AppInstaller::CLI::Workflow
                         dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
                     }
 
-                    if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibraries))
+                    if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibrary))
                     {
                         info << "    - WindowsLibraries: " << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::WindowsLibraries, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
+                        dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        " << dependency.Id << std::endl; });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::Package))

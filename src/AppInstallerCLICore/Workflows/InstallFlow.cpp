@@ -458,11 +458,13 @@ namespace AppInstaller::CLI::Workflow
             installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
 
             installContext <<
-                Workflow::SelectInstaller;
+                Workflow::SelectInstaller <<
+                Workflow::EnsureApplicableInstaller;
             
             if (installContext.IsTerminated())
             {
                 allSucceeded = false;
+                continue;
             }
 
             const auto& installer = installContext.Get<Execution::Data::Installer>();
@@ -499,7 +501,6 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Installer>(installer);
 
             installContext <<
-                Workflow::EnsureApplicableInstaller <<
                 Workflow::InstallPackageInstaller;
 
             if (installContext.IsTerminated())

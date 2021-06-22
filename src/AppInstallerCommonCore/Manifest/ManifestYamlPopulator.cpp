@@ -356,7 +356,7 @@ namespace AppInstaller::Manifest
             result =
             {
                 { "WindowsFeatures", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsFeature, value); return {}; } },
-                { "WindowsLibraries", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsLibraries, value); return {}; } },
+                { "WindowsLibraries", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsLibrary, value); return {}; } },
                 { "PackageDependencies", [this](const YAML::Node& value)->ValidationErrors { ProcessPackageDependenciesNode(value); return {}; } },
                 { "ExternalDependencies", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::External, value); return {}; } },
             };
