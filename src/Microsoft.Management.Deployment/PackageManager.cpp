@@ -139,7 +139,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 co_return GetInstallResult(executionStage, E_ACCESSDENIED, options.CorrelationData(), false);
             }
-            if (FAILED(terminationHR = EnsureProcessHasCapability(callerProcessId.value())))
+            if (FAILED(terminationHR = EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId.value())))
             {
                 co_return GetInstallResult(executionStage, terminationHR, options.CorrelationData(), false);
             }

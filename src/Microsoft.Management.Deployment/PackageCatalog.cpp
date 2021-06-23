@@ -126,19 +126,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::SearchRequest searchRequest;
 
         HRESULT hr = S_OK;
-        if (FAILED(hr = EnsureComCallerHasCapability()))
-        {
-            return GetFindPackagesResult(hr, isTruncated, matches);
-        }
-
-        if (FAILED(hr = PopulateSearchRequest(&searchRequest, options)))
-        {
-            return GetFindPackagesResult(hr, isTruncated, matches);
-        }
-        
-        searchRequest.MaximumResults = options.ResultLimit();
         try
         {
+            // No need to check for caller capability again since packageQuery was required in order to get the PackageCatalog object through Connect
+
+            if (FAILED(hr = PopulateSearchRequest(&searchRequest, options)))
+            {
+                return GetFindPackagesResult(hr, isTruncated, matches);
+            }
+        
+            searchRequest.MaximumResults = options.ResultLimit();
             auto searchResult = m_source->Search(searchRequest);
 
             // Build the result object from the searchResult

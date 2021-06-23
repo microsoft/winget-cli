@@ -7,8 +7,14 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    HRESULT EnsureProcessHasCapability(DWORD callerProcessId);
-    HRESULT EnsureComCallerHasCapability();
+    enum class Capability
+    {
+        PackageManagement,
+        PackageQuery
+    };
+
+    HRESULT EnsureProcessHasCapability(Capability requiredCapability, DWORD callerProcessId);
+    HRESULT EnsureComCallerHasCapability(Capability requiredCapability);
     std::optional<DWORD> GetCallerProcessId();
     std::wstring TryGetCallerProcessInfo(DWORD callerProcessId);
 }

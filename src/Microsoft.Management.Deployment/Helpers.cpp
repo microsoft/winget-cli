@@ -6,6 +6,7 @@
 #include <wil/win32_helpers.h>
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
+#include <Helpers.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -26,34 +27,43 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return {};
     }
 
-    HRESULT EnsureProcessHasCapability(DWORD callerProcessId)
+    std::wstring GetStringForCapability(Capability capability)
+    {
+        switch (capability)
+        {
+        case Capability::PackageManagement:
+            return L"packageManagement";
+        case Capability::PackageQuery:
+            return L"packageQuery";
+        default:
+            winrt::throw_hresult(E_UNEXPECTED);
+        }
+    }
+
+    HRESULT EnsureProcessHasCapability(Capability requiredCapability, DWORD callerProcessId)
     {
         // Get the caller process id and use it to check if the caller has permissions to access the feature.
         winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus status = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::DeniedBySystem;
 
-        auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, L"packageManagement", callerProcessId);
+        auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
         status = capability.CheckAccess();
         RETURN_HR_IF(E_ACCESSDENIED, status != winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed);
 
         return S_OK;
     }
 
-    HRESULT EnsureComCallerHasCapability()
+    HRESULT EnsureComCallerHasCapability(Capability requiredCapability)
     {
         auto callerProcessId = GetCallerProcessId();
         RETURN_HR_IF(E_ACCESSDENIED, !callerProcessId.has_value());
-        return EnsureProcessHasCapability(callerProcessId.value());
-    }
-
-    std::wstring GetAppUserModelIdFromToken(HANDLE token)
-    {
-        WCHAR appUserModelID[APPLICATION_USER_MODEL_ID_MAX_LENGTH]{};
-        UINT32 length = ARRAYSIZE(appUserModelID);
-        if (::GetApplicationUserModelIdFromToken(token, &length, appUserModelID) == ERROR_SUCCESS)
+        HRESULT hr = EnsureProcessHasCapability(requiredCapability, callerProcessId.value());
+        // The Windows.Management.Deployment API has set the precedent that packageManagement is a superset of packageQuery
+        // and packageQuery does not need to be declared separately.
+        if (FAILED(hr) && requiredCapability == Capability::PackageQuery)
         {
-            return { appUserModelID };
+            return EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId.value());
         }
-        return {};
+        return hr;
     }
 
     // Best effort at getting caller info. This should only be used for logging.
@@ -62,19 +72,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         wil::unique_process_handle processHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, callerProcessId));
         if (processHandle)
         {
-            HANDLE token;
-            if (OpenProcessToken(processHandle.get(), TOKEN_QUERY, &token))
+            wil::unique_handle token;
+            if (OpenProcessToken(processHandle.get(), TOKEN_QUERY, wil::out_param(token)))
             {
-                std::wstring appUserModelID = GetAppUserModelIdFromToken(token);
-                if (!appUserModelID.empty())
+                WCHAR packageFamilyName[PACKAGE_FAMILY_NAME_MAX_LENGTH]{};
+                UINT32 length = ARRAYSIZE(packageFamilyName);
+                if (::GetPackageFamilyNameFromToken(token.get(), &length, packageFamilyName) == ERROR_SUCCESS)
                 {
-                    // The AppUserModelID is of the format <PackageFamilyName>!<ApplicationName>, only the package family name is of interest
-                    auto index = appUserModelID.find('!');
-                    if (index > 0)
-                    {
-                        return appUserModelID.substr(0, index);
-                    }
-                    return appUserModelID;
+                    return { packageFamilyName };
                 }
             }
 

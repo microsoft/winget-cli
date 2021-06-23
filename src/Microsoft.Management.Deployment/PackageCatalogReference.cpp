@@ -48,7 +48,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         try
         {
-            if (FAILED(EnsureComCallerHasCapability()))
+            if (FAILED(EnsureComCallerHasCapability(Capability::PackageQuery)))
             {
                 // TODO: When more error codes are added, this should go back as something other than CatalogError.
                 return GetConnectCatalogErrorResult();
