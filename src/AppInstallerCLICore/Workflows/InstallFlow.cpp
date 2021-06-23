@@ -409,22 +409,9 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::GetInstallerDependencies << 
-            Workflow::ReportDependencies <<
+            Workflow::GetDependenciesFromInstaller << 
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
-    }
-
-    void GetInstallerDependencies(Execution::Context& context)
-    {
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            const auto& installer = context.Get<Execution::Data::Installer>();
-            if (installer && installer->Dependencies.HasAny())
-            {
-                context.Add<Execution::Data::Dependencies>(installer->Dependencies);
-                context.Reporter.Info() << Resource::String::InstallAndUpgradeCommandsReportDependencies << std::endl;
-            }
-        }
     }
 
     const struct PackagesAndInstallers
@@ -478,12 +465,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            if (allDependencies.HasAny())
-            {
-                context.Add<Execution::Data::Dependencies>(allDependencies);
-                context.Reporter.Info() << Resource::String::ImportCommandReportDependencies << std::endl;
-                context << Workflow::ReportDependencies;
-            }
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
         }
 
         for (auto packageAndInstaller : installers)

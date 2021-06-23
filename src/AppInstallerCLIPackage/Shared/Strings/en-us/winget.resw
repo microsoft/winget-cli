@@ -922,7 +922,7 @@ Configuration is disabled due to Group Policy.</value>
     <value>Cancelled</value>
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
-    <value>Externals</value>
+    <value>External</value>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>The packages found in this import have the following dependencies:</value>
@@ -941,7 +941,6 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="ValidateCommandReportDependencies" xml:space="preserve">
     <value>Manifest has the following dependencies that were not validated; ensure that they are valid:</value>
-
     <comment>Validate command sentence showed before reporting dependencies</comment>
   </data>
   <data name="WindowsFeaturesDependencies" xml:space="preserve">

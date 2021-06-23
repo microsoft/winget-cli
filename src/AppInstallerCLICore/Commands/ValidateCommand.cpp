@@ -4,7 +4,6 @@
 #include "ValidateCommand.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
-#include "Workflows/ValidateFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -47,8 +46,8 @@ namespace AppInstaller::CLI
 
                 context.Add<Execution::Data::Manifest>(manifest);
                 context <<
-                    Workflow::GetDependenciesFromManifest <<
-                    Workflow::ReportDependencies;
+                    Workflow::GetInstallersDependenciesFromManifest <<
+                    Workflow::ReportDependencies(Resource::String::ValidateCommandReportDependencies);
 
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }

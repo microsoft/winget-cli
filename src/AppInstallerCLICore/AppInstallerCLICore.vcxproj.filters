@@ -158,9 +158,6 @@
     <ClInclude Include="Workflows\DependenciesFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\ValidateFlow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -284,9 +281,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\DependenciesFlow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\ValidateFlow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

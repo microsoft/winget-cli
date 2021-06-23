@@ -150,8 +150,8 @@ namespace AppInstaller::CLI
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller << 
-                GetInstallerDependencies <<
-                ReportDependencies <<
+                GetDependenciesFromInstaller <<
+                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
                 InstallPackageInstaller;
         }
         else
@@ -179,8 +179,8 @@ namespace AppInstaller::CLI
             }
 
             context << 
-                GetInstallerDependencies << 
-                ReportDependencies <<
+                GetDependenciesFromInstaller << 
+                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
                 InstallPackageInstaller;
         }
     }

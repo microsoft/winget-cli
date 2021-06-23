@@ -126,14 +126,6 @@ namespace AppInstaller::CLI::Workflow
     
     void GetDependenciesInfo(Execution::Context& context)
     {
-        const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        const auto& installerOptions = installedPackageVersion->GetManifest().Installers;
-
-        // TODO making best effort to get the correct installer information, on the future it may be better to have a record of installations and save them
-        if (!installerOptions.empty())
-        {
-            context.Add<Execution::Data::Dependencies>(installerOptions.at(0).Dependencies);
-            context.Reporter.Info() << Resource::String::UninstallCommandReportDependencies << std::endl;
-        }
+        // TODO make best effort to get the correct installer information, on the future it may be better to have a record of installations and save them
     }
 }
