@@ -22,10 +22,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageFamilyNames
     // Outputs: None
     void MsixUninstall(Execution::Context& context);
-
-    // Gathers dependencies from installer.
-    // Required Args: None
-    // Inputs: InstalledPackageVersion
-    // Outputs: Dependencies
-    void GetDependenciesInfo(Execution::Context& context);
 }

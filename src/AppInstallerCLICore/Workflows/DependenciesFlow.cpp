@@ -76,4 +76,13 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void GetDependenciesInfoForUninstall(Execution::Context& context)
+    {
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            // TODO make best effort to get the correct installer information, it may be better to have a record of installations and save the correct installers
+            context.Add<Execution::Data::Dependencies>(Manifest::DependencyList()); // sending empty list of dependencies for now
+        }
+    }
 }

@@ -1209,29 +1209,6 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
-TEST_CASE("UninstallFlow_ShowDependencies", "[UninstallFlow][workflow][showDependencies]")
-{
-    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
-
-    std::ostringstream uninstallOutput;
-    TestContext context{ uninstallOutput, std::cin };
-    OverrideForCompositeInstalledSource(context);
-    OverrideForExeUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
-    context.Args.AddArg(Execution::Args::Type::Silent);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    UninstallCommand uninstall({});
-    uninstall.Execute(context);
-    INFO(uninstallOutput.str());
-
-    // Verify dependencies are informed
-    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::UninstallCommandReportDependencies).get()) != std::string::npos);
-    REQUIRE(uninstallOutput.str().find("PreviewIIS") != std::string::npos);
-}
-
 TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
 {
     TestCommon::TempFile exportResultPath("TestExport.json");

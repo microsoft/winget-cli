@@ -123,9 +123,4 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
     }
-    
-    void GetDependenciesInfo(Execution::Context& context)
-    {
-        // TODO make best effort to get the correct installer information, on the future it may be better to have a record of installations and save them
-    }
 }
