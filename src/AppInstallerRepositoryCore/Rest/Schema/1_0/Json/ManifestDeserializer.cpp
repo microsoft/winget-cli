@@ -437,10 +437,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         Manifest::DependencyList dependencyList;
 
-        const auto& wfIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
-        for (auto id : wfIds)
+        auto wfIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
+        for (auto&& id : wfIds)
         {
-            dependencyList.Add(Dependency(DependencyType::WindowsFeature, id));
+            dependencyList.Add(Dependency(DependencyType::WindowsFeature, std::move(id)));
         };
 
         const auto& wlIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
