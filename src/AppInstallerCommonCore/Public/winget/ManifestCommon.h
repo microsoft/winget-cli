@@ -126,7 +126,7 @@ namespace AppInstaller::Manifest
         string_t Id;
         std::optional<string_t> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(std::move(type)), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
         Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
     };
@@ -135,8 +135,12 @@ namespace AppInstaller::Manifest
     {
         DependencyList() = default;
 
-        void Add(Dependency dependency) { dependencies.push_back(dependency); }
-        void Add(DependencyList otherDependencyList)
+        void Add(const Dependency& dependency) 
+        { 
+            dependencies.push_back(dependency); 
+        }
+
+        void Add(const DependencyList& otherDependencyList)
         {
             for (const auto& dependency : otherDependencyList.dependencies)
             {
@@ -158,7 +162,7 @@ namespace AppInstaller::Manifest
         {
             for (const auto& dependency : dependencies)
             {
-                if (dependency.Type == type && dependency.Id == id)
+                if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
                 {
                     if (dependency.MinVersion) {
                         if (dependency.MinVersion.value() == minVersion)
@@ -179,7 +183,7 @@ namespace AppInstaller::Manifest
             return dependencies.size();
         }
 
-        void ApplyToType(DependencyType type, std::function<void(Dependency)> func) const
+        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
         {
             for (const auto& dependency : dependencies)
             {
