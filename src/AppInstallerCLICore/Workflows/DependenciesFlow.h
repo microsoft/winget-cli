@@ -6,7 +6,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     // Shows information about dependencies.
-    // Required Args: message to use at the begining, before outputting dependencies
+    // Required Args: message to use at the beginning, before outputting dependencies
     // Inputs: Dependencies
     // Outputs: None
     struct ReportDependencies : public WorkflowTask

@@ -382,10 +382,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
 
     auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
-    REQUIRE(dependencies.HasDependency(DependencyType::WindowsFeature, "IIS"));
-    REQUIRE(dependencies.HasDependency(DependencyType::WindowsLibrary, "VC Runtime"));
-    REQUIRE(dependencies.HasDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
-    REQUIRE(dependencies.HasDependency(DependencyType::External, "Outside dependencies"));
+    REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
+    REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
+    REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
+    REQUIRE(dependencies.HasExactDependency(DependencyType::External, "Outside dependencies"));
     REQUIRE(dependencies.Size() == 4);
 
     REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
@@ -429,10 +429,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
 
     auto installer1Dependencies = installer1.Dependencies;
-    REQUIRE(installer1Dependencies.HasDependency(DependencyType::WindowsFeature, "PreviewIIS"));
-    REQUIRE(installer1Dependencies.HasDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
-    REQUIRE(installer1Dependencies.HasDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
-    REQUIRE(installer1Dependencies.HasDependency(DependencyType::External, "Preview Outside dependencies"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::External, "Preview Outside dependencies"));
     REQUIRE(installer1Dependencies.Size() == 4);
 
     REQUIRE(installer1.Capabilities == MultiValue{ "internetClientPreview" });

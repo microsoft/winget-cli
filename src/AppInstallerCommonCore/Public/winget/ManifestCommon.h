@@ -135,16 +135,36 @@ namespace AppInstaller::Manifest
     {
         DependencyList() = default;
 
-        void Add(const Dependency& dependency) 
+        void Add(const Dependency& newDependency)
         { 
-            dependencies.push_back(dependency); 
+            Dependency* existingDependency;
+
+            if (this->HasDependency(newDependency, existingDependency)) {
+                if (newDependency.MinVersion) 
+                {
+                    if (existingDependency->MinVersion)
+                    {
+                        const auto& newDependencyVersion = Version(newDependency.MinVersion.value());
+                        const auto& existingDependencyVersion = Version(existingDependency->MinVersion.value());
+                        existingDependency->MinVersion.value() = newDependencyVersion <= existingDependencyVersion ? existingDependencyVersion.ToString() : newDependencyVersion.ToString();
+                    }
+                    else
+                    {
+                        existingDependency->MinVersion.value() = newDependency.MinVersion.value();
+                    }
+                }
+            }
+            else 
+            {
+                dependencies.push_back(newDependency); 
+            }
         }
 
         void Add(const DependencyList& otherDependencyList)
         {
             for (const auto& dependency : otherDependencyList.dependencies)
             {
-                dependencies.push_back(dependency);
+                this->Add(dependency);
             }
         }
 
@@ -158,7 +178,20 @@ namespace AppInstaller::Manifest
             return false;
         }
 
-        bool HasDependency(DependencyType type, string_t id, string_t minVersion = "")
+        bool HasDependency(const Dependency& dependencyToSearch, Dependency* result)
+        {
+            for (auto& dependency : dependencies) {
+                if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+                {
+                    result = &dependency;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // for testing purposes
+        bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "")
         {
             for (const auto& dependency : dependencies)
             {
