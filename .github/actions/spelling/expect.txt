@@ -1,5 +1,4 @@
 abcd
-abifind
 adml
 admx
 affle
@@ -61,9 +60,8 @@ ci
 cinq
 CLIE
 cloudapp
-CLSID
+clsid
 COINIT
-combaseapi
 COMGLB
 commandline
 Concat
@@ -73,7 +71,6 @@ contoso
 contractversion
 count'th
 countryregion
-cppwinrtprocess
 createmanifestmetadata
 cstdint
 ctc
@@ -122,7 +119,7 @@ GES
 GESMBH
 GHS
 gity
-Globals
+globals
 helplib
 helplibrary
 hhx
@@ -130,20 +127,15 @@ HINSTANCE
 hkey
 hlocal
 hre
-HRESULTs
+hresults
 htm
-IApp
 IAttachment
 IConfiguration
-idl
 idx
-IFind
-IGet
 IGlobal
 IHelp
 IHost
 IID
-iinstall
 IInstalled
 IISOn
 img
@@ -197,7 +189,7 @@ MBH
 megamorf
 memcpy
 middleware
-MIDL
+midl
 minexample
 minschema
 MMmmbbbb
@@ -230,7 +222,6 @@ NX
 objbase
 ofile
 Packagedx
-Packageend
 pathparts
 pathpaths
 PCs
@@ -244,7 +235,6 @@ PMS
 positionals
 powertoys
 productcode
-pseudocode
 pvk
 pvm
 pwabuilder
@@ -288,6 +278,7 @@ SPAPI
 Srinivasan
 SRL
 srs
+standalone
 startswith
 streambuf
 strtoull
@@ -359,7 +350,6 @@ wsv
 wto
 wwinmain
 WZDNCRFJ
-Xaml
 XPLATSTR
 xsi
 zy
