@@ -13,14 +13,14 @@ For [#1012](https://github.com/microsoft/winget-cli/issues/1012)
 Several packages require other packages as dependencies. The Windows Package Manager should be able to support declared dependencies and, as a first step to manage them, inform the user about any required ones.
 
 ## Solution Design
-The Windows Package Manager should be able to show package dependency information for each of the four different types of dependencies declared in the [v1.0 manifest schemas](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/).
+The Windows Package Manager should be able to report package dependency information for each of the four different types of dependencies declared in the [v1.0 manifest schemas](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/).
 
 * Windows Features
 * Windows Libraries
 * Package Dependencies (same source)
 * External Dependencies
 
-Only dependencies declared in the manifest will be shown, not the entire dependency graph.
+Only dependencies declared in the manifest/installer will be shown, not the entire dependency graph.
 
 ### install
 The install command will enumerate the dependencies of the package version being installed as follows:
@@ -82,23 +82,12 @@ Starting package install...
 As of now, it will not try to validate nor install any of the dependencies for any package version.
 
 ### uninstall
-```
-> winget uninstall Notepad++
-Found Notepad++ [Notepad++.Notepad++]
-Package had dependencies that may not be needed anymore:
-  - Windows Feature: 
-      Hyper-V
-  - Package: 
-      Microsoft.WindowsTerminal
-Starting package uninstall...
-Successfully uninstalled
-```
-Dependencies will not be uninstalled.
+Uninstall needs more work as we don't have the actual installer to get the dependencies from. This will not be added in this step.
 
 ### validate
-Will show dependencies for all of the installers found.
+Will gather and report dependencies for all of the installers found. Will not check if they are valid nor if there are duplicates.
 ```
-Manifest has the following dependencies:
+Manifest has the following dependencies that were not validated; ensure that they are valid:
   - Windows Feature: 
       Hyper-V
   - Package: 
@@ -107,7 +96,7 @@ Manifest validation succeeded.
 ```
 
 ### import
-Will gather all the dependencies and show them together before starting.
+Will gather all the dependencies from the packages included in the import and show them together before starting.
 ```
 The packages found in this import have the following dependencies:
   - Windows Feature: 
@@ -136,6 +125,9 @@ Successfully installed
 
 ## Capabilities
 It's only an informational feature, will not check if the dependency is a valid one, nor if the source is available.
+If a dependency is declared more than once (for example when gathering all dependencies in an import) it will only show the highest minimum version needed. 
+
+Keep in mind dependencies can be declared on the root manifest and on each of the installers. If they happen to be declared in both, installer's dependencies will override those of the manifest. With the manifest's dependencies working as a default whenever installer's dependencies are not declared.
 
 ## Future considerations
 It may be able to enable/disable this feature using extra options for the command.
