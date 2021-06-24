@@ -3,7 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
-
+#include <functional>
 #include <map>
 #include <string_view>
 
@@ -146,7 +146,13 @@ namespace AppInstaller::Manifest
                     {
                         const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
                         const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
-                        existingDependency->MinVersion.value() = newDependencyVersion <= existingDependencyVersion ? existingDependencyVersion.ToString() : newDependencyVersion.ToString();
+                        if (newDependencyVersion <= existingDependencyVersion) {
+                            existingDependency->MinVersion.value() =  existingDependencyVersion.ToString();
+                        } 
+                        else
+                        {
+                            existingDependency->MinVersion.value() = newDependencyVersion.ToString();
+                        }
                     }
                     else
                     {
@@ -186,7 +192,7 @@ namespace AppInstaller::Manifest
                     return &dependency;
                 }
             }
-            return NULL;
+            return nullptr;
         }
 
         // for testing purposes
