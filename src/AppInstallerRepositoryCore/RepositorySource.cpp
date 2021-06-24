@@ -40,6 +40,10 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+
     namespace
     {
         // SourceDetails with additional data.
@@ -82,6 +86,11 @@ namespace AppInstaller::Repository
         bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
             return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -414,6 +423,16 @@ namespace AppInstaller::Repository
                     details.Arg = s_Source_WingetMSStoreDefault_Arg;
                     details.Data = s_Source_WingetMSStoreDefault_Data;
                     details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                    result.emplace_back(std::move(details));
+                }
+
+                if (IsMSStoreDefaultSourceEnabled())
+                {
+                    SourceDetailsInternal details;
+                    details.Name = s_Source_MSStoreDefault_Name;
+                    details.Type = Rest::RestSourceFactory::Type();
+                    details.Arg = s_Source_MSStoreDefault_Arg;
                     details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
@@ -1032,7 +1051,7 @@ namespace AppInstaller::Repository
     {
         SourceDetails details = GetPredefinedSourceDetails(source);
         return CreateSourceFromDetails(details, progress);
-    } 
+    }
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {

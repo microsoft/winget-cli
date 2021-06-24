@@ -219,6 +219,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
             rootCommand.ValidateArguments(context.Args);
 
+            ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
+
             context.SetProgressCallbackFunction([=](
                 ::AppInstaller::ReportType reportType,
                 uint64_t current,
