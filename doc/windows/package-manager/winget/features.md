@@ -20,7 +20,7 @@ You can find the latest up to date information features on the [experimental fea
 
 `winget features`
 
-![features command](images\features.png)
+![features command](images/features.png)
 
 Notice above that the status of each feature is listed.  If the feature is **disabled** you will not be able to use it.  If the feature is **enabled** you will notice that the command will be available to you through winget.
 

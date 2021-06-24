@@ -138,6 +138,7 @@ namespace AppInstaller::CLI::Workflow
 
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
                 path /= Logging::FileLogger::DefaultPrefix();
+                path += '-';
                 path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
                 path += '-';
                 path += Utility::GetCurrentTimeForFilename();
@@ -256,8 +257,23 @@ namespace AppInstaller::CLI::Workflow
             break;
         }
 
-        // std::filesystem::rename() handles motw correctly if applicable.
-        std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+        // If rename fails, don't give up quite yet.
+        bool retry = true;
+
+        try
+        {
+            // std::filesystem::rename() handles motw correctly if applicable.
+            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+            retry = false;
+        }
+        CATCH_LOG();
+
+        if (retry)
+        {
+            std::this_thread::sleep_for(250ms);
+            // If it fails again, let that one throw
+            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+        }
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);

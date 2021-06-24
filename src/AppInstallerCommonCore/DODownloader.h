@@ -21,4 +21,8 @@ namespace AppInstaller::Utility
         IProgressCallback& progress,
         bool computeHash,
         std::optional<DownloadInfo> info);
+
+    // Returns true if the error from DODownload should be treated as fatal;
+    // false if we should be able to fall back to other download methods.
+    bool IsDOErrorFatal(HRESULT error);
 }

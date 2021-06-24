@@ -21,7 +21,7 @@ A source provides the data for you to discover and install applications. Only ad
 
 `winget source \<sub command> \<options>`
 
-![Source image](images\source.png)
+![Source image](images/source.png)
 
 ## Arguments
 
