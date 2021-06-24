@@ -465,5 +465,11 @@
     <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesOnRoot.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesMultideclaration.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

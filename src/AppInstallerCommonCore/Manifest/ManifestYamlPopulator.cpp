@@ -510,6 +510,8 @@ namespace AppInstaller::Manifest
             // Clear these defaults as PackageFamilyName and ProductCode needs to be copied based on InstallerType
             installer.PackageFamilyName.clear();
             installer.ProductCode.clear();
+            // Clear dependencies as installer overrides root dependencies
+            installer.Dependencies.Clear();
 
             m_p_installer = &installer;
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos);
@@ -524,6 +526,12 @@ namespace AppInstaller::Manifest
             if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
+            }
+
+            // If there are no dependencies on installer use default ones
+            if (!installer.Dependencies.HasAny())
+            {
+                installer.Dependencies = manifest.DefaultInstallerInfo.Dependencies;
             }
 
             // Populate installer default switches if not exists

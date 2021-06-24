@@ -137,15 +137,15 @@ namespace AppInstaller::Manifest
 
         void Add(const Dependency& newDependency)
         { 
-            Dependency* existingDependency;
+            Dependency* existingDependency = this->HasDependency(newDependency);
 
-            if (this->HasDependency(newDependency, existingDependency)) {
+            if (existingDependency != NULL) {
                 if (newDependency.MinVersion) 
                 {
                     if (existingDependency->MinVersion)
                     {
-                        const auto& newDependencyVersion = Version(newDependency.MinVersion.value());
-                        const auto& existingDependencyVersion = Version(existingDependency->MinVersion.value());
+                        const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
+                        const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
                         existingDependency->MinVersion.value() = newDependencyVersion <= existingDependencyVersion ? existingDependencyVersion.ToString() : newDependencyVersion.ToString();
                     }
                     else
@@ -178,16 +178,15 @@ namespace AppInstaller::Manifest
             return false;
         }
 
-        bool HasDependency(const Dependency& dependencyToSearch, Dependency* result)
+        Dependency* HasDependency(const Dependency& dependencyToSearch)
         {
             for (auto& dependency : dependencies) {
                 if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
                 {
-                    result = &dependency;
-                    return true;
+                    return &dependency;
                 }
             }
-            return false;
+            return NULL;
         }
 
         // for testing purposes
@@ -223,6 +222,8 @@ namespace AppInstaller::Manifest
                 if (dependency.Type == type) func(dependency);
             }
         }
+
+        void Clear() { dependencies.clear(); }
 
     private:
         std::vector<Dependency> dependencies;

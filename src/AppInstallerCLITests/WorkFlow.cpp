@@ -815,7 +815,7 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
 
-TEST_CASE("ShowFlow_ShowDependencies", "[ShowFlow][workflow][showDependencies]")
+TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -1093,7 +1093,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_ShowDependencies", "[UpdateFlow][workflow][showDependencies]")
+TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -1463,7 +1463,7 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
     REQUIRE(installResultStr.find("/scope=machine") != std::string::npos);
 }
 
-TEST_CASE("ImportFlow_ShowDependencies", "[ImportFlow][workflow][ShowDependencies]")
+TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
 {
     TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
     TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
@@ -1630,7 +1630,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow][showDependencies]")
+TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1652,7 +1652,7 @@ TEST_CASE("InstallFlow_ShowDependencies", "[InstallFlow][workflow][showDependenc
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
-TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
+TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
 {
     std::ostringstream validateOutput;
     TestContext context{ validateOutput, std::cin };
@@ -1674,4 +1674,50 @@ TEST_CASE("ValidateCommand_ShowDependencies", "[showDependencies]")
     REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
     REQUIRE(validateOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
     REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
+}
+
+TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify installer dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    // and root dependencies are not
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") == std::string::npos);
+}
+
+TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify root dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
