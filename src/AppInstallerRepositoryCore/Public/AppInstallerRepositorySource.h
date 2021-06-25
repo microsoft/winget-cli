@@ -134,6 +134,7 @@ namespace AppInstaller::Repository
     enum class WellKnownSource
     {
         WinGet,
+        MicrosoftStore,
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);

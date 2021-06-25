@@ -433,7 +433,8 @@ namespace AppInstaller::Repository
                     details.Name = s_Source_MSStoreDefault_Name;
                     details.Type = Rest::RestSourceFactory::Type();
                     details.Arg = s_Source_MSStoreDefault_Arg;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                    details.Identifier = s_Source_MSStoreDefault_Identifier;
+                    details.TrustLevel = SourceTrustLevel::Trusted;
                     result.emplace_back(std::move(details));
                 }
             }
@@ -1082,6 +1083,7 @@ namespace AppInstaller::Repository
         switch (source)
         {
         case WellKnownSource::WinGet:
+        {
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityDefault_Name;
@@ -1091,6 +1093,17 @@ namespace AppInstaller::Repository
             details.Identifier = s_Source_WingetCommunityDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
             return details;
+        }
+        case WellKnownSource::MicrosoftStore:
+        {
+            SourceDetailsInternal details;
+            details.Name = s_Source_MSStoreDefault_Name;
+            details.Type = Rest::RestSourceFactory::Type();
+            details.Arg = s_Source_MSStoreDefault_Arg;
+            details.Identifier = s_Source_MSStoreDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            return details;
+        }
         }
 
         THROW_HR(E_UNEXPECTED);

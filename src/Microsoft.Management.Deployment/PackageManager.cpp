@@ -55,17 +55,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         switch (predefinedPackageCatalog)
         {
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalog:
-            {
-                sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::WinGet);
-                auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-                packageCatalogInfo->Initialize(sourceDetails);
-                auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-                packageCatalogRef->Initialize(*packageCatalogInfo);
-                return *packageCatalogRef;
-            }
+            sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::WinGet);
+            break;
+        case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::MicrosoftStore:
+            sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::MicrosoftStore);
+            break;
         default:
             throw hresult_invalid_argument();
         }
+        auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
+        packageCatalogInfo->Initialize(sourceDetails);
+        auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
+        packageCatalogRef->Initialize(*packageCatalogInfo);
+        return *packageCatalogRef;
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
