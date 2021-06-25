@@ -29,6 +29,10 @@ namespace AppInstaller::Settings
             // This can be used to hide highly experimental features (or these example ones)
             ExperimentalCmd = 0x10000,
             ExperimentalArg = 0x20000,
+
+            // This is implemented just enough to prove that it is a viable option for the future.
+            // Because it is so early on, placing it here until we get the chance to fully implement it.
+            DirectMSI = 0x40000,
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;
