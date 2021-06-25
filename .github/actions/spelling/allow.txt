@@ -102,6 +102,7 @@ dotnet
 downlevel
 downloader
 downloaders
+dsx
 dword
 DWORDLONG
 elseif
@@ -413,6 +414,8 @@ STGM
 stmt
 stoi
 stoll
+storeedgefd
+storepreview
 stoull
 strcoll
 streamoff
