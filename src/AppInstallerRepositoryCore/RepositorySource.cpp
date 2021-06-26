@@ -51,6 +51,10 @@ namespace AppInstaller::Repository
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            SourceDetailsInternal() = default;
+
+            SourceDetailsInternal(SourceDetails details) : SourceDetails(details) {};
         };
 
         // Checks whether a default source is enabled with the current settings.
@@ -405,14 +409,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetCommunityDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetCommunityDefault_Arg;
-                    details.Data = s_Source_WingetCommunityDefault_Data;
-                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
+                    result.emplace_back(std::move(GetWellKnownSourceDetails(WellKnownSource::WinGet)));
                 }
 
                 if (IsWingetMSStoreDefaultSourceEnabled())
@@ -429,13 +426,7 @@ namespace AppInstaller::Repository
 
                 if (IsMSStoreDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_MSStoreDefault_Name;
-                    details.Type = Rest::RestSourceFactory::Type();
-                    details.Arg = s_Source_MSStoreDefault_Arg;
-                    details.Identifier = s_Source_MSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted;
-                    result.emplace_back(std::move(details));
+                    result.emplace_back(std::move(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore)));
                 }
             }
             break;
@@ -962,7 +953,11 @@ namespace AppInstaller::Repository
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
-                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
+
+                    if (source.get().Restricted != true)
+                    {
+                        aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
+                    }
                 }
 
                 if (sourceUpdated)
@@ -1101,7 +1096,8 @@ namespace AppInstaller::Repository
             details.Type = Rest::RestSourceFactory::Type();
             details.Arg = s_Source_MSStoreDefault_Arg;
             details.Identifier = s_Source_MSStoreDefault_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            details.TrustLevel = SourceTrustLevel::Trusted;
+            details.Restricted = true;
             return details;
         }
         }

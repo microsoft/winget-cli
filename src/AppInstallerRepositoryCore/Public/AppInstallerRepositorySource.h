@@ -62,6 +62,9 @@ namespace AppInstaller::Repository
 
         // The trust level of the source
         SourceTrustLevel TrustLevel = SourceTrustLevel::None;
+
+        // Whether the source behavior has restrictions
+        bool Restricted = false; 
     };
 
     // Interface for interacting with a source from outside of the repository lib.
