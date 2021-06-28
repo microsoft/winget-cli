@@ -146,10 +146,7 @@ namespace AppInstaller::Manifest
                     {
                         const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
                         const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
-                        if (newDependencyVersion <= existingDependencyVersion) {
-                            existingDependency->MinVersion.value() =  existingDependencyVersion.ToString();
-                        } 
-                        else
+                        if (newDependencyVersion > existingDependencyVersion) 
                         {
                             existingDependency->MinVersion.value() = newDependencyVersion.ToString();
                         }
