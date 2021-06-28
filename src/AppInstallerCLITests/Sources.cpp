@@ -546,7 +546,7 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
     SetSetting(Streams::UserSources, s_ThreeSources);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 3);
+    REQUIRE(sources.size() == 4);
 
     DropSource({});
 
@@ -603,7 +603,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
 
             auto sources = GetSources();
-            REQUIRE(sources.empty());
+            REQUIRE(sources.size() == 1);
         }
         SECTION("Add default source")
         {
@@ -621,7 +621,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_DefaultSourceAsUserSource);
 
             auto sources = GetSources();
-            REQUIRE(sources.empty());
+            REQUIRE(sources.size() == 1);
         }
         SECTION("Add same-name source from user")
         {
@@ -711,7 +711,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             REQUIRE(sources[0].Arg == "https://winget.azureedge.net/cache");
             REQUIRE(sources[0].Origin == SourceOrigin::Default);
             REQUIRE(sources[1].Name == "storepreview");
-            REQUIRE(sources[1].Arg == "https://winget.azureedge.net/cache");
+            REQUIRE(sources[1].Arg == "https://storeedgefd.dsx.mp.microsoft.com/v9.0");
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
         }
     }
@@ -746,7 +746,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             auto sources = GetSources();
 
             // The source list includes the default source
-            REQUIRE(sources.size() == policySources.size() + 1);
+            REQUIRE(sources.size() == policySources.size() + 2);
             REQUIRE(sources.back().Origin == SourceOrigin::Default);
 
             for (size_t i = 0; i < policySources.size(); ++i)
@@ -775,7 +775,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             auto sources = GetSources();
 
             // The source list includes the default source
-            REQUIRE(sources.size() == 2);
+            REQUIRE(sources.size() == 3);
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
@@ -867,7 +867,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
 
             // The source list includes the default source
             auto sources = GetSources();
-            REQUIRE(sources.size() == 2);
+            REQUIRE(sources.size() == 3);
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
