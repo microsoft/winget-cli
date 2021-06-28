@@ -1,3 +1,5 @@
+# See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
+
 WinGetDevCLI_8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 microsoft\.com/[^])">]*
