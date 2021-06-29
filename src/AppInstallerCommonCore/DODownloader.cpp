@@ -14,7 +14,13 @@ namespace AppInstaller::Utility
 {
     namespace DeliveryOptimization
     {
-#define DO_E_DOWNLOAD_NO_PROGRESS HRESULT(0x80D02002L) // Download of a file saw no progress within the defined period
+// TODO: Once the SDK headers are available, remove these defines
+#define DO_E_DOWNLOAD_NO_PROGRESS               HRESULT(0x80D02002L)    // Download of a file saw no progress within the defined period
+
+#define DO_E_BLOCKED_BY_COST_TRANSFER_POLICY    HRESULT(0x80D03801L)    // DO core paused the job due to cost policy restrictions
+#define DO_E_BLOCKED_BY_CELLULAR_POLICY         HRESULT(0x80D03803L)    // DO core paused the job due to detection of cellular network and policy restrictions
+#define DO_E_BLOCKED_BY_POWER_STATE             HRESULT(0x80D03804L)    // DO core paused the job due to detection of power state change into non-AC mode
+#define DO_E_BLOCKED_BY_NO_NETWORK              HRESULT(0x80D03805L)    // DO core paused the job due to loss of network connectivity
 
         // Represents a download work item for Delivery Optimization.
         struct Download
@@ -403,5 +409,16 @@ namespace AppInstaller::Utility
         }
 
         return {};
+    }
+
+    bool IsDOErrorFatal(HRESULT error)
+    {
+        // If this gets to be large, store in a sorted array and binary search on it.
+        // There will be more to update here, which we should be able to discover through telemetry.
+        return
+            error == DO_E_BLOCKED_BY_COST_TRANSFER_POLICY ||
+            error == DO_E_BLOCKED_BY_CELLULAR_POLICY ||
+            error == DO_E_BLOCKED_BY_POWER_STATE ||
+            error == DO_E_BLOCKED_BY_NO_NETWORK;
     }
 }

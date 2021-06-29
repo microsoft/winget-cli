@@ -18,7 +18,7 @@ The **upgrade** command requires that you specify the exact string to upgrade. I
 
 `winget upgrade [[-q] \<query>] [\<options>]`
 
-![search command](images\upgrade.png)
+![search command](images/upgrade.png)
 
 ## Arguments
 
@@ -75,7 +75,7 @@ It is common to use the [**list**](.\list.md) command to identify apps in need o
 
 In the example below you will see [**list**](.\list.md) identifies that an update is available for Microsoft.WindowsTerminalPreview, and then the user uses **upgrade** to update the application.
 
-![search command](images\upgrade.gif)
+![search command](images/upgrade.gif)
 
 ## **upgrade** --all
 

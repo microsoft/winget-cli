@@ -330,6 +330,7 @@ PVOID
 pwa
 QCol
 RAII
+rclsid
 rdbuf
 README
 READONLY
@@ -337,6 +338,7 @@ READWRITE
 realloc
 REALTIME
 Redistributable
+REFCLSID
 regex
 regexp
 removemanifest
@@ -422,6 +424,7 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+subcontext
 SUBLANG
 subresource
 subselect
@@ -459,6 +462,7 @@ tt
 ttl
 typedef
 typename
+UAC
 uap
 UBool
 UBreak
@@ -478,6 +482,7 @@ uncomment
 und
 undef
 unicode
+UNICODESTRING
 uninstall
 uninstalling
 Unregister

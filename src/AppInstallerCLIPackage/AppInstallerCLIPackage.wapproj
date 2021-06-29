@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
+    <ProjectReference Include="..\WinGetServer\WinGetServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <PropertyGroup Label="Configuration">
@@ -148,4 +149,21 @@
       copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="IncludeWinMdInPackage" AfterTargets="_ComputeAppxPackagePayload">
+    <PropertyGroup>
+      <MicrosoftManagementDeploymentPath>$(OutputPath)\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
+      <MicrosoftManagementDeploymentPath Condition="!Exists('$(MicrosoftManagementDeploymentPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
+      <MicrosoftManagementDeploymentFileName>Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentFileName>
+    </PropertyGroup>
+    <ItemGroup>
+      <MicrosoftManagementDeploymentWinmd Include="$(MicrosoftManagementDeploymentPath)" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) -&gt; $(MicrosoftManagementDeploymentFileName)" />
+    <ItemGroup>
+      <AppxPackagePayload Include="@(MicrosoftManagementDeploymentWinmd)" KeepDuplicates="false">
+        <TargetPath>$(MicrosoftManagementDeploymentFileName)</TargetPath>
+      </AppxPackagePayload>
+    </ItemGroup>
+  </Target>
 </Project>

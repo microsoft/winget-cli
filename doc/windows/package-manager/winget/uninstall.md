@@ -18,7 +18,7 @@ The **uninstall** command requires that you specify the exact string to uninstal
 
 `winget uninstall [[-q] \<query>] [\<options>]`
 
-![uninstall command](images\uninstall.png)
+![uninstall command](images/uninstall.png)
 
 ## Arguments
 
@@ -48,7 +48,7 @@ The options allow you to customize the uninstall experience to meet your needs.
 
 Once you have successfully identified the application intended to uninstall, winget will execute the uninstall command.  In the example below, the **name** 'orca' and the **id** was passed in.
 
-![uninstall command](images\uninstall-execute.png)
+![uninstall command](images/uninstall-execute.png)
 
  
 ### Example queries
@@ -69,12 +69,12 @@ winget uninstall --id "{24559D0F-481C-F3BE-8DD0-D908923A38F8}"
 
 If the query provided to **winget** does not result in a single application to uninstall, then **winget** will display multiple results. You can then use additional filters to refine the search for a correct application.
 
-![uninstall command](images\uninstall-multiple.png)
+![uninstall command](images/uninstall-multiple.png)
 
 ## Uninstalling apps not installed with Windows Package Manager
 As mentioned in [**list**](.\list.md), the **winget list** command will display more than just apps installed with the **winget**.  Therefore you can use these commands to quickly and easily remove apps from your PC.
 
 In this example, **list** was used to find the application, and then the **id** was passed in as part of uninstall.
 
-![uninstall with list command](images\uninstall-with-list.png)
+![uninstall with list command](images/uninstall-with-list.png)
 

@@ -82,6 +82,11 @@ namespace AppInstaller::CLI::Execution
         // Set the context to the terminated state.
         void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
 
+        // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
+        // Multiple attempts with exitIfStuck == true may cause the process to simply exit.
+        // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
+        void Cancel(bool exitIfStuck = false, bool bypassUser = false);
+
         // Gets context flags
         ContextFlag GetFlags() const
         {
@@ -101,6 +106,8 @@ namespace AppInstaller::CLI::Execution
         }
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
+
+        Workflow::ExecutionStage GetExecutionStage() const { return m_executionStage; }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior

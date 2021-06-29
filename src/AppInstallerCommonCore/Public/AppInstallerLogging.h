@@ -133,7 +133,12 @@ namespace AppInstaller::Logging
     }
 
     // Adds the default file logger to the DiagnosticLogger.
-    void AddFileLogger(const std::filesystem::path& filePath = {});
+    void AddFileLogger();
+    void AddFileLogger(const std::filesystem::path& filePath);
+    void AddFileLogger(std::string_view fileNamePrefix);
+
+    // Adds the trace logger to the DiagnosticLogger.
+    void AddTraceLogger();
 
     // Starts a background task to clean up old log files.
     void BeginLogFileCleanup();
