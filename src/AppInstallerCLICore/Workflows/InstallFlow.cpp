@@ -388,11 +388,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageInstaller(Execution::Context& context)
+    void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
             Workflow::ReportManifestIdentity <<
-            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ShowInstallationDisclaimer;
+    }
+
+    void InstallPackageInstaller(Execution::Context& context)
+    {
+        context <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
@@ -409,6 +414,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
@@ -484,6 +490,7 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Installer>(installer);
 
             installContext <<
+                ReportIdentityAndInstallationDisclaimer <<
                 Workflow::InstallPackageInstaller;
 
             if (installContext.IsTerminated())
