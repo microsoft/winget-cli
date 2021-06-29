@@ -1,4 +1,3 @@
-
 abcd
 adml
 admx
@@ -26,9 +25,7 @@ AType
 AUrl
 Aysnc
 azurewebsites
-baced
 Baz
-bcp
 Beigi
 bfd
 bght
@@ -46,7 +43,6 @@ casemap
 casemappings
 cch
 CDEF
-cdn
 cend
 centralus
 certmgr
@@ -63,7 +59,6 @@ cloudapp
 CLSID
 COINIT
 commandline
-compschema
 Concat
 contosa
 contosainstaller
@@ -76,7 +71,7 @@ ctc
 Ctx
 curated
 CYRL
-Debian
+debian
 deigh
 deleteifnotneeded
 dirs
@@ -84,7 +79,6 @@ dnld
 dustojnikhummer
 dvinns
 dw
-eb
 ecfr
 ecfrbrowse
 endian
@@ -120,7 +114,6 @@ GESMBH
 GHS
 gity
 Globals
-google
 helplib
 helplibrary
 hhx
@@ -139,7 +132,7 @@ IID
 IInstalled
 img
 IName
-INET
+inet
 inor
 installshield
 IPackage
@@ -154,7 +147,7 @@ itr
 IVector
 IWeb
 IZone
-JDKs
+jdk
 jfearn
 JObject
 jp
@@ -167,7 +160,7 @@ Keivan
 KF
 KNOWNFOLDERID
 ktf
-Langs
+langs
 LATN
 ldcase
 learnxinyminutes
@@ -187,7 +180,6 @@ malware
 MBH
 megamorf
 memcpy
-Microsot
 middleware
 minexample
 minschema
@@ -218,7 +210,6 @@ nuffing
 nullopt
 objbase
 ofile
-oss
 Packagedx
 pathparts
 pathpaths
@@ -247,7 +238,6 @@ readonly
 redirector
 regexes
 REGSAM
-REINSTALLMODE
 restsource
 rhs
 roblox
@@ -269,16 +259,13 @@ Shlobj
 sid
 SIGNATUREHASH
 Sku
-smartscreen
 sortof
-sourc
 sourceforge
 spamming
 SPAPI
 Srinivasan
 SRL
 srs
-Standalone
 startswith
 streambuf
 strtoull
@@ -320,7 +307,6 @@ userfilesetting
 USHORT
 Utils
 UWP
-vamus
 VERSI
 VERSIE
 vns
@@ -343,7 +329,6 @@ Workflows
 WSL
 wsv
 wto
-Wunused
 WZDNCRFJ
 XPLATSTR
 xsi
