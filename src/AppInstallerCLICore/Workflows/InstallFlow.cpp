@@ -411,17 +411,9 @@ namespace AppInstaller::CLI::Workflow
             Workflow::EnsureApplicableInstaller <<
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::BuildPackageDependenciesGraph <<
             Workflow::InstallPackageInstaller;
     }
-
-    const struct PackagesAndInstallers
-    {
-        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
-            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
-
-        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
-        AppInstaller::CLI::Execution::PackageToInstall Package;
-    };
 
     void InstallMultiple(Execution::Context& context)
     {

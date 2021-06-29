@@ -38,4 +38,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: Dependencies
     void GetDependenciesInfoForUninstall(Execution::Context& context);
+
+    // Builds the dependency graph.
+    // Required Args: None
+    // Inputs: Dependencies
+    // Outputs: None
+    void BuildPackageDependenciesGraph(Execution::Context& context);
 }

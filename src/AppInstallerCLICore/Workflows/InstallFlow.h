@@ -106,4 +106,13 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
     // Outputs: None
     void ReportARPChanges(Execution::Context& context);
+
+    const struct PackagesAndInstallers
+    {
+        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
+            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
+
+        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
+        AppInstaller::CLI::Execution::PackageToInstall Package;
+    };
 }

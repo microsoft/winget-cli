@@ -237,6 +237,39 @@ namespace
         }
     };
 
+    struct DependenciesTestSource : public TestSource
+    {
+        SearchResult Search(const SearchRequest& request) const override
+        {
+            SearchResult result;
+
+            std::string input;
+
+            if (request.Query)
+            {
+                input = request.Query->Value;
+            }
+
+            if (input == "A.Dep.B")
+            {
+                ManifestInstaller installer;
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+
+                Manifest manifest;
+                manifest.Id = "A.Dep.B";
+                manifest.Installers.push_back(installer);
+
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
+            }
+        }
+    };
+
     struct TestContext;
 
     struct WorkflowTaskOverride
