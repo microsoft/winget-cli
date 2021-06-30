@@ -54,7 +54,7 @@ namespace AppInstaller::Repository
 
             SourceDetailsInternal() = default;
 
-            SourceDetailsInternal(SourceDetails details) : SourceDetails(details) {};
+            SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
 
         // Checks whether a default source is enabled with the current settings.
@@ -94,7 +94,7 @@ namespace AppInstaller::Repository
 
         bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
-            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -409,7 +409,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    result.emplace_back(std::move(GetWellKnownSourceDetails(WellKnownSource::WinGet)));
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::WinGet));
                 }
 
                 if (IsWingetMSStoreDefaultSourceEnabled())
@@ -426,7 +426,7 @@ namespace AppInstaller::Repository
 
                 if (IsMSStoreDefaultSourceEnabled())
                 {
-                    result.emplace_back(std::move(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore)));
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
                 }
             }
             break;
@@ -937,6 +937,11 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
+                    if (source.get().Restricted == true)
+                    {
+                        continue;
+                    }
+
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -954,10 +959,7 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    if (source.get().Restricted != true)
-                    {
-                        aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
-                    }
+                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
                 if (sourceUpdated)
@@ -1023,7 +1025,8 @@ namespace AppInstaller::Repository
             AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
             return {};
         }
-        if (ShouldUpdateBeforeOpen(*source))
+        if (source->Restricted != true &&
+            ShouldUpdateBeforeOpen(*source))
         {
             try
             {
@@ -1092,6 +1095,7 @@ namespace AppInstaller::Repository
         case WellKnownSource::MicrosoftStore:
         {
             SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
             details.Name = s_Source_MSStoreDefault_Name;
             details.Type = Rest::RestSourceFactory::Type();
             details.Arg = s_Source_MSStoreDefault_Arg;
