@@ -113,6 +113,7 @@ namespace AppInstaller::CLI::Workflow
             updateAllFoundUpdate = true;
 
             updateContext << 
+                ReportIdentityAndInstallationDisclaimer <<
                 GetDependenciesFromInstaller << 
                 ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
                 InstallPackageInstaller;
