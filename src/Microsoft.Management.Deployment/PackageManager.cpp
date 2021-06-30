@@ -329,32 +329,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             executionStage = context.GetExecutionStage();
 
         }
-        catch (const wil::ResultException& re)
-        {
-            terminationHR = re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            terminationHR = hre.code();
-        }
-        catch (const ::AppInstaller::CLI::CommandException&)
-        {
-            terminationHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
-        }
-        catch (const ::AppInstaller::Settings::GroupPolicyException&)
-        {
-            // Policy could have changed since server started
-            // or catalog could have been disabled since being returned.
-            terminationHR = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
-        catch (const std::exception&)
-        {
-            terminationHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
-        catch (...)
-        {
-            terminationHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
+        WINGET_CATCH_STORE(terminationHR);
+
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
         co_return GetInstallResult(executionStage, terminationHR, options.CorrelationData(), false);
     }

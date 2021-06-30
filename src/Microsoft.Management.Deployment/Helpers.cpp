@@ -8,6 +8,9 @@
 #include <appmodel.h>
 #include <Helpers.h>
 
+using namespace std::string_literals;
+using namespace std::string_view_literals;
+
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     std::optional<DWORD> GetCallerProcessId()
@@ -27,14 +30,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return {};
     }
 
-    std::wstring GetStringForCapability(Capability capability)
+    std::wstring_view GetStringForCapability(Capability capability)
     {
         switch (capability)
         {
         case Capability::PackageManagement:
-            return L"packageManagement";
+            return L"packageManagement"sv;
         case Capability::PackageQuery:
-            return L"packageQuery";
+            return L"packageQuery"sv;
         default:
             winrt::throw_hresult(E_UNEXPECTED);
         }

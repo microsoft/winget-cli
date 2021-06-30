@@ -11,6 +11,7 @@
 #include "FindPackagesResult.h"
 #include "MatchResult.h"
 #include "CatalogPackage.h"
+#include "Commands/RootCommand.h"
 #include "Helpers.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)
@@ -158,28 +159,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             isTruncated = searchResult.Truncated;
         }
-        // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const wil::ResultException& re)
-        {
-            hr = re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            hr = hre.code();
-        }
-        catch (const ::AppInstaller::Settings::GroupPolicyException&)
-        {
-            // Policy could have changed since server started.
-            hr = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
-        catch (const std::exception&)
-        {
-            hr = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
-        catch (...)
-        {
-            hr = APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
+        WINGET_CATCH_STORE(hr);
+
         return GetFindPackagesResult(hr, isTruncated, matches);
     }
 }
