@@ -937,7 +937,8 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
-                    if (source.get().Restricted == true)
+                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
+                    if (source.get().Restricted)
                     {
                         continue;
                     }
