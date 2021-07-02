@@ -925,14 +925,15 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
                 // Restricted sources may not support the full set of functionality
                 if (currentSources[0].get().Restricted)
                 {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
                     return {};
                 }
                 else
                 {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
                     return OpenSource(currentSources[0].get().Name, progress);
                 }
             }
@@ -948,6 +949,7 @@ namespace AppInstaller::Repository
                     // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
                     if (source.get().Restricted)
                     {
+                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
                         continue;
                     }
 
