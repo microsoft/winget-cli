@@ -926,7 +926,15 @@ namespace AppInstaller::Repository
             else if (currentSources.size() == 1)
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
+                // Restricted sources may not support the full set of functionality
+                if (currentSources[0].get().Restricted)
+                {
+                    return {};
+                }
+                else
+                {
+                    return OpenSource(currentSources[0].get().Name, progress);
+                }
             }
             else
             {
