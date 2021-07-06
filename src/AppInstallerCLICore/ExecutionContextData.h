@@ -48,6 +48,7 @@ namespace AppInstaller::CLI::Execution
         Sources,
         ARPSnapshot,
         Dependencies,
+        DependencySource,
         Max
     };
 
@@ -190,6 +191,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Dependencies>
         {
             using value_t = Manifest::DependencyList;
+        };
+
+        template <>
+        struct DataMapping<Data::DependencySource>
+        {
+            using value_t = std::shared_ptr<const Repository::ISource>;
         };
     }
 }

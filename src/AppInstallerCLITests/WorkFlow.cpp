@@ -248,25 +248,85 @@ namespace
             if (request.Query)
             {
                 input = request.Query->Value;
-            }
+            } // else: default?
 
-            if (input == "A.Dep.B")
+            ManifestInstaller installer;
+            Manifest manifest;
+            manifest.Installers.push_back(installer);
+            manifest.Id = input;
+
+            /*
+            * Dependencies:
+            *   "A": Depends on the test
+            *   B: NoDeph
+            *   C: B
+            *   D: E
+            *   E: D
+            *   F: B
+            *   G: C
+            *   H: G, B
+            */
+            
+            //-- predefined
+            if (input == "C")
             {
-                ManifestInstaller installer;
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
-
-                Manifest manifest;
-                manifest.Id = "A.Dep.B";
-                manifest.Installers.push_back(installer);
-
-                result.Matches.emplace_back(
-                    ResultMatch(
-                        TestPackage::Make(
-                            std::vector<Manifest>{ manifest },
-                            this->shared_from_this()
-                        ),
-                        PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
             }
+            if (input == "D")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "E"));
+            }
+            if (input == "E")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+            }
+            if (input == "F")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+            }
+            if (input == "G")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+            }
+            if (input == "H")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "G"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+            }
+
+            // depends on test
+            if (input == "StackOrderIsOk")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+            }
+            if (input == "NeedsToInstallBFirst")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+            }
+            if (input == "EasyToSeeLoop")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+            }
+            if (input == "DependencyAlreadyInStackButNoLoop")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "F"));
+            }
+            if (input == "PathBetweenBranchesButNoLoop")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "H"));
+            }
+
+            result.Matches.emplace_back(
+                ResultMatch(
+                    TestPackage::Make(
+                        std::vector<Manifest>{ manifest },
+                        this->shared_from_this()
+                    ),
+                    PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
+            return result;
         }
     };
 
@@ -391,6 +451,14 @@ void OverrideForImportSource(TestContext& context)
     context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
     {
         context.Add<Execution::Data::Sources>(std::vector<std::shared_ptr<ISource>>{ std::make_shared<WorkflowTestCompositeSource>() });
+    } });
+}
+
+void OverrideForDependencySource(TestContext& context)
+{
+    context.Override({ "OpenDependencySource", [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(std::shared_ptr<ISource>{ std::make_shared<DependenciesTestSource>() });
     } });
 }
 
@@ -1672,6 +1740,29 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_DependencyGraph", "[InstallFlow][workflow][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDependencySource(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
 
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
