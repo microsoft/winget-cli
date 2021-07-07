@@ -108,7 +108,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             // TODO question to John: can/should we do nothing for local manifests? or set up something like --dependency-source
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            //const auto& manifest = context.Get<Execution::Data::Manifest>();
         }
     }
 
@@ -121,7 +121,6 @@ namespace AppInstaller::CLI::Workflow
 
         // should this dictionary have Dependency as key? (to have min version) in this case Dependency should implement equal
         std::map<string_t, std::vector<Dependency>> dependencyGraph; // < package Id, dependencies >
-        std::map<string_t, std::vector<string_t>> inverseDependencyGraph; // < package Id, packages that depends on this one>
 
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer)
@@ -133,15 +132,14 @@ namespace AppInstaller::CLI::Workflow
                     dependencyGraph[dependency.Id] = std::vector<Dependency>();
                     dependencyGraph[installer->ProductId].push_back(dependency);
 
-                    inverseDependencyGraph[dependency.Id] = std::vector<string_t>{ installer->ProductId };
                 });
         } // TODO fail otherwise
 
-        for (const auto& dependency : toCheck)
+        for (const auto& dependencyNode : toCheck)
         {
             // search the package source+installed to see if the dep exists
             SearchRequest searchRequest;
-            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependency.Id));
+            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
             const auto& matches = source->Search(searchRequest).Matches;
 
             if (!matches.empty())
@@ -150,43 +148,78 @@ namespace AppInstaller::CLI::Workflow
                 const auto& package = match.Package;
                 if (!package->GetInstalledVersion())
                 {
-                    const auto& packageVersion = package->GetLatestAvailableVersion();
+                    const auto& packageVersion = package->GetLatestAvailableVersion(); //TODO check availability before using
                     //how to choose best installer, should I use SelectInstaller or not?
-                    const auto& installer = packageVersion->GetManifest().Installers.at(0); // fail if there's no installer?
-                    const auto& dependencies = installer.Dependencies;
-                    auto packageId = installer.ProductId; // ProductId is the same Id as the one used by Dependencies?
+                    const auto& packageVersionManifest = packageVersion->GetManifest();
+                    const auto& matchInstaller = packageVersionManifest.Installers.at(0); // fail if there's no installer?
+                    const auto& matchDependencies = matchInstaller.Dependencies;
+                    auto matchId = matchInstaller.ProductId; // ProductId is the same Id as the one used by Dependencies?
 
                     // TODO save installers for later maybe?
-                    dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+                    matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                         {
-                            dependencyGraph[packageId].push_back(dependency); 
+                            dependencyGraph[matchId].push_back(dependency); 
 
                             auto search = dependencyGraph.find(dependency.Id);
                             if (search == dependencyGraph.end()) // if not found
                             {
                                     toCheck.push_back(dependency);
                                     dependencyGraph[dependency.Id] = std::vector<Dependency>();
-
-                                    inverseDependencyGraph[dependency.Id] = std::vector<string_t>{ packageId };
                             } 
                             else
                             {
                                 // we only need to check for loops if the dependency already existed, right?
                                 // should we have an inverse map? i.e., < id, packages that depend on this one >
-                                // that can make searching for loops easier
-
-                                inverseDependencyGraph[dependency.Id].push_back(packageId);
-                                bool hasLoop = false;
-                                auto searchLoop = inverseDependencyGraph[dependency.Id];
-
-                                
+                                if (graphHasLoop(dependencyGraph))
+                                {
+                                    context.Reporter.Info() << "has loop" << std::endl;
+                                    //TODO warn user and raise error
+                                }
                             }
                         });
                 }
+                // TODO else: save information on dependencies already installed to inform the user?
             }
         }
 
         context.Reporter.Info() << "---" << std::endl;
 
+    }
+
+    // TODO make them iterative
+    // is there a better way that this to check for loops?
+    bool graphHasLoop(std::map<string_t, std::vector<Dependency>> dependencyGraph)
+    {
+        for (const auto& node : dependencyGraph) {
+            auto visited = std::set<string_t>();
+            visited.insert(node.first);
+            if (hasLoopDFS(visited, node.first, dependencyGraph))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool hasLoopDFS(std::set<string_t> visited, string_t nodeId, std::map<string_t, std::vector<Dependency>> dependencyGraph)
+    {
+        for (const auto& adjacent : dependencyGraph[nodeId])
+        {
+            auto search = visited.find(adjacent.Id);
+            if (search == visited.end()) // if not found
+            {
+                visited.insert(adjacent.Id);
+                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph))
+                {
+                    return true;
+                }
+            }
+            else 
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

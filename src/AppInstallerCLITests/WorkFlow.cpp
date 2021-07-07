@@ -248,12 +248,24 @@ namespace
             if (request.Query)
             {
                 input = request.Query->Value;
-            } // else: default?
+            }
+            else if (!request.Inclusions.empty())
+            {
+                input = request.Inclusions[0].Value;
+            }
+            else if (!request.Filters.empty())
+            {
+                input = request.Filters[0].Value;
+            }// else: default?
 
-            ManifestInstaller installer;
-            Manifest manifest;
-            manifest.Installers.push_back(installer);
+            auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
             manifest.Id = input;
+            manifest.Moniker = input;
+            // TODO maybe change package name on default locale for better debbugging
+
+            auto& installer = manifest.Installers.at(0);
+            installer.Dependencies.Clear();
+            installer.ProductId = input;
 
             /*
             * Dependencies:
@@ -456,9 +468,14 @@ void OverrideForImportSource(TestContext& context)
 
 void OverrideForDependencySource(TestContext& context)
 {
+    context.Override({ Workflow::OpenSource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::Source>(std::make_shared<DependenciesTestSource>());
+    } });
+
     context.Override({ "OpenDependencySource", [](TestContext& context)
     {
-        context.Add<Execution::Data::DependencySource>(std::shared_ptr<ISource>{ std::make_shared<DependenciesTestSource>() });
+        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     } });
 }
 
@@ -1762,7 +1779,7 @@ TEST_CASE("InstallFlow_DependencyGraph", "[InstallFlow][workflow][dependencies]"
     OverrideForDependencySource(context);
     OverrideForShellExecute(context);
 
-    context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, "EasyToSeeLoop"sv);
 
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
@@ -1773,7 +1790,7 @@ TEST_CASE("InstallFlow_DependencyGraph", "[InstallFlow][workflow][dependencies]"
 
     // Verify all types of dependencies are printed
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    REQUIRE(installOutput.str().find("has loop") != std::string::npos);
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
