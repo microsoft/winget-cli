@@ -75,15 +75,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         wil::unique_process_handle processHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, callerProcessId));
         if (processHandle)
         {
-            wil::unique_handle token;
-            if (OpenProcessToken(processHandle.get(), TOKEN_QUERY, wil::out_param(token)))
+            WCHAR packageFamilyName[PACKAGE_FAMILY_NAME_MAX_LENGTH]{};
+            UINT32 length = ARRAYSIZE(packageFamilyName);
+            if (::GetPackageFamilyName(processHandle.get(), &length, packageFamilyName) == ERROR_SUCCESS)
             {
-                WCHAR packageFamilyName[PACKAGE_FAMILY_NAME_MAX_LENGTH]{};
-                UINT32 length = ARRAYSIZE(packageFamilyName);
-                if (::GetPackageFamilyNameFromToken(token.get(), &length, packageFamilyName) == ERROR_SUCCESS)
-                {
-                    return { packageFamilyName };
-                }
+                return { packageFamilyName };
             }
 
             // if the caller doesn't have an AppUserModelID then fall back to the executable name
