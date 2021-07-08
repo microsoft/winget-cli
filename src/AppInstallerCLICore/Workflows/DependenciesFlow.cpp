@@ -120,7 +120,7 @@ namespace AppInstaller::CLI::Workflow
         std::vector<Dependency> toCheck;
 
         // should this dictionary have Dependency as key? (to have min version) in this case Dependency should implement equal
-        std::map<string_t, std::vector<Dependency>> dependencyGraph; // < package Id, dependencies >
+        std::map<string_t, std::vector<Dependency>> dependencyGraph; // < package Id, dependencies > value should be a set instead of a vector?
 
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer)
@@ -170,6 +170,7 @@ namespace AppInstaller::CLI::Workflow
                             {
                                 // we only need to check for loops if the dependency already existed, right?
                                 // should we have an inverse map? i.e., < id, packages that depend on this one >
+                                // or should we check for loops only once (when we have all deps in the graph)
                                 if (graphHasLoop(dependencyGraph))
                                 {
                                     context.Reporter.Info() << "has loop" << std::endl;
@@ -185,6 +186,7 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << "---" << std::endl;
 
     }
+    // TODO get dependency installation order from dependencyGraph (topological order)
 
     // TODO make them iterative
     // is there a better way that this to check for loops?
@@ -208,7 +210,7 @@ namespace AppInstaller::CLI::Workflow
             auto search = visited.find(adjacent.Id);
             if (search == visited.end()) // if not found
             {
-                visited.insert(adjacent.Id);
+                visited.insert(adjacent.Id); //like this is ok or should we insert to a copy?
                 if (hasLoopDFS(visited, adjacent.Id, dependencyGraph))
                 {
                     return true;
