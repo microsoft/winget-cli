@@ -152,6 +152,7 @@
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />
     <ClCompile Include="MatchResult.cpp" />

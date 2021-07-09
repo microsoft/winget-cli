@@ -187,6 +187,7 @@ impl
 Inet
 inno
 INPROC
+Inq
 installertype
 Installeruniqueness
 installlocation
@@ -353,6 +354,7 @@ roadmap
 robuffer
 rowcount
 rowid
+Rpc
 rubengustorage
 ruleset
 runsettings
