@@ -1034,12 +1034,8 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
                 return {};
             }
-            else if (source->IsTombstone)
-            {
-                AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
-                return {};
-            }
-            if (source->Restricted != true && 
+
+            if (!source->Restricted && 
                 ShouldUpdateBeforeOpen(*source))
             {
                 try
