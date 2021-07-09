@@ -18,7 +18,7 @@ using namespace AppInstaller::Utility;
 namespace AppInstaller::Repository::Rest
 {
     // Supported versions
-    std::set<Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
+    std::set<Version> WingetSupportedContracts = { Version_1_0_0 };
 
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
         : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
@@ -82,7 +82,7 @@ namespace AppInstaller::Repository::Rest
 
     std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(const std::string& api, const Version& version)
     {
-        if (version == Version_0_2_0 || version == Version_1_0_0)
+        if (version == Version_1_0_0)
         {
             return std::make_unique<Schema::V1_0::Interface>(api);
         }
