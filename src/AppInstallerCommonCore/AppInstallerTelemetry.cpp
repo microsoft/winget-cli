@@ -179,6 +179,8 @@ namespace AppInstaller::Logging
             packageVersion = Runtime::GetPackageVersion();
         }
 
+        Logging::SetActivityId();
+
         if (IsTelemetryEnabled())
         {
             AICLI_TraceLoggingWriteActivity(
