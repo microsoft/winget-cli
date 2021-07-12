@@ -183,17 +183,6 @@ namespace AppInstaller::CLI::Workflow
                             {
                                     toCheck.push_back(dependency);
                                     dependencyGraph[dependency.Id] = std::vector<Dependency>();
-                            } 
-                            else
-                            {
-                                // we only need to check for loops if the dependency already existed, right?
-                                // should we have an inverse map? i.e., < id, packages that depend on this one >
-                                // or should we check for loops only once (when we have all deps in the graph)
-                                if (graphHasLoop(dependencyGraph, installer->ProductId))
-                                {
-                                    context.Reporter.Info() << "has loop" << std::endl;
-                                    //TODO warn user and raise error
-                                }
                             }
                         });
                 }
@@ -205,34 +194,39 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
         }
+        auto order = std::vector<string_t>();
+        if (graphHasLoop(dependencyGraph, installer->ProductId, order))
+        {
+            context.Reporter.Info() << "has loop" << std::endl;
+            //TODO warn user and raise error
+        }
 
         context.Reporter.Info() << "---" << std::endl;
 
     }
-    // TODO get dependency installation order from dependencyGraph (topological order)
 
     // TODO make them iterative
     // is there a better way that this to check for loops?
-    bool graphHasLoop(std::map<string_t, std::vector<Dependency>> dependencyGraph, const string_t& root)
+    bool graphHasLoop(const std::map<string_t, std::vector<Dependency>>& dependencyGraph, const string_t& root, std::vector<string_t>& order)
     {
         auto visited = std::set<string_t>();
         visited.insert(root);
-        if (hasLoopDFS(visited, root, dependencyGraph))
+        if (hasLoopDFS(visited, root, dependencyGraph, order))
         {
             return true;
         }
         return false;
     }
 
-    bool hasLoopDFS(std::set<string_t> visited, const string_t& nodeId, std::map<string_t, std::vector<Dependency>>& dependencyGraph)
+    bool hasLoopDFS(std::set<string_t> visited, const string_t& nodeId, const std::map<string_t, std::vector<Dependency>>& dependencyGraph, std::vector<string_t>& order)
     {
         visited.insert(nodeId);
-        for (const auto& adjacent : dependencyGraph[nodeId])
+        for (const auto& adjacent : dependencyGraph.at(nodeId))
         {
             auto search = visited.find(adjacent.Id);
             if (search == visited.end()) // if not found
             {
-                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph))
+                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph, order))
                 {
                     return true;
                 }
