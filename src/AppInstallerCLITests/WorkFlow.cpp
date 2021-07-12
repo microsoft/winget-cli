@@ -1805,6 +1805,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    REQUIRE(installOutput.str().find("B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph]")
@@ -1826,6 +1827,8 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    REQUIRE(installOutput.str().find("order: B, C, G, H, PathBetweenBranchesButNoLoop,") != std::string::npos);
+
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")

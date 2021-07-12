@@ -194,15 +194,20 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
         }
-        auto order = std::vector<string_t>();
-        if (graphHasLoop(dependencyGraph, installer->ProductId, order))
+        auto info = context.Reporter.Info();
+        auto installationOrder = std::vector<string_t>();
+        if (graphHasLoop(dependencyGraph, installer->ProductId, installationOrder))
         {
-            context.Reporter.Info() << "has loop" << std::endl;
+            info << "has loop" << std::endl;
             //TODO warn user and raise error
         }
 
-        context.Reporter.Info() << "---" << std::endl;
-
+        info << "order: ";
+        for (auto const& nodeId : installationOrder)
+        {
+            info << nodeId << ", ";
+        }
+        info << std::endl;
     }
 
     // TODO make them iterative
@@ -235,6 +240,11 @@ namespace AppInstaller::CLI::Workflow
             {
                 return true;
             }
+        }
+        
+        if (std::find(order.begin(), order.end(), nodeId) == order.end()) 
+        {
+            order.push_back(nodeId);
         }
 
         return false;
