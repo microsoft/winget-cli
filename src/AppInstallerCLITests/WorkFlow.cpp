@@ -294,7 +294,7 @@ namespace
             }
             if (input == "F")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
             }
             if (input == "G")
             {
@@ -471,11 +471,6 @@ void OverrideForDependencySource(TestContext& context)
     context.Override({ Workflow::OpenSource, [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<DependenciesTestSource>());
-    } });
-
-    context.Override({ "OpenDependencySource", [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     } });
 }
 
@@ -1770,7 +1765,7 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_DependencyGraph", "[InstallFlow][workflow][dependencies]")
+TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1788,9 +1783,49 @@ TEST_CASE("InstallFlow_DependencyGraph", "[InstallFlow][workflow][dependencies]"
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify all types of dependencies are printed
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("has loop") != std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDependencySource(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependencyAlreadyInStackButNoLoop"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDependencySource(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "PathBetweenBranchesButNoLoop"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")

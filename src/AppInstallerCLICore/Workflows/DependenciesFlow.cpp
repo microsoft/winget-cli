@@ -120,7 +120,8 @@ namespace AppInstaller::CLI::Workflow
         std::vector<Dependency> toCheck;
 
         // should this dictionary have Dependency as key? (to have min version) in this case Dependency should implement equal
-        std::map<string_t, std::vector<Dependency>> dependencyGraph; // < package Id, dependencies > value should be a set instead of a vector?
+        std::map<string_t, std::vector<Dependency>> dependencyGraph; 
+        // < package Id, dependencies > value should be a set instead of a vector?
 
         const auto& installer = context.Get<Execution::Data::Installer>();
         if (installer)
@@ -135,30 +136,47 @@ namespace AppInstaller::CLI::Workflow
                 });
         } // TODO fail otherwise
 
-        for (const auto& dependencyNode : toCheck)
+        std::map<string_t, string_t> failedPackages;
+
+        for (int i = 0; i < toCheck.size(); ++i)
         {
-            // search the package source+installed to see if the dep exists
+            const auto& dependencyNode = toCheck.at(i);
+            auto packageID = dependencyNode.Id;
+
             SearchRequest searchRequest;
-            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
+            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageID));
             const auto& matches = source->Search(searchRequest).Matches;
 
             if (!matches.empty())
             {
-                const auto& match = matches.at(0); // What to do if there's more than one? TODO should not happen (report to the user)
+                const auto& match = matches.at(0);
+                if (matches.size() > 1) {
+                    failedPackages[packageID] = "Too many matches"; //TODO localize all errors
+                    continue;
+                }
+
                 const auto& package = match.Package;
                 if (!package->GetInstalledVersion())
                 {
-                    const auto& packageVersion = package->GetLatestAvailableVersion(); //TODO check availability before using
-                    //how to choose best installer, should I use SelectInstaller or not?
+                    const auto& packageVersion = package->GetLatestAvailableVersion();
+                    if (!packageVersion) {
+                        failedPackages[packageID] = "No package version found"; //TODO localize all errors
+                        continue;
+                    }
                     const auto& packageVersionManifest = packageVersion->GetManifest();
-                    const auto& matchInstaller = packageVersionManifest.Installers.at(0); // fail if there's no installer?
+                    if (packageVersionManifest.Installers.empty()) {
+                        failedPackages[packageID] = "No installers found"; //TODO localize all errors
+                        continue;
+                    }
+                    //how to choose best installer, should I use SelectInstaller or not?
+                    const auto& matchInstaller = packageVersionManifest.Installers.at(0);
                     const auto& matchDependencies = matchInstaller.Dependencies;
-                    auto matchId = matchInstaller.ProductId; // ProductId is the same Id as the one used by Dependencies?
 
                     // TODO save installers for later maybe?
                     matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                         {
-                            dependencyGraph[matchId].push_back(dependency); 
+                            // TODO check dependency min version is <= latest version
+                            dependencyGraph[packageID].push_back(dependency);
 
                             auto search = dependencyGraph.find(dependency.Id);
                             if (search == dependencyGraph.end()) // if not found
@@ -180,6 +198,11 @@ namespace AppInstaller::CLI::Workflow
                         });
                 }
                 // TODO else: save information on dependencies already installed to inform the user?
+            }
+            else
+            {
+                failedPackages[packageID] = "No matches"; //TODO localize all errors
+                continue;
             }
         }
 
@@ -203,15 +226,16 @@ namespace AppInstaller::CLI::Workflow
         return false;
     }
 
-    bool hasLoopDFS(std::set<string_t> visited, string_t nodeId, std::map<string_t, std::vector<Dependency>> dependencyGraph)
+    bool hasLoopDFS(std::set<string_t> visited, const string_t& nodeId, std::map<string_t, std::vector<Dependency>>& dependencyGraph)
     {
         for (const auto& adjacent : dependencyGraph[nodeId])
         {
             auto search = visited.find(adjacent.Id);
             if (search == visited.end()) // if not found
             {
-                visited.insert(adjacent.Id); //like this is ok or should we insert to a copy?
-                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph))
+                auto newVisited = visited;
+                newVisited.insert(adjacent.Id); 
+                if (hasLoopDFS(newVisited, adjacent.Id, dependencyGraph))
                 {
                     return true;
                 }

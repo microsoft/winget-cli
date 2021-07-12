@@ -129,6 +129,10 @@ namespace AppInstaller::Manifest
         Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
         Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
+
+        bool operator==(const Dependency& rhs) const {
+            return Type == rhs.Type && ICUCaseInsensitiveEquals(Id, rhs.Id);
+        }
     };
 
     struct DependencyList
@@ -184,7 +188,7 @@ namespace AppInstaller::Manifest
         Dependency* HasDependency(const Dependency& dependencyToSearch)
         {
             for (auto& dependency : dependencies) {
-                if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+                if (dependency == dependencyToSearch)
                 {
                     return &dependency;
                 }

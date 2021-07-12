@@ -52,5 +52,5 @@ namespace AppInstaller::CLI::Workflow
     void OpenDependencySource(Execution::Context& context);
 
     bool graphHasLoop(std::map<AppInstaller::Manifest::string_t, std::vector<AppInstaller::Manifest::Dependency>> dependencyGraph);
-    bool hasLoopDFS(std::set<AppInstaller::Manifest::string_t> visited, AppInstaller::Manifest::string_t nodeId, std::map<AppInstaller::Manifest::string_t, std::vector<AppInstaller::Manifest::Dependency>> dependencyGraph);
+    bool hasLoopDFS(std::set<AppInstaller::Manifest::string_t> visited, const AppInstaller::Manifest::string_t& nodeId, std::map<AppInstaller::Manifest::string_t, std::vector<AppInstaller::Manifest::Dependency>>& dependencyGraph);
 }
