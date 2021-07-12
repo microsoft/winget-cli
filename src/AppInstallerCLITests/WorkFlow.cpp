@@ -1831,6 +1831,52 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
 }
 
+TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDependencySource(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    REQUIRE(installOutput.str().find("order: B, C, StackOrderIsOk,") != std::string::npos);
+
+}
+
+TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDependencySource(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "NeedsToInstallBFirst"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    REQUIRE(installOutput.str().find("order: B, C, NeedsToInstallBFirst,") != std::string::npos);
+
+}
+
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
 {
     std::ostringstream validateOutput;
