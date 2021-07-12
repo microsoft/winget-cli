@@ -119,19 +119,20 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<Dependency> toCheck;
 
-        // should this dictionary have Dependency as key? (to have min version) in this case Dependency should implement equal
-        std::map<string_t, std::vector<Dependency>> dependencyGraph; 
+        std::map<Dependency, std::vector<Dependency>> dependencyGraph; 
         // < package Id, dependencies > value should be a set instead of a vector?
 
         const auto& installer = context.Get<Execution::Data::Installer>();
+        Dependency rootDependency = Dependency(DependencyType::Package);
         if (installer)
         {
-            dependencyGraph[installer->ProductId] = std::vector<Dependency>(); // ProductId is the same Id as the one used by Dependencies?
+            rootDependency.Id = installer->ProductId; // ProductId is the same Id as the one used by Dependencies?
+            dependencyGraph[rootDependency] = std::vector<Dependency>(); 
             installer->Dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
                     toCheck.push_back(dependency);
-                    dependencyGraph[dependency.Id] = std::vector<Dependency>();
-                    dependencyGraph[installer->ProductId].push_back(dependency);
+                    dependencyGraph[dependency] = std::vector<Dependency>();
+                    dependencyGraph[rootDependency].push_back(dependency);
 
                 });
         } // TODO fail otherwise
@@ -140,18 +141,17 @@ namespace AppInstaller::CLI::Workflow
 
         for (int i = 0; i < toCheck.size(); ++i)
         {
-            const auto& dependencyNode = toCheck.at(i);
-            auto packageID = dependencyNode.Id;
+            auto dependencyNode = toCheck.at(i);
 
             SearchRequest searchRequest;
-            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageID));
+            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
             const auto& matches = source->Search(searchRequest).Matches;
 
             if (!matches.empty())
             {
                 const auto& match = matches.at(0);
                 if (matches.size() > 1) {
-                    failedPackages[packageID] = "Too many matches"; //TODO localize all errors
+                    failedPackages[dependencyNode.Id] = "Too many matches"; //TODO localize all errors
                     continue;
                 }
 
@@ -160,61 +160,64 @@ namespace AppInstaller::CLI::Workflow
                 {
                     const auto& packageVersion = package->GetLatestAvailableVersion();
                     if (!packageVersion) {
-                        failedPackages[packageID] = "No package version found"; //TODO localize all errors
+                        failedPackages[dependencyNode.Id] = "No package version found"; //TODO localize all errors
                         continue;
                     }
                     const auto& packageVersionManifest = packageVersion->GetManifest();
                     if (packageVersionManifest.Installers.empty()) {
-                        failedPackages[packageID] = "No installers found"; //TODO localize all errors
+                        failedPackages[dependencyNode.Id] = "No installers found"; //TODO localize all errors
                         continue;
                     }
                     //how to choose best installer, should I use SelectInstaller or not?
                     const auto& matchInstaller = packageVersionManifest.Installers.at(0);
                     const auto& matchDependencies = matchInstaller.Dependencies;
 
+                    // TODO check dependency min version is <= latest version
+
                     // TODO save installers for later maybe?
                     matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                         {
-                            // TODO check dependency min version is <= latest version
-                            dependencyGraph[packageID].push_back(dependency);
+                            dependencyGraph[dependencyNode].push_back(dependency);
 
-                            auto search = dependencyGraph.find(dependency.Id);
+                            auto search = dependencyGraph.find(dependency);
                             if (search == dependencyGraph.end()) // if not found
                             {
                                     toCheck.push_back(dependency);
-                                    dependencyGraph[dependency.Id] = std::vector<Dependency>();
+                                    dependencyGraph[dependency] = std::vector<Dependency>();
                             }
                         });
                 }
                 // TODO else: save information on dependencies already installed to inform the user?
+                // TODO check dependency min version is <= installed version (otherwise update? -> should check for new dependencies)
+
             }
             else
             {
-                failedPackages[packageID] = "No matches"; //TODO localize all errors
+                failedPackages[dependencyNode.Id] = "No matches"; //TODO localize all errors
                 continue;
             }
         }
         auto info = context.Reporter.Info();
-        auto installationOrder = std::vector<string_t>();
-        if (graphHasLoop(dependencyGraph, installer->ProductId, installationOrder))
+        auto installationOrder = std::vector<Dependency>();
+        if (graphHasLoop(dependencyGraph, rootDependency, installationOrder))
         {
             info << "has loop" << std::endl;
             //TODO warn user and raise error
         }
 
         info << "order: ";
-        for (auto const& nodeId : installationOrder)
+        for (auto const& node : installationOrder)
         {
-            info << nodeId << ", ";
+            info << node.Id << ", ";
         }
         info << std::endl;
     }
 
     // TODO make them iterative
     // is there a better way that this to check for loops?
-    bool graphHasLoop(const std::map<string_t, std::vector<Dependency>>& dependencyGraph, const string_t& root, std::vector<string_t>& order)
+    bool graphHasLoop(const std::map<Dependency, std::vector<Dependency>>& dependencyGraph, const Dependency& root, std::vector<Dependency>& order)
     {
-        auto visited = std::set<string_t>();
+        auto visited = std::set<Dependency>();
         visited.insert(root);
         if (hasLoopDFS(visited, root, dependencyGraph, order))
         {
@@ -223,15 +226,15 @@ namespace AppInstaller::CLI::Workflow
         return false;
     }
 
-    bool hasLoopDFS(std::set<string_t> visited, const string_t& nodeId, const std::map<string_t, std::vector<Dependency>>& dependencyGraph, std::vector<string_t>& order)
+    bool hasLoopDFS(std::set<Dependency> visited, const Dependency& node, const std::map<Dependency, std::vector<Dependency>>& dependencyGraph, std::vector<Dependency>& order)
     {
-        visited.insert(nodeId);
-        for (const auto& adjacent : dependencyGraph.at(nodeId))
+        visited.insert(node);
+        for (const auto& adjacent : dependencyGraph.at(node))
         {
-            auto search = visited.find(adjacent.Id);
+            auto search = visited.find(adjacent);
             if (search == visited.end()) // if not found
             {
-                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph, order))
+                if (hasLoopDFS(visited, adjacent, dependencyGraph, order))
                 {
                     return true;
                 }
@@ -242,9 +245,9 @@ namespace AppInstaller::CLI::Workflow
             }
         }
         
-        if (std::find(order.begin(), order.end(), nodeId) == order.end()) 
+        if (std::find(order.begin(), order.end(), node) == order.end()) 
         {
-            order.push_back(nodeId);
+            order.push_back(node);
         }
 
         return false;
