@@ -88,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
 
-        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
+        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel }, 0, 0);
         for (const auto& version : versions)
         {
             table.OutputLine({ version.Version, version.Channel });

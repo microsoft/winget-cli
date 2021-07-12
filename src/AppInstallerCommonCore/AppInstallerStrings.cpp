@@ -113,6 +113,11 @@ namespace AppInstaller::Utility
         return a.length() >= b.length() && ICUCaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
+    int ICUCaseInsensitiveCompare(std::string_view a, std::string_view b)
+    {
+        return FoldCase(a).compare(FoldCase(b));
+    }
+
     std::string ConvertToUTF8(std::wstring_view input)
     {
         if (input.empty())
