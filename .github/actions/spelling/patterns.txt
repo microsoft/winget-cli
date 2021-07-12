@@ -1,7 +1,7 @@
 WinGetDevCLI_8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 microsoft\.com/[^])">]*
-Sha256: [0-9A-Fa-f]{64}
+S[Hh][Aa]256: [0-9A-Fa-f]{64}
 SHA256::ConvertToBytes\("[0-9A-Fa-f]{64}"
 # data urls
 data:[a-zA-Z=;,/0-9+-]+

@@ -31,7 +31,6 @@ Aysnc
 azurewebsites
 badbit
 Baz
-bcp
 Beigi
 bfd
 bght
@@ -49,15 +48,14 @@ casemap
 casemappings
 cch
 CDEF
-cdn
 cend
 centralus
 certmgr
 certs
 Cfg
-cgmanifest
 cfr
 cgi
+cgmanifest
 chcp
 ci
 cinq
@@ -68,7 +66,6 @@ COINIT
 combaseapi
 COMGLB
 commandline
-compschema
 Concat
 contosa
 contosainstaller
@@ -83,7 +80,7 @@ ctc
 Ctx
 curated
 CYRL
-Debian
+debian
 deigh
 deleteifnotneeded
 desktopappinstaller
@@ -120,13 +117,13 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
+fzanollo
 gcpi
 GES
 GESMBH
 GHS
 gity
 Globals
-google
 helplib
 helplibrary
 hhx
@@ -151,7 +148,7 @@ iinstall
 IInstalled
 img
 IName
-INET
+inet
 inor
 installshield
 IPackage
@@ -166,7 +163,7 @@ itr
 IVector
 IWeb
 IZone
-JDKs
+jdk
 jfearn
 JObject
 jp
@@ -179,7 +176,7 @@ Keivan
 KF
 KNOWNFOLDERID
 ktf
-Langs
+langs
 LATN
 ldcase
 learnxinyminutes
@@ -225,13 +222,13 @@ netlify
 Newtonsoft
 NOEXPAND
 normer
+npp
 nsis
 nuffing
 nullopt
 NX
 objbase
 ofile
-oss
 Packagedx
 Packageend
 pathparts
@@ -262,7 +259,6 @@ readonly
 redirector
 regexes
 REGSAM
-REINSTALLMODE
 restsource
 rhs
 roblox
@@ -285,16 +281,13 @@ Shlobj
 sid
 SIGNATUREHASH
 Sku
-smartscreen
 sortof
-sourc
 sourceforge
 spamming
 SPAPI
 Srinivasan
 SRL
 srs
-Standalone
 startswith
 streambuf
 strtoull
@@ -342,7 +335,6 @@ USHORT
 Utils
 uuid
 UWP
-vamus
 VERSI
 VERSIE
 vns
@@ -371,4 +363,5 @@ WZDNCRFJ
 Xaml
 XPLATSTR
 xsi
+Zanollo
 zy
