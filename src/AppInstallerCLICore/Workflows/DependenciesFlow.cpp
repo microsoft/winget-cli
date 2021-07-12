@@ -189,7 +189,7 @@ namespace AppInstaller::CLI::Workflow
                                 // we only need to check for loops if the dependency already existed, right?
                                 // should we have an inverse map? i.e., < id, packages that depend on this one >
                                 // or should we check for loops only once (when we have all deps in the graph)
-                                if (graphHasLoop(dependencyGraph))
+                                if (graphHasLoop(dependencyGraph, installer->ProductId))
                                 {
                                     context.Reporter.Info() << "has loop" << std::endl;
                                     //TODO warn user and raise error
@@ -213,29 +213,26 @@ namespace AppInstaller::CLI::Workflow
 
     // TODO make them iterative
     // is there a better way that this to check for loops?
-    bool graphHasLoop(std::map<string_t, std::vector<Dependency>> dependencyGraph)
+    bool graphHasLoop(std::map<string_t, std::vector<Dependency>> dependencyGraph, const string_t& root)
     {
-        for (const auto& node : dependencyGraph) {
-            auto visited = std::set<string_t>();
-            visited.insert(node.first);
-            if (hasLoopDFS(visited, node.first, dependencyGraph))
-            {
-                return true;
-            }
+        auto visited = std::set<string_t>();
+        visited.insert(root);
+        if (hasLoopDFS(visited, root, dependencyGraph))
+        {
+            return true;
         }
         return false;
     }
 
     bool hasLoopDFS(std::set<string_t> visited, const string_t& nodeId, std::map<string_t, std::vector<Dependency>>& dependencyGraph)
     {
+        visited.insert(nodeId);
         for (const auto& adjacent : dependencyGraph[nodeId])
         {
             auto search = visited.find(adjacent.Id);
             if (search == visited.end()) // if not found
             {
-                auto newVisited = visited;
-                newVisited.insert(adjacent.Id); 
-                if (hasLoopDFS(newVisited, adjacent.Id, dependencyGraph))
+                if (hasLoopDFS(visited, adjacent.Id, dependencyGraph))
                 {
                     return true;
                 }
