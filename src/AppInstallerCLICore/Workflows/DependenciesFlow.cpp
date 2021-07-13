@@ -168,9 +168,18 @@ namespace AppInstaller::CLI::Workflow
                         failedPackages[dependencyNode.Id] = "No installers found"; //TODO localize all errors
                         continue;
                     }
-                    //how to choose best installer, should I use SelectInstaller or not?
-                    const auto& matchInstaller = packageVersionManifest.Installers.at(0);
-                    const auto& matchDependencies = matchInstaller.Dependencies;
+                    
+                    ManifestComparator manifestComparator(context.Args, packageVersion->GetMetadata());
+                    const auto& matchInstaller = manifestComparator.GetPreferredInstaller(packageVersionManifest);
+
+                    if (!matchInstaller)
+                    {
+                        failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
+                        continue;
+                    }
+
+                    //const auto& matchInstaller = packageVersionManifest.Installers.at(0);
+                    const auto& matchDependencies = matchInstaller.value().Dependencies;
 
                     // TODO check dependency min version is <= latest version
 
