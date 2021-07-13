@@ -265,7 +265,6 @@ namespace
 
             auto& installer = manifest.Installers.at(0);
             installer.Dependencies.Clear();
-            installer.ProductId = input;
 
             /*
             * Dependencies:

@@ -95,7 +95,7 @@ namespace AppInstaller::CLI::Workflow
                         info << "    - PackageDependencies: " << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency) {
                             info << "        " << dependency.Id;
-                            if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
+                            if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value().ToString() << "]";
                             info << std::endl;
                         });
                     }

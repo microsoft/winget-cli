@@ -124,9 +124,9 @@ namespace AppInstaller::Manifest
     {
         DependencyType Type;
         string_t Id;
-        std::optional<string_t> MinVersion;
+        std::optional<AppInstaller::Utility::Version> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(AppInstaller::Utility::Version(minVersion)) {}
         Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
 
@@ -153,11 +153,9 @@ namespace AppInstaller::Manifest
                 {
                     if (existingDependency->MinVersion)
                     {
-                        const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
-                        const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
-                        if (newDependencyVersion > existingDependencyVersion) 
+                        if (newDependency.MinVersion.value() > existingDependency->MinVersion.value())
                         {
-                            existingDependency->MinVersion.value() = newDependencyVersion.ToString();
+                            existingDependency->MinVersion.value() = newDependency.MinVersion.value();
                         }
                     }
                     else
@@ -209,7 +207,7 @@ namespace AppInstaller::Manifest
                 if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
                 {
                     if (dependency.MinVersion) {
-                        if (dependency.MinVersion.value() == minVersion)
+                        if (dependency.MinVersion.value() == AppInstaller::Utility::Version(minVersion))
                         {
                             return true;
                         }

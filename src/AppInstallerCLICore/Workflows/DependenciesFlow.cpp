@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
                 dependencies.ApplyToType(DependencyType::Package, [&info](Dependency dependency)
                     {
                         info << "      " << dependency.Id;
-                        if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
+                        if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value().ToString() << "]";
                         info << std::endl;
                     });
             }
@@ -122,13 +122,13 @@ namespace AppInstaller::CLI::Workflow
         std::map<Dependency, std::vector<Dependency>> dependencyGraph; 
         // < package Id, dependencies > value should be a set instead of a vector?
 
-        const auto& installer = context.Get<Execution::Data::Installer>();
-        Dependency rootDependency = Dependency(DependencyType::Package);
-        if (installer)
+        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
+        const auto& rootManifest = context.Get<Execution::Data::Manifest>();
+        Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id);
+        if (rootInstaller)
         {
-            rootDependency.Id = installer->ProductId; // ProductId is the same Id as the one used by Dependencies?
             dependencyGraph[rootDependency] = std::vector<Dependency>(); 
-            installer->Dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+            rootInstaller->Dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
                     toCheck.push_back(dependency);
                     dependencyGraph[dependency] = std::vector<Dependency>();
