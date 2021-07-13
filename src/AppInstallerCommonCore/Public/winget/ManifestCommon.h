@@ -133,6 +133,11 @@ namespace AppInstaller::Manifest
         bool operator==(const Dependency& rhs) const {
             return Type == rhs.Type && ICUCaseInsensitiveEquals(Id, rhs.Id);
         }
+
+        bool operator <(const Dependency& rhs) const
+        {
+            return Id < rhs.Id;
+        }
     };
 
     struct DependencyList
