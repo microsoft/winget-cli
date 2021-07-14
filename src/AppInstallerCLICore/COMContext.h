@@ -56,6 +56,8 @@ namespace AppInstaller
         //Execution::Context
         void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase, bool);
 
+        CLI::Workflow::ExecutionStage GetExecutionStage() const { return m_executionStage; }
+
         void SetProgressCallbackFunction(ProgressCallBackFunction&& f)
         {
             m_comProgressCallback = std::move(f);
