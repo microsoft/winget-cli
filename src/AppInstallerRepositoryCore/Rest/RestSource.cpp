@@ -14,26 +14,26 @@ namespace AppInstaller::Repository::Rest
         // The source reference used by package objects.
         struct SourceReference
         {
-            SourceReference(const std::shared_ptr<const RestSource>& source) :
+            SourceReference(const std::shared_ptr<RestSource>& source) :
                 m_source(source) {}
 
         protected:
-            std::shared_ptr<const RestSource> GetReferenceSource() const
+            std::shared_ptr<RestSource> GetReferenceSource() const
             {
-                std::shared_ptr<const RestSource> source = m_source.lock();
+                std::shared_ptr<RestSource> source = m_source.lock();
                 THROW_HR_IF(E_NOT_VALID_STATE, !source);
                 return source;
             }
 
         private:
-            std::weak_ptr<const RestSource> m_source;
+            std::weak_ptr<RestSource> m_source;
         };
 
         // The IPackageVersion impl for RestSource.
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<const RestSource>& source, IRestClient::PackageInfo packageInfo, IRestClient::VersionInfo versionInfo)
+                const std::shared_ptr<RestSource>& source, IRestClient::PackageInfo packageInfo, IRestClient::VersionInfo versionInfo)
                 : SourceReference(source), m_packageInfo(std::move(packageInfo)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
@@ -132,7 +132,7 @@ namespace AppInstaller::Repository::Rest
                 return m_versionInfo.Manifest.value();
             }
 
-            std::shared_ptr<const ISource> GetSource() const override
+            std::shared_ptr<ISource> GetSource() const override
             {
                 return GetReferenceSource();
             }
@@ -169,7 +169,7 @@ namespace AppInstaller::Repository::Rest
         // The base for IPackage implementations here.
         struct PackageBase : public SourceReference
         {
-            PackageBase(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
+            PackageBase(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                  // Sort the versions
@@ -221,7 +221,7 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<const RestSource> source = GetReferenceSource();
+                std::shared_ptr<RestSource> source = GetReferenceSource();
 
                 std::vector<PackageVersionKey> result;
                 for (const auto& versionInfo : m_package.Versions)
@@ -240,7 +240,7 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
-                std::shared_ptr<const RestSource> source = GetReferenceSource();
+                std::shared_ptr<RestSource> source = GetReferenceSource();
 
                 // Ensure that this key targets this (or any) source
                 if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
@@ -337,7 +337,7 @@ namespace AppInstaller::Repository::Rest
         RestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
-        std::shared_ptr<const RestSource> sharedThis = shared_from_this();
+        std::shared_ptr<RestSource> sharedThis = const_cast<RestSource*>(this)->shared_from_this();
         for (auto& result : results.Matches)
         {
             std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, std::move(result));
