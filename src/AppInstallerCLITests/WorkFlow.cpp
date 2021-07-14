@@ -68,7 +68,7 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest }, this->shared_from_this()),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, const_cast<WorkflowTestSource*>(this)->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
             }
             else if (input == "TestQueryReturnTwo")
@@ -76,13 +76,13 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest }, this->shared_from_this()),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, const_cast<WorkflowTestSource*>(this)->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest2 }, this->shared_from_this()),
+                        TestPackage::Make(std::vector<Manifest>{ manifest2 }, const_cast<WorkflowTestSource*>(this)->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
             }
 
@@ -124,7 +124,7 @@ namespace
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
                             },
                             std::vector<Manifest>{ manifest3, manifest2, manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -139,7 +139,7 @@ namespace
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
                             std::vector<Manifest>{ manifest2, manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
             }
@@ -153,7 +153,7 @@ namespace
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
                             std::vector<Manifest>{ manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             }
@@ -168,7 +168,7 @@ namespace
                             manifest2,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest2, manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -183,7 +183,7 @@ namespace
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
                             std::vector<Manifest>{ manifest2, manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -195,7 +195,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             std::vector<Manifest>{ manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
