@@ -94,39 +94,41 @@ namespace AppInstaller::CLI::Workflow
     {
         // two options: have a package version or a manifest
         // try to get source from package version
-        const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
 
-        if (packageVersion)
+        //source = empty
+        //if PackageVersion then source = PV source
+        //else if Source exists then fail  // if Source already open then this can't be an install -m or validate command
+        //else then OpenSource; source = Source
+        //    result = CreateComposite(installed, source)
+
+        if (context.Contains(Execution::Data::PackageVersion))
         {
-            // TODO open composite source: package + installed
-            // how to execute without progress?
-            //auto installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
-            //auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
-            auto compositeSource = packageVersion->GetSource();
+            const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
+            // how to execute without progress? should we?
+            const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
+            auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
             context.Add<Execution::Data::DependencySource>(compositeSource);
         }
         else
         {
             // TODO question to John: can/should we do nothing for local manifests? or set up something like --dependency-source
-            //const auto& manifest = context.Get<Execution::Data::Manifest>();
+            // Open source passed by parameter (from sourcename)
+            // openCompositeSource should work for getting installed+opened source
         }
     }
 
     void BuildPackageDependenciesGraph(Execution::Context& context)
     {
-        context << OpenDependencySource;
-        const auto& source = context.Get<Execution::Data::DependencySource>();
-
-        std::vector<Dependency> toCheck;
-
-        std::map<Dependency, std::vector<Dependency>> dependencyGraph; 
-        // < package Id, dependencies > value should be a set instead of a vector?
-
-        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
         Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id);
+        
+        std::vector<Dependency> toCheck;
+        std::map<Dependency, std::vector<Dependency>> dependencyGraph; //(?) value should be a set instead of a vector?
+        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
         if (rootInstaller)
         {
+            context.Add<Execution::Data::Dependencies>(rootInstaller->Dependencies); // to use in report
+            // TODO remove this ^ if we are reporting dependencies somewhere else while installing/managing them
             dependencyGraph[rootDependency] = std::vector<Dependency>(); 
             rootInstaller->Dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
@@ -137,6 +139,15 @@ namespace AppInstaller::CLI::Workflow
                 });
         } // TODO fail otherwise
 
+        context << OpenDependencySource;
+        if (!context.Contains(Execution::Data::DependencySource))
+        {
+            context.Reporter.Info() << "dependency source not found" << std::endl; //TODO localize message
+            return; //TODO terminate with error once we can get source for dependencies, when a manifest was passed
+            //AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING); // TODO create a new error code?
+        }
+
+        const auto& source = context.Get<Execution::Data::DependencySource>();
         std::map<string_t, string_t> failedPackages;
 
         for (int i = 0; i < toCheck.size(); ++i)
@@ -213,6 +224,8 @@ namespace AppInstaller::CLI::Workflow
             info << "has loop" << std::endl;
             //TODO warn user and raise error
         }
+
+        // TODO raise error for failedPackages (if there's at least one)
 
         info << "order: ";
         for (auto const& node : installationOrder)
