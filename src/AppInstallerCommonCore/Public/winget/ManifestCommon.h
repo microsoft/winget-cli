@@ -40,7 +40,7 @@ namespace AppInstaller::Manifest
 
         bool HasExtension() const;
 
-        bool HasExtension(std::string_view extension) const;
+bool HasExtension(std::string_view extension) const;
 
     private:
         std::vector<Version> m_extensions;
@@ -137,6 +137,11 @@ namespace AppInstaller::Manifest
         bool operator <(const Dependency& rhs) const
         {
             return Id < rhs.Id;
+        }
+
+        bool IsVersionOk(string_t version)
+        {
+            return MinVersion <= AppInstaller::Utility::Version(version);
         }
     };
 

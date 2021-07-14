@@ -104,9 +104,10 @@ namespace AppInstaller::CLI::Workflow
         if (context.Contains(Execution::Data::PackageVersion))
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            // how to execute without progress? should we?
-            const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
-            auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
+            //// how to execute without progress? should we?
+            //const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
+            //auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
+            auto compositeSource = packageVersion->GetSource();
             context.Add<Execution::Data::DependencySource>(compositeSource);
         }
         else
@@ -120,7 +121,7 @@ namespace AppInstaller::CLI::Workflow
     void BuildPackageDependenciesGraph(Execution::Context& context)
     {
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
-        Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id);
+        Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id, rootManifest.Version);
         
         std::vector<Dependency> toCheck;
         std::map<Dependency, std::vector<Dependency>> dependencyGraph; //(?) value should be a set instead of a vector?
@@ -149,6 +150,7 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
         std::map<string_t, string_t> failedPackages;
+        std::vector<Dependency> alreadyInstalled;
 
         for (int i = 0; i < toCheck.size(); ++i)
         {
@@ -167,32 +169,38 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 const auto& package = match.Package;
-                if (!package->GetInstalledVersion())
+                if (package->GetInstalledVersion() && dependencyNode.IsVersionOk(package->GetInstalledVersion()->GetManifest().Version))
+                {
+                    alreadyInstalled.push_back(dependencyNode);
+                }
+                else
                 {
                     const auto& packageVersion = package->GetLatestAvailableVersion();
                     if (!packageVersion) {
                         failedPackages[dependencyNode.Id] = "No package version found"; //TODO localize all errors
                         continue;
                     }
+
                     const auto& packageVersionManifest = packageVersion->GetManifest();
                     if (packageVersionManifest.Installers.empty()) {
                         failedPackages[dependencyNode.Id] = "No installers found"; //TODO localize all errors
                         continue;
                     }
-                    
-                    ManifestComparator manifestComparator(context.Args, packageVersion->GetMetadata());
-                    const auto& matchInstaller = manifestComparator.GetPreferredInstaller(packageVersionManifest);
 
+                    if (!dependencyNode.IsVersionOk(packageVersionManifest.Version))
+                    {
+                        failedPackages[dependencyNode.Id] = "Minimum required version not available"; //TODO localize all errors
+                        continue;
+                    }
+                    
+                    const auto& matchInstaller = SelectInstallerFromMetadata(context, packageVersion->GetMetadata());
                     if (!matchInstaller)
                     {
                         failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
                         continue;
                     }
 
-                    //const auto& matchInstaller = packageVersionManifest.Installers.at(0);
                     const auto& matchDependencies = matchInstaller.value().Dependencies;
-
-                    // TODO check dependency min version is <= latest version
 
                     // TODO save installers for later maybe?
                     matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
@@ -207,9 +215,6 @@ namespace AppInstaller::CLI::Workflow
                             }
                         });
                 }
-                // TODO else: save information on dependencies already installed to inform the user?
-                // TODO check dependency min version is <= installed version (otherwise update? -> should check for new dependencies)
-
             }
             else
             {
