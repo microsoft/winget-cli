@@ -32,6 +32,7 @@ badbit
 Baz
 Beigi
 bfd
+BFirst
 bght
 bitmask
 bkup
