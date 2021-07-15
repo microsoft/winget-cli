@@ -739,7 +739,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Desinstala o pacote selecionado, encontrado pesquisando a lista de pacotes instalados ou diretamente de um manifesto. Por padrão, a consulta deve corresponder de forma insensível à ID, ao nome ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada.</value>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
-    <value>Instala um determinado pacote</value>
+    <value>Desinstala um determinado pacote</value>
   </data>
   <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
     <value>Iniciando a desinstalação do pacote...</value>
