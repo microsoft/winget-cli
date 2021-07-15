@@ -104,22 +104,24 @@ namespace AppInstaller::CLI::Workflow
         if (context.Contains(Execution::Data::PackageVersion))
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            //// how to execute without progress? should we?
-            //const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
-            //auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
-            auto compositeSource = packageVersion->GetSource();
+            // how to execute without progress? should we?
+            const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
+            auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
             context.Add<Execution::Data::DependencySource>(compositeSource);
         }
         else
         {
-            // TODO question to John: can/should we do nothing for local manifests? or set up something like --dependency-source
-            // Open source passed by parameter (from sourcename)
-            // openCompositeSource should work for getting installed+opened source
+            // TODO set up something like --dependency-source, open source passed by parameter (from source name)
+            context <<
+                Workflow::OpenSource <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            context.Add<Execution::Data::DependencySource>(context.Get<Execution::Data::Source>());
         }
     }
 
     void BuildPackageDependenciesGraph(Execution::Context& context)
     {
+        auto info = context.Reporter.Info();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
         Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id, rootManifest.Version);
         
@@ -138,7 +140,12 @@ namespace AppInstaller::CLI::Workflow
                     dependencyGraph[rootDependency].push_back(dependency);
 
                 });
-        } // TODO fail otherwise
+        }
+        else
+        {
+            info << "no intaller found" << std::endl;
+            //TODO warn user and raise error, this should not happen as the workflow should fail before reaching this.
+        }
 
         context << OpenDependencySource;
         if (!context.Contains(Execution::Data::DependencySource))
@@ -222,7 +229,6 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
         }
-        auto info = context.Reporter.Info();
         auto installationOrder = std::vector<Dependency>();
         if (graphHasLoop(dependencyGraph, rootDependency, installationOrder))
         {

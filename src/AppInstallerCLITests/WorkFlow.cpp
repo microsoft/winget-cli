@@ -261,7 +261,7 @@ namespace
             auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
             manifest.Id = input;
             manifest.Moniker = input;
-            // TODO maybe change package name on default locale for better debbugging
+            // TODO maybe change package name on default locale for better debugging
 
             auto& installer = manifest.Installers.at(0);
             installer.Dependencies.Clear();
@@ -269,7 +269,7 @@ namespace
             /*
             * Dependencies:
             *   "A": Depends on the test
-            *   B: NoDeph
+            *   B: NoDependency
             *   C: B
             *   D: E
             *   E: D
