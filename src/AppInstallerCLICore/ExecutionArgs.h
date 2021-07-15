@@ -76,6 +76,7 @@ namespace AppInstaller::CLI::Execution
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
+            DependenciesSource, // Index source to be queried against for finding dependencies
 
             // Used for demonstration purposes
             ExperimentalArg,
