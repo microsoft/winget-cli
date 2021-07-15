@@ -196,7 +196,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::DependencySource>
         {
-            using value_t = std::shared_ptr<const Repository::ISource>;
+            using value_t = std::shared_ptr<Repository::ISource>;
         };
     }
 }

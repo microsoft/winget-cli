@@ -92,30 +92,18 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenDependencySource(Execution::Context& context)
     {
-        // two options: have a package version or a manifest
-        // try to get source from package version
-
-        //source = empty
-        //if PackageVersion then source = PV source
-        //else if Source exists then fail  // if Source already open then this can't be an install -m or validate command
-        //else then OpenSource; source = Source
-        //    result = CreateComposite(installed, source)
-
         if (context.Contains(Execution::Data::PackageVersion))
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            // how to execute without progress? should we?
-            const auto& installedSource = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
-            auto compositeSource = Repository::CreateCompositeSource(installedSource, packageVersion->GetSource());
-            context.Add<Execution::Data::DependencySource>(compositeSource);
+            context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
+            context <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
         }
         else
-        {
-            // TODO set up something like --dependency-source, open source passed by parameter (from source name)
+        { // install from manifest requires --dependency-source to be set
             context <<
-                Workflow::OpenSource <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
-            context.Add<Execution::Data::DependencySource>(context.Get<Execution::Data::Source>());
+                Workflow::OpenSource(true) <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
         }
     }
 
@@ -143,8 +131,15 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            info << "no intaller found" << std::endl;
-            //TODO warn user and raise error, this should not happen as the workflow should fail before reaching this.
+            info << "no installer found" << std::endl;
+            //TODO warn user and raise error, this should not happen as the workflow should fail before reaching here.
+        }
+
+        if (toCheck.empty())
+        {
+            // nothing to do, there's no need to set up dependency source either.
+            // TODO add information to the logger
+            return;
         }
 
         context << OpenDependencySource;

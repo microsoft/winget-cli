@@ -38,7 +38,7 @@ namespace AppInstaller::CLI
     void ListCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
         context <<
-            Workflow::OpenSource <<
+            Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         switch (valueType)
@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::OpenSource <<
+            Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(true) <<

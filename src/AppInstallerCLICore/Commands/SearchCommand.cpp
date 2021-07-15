@@ -42,7 +42,7 @@ namespace AppInstaller::CLI
         {
         case Execution::Args::Type::Query:
             context <<
-                Workflow::OpenSource <<
+                Workflow::OpenSource() <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
                 Workflow::CompleteWithMatchedField;
@@ -67,7 +67,7 @@ namespace AppInstaller::CLI
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::OpenSource <<
+            Workflow::OpenSource() <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(false) <<
             Workflow::ReportSearchResult;
