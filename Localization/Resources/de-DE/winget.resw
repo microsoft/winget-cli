@@ -194,7 +194,7 @@
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
-    <value>Zeigt den Status der experimentelle Features an</value>
+    <value>Zeigt den Status der experimentellen Features an</value>
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Deaktiviert</value>
