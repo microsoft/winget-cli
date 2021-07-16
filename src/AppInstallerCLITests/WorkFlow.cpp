@@ -434,7 +434,7 @@ namespace
 
 void OverrideForOpenSource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource, [](TestContext& context)
+    context.Override({ Workflow::OpenSource(), [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestSource>());
     } });
@@ -442,7 +442,7 @@ void OverrideForOpenSource(TestContext& context)
 
 void OverrideForCompositeInstalledSource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource, [](TestContext&)
+    context.Override({ Workflow::OpenSource(), [](TestContext&)
     {
     } });
 
@@ -467,7 +467,7 @@ void OverrideForImportSource(TestContext& context)
 
 void OverrideForDependencySource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource, [](TestContext& context)
+    context.Override({ Workflow::OpenSource(), [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<DependenciesTestSource>());
     } });
