@@ -26,6 +26,8 @@ While building the graph, install command will verify:
 
 Information will be shown about failures, existence or installation progress for each of the dependencies required.
 
+When installing from a local manifest, a dependency source will be required (using --dependency-source parameter), but only if the target has at least one package type dependency declared.
+
 ```
 > winget install Notepad++
 Found Notepad++ [Notepad++.Notepad++]
