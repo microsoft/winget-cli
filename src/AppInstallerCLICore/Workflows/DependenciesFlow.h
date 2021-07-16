@@ -51,11 +51,84 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: DependencySource
     void OpenDependencySource(Execution::Context& context);
 
-    bool graphHasLoop(const std::map<AppInstaller::Manifest::Dependency, std::vector<AppInstaller::Manifest::Dependency>>& dependencyGraph, 
-        const AppInstaller::Manifest::Dependency& root,
-        std::vector<AppInstaller::Manifest::Dependency>& order);
-    bool hasLoopDFS(std::set<AppInstaller::Manifest::Dependency> visited,
-        const AppInstaller::Manifest::Dependency& node,
-        const std::map<AppInstaller::Manifest::Dependency, std::vector<AppInstaller::Manifest::Dependency>>& dependencyGraph,
-        std::vector<AppInstaller::Manifest::Dependency>& order);
+    struct DependencyGraph
+    {
+        DependencyGraph(AppInstaller::Manifest::Dependency root) : m_root(root) 
+        {
+            adjacents[m_root] = std::vector<AppInstaller::Manifest::Dependency>();
+
+        }
+
+        void AddNode(AppInstaller::Manifest::Dependency node)
+        {
+            adjacents[node] = std::vector<AppInstaller::Manifest::Dependency>();
+
+        }
+
+        void AddAdjacent(AppInstaller::Manifest::Dependency node, AppInstaller::Manifest::Dependency adjacent)
+        {
+            adjacents[node].push_back(adjacent);
+        }
+
+        bool HasNode(AppInstaller::Manifest::Dependency dependency)
+        {
+            auto search = adjacents.find(dependency);
+            return search == adjacents.end();
+        }
+
+        // TODO make HasLoop and HasLoopDFS iterative
+        bool HasLoop()
+        {
+            auto visited = std::set<AppInstaller::Manifest::Dependency>();
+            visited.insert(m_root);
+            if (HasLoopDFS(visited, m_root))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //-- only for debugging
+        void PrintOrder(AppInstaller::CLI::Execution::OutputStream info)
+        {
+            info << "order: ";
+            for (auto const& node : installationOrder)
+            {
+                info << node.Id << ", ";
+            }
+            info << std::endl;
+        }
+
+    private:
+        bool HasLoopDFS(std::set<AppInstaller::Manifest::Dependency> visited, const AppInstaller::Manifest::Dependency& node)
+        {
+            visited.insert(node);
+            for (const auto& adjacent : adjacents.at(node))
+            {
+                auto search = visited.find(adjacent);
+                if (search == visited.end()) // if not found
+                {
+                    if (HasLoopDFS(visited, adjacent))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            if (std::find(installationOrder.begin(), installationOrder.end(), node) == installationOrder.end())
+            {
+                installationOrder.push_back(node);
+            }
+
+            return false;
+        }
+
+        AppInstaller::Manifest::Dependency m_root;
+        std::map<AppInstaller::Manifest::Dependency, std::vector<AppInstaller::Manifest::Dependency>> adjacents;
+        std::vector<AppInstaller::Manifest::Dependency> installationOrder;
+    };
 }
