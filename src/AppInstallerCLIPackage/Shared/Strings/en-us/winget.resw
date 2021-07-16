@@ -921,4 +921,32 @@ Configuration is disabled due to Group Policy.</value>
   <data name="Cancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>The packages found in this import have the following dependencies:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>This package requires the following dependencies:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Packages</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>This package had dependencies that may not be needed anymore:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest has the following dependencies that were not validated; ensure that they are valid:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Features</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Libraries</value>
+  </data>
 </root>

@@ -259,11 +259,10 @@ namespace
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");
             REQUIRE(actualInstaller.FileExtensions.at(0) == ".file-extension");
-            REQUIRE(actualInstaller.Dependencies.WindowsFeatures.at(0) == "feature1");
-            REQUIRE(actualInstaller.Dependencies.WindowsLibraries.at(0) == "library1");
-            REQUIRE(actualInstaller.Dependencies.PackageDependencies.at(0).Id == "Foo.Baz");
-            REQUIRE(actualInstaller.Dependencies.PackageDependencies.at(0).MinVersion == "2.0.0");
-            REQUIRE(actualInstaller.Dependencies.ExternalDependencies.at(0) == "FooBarBaz");
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::WindowsFeature, "feature1"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "library1"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::Package, "Foo.Baz", "2.0.0"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::External, "FooBarBaz"));
             REQUIRE(actualInstaller.PackageFamilyName == "FooBar.PackageFamilyName");
             REQUIRE(actualInstaller.ProductCode == "");
             REQUIRE(actualInstaller.Capabilities.at(0) == "Bluetooth");

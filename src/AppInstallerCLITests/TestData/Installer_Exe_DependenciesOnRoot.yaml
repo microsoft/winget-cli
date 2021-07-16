@@ -1,0 +1,21 @@
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller.Dependencies
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Exe Installer With Package Dep
+Publisher: Microsoft Corporation
+Moniker: AICLITestExePackageDep
+License: Test
+ShortDescription: AppInstaller Test Exe Installer With Package Dep
+Dependencies:
+    WindowsFeatures:
+        - PreviewIISOnRoot
+Installers: 
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: exe
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerSwitches:
+        SilentWithProgress: /silentwithprogress
+        Silent: /silence
+ManifestType: singleton
+ManifestVersion: 1.0.0

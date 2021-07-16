@@ -1,0 +1,19 @@
+PackageIdentifier: AppInstallerCliTest.TestMsixInstaller.WFDep
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test MSIX Installer With Windows Feature Dep
+Publisher: Microsoft Corporation
+Moniker: AICLITestMsixWindowsFeatureDep
+License: Test
+ShortDescription: AppInstaller Test MSIX Installer With Windows Feature Dep
+Installers: 
+    - Architecture: x64
+      InstallerUrl: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
+      InstallerType: msix
+      InstallerSha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+      PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
+      Dependencies:
+        WindowsFeatures:
+          - Hyper-V
+ManifestType: singleton
+ManifestVersion: 1.0.0

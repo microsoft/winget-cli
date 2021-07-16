@@ -137,6 +137,7 @@ IHelp
 IHost
 IID
 IInstalled
+IISOn
 img
 IName
 inet
@@ -201,6 +202,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Multideclaration
 multimap
 mx
 mycustom

@@ -71,6 +71,6 @@ namespace AppInstaller::Manifest
         // For msix only
         std::vector<string_t> RestrictedCapabilities;
 
-        Dependency Dependencies;
+        DependencyList Dependencies;
     };
 }

@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "DependenciesFlow.h"
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"
@@ -111,7 +112,11 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            updateContext << InstallPackageInstaller;
+            updateContext << 
+                ReportIdentityAndInstallationDisclaimer <<
+                GetDependenciesFromInstaller << 
+                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+                InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;
 

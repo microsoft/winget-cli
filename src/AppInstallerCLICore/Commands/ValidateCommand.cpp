@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ValidateCommand.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -41,7 +42,13 @@ namespace AppInstaller::CLI
 
             try
             {
-                (void)Manifest::YamlParser::CreateFromPath(inputFile, true, true);
+                auto manifest = Manifest::YamlParser::CreateFromPath(inputFile, true, true);
+
+                context.Add<Execution::Data::Manifest>(manifest);
+                context <<
+                    Workflow::GetInstallersDependenciesFromManifest <<
+                    Workflow::ReportDependencies(Resource::String::ValidateCommandReportDependencies);
+
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }
             catch (const Manifest::ManifestException& e)
