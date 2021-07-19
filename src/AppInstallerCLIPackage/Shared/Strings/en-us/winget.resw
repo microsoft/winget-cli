@@ -950,7 +950,7 @@ Configuration is disabled due to Group Policy.</value>
     <value>Windows Libraries</value>
   </data>
   <data name="DependencySourceArgumentDescription" xml:space="preserve">
-    <value>Find package depedencies using the specified source</value>
+    <value>Find package dependencies using the specified source</value>
     <comment>For getting package type dependencies when installing from a local manifest</comment>
   </data>
 </root>
