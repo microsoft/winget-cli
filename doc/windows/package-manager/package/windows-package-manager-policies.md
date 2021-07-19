@@ -85,7 +85,7 @@ The Product must not attempt to change or extend its described functionality thr
 
 ### 1.2.2
 
-The Product must not contain or enable malware as defined by the Microsoft criteria for [Unwanted and Malicious Software](/windows/security/threat-protection/intelligence/criteria).
+The Product must not contain or enable malware as defined by the Microsoft criteria for [Unwanted and Malicious Software](https://docs.microsoft.com/windows/security/threat-protection/intelligence/criteria).
 
 ### 1.2.3
 
@@ -276,7 +276,7 @@ User Generated Content (UGC) is content that users contribute to an app or Produ
 
 ### See also
 
-- [Change history for Windows Package Manager Policy History](.\windows-package-manager-policies-change-history.md)
+- [Change history for Windows Package Manager Policy History](windows-package-manager-policies-change-history.md)
 - [Windows Package Manager Code of Conduct](https://github.com/microsoft/winget-pkgs/blob/master/CODE_OF_CONDUCT.md)
 - [Windows Package Manager Contributing requirements](https://github.com/microsoft/winget-pkgs/blob/master/README.md)
  
