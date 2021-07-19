@@ -216,7 +216,7 @@ namespace
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
                             },
                             std::vector<Manifest>{ manifest2, manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                             ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller.Dependencies")));
             }
@@ -228,7 +228,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             std::vector<Manifest>{ manifest },
-                            this->shared_from_this()
+                            const_cast<WorkflowTestCompositeSource*>(this)->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller.WFDep")));
             }
@@ -334,7 +334,7 @@ namespace
                 ResultMatch(
                     TestPackage::Make(
                         std::vector<Manifest>{ manifest },
-                        this->shared_from_this()
+                        const_cast<DependenciesTestSource*>(this)->shared_from_this()
                     ),
                     PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
             return result;
@@ -434,7 +434,7 @@ namespace
 
 void OverrideForOpenSource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource(), [](TestContext& context)
+    context.Override({ "OpenSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestSource>());
     } });
@@ -442,7 +442,7 @@ void OverrideForOpenSource(TestContext& context)
 
 void OverrideForCompositeInstalledSource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource(), [](TestContext&)
+    context.Override({ "OpenSource", [](TestContext&)
     {
     } });
 
@@ -467,7 +467,7 @@ void OverrideForImportSource(TestContext& context)
 
 void OverrideForDependencySource(TestContext& context)
 {
-    context.Override({ Workflow::OpenSource(), [](TestContext& context)
+    context.Override({ "OpenSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<DependenciesTestSource>());
     } });
@@ -1804,7 +1804,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    REQUIRE(installOutput.str().find("B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
+    REQUIRE(installOutput.str().find("order: B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph]")

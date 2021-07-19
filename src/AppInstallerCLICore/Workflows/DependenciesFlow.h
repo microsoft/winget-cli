@@ -73,14 +73,14 @@ namespace AppInstaller::CLI::Workflow
         bool HasNode(AppInstaller::Manifest::Dependency dependency)
         {
             auto search = adjacents.find(dependency);
-            return search == adjacents.end();
+            return search != adjacents.end();
         }
 
         // TODO make HasLoop and HasLoopDFS iterative
         bool HasLoop()
         {
-            auto visited = std::set<AppInstaller::Manifest::Dependency>();
-            visited.insert(m_root);
+            installationOrder.clear();
+            std::set<AppInstaller::Manifest::Dependency> visited;
             if (HasLoopDFS(visited, m_root))
             {
                 return true;

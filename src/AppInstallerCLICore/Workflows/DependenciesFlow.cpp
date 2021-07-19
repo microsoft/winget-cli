@@ -96,8 +96,8 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
             context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
-            context <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
+            /*context <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);*/
         }
         else
         { // install from manifest requires --dependency-source to be set
@@ -192,14 +192,18 @@ namespace AppInstaller::CLI::Workflow
                         continue;
                     }
                     
-                    const auto& matchInstaller = SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata());
-                    if (!matchInstaller)
-                    {
-                        failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
-                        continue;
-                    }
+                    // TODO FIX THIS, have a better way to pick installer (other than the first one)
+                    // the problem is SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata()) uses context data so it ends up returning
+                    // the installer for the root package being installed.
+                    //const auto& matchInstaller = SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata());
+                    //if (!matchInstaller)
+                    //{
+                    //    failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
+                    //    continue;
+                    //}
 
-                    const auto& matchDependencies = matchInstaller.value().Dependencies;
+                    //const auto& matchDependencies = matchInstaller.value().Dependencies;
+                    const auto& matchDependencies = packageLatestVersionManifest.Installers.at(0).Dependencies;
 
                     // TODO save installers for later maybe?
                     matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
@@ -223,7 +227,9 @@ namespace AppInstaller::CLI::Workflow
         if (dependencyGraph.HasLoop())
         {
             info << "has loop" << std::endl;
-            //TODO warn user and raise error
+            Logging::Log().Write(Logging::Channel::CLI, Logging::Level::Warning, "Dependency loop found"); //TODO localization
+            //TODO warn user but try to install either way
+            return;
         }
 
         // TODO raise error for failedPackages (if there's at least one)
