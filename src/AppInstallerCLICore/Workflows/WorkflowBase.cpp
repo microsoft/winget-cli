@@ -146,9 +146,9 @@ namespace AppInstaller::CLI::Workflow
         std::string_view sourceName;
         if (m_forDependencies)
         {
-            if (m_forDependencies && context.Args.Contains(Execution::Args::Type::DependenciesSource))
+            if (m_forDependencies && context.Args.Contains(Execution::Args::Type::DependencySource))
             {
-                sourceName = context.Args.GetArg(Execution::Args::Type::DependenciesSource);
+                sourceName = context.Args.GetArg(Execution::Args::Type::DependencySource);
             }
         }
         else
