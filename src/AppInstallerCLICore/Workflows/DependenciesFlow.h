@@ -53,10 +53,46 @@ namespace AppInstaller::CLI::Workflow
 
     struct DependencyGraph
     {
-        DependencyGraph(AppInstaller::Manifest::Dependency root) : m_root(root) 
+        DependencyGraph(AppInstaller::Manifest::Dependency root, 
+            AppInstaller::Manifest::DependencyList rootDependencies,
+            std::function<AppInstaller::Manifest::DependencyList(const AppInstaller::Manifest::Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
             adjacents[m_root] = std::vector<AppInstaller::Manifest::Dependency>();
+            toCheck = std::vector<AppInstaller::Manifest::Dependency>();
+            rootDependencies.ApplyToType(AppInstaller::Manifest::DependencyType::Package, [&](AppInstaller::Manifest::Dependency dependency)
+                {
+                    toCheck.push_back(dependency);
+                    AddNode(dependency);
+                    AddAdjacent(root, dependency);
+                });
+        }
 
+        void BuildGraph()
+        {
+            if (toCheck.empty())
+            {
+                return;
+            }
+
+            for (int i = 0; i < toCheck.size(); ++i)
+            {
+                auto node = toCheck.at(i);
+
+                const auto& nodeDependencies = getDependencies(node); //TODO add error stream so we can report back
+
+                nodeDependencies.ApplyToType(AppInstaller::Manifest::DependencyType::Package, [&](AppInstaller::Manifest::Dependency dependency)
+                    {
+                        if (!HasNode(dependency))
+                        {
+                            toCheck.push_back(dependency);
+                            AddNode(dependency);
+                        }
+
+                        AddAdjacent(node, dependency);
+                    });
+            }
+
+            CheckForLoopsAndGetOrder();
         }
 
         void AddNode(AppInstaller::Manifest::Dependency node)
@@ -76,16 +112,22 @@ namespace AppInstaller::CLI::Workflow
             return search != adjacents.end();
         }
 
-        // TODO make HasLoop and HasLoopDFS iterative
         bool HasLoop()
         {
-            installationOrder.clear();
+            return hasLoop;
+        }
+        
+        // TODO make CheckForLoops and HasLoopDFS iterative
+        void CheckForLoopsAndGetOrder()
+        {
+            installationOrder = std::vector<AppInstaller::Manifest::Dependency>();
             std::set<AppInstaller::Manifest::Dependency> visited;
-            if (HasLoopDFS(visited, m_root))
-            {
-                return true;
-            }
-            return false;
+            hasLoop = HasLoopDFS(visited, m_root);
+        }
+
+        std::vector<AppInstaller::Manifest::Dependency> GetInstallationOrder()
+        {
+            return installationOrder;
         }
 
         //-- only for debugging
@@ -128,7 +170,13 @@ namespace AppInstaller::CLI::Workflow
         }
 
         AppInstaller::Manifest::Dependency m_root;
-        std::map<AppInstaller::Manifest::Dependency, std::vector<AppInstaller::Manifest::Dependency>> adjacents;
+        std::map<AppInstaller::Manifest::Dependency, std::vector<AppInstaller::Manifest::Dependency>> adjacents; //(?) value should be a set instead of a vector?
+        std::function<AppInstaller::Manifest::DependencyList(const AppInstaller::Manifest::Dependency&)> getDependencies;
+        
+        bool hasLoop;
         std::vector<AppInstaller::Manifest::Dependency> installationOrder;
+        
+        std::vector<AppInstaller::Manifest::Dependency> toCheck;
+        std::map<AppInstaller::Manifest::string_t, AppInstaller::Manifest::string_t> failedPackages;
     };
 }

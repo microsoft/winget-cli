@@ -204,6 +204,21 @@ bool HasExtension(std::string_view extension) const;
             return nullptr;
         }
 
+        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type) func(dependency);
+            }
+        }
+
+        bool Empty() const
+        {
+            return dependencies.empty();
+        }
+
+        void Clear() { dependencies.clear(); }
+
         // for testing purposes
         bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "")
         {
@@ -229,16 +244,6 @@ bool HasExtension(std::string_view extension) const;
         {
             return dependencies.size();
         }
-
-        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
-        {
-            for (const auto& dependency : dependencies)
-            {
-                if (dependency.Type == type) func(dependency);
-            }
-        }
-
-        void Clear() { dependencies.clear(); }
 
     private:
         std::vector<Dependency> dependencies;

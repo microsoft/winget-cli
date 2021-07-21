@@ -111,32 +111,16 @@ namespace AppInstaller::CLI::Workflow
     {
         auto info = context.Reporter.Info();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
-        Dependency rootDependency = Dependency(DependencyType::Package, rootManifest.Id, rootManifest.Version);
+        Dependency rootAsDependency = Dependency(DependencyType::Package, rootManifest.Id, rootManifest.Version);
         
-        std::vector<Dependency> toCheck;
-        DependencyGraph dependencyGraph(rootDependency); //(?) value should be a set instead of a vector?
-        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
-        if (rootInstaller)
+        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies; 
+        // installer should exist, otherwise previous workflows should have failed
+        context.Add<Execution::Data::Dependencies>(rootDependencies); // to use in report
+        // TODO remove this ^ if we are reporting dependencies somewhere else while installing/managing them
+        
+        if (rootDependencies.Empty())
         {
-            context.Add<Execution::Data::Dependencies>(rootInstaller->Dependencies); // to use in report
-            // TODO remove this ^ if we are reporting dependencies somewhere else while installing/managing them
-            rootInstaller->Dependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
-                {
-                    toCheck.push_back(dependency);
-                    dependencyGraph.AddNode(dependency);
-                    dependencyGraph.AddAdjacent(rootDependency, dependency);
-                });
-        }
-        else
-        {
-            info << "no installer found" << std::endl;
-            //TODO warn user and raise error, this should not happen as the workflow should fail before reaching here.
-        }
-
-        if (toCheck.empty())
-        {
-            // nothing to do, there's no need to set up dependency source either.
-            // TODO add information to the logger
+            // If there's no dependencies there's nothing to do aside of logging the outcome
             return;
         }
 
@@ -148,82 +132,76 @@ namespace AppInstaller::CLI::Workflow
         }
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
-        std::map<string_t, string_t> failedPackages;
-        std::vector<Dependency> alreadyInstalled;
 
-        for (int i = 0; i < toCheck.size(); ++i)
-        {
-            auto dependencyNode = toCheck.at(i);
+        DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
+            [&](Dependency node) {
+                auto info = context.Reporter.Info();
 
-            SearchRequest searchRequest;
-            searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
-            const auto& matches = source->Search(searchRequest).Matches;
+                SearchRequest searchRequest;
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, node.Id));
+                //TODO add min version filter to search request ?
+                const auto& matches = source->Search(searchRequest).Matches;
 
-            if (!matches.empty())
-            {
-                const auto& match = matches.at(0);
-                if (matches.size() > 1) {
-                    failedPackages[dependencyNode.Id] = "Too many matches"; //TODO localize all errors
-                    continue;
-                }
-
-                const auto& package = match.Package;
-                if (package->GetInstalledVersion() && dependencyNode.IsVersionOk(package->GetInstalledVersion()->GetManifest().Version))
+                if (!matches.empty())
                 {
-                    alreadyInstalled.push_back(dependencyNode);
+                    if (matches.size() > 1) {
+                        info << "Too many matches"; //TODO localize all errors
+                        return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
+                    }
+                    const auto& match = matches.at(0);
+
+                    const auto& package = match.Package;
+                    if (package->GetInstalledVersion() && node.IsVersionOk(package->GetInstalledVersion()->GetManifest().Version))
+                    {
+                        return DependencyList(); //return empty dependency list, as we won't keep searching for dependencies for installed packages
+                        //TODO we should have this information on the graph, to avoid trying to install it later
+                    }
+                    else
+                    {
+                        const auto& packageLatestVersion = package->GetLatestAvailableVersion();
+                        if (!packageLatestVersion) {
+                            info << "No package version found"; //TODO localize all errors
+                            return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
+                        }
+
+                        const auto& packageLatestVersionManifest = packageLatestVersion->GetManifest();
+                        if (packageLatestVersionManifest.Installers.empty()) {
+                            info << "No installers found"; //TODO localize all errors
+                            return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
+                        }
+
+                        if (!node.IsVersionOk(packageLatestVersionManifest.Version))
+                        {
+                            info << "Minimum required version not available"; //TODO localize all errors
+                            return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
+                        }
+
+                        // TODO FIX THIS, have a better way to pick installer (other than the first one)
+                        // the problem is SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata()) uses context data so it ends up returning
+                        // the installer for the root package being installed.
+                        //const auto& matchInstaller = SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata());
+                        //if (!matchInstaller)
+                        //{
+                        //    failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
+                        //    continue;
+                        //}
+                        // TODO save installers for later maybe?
+
+                        //const auto& matchDependencies = matchInstaller.value().Dependencies;
+                        const auto& matchDependencies = packageLatestVersionManifest.Installers.at(0).Dependencies;
+
+                        return matchDependencies;
+                    }
                 }
                 else
                 {
-                    const auto& packageLatestVersion = package->GetLatestAvailableVersion();
-                    if (!packageLatestVersion) {
-                        failedPackages[dependencyNode.Id] = "No package version found"; //TODO localize all errors
-                        continue;
-                    }
-
-                    const auto& packageLatestVersionManifest = packageLatestVersion->GetManifest();
-                    if (packageLatestVersionManifest.Installers.empty()) {
-                        failedPackages[dependencyNode.Id] = "No installers found"; //TODO localize all errors
-                        continue;
-                    }
-
-                    if (!dependencyNode.IsVersionOk(packageLatestVersionManifest.Version))
-                    {
-                        failedPackages[dependencyNode.Id] = "Minimum required version not available"; //TODO localize all errors
-                        continue;
-                    }
-                    
-                    // TODO FIX THIS, have a better way to pick installer (other than the first one)
-                    // the problem is SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata()) uses context data so it ends up returning
-                    // the installer for the root package being installed.
-                    //const auto& matchInstaller = SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata());
-                    //if (!matchInstaller)
-                    //{
-                    //    failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
-                    //    continue;
-                    //}
-
-                    //const auto& matchDependencies = matchInstaller.value().Dependencies;
-                    const auto& matchDependencies = packageLatestVersionManifest.Installers.at(0).Dependencies;
-
-                    // TODO save installers for later maybe?
-                    matchDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
-                        {
-                            dependencyGraph.AddAdjacent(dependencyNode, dependency);
-
-                            if (!dependencyGraph.HasNode(dependency))
-                            {
-                                    toCheck.push_back(dependency);
-                                    dependencyGraph.AddNode(dependency);
-                            }
-                        });
+                    info << "No matches"; //TODO localize all errors
+                    return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                 }
-            }
-            else
-            {
-                failedPackages[dependencyNode.Id] = "No matches"; //TODO localize all errors
-                continue;
-            }
-        }
+            });
+        
+        dependencyGraph.BuildGraph(); // maybe it's better if it already does it on the constructor?
+
         if (dependencyGraph.HasLoop())
         {
             info << "has loop" << std::endl;
