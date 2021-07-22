@@ -42,7 +42,7 @@ Based on this information we are going to use JSON and jsoncpp as a parser. For 
 
 WinGet can either run in package context or not. That means the location of the settings file will be determined depending on the context.
 
-Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json. For more about UWP file system see [this](https://docs.microsoft.com/en-us/windows/uwp/get-started/fileio-learning-track#access-the-file-system) 
+Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json. For more about UWP file system see [this](https://docs.microsoft.com/windows/uwp/get-started/fileio-learning-track#access-the-file-system) 
 
 Non-package context: %LOCALAPPDATA%\Microsoft\Winget\settings.json
 
