@@ -117,7 +117,6 @@ namespace AppInstaller::CLI::Workflow
             return hasLoop;
         }
         
-        // TODO make CheckForLoops and HasLoopDFS iterative
         void CheckForLoopsAndGetOrder()
         {
             installationOrder = std::vector<AppInstaller::Manifest::Dependency>();
@@ -142,6 +141,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
     private:
+        // TODO make HasLoopDFS iterative
         bool HasLoopDFS(std::set<AppInstaller::Manifest::Dependency> visited, const AppInstaller::Manifest::Dependency& node)
         {
             visited.insert(node);

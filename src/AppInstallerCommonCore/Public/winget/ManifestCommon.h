@@ -212,6 +212,14 @@ bool HasExtension(std::string_view extension) const;
             }
         }
 
+        void ApplyToAll(std::function<void(const Dependency&)> func) const
+        {
+            for (const auto& dependency : dependencies)
+            {
+                func(dependency);
+            }
+        }
+
         bool Empty() const
         {
             return dependencies.empty();
