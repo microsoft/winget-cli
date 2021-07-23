@@ -5,6 +5,7 @@
 #include <AppInstallerVersions.h>
 #include <functional>
 #include <map>
+#include <set>
 #include <string_view>
 
 namespace AppInstaller::Manifest
@@ -255,6 +256,124 @@ bool HasExtension(std::string_view extension) const;
 
     private:
         std::vector<Dependency> dependencies;
+    };
+
+    struct DependencyGraph
+    {
+        DependencyGraph(Dependency root, DependencyList rootDependencies,
+            std::function<DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
+        {
+            adjacents[m_root] = std::vector<Dependency>();
+            toCheck = std::vector<Dependency>();
+            rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+                {
+                    toCheck.push_back(dependency);
+                    AddNode(dependency);
+                    AddAdjacent(root, dependency);
+                });
+        }
+
+        void BuildGraph()
+        {
+            if (toCheck.empty())
+            {
+                return;
+            }
+
+            for (int i = 0; i < toCheck.size(); ++i)
+            {
+                auto node = toCheck.at(i);
+
+                const auto& nodeDependencies = getDependencies(node); 
+                //TODO add error stream so we can report back
+
+                nodeDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+                    {
+                        if (!HasNode(dependency))
+                        {
+                            toCheck.push_back(dependency);
+                            AddNode(dependency);
+                        }
+
+                        AddAdjacent(node, dependency);
+                    });
+            }
+
+            CheckForLoopsAndGetOrder();
+        }
+
+        void AddNode(Dependency node)
+        {
+            adjacents[node] = std::vector<Dependency>();
+
+        }
+
+        void AddAdjacent(Dependency node, Dependency adjacent)
+        {
+            adjacents[node].push_back(adjacent);
+        }
+
+        bool HasNode(Dependency dependency)
+        {
+            auto search = adjacents.find(dependency);
+            return search != adjacents.end();
+        }
+
+        bool HasLoop()
+        {
+            return hasLoop;
+        }
+
+        void CheckForLoopsAndGetOrder()
+        {
+            installationOrder = std::vector<Dependency>();
+            std::set<Dependency> visited;
+            hasLoop = HasLoopDFS(visited, m_root);
+        }
+
+        std::vector<Dependency> GetInstallationOrder()
+        {
+            return installationOrder;
+        }
+
+    private:
+        // TODO make this function iterative
+        bool HasLoopDFS(std::set<Dependency> visited, const Dependency& node)
+        {
+            visited.insert(node);
+            for (const auto& adjacent : adjacents.at(node))
+            {
+                auto search = visited.find(adjacent);
+                if (search == visited.end()) // if not found
+                {
+                    if (HasLoopDFS(visited, adjacent))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            if (std::find(installationOrder.begin(), installationOrder.end(), node) == installationOrder.end())
+            {
+                installationOrder.push_back(node);
+            }
+
+            return false;
+        }
+
+        Dependency m_root;
+        std::map<Dependency, std::vector<Dependency>> adjacents; //(?) value should be a set instead of a vector?
+        std::function<DependencyList(const Dependency&)> getDependencies;
+
+        bool hasLoop;
+        std::vector<Dependency> installationOrder;
+
+        std::vector<Dependency> toCheck;
+        std::map<string_t, string_t> failedPackages;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

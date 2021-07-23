@@ -212,6 +212,13 @@ namespace AppInstaller::CLI::Workflow
 
         // TODO raise error for failedPackages (if there's at least one)
 
-        dependencyGraph.PrintOrder(info);
+        //-- only for debugging
+        const auto& installationOrder = dependencyGraph.GetInstallationOrder();
+        info << "order: ";
+        for (auto const& node : installationOrder)
+        {
+            info << node.Id << ", ";
+        }
+        info << std::endl;
     }
 }
