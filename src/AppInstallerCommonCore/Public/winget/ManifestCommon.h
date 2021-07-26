@@ -260,11 +260,26 @@ bool HasExtension(std::string_view extension) const;
 
     struct DependencyGraph
     {
+        // this constructor was intented for use during installation flow (we already have installer dependencies and there's no need to search the source again)
         DependencyGraph(Dependency root, DependencyList rootDependencies,
             std::function<DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
             adjacents[m_root] = std::vector<Dependency>();
             toCheck = std::vector<Dependency>();
+            rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+                {
+                    toCheck.push_back(dependency);
+                    AddNode(dependency);
+                    AddAdjacent(root, dependency);
+                });
+        }
+
+        DependencyGraph(Dependency root, std::function<DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
+        {
+            adjacents[m_root] = std::vector<Dependency>();
+            toCheck = std::vector<Dependency>();
+
+            DependencyList rootDependencies = getDependencies(root);
             rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
                     toCheck.push_back(dependency);
@@ -305,7 +320,6 @@ bool HasExtension(std::string_view extension) const;
         void AddNode(Dependency node)
         {
             adjacents[node] = std::vector<Dependency>();
-
         }
 
         void AddAdjacent(Dependency node, Dependency adjacent)

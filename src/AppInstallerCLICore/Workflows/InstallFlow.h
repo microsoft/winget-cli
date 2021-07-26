@@ -121,4 +121,8 @@ namespace AppInstaller::CLI::Workflow
         std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
         AppInstaller::CLI::Execution::PackageToInstall Package;
     };
+
+    // Installs packages and returns if all succeeded or not
+    bool InstallPackages(Execution::Context& context, std::vector<PackagesAndInstallers> installers);
+
 }

@@ -3,7 +3,9 @@
 
 #include "pch.h"
 #include "DependenciesFlow.h"
+#include "InstallFlow.h"
 #include "ManifestComparator.h"
+
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -107,6 +109,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+
     void BuildPackageDependenciesGraph(Execution::Context& context)
     {
         auto info = context.Reporter.Info();
@@ -128,10 +131,11 @@ namespace AppInstaller::CLI::Workflow
         if (!context.Contains(Execution::Data::DependencySource))
         {
             info << "dependency source not found" << std::endl; //TODO localize message
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING); // TODO create a new error code?
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); // TODO create specific error code
         }
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
+        std::map<string_t, PackagesAndInstallers> dependenciesInstallers;
 
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
@@ -155,42 +159,40 @@ namespace AppInstaller::CLI::Workflow
                     {
                         return DependencyList(); //return empty dependency list, as we won't keep searching for dependencies for installed packages
                         //TODO we should have this information on the graph, to avoid trying to install it later
+                        // TODO if it's already installed we need to upgrade it
                     }
                     else
                     {
-                        const auto& packageLatestVersion = package->GetLatestAvailableVersion();
-                        if (!packageLatestVersion) {
+                        const auto& latestVersion = package->GetLatestAvailableVersion();
+                        if (!latestVersion) {
                             info << "No package version found"; //TODO localize all errors
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
-                        const auto& packageLatestVersionManifest = packageLatestVersion->GetManifest();
-                        if (packageLatestVersionManifest.Installers.empty()) {
+                        const auto& manifest = latestVersion->GetManifest();
+                        if (manifest.Installers.empty()) {
                             info << "No installers found"; //TODO localize all errors
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
-                        if (!node.IsVersionOk(packageLatestVersionManifest.Version))
+                        if (!node.IsVersionOk(manifest.Version))
                         {
                             info << "Minimum required version not available"; //TODO localize all errors
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
                         // TODO FIX THIS, have a better way to pick installer (other than the first one)
+                        const auto* installer = &manifest.Installers.at(0);
                         // the problem is SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata()) uses context data so it ends up returning
                         // the installer for the root package being installed.
-                        //const auto& matchInstaller = SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata());
-                        //if (!matchInstaller)
-                        //{
-                        //    failedPackages[dependencyNode.Id] = "No installer found"; //TODO localize all errors
-                        //    continue;
-                        //}
-                        // TODO save installers for later maybe?
+                        //const auto& installer = SelectInstallerFromMetadata(context, latestVersion->GetMetadata());
 
-                        //const auto& matchDependencies = matchInstaller.value().Dependencies;
-                        const auto& matchDependencies = packageLatestVersionManifest.Installers.at(0).Dependencies;
-
-                        return matchDependencies;
+                        const auto& nodeDependencies = installer->Dependencies;
+                        
+                        //auto packageDescription = AppInstaller::CLI::PackageCollection::Package(manifest.Id, manifest.Version, manifest.Channel);
+                        // create package description too be able to use it for installer
+                        //dependenciesInstallers[node.Id] = PackagesAndInstallers(installer, latestVersion, manifest.Version, manifest.Channel);
+                        return nodeDependencies;
                     }
                 }
                 else
@@ -212,13 +214,24 @@ namespace AppInstaller::CLI::Workflow
 
         // TODO raise error for failedPackages (if there's at least one)
 
-        //-- only for debugging
         const auto& installationOrder = dependencyGraph.GetInstallationOrder();
-        info << "order: ";
+
+        
+        std::vector<PackagesAndInstallers> installers;
+
+        info << "order: "; //-- only for debugging
         for (auto const& node : installationOrder)
         {
-            info << node.Id << ", ";
+            info << node.Id << ", "; //-- only for debugging
+            installers.push_back(dependenciesInstallers.find(node.Id)->second);
         }
-        info << std::endl;
+        info << std::endl; //-- only for debugging
+
+        bool allSucceeded = InstallPackages(context, installers);
+        if (!allSucceeded)
+        {
+            context.Reporter.Error() << "error installing dependencies" << std::endl; //TODO localize error
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); // TODO create specific error code
+        }
     }
 }

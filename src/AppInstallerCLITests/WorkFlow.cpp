@@ -330,6 +330,10 @@ namespace
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "H"));
             }
 
+            //TODO:
+            // test for installed packages (or the ones that need upgrade)
+            // test for different min Version of dependencies
+
             result.Matches.emplace_back(
                 ResultMatch(
                     TestPackage::Make(

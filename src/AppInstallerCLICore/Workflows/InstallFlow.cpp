@@ -466,6 +466,19 @@ namespace AppInstaller::CLI::Workflow
             context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
         }
 
+        allSucceeded &= InstallPackages(context, installers);
+
+        if (!allSucceeded)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+        }
+    }
+
+    bool InstallPackages(Execution::Context& context, std::vector<PackagesAndInstallers> installers)
+    {
+        bool allSucceeded = true;
+
         for (auto packageAndInstaller : installers)
         {
             auto package = packageAndInstaller.Package;
@@ -490,18 +503,14 @@ namespace AppInstaller::CLI::Workflow
                 {
                     // This means that the subcontext being terminated is due to an overall abort
                     context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                    return;
+                    return false;
                 }
 
                 allSucceeded = false;
             }
         }
 
-        if (!allSucceeded)
-        {
-            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
-        }
+        return allSucceeded;
     }
 
     void SnapshotARPEntries(Execution::Context& context) try
