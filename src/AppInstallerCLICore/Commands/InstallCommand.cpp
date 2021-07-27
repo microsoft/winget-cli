@@ -39,6 +39,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AcceptLicenses),
         };
     }
 

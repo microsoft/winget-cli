@@ -19,6 +19,7 @@ namespace AppInstaller::CLI::Resource
     //
     struct String
     {
+        WINGET_DEFINE_RESOURCE_STRINGID(AcceptLicensesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
@@ -44,6 +45,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExportedPackageRequiresLicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportIncludeVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
@@ -105,6 +107,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
+        WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreementPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(LicenseNotAgreedTo);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);

@@ -924,4 +924,17 @@ Configuration is disabled due to Group Policy.</value>
   <data name="WindowsStoreTerms" xml:space="preserve">
     <value>Windows Store Terms</value>
   </data>
+  <data name="AcceptLicensesArgumentDescription" xml:space="preserve">
+    <value>Accept all license agreements</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Exported package requires license agreement to install:</value>
+  </data>
+  <data name="LicenseAgreementPrompt" xml:space="preserve">
+    <value>The publisher requires that you view the following information and accept the EULA before installing.
+Do you agree to the terms?</value>
+  </data>
+  <data name="LicenseNotAgreedTo" xml:space="preserve">
+    <value>License not agreed to. Installation cancelled.</value>
+  </data>
 </root>

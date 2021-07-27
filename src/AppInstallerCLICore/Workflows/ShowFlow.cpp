@@ -48,6 +48,15 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << "License Url: " << licenseUrl << std::endl;
         }
+        auto agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
+        if (!agreements.empty())
+        {
+            context.Reporter.Info() << "Agreement:" << std::endl;
+            for (const auto& agreement : agreements)
+            {
+                context.Reporter.Info() << agreement.Label << ": " << agreement.Text << std::endl;
+            }
+        }
 
         context.Reporter.Info() << "Installer:" << std::endl;
         if (installer)

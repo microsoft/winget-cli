@@ -119,6 +119,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info,
                 << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceDetails.Identifier << "]");
 
+            if (!availablePackageVersion->GetManifest().CurrentLocalization.Get<Manifest::Localization::Agreements>().empty())
+            {
+                // Report that the package requires accepting license terms
+                AICLI_LOG(CLI, Warning, << "Package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] requires license agreement to install");
+                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+            }
+
             // Find the exported source for this package
             auto sourceItr = FindSource(exportedSources, sourceDetails);
             if (sourceItr == exportedSources.end())

@@ -64,6 +64,41 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ShowLicenseAgreements(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
+
+        // TODO: Show other fields
+
+        if (!agreements.empty())
+        {
+            for (const auto& agreement : agreements)
+            {
+                context.Reporter.Info() << agreement.Label << ": " << agreement.Text << std::endl;
+            }
+        }
+    }
+
+    void PromptForLicenseAcceptance::operator()(Execution::Context& context)
+    {
+        if (context.Args.Contains(Execution::Args::Type::AcceptLicenses))
+        {
+            AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
+            return;
+        }
+
+        if (m_interactive)
+        {
+            context.Reporter.Info() << std::endl << Resource::String::LicenseAgreementPrompt << std::endl;
+            // TODO: Prompt
+        }
+
+        AICLI_LOG(CLI, Error, << "License not agreed to.");
+        context.Reporter.Error() << Resource::String::LicenseNotAgreedTo << std::endl;
+        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    }
+
     void DownloadInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -392,6 +427,8 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::ReportManifestIdentity <<
             Workflow::ShowInstallationDisclaimer <<
+            Workflow::ShowLicenseAgreements <<
+            Workflow::PromptForLicenseAcceptance(true) <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<

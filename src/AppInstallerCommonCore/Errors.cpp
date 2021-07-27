@@ -143,6 +143,8 @@ namespace AppInstaller
                 return "The source data is corrupted or tampered";
             case APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE:
                 return "Error reading from the stream";
+            case APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED:
+                return "License not agreed to";
             default:
                 return "Unknown Error Code";
             }
