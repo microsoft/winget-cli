@@ -921,4 +921,7 @@ Configuration is disabled due to Group Policy.</value>
   <data name="Cancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Terms</value>
+  </data>
 </root>

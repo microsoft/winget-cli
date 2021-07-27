@@ -255,6 +255,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyPathFailedNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 
