@@ -47,6 +47,6 @@ namespace AppInstaller::CLI
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-            Workflow::InstallMultiple;
+            Workflow::SelectInstallerMultiple;
     }
 }

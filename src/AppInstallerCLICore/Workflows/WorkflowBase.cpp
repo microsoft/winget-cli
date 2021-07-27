@@ -237,15 +237,17 @@ namespace AppInstaller::CLI::Workflow
 
         // Create the composite source from the two.
         std::shared_ptr<Repository::ISource> source;
+        std::shared_ptr<Repository::ISource> compositeSource;
         if (m_forDependencies)
         {
             source = context.Get<Execution::Data::DependencySource>();
+            compositeSource = Repository::CreateCompositeSource(source, availableSource, CompositeSearchBehavior::AvailablePackages);
         }
         else
         {
             source = context.Get<Execution::Data::Source>();
+            compositeSource = Repository::CreateCompositeSource(source, availableSource);
         }
-        std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(source, availableSource);
 
         // Overwrite the source with the composite.
         if (m_forDependencies)

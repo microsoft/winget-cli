@@ -95,9 +95,15 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageVersion(Execution::Context& context);
 
+    // Selects the installer for each of the packages to install.
+    // Required Args: None
+    // Inputs: PackagesToInstall
+    // Outputs: InstallersToInstall
+    void SelectInstallerMultiple(Execution::Context& context);
+
     // Installs multiple packages.
     // Required Args: None
-    // Inputs: Manifests
+    // Inputs: InstallersToInstall
     // Outputs: None
     void InstallMultiple(Execution::Context& context);
 
@@ -112,17 +118,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
     // Outputs: None
     void ReportARPChanges(Execution::Context& context);
-
-    const struct PackagesAndInstallers
-    {
-        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
-            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
-
-        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
-        AppInstaller::CLI::Execution::PackageToInstall Package;
-    };
-
-    // Installs packages and returns if all succeeded or not
-    bool InstallPackages(Execution::Context& context, std::vector<PackagesAndInstallers> installers);
-
 }

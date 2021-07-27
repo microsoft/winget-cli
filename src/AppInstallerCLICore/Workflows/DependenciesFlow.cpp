@@ -3,8 +3,8 @@
 
 #include "pch.h"
 #include "DependenciesFlow.h"
-#include "InstallFlow.h"
 #include "ManifestComparator.h"
+#include "InstallFlow.h"
 
 
 namespace AppInstaller::CLI::Workflow
@@ -98,8 +98,8 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
             context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
-            /*context <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);*/
+            context <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
         }
         else
         { // install from manifest requires --dependency-source to be set
@@ -114,12 +114,13 @@ namespace AppInstaller::CLI::Workflow
     {
         auto info = context.Reporter.Info();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
+
         Dependency rootAsDependency = Dependency(DependencyType::Package, rootManifest.Id, rootManifest.Version);
         
-        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies; 
-        // installer should exist, otherwise previous workflows should have failed
-        context.Add<Execution::Data::Dependencies>(rootDependencies); // to use in report
-        // TODO remove this ^ if we are reporting dependencies somewhere else while installing/managing them
+        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
+        const auto& rootDependencies = rootInstaller->Dependencies;
+
+        context.Add<Execution::Data::Dependencies>(rootDependencies); //information needed to report dependencies
         
         if (rootDependencies.Empty())
         {
@@ -135,7 +136,10 @@ namespace AppInstaller::CLI::Workflow
         }
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
-        std::map<string_t, PackagesAndInstallers> dependenciesInstallers;
+        std::map<string_t, Execution::InstallerToInstall> idToInstallerMap;
+
+        //idToInstallerMap[rootManifest.Id] = {rootVersion, rootInstaller.value(), false};
+        // Question: where do I get the root version from?
 
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
@@ -158,8 +162,6 @@ namespace AppInstaller::CLI::Workflow
                     if (package->GetInstalledVersion() && node.IsVersionOk(package->GetInstalledVersion()->GetManifest().Version))
                     {
                         return DependencyList(); //return empty dependency list, as we won't keep searching for dependencies for installed packages
-                        //TODO we should have this information on the graph, to avoid trying to install it later
-                        // TODO if it's already installed we need to upgrade it
                     }
                     else
                     {
@@ -171,7 +173,7 @@ namespace AppInstaller::CLI::Workflow
 
                         const auto& manifest = latestVersion->GetManifest();
                         if (manifest.Installers.empty()) {
-                            info << "No installers found"; //TODO localize all errors
+                            info << "No installers found"; //TODO localize all errors 
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
@@ -181,17 +183,21 @@ namespace AppInstaller::CLI::Workflow
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
-                        // TODO FIX THIS, have a better way to pick installer (other than the first one)
-                        const auto* installer = &manifest.Installers.at(0);
-                        // the problem is SelectInstallerFromMetadata(context, packageLatestVersion->GetMetadata()) uses context data so it ends up returning
-                        // the installer for the root package being installed.
-                        //const auto& installer = SelectInstallerFromMetadata(context, latestVersion->GetMetadata());
+                        std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
+                        bool isUpdate = false;
+                        if (package->GetInstalledVersion())
+                        {
+                            installer = SelectInstallerFromMetadata(context, package->GetInstalledVersion()->GetMetadata());
+                            isUpdate = true;
+                        }
+                        else
+                        {
+                            installer = SelectInstallerFromMetadata(context, {});
+                        }
 
                         const auto& nodeDependencies = installer->Dependencies;
                         
-                        //auto packageDescription = AppInstaller::CLI::PackageCollection::Package(manifest.Id, manifest.Version, manifest.Channel);
-                        // create package description too be able to use it for installer
-                        //dependenciesInstallers[node.Id] = PackagesAndInstallers(installer, latestVersion, manifest.Version, manifest.Channel);
+                        idToInstallerMap[node.Id] = {latestVersion, installer.value(), isUpdate};
                         return nodeDependencies;
                     }
                 }
@@ -209,29 +215,29 @@ namespace AppInstaller::CLI::Workflow
             info << "has loop" << std::endl;
             Logging::Log().Write(Logging::Channel::CLI, Logging::Level::Warning, "Dependency loop found"); //TODO localization
             //TODO warn user but try to install either way
-            return;
         }
 
-        // TODO raise error for failedPackages (if there's at least one)
+        // TODO raise error for failed packages? (if there's at least one)
 
         const auto& installationOrder = dependencyGraph.GetInstallationOrder();
 
-        
-        std::vector<PackagesAndInstallers> installers;
+        std::vector<Execution::InstallerToInstall> installers;
 
         info << "order: "; //-- only for debugging
         for (auto const& node : installationOrder)
         {
             info << node.Id << ", "; //-- only for debugging
-            installers.push_back(dependenciesInstallers.find(node.Id)->second);
+            
+            auto itr = idToInstallerMap.find(node.Id);
+            // if the package was already installed (with a useful version) there will be no installer for it on the map.
+            if (itr != idToInstallerMap.end())
+            {
+                installers.push_back(itr->second);
+            }
         }
         info << std::endl; //-- only for debugging
-
-        bool allSucceeded = InstallPackages(context, installers);
-        if (!allSucceeded)
-        {
-            context.Reporter.Error() << "error installing dependencies" << std::endl; //TODO localize error
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); // TODO create specific error code
-        }
+        
+        context.Add<Execution::Data::InstallersToInstall>(installers);
+        context << InstallMultiple;
     }
 }

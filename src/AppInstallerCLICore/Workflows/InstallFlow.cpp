@@ -7,7 +7,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
-#include "Workflows/DependenciesFlow.h"
+#include "DependenciesFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -416,15 +416,15 @@ namespace AppInstaller::CLI::Workflow
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::BuildPackageDependenciesGraph <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies)<<
             Workflow::InstallPackageInstaller;
     }
 
-    void InstallMultiple(Execution::Context& context)
+    void SelectInstallerMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
         DependencyList allDependencies;
-        std::vector<PackagesAndInstallers> installers;
+        std::vector<Execution::InstallerToInstall> installers;
 
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
@@ -452,11 +452,11 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& installer = installContext.Get<Execution::Data::Installer>();
-            installers.push_back(PackagesAndInstallers(installer, package));
+            installers.push_back({package.PackageVersion, installer.value(), false});
             
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
             {
-                if (installer) allDependencies.Add(installer->Dependencies);
+                allDependencies.Add(installer->Dependencies);
             }
         }
 
@@ -465,32 +465,27 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::Dependencies>(allDependencies);
             context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
         }
-
-        allSucceeded &= InstallPackages(context, installers);
-
-        if (!allSucceeded)
-        {
-            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
-        }
+        context.Add<Execution::Data::InstallersToInstall>(installers);
+        context << InstallMultiple;
     }
 
-    bool InstallPackages(Execution::Context& context, std::vector<PackagesAndInstallers> installers)
+    void InstallMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
 
+        const auto& installers = context.Get<Execution::Data::InstallersToInstall>();
+
         for (auto packageAndInstaller : installers)
         {
-            auto package = packageAndInstaller.Package;
+            auto packageVersion = packageAndInstaller.PackageVersion;
             auto installer = packageAndInstaller.Installer;
 
             auto installContextPtr = context.Clone();
             Execution::Context& installContext = *installContextPtr;
 
             // set data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
-            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
+            installContext.Add<Execution::Data::PackageVersion>(packageVersion);
+            installContext.Add<Execution::Data::Manifest>(packageVersion->GetManifest());
             installContext.Add<Execution::Data::Installer>(installer);
 
             installContext <<
@@ -503,14 +498,18 @@ namespace AppInstaller::CLI::Workflow
                 {
                     // This means that the subcontext being terminated is due to an overall abort
                     context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                    return false;
+                    return;
                 }
 
                 allSucceeded = false;
             }
         }
 
-        return allSucceeded;
+        if (!allSucceeded)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+        }
     }
 
     void SnapshotARPEntries(Execution::Context& context) try

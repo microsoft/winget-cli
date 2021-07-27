@@ -44,6 +44,7 @@ namespace AppInstaller::CLI::Execution
         PackageCollection,
         // On import: A collection of specific package versions to install
         PackagesToInstall,
+        InstallersToInstall,
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
@@ -56,6 +57,13 @@ namespace AppInstaller::CLI::Execution
     {
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
         PackageCollection::Package PackageRequest;
+    };
+
+    struct InstallerToInstall
+    {
+        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        Manifest::ManifestInstaller Installer;
+        bool IsUpdate = false;
     };
 
     namespace details
@@ -172,6 +180,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PackagesToInstall>
         {
             using value_t = std::vector<PackageToInstall>;
+        };
+        
+        template <>
+        struct DataMapping<Data::InstallersToInstall>
+        {
+            using value_t = std::vector<InstallerToInstall>;
         };
 
         template <>
