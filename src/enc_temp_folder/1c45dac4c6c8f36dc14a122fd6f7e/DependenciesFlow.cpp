@@ -67,7 +67,7 @@ namespace AppInstaller::CLI::Workflow
                 allDependencies.Add(installer.Dependencies);
             }
 
-            context.Add<Execution::Data::Dependencies>(std::move(allDependencies));
+            context.Add<Execution::Data::Dependencies>(allDependencies);
         }
     }
 

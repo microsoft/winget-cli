@@ -128,7 +128,7 @@ bool HasExtension(std::string_view extension) const;
         std::optional<AppInstaller::Utility::Version> MinVersion;
 
         Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(AppInstaller::Utility::Version(minVersion)) {}
-        Dependency(DependencyType type, string_t id) : Type(type), Id(std::move(id)) {}
+        Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
 
         bool operator==(const Dependency& rhs) const {
@@ -152,7 +152,7 @@ bool HasExtension(std::string_view extension) const;
 
         void Add(const Dependency& newDependency)
         { 
-            Dependency* existingDependency = HasDependency(newDependency);
+            Dependency* existingDependency = this->HasDependency(newDependency);
 
             if (existingDependency != NULL) {
                 if (newDependency.MinVersion) 
@@ -180,7 +180,7 @@ bool HasExtension(std::string_view extension) const;
         {
             for (const auto& dependency : otherDependencyList.dependencies)
             {
-                Add(dependency);
+                this->Add(dependency);
             }
         }
 

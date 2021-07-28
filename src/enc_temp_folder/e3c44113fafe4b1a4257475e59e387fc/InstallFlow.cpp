@@ -463,7 +463,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            context.Add<Execution::Data::Dependencies>(std::move(allDependencies));
+            context.Add<Execution::Data::Dependencies>(allDependencies);
             context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
         }
         context.Add<Execution::Data::InstallersToInstall>(installers);
