@@ -415,6 +415,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::GetDependenciesFromInstaller <<
             Workflow::ManagePackageDependencies <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;

@@ -354,6 +354,12 @@ bool HasExtension(std::string_view extension) const;
         // TODO make this function iterative
         bool HasLoopDFS(std::set<Dependency> visited, const Dependency& node)
         {
+            // Adding before checking for loops, to have an order even if a loop is present
+            if (std::find(installationOrder.begin(), installationOrder.end(), node) == installationOrder.end())
+            {
+                installationOrder.push_back(node);
+            }
+
             visited.insert(node);
             for (const auto& adjacent : adjacents.at(node))
             {
@@ -369,11 +375,6 @@ bool HasExtension(std::string_view extension) const;
                 {
                     return true;
                 }
-            }
-
-            if (std::find(installationOrder.begin(), installationOrder.end(), node) == installationOrder.end())
-            {
-                installationOrder.push_back(node);
             }
 
             return false;

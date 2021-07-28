@@ -1768,7 +1768,7 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
-TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph]")
+TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1789,7 +1789,7 @@ TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph]")
     REQUIRE(installOutput.str().find("has loop") != std::string::npos);
 }
 
-TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph]")
+TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1811,7 +1811,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
     REQUIRE(installOutput.str().find("order: B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
 }
 
-TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph]")
+TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1834,7 +1834,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
 }
 
-TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph]")
+TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1857,7 +1857,7 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
 }
 
-TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph]")
+TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 

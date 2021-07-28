@@ -120,8 +120,6 @@ namespace AppInstaller::CLI::Workflow
         const auto& rootInstaller = context.Get<Execution::Data::Installer>();
         const auto& rootDependencies = rootInstaller->Dependencies;
 
-        context.Add<Execution::Data::Dependencies>(rootDependencies); //information needed to report dependencies
-        
         if (rootDependencies.Empty())
         {
             // If there's no dependencies there's nothing to do aside of logging the outcome
@@ -211,8 +209,7 @@ namespace AppInstaller::CLI::Workflow
         {
             info << "has loop" << std::endl;
             Logging::Log().Write(Logging::Channel::CLI, Logging::Level::Warning, "Dependency loop found"); //TODO localization
-            //TODO warn user but try to install either way (right now packages are only added to installation order if there's not a loop)
-            return;
+            //warn user but try to install either way
         }
 
         // TODO raise error for failed packages? (if there's at least one)
@@ -227,8 +224,7 @@ namespace AppInstaller::CLI::Workflow
             info << node.Id << ", "; //-- only for debugging
             
             auto itr = idToInstallerMap.find(node.Id);
-            // if the package was already installed (with a useful version) 
-            // or is the root
+            // if the package was already installed (with a useful version) or is the root
             // then there will be no installer for it on the map.
             if (itr != idToInstallerMap.end())
             {
