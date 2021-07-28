@@ -91,6 +91,29 @@ namespace AppInstaller::Manifest::YamlParser
     {
         std::string schemaStr;
 
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            switch (manifestType)
+            {
+            case AppInstaller::Manifest::ManifestTypeEnum::Singleton:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_SINGLETON), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Version:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_VERSION), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Installer:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_INSTALLER), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::DefaultLocale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_DEFAULTLOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Locale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
         if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
         {
             switch (manifestType)
