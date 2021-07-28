@@ -23,12 +23,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShowInstallationDisclaimer(Execution::Context& context);
 
-    // Shows the agreements that need to be accepted for installation.
-    // Required Args: None
-    // Inputs: Manifest
-    // Outputs: None
-    void ShowLicenseAgreements(Execution::Context& context);
-
     // Prompts the user to accept the agreements.
     // Required Args: None
     // Inputs: None
@@ -37,11 +31,11 @@ namespace AppInstaller::CLI::Workflow
     {
         PromptForLicenseAcceptance(bool interactive) : WorkflowTask("PromptForLicenseAcceptance"), m_interactive(interactive) {}
 
-        void operator()(Execution::Context& context);
+        void operator()(Execution::Context& context) const override;
 
     private:
         bool m_interactive;
-    }
+    };
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None

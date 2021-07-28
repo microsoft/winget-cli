@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "UninstallFlow.h"
+#include "ShowFlow.h"
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
@@ -64,24 +65,20 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ShowLicenseAgreements(Execution::Context& context)
+    void PromptForLicenseAcceptance::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
 
-        // TODO: Show other fields
-
-        if (!agreements.empty())
+        if (agreements.empty())
         {
-            for (const auto& agreement : agreements)
-            {
-                context.Reporter.Info() << agreement.Label << ": " << agreement.Text << std::endl;
-            }
+            // Nothing to do
+            return;
         }
-    }
 
-    void PromptForLicenseAcceptance::operator()(Execution::Context& context)
-    {
+        context << Workflow::ShowManifestInfoOnly;
+        context.Reporter.Info() << std::endl;
+
         if (context.Args.Contains(Execution::Args::Type::AcceptLicenses))
         {
             AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
@@ -90,8 +87,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (m_interactive)
         {
-            context.Reporter.Info() << std::endl << Resource::String::LicenseAgreementPrompt << std::endl;
-            // TODO: Prompt
+            // TODO: Interactivity
+            // context.Reporter.Info() << std::endl << Resource::String::LicenseAgreementPrompt << std::endl;
         }
 
         AICLI_LOG(CLI, Error, << "License not agreed to.");
@@ -427,7 +424,6 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::ReportManifestIdentity <<
             Workflow::ShowInstallationDisclaimer <<
-            Workflow::ShowLicenseAgreements <<
             Workflow::PromptForLicenseAcceptance(true) <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<

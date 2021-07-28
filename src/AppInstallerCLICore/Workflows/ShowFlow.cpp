@@ -7,25 +7,31 @@
 #include "TableOutput.h"
 
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::CLI;
 
 namespace AppInstaller::CLI::Workflow
 {
     void ShowManifestInfo(Execution::Context& context)
     {
+        context << ShowManifestInfoOnly << ShowInstallerInfo;
+    }
+
+    void ShowManifestInfoOnly(Execution::Context& context)
+    {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        const auto& installer = context.Get<Execution::Data::Installer>();
+        auto info = context.Reporter.Info();
 
         // TODO: Come up with a prettier format
-        context.Reporter.Info() << "Version: " << manifest.Version << std::endl;
-        context.Reporter.Info() << "Publisher: " << manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>() << std::endl;
+        info << Execution::LabelEmphasis << "Version: " << manifest.Version << std::endl;
+        info << Execution::LabelEmphasis << "Publisher: " << manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>() << std::endl;
         auto author = manifest.CurrentLocalization.Get<Manifest::Localization::Author>();
         if (!author.empty())
         {
-            context.Reporter.Info() << "Author: " << author << std::endl;
+            info << Execution::LabelEmphasis << "Author: " << author << std::endl;
         }
         if (!manifest.Moniker.empty())
         {
-            context.Reporter.Info() << "Moniker: " << manifest.Moniker << std::endl;
+            info << Execution::LabelEmphasis << "Moniker: " << manifest.Moniker << std::endl;
         }
         auto description = manifest.CurrentLocalization.Get<Manifest::Localization::Description>();
         if (description.empty())
@@ -35,48 +41,54 @@ namespace AppInstaller::CLI::Workflow
         }
         if (!description.empty())
         {
-            context.Reporter.Info() << "Description: " << description << std::endl;
+            info << Execution::LabelEmphasis << "Description: " << description << std::endl;
         }
         auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         if (!homepage.empty())
         {
-            context.Reporter.Info() << "Homepage: " << homepage << std::endl;
+            info << Execution::LabelEmphasis << "Homepage: " << homepage << std::endl;
         }
-        context.Reporter.Info() << "License: " << manifest.CurrentLocalization.Get<Manifest::Localization::License>() << std::endl;
+        info << Execution::LabelEmphasis << "License: " << manifest.CurrentLocalization.Get<Manifest::Localization::License>() << std::endl;
         auto licenseUrl = manifest.CurrentLocalization.Get<Manifest::Localization::LicenseUrl>();
         if (!licenseUrl.empty())
         {
-            context.Reporter.Info() << "License Url: " << licenseUrl << std::endl;
+            info << Execution::LabelEmphasis << "License Url: " << licenseUrl << std::endl;
         }
         auto agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
-            context.Reporter.Info() << "Agreement:" << std::endl;
+            context.Reporter.Info() << Execution::LabelEmphasis << "Agreement:" << std::endl;
             for (const auto& agreement : agreements)
             {
-                context.Reporter.Info() << agreement.Label << ": " << agreement.Text << std::endl;
+                context.Reporter.Info() << "  " << Execution::LabelEmphasis << agreement.Label + ": " << agreement.TextOrUrl << std::endl;
             }
         }
+    }
 
-        context.Reporter.Info() << "Installer:" << std::endl;
+    void ShowInstallerInfo(Execution::Context& context)
+    {
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        auto info = context.Reporter.Info();
+
+        info << Execution::LabelEmphasis << "Installer:" << std::endl;
         if (installer)
         {
-            context.Reporter.Info() << "  Type: " << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
+            info << Execution::LabelEmphasis << "  Type: " << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
             if (!installer->Locale.empty())
             {
-                context.Reporter.Info() << "  Locale: " << installer->Locale << std::endl;
+                info << Execution::LabelEmphasis << "  Locale: " << installer->Locale << std::endl;
             }
             if (!installer->Url.empty())
             {
-                context.Reporter.Info() << "  Download Url: " << installer->Url << std::endl;
+                info << Execution::LabelEmphasis << "  Download Url: " << installer->Url << std::endl;
             }
             if (!installer->Sha256.empty())
             {
-                context.Reporter.Info() << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
+                info << Execution::LabelEmphasis << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
             }
             if (!installer->ProductId.empty())
             {
-                context.Reporter.Info() << "  Store Product Id: " << installer->ProductId << std::endl;
+                info << Execution::LabelEmphasis << "  Store Product Id: " << installer->ProductId << std::endl;
             }
         }
         else
