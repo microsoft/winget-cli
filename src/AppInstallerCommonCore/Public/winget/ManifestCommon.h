@@ -261,8 +261,8 @@ bool HasExtension(std::string_view extension) const;
     struct DependencyGraph
     {
         // this constructor was intented for use during installation flow (we already have installer dependencies and there's no need to search the source again)
-        DependencyGraph(Dependency root, DependencyList rootDependencies,
-            std::function<DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
+        DependencyGraph(const Dependency& root, const DependencyList& rootDependencies,
+            std::function<const DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
             adjacents[m_root] = std::vector<Dependency>();
             toCheck = std::vector<Dependency>();
@@ -274,12 +274,12 @@ bool HasExtension(std::string_view extension) const;
                 });
         }
 
-        DependencyGraph(Dependency root, std::function<DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
+        DependencyGraph(const Dependency& root, std::function<const DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
             adjacents[m_root] = std::vector<Dependency>();
             toCheck = std::vector<Dependency>();
 
-            DependencyList rootDependencies = getDependencies(root);
+            const DependencyList& rootDependencies = getDependencies(root);
             rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
                     toCheck.push_back(dependency);
@@ -317,17 +317,17 @@ bool HasExtension(std::string_view extension) const;
             CheckForLoopsAndGetOrder();
         }
 
-        void AddNode(Dependency node)
+        void AddNode(const Dependency& node)
         {
             adjacents[node] = std::vector<Dependency>();
         }
 
-        void AddAdjacent(Dependency node, Dependency adjacent)
+        void AddAdjacent(const Dependency& node,const Dependency& adjacent)
         {
             adjacents[node].push_back(adjacent);
         }
 
-        bool HasNode(Dependency dependency)
+        bool HasNode(const Dependency& dependency)
         {
             auto search = adjacents.find(dependency);
             return search != adjacents.end();
@@ -379,9 +379,9 @@ bool HasExtension(std::string_view extension) const;
             return false;
         }
 
-        Dependency m_root;
+        const Dependency& m_root;
         std::map<Dependency, std::vector<Dependency>> adjacents; //(?) value should be a set instead of a vector?
-        std::function<DependencyList(const Dependency&)> getDependencies;
+        std::function<const DependencyList(const Dependency&)> getDependencies;
 
         bool hasLoop;
         std::vector<Dependency> installationOrder;

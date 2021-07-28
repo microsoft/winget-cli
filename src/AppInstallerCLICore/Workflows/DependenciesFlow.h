@@ -43,7 +43,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: DependencySource
     // Outputs: Dependencies
-    void BuildPackageDependenciesGraph(Execution::Context& context);
+    void ManagePackageDependencies(Execution::Context& context);
 
     // Sets up the source used to get the dependencies.
     // Required Args: None

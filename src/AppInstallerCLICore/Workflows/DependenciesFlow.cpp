@@ -110,7 +110,7 @@ namespace AppInstaller::CLI::Workflow
     }
 
 
-    void BuildPackageDependenciesGraph(Execution::Context& context)
+    void ManagePackageDependencies(Execution::Context& context)
     {
         auto info = context.Reporter.Info();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
@@ -137,9 +137,6 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
         std::map<string_t, Execution::InstallerToInstall> idToInstallerMap;
-
-        //idToInstallerMap[rootManifest.Id] = {rootVersion, rootInstaller.value(), false};
-        // Question: where do I get the root version from?
 
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
@@ -187,12 +184,12 @@ namespace AppInstaller::CLI::Workflow
                         bool isUpdate = false;
                         if (package->GetInstalledVersion())
                         {
-                            installer = SelectInstallerFromMetadata(context, package->GetInstalledVersion()->GetMetadata());
+                            installer = SelectInstallerFromMetadata(context.Args, manifest, package->GetInstalledVersion()->GetMetadata());
                             isUpdate = true;
                         }
                         else
                         {
-                            installer = SelectInstallerFromMetadata(context, {});
+                            installer = SelectInstallerFromMetadata(context.Args, manifest, {});
                         }
 
                         const auto& nodeDependencies = installer->Dependencies;
@@ -214,7 +211,8 @@ namespace AppInstaller::CLI::Workflow
         {
             info << "has loop" << std::endl;
             Logging::Log().Write(Logging::Channel::CLI, Logging::Level::Warning, "Dependency loop found"); //TODO localization
-            //TODO warn user but try to install either way
+            //TODO warn user but try to install either way (right now packages are only added to installation order if there's not a loop)
+            return;
         }
 
         // TODO raise error for failed packages? (if there's at least one)
@@ -229,7 +227,9 @@ namespace AppInstaller::CLI::Workflow
             info << node.Id << ", "; //-- only for debugging
             
             auto itr = idToInstallerMap.find(node.Id);
-            // if the package was already installed (with a useful version) there will be no installer for it on the map.
+            // if the package was already installed (with a useful version) 
+            // or is the root
+            // then there will be no installer for it on the map.
             if (itr != idToInstallerMap.end())
             {
                 installers.push_back(itr->second);
@@ -237,7 +237,10 @@ namespace AppInstaller::CLI::Workflow
         }
         info << std::endl; //-- only for debugging
         
+        // Install dependencies in the correct order
         context.Add<Execution::Data::InstallersToInstall>(installers);
         context << InstallMultiple;
+
+        // Install the root (continue)
     }
 }

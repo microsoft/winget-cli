@@ -725,13 +725,13 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        context.Add<Execution::Data::Installer>(SelectInstallerFromMetadata(context, installationMetadata));
+        context.Add<Execution::Data::Installer>(SelectInstallerFromMetadata(context.Args, context.Get<Execution::Data::Manifest>(), installationMetadata));
     }
 
-    std::optional<Manifest::ManifestInstaller> SelectInstallerFromMetadata(Execution::Context& context, IPackageVersion::Metadata metadata)
+    std::optional<Manifest::ManifestInstaller> SelectInstallerFromMetadata(Execution::Args args, AppInstaller::Manifest::Manifest manifest, AppInstaller::Repository::IPackageVersion::Metadata metadata)
     {
-        ManifestComparator manifestComparator(context.Args, metadata);
-        return manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+        ManifestComparator manifestComparator(args, metadata);
+        return manifestComparator.GetPreferredInstaller(manifest);
     }
 
     void EnsureRunningAsAdmin(Execution::Context& context)
