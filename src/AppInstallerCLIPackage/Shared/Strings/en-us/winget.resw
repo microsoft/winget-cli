@@ -937,4 +937,49 @@ Do you agree to the terms?</value>
   <data name="LicenseNotAgreedTo" xml:space="preserve">
     <value>License not agreed to. Installation cancelled.</value>
   </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Agreements:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installer:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Locale:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store Product Id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>License:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>License Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
 </root>
