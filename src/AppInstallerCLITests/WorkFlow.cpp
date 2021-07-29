@@ -265,6 +265,7 @@ namespace
             // TODO maybe change package name on default locale for better debugging
 
             auto& installer = manifest.Installers.at(0);
+            installer.ProductId = input;
             installer.Dependencies.Clear();
 
             /*

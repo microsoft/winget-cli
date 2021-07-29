@@ -126,6 +126,8 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        info << "Installing dependencies:" << std::endl; //TODO localize message
+
         context << OpenDependencySource;
         if (!context.Contains(Execution::Data::DependencySource))
         {
