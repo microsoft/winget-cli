@@ -11,6 +11,7 @@
 #include <Workflows/InstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
+#include <Workflows/DependenciesFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
 #include <Workflows/ShowFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
@@ -469,11 +470,24 @@ void OverrideForImportSource(TestContext& context)
     } });
 }
 
-void OverrideForDependencySource(TestContext& context)
+void OverrideOpenSourceForDependencies(TestContext& context)
 {
     context.Override({ "OpenSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<DependenciesTestSource>());
+    } });
+
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    } });
+}
+
+void OverrideDependencySource(TestContext& context)
+{
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     } });
 }
 
@@ -1753,6 +1767,7 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForShellExecute(context);
+    OverrideDependencySource(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
 
@@ -1774,7 +1789,7 @@ TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][depe
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
-    OverrideForDependencySource(context);
+    OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "EasyToSeeLoop"sv);
@@ -1795,7 +1810,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
-    OverrideForDependencySource(context);
+    OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "DependencyAlreadyInStackButNoLoop"sv);
@@ -1817,7 +1832,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
-    OverrideForDependencySource(context);
+    OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "PathBetweenBranchesButNoLoop"sv);
@@ -1840,7 +1855,7 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
-    OverrideForDependencySource(context);
+    OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
@@ -1863,7 +1878,7 @@ TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][de
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
-    OverrideForDependencySource(context);
+    OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "NeedsToInstallBFirst"sv);
@@ -1911,6 +1926,7 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForShellExecute(context);
+    OverrideDependencySource(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
 
@@ -1935,6 +1951,7 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForShellExecute(context);
+    OverrideDependencySource(context); 
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
 
@@ -1949,3 +1966,7 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
+// TODO 
+// add dependencies for installer tests to DependenciesTestSource (or a new one)
+// add tests for min version dependency solving
+// add tests that check for correct installation of dependencies (not only the order)
