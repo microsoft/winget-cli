@@ -282,7 +282,9 @@ namespace AppInstaller::CLI::Workflow
                 searchContext <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion;
+                    Workflow::GetInstalledPackageVersion <<
+                    Workflow::SelectInstaller <<
+                    Workflow::EnsureApplicableInstaller;
 
                 if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
                 {
@@ -314,7 +316,11 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.push_back({ std::move(searchContext.Get<Execution::Data::PackageVersion>()), packageRequest });
+                packagesToInstall.emplace_back(
+                    std::move(searchContext.Get<Execution::Data::PackageVersion>()),
+                    std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
+                    std::move(searchContext.Get<Execution::Data::Installer>().value()),
+                    packageRequest.Scope);
             }
         }
 
@@ -332,5 +338,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+    }
+
+    void InstallImportedPackages(Execution::Context& context)
+    {
+        context << Workflow::InstallMultiplePackages(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+
+        if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+        }
     }
 }

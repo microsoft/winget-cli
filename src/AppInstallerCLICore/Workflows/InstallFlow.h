@@ -23,19 +23,33 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShowInstallationDisclaimer(Execution::Context& context);
 
-    // Prompts the user to accept the agreements.
+    // Shows the license agreements if the application has them.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: PackageHasLicenseAgreements flag
+    void ShowLicenseAgreements(Execution::Context& context);
+
+    // Ensure the user accepted the license agreements.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct PromptForLicenseAcceptance : public WorkflowTask
+    struct EnsureLicenseAcceptance : public WorkflowTask
     {
-        PromptForLicenseAcceptance(bool interactive) : WorkflowTask("PromptForLicenseAcceptance"), m_interactive(interactive) {}
+        EnsureLicenseAcceptance(bool showPrompt) : WorkflowTask("EnsureLicenseAcceptance"), m_showPrompt(showPrompt) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_interactive;
+        // Whether to show an interactive prompt
+        bool m_showPrompt;
     };
+
+    // Ensure that the user accepted all the license agreements when there are
+    // multiple installers.
+    // Required Args: None
+    // Inputs: PackagesToInstall
+    // Outputs: None
+    void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context);
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
@@ -91,23 +105,34 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
 
-    // Installs a specific package installer.
+    // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
-    // Inputs: Manifest, Installer
+    // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Installs a specific package version.
-    // Required Args: None
-    // Inputs: Manifest, PackageVersion, Source
+    // Installs a single package. This also does the reporting and user interaction
+    // for single-package installation.
+    // RequiredArgs: None
+    // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
-    void InstallPackageVersion(Execution::Context& context);
+    void InstallSinglePackage(Execution::Context& context);
 
-    // Installs multiple packages.
+    // Installs multiple packages. This also does the reporting and user interaction needed.
     // Required Args: None
-    // Inputs: Manifests
+    // Inputs: PackagesToInstall
     // Outputs: None
-    void InstallMultiple(Execution::Context& context);
+    struct InstallMultiplePackages : public WorkflowTask
+    {
+        InstallMultiplePackages(HRESULT resultOnFailure, std::vector<HRESULT> ignorableInstallResults = {}) :
+            WorkflowTask("InstallMultiplePackages"), m_resultOnFailure(resultOnFailure), m_ignorableInstallResults(ignorableInstallResults) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        HRESULT m_resultOnFailure;
+        std::vector<HRESULT> m_ignorableInstallResults;
+    };
 
     // Stores the existing set of packages in ARP.
     // Required Args: None

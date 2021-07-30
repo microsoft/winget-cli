@@ -4,7 +4,6 @@
 #include "ImportCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/ImportExportFlow.h"
-#include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -47,6 +46,6 @@ namespace AppInstaller::CLI
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-            Workflow::InstallMultiple;
+            Workflow::InstallImportedPackages;
     }
 }

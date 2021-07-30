@@ -42,7 +42,7 @@ namespace AppInstaller::CLI::Execution
         // On export: A collection of packages to be exported to a file
         // On import: A collection of packages read from a file
         PackageCollection,
-        // On import: A collection of specific package versions to install
+        // On import and upgrade all: A collection of specific package versions to install
         PackagesToInstall,
         // On import: Sources for the imported packages
         Sources,
@@ -52,8 +52,17 @@ namespace AppInstaller::CLI::Execution
 
     struct PackageToInstall
     {
+        PackageToInstall(
+            std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
+            std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
+            Manifest::ManifestInstaller&& installer,
+            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown)
+            : PackageVersion(packageVersion), InstalledPackageVersion(installedPackageVersion), Installer(installer), Scope(scope) {}
+
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
-        PackageCollection::Package PackageRequest;
+        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
+        Manifest::ManifestInstaller Installer;
+        Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
     };
 
     namespace details

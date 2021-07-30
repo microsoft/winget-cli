@@ -13,10 +13,10 @@ namespace AppInstaller::CLI::Workflow
 {
     void ShowManifestInfo(Execution::Context& context)
     {
-        context << ShowManifestInfoOnly << ShowInstallerInfo;
+        context << ShowManifestGlobalInfo << ShowInstallerInfo;
     }
 
-    void ShowManifestInfoOnly(Execution::Context& context)
+    void ShowManifestGlobalInfo(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         auto info = context.Reporter.Info();

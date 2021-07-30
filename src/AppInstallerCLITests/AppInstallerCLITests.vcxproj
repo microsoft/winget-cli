@@ -511,6 +511,12 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="TestData\InstallFlowTest_LicenseAgreement.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

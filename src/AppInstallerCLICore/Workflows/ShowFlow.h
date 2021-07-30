@@ -11,7 +11,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShowManifestInfo(Execution::Context& context);
 
-    void ShowManifestInfoOnly(Execution::Context& context);
+    // Shows information on an application that is global to all installers.
+    // Required Args: None
+    // Inputs: Manifset
+    // Outputs: None
+    void ShowManifestGlobalInfo(Execution::Context& context);
+
+    // Shows information on an installer
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
     void ShowInstallerInfo(Execution::Context& context);
 
     // Shows the version for the specific manifest.

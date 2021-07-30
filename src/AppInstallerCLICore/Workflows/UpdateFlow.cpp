@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Workflow
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
-        bool updateAllHasFailure = false;
+        std::vector<Execution::PackageToInstall> packagesToInstall;
         bool updateAllFoundUpdate = false;
 
         for (const auto& match : matches)
@@ -111,32 +111,19 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            updateContext << InstallPackageInstaller;
-
-            updateContext.Reporter.Info() << std::endl;
-
-            // msstore update might still terminate with APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
-            if (updateContext.GetTerminationHR() != S_OK &&
-                updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
-            {
-                updateAllHasFailure = true;
-            }
-
-            if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
-            {
-                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                return;
-            }
+            packagesToInstall.emplace_back(
+                std::move(updateContext.Get<Execution::Data::PackageVersion>()),
+                std::move(updateContext.Get<Execution::Data::InstalledPackageVersion>()),
+                std::move(updateContext.Get<Execution::Data::Installer>().value()));
         }
 
         if (!updateAllFoundUpdate)
         {
             context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            return;
         }
 
-        if (updateAllHasFailure)
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE);
-        }
+        context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+        context << InstallMultiplePackages(APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE, { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
     }
 }

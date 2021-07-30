@@ -169,6 +169,8 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
+    <None Include="TestData\InstallFlowTest_LicenseAgreement.yaml" />
+    <None Include="TestData\ImportFile-Good-WithLicenseAgreement.json" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">

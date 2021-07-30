@@ -123,6 +123,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
-            Workflow::InstallPackageVersion;
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::InstallSinglePackage;
     }
 }
