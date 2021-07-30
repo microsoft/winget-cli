@@ -93,7 +93,6 @@ namespace AppInstaller::CLI
 
     std::string UpgradeCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-upgrade";
     }
 

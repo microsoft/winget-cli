@@ -34,7 +34,6 @@ namespace AppInstaller::CLI
 
     std::string ImportCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-import";
     }
 

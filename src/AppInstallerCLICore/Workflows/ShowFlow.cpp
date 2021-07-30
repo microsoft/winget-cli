@@ -93,7 +93,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Warn() << "  No installers are applicable to the current system" << std::endl;
+            context.Reporter.Warn() << "  " << Resource::String::NoApplicableInstallers << std::endl;
         }
     }
 

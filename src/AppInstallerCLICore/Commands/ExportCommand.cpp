@@ -47,7 +47,6 @@ namespace AppInstaller::CLI
 
     std::string ExportCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-export";
     }
 

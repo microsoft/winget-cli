@@ -537,7 +537,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));
-        };
+        }
     }
 
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
