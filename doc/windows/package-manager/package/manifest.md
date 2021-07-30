@@ -193,7 +193,7 @@ You can often figure out what silent `Switches` are available for an installer b
 
 | Installer | Command  | Documentation |  
 | :--- | :-- | :--- |  
-| MSI | `/q` | [MSI Command-Line Options](/windows/win32/msi/command-line-options) |
+| MSI | `/q` | [MSI Command-Line Options](https://docs.microsoft.com/windows/win32/msi/command-line-options) |
 | InstallShield | `/s`  | [InstallShield Command-Line Parameters](https://docs.flexera.com/installshield19helplib/helplibrary/IHelpSetup_EXECmdLine.htm) |
 | Inno Setup | `/SILENT or /VERYSILENT` | [Inno Setup documentation](https://jrsoftware.org/ishelp/) |
 | Nullsoft | `/S` | [Nullsoft Silent Installers/Uninstallers](https://nsis.sourceforge.io/Docs/Chapter4.html#silent) |

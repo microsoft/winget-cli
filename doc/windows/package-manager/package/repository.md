@@ -12,7 +12,7 @@ ms.localizationpriority: medium
 
 After you create a [package manifest](manifest.md) that describes your application, you're ready to submit your manifest to the Windows Package Manager repository. This a public-facing repository that contains a collection of manifests that the **winget** tool can access. To submit your manifest, you'll upload it to the open source [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) repository on GitHub.
 
-After you submit a **pull request** to add a new manifest to the GitHub repository, an automated process will validate your manifest file and check to make sure the package complies with the [Windows Package Manager polices](.\windows-package-manager-policies.md) and is not known to be malicious. If this validation is successful, your package will be added to the public-facing Windows Package Manager repository so it can be discovered by the **winget** client tool. Note the distinction between the manifests in the open source GitHub repository and the public-facing Windows Package Manager repository.
+After you submit a **pull request** to add a new manifest to the GitHub repository, an automated process will validate your manifest file and check to make sure the package complies with the [Windows Package Manager polices](windows-package-manager-policies.md) and is not known to be malicious. If this validation is successful, your package will be added to the public-facing Windows Package Manager repository so it can be discovered by the **winget** client tool. Note the distinction between the manifests in the open source GitHub repository and the public-facing Windows Package Manager repository.
 
 > [!IMPORTANT]
 > Microsoft reserves the right to refuse a submission for any reason.
@@ -25,7 +25,7 @@ There are currently no known third party repositories. Microsoft is working with
 
 When you submit a manifest to the [https://github.com/microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) repository on GitHub, your manifest will be automatically validated and evaluated for the safety of the Windows ecosystem. Manifests may also be reviewed manually.
 
-For information on the validation process, see [Windows Package Manager validation](.\winget-validation.md)
+For information on the validation process, see [Windows Package Manager validation](winget-validation.md)
 
 ## How to submit your manifest
 
@@ -33,7 +33,7 @@ To submit a manifest to the repository, follow these steps.
 
 ### Step 1: Validate your manifest
 
-The **winget** tool provides the [validate](..\winget\validate.md) command to confirm that you have created your manifest correctly. To validate your manifest, use this command.
+The **winget** tool provides the [validate](../winget/validate.md) command to confirm that you have created your manifest correctly. To validate your manifest, use this command.
 
 ```CMD
 winget validate \<manifest-file>
@@ -102,8 +102,8 @@ After you push your changes, return to [https://github.com/microsoft/winget-pkgs
 
 When you create a **pull request**, this will start an automated process that validates the manifests and verifies your **pull request**. During this process we will run tests against the installer and installed binaries to validate the submission.
 
-We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](.\winget-validation.md).  
+We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](winget-validation.md).  
 
 Once complete, your submission will be manually reviewed by a moderator, and after it is approved, your application will be added to the Windows Package Manager catalog.
 
-If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](.\winget-validation.md).  
+If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](winget-validation.md).  

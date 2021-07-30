@@ -108,7 +108,7 @@ The import command may be able to take advantage of determining all dependencies
 
 [RPM Dependencies](https://jfearn.fedorapeople.org/en-US/RPM/4/html/RPM_Guide/ch-advanced-packaging.html)
 
-[Node.js package.json configuration](https://docs.microsoft.com/en-us/visualstudio/javascript/configure-packages-with-package-json?view=vs-2019#:~:text=package.json%20configuration%201%20In%20a%20major%20version%20update%2C,fixes%20are%20included.%20Bug%20fixes%20are%20always%20backwards-compatible.)
+[Node.js package.json configuration](https://docs.microsoft.com/visualstudio/javascript/configure-packages-with-package-json?view=vs-2019#:~:text=package.json%20configuration%201%20In%20a%20major%20version%20update%2C,fixes%20are%20included.%20Bug%20fixes%20are%20always%20backwards-compatible.)
 
 [R Package metadata](https://r-pkgs.org/description.html)
 

@@ -40,6 +40,10 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+
     namespace
     {
         // SourceDetails with additional data.
@@ -47,6 +51,10 @@ namespace AppInstaller::Repository
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            SourceDetailsInternal() = default;
+
+            SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
 
         // Checks whether a default source is enabled with the current settings.
@@ -82,6 +90,11 @@ namespace AppInstaller::Repository
         bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
             return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -396,14 +409,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetCommunityDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetCommunityDefault_Arg;
-                    details.Data = s_Source_WingetCommunityDefault_Data;
-                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::WinGet));
                 }
 
                 if (IsWingetMSStoreDefaultSourceEnabled())
@@ -416,6 +422,11 @@ namespace AppInstaller::Repository
                     details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
                     details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
+                }
+
+                if (IsMSStoreDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
                 }
             }
             break;
@@ -914,8 +925,17 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
+                // Restricted sources may not support the full set of functionality
+                if (currentSources[0].get().Restricted)
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
+                    return {};
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                    return OpenSource(currentSources[0].get().Name, progress);
+                }
             }
             else
             {
@@ -926,6 +946,13 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
+                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
+                    if (source.get().Restricted)
+                    {
+                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
+                        continue;
+                    }
+
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -942,6 +969,7 @@ namespace AppInstaller::Repository
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
+
                     aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
@@ -996,31 +1024,32 @@ namespace AppInstaller::Repository
 
         // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
         // if the details came from the same instance of the list that's being saved.
-        SourceListInternal sourceList;
-        auto source = sourceList.GetSource(details.Name);
-        if (!source)
+        // Some sources that do not need updating like the Installed source, do not have Name values.
+        if (!details.Name.empty())
         {
-            AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
-            return {};
-        }
-        else if (source->IsTombstone)
-        {
-            AICLI_LOG(Repo, Info, << "Named source no longer found. Source was tombstoned: " << details.Name);
-            return {};
-        }
-        if (ShouldUpdateBeforeOpen(*source))
-        {
-            try
+            SourceListInternal sourceList;
+            auto source = sourceList.GetSource(details.Name);
+            if (!source)
             {
-                if (BackgroundUpdateSourceFromDetails(*source, progress))
-                {
-                    sourceList.SaveMetadata();
-                }
+                AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+                return {};
             }
-            catch (...)
+
+            if (!source->Restricted && 
+                ShouldUpdateBeforeOpen(*source))
             {
-                AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                result.SourcesWithUpdateFailure.emplace_back(*source);
+                try
+                {
+                    if (BackgroundUpdateSourceFromDetails(*source, progress))
+                    {
+                        sourceList.SaveMetadata();
+                    }
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                    result.SourcesWithUpdateFailure.emplace_back(*source);
+                }
             }
         }
 
@@ -1032,7 +1061,7 @@ namespace AppInstaller::Repository
     {
         SourceDetails details = GetPredefinedSourceDetails(source);
         return CreateSourceFromDetails(details, progress);
-    } 
+    }
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {
@@ -1063,6 +1092,7 @@ namespace AppInstaller::Repository
         switch (source)
         {
         case WellKnownSource::WinGet:
+        {
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityDefault_Name;
@@ -1072,6 +1102,19 @@ namespace AppInstaller::Repository
             details.Identifier = s_Source_WingetCommunityDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
             return details;
+        }
+        case WellKnownSource::MicrosoftStore:
+        {
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_MSStoreDefault_Name;
+            details.Type = Rest::RestSourceFactory::Type();
+            details.Arg = s_Source_MSStoreDefault_Arg;
+            details.Identifier = s_Source_MSStoreDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted;
+            details.Restricted = true;
+            return details;
+        }
         }
 
         THROW_HR(E_UNEXPECTED);
