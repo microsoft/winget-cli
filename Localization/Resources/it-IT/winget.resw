@@ -745,7 +745,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Avvio disinstallazione pacchetto in corso...</value>
   </data>
   <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
-    <value>Installazione completata</value>
+    <value>Disinstallazione completata</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
     <value>winget non riesce a individuare il comando di disinstallazione per questo pacchetto. Contattare l'autore del pacchetto per chiedere supporto.</value>
