@@ -18,6 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> ProductCodes();
         winrt::Microsoft::Management::Deployment::PackageCatalog PackageCatalog();
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> GetRepositoryPackageVersion() { return m_packageVersion; }
     private:
         winrt::Microsoft::Management::Deployment::PackageCatalog m_packageCatalog{ nullptr };
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> m_packageVersion;
