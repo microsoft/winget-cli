@@ -13,6 +13,7 @@
 #include <wil\cppwinrt_wrl.h>
 #include <winget/GroupPolicy.h>
 #include <AppInstallerErrors.h>
+#include <Helpers.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -37,10 +38,22 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return Connect();
     }
+    winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult()
+    {
+        auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
+        return *connectResult;
+    }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
     {
         try
         {
+            if (FAILED(EnsureComCallerHasCapability(Capability::PackageQuery)))
+            {
+                // TODO: When more error codes are added, this should go back as something other than CatalogError.
+                return GetConnectCatalogErrorResult();
+            }
+
             ::AppInstaller::ProgressCallback progress;
             std::shared_ptr<::AppInstaller::Repository::ISource> source;
             if (m_compositePackageCatalogOptions)
@@ -56,9 +69,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     if (!remoteSource)
                     {
                         // If source is null, return the error. There's no way to get the hresult that caused the error right now.
-                        auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-                        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
-                        return *connectResult;
+                        return GetConnectCatalogErrorResult();
                     }
                     remoteSources.emplace_back(std::move(remoteSource));
                 }
@@ -84,9 +95,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (!source)
             {
                 // If source is null, return the error. There's no way to get the hresult that caused the error right now.
-                auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-                connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
-                return *connectResult;
+                return GetConnectCatalogErrorResult();
             }
 
             // Have to make another package catalog info because source->GetDetails has more fields than m_info does.

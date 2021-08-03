@@ -32,8 +32,8 @@ bcp47
 bcrypt
 binver
 Bitmask
-blog
 Blog
+blog
 boolalpha
 bstr
 bugfix
@@ -93,8 +93,8 @@ deserializing
 dest
 devblogs
 differentpath
-distro
 DIRECTONLY
+distro
 dll
 dllexport
 docx
@@ -102,6 +102,7 @@ dotnet
 downlevel
 downloader
 downloaders
+dsx
 dword
 DWORDLONG
 elseif
@@ -155,8 +156,8 @@ hinternet
 HKEY
 hmac
 HMODULE
-homepage
 Homepage
+homepage
 hostname
 hpp
 HRESULT
@@ -187,6 +188,7 @@ impl
 Inet
 inno
 INPROC
+Inq
 installertype
 Installeruniqueness
 installlocation
@@ -280,9 +282,9 @@ NTSTATUS
 nuget
 nullptr
 nullsoft
+nunit
 nupkg
 nuspec
-nunit
 OAuth
 ofstream
 opencode
@@ -312,8 +314,8 @@ placeholders
 png
 posix
 powershell
-PPV
 pplx
+PPV
 pragma
 PRECONFIG
 preindexed
@@ -353,6 +355,8 @@ roadmap
 robuffer
 rowcount
 rowid
+Rpc
+rpc
 rubengustorage
 ruleset
 runsettings
@@ -413,6 +417,8 @@ STGM
 stmt
 stoi
 stoll
+storeedgefd
+storepreview
 stoull
 strcoll
 streamoff
@@ -532,12 +538,13 @@ winrt
 winsqlite
 wix
 wmain
+WNS
 woah
 wofstream
 workaround
 workflow
-wostringstream
 wostream
+wostringstream
 wpfn
 wrl
 WStr
@@ -545,10 +552,10 @@ wstring
 wstringstream
 www
 xamarin
+XElement
 xlang
 xml
 xmlns
-XElement
 XName
 XResource
 xsd

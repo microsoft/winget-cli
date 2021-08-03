@@ -10,7 +10,7 @@ ms.localizationpriority: medium
 
 [!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
 
-The **import** command of the [winget](index.md) tool imports a JSON file of apps to install.  The **import** command combined with the [**export**](.\export.md) command allows you to batch install applications on your PC.
+The **import** command of the [winget](index.md) tool imports a JSON file of apps to install.  The **import** command combined with the [**export**](export.md) command allows you to batch install applications on your PC.
 
 The **import** command is often used to share your developer environment or build up your PC image with your favorite apps.
 

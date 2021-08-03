@@ -32,11 +32,11 @@ namespace AppInstaller
     {
         m_executionStage = executionStage;
         m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
+        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
     void COMContext::SetLoggerContext(const std::wstring_view telemetryCorelationJson, const std::string& caller)
     {
-        Logging::SetActivityId();
         Logging::Telemetry().SetTelemetryCorelationJson(telemetryCorelationJson);
         Logging::Telemetry().SetCaller(caller);
         Logging::Telemetry().LogStartup(true);
