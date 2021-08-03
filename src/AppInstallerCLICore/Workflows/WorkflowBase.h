@@ -277,12 +277,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportManifestIdentity(Execution::Context& context);
 
-    // Log's manifest fields
-    // Required Args: None
-    // Inputs: Manifest
-    // Outputs: None
-    void LogManifestFields(Execution::Context& context);
-
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
     // Inputs: None

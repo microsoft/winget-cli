@@ -648,12 +648,6 @@ namespace AppInstaller::CLI::Workflow
         ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
     }
 
-    void LogManifestFields(Execution::Context& context)
-    {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
-    }
-
     void GetManifest(Execution::Context& context)
     {
         if (context.Args.Contains(Execution::Args::Type::Manifest))

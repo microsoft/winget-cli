@@ -197,8 +197,6 @@ namespace AppInstaller::CLI::Execution
 
     void Context::SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward)
     {
-        Logging::SetExecutionStage(static_cast<uint32_t>(stage));
-
         if (m_executionStage == stage)
         {
             return;
@@ -209,5 +207,6 @@ namespace AppInstaller::CLI::Execution
         }
 
         m_executionStage = stage;
+        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 }
