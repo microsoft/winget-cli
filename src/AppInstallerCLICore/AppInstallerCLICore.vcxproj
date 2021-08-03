@@ -231,6 +231,7 @@
     <ClInclude Include="ChannelStreams.h" />
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands\COMInstallCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
@@ -276,6 +277,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
+    <ClCompile Include="Commands\COMInstallCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />

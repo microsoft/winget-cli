@@ -157,6 +157,8 @@
     </ClInclude>
     <ClInclude Include="Workflows\DependenciesFlow.h">
       <Filter>Workflows</Filter>
+    <ClInclude Include="Commands\COMInstallCommand.h">
+      <Filter>Commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +284,8 @@
     </ClCompile>
     <ClCompile Include="Workflows\DependenciesFlow.cpp">
       <Filter>Source Files</Filter>
+    <ClCompile Include="Commands\COMInstallCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

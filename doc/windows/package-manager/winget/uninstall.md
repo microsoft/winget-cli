@@ -72,7 +72,7 @@ If the query provided to **winget** does not result in a single application to u
 ![uninstall command](images/uninstall-multiple.png)
 
 ## Uninstalling apps not installed with Windows Package Manager
-As mentioned in [**list**](.\list.md), the **winget list** command will display more than just apps installed with the **winget**.  Therefore you can use these commands to quickly and easily remove apps from your PC.
+As mentioned in [**list**](list.md), the **winget list** command will display more than just apps installed with the **winget**.  Therefore you can use these commands to quickly and easily remove apps from your PC.
 
 In this example, **list** was used to find the application, and then the **id** was passed in as part of uninstall.
 
