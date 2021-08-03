@@ -1031,7 +1031,9 @@ namespace AppInstaller::Repository
         // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
         // if the details came from the same instance of the list that's being saved.
         // Some sources that do not need updating like the Installed source, do not have Name values.
-        if (!details.Name.empty())
+        // Restricted sources don't have full functionality
+        if (!details.Name.empty() &&
+            !details.Restricted)
         {
             SourceListInternal sourceList;
             auto source = sourceList.GetSource(details.Name);
@@ -1046,8 +1048,7 @@ namespace AppInstaller::Repository
                 return {};
             }
 
-            if (!source->Restricted && 
-                ShouldUpdateBeforeOpen(*source))
+            if (ShouldUpdateBeforeOpen(*source))
             {
                 try
                 {

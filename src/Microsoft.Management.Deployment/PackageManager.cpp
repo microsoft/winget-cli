@@ -8,7 +8,8 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
-#include "Commands/InstallCommand.h"
+#include <winget/Manifest.h>
+#include "Commands/COMInstallCommand.h"
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #pragma warning( push )
@@ -107,6 +108,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             return nullptr;
         }
+    }
+    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context& context)
+    {
+        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
+        ::AppInstaller::Manifest::Manifest manifest = internalPackageVersion->GetManifest();
+
+        std::string targetLocale;
+        if (context.Args.Contains(::AppInstaller::CLI::Execution::Args::Type::Locale))
+        {
+            targetLocale = context.Args.GetArg(::AppInstaller::CLI::Execution::Args::Type::Locale);
+        }
+        manifest.ApplyLocale(targetLocale);
+
+        context.Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
+        context.Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
+
+        ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
@@ -217,17 +236,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return {};
         }
     }
-
-    ::AppInstaller::Manifest::Manifest GetManifestFromPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo)
-    {
-        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
-        ::AppInstaller::Manifest::Manifest manifest = internalPackageVersion->GetManifest();
-
-        std::string targetLocale;
-        manifest.ApplyLocale(targetLocale);
-        return manifest;
-    }
     
     std::shared_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(winrt::Microsoft::Management::Deployment::CatalogPackage package, InstallOptions options, std::wstring callerProcessInfoString)
     {
@@ -253,12 +261,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // If no package version was found on the catalog then return a failure. This is unexpected, a catalog with no latest version should not be in the catalog.
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER, !packageVersionInfo);
 
-        // Convert the options to arguments for the installer.
-        context->Args.AddArg(Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(package.Id()));
-        context->Args.AddArg(Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
-        context->Args.AddArg(Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
-        context->Args.AddArg(Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
-        context->Args.AddArg(Execution::Args::Type::Exact);
         if (options)
         {
             if (!options.LogOutputPath().empty())
@@ -300,10 +302,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
             }
         }
+        
+        AddPackageManifestToContext(packageVersionInfo, context);
+
         // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
-        ::AppInstaller::Manifest::Manifest manifest;
-        manifest = GetManifestFromPackageVersionInfo(packageVersionInfo);
-        context->Add<Execution::Data::Manifest>(manifest);
         return context;
     }
 
@@ -351,7 +353,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
                 correlationData = hstring(queueItem->GetContext()->GetCorrelationJson());
             }
-
 
             queueItem->GetContext()->AddProgressCallbackFunction([=](
                 ::AppInstaller::ReportType reportType,
