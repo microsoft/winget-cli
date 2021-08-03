@@ -12,7 +12,7 @@ ms.localizationpriority: medium
 
 The **export** command of the [winget](index.md) tool exports a JSON file of apps to a specified file.  The **export** command users JSON as the format.  The JSON schema used by **winget** can be found [here](https://aka.ms/winget-packages.schema.1.0.json).
 
-The **export** combined with the [**import**](.\import.md) command allows you to batch install applications on your PC.
+The **export** combined with the [**import**](import.md) command allows you to batch install applications on your PC.
 
 The **export** command is often used to create a file that you can share with other developers, or for use when restoring your build environment.
 
@@ -36,7 +36,7 @@ The options allow you to customize the export experience to meet your needs.
 |<div style="width:290px">Option</div>     | Description |
 |----------------|-------------|  
 | **-s, --source**  |  [optional] Specifies a source to export files from.  Use this option when you only want files from a specific source.  |
-| **--include-versions** | [optional] Includes the version of the app currently installed.  Use this option if you want a specific version.  By default, unless specified, [**import**](.\import.md) will use latest. |
+| **--include-versions** | [optional] Includes the version of the app currently installed.  Use this option if you want a specific version.  By default, unless specified, [**import**](import.md) will use latest. |
 
 ## JSON Schema
 The driving force behind the **export** command is the JSON file.  As mentioned, you can find the schema for the JSON file [here](https://aka.ms/winget-packages.schema.1.0.json).

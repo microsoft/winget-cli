@@ -6,6 +6,8 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
 #include "COMContext.h"
+#include "AppInstallerRuntime.h"
+#include "AppInstallerVersions.h"
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -33,7 +35,10 @@ static void _releaseNotifier() noexcept
 // Check whether the packaged api is enabled and the overarching winget group policy is enabled.
 bool IsServerEnabled()
 {
-    if (!::AppInstaller::Settings::ExperimentalFeature::IsEnabled(::AppInstaller::Settings::ExperimentalFeature::Feature::PackagedAPI))
+    ::AppInstaller::Utility::Version version("10.0.22000.0");
+
+    if (!::AppInstaller::Runtime::IsCurrentOSVersionGreaterThanOrEqual(version) &&
+        !::AppInstaller::Settings::ExperimentalFeature::IsEnabled(::AppInstaller::Settings::ExperimentalFeature::Feature::PackagedAPI))
     {
         return false;
     }
