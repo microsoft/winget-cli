@@ -12,7 +12,7 @@
 #include "MatchResult.h"
 #include "CatalogPackage.h"
 #include "Commands/RootCommand.h"
-#include "Helpers.h"
+#include "ExecutionContext.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)
 // 6388 Allow CreateInstance.

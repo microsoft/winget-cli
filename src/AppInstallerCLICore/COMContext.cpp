@@ -13,32 +13,61 @@ namespace AppInstaller
         m_nullIn.reset(new std::istream(&m_nullStreamBuf));
     }
 
+    void COMContext::AddProgressCallbackFunction(ProgressCallBackFunction&& f)
+    {
+        std::lock_guard<std::mutex> lock{ m_callbackLock };
+        m_comProgressCallbacks.push_back(std::move(f));
+    }
+
+    std::vector<ProgressCallBackFunction> COMContext::GetCallbacks()
+    {
+        std::lock_guard<std::mutex> lock{ m_callbackLock };
+        std::vector<ProgressCallBackFunction> tempComProgressCallbacks(m_comProgressCallbacks);
+        return tempComProgressCallbacks;
+    }
+
+    void COMContext::FireCallbacks(::AppInstaller::ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
+    {
+        // Get a copy of the list so that it can be iterated safely while other threads may be adding new callbacks.
+        std::vector<ProgressCallBackFunction> tempComProgressCallbacks = GetCallbacks();
+        for (auto& callback : tempComProgressCallbacks)
+        {
+            callback(reportType, current, maximum, progressType, executionPhase);
+        }
+    };
+
     void COMContext::BeginProgress()
     {
-        m_comProgressCallback(ReportType::BeginProgress, 0, 0, ProgressType::None, m_executionStage);
+        FireCallbacks(ReportType::BeginProgress, 0, 0, ProgressType::None, m_executionStage);
     };
 
     void COMContext::OnProgress(uint64_t current, uint64_t maximum, ProgressType progressType)
     {
-        m_comProgressCallback(ReportType::Progressing, current, maximum, progressType, m_executionStage);
+        FireCallbacks(ReportType::Progressing, current, maximum, progressType, m_executionStage);
     }
 
     void COMContext::EndProgress(bool)
     {
-        m_comProgressCallback(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);
+        FireCallbacks(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);
     };
 
     void COMContext::SetExecutionStage(CLI::Workflow::ExecutionStage executionStage, bool)
     {
         m_executionStage = executionStage;
-        m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
+        FireCallbacks(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
     }
 
-    void COMContext::SetLoggerContext(const std::wstring_view telemetryCorelationJson, const std::string& caller)
+    void COMContext::SetLoggerContext(const std::wstring_view telemetryCorrelationJson, const std::string& caller)
     {
-        Logging::Telemetry().SetTelemetryCorelationJson(telemetryCorelationJson);
+        m_correlationData = telemetryCorrelationJson;
+        Logging::Telemetry().SetTelemetryCorrelationJson(telemetryCorrelationJson);
         Logging::Telemetry().SetCaller(caller);
         Logging::Telemetry().LogStartup(true);
+    }
+    
+    std::wstring_view COMContext::GetCorrelationJson()
+    {
+        return m_correlationData;
     }
 
     void COMContext::SetLoggers()

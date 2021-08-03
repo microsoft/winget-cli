@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(1)]
+    [contractversion(2)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -409,6 +409,7 @@ namespace Microsoft.Management.Deployment
     enum LocalPackageCatalog
     {
         InstalledPackages,
+        InstallingPackages
     };
 
     /// Options for creating a composite catalog.
@@ -502,6 +503,10 @@ namespace Microsoft.Management.Deployment
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        /// Get install progress
+        Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package); 
     }
 
     /// Force midl3 to generate vector marshalling info. 

@@ -44,6 +44,18 @@ namespace AppInstaller::Repository::Microsoft
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;
         bool m_isInstalled;
+    protected:
         SQLiteIndex m_index;
+    };
+
+    // A source that holds a SQLiteIndex and lock.
+    struct SQLiteIndexWriteableSource : public SQLiteIndexSource, public IMutablePackageSource
+    {
+        SQLiteIndexWriteableSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {}, bool isInstalledSource = false);
+
+        // Adds an installed package version to the source.
+        void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
     };
 }

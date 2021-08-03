@@ -9,6 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         PackageVersionInfo() = default;
         void Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> GetRepositoryPackageVersion() { return m_packageVersion; }
 
         hstring GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField);
         hstring Id();

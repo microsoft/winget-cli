@@ -187,13 +187,6 @@ namespace AppInstaller::Repository
         virtual Metadata GetMetadata() const = 0;
     };
 
-    // An installed package version.
-    struct IInstalledPackageVersion : public IPackageVersion
-    {
-        // Sets metadata on the installed version.
-        virtual void SetMetadata(PackageVersionMetadata metadata, std::string_view value) = 0;
-    };
-
     // A key to identify a package version within a package.
     struct PackageVersionKey
     {

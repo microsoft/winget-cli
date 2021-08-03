@@ -9,6 +9,19 @@
 
 #include <string_view>
 
+#define WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR)   catch (const wil::ResultException& re) { exceptionHR = re.GetErrorCode(); }
+#define WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR)   catch (const winrt::hresult_error& hre) { exceptionHR = hre.code(); }
+#define WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::CLI::CommandException&) { exceptionHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS; }
+#define WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::Settings::GroupPolicyException&) { exceptionHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS; }
+#define WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR)   catch (const std::exception&) { exceptionHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED; }
+#define WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR)   catch (...) { exceptionHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED; }
+#define WINGET_CATCH_STORE(exceptionHR) \
+        WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR)
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
@@ -67,7 +80,6 @@ namespace AppInstaller::CLI::Execution
         virtual std::unique_ptr<Context> Clone();
 
         // Enables reception of CTRL signals.
-        // Only one context can be enabled to handle CTRL signals at a time.
         void EnableCtrlHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
