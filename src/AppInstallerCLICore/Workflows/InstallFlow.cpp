@@ -170,6 +170,11 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        Utility::DownloadInfo downloadInfo{};
+        downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
+        // Use the SHA256 hash of the installer as the identifier for the download
+        downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
+
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
@@ -185,8 +190,10 @@ namespace AppInstaller::CLI::Workflow
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     tempInstallerPath,
+                    Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    true));
+                    true,
+                    downloadInfo));
 
                 success = true;
             }
@@ -299,7 +306,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Contains(Execution::Data::PackageVersion) &&
                 context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel, SourceTrustLevel::Trusted))
             {
                 context.SetFlags(Execution::ContextFlag::InstallerTrusted);
             }
@@ -503,16 +510,19 @@ namespace AppInstaller::CLI::Workflow
 
             installContext.Reporter.Info() << std::endl;
 
-            if (installContext.GetTerminationHR() != S_OK &&
-                m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
+            if (installContext.IsTerminated())
             {
-                allSucceeded = false;
-            }
+                if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                {
+                    // This means that the subcontext being terminated is due to an overall abort
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                    return;
+                }
 
-            if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
-            {
-                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                return;
+                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
+                {
+                    allSucceeded = false;
+                }
             }
         }
 
@@ -540,10 +550,13 @@ namespace AppInstaller::CLI::Workflow
             for (const auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                entries.emplace_back(std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel)));
+                if (installed)
+                {
+                    entries.emplace_back(std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel)));
+                }
             }
 
             std::sort(entries.begin(), entries.end());
@@ -571,15 +584,19 @@ namespace AppInstaller::CLI::Workflow
             for (auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel));
 
-                auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
-                if (itr == entries.end() || *itr != entryKey)
+                if (installed)
                 {
-                    changes.emplace_back(std::move(entry));
+                    auto entryKey = std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel));
+
+                    auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
+                    if (itr == entries.end() || *itr != entryKey)
+                    {
+                        changes.emplace_back(std::move(entry));
+                    }
                 }
             }
 
@@ -725,7 +742,7 @@ namespace AppInstaller::CLI::Workflow
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
                 toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
             );
         }
     }
