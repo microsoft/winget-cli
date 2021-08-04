@@ -15,9 +15,10 @@
   </ItemGroup>
   <PropertyGroup>
     <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\Microsoft.Management.Deployment.Projection\</OutDir>
     <CsWinRTGeneratedFilesDir>$(OutDir)</CsWinRTGeneratedFilesDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DefineConstants>TRACE;/fl</DefineConstants>
+    <DefineConstants>TRACE;fl</DefineConstants>
   </PropertyGroup>
 </Project>

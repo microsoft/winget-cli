@@ -28,6 +28,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     void PackageMatchFilter::Value(hstring const& value)
     {
-        m_packageMatchFilter.Option();
+        m_packageMatchFilter.Value(value);
     }
 }

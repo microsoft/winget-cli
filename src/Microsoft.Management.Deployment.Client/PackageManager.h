@@ -7,7 +7,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct PackageManager : PackageManagerT<PackageManager>
     {
-        PackageManager() = default;
+        PackageManager()
+        {
+            return m_packageManager = winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
+        }
 
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> GetPackageCatalogs();
         winrt::Microsoft::Management::Deployment::PackageCatalogReference GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog);

@@ -2,15 +2,10 @@
 #include "PackageManager.h"
 #include "PackageManager.g.cpp"
 
-
-
-
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
-        m_packageManager = winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
         return m_packageManager.GetPackageCatalogs();
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
