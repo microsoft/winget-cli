@@ -146,3 +146,12 @@ Support in WinGet for packaged callers is currently implemented as an experiment
        "packagedAPI": true
    },
 ```
+### Dependencies
+
+Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "dependencies": true
+   },
+```

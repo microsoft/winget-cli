@@ -207,5 +207,6 @@ namespace AppInstaller::CLI::Execution
         }
 
         m_executionStage = stage;
+        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 }
