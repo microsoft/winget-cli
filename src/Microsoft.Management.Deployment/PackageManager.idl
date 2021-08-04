@@ -401,6 +401,7 @@ namespace Microsoft.Management.Deployment
     enum PredefinedPackageCatalog
     {
         OpenWindowsCatalog,
+        MicrosoftStore,
     };
 
     /// Local Catalogs with PackageCatalogOrigin Predefined

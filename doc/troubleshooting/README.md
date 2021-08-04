@@ -6,11 +6,11 @@
 
 The first thing to check is which version of Windows 10 you have.
 
-[Check your version of Windows](https://support.microsoft.com/en-us/windows/see-which-version-of-windows-10-you-have-12d35019-4da9-0cb1-ba47-f8b031b712ad).
+[Check your version of Windows](https://support.microsoft.com/windows/see-which-version-of-windows-10-you-have-12d35019-4da9-0cb1-ba47-f8b031b712ad).
 
 The Windows Package Manager requires at least Version 1809 (October 2018 Update).
 
-The next requirement is ensuring you have the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) from the Microsoft Store. The Windows Package Manager is delivered as an MSIX package. The App Installer is required to install MSIX packages on Windows 10.
+The next requirement is ensuring you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) from the Microsoft Store. The Windows Package Manager is delivered as an MSIX package. The App Installer is required to install MSIX packages on Windows 10.
 
 >Note: The Windows Package Manager is shipped with later versions of the App Installer.
 
