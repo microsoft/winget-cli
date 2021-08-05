@@ -149,10 +149,11 @@ namespace AppInstaller::CLI
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
-                EnsureApplicableInstaller << 
+                EnsureApplicableInstaller <<
                 ReportIdentityAndInstallationDisclaimer <<
                 GetDependenciesFromInstaller <<
                 ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+                ManagePackageDependencies <<
                 InstallPackageInstaller;
         }
         else
@@ -183,6 +184,7 @@ namespace AppInstaller::CLI
                 ReportIdentityAndInstallationDisclaimer <<
                 GetDependenciesFromInstaller << 
                 ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+                ManagePackageDependencies <<
                 InstallPackageInstaller;
         }
     }

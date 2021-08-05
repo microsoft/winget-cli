@@ -262,11 +262,11 @@ namespace
             auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
             manifest.Id = input;
             manifest.Moniker = input;
-            // TODO maybe change package name on default locale for better debugging
 
             auto& installer = manifest.Installers.at(0);
             installer.ProductId = input;
             installer.Dependencies.Clear();
+            installer.Switches[InstallerSwitchType::Custom] = input;
 
             /*
             * Dependencies:
@@ -278,8 +278,12 @@ namespace
             *   F: B
             *   G: C
             *   H: G, B
+            * 
+            *   installed1
             */
             
+            bool installed = false;
+
             //-- predefined
             if (input == "C")
             {
@@ -303,6 +307,12 @@ namespace
             }
             if (input == "H")
             {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "G"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+            }
+            if (input == "installed1")
+            {
+                installed = true;
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "G"));
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
             }
@@ -331,18 +341,39 @@ namespace
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "H"));
             }
+            if (input == "DependenciesInstalled")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1"));
+            }
+            
 
             //TODO:
-            // test for installed packages (or the ones that need upgrade)
+            // test for installed packages and packages that need upgrades
             // test for different min Version of dependencies
+            if (installed)
+            {
+                //auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest },
+                            const_cast<DependenciesTestSource*>(this)->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
+            }
+            else
+            {
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            const_cast<DependenciesTestSource*>(this)->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
+            }
 
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        std::vector<Manifest>{ manifest },
-                        const_cast<DependenciesTestSource*>(this)->shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
             return result;
         }
     };
@@ -505,6 +536,24 @@ void OverrideForShellExecute(TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+}
+
+void OverrideForShellExecute(TestContext& context, std::vector<Dependency>& installationLog)
+{
+    context.Override({ DownloadInstallerFile, [&installationLog](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+
+        auto dependency = Dependency(DependencyType::Package, context.Get<Execution::Data::Manifest>().Id, context.Get<Execution::Data::Manifest>().Version);
+        installationLog.push_back(dependency);
     } });
 
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
@@ -1808,11 +1857,12 @@ TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][depe
 TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
+    OverrideForShellExecute(context, installationOrder);
 
     context.Args.AddArg(Execution::Args::Type::Query, "DependencyAlreadyInStackButNoLoop"sv);
 
@@ -1825,16 +1875,24 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
 
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
     REQUIRE(installOutput.str().find("order: B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 4);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "F");
+    REQUIRE(installationOrder.at(3).Id == "DependencyAlreadyInStackButNoLoop");
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
+    OverrideForShellExecute(context, installationOrder);
 
     context.Args.AddArg(Execution::Args::Type::Query, "PathBetweenBranchesButNoLoop"sv);
 
@@ -1848,16 +1906,24 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
     REQUIRE(installOutput.str().find("order: B, C, G, H, PathBetweenBranchesButNoLoop,") != std::string::npos);
 
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 5);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "G");
+    REQUIRE(installationOrder.at(3).Id == "H");
+    REQUIRE(installationOrder.at(4).Id == "PathBetweenBranchesButNoLoop");
 }
 
 TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
+    OverrideForShellExecute(context, installationOrder);
 
     context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
 
@@ -1871,16 +1937,22 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
     REQUIRE(installOutput.str().find("order: B, C, StackOrderIsOk,") != std::string::npos);
 
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "StackOrderIsOk");
 }
 
 TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
+    OverrideForShellExecute(context, installationOrder);
 
     context.Args.AddArg(Execution::Args::Type::Query, "NeedsToInstallBFirst"sv);
 
@@ -1894,6 +1966,37 @@ TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][de
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
     REQUIRE(installOutput.str().find("order: B, C, NeedsToInstallBFirst,") != std::string::npos);
 
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "NeedsToInstallBFirst");
+}
+
+TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesInstalled"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    // dependencies installed will show on the order but the installer will not be called
+    REQUIRE(installOutput.str().find("order: installed1, DependenciesInstalled,") != std::string::npos);
+    REQUIRE(installationOrder.size() == 1);
+    REQUIRE(installationOrder.at(0).Id == "DependenciesInstalled");
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")

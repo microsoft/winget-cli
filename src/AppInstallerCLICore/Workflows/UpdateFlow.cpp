@@ -116,6 +116,7 @@ namespace AppInstaller::CLI::Workflow
                 ReportIdentityAndInstallationDisclaimer <<
                 GetDependenciesFromInstaller << 
                 ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+                ManagePackageDependencies <<
                 InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;
