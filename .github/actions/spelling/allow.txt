@@ -87,6 +87,7 @@ delstore
 Demitrius
 denelon
 depersist
+deque
 Deserialize
 deserializer
 deserializing

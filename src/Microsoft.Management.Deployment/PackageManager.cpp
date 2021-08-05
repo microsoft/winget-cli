@@ -109,21 +109,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return nullptr;
         }
     }
-    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context& context)
+    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, const std::shared_ptr<::AppInstaller::CLI::Execution::Context>& context)
     {
         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
         ::AppInstaller::Manifest::Manifest manifest = internalPackageVersion->GetManifest();
 
         std::string targetLocale;
-        if (context.Args.Contains(::AppInstaller::CLI::Execution::Args::Type::Locale))
+        if (context->Args.Contains(::AppInstaller::CLI::Execution::Args::Type::Locale))
         {
-            targetLocale = context.Args.GetArg(::AppInstaller::CLI::Execution::Args::Type::Locale);
+            targetLocale = context->Args.GetArg(::AppInstaller::CLI::Execution::Args::Type::Locale);
         }
         manifest.ApplyLocale(targetLocale);
 
-        context.Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
-        context.Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
+        context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
+        context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
 
         ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
     }
