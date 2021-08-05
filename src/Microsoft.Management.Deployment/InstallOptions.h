@@ -5,6 +5,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+#if USE_PROD_CLSIDS 
+    [uuid("1095F097-EB96-453B-B4E6-1613637F3B14")]
+#else
+    [uuid("44FE0580-62F7-44D4-9E91-AA9614AB3E86")]
+#endif
     struct InstallOptions : InstallOptionsT<InstallOptions>
     {
         InstallOptions() = default;
