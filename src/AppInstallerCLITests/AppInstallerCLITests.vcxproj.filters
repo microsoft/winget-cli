@@ -171,6 +171,8 @@
     <None Include="Run-TestsInPackage.ps1" />
     <None Include="TestData\InstallFlowTest_LicenseAgreement.yaml" />
     <None Include="TestData\ImportFile-Good-WithLicenseAgreement.json" />
+    <None Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml" />
+    <None Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">

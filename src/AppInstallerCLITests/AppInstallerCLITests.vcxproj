@@ -517,6 +517,8 @@
     <None Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml" />
+    <None Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

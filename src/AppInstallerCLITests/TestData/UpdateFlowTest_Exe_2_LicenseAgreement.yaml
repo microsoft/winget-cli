@@ -1,18 +1,19 @@
-PackageIdentifier: TestInstallerWithLicenseAgreement
-PackageVersion: 1.0.0.0
+# Similar content to UpdateFlowTest_Exe_2.yaml but with Agreements
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller
+PackageVersion: 3.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
 Agreements:
-  - AgreementLabel: Agreement with text
-    Agreement: This is the text of the agreement.
-  - AgreementLabel: Agreement with URL
-    AgreementUrl: https://TestAgreementUrl
+  - AgreementLabel: Agreement for EXE
+    Agreement: This is the agreement for the EXE installer.
 InstallerSwitches:
+  Custom: /custom /ver3.0.0.0
   SilentWithProgress: /silentwithprogress
   Silent: /silence
+  Update: /update
 Installers:
   - Architecture: x86
     InstallerUrl: https://ThisIsNotUsed
