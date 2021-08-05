@@ -13,7 +13,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Shows information on an application that is global to all installers.
     // Required Args: None
-    // Inputs: Manifset
+    // Inputs: Manifest
     // Outputs: None
     void ShowManifestGlobalInfo(Execution::Context& context);
 
