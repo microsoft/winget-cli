@@ -114,12 +114,13 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
+fzanollo
 gcpi
 GES
 GESMBH
 GHS
 gity
-globals
+Globals
 helplib
 helplibrary
 hhx
@@ -137,6 +138,7 @@ IHelp
 IHost
 IID
 IInstalled
+IISOn
 img
 IName
 inet
@@ -154,7 +156,7 @@ itr
 IVector
 IWeb
 IZone
-JDKs
+jdk
 jfearn
 JObject
 jp
@@ -201,6 +203,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Multideclaration
 multimap
 mx
 mycustom
@@ -213,6 +216,7 @@ netlify
 Newtonsoft
 NOEXPAND
 normer
+npp
 nsis
 nuffing
 nullopt
@@ -350,4 +354,5 @@ wwinmain
 WZDNCRFJ
 XPLATSTR
 xsi
+Zanollo
 zy

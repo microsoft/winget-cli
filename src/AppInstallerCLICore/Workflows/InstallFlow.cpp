@@ -7,6 +7,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -387,11 +388,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageInstaller(Execution::Context& context)
+    void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
             Workflow::ReportManifestIdentity <<
-            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ShowInstallationDisclaimer;
+    }
+
+    void InstallPackageInstaller(Execution::Context& context)
+    {
+        context <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
@@ -408,12 +414,27 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::GetDependenciesFromInstaller << 
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
     }
+
+    const struct PackagesAndInstallers
+    {
+        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
+            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
+
+        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
+        AppInstaller::CLI::Execution::PackageToInstall Package;
+    };
 
     void InstallMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
+        DependencyList allDependencies;
+        std::vector<PackagesAndInstallers> installers;
+
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -429,7 +450,49 @@ namespace AppInstaller::CLI::Workflow
             // TODO: In the future, it would be better to not have to convert back and forth from a string
             installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
 
-            installContext << InstallPackageVersion;
+            installContext <<
+                Workflow::SelectInstaller <<
+                Workflow::EnsureApplicableInstaller;
+            
+            if (installContext.IsTerminated())
+            {
+                allSucceeded = false;
+                continue;
+            }
+
+            const auto& installer = installContext.Get<Execution::Data::Installer>();
+            installers.push_back(PackagesAndInstallers(installer, package));
+            
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            {
+                if (installer) allDependencies.Add(installer->Dependencies);
+            }
+        }
+
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
+        }
+
+        for (auto packageAndInstaller : installers)
+        {
+            auto package = packageAndInstaller.Package;
+            auto installer = packageAndInstaller.Installer;
+
+            auto installContextPtr = context.Clone();
+            Execution::Context& installContext = *installContextPtr;
+
+            // set data needed for installing
+            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
+            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
+            installContext.Add<Execution::Data::Installer>(installer);
+
+            installContext <<
+                ReportIdentityAndInstallationDisclaimer <<
+                Workflow::InstallPackageInstaller;
+
             if (installContext.IsTerminated())
             {
                 if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
