@@ -114,6 +114,7 @@ namespace AppInstaller::CLI::Workflow
             packagesToInstall.emplace_back(
                 std::move(updateContext.Get<Execution::Data::PackageVersion>()),
                 std::move(updateContext.Get<Execution::Data::InstalledPackageVersion>()),
+                std::move(updateContext.Get<Execution::Data::Manifest>()),
                 std::move(updateContext.Get<Execution::Data::Installer>().value()));
         }
 

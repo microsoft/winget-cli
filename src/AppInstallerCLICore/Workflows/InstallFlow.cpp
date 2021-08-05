@@ -83,7 +83,12 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureLicenseAcceptance::operator()(Execution::Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::AcceptLicenses))
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::PackageHasLicenseAgreements))
+        {
+            return;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::AcceptAgreements))
         {
             AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
             return;
@@ -109,7 +114,7 @@ namespace AppInstaller::CLI::Workflow
             auto showContextPtr = context.Clone();
             Execution::Context& showContext = *showContextPtr;
 
-            showContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+            showContext.Add<Execution::Data::Manifest>(package.Manifest);
 
             showContext <<
                 Workflow::ReportManifestIdentity <<
@@ -125,6 +130,7 @@ namespace AppInstaller::CLI::Workflow
         // If any package has agreements, ensure they are accepted
         if (hasLicenseAgreements)
         {
+            context.SetFlags(Execution::ContextFlag::PackageHasLicenseAgreements);
             context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ false);
         }
     }
@@ -499,9 +505,6 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
             installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
             installContext.Add<Execution::Data::Installer>(package.Installer);
-
-            // TODO: In the future, it would be better to not have to convert back and forth from a string
-            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.Scope));
 
             installContext <<
                 Workflow::ReportManifestIdentity <<

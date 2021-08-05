@@ -50,17 +50,28 @@ namespace AppInstaller::CLI::Execution
         Max
     };
 
+    // Contains all the information needed to install a package.
+    // This is used when installing multiple packages to pass all the
+    // data to a sub-context.
     struct PackageToInstall
     {
         PackageToInstall(
             std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
             std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
+            Manifest::Manifest&& manifest,
             Manifest::ManifestInstaller&& installer,
             Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown)
-            : PackageVersion(packageVersion), InstalledPackageVersion(installedPackageVersion), Installer(installer), Scope(scope) {}
+            : PackageVersion(packageVersion), InstalledPackageVersion(installedPackageVersion), Manifest(manifest), Installer(installer), Scope(scope) { }
 
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+
+        // Used to uninstall the old version if needed.
         std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
+
+        // Use this instead of the PackageVersion->GetManifest() as the locale was
+        // applied when selecting the installer.
+        Manifest::Manifest Manifest;
+
         Manifest::ManifestInstaller Installer;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
     };

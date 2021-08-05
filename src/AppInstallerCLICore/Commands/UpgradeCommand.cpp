@@ -41,7 +41,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
-            Argument::ForType(Args::Type::AcceptLicenses),
+            Argument::ForType(Args::Type::AcceptAgreements),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
         };
     }

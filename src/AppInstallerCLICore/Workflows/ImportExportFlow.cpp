@@ -278,6 +278,9 @@ namespace AppInstaller::CLI::Workflow
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
 
+                // TODO: In the future, it would be better to not have to convert back and forth from a string
+                searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+
                 // Find the single version we want is available
                 searchContext <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
@@ -319,6 +322,7 @@ namespace AppInstaller::CLI::Workflow
                 packagesToInstall.emplace_back(
                     std::move(searchContext.Get<Execution::Data::PackageVersion>()),
                     std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
+                    std::move(searchContext.Get<Execution::Data::Manifest>()),
                     std::move(searchContext.Get<Execution::Data::Installer>().value()),
                     packageRequest.Scope);
             }
