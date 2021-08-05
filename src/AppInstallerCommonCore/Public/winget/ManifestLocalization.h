@@ -31,8 +31,9 @@ namespace AppInstaller::Manifest
 
     struct Agreement
     {
-        string_t Label;
-        string_t TextOrUrl;
+        std::optional<string_t> Label;
+        std::optional<string_t> AgreementText;
+        std::optional<string_t> AgreementUrl;
     };
 
     namespace details

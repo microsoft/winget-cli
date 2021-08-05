@@ -411,8 +411,8 @@ namespace AppInstaller::Manifest
                 result =
                 {
                     { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
-                    { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->TextOrUrl = Utility::Trim(value.as<std::string>()); return {}; } },
-                    { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->TextOrUrl = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
                 };
             }
         }

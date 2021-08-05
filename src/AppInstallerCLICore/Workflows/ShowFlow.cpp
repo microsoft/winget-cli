@@ -60,8 +60,23 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
             for (const auto& agreement : agreements)
             {
-                context.Reporter.Info() << "  " << Execution::ManifestInfoEmphasis << agreement.Label + ":"  << " " << agreement.TextOrUrl << std::endl;
+                if (agreement.Label)
+                {
+                    info << Execution::ManifestInfoEmphasis << agreement.Label.value() << " ";
+                }
+
+                if (agreement.AgreementText)
+                {
+                    info << agreement.AgreementText.value() << std::endl;
+                }
+
+                if (agreement.AgreementUrl)
+                {
+                    info << agreement.AgreementUrl.value() << std::endl;
+                }
             }
+
+            info << std::endl;
         }
     }
 
@@ -91,7 +106,8 @@ namespace AppInstaller::CLI::Workflow
                 info << "  " << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerProductId << " " << installer->ProductId << std::endl;
             }
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies)) {
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            {
                 const auto& dependencies = installer->Dependencies;
 
                 if (dependencies.HasAny())
@@ -113,11 +129,12 @@ namespace AppInstaller::CLI::Workflow
                     if (dependencies.HasAnyOf(Manifest::DependencyType::Package))
                     {
                         info << "    - PackageDependencies: " << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency) {
-                            info << "        " << dependency.Id;
-                            if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
-                            info << std::endl;
-                        });
+                        dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
+                            {
+                                info << "        " << dependency.Id;
+                                if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
+                                info << std::endl;
+                            });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::External))

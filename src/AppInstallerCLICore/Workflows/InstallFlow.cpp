@@ -506,7 +506,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
             {
-                allDependencies.Add(installer->Dependencies);
+                allDependencies.Add(package.Installer.Dependencies);
             }
         }
 
