@@ -38,8 +38,8 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
         AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
         std::map<InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
-        AppInstaller::Manifest::Dependency* m_p_dependency = nullptr;
-        AppInstaller::Manifest::PackageDependency* m_p_packageDependency = nullptr;
+        AppInstaller::Manifest::DependencyList* m_p_dependencyList = nullptr;
+        AppInstaller::Manifest::Dependency* m_p_packageDependency = nullptr;
         AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
         AppInstaller::Manifest::Agreement* m_p_agreement = nullptr;
 
@@ -63,7 +63,8 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             const std::vector<FieldProcessInfo>& fieldInfos);
 
-        std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, std::vector<PackageDependency>& packageDependencies);
+        void ProcessDependenciesNode(DependencyType type, const YAML::Node& rootNode);
+        std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode);
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode);
 
         std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);

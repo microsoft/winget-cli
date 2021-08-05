@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "DependenciesFlow.h"
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"

@@ -19,6 +19,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const;
 
-        std::optional<Manifest::Dependency> DeserializeDependency(const web::json::value& dependenciesJsonObject) const;
+        std::optional<Manifest::DependencyList> DeserializeDependency(const web::json::value& dependenciesJsonObject) const;
     };
 }

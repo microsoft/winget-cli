@@ -142,8 +142,8 @@ namespace AppInstaller::CLI::Execution
     // Indirection to enable change without tracking down every place
     extern const VirtualTerminal::Sequence& HelpCommandEmphasis;
     extern const VirtualTerminal::Sequence& HelpArgumentEmphasis;
+    extern const VirtualTerminal::Sequence& ManifestInfoEmphasis;
     extern const VirtualTerminal::Sequence& NameEmphasis;
     extern const VirtualTerminal::Sequence& IdEmphasis;
     extern const VirtualTerminal::Sequence& UrlEmphasis;
-    extern const VirtualTerminal::Sequence& LabelEmphasis;
 }

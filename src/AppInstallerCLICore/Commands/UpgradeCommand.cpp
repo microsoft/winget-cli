@@ -6,6 +6,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 using namespace AppInstaller::CLI::Execution;

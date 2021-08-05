@@ -8,6 +8,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -458,6 +459,13 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
+    {
+        context <<
+            Workflow::ReportManifestIdentity <<
+            Workflow::ShowInstallationDisclaimer;
+    }
+
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
@@ -475,10 +483,11 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::ReportManifestIdentity <<
-            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowLicenseAgreements <<
             Workflow::EnsureLicenseAcceptance(/* showPrompt */ true) <<
+            Workflow::GetDependenciesFromInstaller << 
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
     }
 
@@ -490,6 +499,23 @@ namespace AppInstaller::CLI::Workflow
         {
             return;
         }
+
+        // Report dependencies
+        DependencyList allDependencies;
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            {
+                allDependencies.Add(installer->Dependencies);
+            }
+        }
+
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
+        }
+
 
         bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())

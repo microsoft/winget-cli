@@ -105,6 +105,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
 
+    // Reports manifest identity and shows installation disclaimer
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
+
     // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
     // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?

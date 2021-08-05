@@ -228,7 +228,7 @@ namespace AppInstaller::Manifest
                     { "Commands", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Commands = ProcessStringSequenceNode(value); return {}; } },
                     { "Protocols", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Protocols = ProcessStringSequenceNode(value); return {}; } },
                     { "FileExtensions", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->FileExtensions = ProcessStringSequenceNode(value); return {}; } },
-                    { "Dependencies", [this](const YAML::Node& value)->ValidationErrors { m_p_dependency = &(m_p_installer->Dependencies); return ValidateAndProcessFields(value, DependenciesFieldInfos); } },
+                    { "Dependencies", [this](const YAML::Node& value)->ValidationErrors { m_p_dependencyList = &(m_p_installer->Dependencies); return ValidateAndProcessFields(value, DependenciesFieldInfos); } },
                     { "Capabilities", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Capabilities = ProcessStringSequenceNode(value); return {}; } },
                     { "RestrictedCapabilities", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RestrictedCapabilities = ProcessStringSequenceNode(value); return {}; } },
                 };
@@ -365,14 +365,23 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                { "WindowsFeatures", [this](const YAML::Node& value)->ValidationErrors { m_p_dependency->WindowsFeatures = ProcessStringSequenceNode(value); return {}; } },
-                { "WindowsLibraries", [this](const YAML::Node& value)->ValidationErrors { m_p_dependency->WindowsLibraries = ProcessStringSequenceNode(value); return {}; } },
-                { "PackageDependencies", [this](const YAML::Node& value)->ValidationErrors { return ProcessPackageDependenciesNode(value, m_p_dependency->PackageDependencies); } },
-                { "ExternalDependencies", [this](const YAML::Node& value)->ValidationErrors { m_p_dependency->ExternalDependencies = ProcessStringSequenceNode(value); return {}; } },
+                { "WindowsFeatures", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsFeature, value); return {}; } },
+                { "WindowsLibraries", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsLibrary, value); return {}; } },
+                { "PackageDependencies", [this](const YAML::Node& value)->ValidationErrors { ProcessPackageDependenciesNode(value); return {}; } },
+                { "ExternalDependencies", [this](const YAML::Node& value)->ValidationErrors { ProcessDependenciesNode(DependencyType::External, value); return {}; } },
             };
         }
 
         return result;
+    }
+
+    void ManifestYamlPopulator::ProcessDependenciesNode(DependencyType type, const YAML::Node& node)
+    {
+        const auto& ids = ProcessStringSequenceNode(node);
+        for (auto id : ids)
+        {
+            m_p_dependencyList->Add(Dependency(type, id));
+        }
     }
 
     std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion)
@@ -480,18 +489,17 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    ValidationErrors ManifestYamlPopulator::ProcessPackageDependenciesNode(const YAML::Node& rootNode, std::vector<PackageDependency>& packageDependencies)
+    ValidationErrors ManifestYamlPopulator::ProcessPackageDependenciesNode(const YAML::Node& rootNode)
     {
         ValidationErrors resultErrors;
 
-        packageDependencies.clear();
         for (auto const& entry : rootNode.Sequence())
         {
-            PackageDependency packageDependency;
+            Dependency packageDependency = Dependency(DependencyType::Package);
             m_p_packageDependency = &packageDependency;
             auto errors = ValidateAndProcessFields(entry, PackageDependenciesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-            packageDependencies.emplace_back(std::move(std::move(packageDependency)));
+            m_p_dependencyList->Add(std::move(std::move(packageDependency)));
         }
 
         return resultErrors;
@@ -551,6 +559,8 @@ namespace AppInstaller::Manifest
             // Clear these defaults as PackageFamilyName and ProductCode needs to be copied based on InstallerType
             installer.PackageFamilyName.clear();
             installer.ProductCode.clear();
+            // Clear dependencies as installer overrides root dependencies
+            installer.Dependencies.Clear();
 
             m_p_installer = &installer;
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos);
@@ -565,6 +575,12 @@ namespace AppInstaller::Manifest
             if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
+            }
+
+            // If there are no dependencies on installer use default ones
+            if (!installer.Dependencies.HasAny())
+            {
+                installer.Dependencies = manifest.DefaultInstallerInfo.Dependencies;
             }
 
             // Populate installer default switches if not exists

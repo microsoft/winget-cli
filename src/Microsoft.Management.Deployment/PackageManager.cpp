@@ -8,7 +8,8 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
-#include "Commands/InstallCommand.h"
+#include <winget/Manifest.h>
+#include "Commands/COMInstallCommand.h"
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #pragma warning( push )
@@ -72,7 +73,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
         // InstalledPackages is the only one supported right now, so return early if it's not that.
-        if(localPackageCatalog != Microsoft::Management::Deployment::LocalPackageCatalog::InstalledPackages)
+        if (localPackageCatalog != Microsoft::Management::Deployment::LocalPackageCatalog::InstalledPackages)
         {
             throw hresult_invalid_argument();
         }
@@ -99,6 +100,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             return nullptr;
         }
+    }
+    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context& context)
+    {
+        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
+        ::AppInstaller::Manifest::Manifest manifest = internalPackageVersion->GetManifest();
+
+        std::string targetLocale;
+        if (context.Args.Contains(::AppInstaller::CLI::Execution::Args::Type::Locale))
+        {
+            targetLocale = context.Args.GetArg(::AppInstaller::CLI::Execution::Args::Type::Locale);
+        }
+        manifest.ApplyLocale(targetLocale);
+
+        context.Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
+        context.Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
+
+        ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
@@ -182,10 +201,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             context.SetLoggerContext(options.CorrelationData(), ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
 
             // Convert the options to arguments for the installer.
-            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Id, ::AppInstaller::Utility::ConvertToUTF8(package.Id()));
-            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Version, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Version()));
-            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Channel, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.Channel()));
-            context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Source, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
             context.Args.AddArg(::AppInstaller::CLI::Execution::Args::Type::Exact);
             if (options)
             {
@@ -229,9 +244,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
             }
 
+            AddPackageManifestToContext(packageVersionInfo, context);
+
             // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
             ::AppInstaller::CLI::RootCommand rootCommand;
-            std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::InstallCommand>(rootCommand.Name());
+            std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
             rootCommand.ValidateArguments(context.Args);
 
             ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
