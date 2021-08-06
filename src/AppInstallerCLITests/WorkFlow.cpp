@@ -823,12 +823,44 @@ TEST_CASE("InstallFlow_LicenseAgreement", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
 }
 
+TEST_CASE("InstallFlow_LicenseAgreement_Prompt", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    // Accept the agreements by saying "Yes" at the prompt
+    std::istringstream installInput{ "y" };
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, installInput };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify prompt was shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LicenseAgreementPrompt).get()) != std::string::npos);
+
+    // Verify agreements are shown
+    REQUIRE(installOutput.str().find("Agreement with text") != std::string::npos);
+    REQUIRE(installOutput.str().find("This is the text of the agreement.") != std::string::npos);
+    REQUIRE(installOutput.str().find("Agreement with URL") != std::string::npos);
+    REQUIRE(installOutput.str().find("https://TestAgreementUrl") != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+}
+
 TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
+    // Say "No" at the agreements prompt
+    std::istringstream installInput{ "n" };
+
     std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
+    TestContext context{ installOutput, installInput };
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
 
     InstallCommand install({});
@@ -1213,8 +1245,11 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
+    // Say "No" at the agreements prompt
+    std::istringstream updateInput{ "n" };
+
     std::ostringstream updateOutput;
-    TestContext context{ updateOutput, std::cin };
+    TestContext context{ updateOutput, updateInput };
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
 
@@ -1269,8 +1304,11 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
 
+    // Say "No" at the agreements prompt
+    std::istringstream updateInput{ "n" };
+
     std::ostringstream updateOutput;
-    TestContext context{ updateOutput, std::cin };
+    TestContext context{ updateOutput, updateInput };
     OverrideForCompositeInstalledSource(context, /* upgradeUsesLicenses */ true);
     context.Args.AddArg(Execution::Args::Type::All);
 
@@ -1687,8 +1725,11 @@ TEST_CASE("ImportFlow_LicenseAgreement", "[ImportFlow][workflow]")
 
 TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
 {
+    // Say "No" at the agreements prompt
+    std::istringstream importInput{ "n" };
+
     std::ostringstream importOutput;
-    TestContext context{ importOutput, std::cin };
+    TestContext context{ importOutput, importInput };
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithLicenseAgreement.json").GetPath().string());
 
