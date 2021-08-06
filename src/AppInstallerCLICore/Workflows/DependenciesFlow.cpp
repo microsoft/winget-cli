@@ -112,6 +112,11 @@ namespace AppInstaller::CLI::Workflow
 
     void ManagePackageDependencies(Execution::Context& context)
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            return;
+        }
+
         auto info = context.Reporter.Info();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();
 
@@ -192,7 +197,7 @@ namespace AppInstaller::CLI::Workflow
                             installer = SelectInstallerFromMetadata(context.Args, manifest, {});
                         }
 
-                        const auto& nodeDependencies = installer->Dependencies;
+                        auto& nodeDependencies = installer->Dependencies;
                         
                         idToInstallerMap[node.Id] = {latestVersion, installer.value(), isUpdate};
                         return nodeDependencies;

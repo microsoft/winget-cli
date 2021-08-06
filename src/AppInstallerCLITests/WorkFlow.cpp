@@ -266,7 +266,6 @@ namespace
             auto& installer = manifest.Installers.at(0);
             installer.ProductId = input;
             installer.Dependencies.Clear();
-            installer.Switches[InstallerSwitchType::Custom] = input;
 
             /*
             * Dependencies:
@@ -280,6 +279,10 @@ namespace
             *   H: G, B
             * 
             *   installed1
+            *   minVersion1.0
+            *   minVersion1.5
+            *   requires1.5: minVersion1.5
+            *   minVersion2.0 //invalid version (not returned as result)
             */
             
             bool installed = false;
@@ -313,8 +316,21 @@ namespace
             if (input == "installed1")
             {
                 installed = true;
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "G"));
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1Dep"));
+            }
+            if (input == "minVersion1.0")
+            {
+                manifest.Id = "minVersion";
+                manifest.Version = "1.0";
+            }
+            if (input == "minVersion1.5")
+            {
+                manifest.Id = "minVersion";
+                manifest.Version = "1.5";
+            }
+            if (input == "requires1.5")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "minVersion", "1.5"));
             }
 
             // depends on test
@@ -345,7 +361,15 @@ namespace
             {
                 installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1"));
             }
-            
+            if (input == "DependenciesValidMinVersions")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "minVersion", "1.0"));
+            }
+            if (input == "DependenciesValidMinVersionsMultiple")
+            {
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "minVersion", "1.0"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "requires1.5"));
+            }
 
             //TODO:
             // test for installed packages and packages that need upgrades
@@ -1993,10 +2017,41 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    // dependencies installed will show on the order but the installer will not be called
+    // dependencies installed will show on the graph order but the installer will not be called
     REQUIRE(installOutput.str().find("order: installed1, DependenciesInstalled,") != std::string::npos);
     REQUIRE(installationOrder.size() == 1);
     REQUIRE(installationOrder.at(0).Id == "DependenciesInstalled");
+    // dependencies of an installed package will not be checked nor added to the graph
+    REQUIRE(installOutput.str().find("installed1Dep") == std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesValidMinVersions"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
+    // dependencies installed will show on the order but the installer will not be called
+    REQUIRE(installOutput.str().find("order: minVersion, DependenciesValidMinVersions,") != std::string::npos);
+    REQUIRE(installationOrder.size() == 2);
+    REQUIRE(installationOrder.at(0).Id == "minVersion");
+    // minVersion 1.5 is available but this requires 1.0 so that version is installed
+    REQUIRE(installationOrder.at(0).MinVersion.value().ToString() == "1.0");
+    REQUIRE(installationOrder.at(1).Id == "DependenciesInstalled");
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
