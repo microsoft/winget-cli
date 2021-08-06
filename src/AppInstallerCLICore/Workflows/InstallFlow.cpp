@@ -97,8 +97,16 @@ namespace AppInstaller::CLI::Workflow
 
         if (m_showPrompt)
         {
-            // TODO: Interactivity
-            // context.Reporter.Info() << std::endl << Resource::String::LicenseAgreementPrompt << std::endl;
+            bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::LicenseAgreementPrompt);
+            if (accepted)
+            {
+                AICLI_LOG(CLI, Info, << "License agreements accepted in prompt");
+                return;
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "License agreements not accepted in prompt");
+            }
         }
 
         AICLI_LOG(CLI, Error, << "License not agreed to.");

@@ -100,11 +100,9 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(const std::string& msg, Level level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString msg, Level level)
     {
-        UNREFERENCED_PARAMETER(level);
-
-        m_out << msg << " (Y|N)" << std::endl;
+        GetOutputStream(level) << msg << " (Y|N)" << std::endl;
 
         char response;
         m_in.get(response);
