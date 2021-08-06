@@ -306,7 +306,7 @@ namespace
                 {
                     if (!wto.Used)
                     {
-                        FAIL("Unused override");
+                        FAIL_CHECK("Unused override " + wto.Target.GetName());
                     }
                 }
             }
@@ -814,9 +814,9 @@ TEST_CASE("InstallFlow_LicenseAgreement", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(installOutput.str().find("Agreement with text:") != std::string::npos);
+    REQUIRE(installOutput.str().find("Agreement with text") != std::string::npos);
     REQUIRE(installOutput.str().find("This is the text of the agreement.") != std::string::npos);
-    REQUIRE(installOutput.str().find("Agreement with URL:") != std::string::npos);
+    REQUIRE(installOutput.str().find("Agreement with URL") != std::string::npos);
     REQUIRE(installOutput.str().find("https://TestAgreementUrl") != std::string::npos);
 
     // Verify Installer is called.
@@ -836,9 +836,9 @@ TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(installOutput.str().find("Agreement with text:") != std::string::npos);
+    REQUIRE(installOutput.str().find("Agreement with text") != std::string::npos);
     REQUIRE(installOutput.str().find("This is the text of the agreement.") != std::string::npos);
-    REQUIRE(installOutput.str().find("Agreement with URL:") != std::string::npos);
+    REQUIRE(installOutput.str().find("Agreement with URL") != std::string::npos);
     REQUIRE(installOutput.str().find("https://TestAgreementUrl") != std::string::npos);
 
     // Verify installation failed
@@ -1202,7 +1202,7 @@ TEST_CASE("UpdateFlow_LicenseAgreement", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(updateOutput.str().find("Agreement for EXE:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for EXE") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Verify Installer is called.
@@ -1223,7 +1223,7 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(updateOutput.str().find("Agreement for EXE:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for EXE") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Verify Installer is not called.
@@ -1252,9 +1252,9 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(updateOutput.str().find("Agreement for EXE:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for EXE") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
-    REQUIRE(updateOutput.str().find("Agreement for MSIX:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for MSIX") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the MSIX") != std::string::npos);
 
     // Verify installers are called.
@@ -1279,9 +1279,9 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     INFO(updateOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(updateOutput.str().find("Agreement for EXE:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for EXE") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
-    REQUIRE(updateOutput.str().find("Agreement for MSIX:") != std::string::npos);
+    REQUIRE(updateOutput.str().find("Agreement for MSIX") != std::string::npos);
     REQUIRE(updateOutput.str().find("This is the agreement for the MSIX") != std::string::npos);
 
     // Verify installers are not called.
@@ -1678,10 +1678,8 @@ TEST_CASE("ImportFlow_LicenseAgreement", "[ImportFlow][workflow]")
     INFO(importOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(importOutput.str().find("Agreement with text:") != std::string::npos);
-    REQUIRE(importOutput.str().find("This is the text of the agreement.") != std::string::npos);
-    REQUIRE(importOutput.str().find("Agreement with URL:") != std::string::npos);
-    REQUIRE(importOutput.str().find("https://TestAgreementUrl") != std::string::npos);
+    REQUIRE(importOutput.str().find("Agreement for EXE") != std::string::npos);
+    REQUIRE(importOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Verify all packages were installed
     REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
@@ -1699,10 +1697,8 @@ TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
     INFO(importOutput.str());
 
     // Verify agreements are shown
-    REQUIRE(importOutput.str().find("Agreement with text:") != std::string::npos);
-    REQUIRE(importOutput.str().find("This is the text of the agreement.") != std::string::npos);
-    REQUIRE(importOutput.str().find("Agreement with URL:") != std::string::npos);
-    REQUIRE(importOutput.str().find("https://TestAgreementUrl") != std::string::npos);
+    REQUIRE(importOutput.str().find("Agreement for EXE") != std::string::npos);
+    REQUIRE(importOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
