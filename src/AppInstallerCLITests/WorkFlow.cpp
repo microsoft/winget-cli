@@ -2051,7 +2051,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     REQUIRE(installationOrder.at(0).Id == "minVersion");
     // minVersion 1.5 is available but this requires 1.0 so that version is installed
     REQUIRE(installationOrder.at(0).MinVersion.value().ToString() == "1.0");
-    REQUIRE(installationOrder.at(1).Id == "DependenciesInstalled");
+    REQUIRE(installationOrder.at(1).Id == "DependenciesValidMinVersions");
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
