@@ -35,14 +35,7 @@
           "description": "The agreement URL."
         }
       },
-      "oneOf": [
-        {
-          "required": [ "AgreementLabel", "Agreement" ]
-        },
-        {
-          "required": [ "AgreementLabel", "Agreement" ]
-        }
-      ]
+      "minProperties": 1
     }
   },
   "type": "object",
