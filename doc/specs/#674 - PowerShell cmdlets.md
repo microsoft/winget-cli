@@ -36,6 +36,8 @@ consistency the sub headings below will map to existing commands in winget.exe t
 to keep the discussion focussed, I'll create GitHub discussions for each of these and link them here as we work through driving
 consensus.
 
+The PowerShell module name will be "WindowsPackageManager"
+
 ### `winget install`
 
 Install-WindowsPackage
@@ -78,6 +80,7 @@ Show-WindowsPackage
 ### `winget source`
 
 Add-WindowsPackageManagerSource
+
 Remove-WindowsPackageManagerSource
 
 ### `winget search`
@@ -99,6 +102,7 @@ Uninstall-WindowsPackage
 ### `winget hash`
 
 Get-WindowsPackageSha256
+
 Get-WindowsPackageSignatureSha256
 
 ### `winget validate`
