@@ -5,9 +5,9 @@ last updated: 2021-08-06
 issue id: 674
 ---
 
-# Spec Title
+# When do we begin to see the PowerShell cmdlets?
 
-"For [#674](https://github.com/microsoft/winget-cli/issues/1)"
+"For [#674](https://github.com/microsoft/winget-cli/issues/674)"
 
 ## Abstract
 
