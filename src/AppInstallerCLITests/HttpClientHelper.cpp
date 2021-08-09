@@ -4,9 +4,9 @@
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
 #include <AppInstallerErrors.h>
-#include <Rest/HttpClientHelper.h>
+#include <Rest/Schema/HttpClientHelper.h>
 
-using namespace AppInstaller::Repository::Rest;
+using namespace AppInstaller::Repository::Rest::Schema;
 
 TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 {

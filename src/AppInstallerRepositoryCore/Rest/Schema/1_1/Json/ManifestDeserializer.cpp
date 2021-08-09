@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
+#include "Rest/HttpClientHelper.h"
 #include "ManifestDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
@@ -413,10 +413,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(Dependencies));
         if (dependenciesObject)
         {
-            std::optional<Manifest::DependencyList> dependencyList = DeserializeDependency(dependenciesObject.value().get());
-            if (dependencyList)
+            std::optional<Manifest::Dependency> dependency = DeserializeDependency(dependenciesObject.value().get());
+            if (dependency)
             {
-                installer.Dependencies = std::move(dependencyList.value());
+                installer.Dependencies = std::move(dependency.value());
             }
         }
 
@@ -428,32 +428,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         return installer;
     }
 
-    std::optional<Manifest::DependencyList> ManifestDeserializer::DeserializeDependency(const web::json::value& dependenciesObject) const
+    std::optional<Manifest::Dependency> ManifestDeserializer::DeserializeDependency(const web::json::value& dependenciesObject) const
     {
         if (dependenciesObject.is_null())
         {
             return {};
         }
 
-        Manifest::DependencyList dependencyList;
+        Manifest::Dependency dependency;
 
-        auto wfIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
-        for (auto&& id : wfIds)
-        {
-            dependencyList.Add(Dependency(DependencyType::WindowsFeature, std::move(id)));
-        };
-
-        const auto& wlIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
-        for (auto id : wlIds)
-        {
-            dependencyList.Add(Dependency(DependencyType::WindowsLibrary, id));
-        };
-
-        const auto& extIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
-        for (auto id : extIds)
-        {
-            dependencyList.Add(Dependency(DependencyType::External, id));
-        };
+        dependency.WindowsFeatures = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
+        dependency.WindowsLibraries = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
+        dependency.ExternalDependencies = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
 
         // Package Dependencies
         std::optional<std::reference_wrapper<const web::json::array>> packageDependencies = JsonHelper::GetRawJsonArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(PackageDependencies));
@@ -464,12 +450,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 std::optional<std::string> id = JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(PackageIdentifier));
                 if (id)
                 {
-                    Dependency pkg{ DependencyType::Package, std::move(id.value()) ,  JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(MinimumVersion)).value_or("") };
-                    dependencyList.Add(std::move(pkg));
+                    PackageDependency pkg{ std::move(id.value()) ,  JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(MinimumVersion)).value_or("") };
+                    dependency.PackageDependencies.emplace_back(std::move(pkg));
                 }
             }
         }
 
-        return dependencyList;
+        return dependency;
     }
 }

@@ -8,7 +8,6 @@
 #include "winget/ManifestValidation.h"
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
 #include "Rest/Schema/1_0/Json/ManifestDeserializer.h"
 #include "Rest/Schema/1_0/Json/SearchResponseDeserializer.h"
 #include "Rest/Schema/1_0/Json/SearchRequestSerializer.h"
@@ -18,14 +17,6 @@ using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
-    // Endpoint constants
-    constexpr std::string_view ManifestSearchPostEndpoint = "/manifestSearch"sv;
-    constexpr std::string_view ManifestByVersionAndChannelGetEndpoint = "/packageManifests/"sv;
-
-    // Query params
-    constexpr std::string_view VersionQueryParam = "Version"sv;
-    constexpr std::string_view ChannelQueryParam = "Channel"sv;
-
     namespace
     {
         web::json::value GetSearchBody(const SearchRequest& searchRequest)

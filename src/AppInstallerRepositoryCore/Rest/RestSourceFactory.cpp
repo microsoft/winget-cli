@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Rest
     namespace
     {
         // The base class for data that comes from a rest based source.
-        struct RestSourceFactoryBase : public ISourceFactory
+        struct RestSourceFactoryImpl : public ISourceFactory
         {
             std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
             {
@@ -58,6 +58,6 @@ namespace AppInstaller::Repository::Rest
 
     std::unique_ptr<ISourceFactory> RestSourceFactory::Create()
     {
-        return std::make_unique<RestSourceFactoryBase>();
+        return std::make_unique<RestSourceFactoryImpl>();
     }
 }

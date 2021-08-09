@@ -701,8 +701,6 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
-            void UpdateSourceLastUpdateTime(const SourceDetails& source);
-
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
 

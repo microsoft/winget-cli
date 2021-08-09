@@ -4,15 +4,13 @@
 #include <set>
 #include <cpprest/json.h>
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/HttpClientHelper.h"
+#include "Rest/Schema/HttpClientHelper.h"
 #include "cpprest/json.h"
 
 namespace AppInstaller::Repository::Rest
 {
     struct RestClient
     {
-        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
-
         // The return type of Search
         using SearchResult = Rest::Schema::IRestClient::SearchResult;
 
@@ -29,18 +27,19 @@ namespace AppInstaller::Repository::Rest
 
         std::string GetSourceIdentifier() const;
 
-        static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const AppInstaller::Repository::Rest::Schema::IRestClient::Information& information, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
+        static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
-
-        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const HttpClientHelper& httpClientHelper);
+        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const Schema::HttpClientHelper& httpClientHelper);
 
         static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, const HttpClientHelper& helper = {});
+        static RestClient Create(const std::string& restApi, const Schema::HttpClientHelper& helper = {});
 
     private:
+        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
+
         std::unique_ptr<Schema::IRestClient> m_interface;
         std::string m_sourceIdentifier;
+        Schema::IRestClient::Information
     };
 }

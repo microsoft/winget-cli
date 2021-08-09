@@ -49,11 +49,24 @@ namespace AppInstaller::Repository::Rest::Schema
         bool Truncated = false;
     };
 
+    struct SourceAgreementEntry
+    {
+        std::string Label;
+        std::string Text;
+        std::string Url;
+    };
+
     // Information endpoint models
     struct Information
     {
         std::string SourceIdentifier;
         std::vector<std::string> ServerSupportedVersions;
+        std::string SourceAgreementsIdentifier;
+        std::vector<SourceAgreementEntry> SourceAgreements;
+        std::vector<std::string> UnsupportedPackageMatchFields;
+        std::vector<std::string> RequiredPackageMatchFields;
+        std::vector<std::string> UnsupportedQueryParameters;
+        std::vector<std::string> RequiredQueryParameters;
 
         Information(std::string sourceId, std::vector<std::string> versions)
             : SourceIdentifier(std::move(sourceId)), ServerSupportedVersions(std::move(versions)) {}

@@ -43,6 +43,7 @@ namespace AppInstaller::Repository
         PackageFamilyName,
         ProductCode,
         NormalizedNameAndPublisher,
+        Market,
     };
 
     // A single match to be performed during a search.

@@ -36,6 +36,23 @@ namespace AppInstaller::Repository
 
     std::string_view ToString(SourceOrigin origin);
 
+    struct SourceAgreement
+    {
+        std::string Label;
+        std::string Text;
+        std::string Url;
+    };
+
+    struct SourceInformation
+    {
+        std::string SourceAgreementIdentifier;
+        std::vector<SourceAgreement> SourceAgreements;
+        std::vector<std::string> UnsupportedPackageMatchFields;
+        std::vector<std::string> RequiredPackageMatchFields;
+        std::vector<std::string> UnsupportedQueryParameters;
+        std::vector<std::string> RequiredQueryParameters;
+    };
+
     // Interface for retrieving information about a source without acting on it.
     struct SourceDetails
     {

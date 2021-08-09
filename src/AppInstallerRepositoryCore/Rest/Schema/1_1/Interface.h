@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
-#include <cpprest/json.h>
+#include "Rest/Schema/1_0/Interface.h"
 
-namespace AppInstaller::Repository::Rest::Schema::V1_0
+namespace AppInstaller::Repository::Rest::Schema::V1_1
 {
     // Interface to this schema version exposed through IRestClient.
-    struct Interface : public IRestClient
+    struct Interface : public V1_0::Interface
     {
         Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper = {});
 

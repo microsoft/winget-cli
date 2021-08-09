@@ -49,6 +49,12 @@
     <Filter Include="Microsoft\Schema\1_3">
       <UniqueIdentifier>{15639b2c-ce61-4a18-995a-a73cf1a5817e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_1">
+      <UniqueIdentifier>{9d8095ed-07de-4bc9-bfe7-630b781586d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_1\Json">
+      <UniqueIdentifier>{2cc20cdb-dcb2-4e0e-b04f-e2d838146100}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -174,9 +180,6 @@
     <ClInclude Include="Rest\Schema\IRestClient.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\HttpClientHelper.h">
-      <Filter>Rest</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\RestClient.h">
       <Filter>Rest</Filter>
     </ClInclude>
@@ -188,12 +191,6 @@
     </ClInclude>
     <ClInclude Include="Rest\Schema\RestHelper.h">
       <Filter>Rest\Schema</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\1_0\Json\CommonJsonConstants.h">
-      <Filter>Rest\Schema\1_0\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.h">
-      <Filter>Rest\Schema\1_0\Json</Filter>
     </ClInclude>
     <ClInclude Include="Rest\Schema\1_0\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_0\Json</Filter>
@@ -218,6 +215,24 @@
     </ClInclude>
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h">
       <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\HttpClientHelper.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_1\Interface.h">
+      <Filter>Rest\Schema\1_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_1\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_1\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h">
+      <Filter>Rest\Schema\1_1\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.h">
+      <Filter>Rest\Schema\1_1\Json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -296,11 +311,8 @@
     <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp">
       <Filter>Microsoft\Schema\1_2</Filter>
     </ClCompile>
-    <ClCompile Include="Rest\Schema\1_0\Interface.cpp">
+    <ClCompile Include="Rest\Schema\1_0\RestInterface_1_0.cpp">
       <Filter>Rest\Schema\1_0</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\HttpClientHelper.cpp">
-      <Filter>Rest</Filter>
     </ClCompile>
     <ClCompile Include="Rest\RestClient.cpp">
       <Filter>Rest</Filter>
@@ -313,9 +325,6 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\RestHelper.cpp">
       <Filter>Rest\Schema</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.cpp">
-      <Filter>Rest\Schema\1_0\Json</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_0\Json\ManifestDeserializer.cpp">
       <Filter>Rest\Schema\1_0\Json</Filter>
@@ -332,8 +341,26 @@
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClCompile>
+    <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp">
+      <Filter>Rest\Schema</Filter>
+    </ClCompile>
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp">
       <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\HttpClientHelper.cpp">
+      <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_1\RestInterface_1_1.cpp">
+      <Filter>Rest\Schema\1_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_1\Json\ManifestDeserializer.cpp">
+      <Filter>Rest\Schema\1_1\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer.cpp">
+      <Filter>Rest\Schema\1_1\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.cpp">
+      <Filter>Rest\Schema\1_1\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,16 +3,14 @@
 #include "pch.h"
 #include "RestClient.h"
 #include "Rest/Schema/1_0/Interface.h"
-#include "Rest/HttpClientHelper.h"
-#include "Rest/Schema/1_0/Json/InformationResponseDeserializer.h"
+#include "Rest/Schema/HttpClientHelper.h"
+#include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
-#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/RestHelper.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::V1_0;
-using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Repository::Rest
@@ -40,30 +38,26 @@ namespace AppInstaller::Repository::Rest
         return m_sourceIdentifier;
     }
 
-    utility::string_t RestClient::GetInformationEndpoint(const utility::string_t& restApiUri)
-    {
-        utility::string_t endpoint = RestHelper::AppendPathToUri(restApiUri, JsonHelper::GetUtilityString(InformationGetEndpoint));
-        return endpoint;
-    }
-
     IRestClient::Information RestClient::GetInformation(const utility::string_t& restApi, const HttpClientHelper& clientHelper)
     {
         // Call information endpoint
-        std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi));
+        utility::string_t endpoint = RestHelper::AppendPathToUri(restApi, JsonHelper::GetUtilityString(InformationGetEndpoint));
+        std::optional<web::json::value> response = clientHelper.HandleGet(endpoint);
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
 
-        Json::InformationResponseDeserializer responseDeserializer;
+        InformationResponseDeserializer responseDeserializer;
         IRestClient::Information information = responseDeserializer.Deserialize(response.value());
 
         return information;
     }
 
     std::optional<Version> RestClient::GetLatestCommonVersion(
-        const IRestClient::Information& information, const std::set<Version>& wingetSupportedVersions)
+        const std::vector<std::string>& serverSupportedVersions,
+        const std::set<Version>& wingetSupportedVersions)
     {
         std::set<Version> commonVersions;
-        for (auto& version : information.ServerSupportedVersions)
+        for (auto& version : serverSupportedVersions)
         {
             Version versionInfo(version);
             if (wingetSupportedVersions.find(versionInfo) != wingetSupportedVersions.end())
@@ -86,7 +80,11 @@ namespace AppInstaller::Repository::Rest
         {
             return std::make_unique<Schema::V1_0::Interface>(api);
         }
-       
+        else if (version == Version_1_1_0)
+        {
+            return std::make_unique<Schema::V1_1::Interface>(api);
+        }
+
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
@@ -96,7 +94,7 @@ namespace AppInstaller::Repository::Rest
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
         IRestClient::Information information = GetInformation(restEndpoint, helper);
-        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
+        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
         std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), latestCommonVersion.value());

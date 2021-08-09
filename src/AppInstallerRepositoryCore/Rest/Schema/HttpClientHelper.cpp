@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "HttpClientHelper.h"
 
-namespace AppInstaller::Repository::Rest
+namespace AppInstaller::Repository::Rest::Schema
 {
     HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 

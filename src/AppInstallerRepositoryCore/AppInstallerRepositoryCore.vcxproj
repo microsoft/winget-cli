@@ -260,17 +260,20 @@
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Rest\HttpClientHelper.h" />
     <ClInclude Include="Rest\RestClient.h" />
     <ClInclude Include="Rest\RestSource.h" />
     <ClInclude Include="Rest\RestSourceFactory.h" />
     <ClInclude Include="Rest\Schema\1_0\Interface.h" />
-    <ClInclude Include="Rest\Schema\1_0\Json\CommonJsonConstants.h" />
-    <ClInclude Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_0\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_0\Json\SearchRequestSerializer.h" />
     <ClInclude Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.h" />
+    <ClInclude Include="Rest\Schema\1_1\Interface.h" />
+    <ClInclude Include="Rest\Schema\1_1\Json\ManifestDeserializer.h" />
+    <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h" />
+    <ClInclude Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
+    <ClInclude Include="Rest\Schema\HttpClientHelper.h" />
+    <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\IRestClient.h" />
     <ClInclude Include="Rest\Schema\JsonHelper.h" />
     <ClInclude Include="Rest\Schema\RestHelper.h" />
@@ -317,15 +320,19 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="RepositorySource.cpp" />
-    <ClCompile Include="Rest\HttpClientHelper.cpp" />
     <ClCompile Include="Rest\RestClient.cpp" />
     <ClCompile Include="Rest\RestSource.cpp" />
     <ClCompile Include="Rest\RestSourceFactory.cpp" />
-    <ClCompile Include="Rest\Schema\1_0\Interface.cpp" />
-    <ClCompile Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\1_0\RestInterface_1_0.cpp" />
     <ClCompile Include="Rest\Schema\1_0\Json\ManifestDeserializer.cpp" />
     <ClCompile Include="Rest\Schema\1_0\Json\SearchRequestSerializer.cpp" />
     <ClCompile Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\1_1\Json\ManifestDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer.cpp" />
+    <ClCompile Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\1_1\RestInterface_1_1.cpp" />
+    <ClCompile Include="Rest\Schema\HttpClientHelper.cpp" />
+    <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />
     <ClCompile Include="Rest\Schema\JsonHelper.cpp" />
     <ClCompile Include="Rest\Schema\RestHelper.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />

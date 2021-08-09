@@ -23,6 +23,9 @@ namespace AppInstaller::Runtime
     // Gets a string representation of the OS version for debugging purposes.
     Utility::LocIndString GetOSVersion();
 
+    // Gets the OS region.
+    std::string GetOSRegion();
+
     // A path to be retrieved based on the runtime.
     enum class PathName
     {
