@@ -325,6 +325,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             auto cancellationToken{ co_await winrt::get_cancellation_token() };
 
+            wil::unique_handle progressEvent(::CreateEvent(nullptr /*lpEventAttributes*/, false /*bManualReset*/, false /*bInitialState*/, nullptr /*lpName*/));
+            THROW_LAST_ERROR_IF(!progressEvent);
+
             std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
             if (addToQueue)
             {
@@ -352,32 +355,72 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
                 correlationData = hstring(queueItem->GetContext()->GetCorrelationJson());
+
+                // co_await does not guarantee that it's on a background thread, so do so explicitly.
+                co_await winrt::resume_background();
             }
 
-            queueItem->GetContext()->AddProgressCallbackFunction([=](
+            std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
+            queueItem->GetContext()->AddProgressCallbackFunction([&installProgress, &progressEvent](
                 ::AppInstaller::ReportType reportType,
                 uint64_t current,
                 uint64_t maximum,
                 ::AppInstaller::ProgressType progressType,
                 ::Workflow::ExecutionStage executionPhase)
                 {
-                    auto contextProgress = GetProgress(reportType, current, maximum, progressType, executionPhase);
-                    if (contextProgress.has_value())
+                    std::optional<winrt::Microsoft::Management::Deployment::InstallProgress> installProgressOptional = GetProgress(reportType, current, maximum, progressType, executionPhase);
+                    if (installProgressOptional.has_value())
                     {
-                        report_progress(contextProgress.value());
+                        installProgress = installProgressOptional.value();
+                        ::SetEvent(progressEvent.get());
                     }
                     return;
                 }
             );
             cancellationToken.callback([&queueItem]
                 {
+                    // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
                     Execution::ContextOrchestrator::Instance().CancelItem(queueItem);
                 });
 
-            // Wait for the execute operation to finish.
-            // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
-            co_await winrt::resume_on_signal(queueItem->GetCompletedEvent());
+            // Wait for completion or progress events.
+            // Waiting for both on the same thread ensures that progress is never reported after the async operation itself has completed.
+            bool completionEventFired = false;
+            HANDLE operationEvents[2];
+            operationEvents[0] = progressEvent.get();
+            operationEvents[1] = queueItem->GetCompletedEvent();
+            while (!completionEventFired)
+            {
+                DWORD dwEvent = WaitForMultipleObjects(
+                    2 /* number of events */,
+                    operationEvents /* event array */,
+                    FALSE /* bWaitAll, FALSE to wake on any event */,
+                    INFINITE /* wait until operation completion */);
 
+                switch (dwEvent)
+                {
+                    // operationEvents[0] was signaled, progress
+                case WAIT_OBJECT_0 + 0:
+                    // The report_progress call will hang when making callbacks to suspended processes so it's important that this is now on a background thread.
+                    // Progress events are not queued - some will be missed if multiple progress events are fired from the ComContext to the callback 
+                    // while the report_progress call is hung\in progress.
+                    // Duplicate progress events can be fired if another progress event comes from the ComContext to the callback after the listener
+                    // has been awaked, but before it has gotten the installProgress.
+                    report_progress(installProgress);
+                    break;
+
+                    // operationEvents[1] was signaled, operation completed
+                case WAIT_OBJECT_0 + 1:
+                    completionEventFired = true;
+                    break;
+
+                    // Return value is invalid.
+                default:
+                    THROW_LAST_ERROR();
+                }
+            }
+
+            // The install command has finished, check for success/failure and how far it got.
             terminationHR = queueItem->GetContext()->GetTerminationHR();
             executionStage = queueItem->GetContext()->GetExecutionStage();
         }
