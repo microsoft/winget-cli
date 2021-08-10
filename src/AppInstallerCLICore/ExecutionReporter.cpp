@@ -15,6 +15,7 @@ namespace AppInstaller::CLI::Execution
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
+    const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         m_out(outStream),
@@ -100,14 +101,59 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(Resource::LocString msg, Level level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
     {
-        GetOutputStream(level) << msg << " (Y|N)" << std::endl;
+        const std::vector<PromptOption> options
+        {
+            PromptOption{ Resource::String::PromptOptionYes, true },
+            PromptOption{ Resource::String::PromptOptionNo, false },
+        };
 
-        char response;
-        m_in.get(response);
+        auto out = GetOutputStream(level);
+        out << message << std::endl;
 
-        return tolower(response) == 'y';
+        // Try prompting until we get a recognized option
+        for (;;)
+        {
+            // Output all options
+            for (size_t i = 0; i < options.size(); ++i)
+            {
+                out << PromptEmphasis << "[" + options[i].Hotkey + "] " + options[i].Label;
+
+                if (i + 1 == options.size())
+                {
+                    out << PromptEmphasis << ": ";
+                }
+                else
+                {
+                    out << "  ";
+                }
+            }
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT);
+            }
+
+            // Ignore whitespace
+            Utility::Trim(response);
+            if (Utility::IsEmptyOrWhitespace(response))
+            {
+                continue;
+            }
+
+            // Find the matching option
+            for (const auto& option : options)
+            {
+                if (Utility::CaseInsensitiveEquals(response, option.Label) ||
+                    Utility::CaseInsensitiveEquals(response, option.Hotkey))
+                {
+                    return option.Value;
+                }
+            }
+        }
     }
 
     void Reporter::ShowIndefiniteProgress(bool running)
@@ -171,5 +217,21 @@ namespace AppInstaller::CLI::Execution
     bool Reporter::IsVTEnabled() const
     {
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
+    }
+
+    PromptOption::PromptOption(Resource::StringId annotatedLabelId, bool value) : Value(value)
+    {
+        // The label we receive should be annotated with a '&' to indicate the hotkey
+        auto annotatedLabel = Resource::LocString{ annotatedLabelId };
+
+        auto pos = Utility::UTF8Find(annotatedLabel, HotkeyMarker);
+        auto length = Utility::UTF8Length(annotatedLabel);
+
+        if (pos != std::string::npos && pos < length - 1)
+        {
+            Hotkey = Utility::UTF8Substring(annotatedLabel, pos + 1, 1);
+        }
+
+        Label = std::string(Utility::UTF8Substring(annotatedLabel, 0, pos)) + std::string(Utility::UTF8Substring(annotatedLabel, pos + 1, length));
     }
 }

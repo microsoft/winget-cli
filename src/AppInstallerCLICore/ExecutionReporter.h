@@ -22,6 +22,21 @@ namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
+    // One of the options available to the users when prompting for something.
+    struct PromptOption
+    {
+        PromptOption(Resource::StringId annotatedLabelId, bool value);
+
+        std::string Hotkey;
+        std::string Label;
+
+        // Value associated with this option.
+        bool Value;
+
+    private:
+        const char HotkeyMarker = '&';
+    };
+
     // Reporter should be the central place to show workflow status to user.
     struct Reporter : public IProgressSink
     {
@@ -83,7 +98,7 @@ namespace AppInstaller::CLI::Execution
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
         // Prompts the user, return true if they consented.
-        bool PromptForBoolResponse(Resource::LocString msg, Level level = Level::Info);
+        bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -149,4 +164,5 @@ namespace AppInstaller::CLI::Execution
     extern const VirtualTerminal::Sequence& NameEmphasis;
     extern const VirtualTerminal::Sequence& IdEmphasis;
     extern const VirtualTerminal::Sequence& UrlEmphasis;
+    extern const VirtualTerminal::Sequence& PromptEmphasis;
 }

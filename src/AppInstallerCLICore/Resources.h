@@ -162,6 +162,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);

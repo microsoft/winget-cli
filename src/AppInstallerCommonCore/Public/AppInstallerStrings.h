@@ -92,6 +92,9 @@ namespace AppInstaller::Utility
     // Returns the number of units the UTF8-encoded string will take in terminal output. Some characters take 2 units in terminal output.
     size_t UTF8ColumnWidth(const NormalizedUTF8<NormalizationC>& input);
 
+    // Returns the position of the character in the string. Position is measured in grapheme clusters (characters).
+    size_t UTF8Find(std::string_view input, char c);
+
     // Returns a substring view in an UTF8-encoded string. Offset and count are measured in grapheme clusters (characters).
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count);
 
