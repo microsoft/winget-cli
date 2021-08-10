@@ -63,7 +63,7 @@ namespace AppInstaller::CLI::Execution
     {
         CreateInstallingWriteableSource();
 
-        wil::unique_handle completedEvent(::CreateEvent(nullptr, true, false, nullptr));
+        wil::unique_handle completedEvent(::CreateEvent(nullptr /*lpEventAttributes*/, true /*bManualReset*/, false /*bInitialState*/, nullptr /*lpName*/));
         THROW_LAST_ERROR_IF(!completedEvent);
 
         std::shared_ptr<OrchestratorQueueItem> item = std::make_shared<OrchestratorQueueItem>(OrchestratorQueueItemState::Queued, context, completedEvent.release());
