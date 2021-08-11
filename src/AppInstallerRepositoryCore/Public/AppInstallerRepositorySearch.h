@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
@@ -44,6 +45,7 @@ namespace AppInstaller::Repository
         ProductCode,
         NormalizedNameAndPublisher,
         Market,
+        Unknown = 9999
     };
 
     // A single match to be performed during a search.
@@ -264,6 +266,25 @@ namespace AppInstaller::Repository
         bool Truncated = false;
     };
 
+    struct UnsupportedQueryException : public wil::ResultException
+    {
+        UnsupportedQueryException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY) {}
+
+        UnsupportedQueryException(
+            std::vector<std::string> unsupportedPackageMatchFields,
+            std::vector<std::string> requiredPackageMatchFields,
+            std::vector<std::string> unsupportedQueryParameters,
+            std::vector<std::string> requiredQueryParameters) :
+            wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY),
+            UnsupportedPackageMatchFields(std::move(unsupportedPackageMatchFields)), RequiredPackageMatchFields(std::move(requiredPackageMatchFields)),
+            UnsupportedQueryParameters(std::move(unsupportedQueryParameters)), RequiredQueryParameters(std::move(requiredQueryParameters)) {}
+
+        std::vector<std::string> UnsupportedPackageMatchFields;
+        std::vector<std::string> RequiredPackageMatchFields;
+        std::vector<std::string> UnsupportedQueryParameters;
+        std::vector<std::string> RequiredQueryParameters;
+    };
+
     inline std::string_view MatchTypeToString(MatchType type)
     {
         using namespace std::string_view_literals;
@@ -311,8 +332,54 @@ namespace AppInstaller::Repository
             return "ProductCode"sv;
         case PackageMatchField::NormalizedNameAndPublisher:
             return "NormalizedNameAndPublisher"sv;
+        case PackageMatchField::Market:
+            return "Market"sv;
         }
 
         return "UnknownMatchField"sv;
+    }
+
+    inline PackageMatchField StringToPackageMatchField(std::string_view field)
+    {
+        std::string toLower = Utility::ToLower(field);
+
+        if (toLower == "command")
+        {
+            return PackageMatchField::Command;
+        }
+        else if (toLower == "id")
+        {
+            return PackageMatchField::Id;
+        }
+        else if (toLower == "moniker")
+        {
+            return PackageMatchField::Moniker;
+        }
+        else if (toLower == "name")
+        {
+            return PackageMatchField::Name;
+        }
+        else if (toLower == "tag")
+        {
+            return PackageMatchField::Tag;
+        }
+        else if (toLower == "packagefamilyname")
+        {
+            return PackageMatchField::PackageFamilyName;
+        }
+        else if (toLower == "productcode")
+        {
+            return PackageMatchField::ProductCode;
+        }
+        else if (toLower == "normalizednameandpublisher")
+        {
+            return PackageMatchField::NormalizedNameAndPublisher;
+        }
+        else if (toLower == "market")
+        {
+            return PackageMatchField::Market;
+        }
+
+        return PackageMatchField::Unknown;
     }
 }

@@ -348,6 +348,8 @@ namespace AppInstaller::Repository::Rest
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }
 
+        searchResult.Truncated = results.Truncated;
+
         return searchResult;
     }
 

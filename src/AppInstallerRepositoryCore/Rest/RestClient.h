@@ -31,15 +31,15 @@ namespace AppInstaller::Repository::Rest
 
         static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const Schema::HttpClientHelper& httpClientHelper);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
 
         static RestClient Create(const std::string& restApi, const Schema::HttpClientHelper& helper = {});
 
     private:
-        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
+        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier, Schema::IRestClient::Information&& information);
 
         std::unique_ptr<Schema::IRestClient> m_interface;
         std::string m_sourceIdentifier;
-        Schema::IRestClient::Information
+        Schema::IRestClient::Information m_information;
     };
 }

@@ -8,7 +8,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public V1_0::Interface
     {
-        Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper = {});
+        Interface(const std::string& restApi, IRestClient::Information information, const HttpClientHelper& httpClientHelper = {});
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -17,19 +17,15 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         Interface& operator=(Interface&&) = default;
 
         Utility::Version GetVersion() const override;
-        IRestClient::SearchResult Search(const SearchRequest& request) const override;
-        std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const override;
-        std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params = {}) const override;
-   
+
     protected:
-        bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;
-        IRestClient::SearchResult OptimizedSearch(const SearchRequest& request) const;
-        IRestClient::SearchResult SearchInternal(const SearchRequest& request) const;
+        // Check query params against source information and update if necessary.
+        std::map<std::string_view, std::string> GetValidatedQueryParams(const std::map<std::string_view, std::string>& params) const override;
+
+        // Check search request against source information and get json search body.
+        web::json::value GetValidatedSearchBody(const SearchRequest& searchRequest) const override;
 
     private:
-        std::string m_restApiUri;
-        utility::string_t m_searchEndpoint;
-        std::unordered_map<utility::string_t, utility::string_t> m_requiredRestApiHeaders;
-        HttpClientHelper m_httpClientHelper;
+        IRestClient::Information m_information;
     };
 }

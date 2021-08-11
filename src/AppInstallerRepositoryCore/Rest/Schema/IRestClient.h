@@ -47,6 +47,9 @@ namespace AppInstaller::Repository::Rest::Schema
     {
         std::vector<Package> Matches;
         bool Truncated = false;
+
+        std::vector<std::string> UnsupportedPackageMatchFields;
+        std::vector<std::string> RequiredPackageMatchFields;
     };
 
     struct SourceAgreementEntry

@@ -21,32 +21,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view PackageMatchField = "PackageMatchField"sv;
         constexpr std::string_view FetchAllManifests = "FetchAllManifests"sv;
 
-        std::optional<std::string_view> ConvertPackageMatchFieldToString(AppInstaller::Repository::PackageMatchField field)
-        {
-            // Match fields supported by Rest API schema.
-            switch (field)
-            {
-            case PackageMatchField::Command:
-                return "Command"sv;
-            case PackageMatchField::Id:
-                return "PackageIdentifier"sv;
-            case PackageMatchField::Moniker:
-                return "Moniker"sv;
-            case PackageMatchField::Name:
-                return "PackageName"sv;
-            case PackageMatchField::Tag:
-                return "Tag"sv;
-            case PackageMatchField::PackageFamilyName:
-                return "PackageFamilyName"sv;
-            case PackageMatchField::ProductCode:
-                return "ProductCode"sv;
-            case PackageMatchField::NormalizedNameAndPublisher:
-                return "NormalizedPackageNameAndPublisher"sv;
-            }
-
-            return {};
-        }
-
         std::optional<std::string_view> ConvertMatchTypeToString(AppInstaller::Repository::MatchType type)
         {
             // Match types supported by Rest API schema.
@@ -162,7 +136,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
     {
         web::json::value filter = web::json::value::object();
         std::optional<std::string_view> matchField = ConvertPackageMatchFieldToString(packageMatchFilter.Field);
-        
+
         if (!matchField)
         {
             AICLI_LOG(Repo, Warning, << "Skipping unsupported package match field: " << packageMatchFilter.Field);
@@ -197,5 +171,31 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         match[JsonHelper::GetUtilityString(MatchType)] = web::json::value::string(JsonHelper::GetUtilityString(matchType.value()));
         return match;
+    }
+
+    std::optional<std::string_view> SearchRequestSerializer::ConvertPackageMatchFieldToString(AppInstaller::Repository::PackageMatchField field) const
+    {
+        // Match fields supported by Rest API schema.
+        switch (field)
+        {
+        case PackageMatchField::Command:
+            return "Command"sv;
+        case PackageMatchField::Id:
+            return "PackageIdentifier"sv;
+        case PackageMatchField::Moniker:
+            return "Moniker"sv;
+        case PackageMatchField::Name:
+            return "PackageName"sv;
+        case PackageMatchField::Tag:
+            return "Tag"sv;
+        case PackageMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case PackageMatchField::ProductCode:
+            return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedPackageNameAndPublisher"sv;
+        }
+
+        return {};
     }
 }

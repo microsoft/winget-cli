@@ -19,12 +19,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
     namespace
     {
-        web::json::value GetSearchBody(const SearchRequest& searchRequest)
-        {
-            SearchRequestSerializer serializer;
-            return serializer.Serialize(searchRequest);
-        }
-
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
             return RestHelper::AppendPathToUri(JsonHelper::GetUtilityString(restApiUri), JsonHelper::GetUtilityString(ManifestSearchPostEndpoint));
@@ -80,16 +74,21 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 searchHeaders.insert_or_assign(JsonHelper::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetSearchBody(request), searchHeaders);
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders);
 
             utility::string_t ct;
             if (jsonObject)
             {
                 SearchResponseDeserializer searchResponseDeserializer;
                 SearchResult currentResult = searchResponseDeserializer.Deserialize(jsonObject.value());
-                
+
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
+
+                if (insertElements < currentResult.Matches.size())
+                {
+                    results.Truncated = true;
+                }
 
                 std::move(currentResult.Matches.begin(), std::next(currentResult.Matches.begin(), insertElements), std::inserter(results.Matches, results.Matches.end()));
                 ct = RestHelper::GetContinuationToken(jsonObject.value()).value_or(L"");
@@ -98,6 +97,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             continuationToken = ct;
 
         } while (!continuationToken.empty() && (!request.MaximumResults || results.Matches.size() < request.MaximumResults));
+
+        if (!continuationToken.empty())
+        {
+            results.Truncated = true;
+        }
 
         if (results.Matches.empty())
         {
@@ -143,7 +147,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         // call the package manifest endpoint to get the manifest directly instead of running a search for it.
         if (!request.Query && request.Inclusions.size() == 0 &&
             request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id &&
-            request.Filters[0].Type == MatchType::Exact)
+            (request.Filters[0].Type == MatchType::Exact || request.Filters[0].Type == MatchType::CaseInsensitive))
         {
             AICLI_LOG(Repo, Verbose, << "Search request meets optimized search criteria.");
             return true;
@@ -202,8 +206,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     std::vector<Manifest::Manifest> Interface::GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params) const
     {
+        auto validatedParams = GetValidatedQueryParams(params);
+
         std::vector<Manifest::Manifest> results;
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, params), m_requiredRestApiHeaders);
+        utility::string_t continuationToken;
+        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), m_requiredRestApiHeaders);
 
         if (!jsonObject)
         {
@@ -237,5 +245,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         return results;
+    }
+
+    std::map<std::string_view, std::string> Interface::GetValidatedQueryParams(const std::map<std::string_view, std::string>& params) const
+    {
+        return params;
+    }
+
+    web::json::value Interface::GetValidatedSearchBody(const SearchRequest& searchRequest) const
+    {
+        SearchRequestSerializer serializer;
+        return serializer.Serialize(searchRequest);
     }
 }

@@ -1,24 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <winget/Manifest.h>
-#include <cpprest/json.h>
+#include "Rest/Schema/1_0/Json/ManifestDeserializer.h"
 
-namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
 {
     // Manifest Deserializer.
-    struct ManifestDeserializer
+    struct ManifestDeserializer : public V1_0::Json::ManifestDeserializer
     {
-        // Gets the manifest from the given json object
-        std::vector<Manifest::Manifest> Deserialize(const web::json::value& dataJsonObject) const;
-
-    protected:
-        std::optional<std::vector<Manifest::Manifest>> DeserializeVersion(const web::json::value& dataJsonObject) const;
-
-        std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
-
-        std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const;
-
-        std::optional<Manifest::Dependency> DeserializeDependency(const web::json::value& dependenciesJsonObject) const;
+        // TODO: override DeserializeLocale, DeserializeInstaller accordingly to add new v1.1 fields
     };
 }

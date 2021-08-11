@@ -1,18 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <cpprest/json.h>
-#include "Rest/Schema/IRestClient.h"
+#include "Rest/Schema/1_0/Json/SearchResponseDeserializer.h"
 
-namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
 {
     // Search Result Deserializer.
-    struct SearchResponseDeserializer
+    struct SearchResponseDeserializer : public V1_0::Json::SearchResponseDeserializer
     {
-        // Gets the search result for given version
-        IRestClient::SearchResult Deserialize(const web::json::value& searchResultJsonObject) const;
-
     protected:
-        std::optional<IRestClient::SearchResult> DeserializeSearchResult(const web::json::value& searchResultJsonObject) const;
+        std::optional<IRestClient::SearchResult> DeserializeSearchResult(const web::json::value& searchResultJsonObject) const override;
     };
 }

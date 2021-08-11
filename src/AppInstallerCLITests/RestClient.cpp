@@ -35,11 +35,13 @@ TEST_CASE("GetLatestCommonVersion_UnsupportedVersion", "[RestSource]")
 
 TEST_CASE("GetSupportedInterface", "[RestSource]")
 {
+    IRestClient::Information info{ "TestId", { "1.0.0" } };
+
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), info,  version)->GetVersion() == version);
 
     Version invalid{ "1.2.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), invalid));
+    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), info, invalid));
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")

@@ -91,6 +91,9 @@ namespace AppInstaller::Repository::Rest::Schema
             break;
 
         case web::http::status_codes::NotFound:
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+            break;
+
         case web::http::status_codes::NoContent:
             result = {};
             break;

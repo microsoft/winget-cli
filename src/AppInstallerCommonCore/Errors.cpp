@@ -147,6 +147,10 @@ namespace AppInstaller
                 return "License not agreed to";
             case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
                 return "Error reading input in prompt";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY:
+                return "The search request is not supported by one or more sources";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND:
+                return "The rest source endpoint is not found.";
             default:
                 return "Unknown Error Code";
             }
