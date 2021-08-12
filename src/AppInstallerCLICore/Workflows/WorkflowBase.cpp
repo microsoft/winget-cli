@@ -5,6 +5,8 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
+#include "AppInstallerRepositorySource.h"
+#include "Rest/RestSourceFactory.h"
 #include <winget/ManifestYamlParser.h>
 
 
@@ -38,10 +40,16 @@ namespace AppInstaller::CLI::Workflow
 
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
-            std::shared_ptr<Repository::ISource> source;
+            std::shared_ptr<Repository::ISource> source;           
             try
             {
-                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+                AdditionalSourceData sourceData;
+                if(context.Contains(Execution::Data::Header))
+                {
+                    sourceData.Header = context.Get<Execution::Data::Header>();
+                }
+
+                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1, std::move(sourceData)), true);
                 source = result.Source;
 
                 // We'll only report the source update failure as warning and continue
@@ -658,6 +666,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context <<
+                ReadAdditionalData <<
                 OpenSource <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(false) <<
@@ -741,6 +750,54 @@ namespace AppInstaller::CLI::Workflow
     void GetInstalledPackageVersion(Execution::Context& context)
     {
         context.Add<Execution::Data::InstalledPackageVersion>(context.Get<Execution::Data::Package>()->GetInstalledVersion());
+    }
+
+    void ReadAdditionalData(Execution::Context& context)
+    {
+        std::string header;
+
+        if (context.Args.Contains(Execution::Args::Type::Header))
+        {
+            header = context.Args.GetArg(Execution::Args::Type::Header);
+        }
+
+        if (!header.empty())
+        {
+            std::string sourceName;
+            if (context.Args.Contains(Execution::Args::Type::Source))
+            {
+                sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+            }
+
+            std::string warningMessage;
+            if (!sourceName.empty())
+            {
+                auto sourceDetails = Repository::GetSource(sourceName);
+
+                if (!sourceDetails)
+                {
+                    AICLI_LOG(CLI, Verbose, << "Skipping header arg as source details not found");
+                    return;
+                }
+
+                if (!(Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.value().Type)))
+                {
+                    context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
+                    return;
+                }
+            }
+            else
+            {
+                auto sources = Repository::GetSourcesOfType(Rest::RestSourceFactory::Type());
+                if (sources.empty())
+                {
+                    context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableGenericWarning << std::endl;
+                    return;
+                }
+            }
+
+            context.Add<Execution::Data::Header>(std::move(header));
+        }
     }
 
     void ReportExecutionStage::operator()(Execution::Context& context) const

@@ -6,6 +6,7 @@
 #include "SourceFlow.h"
 #include "TableOutput.h"
 #include "WorkflowBase.h"
+#include "Rest/RestSourceFactory.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -90,11 +91,24 @@ namespace AppInstaller::CLI::Workflow
             type = context.Args.GetArg(Args::Type::SourceType);
         }
 
+        Repository::AdditionalSourceData sourceData;
+        if (context.Args.Contains(Args::Type::Header)) 
+        {
+            if (!Utility::CaseInsensitiveEquals(type, Repository::Rest::RestSourceFactory::Type()))
+            {
+                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
+            }
+            else
+            {
+                sourceData.Header = context.Args.GetArg(Args::Type::Header);
+            }
+        }
+
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << name << " -> "_liv << arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1)))
+        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1, std::move(sourceData))))
         {
             context.Reporter.Info() << Resource::String::Done;
         }

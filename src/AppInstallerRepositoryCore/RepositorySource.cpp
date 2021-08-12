@@ -857,6 +857,22 @@ namespace AppInstaller::Repository
         return result;
     }
 
+    std::vector<SourceDetails> GetSourcesOfType(std::string_view type)
+    {
+        SourceListInternal sourceList;
+
+        std::vector<SourceDetails> result;
+        for (auto&& source : sourceList.GetCurrentSourceRefs())
+        {
+            if (Utility::CaseInsensitiveEquals(source.get().Type, type))
+            {
+                result.emplace_back(std::move(source));
+            }
+        }
+
+        return result;
+    }
+
     std::optional<SourceDetails> GetSource(std::string_view name)
     {
         // Check all sources for the given name.
@@ -873,7 +889,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress, AdditionalSourceData sourceData)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -898,6 +914,7 @@ namespace AppInstaller::Repository
         details.Arg = arg;
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
+        details.AdditionalSourceData = sourceData;
 
         bool result = AddSourceFromDetails(details, progress);
         if (result)
@@ -911,7 +928,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress, AdditionalSourceData sourceData)
     {
         SourceListInternal sourceList;
 
@@ -934,7 +951,7 @@ namespace AppInstaller::Repository
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, progress);
+                    return OpenSource(currentSources[0].get().Name, progress, std::move(sourceData));
                 }
             }
             else
@@ -954,6 +971,7 @@ namespace AppInstaller::Repository
                     }
 
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
+                    source.get().AdditionalSourceData = std::move(sourceData);
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
@@ -993,7 +1011,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
+                source->AdditionalSourceData = std::move(sourceData);
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))

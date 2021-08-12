@@ -36,6 +36,12 @@ namespace AppInstaller::Repository
 
     std::string_view ToString(SourceOrigin origin);
 
+    struct AdditionalSourceData
+    {
+        // HTTP header for Rest sources.
+        std::string Header;
+    };
+
     // Interface for retrieving information about a source without acting on it.
     struct SourceDetails
     {
@@ -65,6 +71,9 @@ namespace AppInstaller::Repository
 
         // Whether the source behavior has restrictions
         bool Restricted = false; 
+
+        // Source relevant settings
+        AdditionalSourceData AdditionalSourceData;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -101,11 +110,13 @@ namespace AppInstaller::Repository
     // Gets the details for all sources.
     std::vector<SourceDetails> GetSources();
 
+    std::vector<SourceDetails> GetSourcesOfType(std::string_view type);
+
     // Gets the details for a single source.
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress, AdditionalSourceData sourceData = {});
 
     struct OpenSourceResult
     {
@@ -118,7 +129,7 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress, AdditionalSourceData sourceData = {});
 
     // Opens an existing source.
     OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress);

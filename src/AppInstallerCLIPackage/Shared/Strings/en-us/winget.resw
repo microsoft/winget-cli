@@ -949,4 +949,13 @@ Configuration is disabled due to Group Policy.</value>
   <data name="WindowsLibrariesDependencies" xml:space="preserve">
     <value>Windows Libraries</value>
   </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optional Windows-Package-Manager REST source HTTP header</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableGenericWarning" xml:space="preserve">
+    <value>The configured package sources do not support passing headers</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForPreIndexedWarning" xml:space="preserve">
+    <value>The PreIndexed package source does not support passing headers</value>
+  </data>
 </root>

@@ -23,6 +23,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument::ForType(Execution::Args::Type::Header),
         };
     }
 
@@ -67,6 +68,7 @@ namespace AppInstaller::CLI
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context <<
+            Workflow::ReadAdditionalData <<
             Workflow::OpenSource <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(false) <<
