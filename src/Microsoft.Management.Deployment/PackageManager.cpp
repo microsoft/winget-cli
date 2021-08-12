@@ -109,7 +109,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return nullptr;
         }
     }
-    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, const std::shared_ptr<::AppInstaller::CLI::Execution::Context>& context)
+    void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
     {
         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
@@ -122,10 +122,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         manifest.ApplyLocale(targetLocale);
 
+        ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
+
         context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
         context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
-
-        ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
@@ -240,7 +240,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::shared_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(winrt::Microsoft::Management::Deployment::CatalogPackage package, InstallOptions options, std::wstring callerProcessInfoString)
     {
         std::shared_ptr<::AppInstaller::COMContext> context = std::make_shared<::AppInstaller::COMContext>();
-        context->SetLoggerContext(options.CorrelationData(), ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+        context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
         // Convert the options to arguments for the installer.
         Microsoft::Management::Deployment::PackageVersionId versionId{ nullptr };
         if (options)
@@ -258,8 +259,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             packageVersionInfo = package.DefaultInstallVersion();
         }
-        // If no package version was found on the catalog then return a failure. This is unexpected, a catalog with no latest version should not be in the catalog.
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER, !packageVersionInfo);
+        // If the specified version wasn't found then return a failure. This is unexpected, since all packages should have a default version,
+        // and the versionId is strongly typed and comes from the CatalogPackage.GetAvailableVersions in the first place.
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND, !packageVersionInfo);
 
         if (options)
         {
@@ -303,7 +305,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
         }
         
-        AddPackageManifestToContext(packageVersionInfo, context);
+        AddPackageManifestToContext(packageVersionInfo, context.get());
 
         // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
         return context;
@@ -325,8 +327,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             auto cancellationToken{ co_await winrt::get_cancellation_token() };
 
-            wil::unique_handle progressEvent(::CreateEvent(nullptr /*lpEventAttributes*/, false /*bManualReset*/, false /*bInitialState*/, nullptr /*lpName*/));
-            THROW_LAST_ERROR_IF(!progressEvent);
+            wil::unique_event progressEvent{ wil::EventOptions::None };
 
             std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
             if (addToQueue)
@@ -342,7 +343,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 co_await winrt::resume_background();
 
                 std::shared_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
-                queueItem = Execution::ContextOrchestrator::Instance().EnqueueAndRunCommand(comContext);
+                queueItem = Execution::ContextOrchestrator::Instance().EnqueueAndRunContextOperation(package.Id().c_str(), std::move(comContext));
 
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
                 report_progress(queuedProgress);
@@ -351,7 +352,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
-                queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(::AppInstaller::Utility::ConvertToUTF8(package.Id()));
+                queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(package.Id().c_str());
                 WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
                 correlationData = hstring(queueItem->GetContext()->GetCorrelationJson());
@@ -388,7 +389,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             bool completionEventFired = false;
             HANDLE operationEvents[2];
             operationEvents[0] = progressEvent.get();
-            operationEvents[1] = queueItem->GetCompletedEvent();
+            operationEvents[1] = queueItem->GetCompletedEvent().get();
             while (!completionEventFired)
             {
                 DWORD dwEvent = WaitForMultipleObjects(
@@ -424,7 +425,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             terminationHR = queueItem->GetContext()->GetTerminationHR();
             executionStage = queueItem->GetContext()->GetExecutionStage();
         }
-        WINGET_CATCH_STORE(terminationHR);
+        WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
         WINGET_RETURN_INSTALL_RESULT_HR(terminationHR);

@@ -94,10 +94,10 @@ namespace AppInstaller::Repository
     {
         virtual ~IMutablePackageSource() = default;
 
-        // Adds an installed package version to the source.
+        // Adds a package version to the source.
         virtual void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
-        // Adds an installed package version to the source.
+        // Removes a package version from the source.
         virtual void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 

@@ -12,16 +12,16 @@
 #define WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR)   catch (const wil::ResultException& re) { exceptionHR = re.GetErrorCode(); }
 #define WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR)   catch (const winrt::hresult_error& hre) { exceptionHR = hre.code(); }
 #define WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::CLI::CommandException&) { exceptionHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS; }
-#define WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::Settings::GroupPolicyException&) { exceptionHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS; }
-#define WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR)   catch (const std::exception&) { exceptionHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED; }
-#define WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR)   catch (...) { exceptionHR = APPINSTALLER_CLI_ERROR_COMMAND_FAILED; }
-#define WINGET_CATCH_STORE(exceptionHR) \
+#define WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::Settings::GroupPolicyException&) { exceptionHR = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY; }
+#define WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR)   catch (const std::exception&) { exceptionHR = genericHR; }
+#define WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)   catch (...) { exceptionHR = genericHR; }
+#define WINGET_CATCH_STORE(exceptionHR, genericHR) \
         WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR) \
         WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR) \
         WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR) \
         WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR) \
-        WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR) \
-        WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR)
+        WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR) \
+        WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
@@ -93,6 +93,9 @@ namespace AppInstaller::CLI::Execution
 
         // Set the context to the terminated state.
         void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
+
+        // Set the termintation hr of the context.
+        void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
         // Multiple attempts with exitIfStuck == true may cause the process to simply exit.

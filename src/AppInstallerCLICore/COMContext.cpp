@@ -19,18 +19,11 @@ namespace AppInstaller
         m_comProgressCallbacks.push_back(std::move(f));
     }
 
-    std::vector<ProgressCallBackFunction> COMContext::GetCallbacks()
-    {
-        std::lock_guard<std::mutex> lock{ m_callbackLock };
-        std::vector<ProgressCallBackFunction> tempComProgressCallbacks(m_comProgressCallbacks);
-        return tempComProgressCallbacks;
-    }
-
     void COMContext::FireCallbacks(::AppInstaller::ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
     {
-        // Get a copy of the list so that it can be iterated safely while other threads may be adding new callbacks.
-        std::vector<ProgressCallBackFunction> tempComProgressCallbacks = GetCallbacks();
-        for (auto& callback : tempComProgressCallbacks)
+        // Lock around iterating through the list. Callbacks should not do long running tasks.
+        std::lock_guard<std::mutex> lock{ m_callbackLock };
+        for (auto& callback : m_comProgressCallbacks)
         {
             callback(reportType, current, maximum, progressType, executionPhase);
         }

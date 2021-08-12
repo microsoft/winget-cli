@@ -180,6 +180,11 @@ namespace AppInstaller::CLI::Execution
         m_terminationHR = hr;
     }
 
+    void Context::SetTerminationHR(HRESULT hr)
+    {
+        m_terminationHR = hr;
+    }
+
     void Context::Cancel(bool exitIfStuck, bool bypassUser)
     {
         Terminate(exitIfStuck ? APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED : E_ABORT);

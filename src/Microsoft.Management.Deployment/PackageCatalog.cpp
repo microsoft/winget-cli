@@ -159,7 +159,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             isTruncated = searchResult.Truncated;
         }
-        WINGET_CATCH_STORE(hr);
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         return GetFindPackagesResult(hr, isTruncated, matches);
     }
