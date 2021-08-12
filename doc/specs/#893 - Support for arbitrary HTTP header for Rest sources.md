@@ -37,7 +37,7 @@ An optional command-line argument named `--header` will be exposed on the comman
 
 ## Settings
 
-Users will have an option to add the source name and header value to the settings file. The settings file can be opened via the settings command.
+Users will have an option to add the source name and header value to the settings file. The settings file can be opened via the settings command. Note: The following is a sample of how it might look and the final settings will be updated after feedback.
 
 ```
   "sourceData": [
