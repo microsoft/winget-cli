@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options);
         //Contract 2.0
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> 
-            GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package);
+            GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalog catalog);
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

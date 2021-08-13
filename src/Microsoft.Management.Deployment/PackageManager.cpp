@@ -237,20 +237,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
     
-    std::shared_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(winrt::Microsoft::Management::Deployment::CatalogPackage package, InstallOptions options, std::wstring callerProcessInfoString)
+    Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
-        std::shared_ptr<::AppInstaller::COMContext> context = std::make_shared<::AppInstaller::COMContext>();
-        hstring correlationData = (options) ? options.CorrelationData() : L"";
-        context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
-        // Convert the options to arguments for the installer.
-        Microsoft::Management::Deployment::PackageVersionId versionId{ nullptr };
-        if (options)
-        {
-            versionId = options.PackageVersionId();
-        }
-
-        // If the version of the package is specified use that, otherwise use the default.
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
+
+        winrt::Microsoft::Management::Deployment::PackageVersionId versionId = (options) ? options.PackageVersionId() : nullptr;
+        // If the version of the package is specified use that, otherwise use the default.
         if (versionId)
         {
             packageVersionInfo = package.GetPackageVersionInfo(versionId);
@@ -259,10 +251,22 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             packageVersionInfo = package.DefaultInstallVersion();
         }
-        // If the specified version wasn't found then return a failure. This is unexpected, since all packages should have a default version,
-        // and the versionId is strongly typed and comes from the CatalogPackage.GetAvailableVersions in the first place.
+        // If the specified version wasn't found then return a failure. This is unusual, since all packages that came from a non-local catalog have a default version,
+        // and the versionId is strongly typed and comes from the CatalogPackage.GetAvailableVersions.
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND, !packageVersionInfo);
+        return packageVersionInfo;
+    }
 
+    std::shared_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(
+        winrt::Microsoft::Management::Deployment::CatalogPackage package, 
+        winrt::Microsoft::Management::Deployment::InstallOptions options, 
+        std::wstring callerProcessInfoString)
+    {
+        std::shared_ptr<::AppInstaller::COMContext> context = std::make_shared<::AppInstaller::COMContext>();
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+        context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
+
+        // Convert the options to arguments for the installer.
         if (options)
         {
             if (!options.LogOutputPath().empty())
@@ -304,14 +308,31 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
             }
         }
-        
+
+        // If the version of the package is specified use that, otherwise use the default.
+        Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, context.get());
 
-        // TODO: AdditionalPackageCatalogArguments is not currently supported by the underlying implementation.
+        // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         return context;
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallOperation(bool addToQueue, winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
+    std::wstring GetQueueIdForInstall(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalog catalog)
+    {
+        // Package Id + Catalog Name forms a unique identifier of a package for the purposes of the queue.
+        // Packages with the same id but from different catalogs can be installed at the same time.
+        std::wstring queueId;
+        queueId += package.Id();
+        queueId += std::wstring(L".");
+        queueId += catalog.Info().Id();
+        return std::move(queueId);
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallOperation(
+        bool addToQueue, 
+        winrt::Microsoft::Management::Deployment::CatalogPackage package, 
+        winrt::Microsoft::Management::Deployment::InstallOptions options, 
+        winrt::Microsoft::Management::Deployment::PackageCatalog catalog)
     {
         winrt::hresult terminationHR = S_OK;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
@@ -321,6 +342,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         #define WINGET_RETURN_INSTALL_RESULT_HR(hr) { WINGET_RETURN_INSTALL_RESULT_IF(GetInstallResult(executionStage, hr, correlationData, false), true) }
         #define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { WINGET_RETURN_INSTALL_RESULT_HR(hr) }}
         #define WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
 
         try
         {
@@ -342,8 +366,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // co_await does not guarantee that it's on a background thread, so do so explicitly.
                 co_await winrt::resume_background();
 
+                Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
                 std::shared_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
-                queueItem = Execution::ContextOrchestrator::Instance().EnqueueAndRunContextOperation(package.Id().c_str(), std::move(comContext));
+                queueItem = Execution::ContextOrchestrator::Instance().EnqueueAndRunContextOperation(GetQueueIdForInstall(package, packageVersionInfo.PackageCatalog()), std::move(comContext));
 
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
                 report_progress(queuedProgress);
@@ -352,7 +377,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
-                queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(package.Id().c_str());
+                winrt::Microsoft::Management::Deployment::PackageCatalog catalogFilter = catalog;
+                if (!catalogFilter)
+                {
+                    Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = package.DefaultInstallVersion();
+                    if (packageVersionInfo)
+                    {
+                        catalogFilter = packageVersionInfo.PackageCatalog();
+                    }
+                }
+                // catalog must be known at this time.
+                WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !catalogFilter);
+                queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(GetQueueIdForInstall(package, catalogFilter));
                 WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
                 correlationData = hstring(queueItem->GetContext()->GetCorrelationJson());
@@ -433,12 +469,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
-        return GetInstallOperation(true, package, options);
+        return GetInstallOperation(true, package, options, nullptr);
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package)
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalog catalog)
     {
-        return GetInstallOperation(false, package, nullptr);
+        return GetInstallOperation(false, package, nullptr, catalog);
     }
 
     CoCreatableCppWinRtClassWithCLSID(PackageManager, 1, &PackageManagerCLSID1);
