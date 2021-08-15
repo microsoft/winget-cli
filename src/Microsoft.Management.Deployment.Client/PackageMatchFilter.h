@@ -9,10 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter>
     {
-        PackageMatchFilter()
-        {
-            m_packageMatchFilter = winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageMatchFilter>(CLSID_PackageMatchFilter2, CLSCTX_ALL);
-        }
+        PackageMatchFilter() = default;
 
         winrt::Microsoft::Management::Deployment::PackageFieldMatchOption Option();
         void Option(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value);
@@ -20,13 +17,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Field(winrt::Microsoft::Management::Deployment::PackageMatchField const& value);
         hstring Value();
         void Value(hstring const& value);
-    private:
-        winrt::Microsoft::Management::Deployment::PackageMatchFilter m_packageMatchFilter{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter, implementation::PackageMatchFilter>
     {
+        auto ActivateInstance() const
+        {
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageMatchFilter2, CLSCTX_ALL);
+        }
     };
 }

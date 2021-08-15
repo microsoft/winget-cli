@@ -14,13 +14,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::FindPackagesResult> PackageCatalog::FindPackagesAsync(winrt::Microsoft::Management::Deployment::FindPackagesOptions options)
+    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::FindPackagesResult> PackageCatalog::FindPackagesAsync(winrt::Microsoft::Management::Deployment::FindPackagesOptions)
     {
         throw hresult_not_implemented();
     }
-    winrt::Microsoft::Management::Deployment::FindPackagesResult PackageCatalog::FindPackages(winrt::Microsoft::Management::Deployment::FindPackagesOptions const& options)
+    winrt::Microsoft::Management::Deployment::FindPackagesResult PackageCatalog::FindPackages(winrt::Microsoft::Management::Deployment::FindPackagesOptions const&)
     {
-        UNREFERENCED_PARAMETER(options);
         throw hresult_not_implemented();
     }
 }

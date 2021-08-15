@@ -9,10 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct InstallOptions : InstallOptionsT<InstallOptions>
     {
-        InstallOptions()
-        {
-            m_installOptions = winrt::create_instance<winrt::Microsoft::Management::Deployment::InstallOptions>(CLSID_InstallOptions2, CLSCTX_ALL);
-        }
+        InstallOptions() = default;
 
         winrt::Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
         void PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value);
@@ -32,13 +29,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CorrelationData(hstring const& value);
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
-    private:
-        winrt::Microsoft::Management::Deployment::InstallOptions m_installOptions{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct InstallOptions : InstallOptionsT<InstallOptions, implementation::InstallOptions>
     {
+        auto ActivateInstance() const
+        {
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_InstallOptions2, CLSCTX_ALL);
+        }
     };
 }

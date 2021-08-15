@@ -26,18 +26,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    winrt::Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey)
+    winrt::Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const&)
     {
-        UNREFERENCED_PARAMETER(versionKey);
         throw hresult_not_implemented();
     }
     bool CatalogPackage::IsUpdateAvailable()
     {
         throw hresult_not_implemented();
-    }
-
-    winrt::Microsoft::Management::Deployment::CatalogPackage CatalogPackage::GetServerPackage()
-    {
-        return m_catalogPackage;
     }
 }

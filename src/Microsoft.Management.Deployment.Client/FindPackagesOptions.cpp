@@ -8,18 +8,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Selectors()
     {
-        return m_findPackagesOptions.Selectors();
+        throw hresult_not_implemented();
     }
     winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> FindPackagesOptions::Filters()
     {
-        return m_findPackagesOptions.Filters();
+        throw hresult_not_implemented();
     }
     uint32_t FindPackagesOptions::ResultLimit()
     {
-        return m_findPackagesOptions.ResultLimit();
+        throw hresult_not_implemented();
     }
     void FindPackagesOptions::ResultLimit(uint32_t value)
     {
-        m_findPackagesOptions.ResultLimit(value);
+        throw hresult_not_implemented();
     }
 }

@@ -8,14 +8,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalogReference> CreateCompositePackageCatalogOptions::Catalogs()
     {
-        return m_createCompositePackageCatalogOptions.Catalogs();
+        throw hresult_not_implemented();
     }
     winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CreateCompositePackageCatalogOptions::CompositeSearchBehavior()
     {
-        return m_createCompositePackageCatalogOptions.CompositeSearchBehavior();
+        throw hresult_not_implemented();
     }
     void CreateCompositePackageCatalogOptions::CompositeSearchBehavior(winrt::Microsoft::Management::Deployment::CompositeSearchBehavior const& value)
     {
-        m_createCompositePackageCatalogOptions.CompositeSearchBehavior(value);
+        throw hresult_not_implemented();
     }
 }

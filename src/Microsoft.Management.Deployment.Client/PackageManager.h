@@ -7,10 +7,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct PackageManager : PackageManagerT<PackageManager>
     {
-        PackageManager()
-        {
-            return m_packageManager = winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
-        }
+        PackageManager() = default;
 
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> GetPackageCatalogs();
         winrt::Microsoft::Management::Deployment::PackageCatalogReference GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog);
@@ -18,13 +15,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogReference GetPackageCatalogByName(hstring const& catalogName);
         winrt::Microsoft::Management::Deployment::PackageCatalogReference CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options);
-    private:
-        winrt::Microsoft::Management::Deployment::PackageManager m_packageManager{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct PackageManager : PackageManagerT<PackageManager, implementation::PackageManager>
     {
+        auto ActivateInstance() const
+        {
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
+        }
     };
 }

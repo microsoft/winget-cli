@@ -8,74 +8,74 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
-        return m_installOptions.PackageVersionId();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value)
+    void InstallOptions::PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const&)
     {
-        return m_installOptions.PackageVersionId(value);
+        throw hresult_not_implemented();
     }
     hstring InstallOptions::PreferredInstallLocation()
     {
-        return m_installOptions.PreferredInstallLocation();
+        throw hresult_not_implemented();
     }
     void InstallOptions::PreferredInstallLocation(hstring const& value)
     {
-        return m_installOptions.PreferredInstallLocation(value);
+        throw hresult_not_implemented();
     }
     winrt::Microsoft::Management::Deployment::PackageInstallScope InstallOptions::PackageInstallScope()
     {
-        return m_installOptions.PackageInstallScope();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::PackageInstallScope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value)
+    void InstallOptions::PackageInstallScope(winrt::Microsoft::Management::Deployment::PackageInstallScope const&)
     {
-        return m_installOptions.PackageInstallScope(value);
+        throw hresult_not_implemented();
     }
     winrt::Microsoft::Management::Deployment::PackageInstallMode InstallOptions::PackageInstallMode()
     {
-        return m_installOptions.PackageInstallMode();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::PackageInstallMode(winrt::Microsoft::Management::Deployment::PackageInstallMode const& value)
+    void InstallOptions::PackageInstallMode(winrt::Microsoft::Management::Deployment::PackageInstallMode const&)
     {
-        return m_installOptions.PackageInstallMode(value);
+        throw hresult_not_implemented();
     }
     hstring InstallOptions::LogOutputPath()
     {
-        return m_installOptions.LogOutputPath();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::LogOutputPath(hstring const& value)
+    void InstallOptions::LogOutputPath(hstring const&)
     {
-        return m_installOptions.LogOutputPath(value);
+        throw hresult_not_implemented();
     }
     bool InstallOptions::AllowHashMismatch()
     {
-        return m_installOptions.AllowHashMismatch();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::AllowHashMismatch(bool value)
+    void InstallOptions::AllowHashMismatch(bool)
     {
-        return m_installOptions.AllowHashMismatch(value);
+        throw hresult_not_implemented();
     }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
-        return m_installOptions.ReplacementInstallerArguments();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::ReplacementInstallerArguments(hstring const& value)
+    void InstallOptions::ReplacementInstallerArguments(hstring const&)
     {
-        return m_installOptions.ReplacementInstallerArguments(value);
+        throw hresult_not_implemented();
     }
     hstring InstallOptions::CorrelationData()
     {
-        return m_installOptions.CorrelationData();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::CorrelationData(hstring const& value)
+    void InstallOptions::CorrelationData(hstring const&)
     {
-        return m_installOptions.CorrelationData(value);
+        throw hresult_not_implemented();
     }
     hstring InstallOptions::AdditionalPackageCatalogArguments()
     {
-        return m_installOptions.AdditionalPackageCatalogArguments();
+        throw hresult_not_implemented();
     }
-    void InstallOptions::AdditionalPackageCatalogArguments(hstring const& value)
+    void InstallOptions::AdditionalPackageCatalogArguments(hstring const&)
     {
-        return m_installOptions.AdditionalPackageCatalogArguments(value);
+        throw hresult_not_implemented();
     }
 }

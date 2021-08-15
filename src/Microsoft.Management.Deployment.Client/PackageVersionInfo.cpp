@@ -6,9 +6,8 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField)
+    hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const&)
     {
-        UNREFERENCED_PARAMETER(metadataField);
         throw hresult_not_implemented();
     }
     hstring PackageVersionInfo::Id()

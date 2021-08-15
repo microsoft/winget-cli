@@ -8,26 +8,26 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Microsoft::Management::Deployment::PackageFieldMatchOption PackageMatchFilter::Option()
     {
-        return m_packageMatchFilter.Option();
+        throw hresult_not_implemented();;
     }
-    void PackageMatchFilter::Option(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const& value)
+    void PackageMatchFilter::Option(winrt::Microsoft::Management::Deployment::PackageFieldMatchOption const&)
     {
-        m_packageMatchFilter.Option(value);
+        throw hresult_not_implemented();
     }
     winrt::Microsoft::Management::Deployment::PackageMatchField PackageMatchFilter::Field()
     {
-        return m_packageMatchFilter.Field();
+        throw hresult_not_implemented();
     }
-    void PackageMatchFilter::Field(winrt::Microsoft::Management::Deployment::PackageMatchField const& value)
+    void PackageMatchFilter::Field(winrt::Microsoft::Management::Deployment::PackageMatchField const&)
     {
-        m_packageMatchFilter.Field(value);
+        throw hresult_not_implemented();
     }
     hstring PackageMatchFilter::Value()
     {
-        return m_packageMatchFilter.Value();
+        throw hresult_not_implemented();
     }
-    void PackageMatchFilter::Value(hstring const& value)
+    void PackageMatchFilter::Value(hstring const&)
     {
-        m_packageMatchFilter.Value(value);
+        throw hresult_not_implemented();
     }
 }

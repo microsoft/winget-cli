@@ -9,22 +9,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions>
     {
-        FindPackagesOptions()
-        {
-            m_findPackagesOptions = winrt::create_instance<winrt::Microsoft::Management::Deployment::FindPackagesOptions>(CLSID_FindPackagesOptions2, CLSCTX_ALL);
-        }
+        FindPackagesOptions() = default;
 
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> Selectors();
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageMatchFilter> Filters();
         uint32_t ResultLimit();
         void ResultLimit(uint32_t value);
-    private:
-        winrt::Microsoft::Management::Deployment::FindPackagesOptions m_findPackagesOptions{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions, implementation::FindPackagesOptions>
     {
+        auto ActivateInstance() const
+        {
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_FindPackagesOptions2, CLSCTX_ALL);
+        }
     };
 }

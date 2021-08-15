@@ -9,21 +9,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     struct CreateCompositePackageCatalogOptions : CreateCompositePackageCatalogOptionsT<CreateCompositePackageCatalogOptions>
     {
-        CreateCompositePackageCatalogOptions()
-        {
-            m_createCompositePackageCatalogOptions = winrt::create_instance<winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions>(CLSID_CreateCompositePackageCatalogOptions2, CLSCTX_ALL);
-        }
+        CreateCompositePackageCatalogOptions() = default;
 
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageCatalogReference> Catalogs();
         winrt::Microsoft::Management::Deployment::CompositeSearchBehavior CompositeSearchBehavior();
         void CompositeSearchBehavior(winrt::Microsoft::Management::Deployment::CompositeSearchBehavior const& value);
-    private:
-        winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_createCompositePackageCatalogOptions{ nullptr };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct CreateCompositePackageCatalogOptions : CreateCompositePackageCatalogOptionsT<CreateCompositePackageCatalogOptions, implementation::CreateCompositePackageCatalogOptions>
     {
+        auto ActivateInstance() const
+        {
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_CreateCompositePackageCatalogOptions2, CLSCTX_ALL);
+        }
     };
 }
