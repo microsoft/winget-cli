@@ -26,15 +26,6 @@ namespace PackagedUnitTests
                     break;
                 }
             }
-            // TODO: Investigate why casting fails here.
-            /*foreach (var catalog in catalogs)
-            {
-                if (catalog.Info.Name.Equals("winget"))e
-                {
-                    foundDefaultCatalog = true;
-                    break;
-                }
-            }*/
             Assert.IsTrue(foundDefaultCatalog);
         }
 
@@ -42,35 +33,8 @@ namespace PackagedUnitTests
         public void OpenPredefinedStoreCatalog()
         {
             PackageManager packageManager = new PackageManager();
-            PackageCatalogReference catalogRef = packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.OpenWindowsCatalog);
-            Assert.IsTrue(catalogRef.Info.Name.Equals("winget"));
-            IReadOnlyList<PackageCatalogReference> catalogs = packageManager.GetPackageCatalogs();
-            Assert.IsTrue(catalogs.Count > 0);
-            bool foundDefaultCatalog = false;
-            for (int i = 0; i < catalogs.Count; i++)
-            {
-                if (catalogs[i].Info.Name.Equals("winget"))
-                {
-                    foundDefaultCatalog = true;
-                    break;
-                }
-            }
-            // TODO: Investigate why casting fails here.
-            /*foreach (var catalog in catalogs)
-            {
-                if (catalog.Info.Name.Equals("winget"))e
-                {
-                    foundDefaultCatalog = true;
-                    break;
-                }
-            }*/
-            Assert.IsTrue(foundDefaultCatalog);
-        }
-
-        public void PopulateInstallOptions()
-        {
-            InstallOptions installOptions = new InstallOptions();
-            //Assert.IsTrue(foundDefaultCatalog);
+            PackageCatalogReference catalogRef = packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsTrue(catalogRef.Info.Name.Equals("storepreview"));
         }
     }
 }

@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    void FindPackagesOptions::ResultLimit(uint32_t value)
+    void FindPackagesOptions::ResultLimit(uint32_t)
     {
         throw hresult_not_implemented();
     }

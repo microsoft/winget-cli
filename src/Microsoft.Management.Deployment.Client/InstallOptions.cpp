@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    void InstallOptions::PreferredInstallLocation(hstring const& value)
+    void InstallOptions::PreferredInstallLocation(hstring const&)
     {
         throw hresult_not_implemented();
     }
