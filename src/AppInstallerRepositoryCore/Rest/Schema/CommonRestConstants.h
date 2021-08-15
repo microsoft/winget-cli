@@ -20,9 +20,4 @@ namespace AppInstaller::Repository::Rest::Schema
     constexpr std::string_view InformationGetEndpoint = "/information"sv;
     constexpr std::string_view ManifestSearchPostEndpoint = "/manifestSearch"sv;
     constexpr std::string_view ManifestByVersionAndChannelGetEndpoint = "/packageManifests/"sv;
-
-    // Query params
-    constexpr std::string_view VersionQueryParam = "Version"sv;
-    constexpr std::string_view ChannelQueryParam = "Channel"sv;
-    constexpr std::string_view MarketQueryParam = "Market"sv;
 }

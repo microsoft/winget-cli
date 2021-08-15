@@ -270,7 +270,6 @@
     <ClInclude Include="Rest\Schema\1_1\Interface.h" />
     <ClInclude Include="Rest\Schema\1_1\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h" />
-    <ClInclude Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
     <ClInclude Include="Rest\Schema\HttpClientHelper.h" />
     <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h" />
@@ -329,7 +328,6 @@
     <ClCompile Include="Rest\Schema\1_0\Json\SearchResponseDeserializer_1_0.cpp" />
     <ClCompile Include="Rest\Schema\1_1\Json\ManifestDeserializer_1_1.cpp" />
     <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer_1_1.cpp" />
-    <ClCompile Include="Rest\Schema\1_1\Json\SearchResponseDeserializer_1_1.cpp" />
     <ClCompile Include="Rest\Schema\1_1\RestInterface_1_1.cpp" />
     <ClCompile Include="Rest\Schema\HttpClientHelper.cpp" />
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />

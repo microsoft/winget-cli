@@ -17,6 +17,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         Interface& operator=(Interface&&) = default;
 
         Utility::Version GetVersion() const override;
+        IRestClient::Information GetSourceInformation() const override;
 
     protected:
         // Check query params against source information and update if necessary.
@@ -24,6 +25,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         // Check search request against source information and get json search body.
         web::json::value GetValidatedSearchBody(const SearchRequest& searchRequest) const override;
+
+        SearchResult GetSearchResult(const web::json::value& searchResponseObject) const override;
+        std::vector<Manifest::Manifest> GetParsedManifests(const web::json::value& manifestsResponseObject) const override;
 
     private:
         IRestClient::Information m_information;

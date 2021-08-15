@@ -41,6 +41,9 @@ namespace AppInstaller::Repository
         std::string Label;
         std::string Text;
         std::string Url;
+
+        SourceAgreement(std::string label, std::string text, std::string url) :
+            Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
     };
 
     struct SourceInformation

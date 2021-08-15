@@ -231,9 +231,6 @@
     <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h">
       <Filter>Rest\Schema\1_1\Json</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\1_1\Json\SearchResponseDeserializer.h">
-      <Filter>Rest\Schema\1_1\Json</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -357,9 +354,6 @@
       <Filter>Rest\Schema\1_1\Json</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer_1_1.cpp">
-      <Filter>Rest\Schema\1_1\Json</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\1_1\Json\SearchResponseDeserializer_1_1.cpp">
       <Filter>Rest\Schema\1_1\Json</Filter>
     </ClCompile>
   </ItemGroup>

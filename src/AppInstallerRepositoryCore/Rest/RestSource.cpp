@@ -315,6 +315,18 @@ namespace AppInstaller::Repository::Rest
         : m_details(details), m_restClient(std::move(restClient))
     {
         m_details.Identifier = std::move(identifier);
+
+        const auto& sourceInformation = m_restClient.GetSourceInformation();
+        m_details.Information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
+        m_details.Information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
+        m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
+        m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+
+        m_details.Information.SourceAgreementIdentifier = sourceInformation.SourceAgreementsIdentifier;
+        for (auto const& agreement : sourceInformation.SourceAgreements)
+        {
+            m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+        }
     }
 
     const SourceDetails& RestSource::GetDetails() const

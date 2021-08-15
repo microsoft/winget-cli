@@ -19,8 +19,8 @@ namespace AppInstaller::Repository::Rest
     // Supported versions
     std::set<Version> WingetSupportedContracts = { Version_1_0_0, Version_1_1_0 };
 
-    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier, IRestClient::Information&& information)
-        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier)), m_information(std::move(information))
+    RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
+        : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
     }
 
@@ -37,6 +37,11 @@ namespace AppInstaller::Repository::Rest
     std::string RestClient::GetSourceIdentifier() const
     {
         return m_sourceIdentifier;
+    }
+
+    IRestClient::Information RestClient::GetSourceInformation() const
+    {
+        return m_interface->GetSourceInformation();
     }
 
     IRestClient::Information RestClient::GetInformation(const utility::string_t& restApi, const HttpClientHelper& clientHelper)
@@ -99,6 +104,6 @@ namespace AppInstaller::Repository::Rest
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
         std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), information, latestCommonVersion.value());
-        return RestClient{ std::move(supportedInterface), information.SourceIdentifier, std::move(information) };
+        return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

@@ -19,6 +19,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
     namespace
     {
+        // Query params
+        constexpr std::string_view VersionQueryParam = "Version"sv;
+        constexpr std::string_view ChannelQueryParam = "Channel"sv;
+
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
             return RestHelper::AppendPathToUri(JsonHelper::GetUtilityString(restApiUri), JsonHelper::GetUtilityString(ManifestSearchPostEndpoint));
@@ -42,12 +46,17 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
 
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
-        m_requiredRestApiHeaders.emplace(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString()));
+        m_requiredRestApiHeaders.emplace(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(Version_1_0_0.ToString()));
     }
 
     Utility::Version Interface::GetVersion() const
     {
         return Version_1_0_0;
+    }
+
+    IRestClient::Information Interface::GetSourceInformation() const
+    {
+        return {};
     }
 
     IRestClient::SearchResult Interface::Search(const SearchRequest& request) const
@@ -79,8 +88,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             utility::string_t ct;
             if (jsonObject)
             {
-                SearchResponseDeserializer searchResponseDeserializer;
-                SearchResult currentResult = searchResponseDeserializer.Deserialize(jsonObject.value());
+                SearchResult currentResult = GetSearchResult(jsonObject.value());
 
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
@@ -220,8 +228,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         // Parse json and return Manifests
-        ManifestDeserializer manifestDeserializer;
-        std::vector<Manifest::Manifest> manifests = manifestDeserializer.Deserialize(jsonObject.value());
+        std::vector<Manifest::Manifest> manifests = GetParsedManifests(jsonObject.value());
 
         // Manifest validation
         for (auto& manifestItem : manifests)
@@ -256,5 +263,17 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         SearchRequestSerializer serializer;
         return serializer.Serialize(searchRequest);
+    }
+
+    IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
+    {
+        SearchResponseDeserializer searchResponseDeserializer;
+        return searchResponseDeserializer.Deserialize(searchResponseObject);
+    }
+
+    std::vector<Manifest::Manifest> Interface::GetParsedManifests(const web::json::value& manifestsResponseObject) const
+    {
+        ManifestDeserializer manifestDeserializer;
+        return manifestDeserializer.Deserialize(manifestsResponseObject);
     }
 }

@@ -47,9 +47,6 @@ namespace AppInstaller::Repository::Rest::Schema
     {
         std::vector<Package> Matches;
         bool Truncated = false;
-
-        std::vector<std::string> UnsupportedPackageMatchFields;
-        std::vector<std::string> RequiredPackageMatchFields;
     };
 
     struct SourceAgreementEntry
@@ -71,12 +68,16 @@ namespace AppInstaller::Repository::Rest::Schema
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
 
+        Information() {}
         Information(std::string sourceId, std::vector<std::string> versions)
             : SourceIdentifier(std::move(sourceId)), ServerSupportedVersions(std::move(versions)) {}
     };
 
     // Get interface version.
     virtual Utility::Version GetVersion() const = 0;
+
+    // Get source information.
+    virtual Information GetSourceInformation() const = 0;
 
     // Performs a search based on the given criteria.
     virtual SearchResult Search(const SearchRequest& request) const = 0;

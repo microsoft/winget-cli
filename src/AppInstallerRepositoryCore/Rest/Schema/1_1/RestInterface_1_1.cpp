@@ -8,7 +8,6 @@
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/1_1/Json/ManifestDeserializer.h"
-#include "Rest/Schema/1_1/Json/SearchResponseDeserializer.h"
 #include "Rest/Schema/1_1/Json/SearchRequestSerializer.h"
 
 using namespace std::string_view_literals;
@@ -16,14 +15,32 @@ using namespace AppInstaller::Repository::Rest::Schema::V1_1::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_1
 {
+    namespace
+    {
+        // Query params
+        constexpr std::string_view MarketQueryParam = "Market"sv;
+
+        // Response constants
+        constexpr std::string_view UnsupportedPackageMatchFields = "UnsupportedPackageMatchFields"sv;
+        constexpr std::string_view RequiredPackageMatchFields = "RequiredPackageMatchFields"sv;
+        constexpr std::string_view UnsupportedQueryParameters = "UnsupportedQueryParameters"sv;
+        constexpr std::string_view RequiredQueryParameters = "RequiredQueryParameters"sv;
+    }
+
     Interface::Interface(const std::string& restApi, IRestClient::Information information, const HttpClientHelper& httpClientHelper) :
         V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
     {
+        m_requiredRestApiHeaders[JsonHelper::GetUtilityString(ContractVersion)] = JsonHelper::GetUtilityString(Version_1_1_0.ToString());
     }
 
     Utility::Version Interface::GetVersion() const
     {
         return Version_1_1_0;
+    }
+
+    IRestClient::Information Interface::GetSourceInformation() const
+    {
+        return m_information;
     }
 
     std::map<std::string_view, std::string> Interface::GetValidatedQueryParams(const std::map<std::string_view, std::string>& params) const
@@ -40,6 +57,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
                     continue;
                 }
 
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Required query Parameter: " << param);
                 throw UnsupportedQueryException({}, {}, {}, m_information.RequiredQueryParameters);
             }
         }
@@ -48,6 +66,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         {
             if (params.end() != std::find_if(params.begin(), params.end(), [&](const auto& pair) { return Utility::CaseInsensitiveEquals(pair.first, param); }))
             {
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Unsupported query Parameter: " << param);
                 throw UnsupportedQueryException({}, {}, m_information.UnsupportedQueryParameters, {});
             }
         }
@@ -71,6 +90,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
                     continue;
                 }
 
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Required package match field: " << field);
                 throw UnsupportedQueryException({}, m_information.RequiredPackageMatchFields, {}, {});
             }
         }
@@ -86,11 +106,51 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
             if (searchRequest.Filters.end() != std::find_if(searchRequest.Filters.begin(), searchRequest.Filters.end(), [&](const PackageMatchFilter& filter) { return filter.Field == matchField; }))
             {
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Unsupported package match field: " << field);
                 throw UnsupportedQueryException(m_information.UnsupportedPackageMatchFields, {}, {}, {});
             }
         }
 
         SearchRequestSerializer serializer;
         return serializer.Serialize(searchRequest);
+    }
+
+    IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
+    {
+        IRestClient::SearchResult result = V1_0::Interface::GetSearchResult(searchResponseObject);
+
+        if (result.Matches.size() == 0)
+        {
+            auto requiredPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(RequiredPackageMatchFields));
+            auto unsupportedPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(UnsupportedPackageMatchFields));
+
+            if (requiredPackageMatchFields.size() != 0 || unsupportedPackageMatchFields.size() != 0)
+            {
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source");
+                throw UnsupportedQueryException(std::move(unsupportedPackageMatchFields), std::move(requiredPackageMatchFields), {}, {});
+            }
+        }
+
+        return result;
+    }
+
+    std::vector<Manifest::Manifest> Interface::GetParsedManifests(const web::json::value& manifestsResponseObject) const
+    {
+        ManifestDeserializer manifestDeserializer;
+        auto result = manifestDeserializer.Deserialize(manifestsResponseObject);
+
+        if (result.size() == 0)
+        {
+            auto requiredQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(manifestsResponseObject, JsonHelper::GetUtilityString(RequiredQueryParameters));
+            auto unsupportedQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(manifestsResponseObject, JsonHelper::GetUtilityString(UnsupportedQueryParameters));
+
+            if (requiredQueryParameters.size() != 0 || unsupportedQueryParameters.size() != 0)
+            {
+                AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source");
+                throw UnsupportedQueryException({}, {}, std::move(unsupportedQueryParameters), std::move(requiredQueryParameters));
+            }
+        }
+
+        return result;
     }
 }

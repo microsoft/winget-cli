@@ -27,6 +27,8 @@ namespace AppInstaller::Repository::Rest
 
         std::string GetSourceIdentifier() const;
 
+        Schema::IRestClient::Information GetSourceInformation() const;
+
         static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
         static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const Schema::HttpClientHelper& httpClientHelper);
@@ -36,10 +38,9 @@ namespace AppInstaller::Repository::Rest
         static RestClient Create(const std::string& restApi, const Schema::HttpClientHelper& helper = {});
 
     private:
-        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier, Schema::IRestClient::Information&& information);
+        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
 
         std::unique_ptr<Schema::IRestClient> m_interface;
         std::string m_sourceIdentifier;
-        Schema::IRestClient::Information m_information;
     };
 }
