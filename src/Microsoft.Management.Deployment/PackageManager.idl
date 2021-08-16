@@ -533,9 +533,5 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageVersionId>;
         interface Windows.Foundation.Collections.IVector<PackageVersionInfo>;
         interface Windows.Foundation.Collections.IVectorView<PackageVersionInfo>;
-        interface Windows.Foundation.Collections.IVector<PackageVersionId>;
-        interface Windows.Foundation.Collections.IVectorView<PackageVersionId>;
-        interface Windows.Foundation.Collections.IVector<PackageVersionInfo>;
-        interface Windows.Foundation.Collections.IVectorView<PackageVersionInfo>;
     }
 }
