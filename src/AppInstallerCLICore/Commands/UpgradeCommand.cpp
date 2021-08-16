@@ -121,7 +121,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::HandleSourceAgreements(false);
 
         if (ShouldListUpgrade(context))
         {

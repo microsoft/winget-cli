@@ -62,6 +62,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     void OpenSource(Execution::Context& context);
 
+    // Opens a source after source add command.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    void OpenSourceFromSourceAdd(Execution::Context& context);
+
     // Creates a source object for a source specified by name, and adds it to the list of open sources.
     // Required Args: None
     // Inputs: Sources?
@@ -334,6 +340,21 @@ namespace AppInstaller::CLI::Workflow
     private:
         ExecutionStage m_stage;
         bool m_allowBackward;
+    };
+
+    // Handles all opened source(s) agreements if needed.
+    // Required Args: RemoveIfRejected, bool indicating if the source(s) should be removed if user rejects the agreements
+    // Inputs: Source or Sources
+    // Outputs: None
+    struct HandleSourceAgreements : public WorkflowTask
+    {
+        HandleSourceAgreements(bool removeIfRejected) :
+            WorkflowTask("HandleSourceAgreements"), m_removeIfRejected(removeIfRejected) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_removeIfRejected;
     };
 }
 

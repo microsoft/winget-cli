@@ -89,6 +89,17 @@ namespace AppInstaller::Repository
         SourceInformation Information;
     };
 
+    // List of fields that require user agreements.
+    enum class ImplicitAgreementField : int
+    {
+        None = 0x0,
+        Market = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementField);
+
+    ImplicitAgreementField GetAgreementFieldsFromSourceInformation(const SourceInformation& info);
+
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
@@ -106,6 +117,9 @@ namespace AppInstaller::Repository
         // Gets a value indicating whether this source is a composite of other sources,
         // and thus the packages may come from disparate sources as well.
         virtual bool IsComposite() const { return false; }
+
+        // Gets the available sources if the source is composite.
+        virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
@@ -139,6 +153,9 @@ namespace AppInstaller::Repository
 
         // List of SourceDetails that failed to update
         std::vector<SourceDetails> SourcesWithUpdateFailure;
+
+        // List of SourceDetails that needs agreements acceptence
+        std::vector<SourceDetails> SourcesNeedsAgreementsAcceptence;
     };
 
     // Opens an existing source.
@@ -212,4 +229,10 @@ namespace AppInstaller::Repository
     // Return value indicates whether the named source was found.
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
+
+    // Checks the source agreements and return a list that needs user acceptence.
+    std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources);
+
+    // Saves the accepted source agreements in metadata.
+    void SaveAcceptedSourceAgreements(const std::vector<SourceDetails>& sources);
 }

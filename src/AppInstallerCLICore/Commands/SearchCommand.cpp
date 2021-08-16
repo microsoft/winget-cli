@@ -68,6 +68,7 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::OpenSource <<
+            Workflow::HandleSourceAgreements(false) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(false) <<
             Workflow::ReportSearchResult;

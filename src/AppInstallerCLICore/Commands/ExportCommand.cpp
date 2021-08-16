@@ -56,6 +56,7 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::HandleSourceAgreements(false) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(true) <<
             Workflow::SelectVersionsToExport <<

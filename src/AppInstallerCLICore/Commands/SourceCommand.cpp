@@ -78,7 +78,9 @@ namespace AppInstaller::CLI
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceList <<
             Workflow::CheckSourceListAgainstAdd <<
-            Workflow::AddSource;
+            Workflow::AddSource <<
+            Workflow::OpenSourceFromSourceAdd <<
+            Workflow::HandleSourceAgreements(true);
     }
 
     std::vector<Argument> SourceListCommand::GetArguments() const

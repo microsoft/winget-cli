@@ -30,6 +30,8 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
     constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
     constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
@@ -52,6 +54,10 @@ namespace AppInstaller::Repository
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            std::string AcceptedAgreementsIdentifier;
+
+            int AcceptedAgreementFields = 0;
 
             SourceDetailsInternal() = default;
 
@@ -377,6 +383,8 @@ namespace AppInstaller::Repository
                     int64_t lastUpdateInEpoch{};
                     if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                     details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+                    if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false)) { return false; }
+                    if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false)) { return false; }
                     return true;
                 });
         }
@@ -538,6 +546,8 @@ namespace AppInstaller::Repository
                 out << YAML::BeginMap;
                 out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
                 out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
                 out << YAML::EndMap;
             }
 
@@ -704,6 +714,11 @@ namespace AppInstaller::Repository
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
 
+            bool CheckSourceAgreements(const SourceDetails& details);
+
+            // SaveMetadata() should be called after all accepted source agreements are updated.
+            void UpdateAcceptedSourceAgreements(const SourceDetails& details);
+
         private:
             std::vector<SourceDetailsInternal> m_sourceList;
 
@@ -740,6 +755,8 @@ namespace AppInstaller::Repository
                 if (source)
                 {
                     source->LastUpdateTime = metaSource.LastUpdateTime;
+                    source->AcceptedAgreementFields = metaSource.AcceptedAgreementFields;
+                    source->AcceptedAgreementsIdentifier = metaSource.AcceptedAgreementsIdentifier;
                 }
             }
         }
@@ -831,6 +848,44 @@ namespace AppInstaller::Repository
         {
             SetMetadata(m_sourceList);
         }
+
+        bool SourceListInternal::CheckSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementField::None && details.Information.SourceAgreementIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return true;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            if (!detailsInternal)
+            {
+                // Source not found.
+                return false;
+            }
+
+            return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
+                details.Information.SourceAgreementIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+        }
+
+        void SourceListInternal::UpdateAcceptedSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementField::None && details.Information.SourceAgreementIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !detailsInternal);
+
+            detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
+            detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementIdentifier;
+        }
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -846,6 +901,19 @@ namespace AppInstaller::Repository
         default:
             THROW_HR(E_UNEXPECTED);
         }
+    }
+
+    ImplicitAgreementField GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
+    {
+        ImplicitAgreementField result = ImplicitAgreementField::None;
+
+        if (info.RequiredPackageMatchFields.end() != std::find_if(info.RequiredPackageMatchFields.begin(), info.RequiredPackageMatchFields.end(), [&](const auto& field) { return Utility::CaseInsensitiveEquals(field, "market"); }) ||
+            info.RequiredQueryParameters.end() != std::find_if(info.RequiredQueryParameters.begin(), info.RequiredQueryParameters.end(), [&](const auto& param) { return Utility::CaseInsensitiveEquals(param, "market"); }))
+        {
+            WI_SetFlag(result, ImplicitAgreementField::Market);
+        }
+
+        return result;
     }
 
     std::vector<SourceDetails> GetSources()
@@ -1248,6 +1316,34 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources)
+    {
+        std::vector<SourceDetails> results;
+        SourceListInternal sourceList;
+
+        for (auto const& source : sources)
+        {
+            if (!sourceList.CheckSourceAgreements(source))
+            {
+                results.emplace_back(source);
+            }
+        }
+
+        return results;
+    }
+
+    void SaveAcceptedSourceAgreements(const std::vector<SourceDetails>& sources)
+    {
+        SourceListInternal sourceList;
+
+        for (auto const& source : sources)
+        {
+            sourceList.UpdateAcceptedSourceAgreements(source);
+        }
+
+        sourceList.SaveMetadata();
     }
 
     bool SearchRequest::IsForEverything() const

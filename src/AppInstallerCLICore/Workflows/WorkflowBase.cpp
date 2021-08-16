@@ -122,6 +122,21 @@ namespace AppInstaller::CLI::Workflow
                 searchRequest.MaximumResults = std::stoi(std::string(args.GetArg(Execution::Args::Type::Count)));
             }
         }
+
+        void ExtractSourceDetailsAndAddToList(const std::shared_ptr<Repository::ISource>& source, std::vector<Repository::SourceDetails>& list)
+        {
+            if (source->IsComposite())
+            {
+                for (auto const& available : source->GetAvailableSources())
+                {
+                    list.emplace_back(available->GetDetails());
+                }
+            }
+            else
+            {
+                list.emplace_back(source->GetDetails());
+            }
+        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -152,6 +167,23 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::Source))
         {
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+        }
+
+        auto source = OpenNamedSource(context, sourceName);
+        if (context.IsTerminated())
+        {
+            return;
+        }
+
+        context.Add<Execution::Data::Source>(std::move(source));
+    }
+
+    void OpenSourceFromSourceAdd(Execution::Context& context)
+    {
+        std::string_view sourceName;
+        if (context.Args.Contains(Execution::Args::Type::SourceName))
+        {
+            sourceName = context.Args.GetArg(Execution::Args::Type::SourceName);
         }
 
         auto source = OpenNamedSource(context, sourceName);
@@ -664,6 +696,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 OpenSource <<
+                HandleSourceAgreements(false) <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(false) <<
                 GetManifestFromPackage;
@@ -751,6 +784,29 @@ namespace AppInstaller::CLI::Workflow
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
         context.SetExecutionStage(m_stage, m_allowBackward);
+    }
+
+    void HandleSourceAgreements::operator()(Execution::Context& context) const
+    {
+        std::vector<Repository::SourceDetails> sourcesToCheck;
+
+        if (context.Contains(Execution::Data::Source))
+        {
+            std::shared_ptr<Repository::ISource> source = context.Get<Execution::Data::Source>();
+            ExtractSourceDetailsAndAddToList(source, sourcesToCheck);
+        }
+
+        if (context.Contains(Execution::Data::Sources))
+        {
+            const auto& sources = context.Get<Execution::Data::Sources>();
+            for (auto const& source : sources)
+            {
+                ExtractSourceDetailsAndAddToList(source, sourcesToCheck);
+            }
+        }
+
+        auto sourcesNeedsAcceptence = CheckSourceAgreements(sourcesToCheck);
+        // TODO: Handle agreements UI to be merged with EULA
     }
 }
 
