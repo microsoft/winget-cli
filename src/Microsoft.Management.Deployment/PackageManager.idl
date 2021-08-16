@@ -507,7 +507,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
         {
             /// Get install progress
-            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalog catalog);
+            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
     }
 
