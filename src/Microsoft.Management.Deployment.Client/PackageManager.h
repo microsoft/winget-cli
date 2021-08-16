@@ -1,7 +1,7 @@
 #pragma once
 #include "PackageManager.g.h"
 
-const CLSID CLSID_PackageManager2 = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
+const CLSID CLSID_PackageManager = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Deployment::factory_implementation
     {
         auto ActivateInstance() const
         {
-            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_PackageManager, CLSCTX_ALL);
         }
     };
 }

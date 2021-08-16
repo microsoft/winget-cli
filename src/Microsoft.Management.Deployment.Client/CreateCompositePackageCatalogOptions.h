@@ -3,7 +3,7 @@
 #pragma once
 #include "CreateCompositePackageCatalogOptions.g.h"
 
-const CLSID CLSID_CreateCompositePackageCatalogOptions2 = { 0x6444B10D, 0xFE84, 0x430F, { 0x93, 0x2B, 0x3D, 0x4F, 0xE5, 0x19, 0x5B, 0xDF } }; //6444B10D-FE84-430F-932B-3D4FE5195BDF
+const CLSID CLSID_CreateCompositePackageCatalogOptions = { 0x6444B10D, 0xFE84, 0x430F, { 0x93, 0x2B, 0x3D, 0x4F, 0xE5, 0x19, 0x5B, 0xDF } }; //6444B10D-FE84-430F-932B-3D4FE5195BDF
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::factory_implementation
     {
         auto ActivateInstance() const
         {
-            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_CreateCompositePackageCatalogOptions2, CLSCTX_ALL);
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_CreateCompositePackageCatalogOptions, CLSCTX_ALL);
         }
     };
 }

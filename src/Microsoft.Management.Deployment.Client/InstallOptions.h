@@ -3,7 +3,7 @@
 #pragma once
 #include "InstallOptions.g.h"
 
-const CLSID CLSID_InstallOptions2 = { 0x05F7019A, 0x8FAC, 0x4422, 0xBC, 0xD5, 0x4C, 0xB3, 0x4F, 0xFB, 0x44, 0xA8 };  //05F7019A-8FAC-4422-BCD5-4CB34FFB44A8
+const CLSID CLSID_InstallOptions = { 0x05F7019A, 0x8FAC, 0x4422, 0xBC, 0xD5, 0x4C, 0xB3, 0x4F, 0xFB, 0x44, 0xA8 };  //05F7019A-8FAC-4422-BCD5-4CB34FFB44A8
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -37,7 +37,7 @@ namespace winrt::Microsoft::Management::Deployment::factory_implementation
     {
         auto ActivateInstance() const
         {
-            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_InstallOptions2, CLSCTX_ALL);
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(CLSID_InstallOptions, CLSCTX_ALL);
         }
     };
 }
