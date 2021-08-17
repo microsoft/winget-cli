@@ -148,7 +148,7 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
     enum CompareResult
     {
-        /// The comparison did not result in a succeful ordering.
+        /// The comparison did not result in a succesful ordering.
         Unknown,
         /// The given value is lesser than the object value.
         Lesser,
@@ -187,9 +187,10 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
         {
             /// Compares the given value against the package version of this object, with the result being
-            /// the enum value that represents where versionString is ordered relative to the
-            /// PackageVersionInfo::Version.
-            /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Lesser.
+            /// the enum value that represents where PackageVersionInfo::Version is ordered relative to the
+            /// versionString.  "if (pvi.CompareToVersion(other) == Greater)" can be thought of as reading
+            /// the sentence "If pvi is compared to version other and is found to be greater".
+            /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
             CompareResult CompareToVersion(String versionString);
         }
 
@@ -522,7 +523,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
         {
             // The set of allowed Architectures, in preference order, that will be considered for
-            // the install operation.  The default set is { Any }, which allows any architecture
+            // the install operation.  The default set is empty, which allows any architecture
             // to be used.  Any can also be used to set a preference rather than a requirement,
             // such as { X86, Any }, which will prefer X86 if it is available and applicable,
             // but still use any applicable architecture that is available if X86 is not.
