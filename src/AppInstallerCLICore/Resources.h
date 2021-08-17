@@ -265,8 +265,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableGenericWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableForPreIndexedWarning);
+        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableWithoutSource);
     };
 
     // A localized string

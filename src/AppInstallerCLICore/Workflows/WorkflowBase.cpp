@@ -40,11 +40,11 @@ namespace AppInstaller::CLI::Workflow
 
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
-            std::shared_ptr<Repository::ISource> source;           
+            std::shared_ptr<Repository::ISource> source;
             try
             {
                 std::optional<std::string> customHeader;
-                if(context.Contains(Execution::Data::CustomHeader))
+                if (context.Contains(Execution::Data::CustomHeader))
                 {
                     customHeader = context.Get<Execution::Data::CustomHeader>();
                 }
@@ -356,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Version),
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
                 sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
-            });
+                });
         }
 
         table.Complete();
@@ -768,31 +768,25 @@ namespace AppInstaller::CLI::Workflow
             {
                 sourceName = context.Args.GetArg(Execution::Args::Type::Source);
             }
-
-            if (!sourceName.empty())
-            {
-                auto sourceDetails = Repository::GetSource(sourceName);
-
-                if (!sourceDetails)
-                {
-                    AICLI_LOG(CLI, Verbose, << "Skipping header arg as source details not found");
-                    return;
-                }
-
-                if (!(Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.value().Type)))
-                {
-                    context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
-                    return;
-                }
-            }
             else
             {
-                auto sources = Repository::GetSourcesOfType(Rest::RestSourceFactory::Type());
-                if (sources.empty())
-                {
-                    context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableGenericWarning << std::endl;
-                    return;
-                }
+                // Validate arguments should have already validated this check. If we are here, the check was skipped.
+                AICLI_LOG(CLI, Error, << "Custom header needs to be specified along with a source.");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+            }
+
+            auto sourceDetails = Repository::GetSource(sourceName);
+
+            if (!sourceDetails)
+            {
+                AICLI_LOG(CLI, Verbose, << "Skipping header arg as source details not found");
+                return;
+            }
+
+            if (!(Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.value().Type)))
+            {
+                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
+                return;
             }
 
             context.Add<Execution::Data::CustomHeader>(std::move(header));

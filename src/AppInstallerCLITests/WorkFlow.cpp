@@ -333,7 +333,7 @@ namespace
         bool m_isClone = false;
     };
 
-    void AddRestSourceHelper()
+    SourceDetails AddRestSourceHelper()
     {
         SetSetting(Streams::UserSources, R"(Sources:)"sv);
         TestHook_ClearSourceFactoryOverrides();
@@ -352,6 +352,8 @@ namespace
 
         TestProgress progress;
         AddSource(details, progress);
+
+        return details;
     }
 }
 
@@ -1751,7 +1753,7 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
 
 TEST_CASE("ShowFlow_CustomHeader", "[ShowFlow][CustomHeader]")
 {
-    AddRestSourceHelper();
+    auto details = AddRestSourceHelper();
 
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -1759,6 +1761,7 @@ TEST_CASE("ShowFlow_CustomHeader", "[ShowFlow][CustomHeader]")
 
     std::string customHeader2 = "Test custom header in Show Flow";
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     OverrideForOpenSource(context);
     ShowCommand show({});
@@ -1770,16 +1773,18 @@ TEST_CASE("ShowFlow_CustomHeader", "[ShowFlow][CustomHeader]")
 
 TEST_CASE("InstallFlow_CustomHeader", "[InstallFlow][CustomHeader]")
 {
-    AddRestSourceHelper();
+    auto details = AddRestSourceHelper();
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForOpenSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     std::string customHeader2 = "Test custom header in Install Flow";
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     InstallCommand install({});
     install.Execute(context);
@@ -1790,7 +1795,7 @@ TEST_CASE("InstallFlow_CustomHeader", "[InstallFlow][CustomHeader]")
 
 TEST_CASE("SearchFlow_CustomHeader", "[SearchFlow][CustomHeader]")
 {
-    AddRestSourceHelper();
+    auto details = AddRestSourceHelper();
 
     std::ostringstream searchOutput;
     TestContext context{ searchOutput, std::cin };
@@ -1799,6 +1804,7 @@ TEST_CASE("SearchFlow_CustomHeader", "[SearchFlow][CustomHeader]")
 
     std::string customHeader2 = "Test custom header in Search Flow";
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     SearchCommand search({});
     search.Execute(context);
@@ -1809,7 +1815,7 @@ TEST_CASE("SearchFlow_CustomHeader", "[SearchFlow][CustomHeader]")
 
 TEST_CASE("UpgradeFlow_CustomHeader", "[UpgradeFlow][CustomHeader]")
 {
-    AddRestSourceHelper();
+    auto details = AddRestSourceHelper();
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
@@ -1820,30 +1826,10 @@ TEST_CASE("UpgradeFlow_CustomHeader", "[UpgradeFlow][CustomHeader]")
 
     std::string customHeader2 = "Test custom header in Upgrade Flow";
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     UpgradeCommand update({});
     update.Execute(context);
-
-    REQUIRE(context.Contains(Execution::Data::CustomHeader));
-    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
-}
-
-TEST_CASE("ImportFlow_CustomHeader", "[ImportFlow][CustomHeader]")
-{
-    AddRestSourceHelper();
-
-    std::ostringstream importOutput;
-    TestContext context{ importOutput, std::cin };
-    OverrideForImportSource(context);
-    OverrideForMSIX(context);
-    OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
-
-    std::string customHeader2 = "Test custom header in Import Flow";
-    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
-
-    ImportCommand importCommand({});
-    importCommand.Execute(context);
 
     REQUIRE(context.Contains(Execution::Data::CustomHeader));
     REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);

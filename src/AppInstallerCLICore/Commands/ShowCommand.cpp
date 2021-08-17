@@ -7,6 +7,8 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+using namespace AppInstaller::CLI::Execution;
+
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ShowCommand::GetArguments() const
@@ -46,6 +48,14 @@ namespace AppInstaller::CLI
     std::string ShowCommand::HelpLink() const
     {
         return "https://aka.ms/winget-command-show";
+    }
+
+    void ShowCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        if (execArgs.Contains(Args::Type::CustomHeader) && !execArgs.Contains(Args::Type::Source))
+        {
+            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Args::Type::CustomHeader).Name(), {});
+        }
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const

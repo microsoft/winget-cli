@@ -18,7 +18,6 @@ namespace AppInstaller::CLI
             Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
             Argument{ "ignore-unavailable", Argument::NoAlias, Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
             Argument{ "ignore-versions", Argument::NoAlias, Execution::Args::Type::IgnoreVersions, Resource::String::ImportIgnorePackageVersionsArgumentDescription, ArgumentType::Flag },
-            Argument::ForType(Execution::Args::Type::CustomHeader),
         };
     }
 
@@ -44,7 +43,6 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::VerifyFile(Execution::Args::Type::ImportFile) <<
             Workflow::ReadImportFile <<
-            Workflow::ReadCustomHeader <<
             Workflow::OpenSourcesForImport <<
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<

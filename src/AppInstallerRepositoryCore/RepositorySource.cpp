@@ -966,7 +966,6 @@ namespace AppInstaller::Repository
                     }
 
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
-                    source.get().CustomHeader = customHeader;
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
@@ -1006,7 +1005,12 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-                source->CustomHeader = std::move(customHeader);
+
+                if (Utility::CaseInsensitiveEquals(source->Type, Rest::RestSourceFactory::Type()))
+                {
+                    source->CustomHeader = std::move(customHeader);
+                }
+
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))
