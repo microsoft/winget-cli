@@ -356,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Version),
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
                 sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
-                });
+            });
         }
 
         table.Complete();
@@ -779,7 +779,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!sourceDetails)
             {
-                AICLI_LOG(CLI, Verbose, << "Skipping header arg as source details not found");
+                AICLI_LOG(CLI, Verbose, << "Skipping header arg as source details were not found");
                 return;
             }
 

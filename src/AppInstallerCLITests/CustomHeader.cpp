@@ -29,14 +29,6 @@ namespace
         Sources:
         )"sv;
     
-    constexpr std::string_view s_restSource = R"(
-        Sources:
-          - Name: restsource
-            Type: Microsoft.Rest
-            Arg: https://rest.azureedge.net/cache
-            IsTombstone: false
-        )"sv;
-
     utility::string_t sampleSearchResponse = _XPLATSTR(
         R"delimiter({
             "Data" : [

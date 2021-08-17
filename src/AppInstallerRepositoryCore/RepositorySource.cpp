@@ -857,22 +857,6 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    std::vector<SourceDetails> GetSourcesOfType(std::string_view type)
-    {
-        SourceListInternal sourceList;
-
-        std::vector<SourceDetails> result;
-        for (auto&& source : sourceList.GetCurrentSourceRefs())
-        {
-            if (Utility::CaseInsensitiveEquals(source.get().Type, type))
-            {
-                result.emplace_back(std::move(source));
-            }
-        }
-
-        return result;
-    }
-
     std::optional<SourceDetails> GetSource(std::string_view name)
     {
         // Check all sources for the given name.

@@ -104,8 +104,6 @@ namespace AppInstaller::Repository
     // Gets the details for all sources.
     std::vector<SourceDetails> GetSources();
 
-    std::vector<SourceDetails> GetSourcesOfType(std::string_view type);
-
     // Gets the details for a single source.
     std::optional<SourceDetails> GetSource(std::string_view name);
 
