@@ -94,7 +94,7 @@ namespace AppInstaller::CLI::Execution
         // Set the context to the terminated state.
         void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
 
-        // Set the termintation hr of the context.
+        // Set the termination hr of the context.
         void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.

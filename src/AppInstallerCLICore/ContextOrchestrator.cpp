@@ -104,7 +104,7 @@ namespace AppInstaller::CLI::Execution
             if (FAILED(terminationHR))
             {
                 // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
-                // being updated with that hresult. This sets the termintation hr directly so that the context always 
+                // being updated with that hresult. This sets the termination hr directly so that the context always 
                 // has the result of the operation no matter how it failed.
                 item->GetContext()->SetTerminationHR(terminationHR);
             }
