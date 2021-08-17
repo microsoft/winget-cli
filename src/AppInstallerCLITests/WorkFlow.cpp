@@ -3,6 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include "TestHooks.h"
+#include "TestSettings.h"
+#include "RestSourceTestHelper.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
@@ -21,6 +24,7 @@
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/SearchCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/LocIndependent.h>
@@ -28,6 +32,7 @@
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
+#include <winget/Settings.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -39,6 +44,7 @@ using namespace AppInstaller::Logging;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Settings;
 
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
@@ -326,6 +332,27 @@ namespace
         std::istream& m_in;
         bool m_isClone = false;
     };
+
+    void AddRestSourceHelper()
+    {
+        SetSetting(Streams::UserSources, R"(Sources:)"sv);
+        TestHook_ClearSourceFactoryOverrides();
+
+        SourceDetails details;
+        details.Name = "restsource";
+        details.Type = "Microsoft.Rest";
+        details.Arg = "thisIsTheArg";
+        details.Data = "thisIsTheData";
+        details.CustomHeader = "CustomHeader";
+
+        bool receivedCustomHeader = false;
+        TestSourceFactory factory{ TestRestSource::Create };
+        factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
+        TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+        TestProgress progress;
+        AddSource(details, progress);
+    }
 }
 
 void OverrideForOpenSource(TestContext& context)
@@ -1720,4 +1747,104 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     // Verify root dependencies are shown
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
+}
+
+TEST_CASE("ShowFlow_CustomHeader", "[ShowFlow][CustomHeader]")
+{
+    AddRestSourceHelper();
+
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
+
+    std::string customHeader2 = "Test custom header in Show Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+
+    OverrideForOpenSource(context);
+    ShowCommand show({});
+    show.Execute(context);
+
+    REQUIRE(context.Contains(Execution::Data::CustomHeader));
+    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
+}
+
+TEST_CASE("InstallFlow_CustomHeader", "[InstallFlow][CustomHeader]")
+{
+    AddRestSourceHelper();
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForOpenSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+
+    std::string customHeader2 = "Test custom header in Install Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+
+    InstallCommand install({});
+    install.Execute(context);
+     
+    REQUIRE(context.Contains(Execution::Data::CustomHeader));
+    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
+}
+
+TEST_CASE("SearchFlow_CustomHeader", "[SearchFlow][CustomHeader]")
+{
+    AddRestSourceHelper();
+
+    std::ostringstream searchOutput;
+    TestContext context{ searchOutput, std::cin };
+    OverrideForOpenSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+
+    std::string customHeader2 = "Test custom header in Search Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+
+    SearchCommand search({});
+    search.Execute(context);
+
+    REQUIRE(context.Contains(Execution::Data::CustomHeader));
+    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
+}
+
+TEST_CASE("UpgradeFlow_CustomHeader", "[UpgradeFlow][CustomHeader]")
+{
+    AddRestSourceHelper();
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    std::string customHeader2 = "Test custom header in Upgrade Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+
+    REQUIRE(context.Contains(Execution::Data::CustomHeader));
+    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
+}
+
+TEST_CASE("ImportFlow_CustomHeader", "[ImportFlow][CustomHeader]")
+{
+    AddRestSourceHelper();
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
+
+    std::string customHeader2 = "Test custom header in Import Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+
+    REQUIRE(context.Contains(Execution::Data::CustomHeader));
+    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
 }

@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Execution
         Sources,
         ARPSnapshot,
         Dependencies,
-        Header,
+        CustomHeader,
         Max
     };
 
@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::Header>
+        struct DataMapping<Data::CustomHeader>
         {
             using value_t = std::string;
         };

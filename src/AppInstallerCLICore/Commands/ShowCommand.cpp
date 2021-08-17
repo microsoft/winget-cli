@@ -23,7 +23,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::ListVersions),
-            Argument::ForType(Execution::Args::Type::Header),
+            Argument::ForType(Execution::Args::Type::CustomHeader),
         };
     }
 
@@ -62,7 +62,7 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
-                    Workflow::ReadAdditionalData <<
+                    Workflow::ReadCustomHeader <<
                     Workflow::OpenSource <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<

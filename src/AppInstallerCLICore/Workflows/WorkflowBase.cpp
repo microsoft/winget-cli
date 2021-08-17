@@ -43,13 +43,13 @@ namespace AppInstaller::CLI::Workflow
             std::shared_ptr<Repository::ISource> source;           
             try
             {
-                AdditionalSourceData sourceData;
-                if(context.Contains(Execution::Data::Header))
+                std::optional<std::string> customHeader;
+                if(context.Contains(Execution::Data::CustomHeader))
                 {
-                    sourceData.Header = context.Get<Execution::Data::Header>();
+                    customHeader = context.Get<Execution::Data::CustomHeader>();
                 }
 
-                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1, std::move(sourceData)), true);
+                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::move(customHeader), std::placeholders::_1), true);
                 source = result.Source;
 
                 // We'll only report the source update failure as warning and continue
@@ -666,7 +666,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context <<
-                ReadAdditionalData <<
+                ReadCustomHeader <<
                 OpenSource <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(false) <<
@@ -752,13 +752,13 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::InstalledPackageVersion>(context.Get<Execution::Data::Package>()->GetInstalledVersion());
     }
 
-    void ReadAdditionalData(Execution::Context& context)
+    void ReadCustomHeader(Execution::Context& context)
     {
         std::string header;
 
-        if (context.Args.Contains(Execution::Args::Type::Header))
+        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
         {
-            header = context.Args.GetArg(Execution::Args::Type::Header);
+            header = context.Args.GetArg(Execution::Args::Type::CustomHeader);
         }
 
         if (!header.empty())
@@ -769,7 +769,6 @@ namespace AppInstaller::CLI::Workflow
                 sourceName = context.Args.GetArg(Execution::Args::Type::Source);
             }
 
-            std::string warningMessage;
             if (!sourceName.empty())
             {
                 auto sourceDetails = Repository::GetSource(sourceName);
@@ -796,7 +795,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            context.Add<Execution::Data::Header>(std::move(header));
+            context.Add<Execution::Data::CustomHeader>(std::move(header));
         }
     }
 

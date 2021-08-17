@@ -889,46 +889,41 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress, AdditionalSourceData sourceData)
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress)
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
+        THROW_HR_IF(E_INVALIDARG, sourceDetails.Name.empty());
 
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << name << "], Type[" << type << "], Arg[" << arg << "]");
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        auto source = sourceList.GetCurrentSource(name);
+        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
         // Check sources allowed by group policy
-        auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
+        auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);
         if (blockingPolicy != TogglePolicy::Policy::None)
         {
             throw GroupPolicyException(blockingPolicy);
         }
 
-        SourceDetailsInternal details;
-        details.Name = name;
-        details.Type = type;
-        details.Arg = arg;
-        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
-        details.Origin = SourceOrigin::User;
-        details.AdditionalSourceData = sourceData;
+        sourceDetails.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
+        sourceDetails.Origin = SourceOrigin::User;
 
-        bool result = AddSourceFromDetails(details, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress);
         if (result)
         {
-            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << sourceDetails.Identifier);
 
-            sourceList.AddSource(details);
+            sourceList.AddSource(sourceDetails);
         }
 
         return result;
     }
 
-    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress, AdditionalSourceData sourceData)
+    OpenSourceResult OpenSource(std::string_view name, std::optional<std::string> customHeader, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
 
@@ -951,7 +946,7 @@ namespace AppInstaller::Repository
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, progress, std::move(sourceData));
+                    return OpenSource(currentSources[0].get().Name, std::move(customHeader), progress);
                 }
             }
             else
@@ -971,7 +966,7 @@ namespace AppInstaller::Repository
                     }
 
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
-                    source.get().AdditionalSourceData = std::move(sourceData);
+                    source.get().CustomHeader = customHeader;
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
@@ -1011,7 +1006,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-                source->AdditionalSourceData = std::move(sourceData);
+                source->CustomHeader = std::move(customHeader);
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))

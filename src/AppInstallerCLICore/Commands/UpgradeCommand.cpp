@@ -43,7 +43,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument::ForType(Execution::Args::Type::Header),
+            Argument::ForType(Execution::Args::Type::CustomHeader),
         };
     }
 
@@ -121,7 +121,7 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::ReadAdditionalData <<
+            Workflow::ReadCustomHeader <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 

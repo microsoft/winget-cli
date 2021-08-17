@@ -323,7 +323,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Gets the additional data and adds to the Execution context.
     // Required Args: None
-    void ReadAdditionalData(Execution::Context& context);
+    void ReadCustomHeader(Execution::Context& context);
 
     // Reports execution stage in a workflow
     // Required Args: ExecutionStage

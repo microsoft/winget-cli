@@ -7,6 +7,7 @@
 #include "TableOutput.h"
 #include "WorkflowBase.h"
 #include "Rest/RestSourceFactory.h"
+#include "AppInstallerRepositorySource.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -83,32 +84,31 @@ namespace AppInstaller::CLI::Workflow
 
     void AddSource(Execution::Context& context)
     {
-        std::string name(context.Args.GetArg(Args::Type::SourceName));
-        std::string arg(context.Args.GetArg(Args::Type::SourceArg));
-        std::string type;
+        Repository::SourceDetails sourceDetails;
+        sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
+        sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
         if (context.Args.Contains(Args::Type::SourceType))
         {
-            type = context.Args.GetArg(Args::Type::SourceType);
+            sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
 
-        Repository::AdditionalSourceData sourceData;
-        if (context.Args.Contains(Args::Type::Header)) 
+        if (context.Args.Contains(Args::Type::CustomHeader)) 
         {
-            if (!Utility::CaseInsensitiveEquals(type, Repository::Rest::RestSourceFactory::Type()))
+            if (!Utility::CaseInsensitiveEquals(sourceDetails.Type, Repository::Rest::RestSourceFactory::Type()))
             {
                 context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
             }
             else
             {
-                sourceData.Header = context.Args.GetArg(Args::Type::Header);
+                sourceDetails.CustomHeader = context.Args.GetArg(Args::Type::CustomHeader);
             }
         }
 
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
-            "  "_liv << name << " -> "_liv << arg << std::endl;
+            "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1, std::move(sourceData))))
+        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(sourceDetails), std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Done;
         }

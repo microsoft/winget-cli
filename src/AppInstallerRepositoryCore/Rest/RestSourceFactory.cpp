@@ -19,7 +19,7 @@ namespace AppInstaller::Repository::Rest
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
 
-                RestClient restClient = RestClient::Create(details.Arg, details.AdditionalSourceData);
+                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
 
                 return std::make_shared<RestSource>(details, restClient.GetSourceIdentifier(), std::move(restClient));
             }
@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Rest
 
                 // Check if URL is remote and secure
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
+                // THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
 
                 return true;
             }

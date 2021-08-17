@@ -243,28 +243,29 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     REQUIRE(addCalledOnFactory);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 2);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
@@ -275,37 +276,43 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 {
     SetSetting(Streams::UserSources, s_EmptySources);
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     const char* suffix[2] = { "", "2" };
 
     TestSourceFactory factory1{ SourcesTestSource::Create };
-    factory1.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory1);
+    factory1.OnAdd = [&](SourceDetails& sd) { sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory1);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 2);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
     REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
+    SourceDetails details2;
+    details2.Name = details.Name + suffix[1];
+    details2.Type = details.Type + suffix[1];
+    details2.Arg = details.Arg + suffix[1];
+    details2.Data = details.Data + suffix[1];
     TestSourceFactory factory2{ SourcesTestSource::Create };
-    factory2.OnAdd = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
-    TestHook_SetSourceFactoryOverride(type + suffix[1], factory2);
+    factory2.OnAdd = [&](SourceDetails& sd) { sd.Data = details2.Data; };
+    TestHook_SetSourceFactoryOverride(details2.Type, factory2);
 
-    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1], progress);
+    AddSource(details2, progress);
 
     sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -313,10 +320,10 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     for (size_t i = 0; i < 2; ++i)
     {
         INFO("Source #" << i);
-        REQUIRE(sources[i].Name == name + suffix[i]);
-        REQUIRE(sources[i].Type == type + suffix[i]);
-        REQUIRE(sources[i].Arg == arg + suffix[i]);
-        REQUIRE(sources[i].Data == data + suffix[i]);
+        REQUIRE(sources[i].Name == details.Name + suffix[i]);
+        REQUIRE(sources[i].Type == details.Type + suffix[i]);
+        REQUIRE(sources[i].Arg == details.Arg + suffix[i]);
+        REQUIRE(sources[i].Data == details.Data + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
         REQUIRE(sources[i].Origin == SourceOrigin::User);
     }
@@ -331,28 +338,29 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     REQUIRE(addCalledOnFactory);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 2);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
@@ -363,17 +371,17 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     auto now = std::chrono::system_clock::now();
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
 
-    UpdateSource(name, progress);
+    UpdateSource(details.Name, progress);
 
     REQUIRE(updateCalledOnFactory);
 
     sources = GetSources();
     REQUIRE(sources.size() == 2);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE((now - sources[0].LastUpdateTime) < 1s);
 }
 
@@ -384,17 +392,18 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     // Reset for a call to update
     bool updateShouldThrow = false;
@@ -409,7 +418,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
         updateCalledOnFactoryAgain = true;
     };
 
-    UpdateSource(name, progress);
+    UpdateSource(details.Name, progress);
 
     REQUIRE(updateCalledOnFactoryAgain);
 }
@@ -419,23 +428,24 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool removeCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 2);
 
-    RemoveSource(name, progress);
+    RemoveSource(details.Name, progress);
 
     REQUIRE(removeCalledOnFactory);
 
@@ -486,7 +496,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     SetSetting(Streams::UserSources, s_SingleSource);
 
     ProgressCallback progress;
-    auto source = OpenSource(name, progress).Source;
+    auto source = OpenSource(name, {}, progress).Source;
 
     REQUIRE(updateCalledOnFactory);
 
@@ -550,7 +560,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
-    auto source = OpenSource("", progress).Source;
+    auto source = OpenSource("", {}, progress).Source;
 
     SearchRequest request;
     auto result = source->Search(request);
@@ -596,8 +606,12 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "winget";
+            details.Type = "Microsoft.PreIndexed.Package";
+            details.Arg = "https://winget.azureedge.net/cache";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("winget", "Microsoft.PreIndexed.Package", "https://winget.azureedge.net/cache", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::DefaultSource);
         }
         SECTION("Ignore default source from user")
@@ -615,28 +629,29 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
             TestHook_ClearSourceFactoryOverrides();
 
-            std::string name = "winget";
-            std::string type = "someType";
-            std::string arg = "notWingetRealArg";
-            std::string data = "someData";
+            SourceDetails details;
+            details.Name = "winget";
+            details.Type = "someType";
+            details.Arg = "notWingetRealArg";
+            details.Data = "someData";
 
             bool addCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
-            factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-            TestHook_SetSourceFactoryOverride(type, factory);
+            factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+            TestHook_SetSourceFactoryOverride(details.Type, factory);
 
             ProgressCallback progress;
-            AddSource(name, type, arg, progress);
+            AddSource(details, progress);
 
             REQUIRE(addCalledOnFactory);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == 1);
 
-            REQUIRE(sources[0].Name == name);
-            REQUIRE(sources[0].Type == type);
-            REQUIRE(sources[0].Arg == arg);
-            REQUIRE(sources[0].Data == data);
+            REQUIRE(sources[0].Name == details.Name);
+            REQUIRE(sources[0].Type == details.Type);
+            REQUIRE(sources[0].Arg == details.Arg);
+            REQUIRE(sources[0].Data == details.Data);
             REQUIRE(sources[0].Origin == SourceOrigin::User);
         }
         SECTION("Allow same name source from user")
@@ -841,7 +856,11 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             TestHook_SetSourceFactoryOverride(policySource.Type, factory);
 
             ProgressCallback progress;
-            AddSource(policySource.Name, policySource.Type, policySource.Arg, progress);
+            SourceDetails details;
+            details.Name = policySource.Name;
+            details.Type = policySource.Type;
+            details.Arg = policySource.Arg;
+            AddSource(details, progress);
 
             REQUIRE(addCalledOnFactory);
 
@@ -875,8 +894,12 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "notAllowed";
+            details.Type = "type";
+            details.Arg = "arg";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("notAllowed", "type", "arg", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
         }
@@ -896,8 +919,12 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "name";
+            details.Type = "type";
+            details.Arg = "arg";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("name", "type", "arg", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
 

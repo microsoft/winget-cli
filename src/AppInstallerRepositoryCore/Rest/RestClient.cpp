@@ -94,12 +94,12 @@ namespace AppInstaller::Repository::Rest
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, const AdditionalSourceData& sourceSettings, const HttpClientHelper& helper)
+    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        auto headers = GetHeaders(sourceSettings);
+        auto headers = GetHeaders(customHeader);
 
         IRestClient::Information information = GetInformation(restEndpoint, headers, helper);
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
@@ -109,16 +109,16 @@ namespace AppInstaller::Repository::Rest
         return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 
-    std::unordered_map<utility::string_t, utility::string_t> RestClient::GetHeaders(const AdditionalSourceData& sourceData)
+    std::unordered_map<utility::string_t, utility::string_t> RestClient::GetHeaders(std::optional<std::string> customHeader)
     {
-        if (sourceData.Header.empty())
+        if (!customHeader)
         {
-            AICLI_LOG(Repo, Verbose, << "No additional source data found.");
+            AICLI_LOG(Repo, Verbose, << "Custom header not found.");
             return {};
         }
 
         std::unordered_map<utility::string_t, utility::string_t> headers;
-        headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(sourceData.Header));
+        headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
         return headers;
     }
 }
