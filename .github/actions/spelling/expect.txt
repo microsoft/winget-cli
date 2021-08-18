@@ -140,6 +140,7 @@ IID
 IInstalled
 IISOn
 img
+IMutable
 IName
 inet
 inor
