@@ -18,20 +18,37 @@ namespace AppInstaller::CLI::Execution
         Running
     };
 
+    struct OrchestratorQueueItemId
+    {
+        OrchestratorQueueItemId(std::wstring packageId, std::wstring sourceId) : m_packageId(std::move(packageId)), m_sourceId(std::move(sourceId)) {}
+        std::wstring_view GetPackageId() const { return m_packageId; }
+        std::wstring_view GetSourceId() const { return m_sourceId; }
+
+        bool IsSame(const OrchestratorQueueItemId*);
+    private:
+        std::wstring m_packageId;
+        std::wstring m_sourceId;
+    };
+
     struct OrchestratorQueueItem
     {
-        OrchestratorQueueItem(std::wstring id, std::shared_ptr<COMContext> context) : m_id(id), m_context(std::move(context)) {}
+        OrchestratorQueueItem(std::shared_ptr<OrchestratorQueueItemId> id, std::shared_ptr<COMContext> context) : m_id(std::move(id)), m_context(std::move(context)) {}
 
-        const OrchestratorQueueItemState GetState() { return m_state; }
+        OrchestratorQueueItemState GetState() const { return m_state; }
         void SetState(OrchestratorQueueItemState state) { m_state = state; }
-        const std::shared_ptr<COMContext> GetContext() { return m_context; }
-        const wil::unique_event& GetCompletedEvent() { return m_completedEvent; }
-        std::wstring_view GetId() { return m_id; }
+        std::shared_ptr<COMContext> GetContext() const { return m_context; }
+        wil::unique_event& GetCompletedEvent() { return m_completedEvent; }
+        std::shared_ptr<OrchestratorQueueItemId> GetId() const { return m_id; }
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::Queued;
         std::shared_ptr<COMContext> m_context;
         wil::unique_event m_completedEvent{ wil::EventOptions::ManualReset };
-        std::wstring m_id = L"";
+        std::shared_ptr<OrchestratorQueueItemId> m_id;
+    };
+
+    struct OrchestratorQueueItemFactory
+    {
+        static std::shared_ptr<OrchestratorQueueItem> CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::shared_ptr<COMContext> context);
     };
 
     struct ContextOrchestrator
@@ -39,23 +56,22 @@ namespace AppInstaller::CLI::Execution
         ContextOrchestrator();
         static ContextOrchestrator& Instance();
 
-        std::shared_ptr<OrchestratorQueueItem> EnqueueAndRunContextOperation(std::wstring identifier, std::shared_ptr<COMContext> context);
+        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> queueItem);
+        void CancelQueueItem(const std::shared_ptr<OrchestratorQueueItem>& item);
 
-        void RunContexts();
-        std::shared_ptr<OrchestratorQueueItem> GetNextItem();
-
-        void CancelItem(const std::shared_ptr<OrchestratorQueueItem>& item);
-
-        std::shared_ptr<OrchestratorQueueItem> GetQueueItem(std::wstring id);
+        std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId* queueItemId);
 
     private:
+        std::mutex m_queueLock;
+        void RunItems();
+        std::shared_ptr<OrchestratorQueueItem> GetNextItem();
         void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
         void RemoveItemInState(const std::shared_ptr<OrchestratorQueueItem>& item, OrchestratorQueueItemState state);
-        static std::string_view GetIdFromItem(const std::shared_ptr<OrchestratorQueueItem>& item);
-        std::shared_ptr<OrchestratorQueueItem> FindById(std::wstring_view packageId);
+
+        _Requires_lock_held_(m_queueLock)
+        std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId* queueItemId);
 
         std::shared_ptr<::AppInstaller::Repository::IMutablePackageSource> m_installingWriteableSource = nullptr;
-        std::mutex m_queueLock;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
     };
 }

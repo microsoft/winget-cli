@@ -317,34 +317,25 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return context;
     }
 
-    std::wstring GetQueueIdForInstall(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
-    {
-        // Package Id + Catalog Id forms a unique identifier of a package for the purposes of the queue.
-        // Packages with the same id but from different catalogs can be installed at the same time.
-        std::wstring queueId;
-        queueId += package.Id();
-        queueId += std::wstring(L".");
-        queueId += catalogInfo.Id();
-        return std::move(queueId);
-    }
-
-    std::shared_ptr<Execution::OrchestratorQueueItem> GetQueueItemForPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
+    std::shared_ptr<Execution::OrchestratorQueueItem> GetExistingQueueItemForPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
         if (catalogInfo)
         {
             // If the caller has passed in the catalog they expect the package to have come from, then only look for an install from that catalog.
             // Fail if they've used a catalog that doesn't have an Id. This can currently happen for Info objects that come from PackageCatalogReference objects for REST catalogs.
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, catalogInfo.Id().size() == 0);
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(GetQueueIdForInstall(package, catalogInfo));
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, catalogInfo.Id().empty());
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), catalogInfo.Id().c_str(), nullptr)->GetId().get());
             return queueItem;
         }
 
-        // If the caller has not specified the catalog, then check InstalledVersion,
+        // If the caller has not specified the catalog, then check InstalledVersion. When the package comes from the Installing catalog the PackageCatalog
+        // of the InstalledVersion will be set to the original catalog that the install was from, so checking the InstalledVersion first is most likely to 
+        // find a result.
         Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo = package.InstalledVersion();
         if (installedVersionInfo)
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(GetQueueIdForInstall(package, installedVersionInfo.PackageCatalog().Info()));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), installedVersionInfo.PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
             if (queueItem)
             {
                 return queueItem;
@@ -355,7 +346,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo defaultInstallVersionInfo = package.DefaultInstallVersion();
         if (defaultInstallVersionInfo)
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(GetQueueIdForInstall(package, defaultInstallVersionInfo.PackageCatalog().Info()));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), defaultInstallVersionInfo.PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
             if (queueItem)
             {
                 return queueItem;
@@ -365,7 +356,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Finally check all catalogs in AvailableVersions.
         for (Microsoft::Management::Deployment::PackageVersionId versionId : package.AvailableVersions())
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(GetQueueIdForInstall(package, package.GetPackageVersionInfo(versionId).PackageCatalog().Info()));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), package.GetPackageVersionInfo(versionId).PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
             if (queueItem)
             {
                 return queueItem;
@@ -414,7 +405,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
                 Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
                 std::shared_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
-                queueItem = Execution::ContextOrchestrator::Instance().EnqueueAndRunContextOperation(GetQueueIdForInstall(package, packageVersionInfo.PackageCatalog().Info()), std::move(comContext));
+                queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), packageVersionInfo.PackageCatalog().Info().Id().c_str(), std::move(comContext));
+                Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
                 report_progress(queuedProgress);
@@ -423,7 +415,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
-                queueItem = GetQueueItemForPackage(package, catalogInfo);
+                queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
                 WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
 
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
@@ -453,7 +445,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             cancellationToken.callback([&queueItem]
                 {
                     // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
-                    Execution::ContextOrchestrator::Instance().CancelItem(queueItem);
+                    Execution::ContextOrchestrator::Instance().CancelQueueItem(queueItem);
                 });
 
             // Wait for completion or progress events.
