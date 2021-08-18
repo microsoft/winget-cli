@@ -36,6 +36,11 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
+        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id, std::string_view version)
+        {
+            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
+        }
+
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
             std::shared_ptr<Repository::ISource> source;
@@ -645,7 +650,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
     }
 
     void GetManifest(Execution::Context& context)
