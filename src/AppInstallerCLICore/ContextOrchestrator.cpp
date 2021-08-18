@@ -24,12 +24,17 @@ namespace AppInstaller::CLI::Execution
     }
 
     _Requires_lock_held_(m_queueLock) 
-    std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::FindById(const OrchestratorQueueItemId* queueItemId)
+    std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator ContextOrchestrator::FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId)
     {
-        auto it = std::find_if(m_queueItems.begin(), m_queueItems.end(), [&queueItemId](const std::shared_ptr<OrchestratorQueueItem> item) {return (item->GetId()->IsSame(queueItemId)); });
-        if (it != m_queueItems.end())
+        return std::find_if(m_queueItems.begin(), m_queueItems.end(), [&comparisonQueueItemId](const std::shared_ptr<OrchestratorQueueItem> item) {return (item->GetId().IsSame(comparisonQueueItemId)); });
+    }
+    _Requires_lock_held_(m_queueLock)
+    std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::FindById(const OrchestratorQueueItemId& comparisonQueueItemId)
+    {
+        auto itr = FindIteratorById(comparisonQueueItemId);
+        if (itr != m_queueItems.end())
         {
-            return *it;
+            return *itr;
         }
         return {};
     }
@@ -38,11 +43,11 @@ namespace AppInstaller::CLI::Execution
     {
         std::lock_guard<std::mutex> lock{ m_queueLock };
 
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId().get()));
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
         m_queueItems.push_back(item);
 
         // Add the package to the Installing source so that it can be queried using the ISource interface.
-        const auto& manifest = item->GetContext()->Get<Execution::Data::Manifest>();
+        const auto& manifest = item->GetContext().Get<Execution::Data::Manifest>();
         m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
     }
 
@@ -91,11 +96,11 @@ namespace AppInstaller::CLI::Execution
                 ::AppInstaller::CLI::RootCommand rootCommand;
                 std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
                 ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
-                command->ValidateArguments(item->GetContext()->Args);
+                command->ValidateArguments(item->GetContext().Args);
 
-                item->GetContext()->EnableCtrlHandler();
+                item->GetContext().EnableCtrlHandler();
 
-                terminationHR = ::AppInstaller::CLI::Execute(*item->GetContext(), command);
+                terminationHR = ::AppInstaller::CLI::Execute(item->GetContext(), command);
             }
             WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
@@ -104,56 +109,56 @@ namespace AppInstaller::CLI::Execution
                 // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
                 // being updated with that hresult. This sets the termination hr directly so that the context always 
                 // has the result of the operation no matter how it failed.
-                item->GetContext()->SetTerminationHR(terminationHR);
+                item->GetContext().SetTerminationHR(terminationHR);
             }
 
-            RemoveItemInState(item, OrchestratorQueueItemState::Running);
+            RemoveItemInState(*item, OrchestratorQueueItemState::Running);
 
             item = GetNextItem();
         }
     }
 
-    void ContextOrchestrator::RemoveItemInState(const std::shared_ptr<OrchestratorQueueItem>& item, OrchestratorQueueItemState state)
+    void ContextOrchestrator::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state)
     {
         std::lock_guard<std::mutex> lock{ m_queueLock };
 
         // Look for the item. It's ok if the item is not found since multiple listeners may try to remove the same item.
-        auto itr = std::find(m_queueItems.begin(), m_queueItems.end(), item);
+        //auto itr = std::find(m_queueItems.begin(), m_queueItems.end(), item);
+        auto itr = FindIteratorById(item.GetId());
         if (itr != m_queueItems.end() && (*itr)->GetState() == state)
         {
             m_queueItems.erase(itr);
 
-            const auto& manifest = item->GetContext()->Get<Execution::Data::Manifest>();
+            const auto& manifest = item.GetContext().Get<Execution::Data::Manifest>();
             m_installingWriteableSource->RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
 
-            item->GetCompletedEvent().SetEvent();
+            item.GetCompletedEvent().SetEvent();
         }
     }
-    void ContextOrchestrator::CancelQueueItem(const std::shared_ptr<OrchestratorQueueItem>& item)
+    void ContextOrchestrator::CancelQueueItem(const OrchestratorQueueItem& item)
     {
         // Always cancel the item, even if it isn't running yet, to get the terminationHR set correctly.
-        item->GetContext()->Cancel(false, true);
+        item.GetContext().Cancel(false, true);
 
         RemoveItemInState(item, OrchestratorQueueItemState::Queued);
     }
 
-    std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::GetQueueItem(const OrchestratorQueueItemId* queueItemId)
+    std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::GetQueueItem(const OrchestratorQueueItemId& queueItemId)
     {
         std::lock_guard<std::mutex> lock{ m_queueLock };
 
         return FindById(queueItemId);
     }
 
-    bool OrchestratorQueueItemId::IsSame(const OrchestratorQueueItemId* comparedId)
+    bool OrchestratorQueueItemId::IsSame(const OrchestratorQueueItemId& comparedId) const
     {
-        return ((GetPackageId() == comparedId->GetPackageId()) && 
-                (GetSourceId() == comparedId->GetSourceId()));
+        return ((GetPackageId() == comparedId.GetPackageId()) && 
+                (GetSourceId() == comparedId.GetSourceId()));
     }
 
-    std::shared_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::shared_ptr<COMContext> context)
+    std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
     {
-        std::shared_ptr<OrchestratorQueueItemId> identifier = std::make_shared<Execution::OrchestratorQueueItemId>(std::move(packageId), std::move(sourceId));
-        return std::make_shared<OrchestratorQueueItem>(std::move(identifier), std::move(context));
+        return std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
     }
 
 }

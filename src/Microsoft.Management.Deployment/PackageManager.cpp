@@ -257,12 +257,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return packageVersionInfo;
     }
 
-    std::shared_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(
+    std::unique_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(
         winrt::Microsoft::Management::Deployment::CatalogPackage package, 
         winrt::Microsoft::Management::Deployment::InstallOptions options, 
         std::wstring callerProcessInfoString)
     {
-        std::shared_ptr<::AppInstaller::COMContext> context = std::make_shared<::AppInstaller::COMContext>();
+        std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
         context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
 
@@ -320,12 +320,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::shared_ptr<Execution::OrchestratorQueueItem> GetExistingQueueItemForPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
+        std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
         if (catalogInfo)
         {
             // If the caller has passed in the catalog they expect the package to have come from, then only look for an install from that catalog.
             // Fail if they've used a catalog that doesn't have an Id. This can currently happen for Info objects that come from PackageCatalogReference objects for REST catalogs.
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, catalogInfo.Id().empty());
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), catalogInfo.Id().c_str(), nullptr)->GetId().get());
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ catalogInfo.Id() }, std::move(context));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             return queueItem;
         }
 
@@ -335,7 +337,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo = package.InstalledVersion();
         if (installedVersionInfo)
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), installedVersionInfo.PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ installedVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
                 return queueItem;
@@ -346,7 +349,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo defaultInstallVersionInfo = package.DefaultInstallVersion();
         if (defaultInstallVersionInfo)
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), defaultInstallVersionInfo.PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ defaultInstallVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
                 return queueItem;
@@ -356,7 +360,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Finally check all catalogs in AvailableVersions.
         for (Microsoft::Management::Deployment::PackageVersionId versionId : package.AvailableVersions())
         {
-            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), package.GetPackageVersionInfo(versionId).PackageCatalog().Info().Id().c_str(), nullptr)->GetId().get());
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ package.GetPackageVersionInfo(versionId).PackageCatalog().Info().Id() }, std::move(context));
+            queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
                 return queueItem;
@@ -404,8 +409,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 co_await winrt::resume_background();
 
                 Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
-                std::shared_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
-                queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(package.Id().c_str(), packageVersionInfo.PackageCatalog().Info().Id().c_str(), std::move(comContext));
+                std::unique_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
+                queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
@@ -419,14 +424,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
 
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
-                correlationData = hstring(queueItem->GetContext()->GetCorrelationJson());
+                correlationData = hstring(queueItem->GetContext().GetCorrelationJson());
 
                 // co_await does not guarantee that it's on a background thread, so do so explicitly.
                 co_await winrt::resume_background();
             }
 
             std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
-            queueItem->GetContext()->AddProgressCallbackFunction([&installProgress, &progressEvent](
+            queueItem->GetContext().AddProgressCallbackFunction([&installProgress, &progressEvent](
                 ::AppInstaller::ReportType reportType,
                 uint64_t current,
                 uint64_t maximum,
@@ -445,7 +450,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             cancellationToken.callback([&queueItem]
                 {
                     // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
-                    Execution::ContextOrchestrator::Instance().CancelQueueItem(queueItem);
+                    Execution::ContextOrchestrator::Instance().CancelQueueItem(*queueItem);
                 });
 
             // Wait for completion or progress events.
@@ -486,8 +491,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
             // The install command has finished, check for success/failure and how far it got.
-            terminationHR = queueItem->GetContext()->GetTerminationHR();
-            executionStage = queueItem->GetContext()->GetExecutionStage();
+            terminationHR = queueItem->GetContext().GetTerminationHR();
+            executionStage = queueItem->GetContext().GetExecutionStage();
         }
         WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
