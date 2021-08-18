@@ -88,6 +88,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_additionalPackageCatalogArguments = value;
     }
+    winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture> InstallOptions::AllowedArchitectures()
+    {
+        return m_allowedArchitectures;
+    }
     CoCreatableCppWinRtClassWithCLSID(InstallOptions, 1, &InstallOptionsCLSID1);
     CoCreatableCppWinRtClassWithCLSID(InstallOptions, 2, &InstallOptionsCLSID2);
 }

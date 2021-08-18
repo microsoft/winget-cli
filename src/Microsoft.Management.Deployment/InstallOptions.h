@@ -27,6 +27,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CorrelationData(hstring const& value);
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture> AllowedArchitectures();
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         std::wstring m_preferredInstallLocation = L"";
@@ -37,6 +38,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_correlationData = L"";
         std::wstring m_additionalPackageCatalogArguments = L"";
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ProcessorArchitecture> m_allowedArchitectures{
+            winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture>() };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

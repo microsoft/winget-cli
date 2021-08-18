@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include <winget/UserSettings.h>
 
@@ -42,22 +43,81 @@ namespace AppInstaller::CLI::Workflow
         {
             MachineArchitectureComparator() : details::ComparisonField("Machine Architecture") {}
 
+            MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
+                details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures)) {}
+
+            // TODO: At some point we can do better about matching the currently installed architecture
+            static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata&)
+            {
+                if (context.Contains(Execution::Data::AllowedArchitectures))
+                {
+                    const std::vector<Utility::Architecture>& allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
+                    if (!allowedArchitectures.empty())
+                    {
+                        // If the incoming data contains elements, we will use them to construct a final allowed list.
+                        // The algorithm is to take elements until we find Neutral, which indicates that any architecture is
+                        // acceptable at this point. The system supported set of architectures will then be placed at the end.
+                        std::vector<Utility::Architecture> result;
+                        bool addRemainingApplicableArchitectures = false;
+
+                        for (Utility::Architecture architecture : allowedArchitectures)
+                        {
+                            if (architecture == Utility::Architecture::Neutral)
+                            {
+                                addRemainingApplicableArchitectures = true;
+                                break;
+                            }
+
+                            // If the architecture is applicable and not already in our result set...
+                            if (Utility::IsApplicableArchitecture(architecture) != Utility::InapplicableArchitecture &&
+                                Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
+                            {
+                                result.push_back(architecture);
+                            }
+                        }
+
+                        if (addRemainingApplicableArchitectures)
+                        {
+                            for (Utility::Architecture architecture : Utility::GetApplicableArchitectures())
+                            {
+                                if (Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
+                                {
+                                    result.push_back(architecture);
+                                }
+                            }
+                        }
+
+                        return std::make_unique<MachineArchitectureComparator>(std::move(result));
+                    }
+                }
+
+                return std::make_unique<MachineArchitectureComparator>();
+            }
+
             bool IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                return Utility::IsApplicableArchitecture(installer.Arch) != Utility::InapplicableArchitecture;
+                return CheckAllowedArchitecture(installer.Arch) != Utility::InapplicableArchitecture;
             }
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Machine is not compatible with ";
+                std::string result;
+                if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
+                {
+                    result = "Machine is not compatible with ";
+                }
+                else
+                {
+                    result = "Architecture was excluded by caller : ";
+                }
                 result += Utility::ToString(installer.Arch);
                 return result;
             }
 
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                auto arch1 = Utility::IsApplicableArchitecture(first.Arch);
-                auto arch2 = Utility::IsApplicableArchitecture(second.Arch);
+                auto arch1 = CheckAllowedArchitecture(first.Arch);
+                auto arch2 = CheckAllowedArchitecture(second.Arch);
 
                 if (arch1 > arch2)
                 {
@@ -66,6 +126,21 @@ namespace AppInstaller::CLI::Workflow
 
                 return false;
             }
+
+        private:
+            int CheckAllowedArchitecture(Utility::Architecture architecture)
+            {
+                if (m_allowedArchitectures.empty())
+                {
+                    return Utility::IsApplicableArchitecture(architecture);
+                }
+                else
+                {
+                    return Utility::IsApplicableArchitecture(architecture, m_allowedArchitectures);
+                }
+            }
+
+            std::vector<Utility::Architecture> m_allowedArchitectures;
         };
 
         struct InstalledTypeComparator : public details::ComparisonField
@@ -385,7 +460,7 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    ManifestComparator::ManifestComparator(const Execution::Args& args, const Repository::IPackageVersion::Metadata& installationMetadata)
+    ManifestComparator::ManifestComparator(const Execution::Context& context, const Repository::IPackageVersion::Metadata& installationMetadata)
     {
         AddFilter(std::make_unique<OSVersionFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
@@ -401,10 +476,10 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            AddComparator(LocaleComparator::Create(args));
+            AddComparator(LocaleComparator::Create(context.Args));
         }
 
-        AddComparator(ScopeComparator::Create(args));
+        AddComparator(ScopeComparator::Create(context.Args));
         AddComparator(std::make_unique<MachineArchitectureComparator>());
     }
 

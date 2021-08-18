@@ -191,6 +191,7 @@ namespace Microsoft.Management.Deployment
             /// versionString.  "if (pvi.CompareToVersion(other) == Greater)" can be thought of as reading
             /// the sentence "If pvi is compared to version other and is found to be greater".
             /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
+            /// Passing in an empty string will result in Unknown.
             CompareResult CompareToVersion(String versionString);
         }
 

@@ -34,4 +34,9 @@ namespace AppInstaller::Utility
     // Returns the priority in the applicable architecture list if the architecture is applicable. 0 has lowest priority.
     // Returns -1 if the architecture is not applicable.
     int IsApplicableArchitecture(Architecture arch);
+
+    // Gets if an architecture is applicable to the system
+    // Returns the priority in the applicable architecture list if the architecture is applicable. 0 has lowest priority.
+    // Returns -1 if the architecture is not applicable.
+    int IsApplicableArchitecture(Architecture arch, const std::vector<Architecture>& allowedArchitectures);
 }

@@ -5,7 +5,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 
-namespace AppInstaller
+namespace AppInstaller::CLI::Execution
 {
     enum class ReportType: uint32_t
     {

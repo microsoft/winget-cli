@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "COMContext.h"
 
-namespace AppInstaller
+namespace AppInstaller::CLI::Execution
 {
     static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
 
