@@ -6,6 +6,7 @@
 #include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
@@ -587,6 +588,11 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedWriteableSourceFactory::Create();
+            }
             else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
                 return Rest::RestSourceFactory::Create();
@@ -1082,6 +1088,12 @@ namespace AppInstaller::Repository
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
+            return details;
+        case PredefinedSource::Installing:
+            details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+            // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
+            // so this is used here for consistency with other predefined sources.
+            details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
             return details;
         }
 

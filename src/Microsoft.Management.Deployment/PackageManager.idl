@@ -434,6 +434,7 @@ namespace Microsoft.Management.Deployment
     enum LocalPackageCatalog
     {
         InstalledPackages,
+        InstallingPackages
     };
 
     /// Options for creating a composite catalog.
@@ -553,6 +554,12 @@ namespace Microsoft.Management.Deployment
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        {
+            /// Get install progress
+            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
     }
 
     /// Force midl3 to generate vector marshalling info. 

@@ -216,6 +216,9 @@
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -328,6 +331,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
