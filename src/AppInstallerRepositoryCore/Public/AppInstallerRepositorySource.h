@@ -89,13 +89,16 @@ namespace AppInstaller::Repository
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
-    // Interface extension to ISource for locally installed packages.
-    struct IInstalledPackageSource : public ISource
+    // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages
+    struct IMutablePackageSource
     {
-        virtual ~IInstalledPackageSource() = default;
+        virtual ~IMutablePackageSource() = default;
 
-        // Adds an installed package version to the source.
-        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        // Adds a package version to the source.
+        virtual void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+
+        // Removes a package version from the source.
+        virtual void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
     // Gets the details for all sources.
@@ -130,6 +133,7 @@ namespace AppInstaller::Repository
         Installed,
         ARP,
         MSIX,
+        Installing,
     };
 
     // A well known source.
