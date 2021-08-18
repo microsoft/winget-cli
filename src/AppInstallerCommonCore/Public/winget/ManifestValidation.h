@@ -193,6 +193,7 @@ namespace AppInstaller::Manifest
         bool m_warningOnly;
     };
 
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest);
+    // validateForRead: bool indicating the validation is performed during reading a manifest, which is less restrictive
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool validateForRead = false);
     void ValidateManifestLocalization(const ManifestVer& manifestVersion, const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors);
 }

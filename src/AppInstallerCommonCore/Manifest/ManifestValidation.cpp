@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool validateForRead)
     {
         std::vector<ValidationError> resultErrors;
 
@@ -63,6 +63,12 @@ namespace AppInstaller::Manifest
         // Validate installers
         for (auto const& installer : manifest.Installers)
         {
+            // If the validation is for read, for future compatibility, skip validating unknown installers.
+            if (validateForRead && installer.InstallerType == InstallerTypeEnum::Unknown)
+            {
+                continue;
+            }
+
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
