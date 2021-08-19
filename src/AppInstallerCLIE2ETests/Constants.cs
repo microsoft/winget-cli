@@ -132,6 +132,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_SOURCE_DATA_INTEGRITY_FAILURE = unchecked((int)0x8a15003F);
             public const int ERROR_STREAM_READ_FAILURE = unchecked((int)0x8a150040);
             public const int ERROR_LICENSE_NOT_ACCEPTED = unchecked((int)0x8a150041);
+            public const int ERROR_PROMPT_INPUT_ERROR = unchecked((int)0x8a150042);
         }
     }
 }

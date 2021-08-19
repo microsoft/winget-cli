@@ -134,7 +134,7 @@ namespace AppInstaller::CLI::Execution
             std::string response;
             if (!std::getline(m_in, response))
             {
-                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT);
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
             }
 
             // Ignore whitespace

@@ -145,6 +145,8 @@ namespace AppInstaller
                 return "Error reading from the stream";
             case APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED:
                 return "License not agreed to";
+            case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
+                return "Error reading input in prompt";
             default:
                 return "Unknown Error Code";
             }
