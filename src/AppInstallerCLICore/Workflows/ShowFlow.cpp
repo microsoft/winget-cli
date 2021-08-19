@@ -60,19 +60,19 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
             for (const auto& agreement : agreements)
             {
-                if (agreement.Label)
+                if (!agreement.Label.empty())
                 {
-                    info << Execution::ManifestInfoEmphasis << agreement.Label.value() << " ";
+                    info << Execution::ManifestInfoEmphasis << agreement.Label << " ";
                 }
 
-                if (agreement.AgreementText)
+                if (!agreement.AgreementText.empty())
                 {
-                    info << agreement.AgreementText.value() << std::endl;
+                    info << agreement.AgreementText << std::endl;
                 }
 
-                if (agreement.AgreementUrl)
+                if (!agreement.AgreementUrl.empty())
                 {
-                    info << agreement.AgreementUrl.value() << std::endl;
+                    info << agreement.AgreementUrl << std::endl;
                 }
             }
 
