@@ -34,9 +34,6 @@ using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
 using namespace ::AppInstaller::CLI::Execution;
 
-const GUID PackageManagerCLSID1 = { 0xC53A4F16, 0x787E, 0x42A4, { 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 } };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
-const GUID PackageManagerCLSID2 = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
-
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
@@ -521,6 +518,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetInstallOperation(false, package, nullptr, catalogInfo);
     }
 
-    CoCreatableCppWinRtClassWithCLSID(PackageManager, 1, &PackageManagerCLSID1);
-    CoCreatableCppWinRtClassWithCLSID(PackageManager, 2, &PackageManagerCLSID2);
+    CoCreatableCppWinRtClass(PackageManager);
 }
