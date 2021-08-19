@@ -155,6 +155,9 @@
     <ClInclude Include="COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="ContextOrchestrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Workflows\DependenciesFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
@@ -281,6 +284,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="COMContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ContextOrchestrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\DependenciesFlow.cpp">
