@@ -346,7 +346,7 @@ namespace AppInstaller::Repository::Rest
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        RestClient::SearchResult results = m_restClient.Search(request);
+        IRestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
         std::shared_ptr<const RestSource> sharedThis = shared_from_this();

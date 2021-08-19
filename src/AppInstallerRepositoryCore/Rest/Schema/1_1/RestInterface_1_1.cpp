@@ -58,7 +58,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
                 }
 
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Required query Parameter: " << param);
-                throw UnsupportedQueryException({}, {}, {}, m_information.RequiredQueryParameters);
+                throw UnsupportedRequestException({}, {}, {}, m_information.RequiredQueryParameters);
             }
         }
 
@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             if (params.end() != std::find_if(params.begin(), params.end(), [&](const auto& pair) { return Utility::CaseInsensitiveEquals(pair.first, param); }))
             {
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Unsupported query Parameter: " << param);
-                throw UnsupportedQueryException({}, {}, m_information.UnsupportedQueryParameters, {});
+                throw UnsupportedRequestException({}, {}, m_information.UnsupportedQueryParameters, {});
             }
         }
 
@@ -91,7 +91,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
                 }
 
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Required package match field: " << field);
-                throw UnsupportedQueryException({}, m_information.RequiredPackageMatchFields, {}, {});
+                throw UnsupportedRequestException({}, m_information.RequiredPackageMatchFields, {}, {});
             }
         }
 
@@ -107,7 +107,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             if (searchRequest.Filters.end() != std::find_if(searchRequest.Filters.begin(), searchRequest.Filters.end(), [&](const PackageMatchFilter& filter) { return filter.Field == matchField; }))
             {
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Unsupported package match field: " << field);
-                throw UnsupportedQueryException(m_information.UnsupportedPackageMatchFields, {}, {}, {});
+                throw UnsupportedRequestException(m_information.UnsupportedPackageMatchFields, {}, {}, {});
             }
         }
 
@@ -127,7 +127,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             if (requiredPackageMatchFields.size() != 0 || unsupportedPackageMatchFields.size() != 0)
             {
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source");
-                throw UnsupportedQueryException(std::move(unsupportedPackageMatchFields), std::move(requiredPackageMatchFields), {}, {});
+                throw UnsupportedRequestException(std::move(unsupportedPackageMatchFields), std::move(requiredPackageMatchFields), {}, {});
             }
         }
 
@@ -147,7 +147,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             if (requiredQueryParameters.size() != 0 || unsupportedQueryParameters.size() != 0)
             {
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source");
-                throw UnsupportedQueryException({}, {}, std::move(unsupportedQueryParameters), std::move(requiredQueryParameters));
+                throw UnsupportedRequestException({}, {}, std::move(unsupportedQueryParameters), std::move(requiredQueryParameters));
             }
         }
 

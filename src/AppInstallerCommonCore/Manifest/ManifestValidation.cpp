@@ -23,7 +23,7 @@ namespace AppInstaller::Manifest
         }
         catch (const std::exception&)
         {
-            resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
+            resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
         ValidateManifestLocalization(manifest.ManifestVersion, manifest.DefaultLocalization, resultErrors);
@@ -77,7 +77,7 @@ namespace AppInstaller::Manifest
 
             if (installer.Arch == Utility::Architecture::Unknown)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Architecture");
             }
 
             if (installer.InstallerType == InstallerTypeEnum::Unknown)
@@ -103,10 +103,13 @@ namespace AppInstaller::Manifest
 
             if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
-                // MSStore type is not supported in community repo
-                resultErrors.emplace_back(
-                    ManifestError::FieldValueNotSupported, "InstallerType",
-                    InstallerTypeToString(installer.InstallerType));
+                if (!validateForRead)
+                {
+                    // MSStore type is not supported in community repo
+                    resultErrors.emplace_back(
+                        ManifestError::FieldValueNotSupported, "InstallerType",
+                        InstallerTypeToString(installer.InstallerType));
+                }
 
                 if (installer.ProductId.empty())
                 {
@@ -118,11 +121,11 @@ namespace AppInstaller::Manifest
                 // For other types, Url and Sha256 are required
                 if (installer.Url.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Url");
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerUrl");
                 }
                 if (installer.Sha256.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Sha256");
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerSha256");
                 }
                 // ProductId should not be used
                 if (!installer.ProductId.empty())
@@ -141,7 +144,7 @@ namespace AppInstaller::Manifest
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerUrl", installer.Url);
             }
 
             if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))

@@ -122,7 +122,7 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::HandleSourceAgreements(false);
+            Workflow::HandleSourceAgreements;
 
         if (ShouldListUpgrade(context))
         {

@@ -1096,7 +1096,7 @@ namespace AppInstaller::Repository
 
         // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
         // if the details came from the same instance of the list that's being saved.
-        // Some sources that do not need updating like the Installed source, do not have Name values.
+        // Some sources that do not need updating like the Installed source or sources to be added, do not have Name values.
         // Restricted sources don't have full functionality
         if (!details.Name.empty() &&
             !details.Restricted)

@@ -266,11 +266,11 @@ namespace AppInstaller::Repository
         bool Truncated = false;
     };
 
-    struct UnsupportedQueryException : public wil::ResultException
+    struct UnsupportedRequestException : public wil::ResultException
     {
-        UnsupportedQueryException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY) {}
+        UnsupportedRequestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY) {}
 
-        UnsupportedQueryException(
+        UnsupportedRequestException(
             std::vector<std::string> unsupportedPackageMatchFields,
             std::vector<std::string> requiredPackageMatchFields,
             std::vector<std::string> unsupportedQueryParameters,
@@ -283,6 +283,54 @@ namespace AppInstaller::Repository
         std::vector<std::string> RequiredPackageMatchFields;
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
+
+        std::string GetErrorFieldsMessage(const std::vector<std::string>& input) const noexcept
+        {
+            std::string result;
+            bool first = true;
+            for (auto const& field : input)
+            {
+                if (first)
+                {
+                    result += field;
+                    first = false;
+                }
+                else
+                {
+                    result += ", " + field;
+                }
+            }
+            return result;
+        }
+
+        const char* what() const noexcept override
+        {
+            if (m_whatMessage.empty())
+            {
+                m_whatMessage = "The request is not supported.";
+
+                if (!UnsupportedPackageMatchFields.empty())
+                {
+                    m_whatMessage += "Unsupported Package Match Fields: " + GetErrorFieldsMessage(UnsupportedPackageMatchFields);
+                }
+                if (!RequiredPackageMatchFields.empty())
+                {
+                    m_whatMessage += "Required Package Match Fields: " + GetErrorFieldsMessage(RequiredPackageMatchFields);
+                }
+                if (!UnsupportedQueryParameters.empty())
+                {
+                    m_whatMessage += "Unsupported Query Parameters: " + GetErrorFieldsMessage(UnsupportedQueryParameters);
+                }
+                if (!RequiredQueryParameters.empty())
+                {
+                    m_whatMessage += "Required Query Parameters: " + GetErrorFieldsMessage(RequiredQueryParameters);
+                }
+            }
+            return m_whatMessage.c_str();
+        }
+
+    private:
+        mutable std::string m_whatMessage;
     };
 
     inline std::string_view MatchTypeToString(MatchType type)

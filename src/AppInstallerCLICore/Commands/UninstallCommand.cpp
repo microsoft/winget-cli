@@ -104,7 +104,7 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::HandleSourceAgreements(false);
+            Workflow::HandleSourceAgreements;
 
         // find the uninstaller
         if (context.Args.Contains(Execution::Args::Type::Manifest))

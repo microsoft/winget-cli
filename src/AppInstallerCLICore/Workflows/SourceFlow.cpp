@@ -104,6 +104,21 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void OpenSourceForSourceAdd(Execution::Context& context)
+    {
+        Repository::SourceDetails details;
+
+        details.Arg = context.Args.GetArg(Args::Type::SourceArg);
+        if (context.Args.Contains(Args::Type::SourceType))
+        {
+            details.Type = context.Args.GetArg(Args::Type::SourceType);
+        }
+
+        auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, details, std::placeholders::_1), true);
+
+        context.Add<Execution::Data::Source>(std::move(result.Source));
+    }
+
     void ListSources(Execution::Context& context)
     {
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();

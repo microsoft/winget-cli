@@ -29,7 +29,7 @@ namespace AppInstaller::Repository::Rest
         return m_interface->GetManifestByVersion(packageId, version, channel);
     }
 
-    RestClient::SearchResult RestClient::Search(const SearchRequest& request) const
+    IRestClient::SearchResult RestClient::Search(const SearchRequest& request) const
     {
         return m_interface->Search(request);
     }

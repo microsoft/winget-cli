@@ -178,23 +178,6 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Source>(std::move(source));
     }
 
-    void OpenSourceFromSourceAdd(Execution::Context& context)
-    {
-        std::string_view sourceName;
-        if (context.Args.Contains(Execution::Args::Type::SourceName))
-        {
-            sourceName = context.Args.GetArg(Execution::Args::Type::SourceName);
-        }
-
-        auto source = OpenNamedSource(context, sourceName);
-        if (context.IsTerminated())
-        {
-            return;
-        }
-
-        context.Add<Execution::Data::Source>(std::move(source));
-    }
-
     void OpenNamedSourceForSources::operator()(Execution::Context& context) const
     {
         auto source = OpenNamedSource(context, m_sourceName);
@@ -696,7 +679,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 OpenSource <<
-                HandleSourceAgreements(false) <<
+                HandleSourceAgreements <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(false) <<
                 GetManifestFromPackage;
@@ -786,7 +769,7 @@ namespace AppInstaller::CLI::Workflow
         context.SetExecutionStage(m_stage, m_allowBackward);
     }
 
-    void HandleSourceAgreements::operator()(Execution::Context& context) const
+    void HandleSourceAgreements(Execution::Context& context)
     {
         std::vector<Repository::SourceDetails> sourcesToCheck;
 

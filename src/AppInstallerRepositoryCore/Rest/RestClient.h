@@ -11,9 +11,6 @@ namespace AppInstaller::Repository::Rest
 {
     struct RestClient
     {
-        // The return type of Search
-        using SearchResult = Rest::Schema::IRestClient::SearchResult;
-
         RestClient(const RestClient&) = delete;
         RestClient& operator=(const RestClient&) = delete;
 
