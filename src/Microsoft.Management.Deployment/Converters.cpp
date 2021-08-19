@@ -265,4 +265,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return resultStatus;
     }
+
+    ::AppInstaller::Utility::Architecture GetUtilityArchitecture(winrt::Microsoft::Management::Deployment::ProcessorArchitecture architecture)
+    {
+        switch (architecture)
+        {
+        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::Any:
+            return ::AppInstaller::Utility::Architecture::Neutral;
+        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::X86:
+            return ::AppInstaller::Utility::Architecture::X86;
+        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::X64:
+            return ::AppInstaller::Utility::Architecture::X64;
+        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::ARM:
+            return ::AppInstaller::Utility::Architecture::Arm;
+        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::ARM64:
+            return ::AppInstaller::Utility::Architecture::Arm64;
+        }
+
+        return ::AppInstaller::Utility::Architecture::Unknown;
+    }
 }

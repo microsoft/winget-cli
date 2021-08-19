@@ -71,7 +71,7 @@ namespace AppInstaller::CLI::Execution
         static void SetLoggers();
 
     private:
-        void FireCallbacks(::AppInstaller::ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
+        void FireCallbacks(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
         std::vector<ProgressCallBackFunction> GetCallbacks();
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;

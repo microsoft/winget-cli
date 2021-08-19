@@ -32,6 +32,7 @@
 
 using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
+using namespace ::AppInstaller::CLI::Execution;
 
 const GUID PackageManagerCLSID1 = { 0xC53A4F16, 0x787E, 0x42A4, { 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 } };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
 const GUID PackageManagerCLSID2 = { 0xE65C7D5A, 0x95AF, 0x4A98, { 0xBE, 0x5F, 0xA7, 0x93, 0x02, 0x9C, 0xEB, 0x56 } };  //E65C7D5A-95AF-4A98-BE5F-A793029CEB56
@@ -152,7 +153,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
 
     std::optional<winrt::Microsoft::Management::Deployment::InstallProgress> GetProgress(
-        ::AppInstaller::ReportType reportType,
+        ReportType reportType,
         uint64_t current,
         uint64_t maximum,
         ::AppInstaller::ProgressType progressType,
@@ -173,7 +174,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             break;
         case ::Workflow::ExecutionStage::Download:
             progressState = PackageInstallProgressState::Downloading;
-            if (reportType == ::AppInstaller::ReportType::BeginProgress)
+            if (reportType == ReportType::BeginProgress)
             {
                 reportProgress = true;
             }
@@ -194,12 +195,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case ::Workflow::ExecutionStage::Execution:
             progressState = PackageInstallProgressState::Installing;
             downloadProgress = 1;
-            if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
+            if (reportType == ReportType::ExecutionPhaseUpdate)
             {
                 // Install is starting. Send progress so callers know the AsyncOperation can't be cancelled.
                 reportProgress = true;
             }
-            else if (reportType == ::AppInstaller::ReportType::EndProgress)
+            else if (reportType == ReportType::EndProgress)
             {
                 // Install is "finished". May not have succeeded.
                 reportProgress = true;
@@ -216,7 +217,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             break;
         case ::Workflow::ExecutionStage::PostExecution:
-            if (reportType == ::AppInstaller::ReportType::ExecutionPhaseUpdate)
+            if (reportType == ReportType::ExecutionPhaseUpdate)
             {
                 // Send PostInstall progress when it switches to PostExecution phase.
                 reportProgress = true;
@@ -257,12 +258,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return packageVersionInfo;
     }
 
-    std::unique_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(
+    std::unique_ptr<COMContext> CreateContextFromInstallOptions(
         winrt::Microsoft::Management::Deployment::CatalogPackage package, 
         winrt::Microsoft::Management::Deployment::InstallOptions options, 
         std::wstring callerProcessInfoString)
     {
-        std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
+        std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
         context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
 
@@ -307,6 +308,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
             }
+
+            if (options.AllowedArchitectures().Size() != 0)
+            {
+                std::vector<AppInstaller::Utility::Architecture> allowedArchitectures;
+                for (auto architecture : options.AllowedArchitectures())
+                {
+                    allowedArchitectures.push_back(GetUtilityArchitecture(architecture));
+                }
+                context->Add<Data::AllowedArchitectures>(std::move(allowedArchitectures));
+            }
         }
 
         // If the version of the package is specified use that, otherwise use the default.
@@ -320,7 +331,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::shared_ptr<Execution::OrchestratorQueueItem> GetExistingQueueItemForPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
-        std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
+        std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         if (catalogInfo)
         {
             // If the caller has passed in the catalog they expect the package to have come from, then only look for an install from that catalog.
@@ -409,7 +420,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 co_await winrt::resume_background();
 
                 Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
-                std::unique_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
+                std::unique_ptr<COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
                 queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
@@ -432,7 +443,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
             queueItem->GetContext().AddProgressCallbackFunction([&installProgress, &progressEvent](
-                ::AppInstaller::ReportType reportType,
+                ReportType reportType,
                 uint64_t current,
                 uint64_t maximum,
                 ::AppInstaller::ProgressType progressType,

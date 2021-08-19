@@ -480,7 +480,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         AddComparator(ScopeComparator::Create(context.Args));
-        AddComparator(std::make_unique<MachineArchitectureComparator>());
+        AddComparator(MachineArchitectureComparator::Create(context, installationMetadata));
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
