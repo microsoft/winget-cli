@@ -188,8 +188,8 @@ namespace Microsoft.Management.Deployment
         {
             /// Compares the given value against the package version of this object, with the result being
             /// the enum value that represents where PackageVersionInfo::Version is ordered relative to the
-            /// versionString.  "if (pvi.CompareToVersion(other) == Greater)" can be thought of as reading
-            /// the sentence "If pvi is compared to version other and is found to be greater".
+            /// versionString.  "if (this.CompareToVersion(that) == Greater)" can be thought of as reading
+            /// the sentence "If this is compared to version that and is found to be greater".
             /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
             /// Passing in an empty string will result in Unknown.
             CompareResult CompareToVersion(String versionString);
