@@ -404,17 +404,14 @@ namespace AppInstaller::Manifest
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion.Major() == 1)
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
         {
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+            result =
             {
-                result =
-                {
-                    { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
-                    { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
-                    { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
-                };
-            }
+                { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
         }
 
         return result;
@@ -519,7 +516,11 @@ namespace AppInstaller::Manifest
             agreements.emplace_back(std::move(agreement));
         }
 
-        m_p_localization->Add<Localization::Agreements>(std::move(agreements));
+        if (!agreements.empty())
+        {
+            m_p_localization->Add<Localization::Agreements>(std::move(agreements));
+        }
+
         return resultErrors;
     }
 

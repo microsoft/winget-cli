@@ -114,7 +114,7 @@ namespace AppInstaller::Manifest::YamlParser
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
         }
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
         {
             switch (manifestType)
             {

@@ -52,8 +52,7 @@
           "$ref": "#/definitions/Url",
           "description": "The agreement URL."
         }
-      },
-      "minProperties": 1
+      }
     },
     "Channel": {
       "type": [ "string", "null" ],
