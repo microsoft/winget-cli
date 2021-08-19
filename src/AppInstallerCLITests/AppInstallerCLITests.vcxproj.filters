@@ -169,10 +169,6 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
-    <None Include="TestData\InstallFlowTest_LicenseAgreement.yaml" />
-    <None Include="TestData\ImportFile-Good-WithLicenseAgreement.json" />
-    <None Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml" />
-    <None Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
@@ -340,6 +336,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_LicenseAgreement.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -397,13 +396,22 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-AlreadyInstalled.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Malformed.json">
