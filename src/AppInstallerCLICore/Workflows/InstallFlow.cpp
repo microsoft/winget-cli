@@ -7,6 +7,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -105,6 +106,11 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        Utility::DownloadInfo downloadInfo{};
+        downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
+        // Use the SHA256 hash of the installer as the identifier for the download
+        downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
+
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
@@ -120,8 +126,10 @@ namespace AppInstaller::CLI::Workflow
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     tempInstallerPath,
+                    Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    true));
+                    true,
+                    downloadInfo));
 
                 success = true;
             }
@@ -172,7 +180,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const winrt::hresult_error& e)
         {
-            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
                 HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
                 // Failed to get signature hash through HttpStream, use download
@@ -199,7 +207,7 @@ namespace AppInstaller::CLI::Workflow
             hashPair.first.end(),
             hashPair.second.begin()))
         {
-            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
+            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
@@ -214,9 +222,13 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else
+            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
@@ -230,7 +242,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Contains(Execution::Data::PackageVersion) &&
                 context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel, SourceTrustLevel::Trusted))
             {
                 context.SetFlags(Execution::ContextFlag::InstallerTrusted);
             }
@@ -376,11 +388,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageInstaller(Execution::Context& context)
+    void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
             Workflow::ReportManifestIdentity <<
-            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ShowInstallationDisclaimer;
+    }
+
+    void InstallPackageInstaller(Execution::Context& context)
+    {
+        context <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
@@ -397,12 +414,27 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::GetDependenciesFromInstaller << 
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
     }
+
+    const struct PackagesAndInstallers
+    {
+        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
+            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
+
+        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
+        AppInstaller::CLI::Execution::PackageToInstall Package;
+    };
 
     void InstallMultiple(Execution::Context& context)
     {
         bool allSucceeded = true;
+        DependencyList allDependencies;
+        std::vector<PackagesAndInstallers> installers;
+
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -412,12 +444,64 @@ namespace AppInstaller::CLI::Workflow
             Execution::Context& installContext = *installContextPtr;
 
             // Extract the data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package);
-            installContext.Add<Execution::Data::Manifest>(package->GetManifest());
+            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
+            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
 
-            installContext << InstallPackageVersion;
+            // TODO: In the future, it would be better to not have to convert back and forth from a string
+            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
+
+            installContext <<
+                Workflow::SelectInstaller <<
+                Workflow::EnsureApplicableInstaller;
+            
             if (installContext.IsTerminated())
             {
+                allSucceeded = false;
+                continue;
+            }
+
+            const auto& installer = installContext.Get<Execution::Data::Installer>();
+            installers.push_back(PackagesAndInstallers(installer, package));
+            
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            {
+                if (installer) allDependencies.Add(installer->Dependencies);
+            }
+        }
+
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
+        }
+
+        for (auto packageAndInstaller : installers)
+        {
+            auto package = packageAndInstaller.Package;
+            auto installer = packageAndInstaller.Installer;
+
+            auto installContextPtr = context.Clone();
+            Execution::Context& installContext = *installContextPtr;
+
+            // set data needed for installing
+            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
+            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
+            installContext.Add<Execution::Data::Installer>(installer);
+
+            installContext <<
+                ReportIdentityAndInstallationDisclaimer <<
+                Workflow::InstallPackageInstaller;
+
+            if (installContext.IsTerminated())
+            {
+                if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                {
+                    // This means that the subcontext being terminated is due to an overall abort
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                    return;
+                }
+
                 allSucceeded = false;
             }
         }
@@ -447,10 +531,13 @@ namespace AppInstaller::CLI::Workflow
             for (const auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                entries.emplace_back(std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel)));
+                if (installed)
+                {
+                    entries.emplace_back(std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel)));
+                }
             }
 
             std::sort(entries.begin(), entries.end());
@@ -478,15 +565,19 @@ namespace AppInstaller::CLI::Workflow
             for (auto& entry : arpSource->Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
-                auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel));
 
-                auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
-                if (itr == entries.end() || *itr != entryKey)
+                if (installed)
                 {
-                    changes.emplace_back(std::move(entry));
+                    auto entryKey = std::make_tuple(
+                        entry.Package->GetProperty(PackageProperty::Id),
+                        installed->GetProperty(PackageVersionProperty::Version),
+                        installed->GetProperty(PackageVersionProperty::Channel));
+
+                    auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
+                    if (itr == entries.end() || *itr != entryKey)
+                    {
+                        changes.emplace_back(std::move(entry));
+                    }
                 }
             }
 
@@ -629,10 +720,10 @@ namespace AppInstaller::CLI::Workflow
                 changes.size(),
                 findByManifest.Matches.size(),
                 packagesInBoth.size(),
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
             );
         }
     }

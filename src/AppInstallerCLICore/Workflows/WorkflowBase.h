@@ -19,6 +19,7 @@ namespace AppInstaller::CLI::Workflow
     // Values are ordered in a typical workflow stages
     enum class ExecutionStage : uint32_t
     {
+        Initial = 0,
         ParseArgs = 1000,
         Discovery = 2000,
         Download = 3000,
@@ -168,6 +169,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult
     // Outputs: None
     void ReportMultiplePackageFoundResult(Execution::Context& context);
+
+    // Outputs the search results when multiple packages found but only one expected.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context);
 
     // Ensures that there is at least one result in the search.
     // Required Args: bool indicating if the search result is from installed source

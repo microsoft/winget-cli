@@ -298,8 +298,9 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="InvalidNameError" xml:space="preserve">
     <value>O comando actual non recoñeceu o nome do argumento</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Idioma para instalar (se se permite)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Configuración local para utilizar (BCP47 formato)</value>
+    <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de licenza</value>
@@ -386,7 +387,7 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
     <value>Filtrar resultados segundo o nome</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Non hai instaladores aplicables ao sistema actual.</value>
+    <value>Non se atopou un instalador aplicable, ve os rexistros para ver máis detalles.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Non hai funcionalidades exprimentais dispoñibles actualmente. </value>
@@ -480,7 +481,7 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
     <value>Mostra información sobre un paquete específico. Por defecto, a consulta debe coincidir sen diferenciar maiúsculas e minúsculas co ID, o nome ou co moniker do paquete. Poden usarse outros campos pasando as opcións apropiadas.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Mostra información acerca dun paquete</value>
+    <value>Mostra información sobre un paquete</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Versión</value>
@@ -659,7 +660,7 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
     <value>Non se atoparon actualizacións aplicables.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Actualiza o paquete seleccionado, que se atopa buscando a lista de paquetes instalados ou directamente desde un manifesto. Por defecto, a consulta debe coincidir co id, name ou moniker do paquete sen diferenciar maiúsculas e minúsculas. Poden usarse outros campos transmitindo as opcións apropiadas.</value>
+    <value>Actualiza o paquete seleccionado, que se atopa buscando a lista de paquetes instalados ou directamente desde un manifesto. Por defecto, a consulta debe coincidir co ID, nome ou moniker do paquete. Poden usarse outros campos transmitindo as opcións apropiadas.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
@@ -813,5 +814,111 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>O camiño non existe:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>O ficheiro JSON non especifica un esquema recoñecido.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Seleccionar instalar o ámbito (usuario ou máquina)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>O valor fornecido para o argumento `%1` non é válido, os valores válidos son</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>A Política de grupo desactivou esta operación</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Activar orixes do Instalador de aplicacións de Windows adicionais</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Activa as orixes permitidas do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Activar a orixe predefinida do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Activar as funcionalidades experimentais do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Activar a orixe de Microsoft Store do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Activa a configuración do Xestor de paquetes de Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Activar o Xestor de paquetes de Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Define o intervalo da actualización automática das orixes do Xestor de paquetes de Windows en minutos</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Desactivado</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Activado</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Política de grupo</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Estado</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Activar os ficheiros de manifesto locais do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Campo:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>O formato do campo non é válido.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>O valor do campo non é válido.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>A configuración da Política de grupo non é válida.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>A configuración cargouse desde un ficheiro de copia de seguranza.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Produciuse un erro ao analizar o ficheiro:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Valor:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>As seguintes funcionalidades experimentais están en curso.
+A configuración está desactivada debido á Política de Grupo.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>O hash do instalador non coincide.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Activar anular o hash do Instalador de aplicacións de Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Exporta orixes actuais como JSON para a Política de grupo.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Exportar as orixes actuais</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Orixe adicional</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Orixe permitida</value>
+    <comment>A source that the user is allowed to add.</comment>
+  </data>
+  <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
+    <value>O valor fornecido para o argumento `%1` non é válido</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
 </root>

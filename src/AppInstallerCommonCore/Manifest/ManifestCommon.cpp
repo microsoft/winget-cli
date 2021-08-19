@@ -178,7 +178,7 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    ScopeEnum ConvertToScopeEnum(const std::string& in)
+    ScopeEnum ConvertToScopeEnum(std::string_view in)
     {
         ScopeEnum result = ScopeEnum::Unknown;
 
@@ -258,7 +258,7 @@ namespace AppInstaller::Manifest
         }
         else
         {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %s", in.c_str());
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %hs", in.c_str());
         }
     }
 
@@ -357,8 +357,7 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet")},
                 {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
-                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")},
-                {InstallerSwitchType::Update, ManifestInstaller::string_t("REINSTALL=ALL REINSTALLMODE=vamus")}
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         case InstallerTypeEnum::Nullsoft:
             return

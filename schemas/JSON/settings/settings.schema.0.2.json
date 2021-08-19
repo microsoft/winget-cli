@@ -24,8 +24,79 @@
           "description": "Progress bar display style",
           "type": "string",
           "enum": [
-              "accent", "rainbow", "plain", "retro"
+            "accent",
+            "rainbow",
+            "plain",
+            "retro"
           ]
+        }
+      }
+    },
+    "InstallPrefReq": {
+      "description": "Shared schema for preferences and requirements",
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "The scope of a package install",
+          "type": "string",
+          "enum": [
+            "user",
+            "machine"
+          ],
+          "default": "user"
+        },
+        "locale": {
+          "description": "The locales of a package install",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+            "maxLength": 20
+          },
+          "minItems": 1,
+          "maxItems": 10
+        }
+      }
+    },
+    "InstallBehavior": {
+      "description": "Install settings",
+      "type": "object",
+      "properties": {
+        "preferences": { "$ref": "#/definitions/InstallPrefReq" },
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+      }
+    },
+    "Telemetry": {
+      "description": "Telemetry settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether telemetry events are written",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Network": {
+      "description": "Network settings",
+      "type": "object",
+      "properties": {
+        "downloader": {
+          "description": "Control which download code is used for packages",
+          "type": "string",
+          "enum": [
+            "default",
+            "wininet",
+            "do"
+          ],
+          "default": "default"
+        },
+        "doProgressTimeoutInSeconds": {
+          "description": "Number of seconds to wait without progress before fallback",
+          "type": "integer",
+          "default": 60,
+          "minimum": 1,
+          "maximum": 600
         }
       }
     },
@@ -63,15 +134,10 @@
           "type": "boolean",
           "default": false
         },
-        "import": {
-          "description": "Enable the import command while it is in development",
-          "type": "boolean",
-          "default":  false
-        },
         "restSource": {
           "description": "Enable the rest source support while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
@@ -85,16 +151,34 @@
     },
     {
       "properties": {
-        "source": { "$ref": "#/definitions/Source"}
+        "source": { "$ref": "#/definitions/Source" }
       },
       "additionalItems": true
     },
     {
-        "properties": {
-          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
-        },
-        "additionalItems": true
-      }
+      "properties": {
+        "installBehavior": { "$ref": "#/definitions/InstallBehavior" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "telemetry": { "$ref": "#/definitions/Telemetry" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "network": { "$ref": "#/definitions/Network" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experimentalFeatures": { "$ref": "#/definitions/Experimental" }
+      },
+      "additionalItems": true
+    }
   ],
   "additionalProperties": true
 }

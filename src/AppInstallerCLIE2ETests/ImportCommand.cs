@@ -11,22 +11,22 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            InitializeAllFeatures(false);
-            ConfigureFeature("import", true);
-            ConfigureFeature("export", true);
             CleanupTestExe();
         }
 
-        [TearDown]
-        public void TearDown()
+        [Test]
+        public void ImportSuccessful_1_0()
         {
-            InitializeAllFeatures(false);
+            var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Good.1.0.json"));
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(VerifyTestExeInstalled());
+            UninstallTestExe();
         }
 
         [Test]
-        public void ImportSuccessful()
+        public void ImportSuccessful_2_0()
         {
-            var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Good.json"));
+            var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Good.2.0.json"));
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(VerifyTestExeInstalled());
             UninstallTestExe();
@@ -38,7 +38,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify failure when trying to import with an invalid file
             var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Bad-Invalid.json"));
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_JSON_INVALID_FILE, result.ExitCode);
             Assert.True(result.StdOut.Contains("JSON file is not valid"));
         }
 
@@ -56,7 +56,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Bad-UnknownPackage.json"));
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package not found for import"));
         }
 
@@ -65,7 +65,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json"));
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package not found for import"));
         }
 
@@ -75,7 +75,7 @@ namespace AppInstallerCLIE2ETests
             // Verify success with message when trying to import a package that is already installed
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -l {installDir}");
-            var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Good.json")}");
+            var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Good.1.0.json")}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package is already installed"));
             Assert.False(VerifyTestExeInstalled());
@@ -120,7 +120,6 @@ namespace AppInstallerCLIE2ETests
 
         private void UninstallTestExe()
         {
-            ConfigureFeature("uninstall", true);
             TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
         }
 

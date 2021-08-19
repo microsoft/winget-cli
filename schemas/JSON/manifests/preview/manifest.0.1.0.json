@@ -34,7 +34,7 @@
     "Url": {
       "type": [ "string", "null" ],
       "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
-      "maxLength": 2000
+      "maxLength": 2048
     },
     "Homepage": {
       "$ref": "#/definitions/Url",
@@ -108,7 +108,7 @@
         "Url": {
           "type": "string",
           "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
-          "maxLength": 2000,
+          "maxLength": 2048,
           "description": "Url is required. The path to the installer."
         },
         "Sha256": {

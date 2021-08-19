@@ -4,6 +4,7 @@
 #include <yaml.h>
 #include "winget/Yaml.h"
 #include "AppInstallerLanguageUtilities.h"
+#include "AppInstallerSHA256.h"
 
 #include <iostream>
 #include <string_view>
@@ -67,7 +68,7 @@ namespace AppInstaller::YAML::Wrapper
     struct Parser
     {
         Parser(std::string_view input);
-        Parser(std::istream& input);
+        Parser(std::istream& input, Utility::SHA256::HashBuffer* hashOut = nullptr);
 
         Parser(const Parser&) = delete;
         Parser& operator=(const Parser&) = delete;
@@ -123,7 +124,7 @@ namespace AppInstaller::YAML::Wrapper
         Event() = default;
 
         DestructionToken m_token;
-        yaml_event_t m_event;
+        yaml_event_t m_event = {};
     };
 
     // A libyaml yaml_emitter_t.

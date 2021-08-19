@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <wil/result.h>
-
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -47,6 +45,7 @@ namespace AppInstaller
     };
 
     // Enables a bool to be used as a destruction indicator.
+    // Default construction *sets the value to false!*
     using DestructionToken = ResetWhenMovedFrom<bool>;
 
     // Enable use of folding to execute functions across parameter packs.
@@ -113,7 +112,7 @@ namespace AppInstaller
         }
 
         // Return a value indicating whether the given enum is stored in the map.
-        bool Contains(Enum e) { return (m_data.find(e) != m_data.end()); }
+        bool Contains(Enum e) const { return (m_data.find(e) != m_data.end()); }
 
         // Gets the value.
         template <Enum E>
@@ -132,7 +131,7 @@ namespace AppInstaller
         typename Variant::variant_t& GetVariant(Enum e)
         {
             auto itr = m_data.find(e);
-            THROW_HR_IF_MSG(E_NOT_SET, itr == m_data.end(), "GetVariant(%d)", e);
+            THROW_HR_IF_MSG(E_NOT_SET, itr == m_data.end(), "GetVariant(%d)", static_cast<int>(e));
             return itr->second;
         }
 

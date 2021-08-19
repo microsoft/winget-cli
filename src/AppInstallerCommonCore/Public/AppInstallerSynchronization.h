@@ -2,9 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerProgress.h>
 #include <wil/resource.h>
 
+#include <chrono>
 #include <string_view>
+#include <vector>
+
+using namespace std::chrono_literals;
 
 
 namespace AppInstaller::Synchronization
@@ -12,7 +17,7 @@ namespace AppInstaller::Synchronization
     // A fairly simple cross process (same session) reader-writer lock.
     // The primary purpose is for sources to control access to their backing stores.
     // Due to this design goal, these limitations exist:
-    // - Starves readers when a writer comes in.
+    // - Starves new readers when a writer comes in.
     // - Readers are limited to an arbitrarily chosen limit.
     // - Not re-entrant (although repeated read locking will work, it will consume additional slots).
     // - No upgrade from reader to writer.
@@ -29,18 +34,18 @@ namespace AppInstaller::Synchronization
         CrossProcessReaderWriteLock(CrossProcessReaderWriteLock&&) = default;
         CrossProcessReaderWriteLock& operator=(CrossProcessReaderWriteLock&&) = default;
 
-        static CrossProcessReaderWriteLock LockForRead(std::string_view name);
+        static CrossProcessReaderWriteLock LockShared(std::string_view name);
+        static CrossProcessReaderWriteLock LockShared(std::string_view name, IProgressCallback& progress);
 
-        static CrossProcessReaderWriteLock LockForWrite(std::string_view name);
+        static CrossProcessReaderWriteLock LockExclusive(std::string_view name);
+        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, IProgressCallback& progress);
+        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, std::chrono::milliseconds timeout);
 
-        bool WasAbandoned() { return m_wasAbandoned; }
+        operator bool() const;
 
     private:
-        CrossProcessReaderWriteLock(std::string_view name);
+        static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress);
 
-        wil::unique_mutex m_mutex;
-        wil::unique_semaphore m_semaphore;
-        ResetWhenMovedFrom<LONG> m_semaphoreReleases{ 0 };
-        bool m_wasAbandoned = false;
+        std::vector<wil::unique_mutex> m_mutexesHeld;
     };
 }

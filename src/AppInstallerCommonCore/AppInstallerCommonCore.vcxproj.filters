@@ -159,6 +159,21 @@
     <ClInclude Include="Public\winget\JsonSchemaValidation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\GroupPolicy.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Resources.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Locale.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="DODownloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\TraceLogger.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -267,6 +282,18 @@
       <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="JsonSchemaValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Locale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DODownloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

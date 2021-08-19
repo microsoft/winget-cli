@@ -51,9 +51,6 @@ namespace AppInstaller::Repository
         // Performs a search when no installed source is present.
         SearchResult SearchAvailable(const SearchRequest& request) const;
 
-        // Sorts a vector of results.
-        static void SortResultMatches(std::vector<ResultMatch>& matches);
-
         std::shared_ptr<ISource> m_installedSource;
         std::vector<std::shared_ptr<ISource>> m_availableSources;
         SourceDetails m_details;

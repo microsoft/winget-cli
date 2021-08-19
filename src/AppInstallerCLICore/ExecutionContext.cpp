@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionContext.h"
+#include "COMContext.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::CLI::Execution
@@ -10,54 +11,101 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        // The context that will receive CTRL signals
-        Context* s_contextForCtrlHandler = nullptr;
-
-        BOOL WINAPI CtrlHandlerForContext(DWORD ctrlType)
+        // Type to contain the CTRL signal handler.
+        struct CtrlHandler
         {
-            AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
-
-            // Won't save us from every crash, but a few more than direct access.
-            Context* context = s_contextForCtrlHandler;
-            if (!context)
+            static CtrlHandler& Instance()
             {
-                return FALSE;
+                static CtrlHandler s_instance;
+                return s_instance;
             }
 
-            switch (ctrlType)
+            void AddContext(Context* context)
             {
-            case CTRL_C_EVENT:
-            case CTRL_BREAK_EVENT:
-                context->Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
-                context->Reporter.CancelInProgressTask(false);
-                return TRUE;
-                // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
-                // But handle them as a force terminate anyway.
-            case CTRL_CLOSE_EVENT:
-            case CTRL_LOGOFF_EVENT:
-            case CTRL_SHUTDOWN_EVENT:
-                context->Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
-                context->Reporter.CancelInProgressTask(true);
-                return TRUE;
-            default:
-                return FALSE;
+                std::lock_guard<std::mutex> lock{ m_contextsLock };
+
+                auto itr = std::find(m_contexts.begin(), m_contexts.end(), context);
+                THROW_HR_IF(E_NOT_VALID_STATE, itr != m_contexts.end());
+                m_contexts.push_back(context);
             }
-        }
 
-        void SetCtrlHandlerContext(Context* context)
-        {
-            // Only one is allowed right now.
-            THROW_HR_IF(E_UNEXPECTED, s_contextForCtrlHandler != nullptr && context != nullptr);
-
-            if (context == nullptr)
+            void RemoveContext(Context* context)
             {
-                LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(CtrlHandlerForContext, FALSE));
-                s_contextForCtrlHandler = nullptr;
+                std::lock_guard<std::mutex> lock{ m_contextsLock };
+
+                auto itr = std::find(m_contexts.begin(), m_contexts.end(), context);
+                THROW_HR_IF(E_NOT_VALID_STATE, itr == m_contexts.end());
+                m_contexts.erase(itr);
+            }
+
+        private:
+            CtrlHandler()
+            {
+                LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
+            }
+
+            static BOOL WINAPI StaticCtrlHandlerFunction(DWORD ctrlType)
+            {
+                return Instance().CtrlHandlerFunction(ctrlType);
+            }
+
+            BOOL CtrlHandlerFunction(DWORD ctrlType)
+            {
+                switch (ctrlType)
+                {
+                case CTRL_C_EVENT:
+                case CTRL_BREAK_EVENT:
+                    return TerminateContexts(ctrlType, false);
+                    // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
+                    // But handle them as a force terminate anyway.
+                case CTRL_CLOSE_EVENT:
+                case CTRL_LOGOFF_EVENT:
+                case CTRL_SHUTDOWN_EVENT:
+                    return TerminateContexts(ctrlType, true);
+                default:
+                    return FALSE;
+                }
+            }
+
+            // Terminates the currently attached contexts.
+            // Returns FALSE if no contexts attached; TRUE otherwise.
+            BOOL TerminateContexts(DWORD ctrlType, bool force)
+            {
+                if (m_contexts.empty())
+                {
+                    return FALSE;
+                }
+
+                {
+                    std::lock_guard<std::mutex> lock{ m_contextsLock };
+
+                    // TODO: Move this to be logged per active context when we have thread static globals
+                    AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
+
+                    for (auto& context : m_contexts)
+                    {
+                        context->Cancel(true, force);
+                    }
+                }
+
+                return TRUE;
+            }
+
+            std::mutex m_contextsLock;
+            std::vector<Context*> m_contexts;
+        };
+
+        void SetCtrlHandlerContext(bool add, Context* context)
+        {
+            THROW_HR_IF(E_POINTER, context == nullptr);
+
+            if (add)
+            {
+                CtrlHandler::Instance().AddContext(context);
             }
             else
             {
-                s_contextForCtrlHandler = context;
-                LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(CtrlHandlerForContext, TRUE));
+                CtrlHandler::Instance().RemoveContext(context);
             }
         }
     }
@@ -74,12 +122,17 @@ namespace AppInstaller::CLI::Execution
     {
         auto clone = std::make_unique<Context>(Reporter);
         clone->m_flags = m_flags;
+        // If the parent is hooked up to the CTRL signal, have the clone be as well
+        if (m_disableCtrlHandlerOnExit)
+        {
+            clone->EnableCtrlHandler();
+        }
         return clone;
     }
 
     void Context::EnableCtrlHandler(bool enabled)
     {
-        SetCtrlHandlerContext(enabled ? this : nullptr);
+        SetCtrlHandlerContext(enabled, this);
         m_disableCtrlHandlerOnExit = enabled;
     }
 
@@ -125,5 +178,31 @@ namespace AppInstaller::CLI::Execution
 
         m_isTerminated = true;
         m_terminationHR = hr;
+    }
+
+    void Context::SetTerminationHR(HRESULT hr)
+    {
+        m_terminationHR = hr;
+    }
+
+    void Context::Cancel(bool exitIfStuck, bool bypassUser)
+    {
+        Terminate(exitIfStuck ? APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED : E_ABORT);
+        Reporter.CancelInProgressTask(bypassUser);
+    }
+
+    void Context::SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward)
+    {
+        if (m_executionStage == stage)
+        {
+            return;
+        }
+        else if (m_executionStage > stage && !allowBackward)
+        {
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
+        }
+
+        m_executionStage = stage;
+        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 }

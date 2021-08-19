@@ -5,6 +5,7 @@
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" 
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   IgnorableNamespaces="uap uap3 uap5 rescap">
   <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.2.0" />
   <Properties>
@@ -13,8 +14,8 @@
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
-    <!-- Minimum supported version is 1709 (Fall Creators Update, aka RS3) -->
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.16299.0" MaxVersionTested="10.0.19033.0" />
+    <!-- Minimum supported version is 1809 (October 2018 Update, aka RS5) -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19033.0" />
     <PackageDependency Name="Microsoft.VCLibs.140.00.UWPDesktop" MinVersion="14.0.25426.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
   </Dependencies>
   <Resources>
@@ -34,6 +35,22 @@
             <uap5:ExecutionAlias Alias="WinGetDev.exe" />
           </uap5:AppExecutionAlias>
         </uap5:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
+              <com:Class Id ="74CB3139-B7C5-4B9E-9388-E6616DEA288C" DisplayName="PackageManager Server">
+              </com:Class>
+              <com:Class Id ="1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96" DisplayName="FindPackagesOptions Server">
+              </com:Class>
+              <com:Class Id ="EE160901-B317-4EA7-9CC6-5355C6D7D8A7" DisplayName="CreateCompositePackageCatalogOptions Server">
+              </com:Class>
+              <com:Class Id ="44FE0580-62F7-44D4-9E91-AA9614AB3E86" DisplayName="InstallOptions Server">
+              </com:Class>
+              <com:Class Id ="3F85B9F4-487A-4C48-9035-2903F8A6D9E8" DisplayName="PackageMatchFilter Server">
+              </com:Class>
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
       </Extensions>
     </Application>
   </Applications>

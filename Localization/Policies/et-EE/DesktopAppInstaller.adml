@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Rakenduseinstaller</displayName>
+  <description>Rakenduseinstaller</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Töölaua rakenduseinstaller</string>
+      <string id="EnableAppInstaller">Luba rakenduseinstaller</string>
+      <string id="EnableAppInstallerExplanation">See poliitika määrab, kas kasutajad saavad Windowsi paketihaldurit kasutada või mitte.
+
+Kui lubate selle sätte või jätate selle konfigureerimata, saavad kasutajad Windowsi paketihaldurit kasutada.
+
+Kui keelate selle sätte, ei saa kasutajad Windowsi paketihaldurit kasutada.</string>
+      <string id="EnableSettings">Luba rakenduseinstalleri sätted</string>
+      <string id="EnableSettingsExplanation">See poliitika määrab, kas kasutajad saavad ise oma sätteid muuta või mitte.
+
+Kui lubate selle sätte või jätate selle konfigureerimata, saavad kasutajad Windowsi paketihalduri sätteid muuta.
+
+Kui keelate selle sätte, ei saa kasutajad Windowsi paketihalduri sätteid muuta.</string>
+      <string id="EnableExperimentalFeatures">Luba rakenduseinstalleri katsefunktsioonid</string>
+      <string id="EnableExperimentalFeaturesExplanation">See poliitika määrab, kas kasutajad saavad Windowsi paketihalduris eksperimentaalseid ehk katsefunktsioone lubada või mitte.
+
+Kui lubate selle sätte või jätate selle konfigureerimata, saavad kasutajad lubada Windowsi paketihalduri katsefunktsioonid.
+
+Kui keelate selle sätte, ei saa kasutajad Windowsi paketihalduri katsefunktsioone lubada.</string>
+      <string id="EnableLocalManifestFiles">Luba rakenduseinstalleri kohaliku manifesti failid</string>
+      <string id="EnableLocalManifestFilesExplanation">See poliitika määrab, kas kasutajad saavad installida pakette kohaliku manifesti failidega.
+
+Kui lubate selle sätte või jätate selle konfigureerimata, saavad kasutajad Windowsi paketihalduri kaudu installida kohalike manifestidega pakette.
+
+Kui keelate selle sätte, ei saa kasutajad Windowsi paketihalduri kaudu installida kohalike manifestidega pakette.</string>
+      <string id="EnableHashOverride">Luba rakenduseinstalleri räsi alistamine</string>
+      <string id="EnableHashOverrideExplanation">See poliitika määrab, kas Windowsi paketihalduri saab konfigureerida lubama sätete kaudu SHA256 turbevalideerimise alistamist või mitte.
+
+Kui lubate selle poliitika või jätate selle konfigureerimata, saavad kasutajad Windowsi paketihalduri sätete kaudu lubada SHA256 turbevalideerimise alistamise.
+
+Kui keelate selle poliitika, ei saa kasutajad Windowsi paketihalduri sätete kaudu SHA256 turbevalideerimise alistamist lubada.</string>
+      <string id="EnableDefaultSource">Luba rakenduseinstalleri vaikeallikas</string>
+      <string id="EnableDefaultSourceExplanation">See poliitika juhib Windowsi paketihaldurisse kaasatud vaikeallikat.
+
+Kui te ei konfigureeri seda sätet, on Windowsi paketihalduri vaikeallikas saadaval ja selle saab eemaldada.
+
+Kui lubate selle sätte, on Windowsi paketihalduri vaikeallikas saadaval ja seda ei saa eemaldada.
+
+Kui keelate selle sätte, pole Windowsi paketihalduri vaikeallikas saadaval.</string>
+      <string id="EnableMicrosoftStoreSource">Luba rakenduseinstalleri Microsoft Store‘i allikas</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">See poliitika juhib Windowsi paketihaldurisse kaasatud Microsoft Store‘i allikat.
+
+Kui te ei konfigureeri seda sätet, on Microsoft Store‘i allikas Windowsi paketihalduri jaoks saadaval ja selle saab eemaldada.
+
+Kui lubate selle sätte, on Microsoft Store‘i allikas Windowsi paketihalduri jaoks saadaval ja seda ei saa eemaldada.
+
+Kui keelate selle sätte, pole Microsoft Store‘i allikas Windowsi paketihalduri jaoks saadaval.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Määra rakenduseinstalleri allika automaatse värskendamise intervall minutites</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">See poliitika juhib paketipõhiste allikate automaatse värskendamise intervalli.
+
+Kui keelate selle sätte või jätate selle konfigureerimata, kasutab Windowsi paketihaldur vaikeintervalli või sätetes määratud väärtust.
+
+Kui lubate selle sätte, kasutab Windowsi paketihaldur määratud minutite arvu.</string>
+      <string id="EnableAdditionalSources">Luba rakenduseinstalleri täiendavad allikad</string>
+      <string id="EnableAdditionalSourcesExplanation">See poliitika juhib ettevõtte IT-administraatori määratud täiendavaid allikaid.
+
+Kui te ei konfigureeri seda poliitikat, ei konfigureerita Windowsi paketihalduri jaoks täiendavaid allikaid.
+
+Kui lubate selle poliitika, lisatakse täiendavad allikad Windowsi paketihaldurisse ja neid ei saa eemaldada. Iga täiendava allika esituse saab installitud allikatest hankida funktsiooniga „winget source export“.
+
+Kui keelate selle poliitika, ei saa Windowsi paketihalduri jaoks täiendavaid allikaid konfigureerida.</string>
+      <string id="EnableAllowedSources">Luba rakenduseinstalleri lubatud allikad</string>
+      <string id="EnableAllowedSourcesExplanation">See poliitika juhib ettevõtte IT-administraatori lubatud täiendavaid allikaid.
+
+Kui te ei konfigureeri seda poliitikat, saavad kasutajad lisada ja eemaldada ka muid allikaid peale nende, mis on poliitikaga konfigureeritud.
+
+Kui lubate selle poliitika, saab Windowsi paketihaldurisse lisada või sealt eemaldada ainult määratud allikaid. Iga täiendava allika esituse saab installitud allikatest hankida funktsiooniga „winget source export“.
+
+Kui keelate selle poliitika, ei saa Windowsi paketihalduri jaoks täiendavaid allikaid konfigureerida.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Allika automaatse värskendamise intervall minutites</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Täiendavad allikad: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Lubatud allikad: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

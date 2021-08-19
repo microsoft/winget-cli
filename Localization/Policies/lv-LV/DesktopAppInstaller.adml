@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Lietojumprogrammu instalētājs</displayName>
+  <description>Lietojumprogrammu instalētājs</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Datora lietojumprogrammu instalētājs</string>
+      <string id="EnableAppInstaller">Iespējot lietojumprogrammu instalētāju</string>
+      <string id="EnableAppInstallerExplanation">Šī politika nosaka, vai lietotāji var izmantot Windows pakotņu pārvaldnieku.
+
+Ja iespējosit vai konfigurējat šo iestatījumu, lietotāji varēs izmantot Windows pakotņu pārvaldnieku.
+
+Ja atspējosit šo iestatījumu, lietotāji nevarēs izmantot Windows pakotņu pārvaldnieku.</string>
+      <string id="EnableSettings">Iespējot lietojumprogrammu instalētāja iestatījumus</string>
+      <string id="EnableSettingsExplanation">Šī politika nosaka, vai lietotāji var mainīt savus iestatījumus.
+
+Ja iespējosit vai konfigurējat šo iestatījumu, lietotāji varēs mainīt Windows pakotņu pārvaldnieka iestatījumus.
+
+Ja atspējosit šo iestatījumu, lietotāji nevarēs mainīt Windows pakotņu pārvaldnieka iestatījumus.</string>
+      <string id="EnableExperimentalFeatures">Iespējot lietojumprogrammu instalētāja eksperimentālos līdzekļus</string>
+      <string id="EnableExperimentalFeaturesExplanation">Šī politika nosaka, vai lietotāji var iespējot eksperimentālos līdzekļus Windows pakotņu pārvaldniekā.
+
+Ja iespējosit vai konfigurējat šo iestatījumu, lietotāji varēs iespējot eksperimentālos līdzekļus Windows pakotņu pārvaldniekam.
+
+Ja atspējosit šo iestatījumu, lietotāji nevarēs iespējot eksperimentālos līdzekļus Windows pakotņu pārvaldniekam.</string>
+      <string id="EnableLocalManifestFiles">Iespējot lietojumprogrammu instalētāja lokālā manifesta failus</string>
+      <string id="EnableLocalManifestFilesExplanation">Šī politika nosaka, vai lietotāji var instalēt pakotnes ar lokālajiem manifesta failiem.
+
+Ja iespējosit vai konfigurējat šo iestatījumu, lietotāji varēs instalēt pakotnes ar lokālajiem manifesti, izmantojot Windows pakotņu pārvaldnieku.
+
+Ja atspējosit šo iestatījumu, lietotāji nevarēs instalēt pakotnes ar lokālajiem manifesti, izmantojot Windows pakotņu pārvaldnieku.</string>
+      <string id="EnableHashOverride">Iespējot lietojumprogrammu instalētāja jaucējkoda ignorēšanu</string>
+      <string id="EnableHashOverrideExplanation">Šī politika nosaka, vai var konfigurēt Windows pakotņu pārvaldnieku, lai iestatījumos iespējotu spēju ignorēt drošības validāciju SHA256.
+
+Ja iespējojat vai nekonfigurējat šo politiku, lietotāji Windows pakotņu pārvaldnieka iestatījumos varēs iespējot spēju ignorēt drošības validāciju SHA256.
+
+Ja atspējojat šo politiku, lietotāji nevarēs iespējot iespēju ignorēt drošības validāciju SHA256 Windows pakotņu pārvaldnieka iestatījumos.</string>
+      <string id="EnableDefaultSource">Iespējot lietojumprogrammu instalētāja noklusējuma avotu</string>
+      <string id="EnableDefaultSourceExplanation">Šī politika kontrolē Windows pakotņu pārvaldniekā iekļautos noklusējuma avotus.
+
+Ja neveiksit šī iestatījuma konfigurēšanu, Windows pakotņu pārvaldnieka noklusējuma avoti būs pieejami un tos būs iespējams noņemt.
+
+Ja iespējosit šo iestatījumu, Windows pakotņu pārvaldnieka noklusējuma avoti būs pieejami, bet tos nebūs iespējams noņemt.
+
+Ja atspējosit šo iestatījumu, Windows pakotņu pārvaldnieka noklusējuma avoti nebūs pieejami.</string>
+      <string id="EnableMicrosoftStoreSource">Iespējot lietojumprogrammu instalētāja Microsoft Store avotu</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Šī politika kontrolē Microsoft Store avotus, kas iekļauti Windows pakotņu pārvaldniekā.
+
+Ja neveiksit šī iestatījuma konfigurēšanu, Windows pakotņu pārvaldnieka Microsoft Store avoti būs pieejami un tos būs iespējams noņemt.
+
+Ja iespējosit šo iestatījumu, Windows pakotņu pārvaldnieka Microsoft Store avoti būs pieejami, bet tos nebūs iespējams noņemt.
+
+Ja atspējosit šo iestatījumu, Windows pakotņu pārvaldnieka Microsoft Store avoti nebūs pieejami.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Iestatīt lietojumprogrammu instalētāja avota automātiskās atjaunināšanas intervālu minūtēs</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Šī politika nosaka automātisko atjaunināšanas intervālu, kuras pamatā ir pakotnes avoti.
+
+Ja atspējosit vai konfigurējat šo iestatījumu, noklusējuma intervāls vai vērtība, kas norādīta iestatījumos, tiks izmantoti Windows pakotņu pārvaldnieks.
+
+Ja iespējosit šo iestatījumu, norādītais minūšu skaits tiks izmantots Windows pakotņu pārvaldniekā.</string>
+      <string id="EnableAdditionalSources">Iespējot papildu avotus lietojumprogrammu instalētājam</string>
+      <string id="EnableAdditionalSourcesExplanation">Šī politika kontrolē uzņēmuma IT administratora nodrošinātos papildu resursus.
+
+Ja neveiksit šīs politikas konfigurēšanu, Windows pakotņu pārvaldniekam netiks konfigurēti papildu resursi.
+
+Ja iespējosit šo politiku, Windows pakotņu pārvaldniekam tiks pievienoti papildu avoti, kurus nebūs iespējams noņemt. Katra papildu avota attēlojumu ir iespējams iegūt no instalētajiem avotiem, izmantojot “Winget avotu eksportēšanu”.
+
+Ja atspējosit šo politiku, Windows pakotņu pārvaldniekam nebūs iespējams konfigurēt papildu iestatījumus.</string>
+      <string id="EnableAllowedSources">Iespējot atļautos avotus lietojumprogrammu instalētājam</string>
+      <string id="EnableAllowedSourcesExplanation">Šī politika kontrolē uzņēmuma IT administratora atļautos papildu resursus.
+
+Ja neveiksit šīs politikas konfigurēšanu, lietotāji varēs pievienot vai noņemt papildu avotus, kas nav konfigurēti ar šo politiku.
+
+Ja iespējosit šo politiku, Windows pakotņu pārvaldniekam būs iespējams pievienot vai noņemt tikai norādītos avotus. Katra atļautā avota attēlojumu ir iespējams iegūt no instalētajiem avotiem, izmantojot “Winget avotu eksportēšanu”.
+
+Ja atspējosit šo politiku, Windows pakotņu pārvaldniekam nebūs iespējams konfigurēt papildu iestatījumus.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Avota automātiskās atjaunināšanas intervāls minūtēs</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Papildu avoti: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Atļautie avoti: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

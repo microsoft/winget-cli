@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalator aplikacji</displayName>
+  <description>Instalator aplikacji</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalator aplikacji klasycznej</string>
+      <string id="EnableAppInstaller">Włącz Instalatora aplikacji</string>
+      <string id="EnableAppInstallerExplanation">Ta zasada Określa, czy użytkownicy mogą używać Menedżera pakietów systemu Windows.
+
+Jeśli włączysz to ustawienie lub go nie skonfigurujesz, użytkownicy będą mogli korzystać z Menedżera pakietów systemu Windows.
+
+Jeśli wyłączysz to ustawienie, użytkownicy nie będą mogli korzystać z Menedżera pakietów systemu Windows.</string>
+      <string id="EnableSettings">Włącz ustawienia Instalatora aplikacji</string>
+      <string id="EnableSettingsExplanation">Ta zasada Określa, czy użytkownicy mogą zmieniać swoje ustawienia.
+
+Jeśli włączysz to ustawienie lub go nie skonfigurujesz, użytkownicy będą mogli zmieniać ustawienia Menedżera pakietów systemu Windows.
+
+Jeśli wyłączysz to ustawienie, użytkownicy nie będą mogli zmieniać ustawień Menedżera pakietów systemu Windows.</string>
+      <string id="EnableExperimentalFeatures">Włącz funkcje eksperymentalne Instalatora aplikacji</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ta zasada Określa, czy użytkownicy mogą włączać funkcje eksperymentalne w Menedżerze pakietów systemu Windows.
+
+Jeśli włączysz to ustawienie lub go nie skonfigurujesz, użytkownicy będą mogli włączać funkcje eksperymentalne dla Menedżera pakietów systemu Windows.
+
+Jeśli wyłączysz to ustawienie, użytkownicy nie będą mogli włączać funkcji eksperymentalnych w Menedżerze pakietów systemu Windows.</string>
+      <string id="EnableLocalManifestFiles">Włącz lokalne pliki manifestu dla Instalatora aplikacji</string>
+      <string id="EnableLocalManifestFilesExplanation">Ta zasada Określa, czy użytkownicy mogą instalować pakiety z lokalnymi plikami manifestu.
+
+Jeśli włączysz to ustawienie lub go nie skonfigurujesz, użytkownicy będą mogli instalować pakiety za pomocą manifestów lokalnych przy użyciu Menedżera pakietów systemu Windows.
+
+Jeśli wyłączysz to ustawienie, użytkownicy nie będą mogli instalować pakietów za pomocą manifestów lokalnych przy użyciu Menedżera pakietów systemu Windows.</string>
+      <string id="EnableHashOverride">Włącz zastępowanie skrótu Instalatora aplikacji</string>
+      <string id="EnableHashOverrideExplanation">Te zasady decydują, czy Menedżer pakietów systemu Windows może zostać skonfigurowany do włączania możliwości przesłaniania weryfikacji zabezpieczeń SHA256 w ustawieniach.
+
+Jeśli te zasady zostaną włączone lub nie zostaną skonfigurowane, użytkownicy będą mogli włączać możliwość przesłaniania weryfikacji zabezpieczeń SHA256 w ustawieniach Menedżera pakietów systemu Windows.
+
+Jeśli te zasady zostaną wyłączone, użytkownicy nie będą w stanie włączać możliwości przesłaniania weryfikacji zabezpieczeń SHA256 w ustawieniach Menedżera pakietów systemu Windows.</string>
+      <string id="EnableDefaultSource">Włącz domyślne źródło Instalatora aplikacji</string>
+      <string id="EnableDefaultSourceExplanation">Te zasady kontrolują domyślne źródło dołączone do Menedżera pakietów systemu Windows.
+
+Jeśli to ustawienie nie zostanie skonfigurowane, domyślne źródło dla Menedżera pakietów systemu Windows będzie dostępne i będzie można je usunąć.
+
+Jeśli to ustawienie zostanie włączone, domyślne źródło dla Menedżera pakietów systemu Windows będzie dostępne, ale nie będzie można go usunąć.
+
+Jeśli wyłączysz to ustawienie, domyślne źródło dla Menedżera pakietów systemu Windows nie będzie dostępne.</string>
+      <string id="EnableMicrosoftStoreSource">Włącz źródło sklepu Microsoft Store Instalatora aplikacji</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Te zasady kontrolują źródło sklepu Microsoft Store dołączone do Menedżera pakietów systemu Windows.
+
+Jeśli to ustawienie nie zostanie skonfigurowane, źródło sklepu Microsoft Store dla Menedżera pakietów systemu Windows będzie dostępne i będzie można je usunąć.
+
+Jeśli to ustawienie zostanie włączone, źródło sklepu Microsoft Store dla Menedżera pakietów systemu Windows będzie dostępne, ale nie będzie można go usunąć.
+
+Jeśli wyłączysz to ustawienie, źródło sklepu Microsoft Store dla Menedżera pakietów systemu Windows nie będzie dostępne.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Ustaw interwał w minutach automatycznej aktualizacji źródła Instalatora aplikacji</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ta zasada Określa interwał automatycznej aktualizacji dla źródeł opartych na pakietach.
+
+Jeśli to ustawienie zostanie wyłączone lub nie zostanie skonfigurowane, w Menedżerze pakietów systemu Windows będzie używany interwał domyślny lub wartość określona w obszarze Ustawienia.
+
+Jeśli to ustawienie zostanie włączone, określona liczba minut będzie używana przez Menedżera pakietów systemu Windows.</string>
+      <string id="EnableAdditionalSources">Włącz dodatkowe źródła Instalatora aplikacji</string>
+      <string id="EnableAdditionalSourcesExplanation">Te zasady kontrolują dodatkowe źródła udostępnione przez administratora IT w przedsiębiorstwie.
+
+Jeśli te zasady nie zostaną skonfigurowane, żadne dodatkowe źródła nie zostaną skonfigurowane dla Menedżera pakietów systemu Windows.
+
+Jeśli te zasady zostaną włączone, dodatkowe źródła będą dodane do Menedżera pakietów systemu Windows i nie będzie można ich usunąć. Odwzorowanie każdego dodatkowego źródła można uzyskać z zainstalowanych źródeł za pomocą polecenia "winget source export".
+
+Jeśli te zasady zostaną wyłączone, nie będzie można skonfigurować żadnych dodatkowych źródeł dla Menedżera pakietów systemu Windows.</string>
+      <string id="EnableAllowedSources">Włącz dozwolone źródła Instalatora aplikacji</string>
+      <string id="EnableAllowedSourcesExplanation">Te zasady kontrolują dodatkowe źródła dozwolone przez administratora IT w przedsiębiorstwie.
+
+Jeśli te zasady nie zostaną skonfigurowane, użytkownicy będą mogli dodawać lub usuwać dodatkowe źródła inne niż te, które zostały skonfigurowane przez zasady.
+
+Jeśli te zasady zostaną włączone, tylko określone źródła będą mogły być dodawane do Menedżera pakietów systemu Windows lub z niego usuwane. Odwzorowanie każdego dozwolonego źródła można uzyskać z zainstalowanych źródeł za pomocą polecenia "winget source export".
+
+Jeśli te zasady zostaną wyłączone, nie będzie można skonfigurować żadnych dodatkowych źródeł dla Menedżera pakietów systemu Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interwał w minutach automatycznej aktualizacji źródła</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Dodatkowe źródła: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Dozwolone źródła: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

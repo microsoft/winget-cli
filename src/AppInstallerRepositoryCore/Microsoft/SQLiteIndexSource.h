@@ -37,10 +37,26 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the index.
         const SQLiteIndex& GetIndex() const { return m_index; }
 
+        // Determines if the other source refers to the same as this.
+        bool IsSame(const SQLiteIndexSource* other) const;
+
     private:
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;
         bool m_isInstalled;
+    protected:
         SQLiteIndex m_index;
+    };
+
+    // A source that holds a SQLiteIndex and lock.
+    struct SQLiteIndexWriteableSource : public SQLiteIndexSource, public IMutablePackageSource
+    {
+        SQLiteIndexWriteableSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {}, bool isInstalledSource = false);
+
+        // Adds a package version to the source.
+        void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        // Removes a package version from the source.
+        void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
     };
 }

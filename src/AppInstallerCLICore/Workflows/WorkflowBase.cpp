@@ -36,6 +36,11 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
+        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id, std::string_view version)
+        {
+            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
+        }
+
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
             std::shared_ptr<Repository::ISource> source;
@@ -363,7 +368,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        Execution::TableOutput<5> table(context.Reporter,
+        Execution::TableOutput<2> table(context.Reporter,
             {
                 Resource::String::SearchName,
                 Resource::String::SearchId
@@ -376,6 +381,47 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({
                 package->GetProperty(PackageProperty::Name),
                 package->GetProperty(PackageProperty::Id)
+                });
+        }
+
+        table.Complete();
+
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
+    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context)
+    {
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Execution::TableOutput<3> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchSource
+            });
+
+        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        {
+            auto package = searchResult.Matches[i].Package;
+
+            std::string sourceName;
+            auto latest = package->GetLatestAvailableVersion();
+            if (latest)
+            {
+                auto source = latest->GetSource();
+                if (source)
+                {
+                    sourceName = source->GetDetails().Name;
+                }
+            }
+
+            table.OutputLine({
+                package->GetProperty(PackageProperty::Name),
+                package->GetProperty(PackageProperty::Id),
+                std::move(sourceName)
                 });
         }
 
@@ -481,13 +527,13 @@ namespace AppInstaller::CLI::Workflow
                 if (m_isFromInstalledSource)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
+                    context << ReportMultiplePackageFoundResult;
                 }
                 else
                 {
                     context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+                    context << ReportMultiplePackageFoundResultWithSource;
                 }
-
-                context << ReportMultiplePackageFoundResult;
 
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
@@ -528,7 +574,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest->Version);
-        manifest->ApplyLocale();
+
+        std::string targetLocale;
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+        }
+        manifest->ApplyLocale(targetLocale);
+
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
     }
@@ -576,7 +629,14 @@ namespace AppInstaller::CLI::Workflow
         {
             Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
-            manifest.ApplyLocale();
+
+            std::string targetLocale;
+            if (context.Args.Contains(Execution::Args::Type::Locale))
+            {
+                targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+            }
+            manifest.ApplyLocale(targetLocale);
+
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }
@@ -590,7 +650,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
     }
 
     void GetManifest(Execution::Context& context)
@@ -620,7 +680,7 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(context.Args, std::move(installationMetadata));
+        ManifestComparator manifestComparator(context.Args, installationMetadata);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 
@@ -690,24 +750,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
-        if (!context.Contains(Execution::Data::ExecutionStage))
-        {
-            context.Add<Execution::Data::ExecutionStage>(m_stage);
-        }
-        else if (context.Get<Execution::Data::ExecutionStage>() == m_stage)
-        {
-            return;
-        }
-        else if (context.Get<Execution::Data::ExecutionStage>() < m_stage || m_allowBackward)
-        {
-            context.Get<Execution::Data::ExecutionStage>() = m_stage;
-        }
-        else
-        {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
-        }
-
-        Logging::SetExecutionStage(static_cast<uint32_t>(context.Get<Execution::Data::ExecutionStage>()));
+        context.SetExecutionStage(m_stage, m_allowBackward);
     }
 }
 

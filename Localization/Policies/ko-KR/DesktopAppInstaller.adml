@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>앱 설치 관리자</displayName>
+  <description>앱 설치 관리자</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">데스크톱 앱 설치 관리자</string>
+      <string id="EnableAppInstaller">앱 설치 관리자 사용</string>
+      <string id="EnableAppInstallerExplanation">이 정책은 사용자가 Windows 패키지 관리자를 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자를 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자를 사용할 수 없습니다.</string>
+      <string id="EnableSettings">앱 설치 관리자 설정 사용</string>
+      <string id="EnableSettingsExplanation">이 정책은 사용자가 설정을 변경할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하도록 설정하거나 구성하지 않으면 사용자가 Windows 패키지 관리자의 설정을 변경할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자의 설정을 변경할 수 없습니다.</string>
+      <string id="EnableExperimentalFeatures">앱 설치 관리자 실험적 기능 사용</string>
+      <string id="EnableExperimentalFeaturesExplanation">이 정책은 사용자가 Windows 패키지 관리자에서 실험적인 기능을 사용하도록 설정할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자를 위해 실험적 기능을 사용할 수 있습니다.
+
+이 설정을 사용하지 않도록 설정하면 사용자가 Windows 패키지 관리자를 위해 실험적 기능을 사용할 수 없습니다.</string>
+      <string id="EnableLocalManifestFiles">앱 설치 관리자 로컬 매니페스트 파일 사용</string>
+      <string id="EnableLocalManifestFilesExplanation">이 정책은 사용자가 로컬 매니페스트 파일을 사용하여 패키지를 설치할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트와 함께 패키지를 설치할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트를 통해 패키지를 설치할 수 없습니다.</string>
+      <string id="EnableHashOverride">앱 설치 관리자 해시 재정의 사용</string>
+      <string id="EnableHashOverrideExplanation">이 정책은 설정에서 SHA256 보안 유효성 검사를 재정의하도록 Windows 패키지 관리자를 구성할 수 있는지 여부를 제어합니다.
+
+이 정책을 실행하거나 구성하지 않으면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용할 수 있습니다.
+
+이 정책을 실행 중지하면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용자가 사용하도록 설정할 수 없습니다.</string>
+      <string id="EnableDefaultSource">앱 설치 관리자 기본 원본 사용</string>
+      <string id="EnableDefaultSourceExplanation">이 정책은 Windows 패키지 관리자에 포함된 기본 원본을 제어합니다.
+
+이 설정을 구성하지 않는 경우 Windows 패키지 관리자의 기본 원본을 사용할 수 있으며 제거할 수 있습니다.
+
+이 설정을 사용하면 Windows 패키지 관리자의 기본 원본을 사용할 수 있으며 제거할 수 없습니다.
+
+이 설정을 사용하지 않도록 설정하면 Windows 패키지 관리자의 기본 원본을 사용할 수 없습니다.</string>
+      <string id="EnableMicrosoftStoreSource">앱 설치 관리자 Microsoft 스토어 원본 사용</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">이 정책은 Windows 패키지 관리자에 포함된 Microsoft 스토어 원본을 제어합니다.
+
+이 설정을 구성하지 않는 경우 Windows 패키지 관리자의 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 있습니다.
+
+이 설정을 사용하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 없습니다.
+
+이 설정을 사용 중지하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 없습니다.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">앱 설치 관리자 원본 자동 업데이트 간격(분) 설정</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 기본 간격이나 설정에 지정된 값이 Windows 패키지 관리자가 사용됩니다.
+
+이 설정을 사용하면 Windows 패키지 관리자에서 지정한 시간(분)이 사용됩니다.</string>
+      <string id="EnableAdditionalSources">앱 설치 관리자 추가 원본 사용</string>
+      <string id="EnableAdditionalSourcesExplanation">이 정책은 엔터프라이즈 IT 관리자가 제공하는 추가 원본을 제어합니다.
+
+정책을 구성하지 않는 경우 Windows 패키지 관리자에 대해 추가 원본이 구성되지 않습니다.
+
+정책을 사용하도록 설정하면 추가 원본이 Windows 패키지 관리자에 추가되고 제거할 수 없습니다. 'winget 원본 내보내기'를 사용하여 설치된 원본에서 각 추가 원본에 대한 표현을 얻을 수 있습니다.
+
+이 정책을 사용하지 않도록 설정하는 경우 Windows 패키지 관리자에 대해 추가 원본을 구성할 수 없습니다.</string>
+      <string id="EnableAllowedSources">앱 설치 관리자 허용된 원본 사용</string>
+      <string id="EnableAllowedSourcesExplanation">이 정책은 엔터프라이즈 IT 관리자가 허용하는 추가 원본을 제어합니다.
+
+이 정책을 구성하지 않는 경우 사용자는 정책에 의해 구성된 원본 외의 다른 원본을 추가하거나 제거할 수 있습니다.
+
+정책을 사용하도록 설정하는 경우 지정된 원본만 Windows 패키지 관리자에서 추가하거나 제거할 수 있습니다. 허용된 각 원본에 대한 표현은 'winget 원본 내보내기'를 사용하여 설치된 원본에서 구할 수 있습니다.
+
+이 정책을 사용하지 않도록 설정하는 경우 Windows 패키지 관리자에 대해 추가 원본을 구성할 수 없습니다.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">원본 자동 업데이트 간격(분)</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">추가 원본: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">허용된 원본: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

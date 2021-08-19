@@ -6,8 +6,11 @@
 #include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
+
+#include <winget/GroupPolicy.h>
 
 namespace AppInstaller::Repository
 {
@@ -38,14 +41,215 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+
     namespace
     {
-        // SourceDetails with additional data used by this file.
+        // SourceDetails with additional data.
         struct SourceDetailsInternal : public SourceDetails
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            SourceDetailsInternal() = default;
+
+            SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
+
+        // Checks whether a default source is enabled with the current settings.
+        // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
+        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, bool onlyExplicit, TogglePolicy::Policy policy)
+        {
+            if (!ExperimentalFeature::IsEnabled(feature))
+            {
+                // No need to log here
+                return false;
+            }
+
+            if (onlyExplicit)
+            {
+                // No need to log here
+                return GroupPolicies().GetState(policy) == PolicyState::Enabled;
+            }
+
+            if (!GroupPolicies().IsEnabled(policy))
+            {
+                AICLI_LOG(Repo, Info, << "The default source " << sourceToLog << " is disabled due to Group Policy");
+                return false;
+            }
+
+            return true;
+        }
+
+        bool IsWingetCommunityDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
+        }
+
+        bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        template<ValuePolicy P>
+        std::optional<SourceFromPolicy> FindSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
+        {
+            auto sourcesOpt = GroupPolicies().GetValueRef<P>();
+            if (!sourcesOpt.has_value())
+            {
+                return std::nullopt;
+            }
+
+            const auto& sources = sourcesOpt->get();
+            auto source = std::find_if(
+                sources.begin(),
+                sources.end(),
+                [&](const SourceFromPolicy& policySource)
+                {
+                    return Utility::ICUCaseInsensitiveEquals(name, policySource.Name) && Utility::ICUCaseInsensitiveEquals(type, policySource.Type) && arg == policySource.Arg;
+                });
+
+            if (source == sources.end())
+            {
+                return std::nullopt;
+            }
+
+            return *source;
+        }
+
+        template<ValuePolicy P>
+        bool IsSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
+        {
+            return FindSourceInPolicy<P>(name, type, arg).has_value();
+        }
+
+        // Checks whether the Group Policy allows this user source.
+        // If it does it returns None, otherwise it returns which policy is blocking it.
+        // Note that this applies to user sources that are being added as well as user sources
+        // that already existed when the Group Policy came into effect.
+        TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
+        {
+            // Reasons for not allowing:
+            //  1. The source is a tombstone for default source that is explicitly enabled
+            //  2. The source is a default source that is disabled
+            //  3. The source has the same name as a default source that is explicitly enabled (to prevent shadowing)
+            //  4. Allowed sources are disabled, blocking all user sources
+            //  5. There is an explicit list of allowed sources and this source is not in it
+            //
+            // We don't need to check sources added by policy as those have higher priority.
+            //
+            // Use the name and arg to match sources as we don't have the identifier before adding.
+
+            // Case 1:
+            // The source is a tombstone and we need the policy to be explicitly enabled.
+            if (isTombstone)
+            {
+                if (name == s_Source_WingetCommunityDefault_Name && IsWingetCommunityDefaultSourceEnabled(true))
+                {
+                    return TogglePolicy::Policy::DefaultSource;
+                }
+
+                if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
+                {
+                    return TogglePolicy::Policy::MSStoreSource;
+                }
+
+                // Any other tombstone is allowed
+                return TogglePolicy::Policy::None;
+            }
+
+            // Case 2:
+            //  - The source is not a tombstone and we don't need the policy to be explicitly enabled.
+            //  - Check only against the source argument and type as the user source may have a different name.
+            //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
+            //    and we don't need case sensitivity for the rest as we control the domain.
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+            {
+                return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
+            }
+
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+            {
+                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
+            }
+
+            // Case 3:
+            // If the source has the same name as a default source, it is shadowing with a different argument
+            // (as it didn't match above). We only care if Group Policy requires the default source.
+            if (name == s_Source_WingetCommunityDefault_Name && IsWingetCommunityDefaultSourceEnabled(true))
+            {
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                return TogglePolicy::Policy::DefaultSource;
+            }
+
+            if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
+            {
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                return TogglePolicy::Policy::MSStoreSource;
+            }
+
+            // Case 4:
+            // The guard in the source add command should already block adding.
+            // This check drops existing user sources.
+            auto allowedSourcesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::AllowedSources);
+            if (allowedSourcesPolicy == PolicyState::Disabled)
+            {
+                AICLI_LOG(Repo, Warning, << "User sources are disabled by Group Policy");
+                return TogglePolicy::Policy::AllowedSources;
+            }
+
+            // Case 5:
+            if (allowedSourcesPolicy == PolicyState::Enabled)
+            {
+                if (!IsSourceInPolicy<ValuePolicy::AllowedSources>(name, type, arg))
+                {
+                    AICLI_LOG(Repo, Warning, << "Source is not in the Group Policy allowed list. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                    return TogglePolicy::Policy::AllowedSources;
+                }
+            }
+
+            return TogglePolicy::Policy::None;
+        }
+
+        bool IsUserSourceAllowedByPolicy(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
+        {
+            return GetPolicyBlockingUserSource(name, type, arg, isTombstone) == TogglePolicy::Policy::None;
+        }
+
+        void EnsureSourceIsRemovable(const SourceDetailsInternal& source)
+        {
+            // Block removing sources added by Group Policy
+            if (source.Origin == SourceOrigin::GroupPolicy)
+            {
+                AICLI_LOG(Repo, Error, << "Cannot remove source added by Group Policy");
+                throw GroupPolicyException(TogglePolicy::Policy::AdditionalSources);
+            }
+
+            // Block removing default sources required by Group Policy.
+            if (source.Origin == SourceOrigin::Default)
+            {
+                if (GroupPolicies().GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::Enabled &&
+                    source.Identifier == s_Source_WingetCommunityDefault_Identifier)
+                {
+                    throw GroupPolicyException(TogglePolicy::Policy::DefaultSource);
+                }
+
+                if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
+                    source.Identifier == s_Source_WingetMSStoreDefault_Identifier)
+                {
+                    throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
+                }
+            }
+        }
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -177,6 +381,24 @@ namespace AppInstaller::Repository
                 });
         }
 
+        // Checks whether a default source is enabled with the current settings
+        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, TogglePolicy::Policy policy)
+        {
+            if (!ExperimentalFeature::IsEnabled(feature))
+            {
+                // No need to log here
+                return false;
+            }
+
+            if (!GroupPolicies().IsEnabled(policy))
+            {
+                AICLI_LOG(Repo, Info, << "The default source " << sourceToLog << " is disabled due to Group Policy");
+                return false;
+            }
+
+            return true;
+        }
+
         // Gets the sources from a particular origin.
         std::vector<SourceDetailsInternal> GetSourcesByOrigin(SourceOrigin origin)
         {
@@ -186,25 +408,26 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                SourceDetailsInternal details;
-                details.Name = s_Source_WingetCommunityDefault_Name;
-                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                details.Arg = s_Source_WingetCommunityDefault_Arg;
-                details.Data = s_Source_WingetCommunityDefault_Data;
-                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                details.TrustLevel = SourceTrustLevel::Trusted;
-                result.emplace_back(std::move(details));
-
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
+                if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal storeDetails;
-                    storeDetails.Name = s_Source_WingetMSStoreDefault_Name;
-                    storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
-                    storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
-                    storeDetails.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    storeDetails.TrustLevel = SourceTrustLevel::Trusted;
-                    result.emplace_back(std::move(storeDetails));
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::WinGet));
+                }
+
+                if (IsWingetMSStoreDefaultSourceEnabled())
+                {
+                    SourceDetailsInternal details;
+                    details.Name = s_Source_WingetMSStoreDefault_Name;
+                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    details.Arg = s_Source_WingetMSStoreDefault_Arg;
+                    details.Data = s_Source_WingetMSStoreDefault_Data;
+                    details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
+                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                    result.emplace_back(std::move(details));
+                }
+
+                if (IsMSStoreDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
                 }
             }
             break;
@@ -227,13 +450,37 @@ namespace AppInstaller::Repository
 
                 for (auto& source : userSources)
                 {
-                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
-                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+                    // Check source against list of allowed sources and drop tombstones for required sources
+                    if (!IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
                     {
+                        AICLI_LOG(Repo, Warning, << "User source " << source.Name << " dropped because of group policy");
                         continue;
                     }
 
                     result.emplace_back(std::move(source));
+                }
+            }
+            break;
+            case SourceOrigin::GroupPolicy:
+            {
+                if (GroupPolicies().GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::Enabled)
+                {
+                    auto additionalSourcesOpt = GroupPolicies().GetValueRef<ValuePolicy::AdditionalSources>();
+                    if (additionalSourcesOpt.has_value())
+                    {
+                        const auto& additionalSources = additionalSourcesOpt->get();
+                        for (const auto& additionalSource : additionalSources)
+                        {
+                            SourceDetailsInternal details;
+                            details.Name = additionalSource.Name;
+                            details.Type = additionalSource.Type;
+                            details.Arg = additionalSource.Arg;
+                            details.Data = additionalSource.Data;
+                            details.Identifier = additionalSource.Identifier;
+                            details.Origin = SourceOrigin::GroupPolicy;
+                            result.emplace_back(std::move(details));
+                        }
+                    }
                 }
             }
             break;
@@ -341,8 +588,12 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedWriteableSourceFactory::Create();
+            }
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
                 return Rest::RestSourceFactory::Create();
             }
@@ -356,16 +607,20 @@ namespace AppInstaller::Repository
         }
 
         template <typename MemberFunc>
-        void AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
+            bool result = false;
             auto factory = GetFactoryForType(details.Type);
 
             // Attempt; if it fails, wait a short time and retry.
             try
             {
-                (factory.get()->*member)(details, progress);
-                details.LastUpdateTime = std::chrono::system_clock::now();
-                return;
+                result = (factory.get()->*member)(details, progress);
+                if (result)
+                {
+                    details.LastUpdateTime = std::chrono::system_clock::now();
+                }
+                return result;
             }
             CATCH_LOG();
 
@@ -373,25 +628,34 @@ namespace AppInstaller::Repository
             std::this_thread::sleep_for(2s);
 
             // If this one fails, maybe the problem is persistent.
-            (factory.get()->*member)(details, progress);
-            details.LastUpdateTime = std::chrono::system_clock::now();
+            result = (factory.get()->*member)(details, progress);
+            if (result)
+            {
+                details.LastUpdateTime = std::chrono::system_clock::now();
+            }
+            return result;
         }
 
-        void AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
         }
 
-        void UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
+            return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
+        bool BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        {
+            return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
+        }
+
+        bool RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
             auto factory = GetFactoryForType(details.Type);
 
-            factory->Remove(details, progress);
+            return factory->Remove(details, progress);
         }
 
         // Determines whether (and logs why) a source should be updated before it is opened.
@@ -437,6 +701,8 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
+            void UpdateSourceLastUpdateTime(const SourceDetails& source);
+
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
 
@@ -449,7 +715,7 @@ namespace AppInstaller::Repository
 
         SourceListInternal::SourceListInternal()
         {
-            for (SourceOrigin origin : { SourceOrigin::User, SourceOrigin::Default })
+            for (SourceOrigin origin : { SourceOrigin::GroupPolicy, SourceOrigin::User, SourceOrigin::Default })
             {
                 auto forOrigin = GetSourcesByOrigin(origin);
 
@@ -552,6 +818,10 @@ namespace AppInstaller::Repository
             case SourceOrigin::User:
                 m_sourceList.erase(FindSource(source.Name));
                 break;
+            case SourceOrigin::GroupPolicy:
+                // This should have already been blocked higher up.
+                AICLI_LOG(Repo, Error, << "Attempting to remove Group Policy source: " << source.Name);
+                THROW_HR(E_UNEXPECTED);
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -573,6 +843,8 @@ namespace AppInstaller::Repository
             return "Default"sv;
         case SourceOrigin::User:
             return "User"sv;
+        case SourceOrigin::GroupPolicy:
+            return "GroupPolicy"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -607,7 +879,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -619,6 +891,13 @@ namespace AppInstaller::Repository
         auto source = sourceList.GetCurrentSource(name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
+        // Check sources allowed by group policy
+        auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
+        if (blockingPolicy != TogglePolicy::Policy::None)
+        {
+            throw GroupPolicyException(blockingPolicy);
+        }
+
         SourceDetailsInternal details;
         details.Name = name;
         details.Type = type;
@@ -626,30 +905,25 @@ namespace AppInstaller::Repository
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
 
-        // Check feature flag enablement for rest source.
-        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
-            && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+        bool result = AddSourceFromDetails(details, progress);
+        if (result)
         {
-            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
-                << " feature is disabled. Execution cancelled.");
-            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+
+            sourceList.AddSource(details);
         }
 
-        AddSourceFromDetails(details, progress);
-
-        AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-        AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
-
-        sourceList.AddSource(details);
+        return result;
     }
 
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
-        auto currentSources = sourceList.GetCurrentSourceRefs();
 
         if (name.empty())
         {
+            auto currentSources = sourceList.GetCurrentSourceRefs();
             if (currentSources.empty())
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
@@ -657,8 +931,17 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
+                // Restricted sources may not support the full set of functionality
+                if (currentSources[0].get().Restricted)
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
+                    return {};
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                    return OpenSource(currentSources[0].get().Name, progress);
+                }
             }
             else
             {
@@ -669,6 +952,13 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
+                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
+                    if (source.get().Restricted)
+                    {
+                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
+                        continue;
+                    }
+
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -677,8 +967,7 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
-                            UpdateSourceFromDetails(source, progress);
-                            sourceUpdated = true;
+                            sourceUpdated = BackgroundUpdateSourceFromDetails(source, progress) || sourceUpdated;
                         }
                         catch (...)
                         {
@@ -686,6 +975,7 @@ namespace AppInstaller::Repository
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
+
                     aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
@@ -716,8 +1006,10 @@ namespace AppInstaller::Repository
                 {
                     try
                     {
-                        UpdateSourceFromDetails(*source, progress);
-                        sourceList.SaveMetadata();
+                        if (BackgroundUpdateSourceFromDetails(*source, progress))
+                        {
+                            sourceList.SaveMetadata();
+                        }
                     }
                     catch (...)
                     {
@@ -732,7 +1024,53 @@ namespace AppInstaller::Repository
         }
     }
 
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+    {
+        OpenSourceResult result;
+
+        // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
+        // if the details came from the same instance of the list that's being saved.
+        // Some sources that do not need updating like the Installed source, do not have Name values.
+        // Restricted sources don't have full functionality
+        if (!details.Name.empty() &&
+            !details.Restricted)
+        {
+            SourceListInternal sourceList;
+            auto source = sourceList.GetSource(details.Name);
+            if (!source)
+            {
+                AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+                return {};
+            }
+
+            if (ShouldUpdateBeforeOpen(*source))
+            {
+                try
+                {
+                    if (BackgroundUpdateSourceFromDetails(*source, progress))
+                    {
+                        sourceList.SaveMetadata();
+                    }
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                    result.SourcesWithUpdateFailure.emplace_back(*source);
+                }
+            }
+        }
+
+        result.Source = CreateSourceFromDetails(details, progress);
+        return result;
+    }
+
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details = GetPredefinedSourceDetails(source);
+        return CreateSourceFromDetails(details, progress);
+    }
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {
         SourceDetails details;
         details.Origin = SourceOrigin::Predefined;
@@ -742,15 +1080,54 @@ namespace AppInstaller::Repository
         case PredefinedSource::Installed:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::ARP:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
-            return CreateSourceFromDetails(details, progress);
+            return details;
+        case PredefinedSource::Installing:
+            details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+            // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
+            // so this is used here for consistency with other predefined sources.
+            details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
+            return details;
+        }
+
+        THROW_HR(E_UNEXPECTED);
+    }
+
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
+    {
+        switch (source)
+        {
+        case WellKnownSource::WinGet:
+        {
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_WingetCommunityDefault_Name;
+            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Arg = s_Source_WingetCommunityDefault_Arg;
+            details.Data = s_Source_WingetCommunityDefault_Data;
+            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            return details;
+        }
+        case WellKnownSource::MicrosoftStore:
+        {
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_MSStoreDefault_Name;
+            details.Type = Rest::RestSourceFactory::Type();
+            details.Arg = s_Source_MSStoreDefault_Arg;
+            details.Identifier = s_Source_MSStoreDefault_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted;
+            details.Restricted = true;
+            return details;
+        }
         }
 
         THROW_HR(E_UNEXPECTED);
@@ -771,6 +1148,26 @@ namespace AppInstaller::Repository
         return result;
     }
 
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
+        CompositeSearchBehavior searchBehavior)
+    {
+        std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
+
+        for (const auto& availableSource : availableSources)
+        {
+            result->AddAvailableSource(availableSource);
+        }
+
+        if (installedSource)
+        {
+            result->SetInstalledSource(installedSource, searchBehavior);
+        }
+
+        return result;
+    }
+
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
@@ -787,10 +1184,13 @@ namespace AppInstaller::Repository
         {
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source->Name);
 
-            UpdateSourceFromDetails(*source, progress);
+            bool result = UpdateSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.SaveMetadata();
+            }
 
-            sourceList.SaveMetadata();
-            return true;
+            return result;
         }
     }
 
@@ -809,11 +1209,16 @@ namespace AppInstaller::Repository
         else
         {
             AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source->Name << " [" << ToString(source->Origin) << ']');
-            RemoveSourceFromDetails(*source, progress);
 
-            sourceList.RemoveSource(*source);
+            EnsureSourceIsRemovable(*source);
 
-            return true;
+            bool result = RemoveSourceFromDetails(*source, progress);
+            if (result)
+            {
+                sourceList.RemoveSource(*source);
+            }
+
+            return result;
         }
     }
 
@@ -839,6 +1244,7 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source->Name);
 
+                EnsureSourceIsRemovable(*source);
                 sourceList.RemoveSource(*source);
 
                 return true;
@@ -867,7 +1273,12 @@ namespace AppInstaller::Repository
 
         for (const auto& include : Inclusions)
         {
-            result << " Inclusions:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
+            result << " Include:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'";
+            if (include.Additional)
+            {
+                result << "+'" << include.Additional.value() << "'";
+            }
+            result << "[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)
@@ -892,6 +1303,8 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::InstalledLocation: return "InstalledLocation"sv;
         case PackageVersionMetadata::StandardUninstallCommand: return "StandardUninstallCommand"sv;
         case PackageVersionMetadata::SilentUninstallCommand: return "SilentUninstallCommand"sv;
+        case PackageVersionMetadata::Publisher: return "Publisher"sv;
+        case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
         default: return "Unknown"sv;
         }
     }

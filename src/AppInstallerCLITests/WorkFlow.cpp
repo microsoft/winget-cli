@@ -27,6 +27,7 @@
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
+#include <Commands/ValidateCommand.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -186,6 +187,50 @@ namespace
                             this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
+            if (input == "TestExeInstallerWithNothingInstalled")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
+            if (input == "AppInstallerCliTest.TestExeInstaller.Dependencies")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExeDependencies.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            this->shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller.Dependencies")));
+            }
+
+            if (input == "AppInstallerCliTest.TestMsixInstaller.WFDep")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msi_WFDependency.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller.WFDep")));
             }
 
             return result;
@@ -770,6 +815,30 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
 
+TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
+{
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({true});
+
+    ShowCommand show({});
+    show.Execute(context);
+    INFO(showOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(showOutput.str().find("Dependencies") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(showOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(showOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(showOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
+    REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
+}
+
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
@@ -1022,6 +1091,31 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    std::string updateResultStr = updateOutput.str();
+
+    // Verify dependencies are informed
+    REQUIRE(updateResultStr.find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(updateResultStr.find("PreviewIIS") != std::string::npos);
+    REQUIRE(updateResultStr.find("Preview VC Runtime") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
@@ -1346,6 +1440,55 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
 }
 
+TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-MachineScope.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify all packages were installed
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    std::ifstream installResultFile(exeInstallResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/scope=machine") != std::string::npos);
+}
+
+TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+    
+    // Verify dependencies for all packages are informed
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportCommandReportDependencies).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find("PreviewIIS") != std::string::npos);
+    REQUIRE(importOutput.str().find("Preview VC Runtime") != std::string::npos);
+    REQUIRE(importOutput.str().find("Hyper-V") != std::string::npos);
+}
+
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
     std::filesystem::path motwFile(testFile);
@@ -1393,4 +1536,188 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());
+}
+
+TEST_CASE("InstallFlowMultiLocale_RequirementNotSatisfied", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlowMultiLocale_RequirementSatisfied", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Locale, "fr-FR"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/fr-FR") != std::string::npos);
+}
+
+TEST_CASE("InstallFlowMultiLocale_PreferenceNoBetterLocale", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "zh-CN" });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/unknown") != std::string::npos);
+}
+
+TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallLocalePreference>({ "en-US" });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
+{
+    std::ostringstream validateOutput;
+    TestContext context{ validateOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    ValidateCommand validate({});
+    validate.Execute(context);
+    INFO(validateOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(validateOutput.str().find(Resource::LocString(Resource::String::ValidateCommandReportDependencies).get()) != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(validateOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
+    REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
+}
+
+TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify installer dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    // and root dependencies are not
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") == std::string::npos);
+}
+
+TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify root dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }

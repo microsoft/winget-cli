@@ -18,7 +18,7 @@ namespace AppInstaller::Manifest::YamlParser
 
             if (!entry.Root.IsMap())
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", entry.FileName.c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %hs", entry.FileName.c_str());
             }
 
             if (!entry.Root["PackageIdentifier"])
@@ -99,7 +99,7 @@ namespace AppInstaller::Manifest::YamlParser
             auto& firstYamlManifest = input[0];
             if (!firstYamlManifest.Root.IsMap())
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", firstYamlManifest.FileName.c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %hs", firstYamlManifest.FileName.c_str());
             }
 
             if (firstYamlManifest.Root["ManifestVersion"sv])
@@ -115,7 +115,7 @@ namespace AppInstaller::Manifest::YamlParser
             // Check max supported version
             if (manifestVersion.Major() > s_MaxSupportedMajorVersion)
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", manifestVersion.ToString().c_str());
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %hs", manifestVersion.ToString().c_str());
             }
 
             // Preview manifest validations
@@ -446,6 +446,12 @@ namespace AppInstaller::Manifest::YamlParser
                 OutputYamlDoc(manifestDoc, mergedManifestPath);
             }
 
+            // If there is only one input file, use its hash for the stream
+            if (input.size() == 1)
+            {
+                manifest.StreamSha256 = std::move(input[0].StreamSha256);
+            }
+
             return resultErrors;
         }
     }
@@ -476,7 +482,7 @@ namespace AppInstaller::Manifest::YamlParser
             else
             {
                 YamlManifestInfo doc;
-                doc.Root = YAML::Load(inputPath);
+                doc.Root = YAML::Load(inputPath, doc.StreamSha256);
                 doc.FileName = inputPath.filename().u8string();
                 docList.emplace_back(std::move(doc));
             }

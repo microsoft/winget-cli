@@ -15,42 +15,42 @@ namespace AppInstaller::Repository::Microsoft
     struct ARPHelper
     {
         // See https://docs.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key for details.
-        std::wstring SubKeyPath{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+        const std::wstring SubKeyPath{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
 
         // REG_SZ
-        std::wstring DisplayName{ L"DisplayName" };
+        const std::wstring DisplayName{ L"DisplayName" };
         // REG_SZ
-        std::wstring Publisher{ L"Publisher" };
+        const std::wstring Publisher{ L"Publisher" };
         // REG_SZ
-        std::wstring DisplayVersion{ L"DisplayVersion" };
+        const std::wstring DisplayVersion{ L"DisplayVersion" };
         // REG_DWORD (ex. 0xMMmmbbbb, M[ajor], m[inor], b[uild])
-        std::wstring Version{ L"Version" };
+        const std::wstring Version{ L"Version" };
         // REG_DWORD
-        std::wstring VersionMajor{ L"VersionMajor" };
+        const std::wstring VersionMajor{ L"VersionMajor" };
         // REG_DWORD
-        std::wstring VersionMinor{ L"VersionMinor" };
+        const std::wstring VersionMinor{ L"VersionMinor" };
         // REG_DWORD
-        std::wstring MajorVersion{ L"MajorVersion" };
+        const std::wstring MajorVersion{ L"MajorVersion" };
         // REG_DWORD
-        std::wstring MinorVersion{ L"MinorVersion" };
+        const std::wstring MinorVersion{ L"MinorVersion" };
         // REG_SZ
-        std::wstring URLInfoAbout{ L"URLInfoAbout" };
+        const std::wstring URLInfoAbout{ L"URLInfoAbout" };
         // REG_SZ
-        std::wstring HelpLink{ L"HelpLink" };
+        const std::wstring HelpLink{ L"HelpLink" };
         // REG_SZ
-        std::wstring InstallLocation{ L"InstallLocation" };
+        const std::wstring InstallLocation{ L"InstallLocation" };
         // REG_DWORD (ex. 1033 [en-us])
-        std::wstring Language{ L"Language" };
+        const std::wstring Language{ L"Language" };
         // REG_SZ (ex. "english")
-        std::wstring InnoSetupLanguage{ L"Inno Setup: Language" };
+        const std::wstring InnoSetupLanguage{ L"Inno Setup: Language" };
         // REG_EXPAND_SZ
-        std::wstring UninstallString{ L"UninstallString" };
+        const std::wstring UninstallString{ L"UninstallString" };
         // REG_EXPAND_SZ
-        std::wstring QuietUninstallString{ L"QuietUninstallString" };
+        const std::wstring QuietUninstallString{ L"QuietUninstallString" };
         // REG_DWORD (bool, true indicates MSI)
-        std::wstring WindowsInstaller{ L"WindowsInstaller" };
+        const std::wstring WindowsInstaller{ L"WindowsInstaller" };
         // REG_DWORD (bool)
-        std::wstring SystemComponent{ L"SystemComponent" };
+        const std::wstring SystemComponent{ L"SystemComponent" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Microsoft
         std::string DetermineVersion(const Registry::Key& arpKey) const;
 
         // Reads a value and adds it to the metadata if it exists.
-        static void AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata);
+        void AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata) const;
 
         // Populates the index with the ARP entries from the given scope (machine/user).
         // Handles all of the architectures for the given scope.

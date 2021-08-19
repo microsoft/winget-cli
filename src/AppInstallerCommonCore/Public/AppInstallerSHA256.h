@@ -19,6 +19,8 @@ namespace AppInstaller::Utility {
     {
     public:
         using HashBuffer = std::vector<uint8_t>;
+        constexpr static size_t HashBufferSizeInBytes = 32;
+        constexpr static size_t HashStringSizeInChars = 64;
 
         SHA256();
 
@@ -42,10 +44,10 @@ namespace AppInstaller::Utility {
         }
 
         // Computes the hash of the given buffer immediately.
-        static std::vector<uint8_t> ComputeHash(const uint8_t* buffer, std::uint32_t cbBuffer);
+        static HashBuffer ComputeHash(const uint8_t* buffer, std::uint32_t cbBuffer);
 
         // Computes the hash from a given stream.
-        static std::vector<uint8_t> ComputeHash(std::istream& in);
+        static HashBuffer ComputeHash(std::istream& in);
 
         static std::string ConvertToString(const HashBuffer& hashBuffer);
 

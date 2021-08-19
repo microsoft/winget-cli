@@ -5,6 +5,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
+#include <optional>
+
 #define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
 
 namespace AppInstaller::Runtime
@@ -84,6 +86,16 @@ namespace AppInstaller::Runtime
             wil::unique_cotaskmem_string knownFolder = nullptr;
             THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
             return knownFolder.get();
+        }
+
+        // Gets the user's temp path
+        std::filesystem::path GetPathToUserTemp()
+        {
+            wchar_t tempPath[MAX_PATH + 1];
+            DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
+            THROW_LAST_ERROR_IF(!tempChars);
+            THROW_HR_IF(E_UNEXPECTED, tempChars > ARRAYSIZE(tempPath));
+            return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
         }
 
         // Gets the path to the appdata root.
@@ -223,8 +235,10 @@ namespace AppInstaller::Runtime
             switch (path)
             {
             case PathName::Temp:
-                result.assign(appStorage.TemporaryFolder().Path().c_str());
+            {
+                result = GetPathToUserTemp();
                 result /= s_DefaultTempDirectory;
+            }
                 break;
             case PathName::LocalState:
             case PathName::UserFileSettings:
@@ -279,6 +293,10 @@ namespace AppInstaller::Runtime
                 result /= GetPackageName();
                 create = false;
                 break;
+            case PathName::UserProfile:
+                result = GetKnownFolderPath(FOLDERID_Profile);
+                create = false;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -291,16 +309,14 @@ namespace AppInstaller::Runtime
             case PathName::Temp:
             case PathName::DefaultLogLocation:
             {
-                wchar_t tempPath[MAX_PATH + 1];
-                DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
-                result.assign(std::wstring_view{ tempPath, static_cast<size_t>(tempChars) });
-
+                result = GetPathToUserTemp();
                 result /= s_DefaultTempDirectory;
             }
                 break;
             case PathName::DefaultLogLocationForDisplay:
                 result.assign("%TEMP%");
                 result /= s_DefaultTempDirectory;
+                create = false;
                 break;
             case PathName::LocalState:
                 result = GetPathToAppDataDir(s_AppDataDir_State);
@@ -315,6 +331,10 @@ namespace AppInstaller::Runtime
                 result /= GetUserSID();
                 result /= s_SecureSettings_UserRelative;
                 result /= s_SecureSettings_Relative_Unpackaged;
+                create = false;
+                break;
+            case PathName::UserProfile:
+                result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
             default:
@@ -333,18 +353,12 @@ namespace AppInstaller::Runtime
 
         if (create && result.is_absolute())
         {
-            if (std::filesystem::exists(result))
+            if (std::filesystem::exists(result) && !std::filesystem::is_directory(result))
             {
-                if (!std::filesystem::is_directory(result))
-                {
-                    // STATUS_NOT_A_DIRECTORY: A requested opened file is not a directory.
-                    THROW_NTSTATUS_MSG(0xC0000103, "Location is not a directory");
-                }
+                std::filesystem::remove(result);
             }
-            else
-            {
-                std::filesystem::create_directories(result);
-            }
+
+            std::filesystem::create_directories(result);
         }
 
         return result;

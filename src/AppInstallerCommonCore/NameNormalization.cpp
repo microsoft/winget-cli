@@ -13,7 +13,7 @@ namespace AppInstaller::Utility
         struct InterimNameNormalizationResult
         {
             std::wstring Name;
-            Architecture Architecture;
+            Architecture Architecture = Architecture::Unknown;
             std::wstring Locale;
         };
 

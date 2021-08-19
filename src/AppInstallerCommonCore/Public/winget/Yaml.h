@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerSHA256.h>
+
 #include <fstream>
 #include <map>
 #include <memory>
@@ -155,6 +157,7 @@ namespace AppInstaller::YAML
     Node Load(std::string_view input);
     Node Load(const std::string& input);
     Node Load(const std::filesystem::path& input);
+    Node Load(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut);
 
     // Any emitter event.
     // Not using enum class to enable existing code to function.
@@ -182,8 +185,8 @@ namespace AppInstaller::YAML
         Emitter(const Emitter&) = delete;
         Emitter& operator=(const Emitter&) = delete;
 
-        Emitter(Emitter&&);
-        Emitter& operator=(Emitter&&);
+        Emitter(Emitter&&) noexcept;
+        Emitter& operator=(Emitter&&) noexcept;
 
         ~Emitter();
 

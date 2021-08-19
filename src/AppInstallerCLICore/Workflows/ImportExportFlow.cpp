@@ -239,7 +239,7 @@ namespace AppInstaller::CLI::Workflow
     void SearchPackagesForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall = {};
+        std::vector<Execution::PackageToInstall> packagesToInstall = {};
         bool foundAll = true;
 
         // Look for the packages needed from each source independently.
@@ -284,7 +284,13 @@ namespace AppInstaller::CLI::Workflow
 
                 if (searchContext.IsTerminated())
                 {
-                    if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+                    if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                    {
+                        // This means that the subcontext being terminated is due to an overall abort
+                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                        return;
+                    }
+                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
                     {
                         AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
                         context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
@@ -301,7 +307,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.push_back(std::move(searchContext.Get<Execution::Data::PackageVersion>()));
+                packagesToInstall.push_back({ std::move(searchContext.Get<Execution::Data::PackageVersion>()), packageRequest });
             }
         }
 

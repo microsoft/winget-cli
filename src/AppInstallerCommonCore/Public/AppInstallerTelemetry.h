@@ -30,11 +30,17 @@ namespace AppInstaller::Logging
         bool DisableRuntime();
         void EnableRuntime();
 
+        // Store the passed in name of the Caller for COM calls
+        void SetCaller(const std::string& caller);
+
+        // Store the passed in Telemetry Correlation Json for COM calls
+        void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
+
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup() const noexcept;
+        void LogStartup(bool isCOMCall = false) const noexcept;
 
         // Logs the invoked command.
         void LogCommand(std::string_view commandName) const noexcept;
@@ -114,13 +120,26 @@ namespace AppInstaller::Logging
             std::string_view arpPublisher,
             std::string_view arpLanguage) const noexcept;
 
+        void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
+
     protected:
         TelemetryTraceLogger();
 
         bool IsTelemetryEnabled() const noexcept;
 
+        // Used to anonymize a string to the best of our ability.
+        // Should primarily be used on failure messages or paths if needed.
+        std::wstring AnonymizeString(const wchar_t* input) const noexcept;
+        std::wstring AnonymizeString(std::wstring_view input) const noexcept;
+
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
+
+        std::wstring m_telemetryCorrelationJsonW = L"{}";
+        std::string m_caller;
+
+        // Data that is needed by AnonymizeString
+        std::wstring m_userProfile;
     };
 
     // Helper to make the call sites look clean.
@@ -128,6 +147,11 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
+
+    const GUID* GetActivityId(bool isNewActivity);
+
+    // Set ActivityId
+    void SetActivityId();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.

@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include "AppInstallerDateTime.h"
-#include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerRepositorySource.h"
+#include <winget/Manifest.h>
 
 #include <json.h>
 
@@ -12,8 +11,6 @@
 
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::Repository;
-
     // Container for data to identify multiple packages to be installed from multiple sources.
     struct PackageCollection
     {
@@ -31,16 +28,17 @@ namespace AppInstaller::CLI
 
             Utility::LocIndString Id;
             Utility::VersionAndChannel VersionAndChannel;
+            Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
         };
 
         // A source along with a set of packages available from it.
         struct Source
         {
             Source() = default;
-            Source(const SourceDetails& sourceDetails) : Details(sourceDetails) {}
-            Source(SourceDetails&& sourceDetails) : Details(std::move(sourceDetails)) {}
+            Source(const Repository::SourceDetails& sourceDetails) : Details(sourceDetails) {}
+            Source(Repository::SourceDetails&& sourceDetails) : Details(std::move(sourceDetails)) {}
 
-            SourceDetails Details;
+            Repository::SourceDetails Details;
             std::vector<Package> Packages;
         };
 

@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "DependenciesFlow.h"
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"
@@ -45,7 +46,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 // Since we already did installer selection, just populate the context Data
-                manifest.ApplyLocale();
+                manifest.ApplyLocale(installer->Locale);
                 context.Add<Execution::Data::Manifest>(std::move(manifest));
                 context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
                 context.Add<Execution::Data::Installer>(std::move(installer));
@@ -111,7 +112,11 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            updateContext << InstallPackageInstaller;
+            updateContext << 
+                ReportIdentityAndInstallationDisclaimer <<
+                GetDependenciesFromInstaller << 
+                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+                InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;
 
@@ -120,6 +125,12 @@ namespace AppInstaller::CLI::Workflow
                 updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
                 updateAllHasFailure = true;
+            }
+
+            if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                return;
             }
         }
 

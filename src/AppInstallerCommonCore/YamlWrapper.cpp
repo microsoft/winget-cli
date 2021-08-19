@@ -78,7 +78,7 @@ namespace AppInstaller::YAML::Wrapper
     }
 
     Document::Document(bool init) :
-        m_token(init), m_document{}
+        m_token(true)
     {
         if (init)
         {
@@ -87,6 +87,10 @@ namespace AppInstaller::YAML::Wrapper
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
             }
+        }
+        else
+        {
+            memset(&m_document, 0, sizeof(m_document));
         }
     }
 
@@ -243,11 +247,16 @@ namespace AppInstaller::YAML::Wrapper
         yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());
     }
 
-    Parser::Parser(std::istream& input) : m_token(true)
+    Parser::Parser(std::istream& input, Utility::SHA256::HashBuffer* hashOut) : m_token(true)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_parser_initialize(&m_parser));
 
         m_input = Utility::ReadEntireStream(input);
+
+        if (hashOut)
+        {
+            *hashOut = Utility::SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(m_input.data()), static_cast<uint32_t>(m_input.size()));
+        }
 
         PrepareInput();
         yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());
@@ -364,6 +373,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_stream_start_event_initialize(&result, YAML_UTF8_ENCODING));
+        result.m_token = true;
         return result;
     }
 
@@ -371,6 +381,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_stream_end_event_initialize(&result));
+        result.m_token = true;
         return result;
     }
 
@@ -378,6 +389,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_document_start_event_initialize(&result, NULL, NULL, NULL, 1));
+        result.m_token = true;
         return result;
     }
 
@@ -385,6 +397,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_document_end_event_initialize(&result, 1));
+        result.m_token = true;
         return result;
     }
 
@@ -392,6 +405,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_sequence_start_event_initialize(&result, NULL, NULL, 1, YAML_ANY_SEQUENCE_STYLE));
+        result.m_token = true;
         return result;
     }
 
@@ -399,6 +413,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_sequence_end_event_initialize(&result));
+        result.m_token = true;
         return result;
     }
 
@@ -406,6 +421,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_mapping_start_event_initialize(&result, NULL, NULL, 1, YAML_ANY_MAPPING_STYLE));
+        result.m_token = true;
         return result;
     }
 
@@ -413,6 +429,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         Event result;
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_mapping_end_event_initialize(&result));
+        result.m_token = true;
         return result;
     }
 

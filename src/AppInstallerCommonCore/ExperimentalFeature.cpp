@@ -2,41 +2,69 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "winget/ExperimentalFeature.h"
+#include "winget/GroupPolicy.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::Settings
 {
-    bool ExperimentalFeature::IsEnabled(Feature feature)
+    namespace
     {
-        switch (feature)
+        bool IsEnabledInternal(ExperimentalFeature::Feature feature, const UserSettings& userSettings)
         {
-        case Feature::None:
-            return true;
-        case Feature::ExperimentalCmd:
-            // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
-            // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
-            return User().Get<Setting::EFExperimentalCmd>() || User().Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalArg:
-            return User().Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalMSStore:
-            return User().Get<Setting::EFExperimentalMSStore>();
-        case Feature::ExperimentalList:
-            return User().Get<Setting::EFList>();
-        case Feature::ExperimentalUpgrade:
-            return User().Get<Setting::EFExperimentalUpgrade>();
-        case Feature::ExperimentalUninstall:
-            return User().Get<Setting::EFUninstall>();
-        case Feature::ExperimentalImport:
-            return User().Get<Setting::EFImport>();
-        case Feature::ExperimentalExport:
-            return User().Get<Setting::EFExport>();
-        case Feature::ExperimentalRestSource:
-            return User().Get<Setting::EFRestSource>();
-        default:
-            THROW_HR(E_UNEXPECTED);
+            if (feature == ExperimentalFeature::Feature::None)
+            {
+                return true;
+            }
+
+            // Even if all experimental features are disabled, if the store policy is enabled then override it.
+            if (feature == ExperimentalFeature::Feature::ExperimentalMSStore &&
+                GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
+            {
+                // Force enable the feature
+                return true;
+            }
+
+            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
+            {
+                AICLI_LOG(Core, Info, <<
+                    "Experimental feature '" << ExperimentalFeature::GetFeature(feature).Name() <<
+                    "' is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::ExperimentalFeatures).RegValueName());
+                return false;
+            }
+
+            switch (feature)
+            {
+            case ExperimentalFeature::Feature::ExperimentalCmd:
+                // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
+                // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
+                return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::ExperimentalArg:
+                return userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::ExperimentalMSStore:
+                return userSettings.Get<Setting::EFExperimentalMSStore>();
+            case ExperimentalFeature::Feature::PackagedAPI:
+                return userSettings.Get<Setting::EFPackagedAPI>();
+            case ExperimentalFeature::Feature::Dependencies:
+                return userSettings.Get<Setting::EFDependencies>();
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
         }
     }
+
+    bool ExperimentalFeature::IsEnabled(Feature feature)
+    {
+        return IsEnabledInternal(feature, User());
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool ExperimentalFeature::IsEnabled(Feature feature, const UserSettings& userSettings)
+    {
+        return IsEnabledInternal(feature, userSettings);
+    }
+#endif
 
     ExperimentalFeature ExperimentalFeature::GetFeature(ExperimentalFeature::Feature feature)
     {
@@ -48,18 +76,10 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::ExperimentalMSStore:
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
-        case Feature::ExperimentalList:
-            return ExperimentalFeature{ "List Command", "list", "https://aka.ms/winget-settings", Feature::ExperimentalList };
-        case Feature::ExperimentalUpgrade:
-            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
-        case Feature::ExperimentalUninstall:
-            return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
-        case Feature::ExperimentalImport:
-            return ExperimentalFeature{ "Import Command", "import", "https://aka.ms/winget-settings", Feature::ExperimentalImport };
-        case Feature::ExperimentalExport:
-            return ExperimentalFeature{ "Export Command", "export", "https://aka.ms/winget-settings", Feature::ExperimentalExport };
-        case Feature::ExperimentalRestSource:
-            return ExperimentalFeature{ "Rest Source Support", "restSource", "https://aka.ms/winget-settings", Feature::ExperimentalRestSource };
+        case Feature::PackagedAPI:
+            return ExperimentalFeature{ "Packaged API Support", "packagedAPI", "https://aka.ms/winget-settings", Feature::PackagedAPI };
+        case Feature::Dependencies:
+            return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         default:
             THROW_HR(E_UNEXPECTED);
         }

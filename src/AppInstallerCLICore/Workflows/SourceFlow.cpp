@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility::literals;
 
     void GetSourceList(Execution::Context& context)
@@ -93,9 +94,14 @@ namespace AppInstaller::CLI::Workflow
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << name << " -> "_liv << arg << std::endl;
 
-        context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1));
-
-        context.Reporter.Info() << Resource::String::Done;
+        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1)))
+        {
+            context.Reporter.Info() << Resource::String::Done;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+        }
     }
 
     void ListSources(Execution::Context& context)
@@ -159,13 +165,21 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             context.Reporter.Info() << Resource::String::SourceUpdateOne << ' ' << sd.Name << "..."_liv << std::endl;
-            context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
-            context.Reporter.Info() << Resource::String::Done << std::endl;
+            if (context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1)))
+            {
+                context.Reporter.Info() << Resource::String::Done << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+            }
         }
     }
 
     void RemoveSources(Execution::Context& context)
     {
+        // TODO: We currently only allow removing a single source. If that changes,
+        //       we need to check all sources with the Group Policy before removing any of them.
         if (!context.Args.Contains(Args::Type::SourceName))
         {
             context.Reporter.Info() << Resource::String::SourceRemoveAll << std::endl;
@@ -175,14 +189,20 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             context.Reporter.Info() << Resource::String::SourceRemoveOne << ' ' << sd.Name << "..."_liv << std::endl;
-            context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1));
-            context.Reporter.Info() << Resource::String::Done << std::endl;
+            if (context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1)))
+            {
+                context.Reporter.Info() << Resource::String::Done << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+            }
         }
     }
 
     void QueryUserForSourceReset(Execution::Context& context)
     {
-        if (!context.Args.Contains(Execution::Args::Type::Force))
+        if (!context.Args.Contains(Execution::Args::Type::ForceSourceReset))
         {
             context << GetSourceListWithFilter;
             const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
@@ -214,5 +234,28 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::SourceResetAll;
         Repository::DropSource({});
         context.Reporter.Info() << Resource::String::Done << std::endl;
+    }
+
+    void ExportSourceList(Execution::Context& context)
+    {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        if (sources.empty())
+        {
+            context.Reporter.Info() << Resource::String::SourceListNoSources << std::endl;
+        }
+        else
+        {
+            for (const auto& source : sources)
+            {
+                SourceFromPolicy s;
+                s.Name = source.Name;
+                s.Type = source.Type;
+                s.Arg = source.Arg;
+                s.Data = source.Data;
+                s.Identifier = source.Identifier;
+                context.Reporter.Info() << s.ToJsonString() << std::endl;
+            }
+        }
     }
 }

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Programėlių diegimo programa</displayName>
+  <description>Programėlių diegimo programa</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Kompiuterio programėlių diegimo programa</string>
+      <string id="EnableAppInstaller">Įgalinti programėlių diegimo programą</string>
+      <string id="EnableAppInstallerExplanation">Ši strategija valdo, ar „Windows“ paketų tvarkytuvą gali naudoti vartotojai.
+
+Jei įgalinsite arba nesukonfigūruosite šio parametro, vartotojai galės naudoti „Windows“ paketų tvarkytuvą.
+
+Jei išjungsite šį parametrą, vartotojai negalės naudoti „Windows“ paketų tvarkytuvo.</string>
+      <string id="EnableSettings">Įgalinti programėlių diegimo programos parametrus</string>
+      <string id="EnableSettingsExplanation">Ši strategija kontroliuoja, ar vartotojai gali pakeisti savo parametrus.
+
+Jei įjungsite arba nesukonfigūruotumėte šio parametro, vartotojai galės keisti "Windows paketo Manager" parametrus.
+
+Jei išjungsite šį parametrą, vartotojai negalės keisti Windows paketo tvarkytuvo parametrų.</string>
+      <string id="EnableExperimentalFeatures">Įgalinti programėlių diegimo programos eksperimento funkcijas</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ši strategija kontroliuoja, ar vartotojai gali įjungti eksperimentines funkcijas Windows paketų tvarkytuve.
+
+Jei įjungsite arba nesukonfigūruotumėte šio parametro, vartotojai galės įgalinti eksperimentines "Windows" paketo tvarkytuvo funkcijas.
+
+Jei išjungsite šį parametrą, vartotojai negalės įgalinti eksperimentines funkcijų, skirtų Windows paketų tvarkytuvui.</string>
+      <string id="EnableLocalManifestFiles">Įgalinti programėlių diegimo programos vietinius deklaracijos failus</string>
+      <string id="EnableLocalManifestFilesExplanation">Ši strategija valdo, ar vartotojai gali diegti paketus su vietiniais deklaracijos failais.
+
+Jei įgalinsite arba nesukonfigūruosite šio parametro, vartotojai galės diegti paketus su vietinėmis deklaracijomis naudodami „Windows“ paketų tvarkytuvą.
+
+Jei išjungsite šį parametrą, vartotojai, naudodami „Windows“ paketų tvarkytuvą, negalės įdiegti paketų su vietinėmis deklaracijomis.</string>
+      <string id="EnableHashOverride">Įgalinti programėlių diegimo programos maišos perrašymą</string>
+      <string id="EnableHashOverrideExplanation">Ši strategija valdo, ar „Windows“ paketų tvarkytuvą galima sukonfigūruoti taip, kad būtų įgalinta galimybė perrašyti SHA256 saugos tikrinimą parametruose.
+
+Jei įjungsite arba nesukonfigūruosite šios strategijos, vartotojai galės įgalinti galimybę perrašyti SHA256 saugos tikrinimą „Windows“ paketų tvarkytuvo parametruose.
+
+Jei išjungsite šią strategiją, vartotojai negalės įgalinti galimybės perrašyti SHA256 saugos tikrinimo „Windows“ paketų tvarkytuvo parametruose.</string>
+      <string id="EnableDefaultSource">Įgalinti programėlių diegimo programos numatytąjį šaltinį</string>
+      <string id="EnableDefaultSourceExplanation">Ši strategija valdo numatytąjį šaltinį, įtrauktą į „Windows“ paketų tvarkytuvą.
+
+Jei nesukonfigūruojate šio parametro, „Windows“ paketų tvarkytuvui skirtas numatytasis šaltinis bus pasiekiamas ir jį bus galima pašalinti.
+
+Jei įgalinsite šį parametrą, „Windows“ paketų tvarkytuvui skirtas numatytasis šaltinis bus pasiekiamas ir jo nebus galima pašalinti.
+
+Jei išjungsite šį parametrą, „Windows“ paketų tvarkytuvui skirtas numatytasis šaltinis nebus pasiekiamas.</string>
+      <string id="EnableMicrosoftStoreSource">Įgalinti programėlių diegimo programos „Microsoft Store“ šaltinį</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Ši strategija valdo „Microsoft Store“ šaltinį, įtrauktą į „Windows“ paketų tvarkytuvą.
+
+Jei nesukonfigūruojate šio parametro, „Windows“ paketų tvarkytuvui skirtas „Microsoft Store“ šaltinis bus pasiekiamas ir jį bus galima pašalinti.
+
+Jei įgalinsite šį parametrą, „Windows“ paketų tvarkytuvui skirtas „Microsoft Store“ šaltinis bus pasiekiamas ir jo nebus galima pašalinti.
+
+Jei išjungsite šį parametrą, „Windows“ paketų tvarkytuvui skirtas „Microsoft Store“ šaltinis nebus pasiekiamas.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Nustatyti programėlių diegimo programos šaltinio automatinio naujinimo intervalą minutėmis</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ši strategija valdo paketu pagrįstų šaltinių automatinio naujinimo intervalą.
+
+Jei išjungsite arba nesukonfigūruosite šio parametro, „Windows“ paketų tvarkytuvas naudos numatytąjį intervalą arba parametruose nurodytą reikšmę.
+
+Įgalinus šį parametrą, „Windows“ paketų tvarkytuvas naudos nurodytą minučių skaičių.</string>
+      <string id="EnableAdditionalSources">Įgalinti programėlių diegimo programos papildomus šaltinius</string>
+      <string id="EnableAdditionalSourcesExplanation">Ši strategija valdo papildomus šaltinius, teikiamus įmonės IT administratoriaus.
+
+Jei nesukonfigūruosite šios strategijos, nebus sukonfigūruoti jokie papildomi "Windows" paketų tvarkytuvo šaltiniai.
+
+Įgalinus šią strategiją, papildomi šaltiniai bus įtraukti į „Windows“ paketų tvarkytuvą ir jie negalės būti pašalinti. Kiekvieno papildomo šaltinio pateikimas gali būti gaunamas iš įdiegtų šaltinių naudojant funkciją „WinGet“ šaltinio eksportavimas“.
+
+Išjungę šią strategiją, „Windows“ paketų tvarkytuve negalėsite konfigūruoti papildomų šaltinių.</string>
+      <string id="EnableAllowedSources">Įgalinti programėlių diegimo programos leidžiamus šaltinius</string>
+      <string id="EnableAllowedSourcesExplanation">Ši strategija valdo papildomus šaltinius, leidžiamus įmonės IT administratoriaus.
+
+Jei nesukonfigūruosite šios strategijos, vartotojai galės įtraukti arba pašalinti papildomus šaltinius, kurie nėra sukonfigūruoti pagal strategiją.
+
+Įgalinus šią strategiją, „Windows“ paketų tvarkytuve bus galima įtraukti arba pašalinti tik nurodytus šaltinius. Kiekvieno leidžiamo šaltinio pateikimas gali būti gaunamas iš įdiegtų šaltinių naudojant funkciją „WinGet“ šaltinio eksportavimas“.
+
+Išjungę šią strategiją, „Windows“ paketų tvarkytuve negalėsite konfigūruoti papildomų šaltinių.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Šaltinio automatinio naujinimo intervalas minutėmis</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Papildomi šaltiniai: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Leidžiami šaltiniai: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

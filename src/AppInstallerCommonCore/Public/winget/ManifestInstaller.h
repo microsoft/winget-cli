@@ -20,7 +20,7 @@ namespace AppInstaller::Manifest
     {
         using string_t = Utility::NormalizedString;
 
-        AppInstaller::Utility::Architecture Arch;
+        AppInstaller::Utility::Architecture Arch = AppInstaller::Utility::Architecture::Unknown;
 
         string_t Url;
 
@@ -42,7 +42,7 @@ namespace AppInstaller::Manifest
         // If present, has more precedence than root
         InstallerTypeEnum InstallerType = InstallerTypeEnum::Unknown;
 
-        ScopeEnum Scope = ScopeEnum::User;
+        ScopeEnum Scope = ScopeEnum::Unknown;
 
         std::vector<InstallModeEnum> InstallModes;
 
@@ -71,6 +71,6 @@ namespace AppInstaller::Manifest
         // For msix only
         std::vector<string_t> RestrictedCapabilities;
 
-        Dependency Dependencies;
+        DependencyList Dependencies;
     };
 }

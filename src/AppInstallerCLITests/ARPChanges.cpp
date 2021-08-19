@@ -15,6 +15,7 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Logging;
+using namespace AppInstaller::Repository;
 
 struct TestTelemetry : public TelemetryTraceLogger
 {
@@ -152,7 +153,7 @@ struct TestContext : public Context
 
             auto metadata = version->GetMetadata();
             REQUIRE(metadata[PackageVersionMetadata::Publisher] == ARPPublisher);
-            REQUIRE(metadata[PackageVersionMetadata::Locale] == ARPLanguage);
+            REQUIRE(metadata[PackageVersionMetadata::InstalledLocale] == ARPLanguage);
         }
         else
         {

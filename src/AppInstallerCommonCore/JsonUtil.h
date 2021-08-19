@@ -6,6 +6,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace AppInstaller::Utility
 {
@@ -21,4 +22,6 @@ namespace AppInstaller::Utility
     template<>
     std::optional<bool> GetValue<bool>(const Json::Value& node);
 
+    template<>
+    std::optional<std::vector<std::string>> GetValue<std::vector<std::string>>(const Json::Value& node);
 }

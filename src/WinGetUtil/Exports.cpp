@@ -34,6 +34,7 @@ extern "C"
 
         if (!AppInstaller::Logging::Log().ContainsLogger(loggerName))
         {
+            // Let FileLogger use default file prefix
             AppInstaller::Logging::AddFileLogger(pathAsPath);
         }
 
@@ -242,7 +243,7 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, computeHash && sha256HashLength != 32);
 
         AppInstaller::ProgressCallback callback;
-        auto hashValue = Download(ConvertToUTF8(url), filePath, callback, computeHash);
+        auto hashValue = Download(ConvertToUTF8(url), filePath, DownloadType::WinGetUtil, callback, computeHash);
 
         // At this point, if computeHash is set we have verified that the buffer is valid and 32 bytes.
         if (computeHash)

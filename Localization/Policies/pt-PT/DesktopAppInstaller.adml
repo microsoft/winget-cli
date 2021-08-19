@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalador de Aplicações</displayName>
+  <description>Instalador de Aplicações</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalador de Aplicações para Ambiente de Trabalho</string>
+      <string id="EnableAppInstaller">Ativar o Instalador de Aplicações</string>
+      <string id="EnableAppInstallerExplanation">Esta política controla se o gestor de pacotes do Windows pode ser utilizado pelos utilizadores.
+
+Se ativar ou não configurar esta definição, os utilizadores poderão utilizar o gestor de pacotes do Windows.
+
+Se desativar esta definição, os utilizadores não poderão utilizar o gestor de pacotes do Windows.</string>
+      <string id="EnableSettings">Ativar as Definições do Instalador de Aplicações</string>
+      <string id="EnableSettingsExplanation">Esta política controla se os utilizadores podem alterar as respetivas definições.
+
+Se ativar ou não configurar esta definição, os utilizadores poderão alterar as definições do gestor de pacotes do Windows.
+
+Se desativar esta definição, os utilizadores não poderão alterar as definições do gestor de pacotes do Windows.</string>
+      <string id="EnableExperimentalFeatures">Ativar as Funcionalidades experimentais do Instalador de Aplicações</string>
+      <string id="EnableExperimentalFeaturesExplanation">Esta política controla se os utilizadores podem ativar as funcionalidades experimentais no gestor de pacotes do Windows.
+
+Se ativar ou não configurar esta definição, os utilizadores poderão ativar as funcionalidades experimentais para o gestor de pacotes do Windows.
+
+Se desativar esta definição, os utilizadores não poderão ativar as funcionalidades experimentais para o gestor de pacotes do Windows.</string>
+      <string id="EnableLocalManifestFiles">Ativar Ficheiros de manifesto local do Instalador de Aplicações</string>
+      <string id="EnableLocalManifestFilesExplanation">Esta política controla se os utilizadores podem instalar pacotes com ficheiros de manifesto locais.
+
+Se ativar ou não configurar esta definição, os utilizadores poderão instalar pacotes com manifestos locais utilizando o gestor de pacotes do Windows.
+
+Se desativar esta definição, os utilizadores não poderão instalar pacotes com manifestos locais utilizando o gestor de pacotes do Windows.</string>
+      <string id="EnableHashOverride">Ativar a Substituição de hash do Instalador de Aplicações</string>
+      <string id="EnableHashOverrideExplanation">Esta política controla se o Gestor de Pacotes do Windows pode ou não ser configurado para possibilitar a capacidade de ignorar da validação de segurança SHA256 nas definições.
+
+Se ativar ou não configurar esta política, os utilizadores poderão ativar a capacidade de ignorar a validação de segurança SHA256 nas definições do Gestor de Pacotes do Windows.
+
+Se desativar esta política, os utilizadores não poderão ativar a capacidade de ignorar a validação de segurança SHA256 nas definições do Gestor de Pacotes do Windows.</string>
+      <string id="EnableDefaultSource">Ativar a Origem do Instalador de Aplicações do Windows</string>
+      <string id="EnableDefaultSourceExplanation">Esta política controla a origem predefinida incluída no Gestor de Pacotes do Windows.
+
+Se não configurar esta definição, a origem predefinida no Gestor de Pacotes do Windows estará disponível e poderá ser removida.
+
+Se ativar esta definição, a origem predefinida no Gestor de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se desativar esta definição, a origem predefinida no Gestor de Pacotes do Windows não estará disponível.</string>
+      <string id="EnableMicrosoftStoreSource">Ativar a Origem da Microsoft Store do Instalador de Aplicações</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Esta política controla a origem da Microsoft Store incluída no Gestor de Pacotes do Windows.
+
+Se não configurar esta definição, a origem da Microsoft Store no Gestor de Pacotes do Windows estará disponível e poderá ser removida.
+
+Se ativar esta definição, a origem da Microsoft Store no Gestor de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se desativar esta definição, a origem da Microsoft Store no Gestor de Pacotes do Windows não estará disponível.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Definir intervalo de atualização automática da origem do Instalador de Aplicações em minutos</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacotes.
+
+Se desativar ou não configurar esta definição, o intervalo predefinido ou o valor especificado nas definições serão utilizados pelo gestor de pacotes do Windows.
+
+Se ativar esta definição, o número de minutos especificado será utilizado pelo gestor de pacotes do Windows.</string>
+      <string id="EnableAdditionalSources">Ativar as Origens adicionais do Instalador de Aplicações</string>
+      <string id="EnableAdditionalSourcesExplanation">Esta política controla origens adicionais fornecidas pelo administrador de TI da empresa.
+
+Se não configurar esta política, não serão configuradas origens adicionais para o Gestor de Pacotes do Windows.
+
+Se ativar esta política, as origens adicionais serão adicionadas ao Gestor de Pacotes do Windows e não poderão ser removidas. A representação de cada origem adicional pode ser obtida a partir de origens instaladas utilizando "winget source export".
+
+Se desativar esta política, não poderão ser configuradas origens adicionais para o Gestor de Pacotes do Windows.</string>
+      <string id="EnableAllowedSources">Ativar as Origens permitidas do Instalador de Aplicações</string>
+      <string id="EnableAllowedSourcesExplanation">Esta política controla origens adicionais permitidas pelo administrador de TI da empresa.
+
+Se não configurar esta política, os utilizadores poderão adicionar ou remover origens adicionais além daquelas configuradas pela política.
+
+Se ativar esta política, apenas as origens especificadas poderão ser adicionadas ou removidas do Gestor de Pacotes do Windows. A representação de cada origem permitida pode ser obtida a partir de origens instaladas utilizando "winget source export".
+
+Se desativar esta política, não poderão ser configuradas origens adicionais para o Gestor de Pacotes do Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Definir intervalo de atualização automática da origem em minutos</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Origens Adicionais: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Origens Permitidas: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

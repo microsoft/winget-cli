@@ -10,14 +10,16 @@ The packages available to the client are in the [Community repo](https://github.
 
 ## Installing the client
 
-> The client requires Windows 10 1709 (build 16299) or later at this time.
+> The client requires Windows 10 1809 (build 17763) or later at this time.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
+
+Note: it may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next stable release has been added to the Microsoft Store.
 
 Once you have received the updated App Installer you should be able to execute `winget`. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
@@ -25,8 +27,20 @@ Once you have received the updated App Installer you should be able to execute `
 
 The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store.
 
-> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
+> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
+
+### Troubleshooting
+
+Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
+
+## Administrator Considerations
+
+Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
+
+* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.  
+
+* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
 
 ### Build your own
 
@@ -58,15 +72,15 @@ The default source reflects that data available from the [Community repo](https:
 We plan to better support additional sources, and additional types of sources, in the future. For now, additional sources can be configured, but only one used at a time.
 
 ### Package Manager Service 
-The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](/doc/ManifestSpecv0.1.md) for spec compliance.
+The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](/doc/ManifestSpecv1.0.md) for spec compliance.
 
 
 ## Building the client
 
 ### Prerequisites
 
-* Windows 10 1709 (16299) or later
-* [Developer Mode enabled](https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development)
+* Windows 10 1809 (17763) or later
+* [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
@@ -82,14 +96,15 @@ We currently only build using the solution; command line methods of building a V
 
 ## Credit
 
-We would like to thank Keivan Beigi @kayone for his work on AppGet which helped us on the initial project direction for Windows Package Manager.
+We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for his work on AppGet which helped us on the initial project direction for Windows Package Manager.
 
 
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More 
+information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -105,7 +120,7 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/en-us/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy).
+The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy).
 
 In short to opt-out, go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Basic`. 
 

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Trình cài đặt Ứng dụng</displayName>
+  <description>Trình cài đặt Ứng dụng</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Trình cài đặt Ứng dụng dành cho Máy để bàn</string>
+      <string id="EnableAppInstaller">Bật Trình cài đặt Ứng dụng</string>
+      <string id="EnableAppInstallerExplanation">Chính sách này kiểm soát liệu trình quản lý gói Windows có thể được người dùng sử dụng.
+
+Nếu bạn bật hoặc không đặt cấu hình thiết đặt này, người dùng sẽ có thể sử dụng trình quản lý gói Windows.
+
+Nếu bạn tắt cài đặt này, người dùng sẽ không thể sử dụng trình quản lý gói Windows.</string>
+      <string id="EnableSettings">Bật Cài đặt Trình cài đặt Ứng dụng</string>
+      <string id="EnableSettingsExplanation">Chính sách này kiểm soát người dùng có thể thay đổi thiết đặt của họ hay không.
+
+Nếu bạn bật hoặc không đặt cấu hình thiết đặt này, người dùng sẽ có thể thay đổi cài đặt cho trình quản lý gói Windows.
+
+Nếu bạn tắt cài đặt này, người dùng sẽ không thể thay đổi cài đặt cho trình quản lý gói Windows.</string>
+      <string id="EnableExperimentalFeatures">Bật các Tính năng Thử nghiệm của Trình cài đặt Ứng dụng</string>
+      <string id="EnableExperimentalFeaturesExplanation">Chính sách này kiểm soát xem người dùng có thể bật các tính năng thử nghiệm trong trình quản lý gói Windows.
+
+Nếu bạn bật hoặc không đặt cấu hình thiết đặt này, người dùng sẽ có thể bật các tính năng thử nghiệm cho trình quản lý gói Windows.
+
+Nếu bạn tắt cài đặt này, người dùng sẽ không thể bật các tính năng thử nghiệm cho trình quản lý gói Windows.</string>
+      <string id="EnableLocalManifestFiles">Bật Tệp kê khai Cục bộ của Trình cài đặt Ứng dụng</string>
+      <string id="EnableLocalManifestFilesExplanation">Chính sách này kiểm soát xem người dùng có thể cài đặt gói với các tệp kê khai cục bộ không.
+
+Nếu bạn bật hoặc không đặt cấu hình thiết đặt này, người dùng sẽ có thể cài đặt gói với các bản kê cục bộ bằng cách sử dụng trình quản lý gói Windows.
+
+Nếu bạn tắt cài đặt này, người dùng sẽ không thể cài đặt gói với các bản kê cục bộ bằng trình quản lý gói Windows.</string>
+      <string id="EnableHashOverride">Bật tính năng Ghi đè Hàm băm của Trình cài đặt Ứng dụng</string>
+      <string id="EnableHashOverrideExplanation">Chính sách này kiểm soát việc có thể định cấu hình Trình quản lý gói Windows để bật khả năng ghi đè xác thực bảo mật SHA256 trong cài đặt hay không. 
+
+Nếu bạn bật hoặc không định cấu hình chính sách này, người dùng sẽ có thể bật khả năng ghi đè xác thực bảo mật SHA256 trong cài đặt Trình quản lý gói Windows. 
+
+Nếu bạn tắt chính sách này, người dùng sẽ không thể bật khả năng ghi đè xác thực bảo mật SHA256 trong cài đặt Trình quản lý gói Windows.</string>
+      <string id="EnableDefaultSource">Bật Nguồn mặc định của Trình cài đặt Ứng dụng</string>
+      <string id="EnableDefaultSourceExplanation">Chính sách này kiểm soát nguồn mặc định được bao gồm trong Trình quản lý gói Windows.
+
+Nếu bạn không định cấu hình cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ khả dụng và có thể bị loại bỏ.
+
+Nếu bạn bật cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ khả dụng và không thể bị loại bỏ.
+
+Nếu bạn tắt cài đặt này, nguồn mặc định cho Trình quản lý gói Windows sẽ không khả dụng.</string>
+      <string id="EnableMicrosoftStoreSource">Bật Nguồn Microsoft Store của Trình cài đặt Ứng dụng</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Chính sách này kiểm soát nguồn Microsoft Store đi kèm với Trình quản lý gói Microsoft.
+
+ Nếu bạn không định cấu hình cài đặt này, nguồn Microsoft Store cho Trình quản lý Gói Microsoft sẽ sẵn có và có thể bị loại bỏ.
+
+Nếu bạn bật cài đặt này, nguồn Microsoft Store cho Trình quản lý gói Windows sẽ sẵn có và không thể loại bỏ.
+
+Nếu bạn tắt cài đặt này, nguồn Microsoft Store cho Trình quản lý gói Windows sẽ không sẵn có.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Đặt Khoảng thời gian Tự động Cập nhật Nguồn của Trình cài đặt Ứng dụng trong vài phút</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Chính sách này kiểm soát khoảng thời gian cập nhật tự động cho các nguồn dựa trên gói.
+
+Nếu bạn tắt hoặc không đặt cấu hình thiết đặt này, khoảng mặc định hoặc giá trị đã xác định trong cài đặt sẽ được trình quản lý gói Windows sử dụng.
+
+Nếu bạn bật cài đặt này, số phút được chỉ định sẽ được trình quản lý gói Windows sử dụng.</string>
+      <string id="EnableAdditionalSources">Bật Nguồn Bổ sung của Trình cài đặt Ứng dụng</string>
+      <string id="EnableAdditionalSourcesExplanation">Chính sách này kiểm soát các nguồn bổ sung do người quản trị CNTT của doanh nghiệp cung cấp.
+
+Nếu bạn không định cấu hình chính sách này, sẽ không có nguồn bổ sung nào được định cấu hình cho Trình quản lý gói Windows.
+
+ Nếu bạn bật chính sách này, các nguồn bổ sung sẽ được thêm vào Trình quản lý gói Windows và không thể bị loại bỏ. Biểu diễn cho mỗi nguồn bổ sung có thể được lấy từ các nguồn đã cài đặt bằng cách sử dụng 'xuất nguồn bộ cánh'.
+
+Nếu bạn tắt chính sách này, không có nguồn bổ sung nào có thể được định cấu hình cho Trình quản lý gói Windows.</string>
+      <string id="EnableAllowedSources">Bật Nguồn được cho phép của Trình cài đặt Ứng dụng</string>
+      <string id="EnableAllowedSourcesExplanation">Chính sách này kiểm soát các nguồn bổ sung được cho phép bởi quản trị viên CNTT của doanh nghiệp.
+
+Nếu bạn không định cấu hình chính sách này, người dùng sẽ có thể thêm hoặc loại bỏ các nguồn bổ sung khác với những nguồn được định cấu hình bởi chính sách.
+
+Nếu bạn bật chính sách này, chỉ có thể thêm hoặc loại bỏ các nguồn được chỉ định khỏi Trình quản lý gói Windows. Biểu diễn cho mỗi nguồn được phép có thể được lấy từ các nguồn đã cài đặt bằng cách sử dụng 'xuất nguồn winget'.
+
+Nếu bạn tắt chính sách này, không có nguồn bổ sung nào có thể được định cấu hình cho Trình quản lý gói Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Khoảng thời gian Tự động Cập nhật Nguồn theo Phút</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Nguồn Bổ sung: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Nguồn được cho phép: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

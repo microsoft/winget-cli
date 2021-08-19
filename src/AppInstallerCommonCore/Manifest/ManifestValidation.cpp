@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/ManifestValidation.h"
+#include "winget/Locale.h"
 
 namespace AppInstaller::Manifest
 {
@@ -25,6 +26,11 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
         }
 
+        if (!manifest.DefaultLocalization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(manifest.DefaultLocalization.Locale))
+        {
+            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", manifest.DefaultLocalization.Locale);
+        }
+
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
         auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
@@ -44,7 +50,9 @@ namespace AppInstaller::Manifest
                 return in1.Locale < in2.Locale;
             }
 
-            if (in1.Scope != in2.Scope)
+            // Unknown is considered equal to all other values for uniqueness.
+            // If either value is unknown, don't compare them.
+            if (in1.Scope != in2.Scope && in1.Scope != ScopeEnum::Unknown && in2.Scope != ScopeEnum::Unknown)
             {
                 return in1.Scope < in2.Scope;
             }
@@ -131,6 +139,20 @@ namespace AppInstaller::Manifest
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
+            }
+
+            if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))
+            {
+                resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
+            }
+        }
+
+        // Validate localizations
+        for (auto const& localization : manifest.Localizations)
+        {
+            if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
+            {
+                resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
             }
         }
 

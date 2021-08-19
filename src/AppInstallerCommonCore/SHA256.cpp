@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include <pch.h>
 #define WIN32_NO_STATUS
 #include <bcrypt.h>
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerErrors.h"
 
 using namespace AppInstaller::Runtime;
 
@@ -91,36 +91,36 @@ namespace AppInstaller::Utility {
 
     std::string SHA256::ConvertToString(const HashBuffer& hashBuffer)
     {
-        if (hashBuffer.size() != 32)
+        if (hashBuffer.size() != HashBufferSizeInBytes)
         {
             THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToString() is called.");
         }
 
-        char resultBuffer[65];
+        char resultBuffer[HashStringSizeInChars + 1];
 
-        for (int i = 0; i < 32; i++)
+        for (size_t i = 0; i < HashBufferSizeInBytes; i++)
         {
             sprintf_s(resultBuffer + i * 2, 3, "%02x", hashBuffer[i]);
         }
 
-        resultBuffer[64] = '\0';
+        resultBuffer[HashStringSizeInChars] = '\0';
 
         return std::string(resultBuffer);
     }
 
-    std::vector<uint8_t> SHA256::ConvertToBytes(const std::string& hashStr)
+    SHA256::HashBuffer SHA256::ConvertToBytes(const std::string& hashStr)
     {
-        if (hashStr.size() != 64)
+        if (hashStr.size() != HashStringSizeInChars)
         {
             THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
         }
 
         auto hashCStr = hashStr.c_str();
-        std::vector<uint8_t> resultBuffer;
+        SHA256::HashBuffer resultBuffer;
 
-        resultBuffer.resize(32);
+        resultBuffer.resize(HashBufferSizeInBytes);
 
-        for (int i = 0; i < 32; i++)
+        for (size_t i = 0; i < HashBufferSizeInBytes; i++)
         {
             sscanf_s(hashCStr + 2 * i, "%02hhx", &resultBuffer[i]);
         }
@@ -128,34 +128,42 @@ namespace AppInstaller::Utility {
         return resultBuffer;
     }
 
-    std::vector<uint8_t> SHA256::ComputeHash(const std::uint8_t* buffer, std::uint32_t cbBuffer)
+    SHA256::HashBuffer SHA256::ComputeHash(const std::uint8_t* buffer, std::uint32_t cbBuffer)
     {
         SHA256 hasher;
         hasher.Add(buffer, cbBuffer);
-
-        std::vector<uint8_t> result;
-        hasher.Get(result);
-
-        return result;
+        return hasher.Get();
     }
 
-    std::vector<uint8_t> SHA256::ComputeHash(std::istream& in)
+    SHA256::HashBuffer SHA256::ComputeHash(std::istream& in)
     {
+        // Throw exceptions on badbit
+        auto excState = in.exceptions();
+        auto revertExcState = wil::scope_exit([excState, &in]() { in.exceptions(excState); });
+        in.exceptions(std::ios_base::badbit);
+
         const int bufferSize = 1024 * 1024; // 1MB
         auto buffer = std::make_unique<uint8_t[]>(bufferSize);
 
         SHA256 hasher;
 
-        while (!in.eof())
+        while (in.good())
         {
             in.read((char*)(buffer.get()), bufferSize);
-            hasher.Add(buffer.get(), static_cast<size_t>(in.gcount()));
+            if (in.gcount())
+            {
+                hasher.Add(buffer.get(), static_cast<size_t>(in.gcount()));
+            }
         }
 
-        std::vector<uint8_t> result;
-        hasher.Get(result);
-
-        return result;
+        if (in.eof())
+        {
+            return hasher.Get();
+        }
+        else
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE);
+        }
     }
 
     void SHA256::SHA256ContextDeleter::operator()(SHA256Context* context)
