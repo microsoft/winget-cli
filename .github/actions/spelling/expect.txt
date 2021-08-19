@@ -1,4 +1,5 @@
 abcd
+activatable
 adml
 admx
 affle
@@ -72,6 +73,7 @@ contractversion
 count'th
 countryregion
 createmanifestmetadata
+CSharp
 cstdint
 ctc
 Ctx
@@ -147,6 +149,7 @@ inor
 installshield
 IPackage
 IPersist
+IRead
 IService
 ISettings
 ishelp
@@ -213,6 +216,7 @@ mylog
 mysilent
 mysilentwithprogress
 mytool
+NETFX
 netlify
 Newtonsoft
 NOEXPAND
@@ -333,6 +337,7 @@ VERSI
 VERSIE
 vns
 vscode
+vstest
 vy
 wcslen
 webpages

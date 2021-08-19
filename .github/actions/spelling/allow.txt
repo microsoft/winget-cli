@@ -4,6 +4,7 @@ addmanifest
 addstore
 admins
 alloc
+altform
 anonymize
 api
 appdata
@@ -123,6 +124,7 @@ ETW
 EVENTTAG
 exe
 executables
+executionengine
 exeenus
 exeinteractive
 exelog
@@ -306,6 +308,7 @@ PBYTE
 pch
 PCWSTR
 pdb
+pdbonly
 PEVENT
 pfp
 PGP
@@ -444,6 +447,7 @@ TARG
 TARGETDIR
 targetentrypoint
 targetnametoken
+targetsize
 tdbuild
 tdd
 tellg
@@ -459,6 +463,7 @@ there're
 Timeline
 todo
 tolower
+Toolchain
 toupper
 towlower
 TRACELOGGING
@@ -529,6 +534,7 @@ wcsicmp
 webpage
 wekyb
 wil
+wildcards
 WINAPI
 WINEVENT
 winget
@@ -553,6 +559,7 @@ wstring
 wstringstream
 www
 xamarin
+xaml
 XElement
 xlang
 xml
