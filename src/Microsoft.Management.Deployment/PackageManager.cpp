@@ -233,7 +233,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return {};
         }
     }
-    
+
     Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
@@ -255,8 +255,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
 
     std::unique_ptr<::AppInstaller::COMContext> CreateContextFromInstallOptions(
-        winrt::Microsoft::Management::Deployment::CatalogPackage package, 
-        winrt::Microsoft::Management::Deployment::InstallOptions options, 
+        winrt::Microsoft::Management::Deployment::CatalogPackage package,
+        winrt::Microsoft::Management::Deployment::InstallOptions options,
         std::wstring callerProcessInfoString)
     {
         std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
@@ -366,45 +366,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return nullptr;
     }
-
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallOperation(
-        bool addToQueue, 
-        winrt::Microsoft::Management::Deployment::CatalogPackage package, 
-        winrt::Microsoft::Management::Deployment::InstallOptions options, 
-        winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
+        bool canCancelQueueItem,
+        std::shared_ptr<Execution::OrchestratorQueueItem> queueItemParam,
+        winrt::Microsoft::Management::Deployment::CatalogPackage package = nullptr,
+        winrt::Microsoft::Management::Deployment::InstallOptions options = nullptr,
+        std::wstring callerProcessInfoString = std::wstring{})
     {
         winrt::hresult terminationHR = S_OK;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
         ::Workflow::ExecutionStage executionStage = ::Workflow::ExecutionStage::Initial;
 
-        #define WINGET_RETURN_INSTALL_RESULT_IF(installResult, boolVal) { if(boolVal) { co_return installResult; }}
-        #define WINGET_RETURN_INSTALL_RESULT_HR(hr) { WINGET_RETURN_INSTALL_RESULT_IF(GetInstallResult(executionStage, hr, correlationData, false), true) }
-        #define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { WINGET_RETURN_INSTALL_RESULT_HR(hr) }}
-        #define WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
-
-        // options and catalog can both be null, package must be set.
-        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
-
         try
         {
+            // re-scope the parameter to inside the try block to avoid lifetime management issues.
+            std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = std::move(queueItemParam);
+
             auto report_progress{ co_await winrt::get_progress_token() };
             auto cancellationToken{ co_await winrt::get_cancellation_token() };
+            // co_await does not guarantee that it's on a background thread, so do so explicitly.
+            co_await winrt::resume_background();
 
-            wil::unique_event progressEvent{ wil::EventOptions::None };
-
-            std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
-            if (addToQueue)
+            if (queueItem == nullptr)
             {
-                // Check for permissions and get caller info for telemetry.
-                // This must be done before any co_awaits since it requires info from the rpc caller thread.
-                std::optional<DWORD> callerProcessId = GetCallerProcessId();
-                WINGET_RETURN_INSTALL_RESULT_HR_IF(E_ACCESSDENIED, !callerProcessId.has_value());
-                WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId.value()));
-                std::wstring callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId.value());
-
-                // co_await does not guarantee that it's on a background thread, so do so explicitly.
-                co_await winrt::resume_background();
-
                 Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
                 std::unique_ptr<::AppInstaller::COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
                 queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
@@ -413,19 +397,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
                 report_progress(queuedProgress);
             }
-            else
             {
-                WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
-
-                queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
-                WINGET_RETURN_INSTALL_RESULT_IF(nullptr, queueItem == nullptr);
-
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
                 correlationData = hstring(queueItem->GetContext().GetCorrelationJson());
-
-                // co_await does not guarantee that it's on a background thread, so do so explicitly.
-                co_await winrt::resume_background();
             }
+
+            wil::unique_event progressEvent{ wil::EventOptions::None };
+            wil::unique_event cancelWaitEvent{ wil::EventOptions::None };
 
             std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
             queueItem->GetContext().AddProgressCallbackFunction([&installProgress, &progressEvent](
@@ -439,24 +417,38 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     if (installProgressOptional.has_value())
                     {
                         installProgress = installProgressOptional.value();
-                        ::SetEvent(progressEvent.get());
+                        progressEvent.SetEvent();
                     }
                     return;
                 }
             );
-            cancellationToken.callback([&queueItem]
+
+            std::weak_ptr<Execution::OrchestratorQueueItem> weakQueueItem(queueItem);
+            cancellationToken.callback([weakQueueItem, &canCancelQueueItem, &cancelWaitEvent]
                 {
-                    // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
-                    Execution::ContextOrchestrator::Instance().CancelQueueItem(*queueItem);
+                    if (canCancelQueueItem)
+                    {
+                        auto strongQueueItem = weakQueueItem.lock();
+                        if (strongQueueItem) {
+                            // The cancellation of the AsyncOperation on the client triggers Cancel which causes the Execute to end.
+                            Execution::ContextOrchestrator::Instance().CancelQueueItem(*strongQueueItem);
+                        }
+                    }
+                    else
+                    {
+                        cancelWaitEvent.SetEvent();
+                    }
                 });
 
             // Wait for completion or progress events.
             // Waiting for both on the same thread ensures that progress is never reported after the async operation itself has completed.
             bool completionEventFired = false;
-            HANDLE operationEvents[2];
+            bool cancelWaitEventFired = false;
+            HANDLE operationEvents[3];
             operationEvents[0] = progressEvent.get();
             operationEvents[1] = queueItem->GetCompletedEvent().get();
-            while (!completionEventFired)
+            operationEvents[2] = cancelWaitEvent.get();
+            while (!completionEventFired && !cancelWaitEventFired)
             {
                 DWORD dwEvent = WaitForMultipleObjects(
                     2 /* number of events */,
@@ -481,30 +473,97 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     completionEventFired = true;
                     break;
 
+                    // operationEvents[2] was signaled, operation is cancelled
+                case WAIT_OBJECT_0 + 2:
+                    cancelWaitEventFired = true;
+                    break;
+
                     // Return value is invalid.
                 default:
                     THROW_LAST_ERROR();
                 }
             }
 
-            // The install command has finished, check for success/failure and how far it got.
-            terminationHR = queueItem->GetContext().GetTerminationHR();
-            executionStage = queueItem->GetContext().GetExecutionStage();
+            if (completionEventFired)
+            {
+                // The install command has finished, check for success/failure and how far it got.
+                terminationHR = queueItem->GetContext().GetTerminationHR();
+                executionStage = queueItem->GetContext().GetExecutionStage();
+            }
         }
         WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
-        WINGET_RETURN_INSTALL_RESULT_HR(terminationHR);
+        co_return GetInstallResult(executionStage, terminationHR, correlationData, false);
     }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetEmptyAsynchronousResultForInstallOperation(
+        HRESULT hr,
+        hstring correlationData)
+    {
+        // If a function uses co_await or co_return (i.e. if it is a co_routine), it cannot use return directly.
+        // This helper helps a function that is not a coroutine itself to return errors asynchronously.
+        co_return GetInstallResult(::Workflow::ExecutionStage::Initial, hr, correlationData, false);
+    }
+
+#define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForInstallOperation(hr, correlationData); }}
+#define WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
-        return GetInstallOperation(true, package, options, nullptr);
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+
+        HRESULT hr = S_OK;
+        std::wstring callerProcessInfoString;
+        try
+        {
+            // Check for permissions and get caller info for telemetry.
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
-        return GetInstallOperation(false, package, nullptr, catalogInfo);
+        hstring correlationData;
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, package == nullptr);
+
+        HRESULT hr = S_OK;
+        std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
+        bool canCancelQueueItem = false;
+        try
+        {
+            // Check for permissions
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            canCancelQueueItem = SUCCEEDED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            if (!canCancelQueueItem)
+            {
+                WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
+            }
+
+            // Get the queueItem synchronously.
+            queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
+            if (queueItem == nullptr)
+            {
+                return nullptr;
+            }
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetInstallOperation(canCancelQueueItem, std::move(queueItem));
     }
 
     CoCreatableCppWinRtClass(PackageManager);

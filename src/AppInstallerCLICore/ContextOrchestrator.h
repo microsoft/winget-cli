@@ -62,15 +62,16 @@ namespace AppInstaller::CLI::Execution
         std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId& queueItemId);
 
     private:
-        std::mutex m_queueLock;
+        std::mutex m_queueOuterLockForInstallingSource;
+        std::mutex m_queueInnerLockForQueueItems;
         void RunItems();
         std::shared_ptr<OrchestratorQueueItem> GetNextItem();
         void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
         void RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state);
 
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_queueInnerLockForQueueItems)
         std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& queueItemId);
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_queueInnerLockForQueueItems)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
         std::shared_ptr<::AppInstaller::Repository::IMutablePackageSource> m_installingWriteableSource = nullptr;
