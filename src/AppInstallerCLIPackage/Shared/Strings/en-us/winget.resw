@@ -1011,11 +1011,9 @@ Do you agree to the terms?</value>
     <value>Version:</value>
   </data>
   <data name="PromptOptionNo" xml:space="preserve">
-    <value>&amp;No</value>
-    <comment>Option used when prompting for confirmation. &amp; indicates the hotkey; which must be different from the one in PromptOptionYes</comment>
+    <value>No</value>
   </data>
   <data name="PromptOptionYes" xml:space="preserve">
-    <value>&amp;Yes</value>
-    <comment>Option used when prompting for confirmation. &amp; indicates the hotkey; which must be different from the one in PromptOptionNo</comment>
+    <value>Yes</value>
   </data>
 </root>

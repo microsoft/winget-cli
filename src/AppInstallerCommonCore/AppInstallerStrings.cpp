@@ -185,28 +185,6 @@ namespace AppInstaller::Utility
         return columnWidth;
     }
 
-    size_t UTF8Find(std::string_view input, char c)
-    {
-        ICUBreakIterator itr{ input, UBRK_CHARACTER };
-
-        size_t currentPos = 0;
-        UChar32 currentCP = 0;
-
-        currentCP = itr.CurrentCodePoint();
-        while (itr.Next() != UBRK_DONE && currentCP != U_SENTINEL)
-        {
-            if (currentCP == c)
-            {
-                return currentPos;
-            }
-
-            currentCP = itr.CurrentCodePoint();
-            ++currentPos;
-        }
-
-        return std::string::npos;
-    }
-
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
     {
         ICUBreakIterator itr{ input, UBRK_CHARACTER };

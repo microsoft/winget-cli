@@ -25,16 +25,14 @@ namespace AppInstaller::CLI::Execution
     // One of the options available to the users when prompting for something.
     struct BoolPromptOption
     {
-        BoolPromptOption(Resource::StringId annotatedLabelId, bool value);
+        BoolPromptOption(Resource::StringId labelId, char hotkey, bool value)
+            : Label(labelId), Hotkey(std::string(1, hotkey)), Value(value) {}
 
-        std::string Hotkey;
-        std::string Label;
+        Utility::LocIndString Hotkey;
+        Resource::LocString Label;
 
         // Value associated with this option.
         bool Value;
-
-    private:
-        const char HotkeyMarker = '&';
     };
 
     // Reporter should be the central place to show workflow status to user.

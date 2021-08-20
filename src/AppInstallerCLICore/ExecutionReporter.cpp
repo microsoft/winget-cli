@@ -106,8 +106,8 @@ namespace AppInstaller::CLI::Execution
         bool defaultResponse = false;
         const std::vector<BoolPromptOption> options
         {
-            BoolPromptOption{ Resource::String::PromptOptionYes, true },
-            BoolPromptOption{ Resource::String::PromptOptionNo, false },
+            BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
+            BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
         };
 
         auto out = GetOutputStream(level);
@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Execution
             // Output all options
             for (size_t i = 0; i < options.size(); ++i)
             {
-                out << PromptEmphasis << "[" + options[i].Hotkey + "] " + options[i].Label;
+                out << PromptEmphasis << "[" + options[i].Hotkey.get() + "] " + options[i].Label.get();
 
                 if (i + 1 == options.size())
                 {
@@ -218,21 +218,5 @@ namespace AppInstaller::CLI::Execution
     bool Reporter::IsVTEnabled() const
     {
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
-    }
-
-    BoolPromptOption::BoolPromptOption(Resource::StringId annotatedLabelId, bool value) : Value(value)
-    {
-        // The label we receive should be annotated with a '&' to indicate the hotkey
-        auto annotatedLabel = Resource::LocString{ annotatedLabelId };
-
-        auto pos = Utility::UTF8Find(annotatedLabel, HotkeyMarker);
-        auto length = Utility::UTF8Length(annotatedLabel);
-
-        if (pos != std::string::npos && pos < length - 1)
-        {
-            Hotkey = Utility::UTF8Substring(annotatedLabel, pos + 1, 1);
-        }
-
-        Label = std::string(Utility::UTF8Substring(annotatedLabel, 0, pos)) + std::string(Utility::UTF8Substring(annotatedLabel, pos + 1, length));
     }
 }
