@@ -88,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureLicenseAcceptance::operator()(Execution::Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::AcceptAgreements))
+        if (context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements))
         {
             AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
             return;
@@ -490,7 +490,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowLicenseAgreements(/* ensureAcceptance */ true)
+            Workflow::ShowLicenseAgreements(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;

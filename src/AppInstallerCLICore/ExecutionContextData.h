@@ -62,7 +62,7 @@ namespace AppInstaller::CLI::Execution
             Manifest::Manifest&& manifest,
             Manifest::ManifestInstaller&& installer,
             Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown)
-            : PackageVersion(packageVersion), InstalledPackageVersion(installedPackageVersion), Manifest(manifest), Installer(installer), Scope(scope) { }
+            : PackageVersion(packageVersion), InstalledPackageVersion(installedPackageVersion), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope) { }
 
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
 

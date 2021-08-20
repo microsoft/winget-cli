@@ -807,7 +807,7 @@ TEST_CASE("InstallFlow_LicenseAgreement", "[InstallFlow][workflow]")
     TestContext context{ installOutput, std::cin };
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::AcceptAgreements);
+    context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
     InstallCommand install({});
     install.Execute(context);
@@ -1227,7 +1227,7 @@ TEST_CASE("UpdateFlow_LicenseAgreement", "[UpdateFlow][workflow]")
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
-    context.Args.AddArg(Execution::Args::Type::AcceptAgreements);
+    context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -1280,7 +1280,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::All);
-    context.Args.AddArg(Execution::Args::Type::AcceptAgreements);
+    context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -1709,7 +1709,7 @@ TEST_CASE("ImportFlow_LicenseAgreement", "[ImportFlow][workflow]")
     OverrideForImportSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithLicenseAgreement.json").GetPath().string());
-    context.Args.AddArg(Execution::Args::Type::AcceptAgreements);
+    context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
     ImportCommand importCommand({});
     importCommand.Execute(context);

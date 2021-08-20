@@ -19,7 +19,7 @@ namespace AppInstaller::CLI::Resource
     //
     struct String
     {
-        WINGET_DEFINE_RESOURCE_STRINGID(AcceptAgreementsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AcceptPackageAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);

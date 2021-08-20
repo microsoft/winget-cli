@@ -53,8 +53,8 @@ namespace AppInstaller::CLI
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
             return Argument{ "force", Argument::NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
-        case Args::Type::AcceptAgreements:
-            return Argument{ "accept-agreements", Argument::NoAlias, Args::Type::AcceptAgreements, Resource::String::AcceptAgreementsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::AcceptPackageAgreements:
+            return Argument{ "accept-package-agreements", Argument::NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
             return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:

@@ -952,8 +952,8 @@ Configuration is disabled due to Group Policy.</value>
   <data name="WindowsStoreTerms" xml:space="preserve">
     <value>Windows Store Terms</value>
   </data>
-  <data name="AcceptAgreementsArgumentDescription" xml:space="preserve">
-    <value>Accept all license agreements</value>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accept all license agreements for packages</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
     <value>Exported package requires license agreement to install:</value>
