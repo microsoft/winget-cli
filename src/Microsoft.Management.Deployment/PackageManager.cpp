@@ -61,6 +61,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::MicrosoftStore:
             sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::MicrosoftStore);
             break;
+        case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::DesktopFrameworks:
+            sourceDetails = GetWellKnownSourceDetails(::AppInstaller::Repository::WellKnownSource::DesktopFrameworks);
+            break;
         default:
             throw hresult_invalid_argument();
         }

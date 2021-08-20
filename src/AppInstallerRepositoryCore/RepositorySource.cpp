@@ -45,6 +45,11 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
 
+    constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/cache"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "microsoft.builtin.desktop.frameworks"sv;
+
     namespace
     {
         // SourceDetails with additional data.
@@ -161,6 +166,11 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::MSStoreSource;
                 }
 
+                if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
+                {
+                    return TogglePolicy::Policy::MSStoreSource;
+                }
+
                 // Any other tombstone is allowed
                 return TogglePolicy::Policy::None;
             }
@@ -182,6 +192,12 @@ namespace AppInstaller::Repository
                 return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
             }
 
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
+            {
+                return IsMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
+            }
+
             // Case 3:
             // If the source has the same name as a default source, it is shadowing with a different argument
             // (as it didn't match above). We only care if Group Policy requires the default source.
@@ -193,7 +209,13 @@ namespace AppInstaller::Repository
 
             if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
             {
-                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                return TogglePolicy::Policy::MSStoreSource;
+            }
+
+            if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
+            {
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
                 return TogglePolicy::Policy::MSStoreSource;
             }
 
@@ -429,6 +451,8 @@ namespace AppInstaller::Repository
                 {
                     result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
                 }
+
+                result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::DesktopFrameworks));
             }
             break;
             case SourceOrigin::User:
@@ -891,6 +915,11 @@ namespace AppInstaller::Repository
         auto source = sourceList.GetCurrentSource(name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
+        // Check for a non-user tombstone; hidden source data that we don't want to collide.
+        // TODO: Refactor the source interface so that we don't do this
+        auto tombstoneSource = sourceList.GetSource(name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, tombstoneSource && tombstoneSource->Origin != SourceOrigin::User);
+
         // Check sources allowed by group policy
         auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
         if (blockingPolicy != TogglePolicy::Policy::None)
@@ -1126,6 +1155,23 @@ namespace AppInstaller::Repository
             details.Identifier = s_Source_MSStoreDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted;
             details.Restricted = true;
+            return details;
+        }
+        case WellKnownSource::DesktopFrameworks:
+        {
+            SourceDetailsInternal details;
+            details.Origin = SourceOrigin::Default;
+            details.Name = s_Source_DesktopFrameworks_Name;
+            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Arg = s_Source_DesktopFrameworks_Arg;
+            details.Data = s_Source_DesktopFrameworks_Data;
+            details.Identifier = s_Source_DesktopFrameworks_Identifier;
+            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+            // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
+            // of this file, while still allowing it to properly save metadata.  There might be problems
+            // if someone chooses the exact same name as this, which is why its name is very long.
+            // TODO: When refactoring the source interface, handle this with Visibility or similar.
+            details.IsTombstone = true;
             return details;
         }
         }

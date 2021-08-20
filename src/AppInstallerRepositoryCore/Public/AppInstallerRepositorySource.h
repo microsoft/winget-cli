@@ -142,6 +142,7 @@ namespace AppInstaller::Repository
     {
         WinGet,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);

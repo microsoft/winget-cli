@@ -427,6 +427,7 @@ namespace Microsoft.Management.Deployment
     {
         OpenWindowsCatalog,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     /// Local Catalogs with PackageCatalogOrigin Predefined
