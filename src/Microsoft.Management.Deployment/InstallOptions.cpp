@@ -9,10 +9,6 @@
 #include "InstallOptions.h"
 #pragma warning( pop )
 #include "InstallOptions.g.cpp"
-#include "Helpers.h"
-
-const GUID InstallOptionsCLSID1 = { 0x1095F097, 0xEB96, 0x453B, 0xB4, 0xE6, 0x16, 0x13, 0x63, 0x7F, 0x3B, 0x14 };  //1095F097-EB96-453B-B4E6-1613637F3B14
-const GUID InstallOptionsCLSID2 = { 0x05F7019A, 0x8FAC, 0x4422, 0xBC, 0xD5, 0x4C, 0xB3, 0x4F, 0xFB, 0x44, 0xA8 };  //05F7019A-8FAC-4422-BCD5-4CB34FFB44A8
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -88,6 +84,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_additionalPackageCatalogArguments = value;
     }
-    CoCreatableCppWinRtClassWithCLSID(InstallOptions, 1, &InstallOptionsCLSID1);
-    CoCreatableCppWinRtClassWithCLSID(InstallOptions, 2, &InstallOptionsCLSID2);
+    CoCreatableCppWinRtClass(InstallOptions);
 }

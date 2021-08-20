@@ -12,7 +12,7 @@
 #include "MatchResult.h"
 #include "CatalogPackage.h"
 #include "Commands/RootCommand.h"
-#include "Helpers.h"
+#include "ExecutionContext.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)
 // 6388 Allow CreateInstance.
@@ -159,7 +159,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             isTruncated = searchResult.Truncated;
         }
-        WINGET_CATCH_STORE(hr);
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         return GetFindPackagesResult(hr, isTruncated, matches);
     }
