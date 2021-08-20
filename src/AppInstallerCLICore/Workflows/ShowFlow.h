@@ -11,11 +11,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShowManifestInfo(Execution::Context& context);
 
-    // Shows information on an application that is global to all installers.
+    // Shows information on a package; this is only the information common to all installers.
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    void ShowManifestGlobalInfo(Execution::Context& context);
+    void ShowPackageInfo(Execution::Context& context);
 
     // Shows information on an installer
     // Required Args: None
