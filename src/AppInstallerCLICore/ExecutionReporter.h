@@ -23,9 +23,9 @@ namespace AppInstaller::CLI::Execution
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
     // One of the options available to the users when prompting for something.
-    struct PromptOption
+    struct BoolPromptOption
     {
-        PromptOption(Resource::StringId annotatedLabelId, bool value);
+        BoolPromptOption(Resource::StringId annotatedLabelId, bool value);
 
         std::string Hotkey;
         std::string Label;

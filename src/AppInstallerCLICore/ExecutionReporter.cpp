@@ -103,10 +103,11 @@ namespace AppInstaller::CLI::Execution
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
     {
-        const std::vector<PromptOption> options
+        bool defaultResponse = false;
+        const std::vector<BoolPromptOption> options
         {
-            PromptOption{ Resource::String::PromptOptionYes, true },
-            PromptOption{ Resource::String::PromptOptionNo, false },
+            BoolPromptOption{ Resource::String::PromptOptionYes, true },
+            BoolPromptOption{ Resource::String::PromptOptionNo, false },
         };
 
         auto out = GetOutputStream(level);
@@ -137,14 +138,14 @@ namespace AppInstaller::CLI::Execution
                 THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
             }
 
-            // Ignore whitespace
-            Utility::Trim(response);
+            // If response was empty, use the default
             if (Utility::IsEmptyOrWhitespace(response))
             {
-                continue;
+                return defaultResponse;
             }
 
-            // Find the matching option
+            // Find the matching option ignoring whitespace
+            Utility::Trim(response);
             for (const auto& option : options)
             {
                 if (Utility::CaseInsensitiveEquals(response, option.Label) ||
@@ -219,7 +220,7 @@ namespace AppInstaller::CLI::Execution
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
     }
 
-    PromptOption::PromptOption(Resource::StringId annotatedLabelId, bool value) : Value(value)
+    BoolPromptOption::BoolPromptOption(Resource::StringId annotatedLabelId, bool value) : Value(value)
     {
         // The label we receive should be annotated with a '&' to indicate the hotkey
         auto annotatedLabel = Resource::LocString{ annotatedLabelId };
