@@ -13,7 +13,7 @@ namespace AppInstaller::CLI::Workflow
 {
     void ShowManifestInfo(Execution::Context& context)
     {
-        context << ShowManifestGlobalInfo << ShowInstallerInfo;
+        context << ShowPackageInfo << ShowInstallerInfo;
     }
 
     void ShowPackageInfo(Execution::Context& context)

@@ -77,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        context << Workflow::ShowManifestGlobalInfo;
+        context << Workflow::ShowPackageInfo;
         context.Reporter.Info() << std::endl;
 
         if (m_ensureAcceptance)
