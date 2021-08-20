@@ -66,7 +66,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ShowLicenseAgreements(Execution::Context& context)
+    void ShowLicenseAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
@@ -77,18 +77,17 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        context.SetFlags(Execution::ContextFlag::PackageHasLicenseAgreements);
         context << Workflow::ShowManifestGlobalInfo;
         context.Reporter.Info() << std::endl;
+
+        if (m_ensureAcceptance)
+        {
+            context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ true);
+        }
     }
 
     void EnsureLicenseAcceptance::operator()(Execution::Context& context) const
     {
-        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::PackageHasLicenseAgreements))
-        {
-            return;
-        }
-
         if (context.Args.Contains(Execution::Args::Type::AcceptAgreements))
         {
             AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
@@ -127,19 +126,18 @@ namespace AppInstaller::CLI::Workflow
 
             showContext <<
                 Workflow::ReportManifestIdentity <<
-                Workflow::ShowLicenseAgreements;
+                Workflow::ShowLicenseAgreements(/* ensureAcceptance */ false);
             if (showContext.IsTerminated())
             {
                 AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
             }
 
-            hasLicenseAgreements |= WI_IsFlagSet(showContext.GetFlags(), Execution::ContextFlag::PackageHasLicenseAgreements);
+            hasLicenseAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
         }
 
         // If any package has agreements, ensure they are accepted
         if (hasLicenseAgreements)
         {
-            context.SetFlags(Execution::ContextFlag::PackageHasLicenseAgreements);
             context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ false);
         }
     }
@@ -492,8 +490,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowLicenseAgreements <<
-            Workflow::EnsureLicenseAcceptance(/* showPrompt */ true) <<
+            Workflow::ShowLicenseAgreements(/* ensureAcceptance */ true)
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;

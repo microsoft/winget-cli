@@ -26,8 +26,17 @@ namespace AppInstaller::CLI::Workflow
     // Shows the license agreements if the application has them.
     // Required Args: None
     // Inputs: Manifest
-    // Outputs: PackageHasLicenseAgreements flag
-    void ShowLicenseAgreements(Execution::Context& context);
+    // Outputs: None
+    struct ShowLicenseAgreements : public WorkflowTask
+    {
+        ShowLicenseAgreements(bool ensureAcceptance) : WorkflowTask("ShowLicenseAgreements"), m_ensureAcceptance(ensureAcceptance) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        // Whether we need to ensure that the agreements are accepted, or only show them.
+        bool m_ensureAcceptance;
+    };
 
     // Ensure the user accepted the license agreements.
     // Required Args: None
