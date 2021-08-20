@@ -120,6 +120,7 @@ errstr
 esrp
 etag
 ETW
+EULA
 EVENTTAG
 exe
 executables

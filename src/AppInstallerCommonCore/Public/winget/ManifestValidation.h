@@ -194,4 +194,5 @@ namespace AppInstaller::Manifest
     };
 
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest);
+    void ValidateManifestLocalization(const ManifestVer& manifestVersion, const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors);
 }

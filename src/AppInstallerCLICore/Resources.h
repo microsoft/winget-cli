@@ -19,6 +19,7 @@ namespace AppInstaller::CLI::Resource
     //
     struct String
     {
+        WINGET_DEFINE_RESOURCE_STRINGID(AcceptPackageAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
@@ -44,6 +45,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExportedPackageRequiresLicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportIncludeVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExternalDependencies);
@@ -108,6 +110,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
+        WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreementPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(LicenseNotAgreedTo);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
@@ -158,6 +162,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
@@ -180,6 +186,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowChannel);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAgreements);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAuthor);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerType);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicense);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicenseUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelMoniker);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPackageUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisher);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
@@ -263,6 +284,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 
