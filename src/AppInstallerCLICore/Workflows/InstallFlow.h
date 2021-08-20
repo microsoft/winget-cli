@@ -139,14 +139,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InstallMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(HRESULT resultOnFailure, std::vector<HRESULT> ignorableInstallResults = {}) :
-            WorkflowTask("InstallMultiplePackages"), m_resultOnFailure(resultOnFailure), m_ignorableInstallResults(ignorableInstallResults) {}
+        InstallMultiplePackages(StringResource::StringId dependenciesReportMessage, HRESULT resultOnFailure, std::vector<HRESULT>&& ignorableInstallResults = {}) :
+            WorkflowTask("InstallMultiplePackages"),
+            m_dependenciesReportMessage(dependenciesReportMessage),
+            m_resultOnFailure(resultOnFailure),
+            m_ignorableInstallResults(std::move(ignorableInstallResults)) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         HRESULT m_resultOnFailure;
         std::vector<HRESULT> m_ignorableInstallResults;
+        StringResource::StringId m_dependenciesReportMessage;
     };
 
     // Stores the existing set of packages in ARP.

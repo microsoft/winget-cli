@@ -518,9 +518,8 @@ namespace AppInstaller::CLI::Workflow
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             context.Add<Execution::Data::Dependencies>(allDependencies);
-            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
+            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
-
 
         bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
