@@ -446,6 +446,8 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchSource
             });
 
+        int availableUpgradesCount = 0;
+
         for (const auto& match : searchResult.Matches)
         {
             auto installedVersion = match.Package->GetInstalledVersion();
@@ -473,6 +475,7 @@ namespace AppInstaller::CLI::Workflow
                         availableVersion,
                         sourceName
                         });
+                    availableUpgradesCount++;
                 }
             }
         }
@@ -482,6 +485,8 @@ namespace AppInstaller::CLI::Workflow
         if (table.IsEmpty())
         {
             context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+        } else if (m_onlyShowUpgrades) {
+            context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
         }
 
         if (searchResult.Truncated)
