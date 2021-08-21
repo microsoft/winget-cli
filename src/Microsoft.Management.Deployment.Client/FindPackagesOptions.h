@@ -3,7 +3,7 @@
 #pragma once
 #include "FindPackagesOptions.g.h"
 
-const CLSID CLSID_FindPackagesOptions = { 0x2CAD6C15, 0xDF8E, 0x49DD, { 0xA7, 0x48, 0x96, 0xAD, 0xE0, 0xFE, 0x31, 0xB7 } }; //2CAD6C15-DF8E-49DD-A748-96ADE0FE31B7
+const CLSID CLSID_FindPackagesOptions = { 0x1BD8FF3A, 0xEC50, 0x4F69, { 0xAE, 0xEE, 0xDF, 0x4C, 0x9D, 0x3B, 0xAA, 0x96 } }; //1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

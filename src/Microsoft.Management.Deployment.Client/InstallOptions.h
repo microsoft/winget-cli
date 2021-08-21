@@ -3,7 +3,7 @@
 #pragma once
 #include "InstallOptions.g.h"
 
-const CLSID CLSID_InstallOptions = { 0x05F7019A, 0x8FAC, 0x4422, 0xBC, 0xD5, 0x4C, 0xB3, 0x4F, 0xFB, 0x44, 0xA8 };  //05F7019A-8FAC-4422-BCD5-4CB34FFB44A8
+const CLSID CLSID_InstallOptions = { 0x44FE0580, 0x62F7, 0x44D4, 0x9E, 0x91, 0xAA, 0x96, 0x14, 0xAB, 0x3E, 0x86 };  //44FE0580-62F7-44D4-9E91-AA9614AB3E86
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
