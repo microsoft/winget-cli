@@ -78,9 +78,21 @@ namespace AppInstaller::CLI
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceList <<
             Workflow::CheckSourceListAgainstAdd <<
+            Workflow::AddSource <<
             Workflow::OpenSourceForSourceAdd <<
-            Workflow::HandleSourceAgreements <<
-            Workflow::AddSource;
+            Workflow::HandleSourceAgreements;
+
+        if (context.IsTerminated() &&
+            context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED)
+        {
+            auto contextForRemovePtr = context.Clone();
+            Context& contextForRemove = *contextForRemovePtr;
+            contextForRemove.Args.AddArg(Args::Type::SourceName, context.Args.GetArg(Args::Type::SourceName));
+
+            contextForRemove <<
+                Workflow::GetSourceListWithFilter <<
+                Workflow::RemoveSources;
+        }
     }
 
     std::vector<Argument> SourceListCommand::GetArguments() const

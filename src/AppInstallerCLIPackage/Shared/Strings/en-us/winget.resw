@@ -1016,4 +1016,7 @@ Do you agree to the terms?</value>
   <data name="PromptOptionYes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Failed to open the added source</value>
+  </data>
 </root>

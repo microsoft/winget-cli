@@ -268,14 +268,14 @@ namespace AppInstaller::Repository
 
     struct UnsupportedRequestException : public wil::ResultException
     {
-        UnsupportedRequestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY) {}
+        UnsupportedRequestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST) {}
 
         UnsupportedRequestException(
             std::vector<std::string> unsupportedPackageMatchFields,
             std::vector<std::string> requiredPackageMatchFields,
             std::vector<std::string> unsupportedQueryParameters,
             std::vector<std::string> requiredQueryParameters) :
-            wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SEARCH_QUERY),
+            wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST),
             UnsupportedPackageMatchFields(std::move(unsupportedPackageMatchFields)), RequiredPackageMatchFields(std::move(requiredPackageMatchFields)),
             UnsupportedQueryParameters(std::move(unsupportedQueryParameters)), RequiredQueryParameters(std::move(requiredQueryParameters)) {}
 

@@ -96,7 +96,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1)))
         {
-            context.Reporter.Info() << Resource::String::Done;
+            context.Reporter.Info() << Resource::String::Done << std::endl;
         }
         else
         {
@@ -106,17 +106,23 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenSourceForSourceAdd(Execution::Context& context)
     {
-        Repository::SourceDetails details;
-
-        details.Arg = context.Args.GetArg(Args::Type::SourceArg);
-        if (context.Args.Contains(Args::Type::SourceType))
+        try
         {
-            details.Type = context.Args.GetArg(Args::Type::SourceType);
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, context.Args.GetArg(Args::Type::SourceName), std::placeholders::_1), true);
+
+            if (!result.Source)
+            {
+                context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+            }
+
+            context.Add<Execution::Data::Source>(std::move(result.Source));
         }
-
-        auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, details, std::placeholders::_1), true);
-
-        context.Add<Execution::Data::Source>(std::move(result.Source));
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+        }
     }
 
     void ListSources(Execution::Context& context)

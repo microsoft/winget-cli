@@ -383,8 +383,8 @@ namespace AppInstaller::Repository
                     int64_t lastUpdateInEpoch{};
                     if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                     details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
-                    if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false)) { return false; }
-                    if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false)) { return false; }
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                     return true;
                 });
         }
@@ -452,7 +452,7 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
+                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                         return true;
                     });
 
@@ -1096,7 +1096,7 @@ namespace AppInstaller::Repository
 
         // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
         // if the details came from the same instance of the list that's being saved.
-        // Some sources that do not need updating like the Installed source or sources to be added, do not have Name values.
+        // Some sources that do not need updating like the Installed source, do not have Name values.
         // Restricted sources don't have full functionality
         if (!details.Name.empty() &&
             !details.Restricted)

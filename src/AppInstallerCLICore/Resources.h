@@ -210,6 +210,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddBegin);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddOpenSourceFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandLongDescription);

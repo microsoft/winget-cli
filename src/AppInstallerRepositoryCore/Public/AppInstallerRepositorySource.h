@@ -153,9 +153,6 @@ namespace AppInstaller::Repository
 
         // List of SourceDetails that failed to update
         std::vector<SourceDetails> SourcesWithUpdateFailure;
-
-        // List of SourceDetails that needs agreements acceptence
-        std::vector<SourceDetails> SourcesNeedsAgreementsAcceptence;
     };
 
     // Opens an existing source.
