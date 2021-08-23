@@ -40,7 +40,7 @@ The PowerShell module name will be "WindowsPackageManager"
 
 ### `winget install`
 
-Install-WindowsPackage
+Install-WinGetPackage
 
 **Parameters**
 
@@ -75,55 +75,55 @@ Install-WindowsPackage
 
 ### `winget show`
 
-Show-WindowsPackage
+Get-WinGetPackage
 
 ### `winget source`
 
-Add-WindowsPackageManagerSource
+Add-WinGetSource
 
-Remove-WindowsPackageManagerSource
+Remove-WinGetSource
 
 ### `winget search`
 
-Find-WindowsPackage
+Get-WinGetPackage
 
 ### `winget list`
 
-Show-InstalledWindowsPackages
+Get-WinGetInstalledPackages
 
 ### `winget upgrade`
 
-Update-WindowsPackage
+Update-WinGetPackage
 
 ### `winget uninstall`
 
-Uninstall-WindowsPackage
+Uninstall-WinGetPackage
 
 ### `winget hash`
 
-Get-WindowsPackageSha256
+Get-WinGetPackageSha256
 
-Get-WindowsPackageSignatureSha256
+Get-WinGetSignatureSha256
 
 ### `winget validate`
 
-Test-WindowsPackageManifest
+Test-WinGetManifest
 
 ### `winget settings`
 
-Edit-WindowsPackageManagerSettings
+Set-WinGetSettings
 
 ### `winget features`
 
-Show-WindowsPackageManagerFeatures
+Get-WinGetFeatures
 
 ### `winget export`
 
-Export-WindowsPackages
+Export-WinGetPackages
 
 ### `winget import`
 
-Import-WindowsPackages
+Import-WinGetPackages
 
 ## Capabilities
 
