@@ -840,7 +840,7 @@ TEST_CASE("InstallFlow_LicenseAgreement_Prompt", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify prompt was shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LicenseAgreementPrompt).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsPrompt).get()) != std::string::npos);
 
     // Verify agreements are shown
     REQUIRE(installOutput.str().find("Agreement with text") != std::string::npos);

@@ -27,9 +27,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    struct ShowLicenseAgreements : public WorkflowTask
+    struct ShowPackageAgreements : public WorkflowTask
     {
-        ShowLicenseAgreements(bool ensureAcceptance) : WorkflowTask("ShowLicenseAgreements"), m_ensureAcceptance(ensureAcceptance) {}
+        ShowPackageAgreements(bool ensureAcceptance) : WorkflowTask("ShowPackageAgreements"), m_ensureAcceptance(ensureAcceptance) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -42,9 +42,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct EnsureLicenseAcceptance : public WorkflowTask
+    struct EnsurePackageAgreemenstsAcceptance : public WorkflowTask
     {
-        EnsureLicenseAcceptance(bool showPrompt) : WorkflowTask("EnsureLicenseAcceptance"), m_showPrompt(showPrompt) {}
+        EnsurePackageAgreemenstsAcceptance(bool showPrompt) : WorkflowTask("EnsurePackageAgreemenstsAcceptance"), m_showPrompt(showPrompt) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: PackagesToInstall
     // Outputs: None
-    void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context);
+    void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context);
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None

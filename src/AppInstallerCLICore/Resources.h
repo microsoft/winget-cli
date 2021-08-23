@@ -20,6 +20,7 @@ namespace AppInstaller::CLI::Resource
     struct String
     {
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptPackageAgreementsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AcceptSourceAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
@@ -110,7 +111,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
-        WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreementPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
@@ -154,6 +154,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsNotAgreedTo);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
@@ -211,6 +212,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddOpenSourceFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsMarketMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsNotAgreedTo);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandLongDescription);
