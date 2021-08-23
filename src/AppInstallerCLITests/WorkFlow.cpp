@@ -874,9 +874,9 @@ TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find("https://TestAgreementUrl") != std::string::npos);
 
     // Verify installation failed
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LicenseNotAgreedTo).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsNotAgreedTo).get()) != std::string::npos);
 }
 
 TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
@@ -1262,9 +1262,9 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Verify Installer is not called.
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::LicenseNotAgreedTo).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsNotAgreedTo).get()) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
@@ -1323,7 +1323,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     REQUIRE(updateOutput.str().find("This is the agreement for the MSIX") != std::string::npos);
 
     // Verify installers are not called.
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
@@ -1742,7 +1742,7 @@ TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
     REQUIRE(importOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Command should have failed
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)

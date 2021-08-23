@@ -109,8 +109,8 @@ namespace AppInstaller::CLI::Workflow
         }
 
         AICLI_LOG(CLI, Error, << "License not agreed to.");
-        context.Reporter.Error() << Resource::String::LicenseNotAgreedTo << std::endl;
-        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+        context.Reporter.Error() << Resource::String::PackageAgreementsNotAgreedTo << std::endl;
+        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     }
 
     void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context)

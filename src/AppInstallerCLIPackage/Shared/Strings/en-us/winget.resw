@@ -962,8 +962,8 @@ Configuration is disabled due to Group Policy.</value>
     <value>The publisher requires that you view the following information and accept the EULA before installing.
 Do you agree to the terms?</value>
   </data>
-  <data name="LicenseNotAgreedTo" xml:space="preserve">
-    <value>License not agreed to. Installation cancelled.</value>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Package agreements not agreed to. Execution cancelled.</value>
   </data>
   <data name="ShowLabelAgreements" xml:space="preserve">
     <value>Agreements:</value>

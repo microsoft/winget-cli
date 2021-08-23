@@ -83,7 +83,8 @@ namespace AppInstaller::CLI
             Workflow::HandleSourceAgreements;
 
         if (context.IsTerminated() &&
-            context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED)
+            (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED ||
+             context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED))
         {
             auto contextForRemovePtr = context.Clone();
             Context& contextForRemove = *contextForRemovePtr;

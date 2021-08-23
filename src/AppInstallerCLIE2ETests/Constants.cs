@@ -131,8 +131,12 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_RESTSOURCE_INVALID_VERSION = unchecked((int)0x8a15003E);
             public const int ERROR_SOURCE_DATA_INTEGRITY_FAILURE = unchecked((int)0x8a15003F);
             public const int ERROR_STREAM_READ_FAILURE = unchecked((int)0x8a150040);
-            public const int ERROR_LICENSE_NOT_ACCEPTED = unchecked((int)0x8a150041);
+            public const int ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8a150041);
             public const int ERROR_PROMPT_INPUT_ERROR = unchecked((int)0x8a150042);
+            public const int ERROR_UNSUPPORTED_SOURCE_REQUEST = unchecked((int)0x8a150043);
+            public const int ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND = unchecked((int)0x8a150044);
+            public const int ERROR_SOURCE_OPEN_FAILED = unchecked((int)0x8a150045);
+            public const int ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8a150046);
         }
     }
 }

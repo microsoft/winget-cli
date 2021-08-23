@@ -26,7 +26,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        ValidateManifestLocalization(manifest.ManifestVersion, manifest.DefaultLocalization, resultErrors);
+        ValidateManifestLocalization(manifest.DefaultLocalization, resultErrors);
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
@@ -156,20 +156,20 @@ namespace AppInstaller::Manifest
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            ValidateManifestLocalization(manifest.ManifestVersion, localization, resultErrors);
+            ValidateManifestLocalization(localization, resultErrors);
         }
 
         return resultErrors;
     }
 
-    void ValidateManifestLocalization(const ManifestVer& manifestVersion, const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors)
+    void ValidateManifestLocalization(const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors)
     {
         if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
         {
             resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
         }
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (localization.Contains(Localization::Agreements))
         {
             const auto& agreements = localization.Get<Localization::Agreements>();
             for (const auto& agreement : agreements)
