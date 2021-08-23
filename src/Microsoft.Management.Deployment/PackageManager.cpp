@@ -371,7 +371,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItemParam,
         winrt::Microsoft::Management::Deployment::CatalogPackage package = nullptr,
         winrt::Microsoft::Management::Deployment::InstallOptions options = nullptr,
-        std::wstring callerProcessInfoString = std::wstring{})
+        std::wstring callerProcessInfoString = {})
     {
         winrt::hresult terminationHR = S_OK;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
@@ -451,7 +451,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             while (!completionEventFired && !cancelWaitEventFired)
             {
                 DWORD dwEvent = WaitForMultipleObjects(
-                    2 /* number of events */,
+                    _countof(operationEvents) /* number of events */,
                     operationEvents /* event array */,
                     FALSE /* bWaitAll, FALSE to wake on any event */,
                     INFINITE /* wait until operation completion */);
@@ -536,7 +536,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
         hstring correlationData;
-        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, package == nullptr);
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
 
         HRESULT hr = S_OK;
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;

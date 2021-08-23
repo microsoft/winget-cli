@@ -23,13 +23,13 @@ namespace AppInstaller::CLI::Execution
         m_installingWriteableSource = std::dynamic_pointer_cast<::AppInstaller::Repository::IMutablePackageSource>(installingSource);
     }
 
-    _Requires_lock_held_(m_queueInnerLockForQueueItems) 
+    _Requires_lock_held_(m_queueLock) 
     std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator ContextOrchestrator::FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId)
     {
         return std::find_if(m_queueItems.begin(), m_queueItems.end(), [&comparisonQueueItemId](const std::shared_ptr<OrchestratorQueueItem>& item) {return (item->GetId().IsSame(comparisonQueueItemId)); });
 
     }
-    _Requires_lock_held_(m_queueInnerLockForQueueItems)
+    _Requires_lock_held_(m_queueLock)
     std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::FindById(const OrchestratorQueueItemId& comparisonQueueItemId)
     {
         auto itr = FindIteratorById(comparisonQueueItemId);
@@ -42,10 +42,8 @@ namespace AppInstaller::CLI::Execution
     
     void ContextOrchestrator::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
-        std::lock_guard<std::mutex> lock{ m_queueOuterLockForInstallingSource };
-
         {
-            std::lock_guard<std::mutex> lockQueue{ m_queueInnerLockForQueueItems };
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
             m_queueItems.push_back(item);
@@ -55,7 +53,10 @@ namespace AppInstaller::CLI::Execution
         const auto& manifest = item->GetContext().Get<Execution::Data::Manifest>();
         m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
 
-        item->GetContext().EnableCtrlHandler();
+        {
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+            item->SetState(OrchestratorQueueItemState::Queued);
+        }
     }
 
     void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
@@ -68,7 +69,7 @@ namespace AppInstaller::CLI::Execution
 
     std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::GetNextItem()
     {
-        std::lock_guard<std::mutex> lockQueue{ m_queueInnerLockForQueueItems };
+        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
         if (m_queueItems.empty())
         {
@@ -79,10 +80,10 @@ namespace AppInstaller::CLI::Execution
 
         // Check if item can be dequeued.
         // Since only one item can be installed at a time currently the logic is very simple,
-        // and can just check if the first item is already running. This logic will need to become
+        // and can just check if the first item is ready to run. This logic will need to become
         // more complicated if multiple operation types (e.g. Download & Install) are added that can
         // run simultaneously.
-        if (item->GetState() == OrchestratorQueueItemState::Running)
+        if (item->GetState() != OrchestratorQueueItemState::Queued)
         {
             return {};
         }
@@ -105,6 +106,8 @@ namespace AppInstaller::CLI::Execution
                 ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);
 
+                item->GetContext().EnableCtrlHandler();
+
                 terminationHR = ::AppInstaller::CLI::Execute(item->GetContext(), command);
             }
             WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
@@ -125,11 +128,13 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state)
     {
-        std::lock_guard<std::mutex> lock{ m_queueOuterLockForInstallingSource };
+        // OrchestratorQueueItemState::Running items should only be removed by the thread that ran the item.
+        // Queued items can be removed by any thread. 
+        // NotQueued items should not be removed since, if found in the queue, they are in the process of being queued by another thread.
         bool foundItem = false;
 
         {
-            std::lock_guard<std::mutex> lockQueue{ m_queueInnerLockForQueueItems };
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
             // Look for the item. It's ok if the item is not found since multiple listeners may try to remove the same item.
             auto itr = FindIteratorById(item.GetId());
@@ -159,7 +164,7 @@ namespace AppInstaller::CLI::Execution
 
     std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::GetQueueItem(const OrchestratorQueueItemId& queueItemId)
     {
-        std::lock_guard<std::mutex> lock{ m_queueInnerLockForQueueItems };
+        std::lock_guard<std::mutex> lock{ m_queueLock };
 
         return FindById(queueItemId);
     }
