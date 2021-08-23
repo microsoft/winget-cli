@@ -125,6 +125,11 @@ namespace AppInstaller::CLI::Workflow
 
         void ExtractSourceDetailsAndAddToList(const std::shared_ptr<Repository::ISource>& source, std::vector<Repository::SourceDetails>& list)
         {
+            if (!source)
+            {
+                return;
+            }
+
             if (source->IsComposite())
             {
                 for (auto const& available : source->GetAvailableSources())
@@ -788,7 +793,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Contains(Execution::Data::Source))
         {
-            std::shared_ptr<Repository::ISource> source = context.Get<Execution::Data::Source>();
+            const auto& source = context.Get<Execution::Data::Source>();
             ExtractSourceDetailsAndAddToList(source, sourcesToCheck);
         }
 

@@ -397,8 +397,7 @@ TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    Schema::IRestClient::SearchResult result = v1.Search({});
-    REQUIRE(result.Matches.empty());
+    REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
@@ -439,8 +438,7 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource]")
     PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
     Interface v1{ TestRestUriString, std::move(helper) };
-    Schema::IRestClient::SearchResult result = v1.Search(request);
-    REQUIRE(result.Matches.empty());
+    REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
@@ -485,6 +483,5 @@ TEST_CASE("GetManifests_NotFoundCode", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
-    REQUIRE(manifests.empty());
+    REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }
