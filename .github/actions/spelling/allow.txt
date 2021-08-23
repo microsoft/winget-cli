@@ -87,6 +87,7 @@ delstore
 Demitrius
 denelon
 depersist
+deque
 Deserialize
 deserializer
 deserializing
@@ -119,6 +120,7 @@ errstr
 esrp
 etag
 ETW
+EULA
 EVENTTAG
 exe
 executables

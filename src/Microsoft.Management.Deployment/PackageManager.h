@@ -5,7 +5,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+#if USE_PROD_CLSIDS 
     [uuid("C53A4F16-787E-42A4-B304-29EFFB4BF597")]
+#else
+    [uuid("74CB3139-B7C5-4B9E-9388-E6616DEA288C")]
+#endif
     struct PackageManager : PackageManagerT<PackageManager>
     {
         PackageManager() = default;
@@ -17,8 +21,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogReference CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> 
             InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options);
+        //Contract 2.0
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> 
-            GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package);
+            GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation

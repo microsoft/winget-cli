@@ -228,6 +228,7 @@
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
+    <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
@@ -294,6 +295,7 @@
     </ClCompile>
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
+    <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />

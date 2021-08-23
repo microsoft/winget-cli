@@ -39,6 +39,7 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             HashOverride, // Ignore hash mismatches
+            AcceptPackageAgreements, // Accept all license agreements for packages
 
             //Source Command
             SourceName,

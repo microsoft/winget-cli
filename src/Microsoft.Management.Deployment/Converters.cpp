@@ -265,9 +265,4 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return resultStatus;
     }
-
-    bool IsLocalPackageCatalog(winrt::Microsoft::Management::Deployment::PackageCatalogInfo info)
-    {
-        return (winrt::to_string(info.Type()).compare(::AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Type()) == 0);
-    }
 }

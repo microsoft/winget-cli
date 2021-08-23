@@ -15,6 +15,7 @@ namespace AppInstaller::CLI::Execution
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
+    const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         m_out(outStream),
@@ -97,6 +98,62 @@ namespace AppInstaller::CLI::Execution
         if (style == VisualStyle::NoVT)
         {
             m_isVTEnabled = false;
+        }
+    }
+
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
+    {
+        bool defaultResponse = false;
+        const std::vector<BoolPromptOption> options
+        {
+            BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
+            BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
+        };
+
+        auto out = GetOutputStream(level);
+        out << message << std::endl;
+
+        // Try prompting until we get a recognized option
+        for (;;)
+        {
+            // Output all options
+            for (size_t i = 0; i < options.size(); ++i)
+            {
+                out << PromptEmphasis << "[" + options[i].Hotkey.get() + "] " + options[i].Label.get();
+
+                if (i + 1 == options.size())
+                {
+                    out << PromptEmphasis << ": ";
+                }
+                else
+                {
+                    out << "  ";
+                }
+            }
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+            }
+
+            // If response was empty, use the default
+            if (Utility::IsEmptyOrWhitespace(response))
+            {
+                return defaultResponse;
+            }
+
+            // Find the matching option ignoring whitespace
+            Utility::Trim(response);
+            for (const auto& option : options)
+            {
+                if (Utility::CaseInsensitiveEquals(response, option.Label) ||
+                    Utility::CaseInsensitiveEquals(response, option.Hotkey))
+                {
+                    return option.Value;
+                }
+            }
         }
     }
 

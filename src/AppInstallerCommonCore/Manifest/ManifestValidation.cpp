@@ -26,10 +26,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
         }
 
-        if (!manifest.DefaultLocalization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(manifest.DefaultLocalization.Locale))
-        {
-            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", manifest.DefaultLocalization.Locale);
-        }
+        ValidateManifestLocalization(manifest.ManifestVersion, manifest.DefaultLocalization, resultErrors);
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
@@ -150,12 +147,30 @@ namespace AppInstaller::Manifest
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
-            {
-                resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
-            }
+            ValidateManifestLocalization(manifest.ManifestVersion, localization, resultErrors);
         }
 
         return resultErrors;
+    }
+
+    void ValidateManifestLocalization(const ManifestVer& manifestVersion, const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors)
+    {
+        if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
+        {
+            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
+        }
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            const auto& agreements = localization.Get<Localization::Agreements>();
+            for (const auto& agreement : agreements)
+            {
+                // At least one must be present
+                if (agreement.Label.empty() && agreement.AgreementText.empty() && agreement.AgreementUrl.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Agreements");
+                }
+            }
+        }
     }
 }

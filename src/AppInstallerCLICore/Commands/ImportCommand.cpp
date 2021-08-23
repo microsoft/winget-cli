@@ -4,7 +4,6 @@
 #include "ImportCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/ImportExportFlow.h"
-#include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -18,6 +17,7 @@ namespace AppInstaller::CLI
             Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
             Argument{ "ignore-unavailable", Argument::NoAlias, Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
             Argument{ "ignore-versions", Argument::NoAlias, Execution::Args::Type::IgnoreVersions, Resource::String::ImportIgnorePackageVersionsArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
         };
     }
 
@@ -33,7 +33,6 @@ namespace AppInstaller::CLI
 
     std::string ImportCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-import";
     }
 
@@ -47,6 +46,6 @@ namespace AppInstaller::CLI
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-            Workflow::InstallMultiple;
+            Workflow::InstallImportedPackages;
     }
 }
