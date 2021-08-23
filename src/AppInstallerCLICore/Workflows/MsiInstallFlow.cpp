@@ -2,14 +2,28 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MsiInstallFlow.h"
+#include "winget/MsiExecArguments.h"
 
 namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        UINT InvokeMsiInstallProduct()
+        std::optional<UINT> InvokeMsiInstallProduct(const std::filesystem::path& installerPath, const Msi::MsiParsedArguments& msiArgs, IProgressCallback&)
         {
+            if (msiArgs.LogFile)
+            {
+                MsiEnableLogW(msiArgs.LogMode, msiArgs.LogFile->c_str(), msiArgs.LogAttributes);
+            }
+            else
+            {
+                // Disable logging
+                MsiEnableLogW(0, nullptr, 0);
+            }
 
+            MsiSetInternalUI(msiArgs.UILevel, nullptr);
+
+            // TODO: Use progress callback
+            return MsiInstallProductW(installerPath.c_str(), msiArgs.Properties.c_str());
         }
     }
 
@@ -20,12 +34,12 @@ namespace AppInstaller::CLI::Workflow
         const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
 
-        Utility::MsiParsedArguments parsedArgs = Utility::ParseMSIArguments(context.Get<Execution::Data::InstallerArgs>());
+        Msi::MsiParsedArguments parsedArgs = Msi::ParseMSIArguments(context.Get<Execution::Data::InstallerArgs>());
 
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeMsiInstallProduct,
-                context.Get<Execution::Data::InstallerPath>(),
-                installerArgs,
+                installerPath,
+                parsedArgs,
                 std::placeholders::_1));
 
         if (!installResult)

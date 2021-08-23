@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <WinInet.h>
+#include <msi.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 6031 4702 )
