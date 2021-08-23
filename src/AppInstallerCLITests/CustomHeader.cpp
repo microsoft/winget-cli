@@ -86,46 +86,6 @@ TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
-TEST_CASE("RestSourceSearch_CustomHeader", "[RestSource][CustomHeader]")
-{
-    utility::string_t customHeader = L"Testing custom header";
-    auto header = std::make_pair<>(CustomHeaderName, customHeader);
-    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
-    std::unordered_map<utility::string_t, utility::string_t> headers;
-    headers.emplace(CustomHeaderName, customHeader);
-
-    Interface v1{ "https://restsource.com/api", headers, std::move(helper) };
-    Schema::IRestClient::SearchResult searchResponse = v1.Search({});
-    REQUIRE(searchResponse.Matches.size() == 1);
-    Schema::IRestClient::Package package = searchResponse.Matches.at(0);
-}
-
-TEST_CASE("RestSourceSearch_WhitespaceCustomHeader", "[RestSource][CustomHeader]")
-{
-    utility::string_t customHeader = L"    ";
-    auto header = std::make_pair<>(CustomHeaderName, customHeader);
-    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
-    std::unordered_map<utility::string_t, utility::string_t> headers;
-    headers.emplace(CustomHeaderName, customHeader);
-
-    Interface v1{ "https://restsource.com/api", headers, std::move(helper) };
-    Schema::IRestClient::SearchResult searchResponse = v1.Search({});
-    REQUIRE(searchResponse.Matches.size() == 1);
-}
-
-TEST_CASE("RestSourceSearch_NoCustomHeader", "[RestSource][CustomHeader]")
-{
-    utility::string_t customHeader = L"    ";
-    auto header = std::make_pair<>(CustomHeaderName, customHeader);
-    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
-    std::unordered_map<utility::string_t, utility::string_t> headers;
-    headers.emplace(CustomHeaderName, customHeader);
-
-    Interface v1{ "https://restsource.com/api", {}, std::move(helper) };
-    REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
-}
-
-
 TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
 {
     SetSetting(Streams::UserSources, s_EmptySources);

@@ -88,9 +88,12 @@ namespace AppInstaller::Repository::Rest
     {
         if (version == Version_1_0_0)
         {
-            return std::make_unique<Schema::V1_0::Interface>(api, additionalHeaders);
+            return std::make_unique<Schema::V1_0::Interface>(api);
         }
        
+        // TODO: USE additionalHeaders with V1.1 changes.
+        (void)additionalHeaders;
+
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
