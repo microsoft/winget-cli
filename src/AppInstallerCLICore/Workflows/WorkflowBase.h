@@ -277,6 +277,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportManifestIdentity(Execution::Context& context);
 
+    // Reports the manifest's identity with version.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ReportManifestIdentityWithVersion(Execution::Context& context);
+
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
     // Inputs: None

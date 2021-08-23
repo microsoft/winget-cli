@@ -665,6 +665,12 @@ namespace AppInstaller::CLI::Workflow
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
+        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+    }
+
+    void ReportManifestIdentityWithVersion(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
     }
 

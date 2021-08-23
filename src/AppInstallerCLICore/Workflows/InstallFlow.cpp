@@ -125,7 +125,7 @@ namespace AppInstaller::CLI::Workflow
             showContext.Add<Execution::Data::Manifest>(package.Manifest);
 
             showContext <<
-                Workflow::ReportManifestIdentity <<
+                Workflow::ReportManifestIdentityWithVersion <<
                 Workflow::ShowLicenseAgreements(/* ensureAcceptance */ false);
             if (showContext.IsTerminated())
             {
@@ -468,7 +468,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
-            Workflow::ReportManifestIdentity <<
+            Workflow::ReportManifestIdentityWithVersion <<
             Workflow::ShowInstallationDisclaimer;
     }
 
@@ -537,8 +537,7 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Installer>(package.Installer);
 
             installContext <<
-                Workflow::ReportManifestIdentity <<
-                Workflow::ShowInstallationDisclaimer <<
+                Workflow::ReportIdentityAndInstallationDisclaimer <<
                 Workflow::InstallPackageInstaller;
 
             installContext.Reporter.Info() << std::endl;
