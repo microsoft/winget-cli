@@ -1019,7 +1019,6 @@ Do you agree to the terms?</value>
   <data name="PromptOptionYes" xml:space="preserve">
     <value>Yes</value>
   </data>
-</root>
   <data name="HeaderArgumentDescription" xml:space="preserve">
     <value>Optional Windows-Package-Manager REST source HTTP header</value>
   </data>
