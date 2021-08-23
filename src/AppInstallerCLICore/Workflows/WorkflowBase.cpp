@@ -466,6 +466,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+                        availableUpgradesCount++;
                     }
 
                     table.OutputLine({
@@ -475,7 +476,6 @@ namespace AppInstaller::CLI::Workflow
                         availableVersion,
                         sourceName
                         });
-                    availableUpgradesCount++;
                 }
             }
         }
