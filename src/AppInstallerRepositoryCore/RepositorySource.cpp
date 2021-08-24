@@ -46,9 +46,9 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
 
     constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
-    constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/cache"sv;
-    constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
-    constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "microsoft.builtin.desktop.frameworks"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/platform"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
 
     namespace
     {
@@ -62,6 +62,56 @@ namespace AppInstaller::Repository
 
             SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
+
+        SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
+        {
+            switch (source)
+            {
+            case WellKnownSource::WinGet:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_WingetCommunityDefault_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_WingetCommunityDefault_Arg;
+                details.Data = s_Source_WingetCommunityDefault_Data;
+                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                return details;
+            }
+            case WellKnownSource::MicrosoftStore:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_MSStoreDefault_Name;
+                details.Type = Rest::RestSourceFactory::Type();
+                details.Arg = s_Source_MSStoreDefault_Arg;
+                details.Identifier = s_Source_MSStoreDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted;
+                details.Restricted = true;
+                return details;
+            }
+            case WellKnownSource::DesktopFrameworks:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_DesktopFrameworks_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_DesktopFrameworks_Arg;
+                details.Data = s_Source_DesktopFrameworks_Data;
+                details.Identifier = s_Source_DesktopFrameworks_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
+                // of this file, while still allowing it to properly save metadata.  There might be problems
+                // if someone chooses the exact same name as this, which is why its name is very long.
+                // TODO: When refactoring the source interface, handle this with Visibility or similar.
+                details.IsTombstone = true;
+                return details;
+            }
+            }
+
+            THROW_HR(E_UNEXPECTED);
+        }
 
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
@@ -432,7 +482,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::WinGet));
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
                 }
 
                 if (IsWingetMSStoreDefaultSourceEnabled())
@@ -449,10 +499,12 @@ namespace AppInstaller::Repository
 
                 if (IsMSStoreDefaultSourceEnabled())
                 {
-                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
                 }
 
-                result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::DesktopFrameworks));
+                // Since we are using the tombstone trick, this is added just to have the source in the internal
+                // list for tracking updates.  Thus there is no need to check a policy.
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
             }
             break;
             case SourceOrigin::User:
@@ -1131,52 +1183,7 @@ namespace AppInstaller::Repository
 
     SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
     {
-        switch (source)
-        {
-        case WellKnownSource::WinGet:
-        {
-            SourceDetailsInternal details;
-            details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_WingetCommunityDefault_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-            details.Arg = s_Source_WingetCommunityDefault_Arg;
-            details.Data = s_Source_WingetCommunityDefault_Data;
-            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-            return details;
-        }
-        case WellKnownSource::MicrosoftStore:
-        {
-            SourceDetailsInternal details;
-            details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_MSStoreDefault_Name;
-            details.Type = Rest::RestSourceFactory::Type();
-            details.Arg = s_Source_MSStoreDefault_Arg;
-            details.Identifier = s_Source_MSStoreDefault_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted;
-            details.Restricted = true;
-            return details;
-        }
-        case WellKnownSource::DesktopFrameworks:
-        {
-            SourceDetailsInternal details;
-            details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_DesktopFrameworks_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-            details.Arg = s_Source_DesktopFrameworks_Arg;
-            details.Data = s_Source_DesktopFrameworks_Data;
-            details.Identifier = s_Source_DesktopFrameworks_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-            // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
-            // of this file, while still allowing it to properly save metadata.  There might be problems
-            // if someone chooses the exact same name as this, which is why its name is very long.
-            // TODO: When refactoring the source interface, handle this with Visibility or similar.
-            details.IsTombstone = true;
-            return details;
-        }
-        }
-
-        THROW_HR(E_UNEXPECTED);
+        return GetWellKnownSourceDetailsInternal(source);
     }
 
     std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)

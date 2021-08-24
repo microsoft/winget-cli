@@ -55,14 +55,14 @@ namespace AppInstaller::CLI::Workflow
                     if (!allowedArchitectures.empty())
                     {
                         // If the incoming data contains elements, we will use them to construct a final allowed list.
-                        // The algorithm is to take elements until we find Neutral, which indicates that any architecture is
+                        // The algorithm is to take elements until we find Unknown, which indicates that any architecture is
                         // acceptable at this point. The system supported set of architectures will then be placed at the end.
                         std::vector<Utility::Architecture> result;
                         bool addRemainingApplicableArchitectures = false;
 
                         for (Utility::Architecture architecture : allowedArchitectures)
                         {
-                            if (architecture == Utility::Architecture::Neutral)
+                            if (architecture == Utility::Architecture::Unknown)
                             {
                                 addRemainingApplicableArchitectures = true;
                                 break;

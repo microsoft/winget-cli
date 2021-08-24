@@ -476,22 +476,6 @@ namespace Microsoft.Management.Deployment
         Interactive,
     };
 
-    /// A system or package architecture.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
-    enum ProcessorArchitecture
-    {
-        /// Any processor architecture.
-        Any,
-        /// The x86 architecture.
-        X86,
-        /// The x64 architecture.
-        X64,
-        /// The ARM architecture.
-        ARM,
-        /// The ARM64 architecture.
-        ARM64,
-    };
-
     /// Options when installing a package.
     /// Intended to allow full compatibility with the "winget install" command line interface.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -527,10 +511,10 @@ namespace Microsoft.Management.Deployment
         {
             // The set of allowed Architectures, in preference order, that will be considered for
             // the install operation.  The default set is empty, which allows any architecture
-            // to be used.  Any can also be used to set a preference rather than a requirement,
-            // such as { X86, Any }, which will prefer X86 if it is available and applicable,
+            // to be used.  Unknown can also be used to set a preference rather than a requirement,
+            // such as { X86, Unknown }, which will prefer X86 if it is available and applicable,
             // but still use any applicable architecture that is available if X86 is not.
-            Windows.Foundation.Collections.IVector<ProcessorArchitecture> AllowedArchitectures { get; };
+            Windows.Foundation.Collections.IVector<Windows.System.ProcessorArchitecture> AllowedArchitectures { get; };
         }
     }
 

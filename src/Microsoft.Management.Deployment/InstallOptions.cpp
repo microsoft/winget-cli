@@ -84,7 +84,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_additionalPackageCatalogArguments = value;
     }
-    winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture> InstallOptions::AllowedArchitectures()
+    winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> InstallOptions::AllowedArchitectures()
     {
         return m_allowedArchitectures;
     }

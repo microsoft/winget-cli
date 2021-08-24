@@ -266,22 +266,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return resultStatus;
     }
 
-    ::AppInstaller::Utility::Architecture GetUtilityArchitecture(winrt::Microsoft::Management::Deployment::ProcessorArchitecture architecture)
+    std::optional<::AppInstaller::Utility::Architecture> GetUtilityArchitecture(winrt::Windows::System::ProcessorArchitecture architecture)
     {
         switch (architecture)
         {
-        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::Any:
-            return ::AppInstaller::Utility::Architecture::Neutral;
-        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::X86:
+        case winrt::Windows::System::ProcessorArchitecture::X86:
             return ::AppInstaller::Utility::Architecture::X86;
-        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::X64:
-            return ::AppInstaller::Utility::Architecture::X64;
-        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::ARM:
+        case winrt::Windows::System::ProcessorArchitecture::Arm:
             return ::AppInstaller::Utility::Architecture::Arm;
-        case winrt::Microsoft::Management::Deployment::ProcessorArchitecture::ARM64:
+        case winrt::Windows::System::ProcessorArchitecture::X64:
+            return ::AppInstaller::Utility::Architecture::X64;
+        case winrt::Windows::System::ProcessorArchitecture::Neutral:
+            return ::AppInstaller::Utility::Architecture::Neutral;
+        case winrt::Windows::System::ProcessorArchitecture::Arm64:
             return ::AppInstaller::Utility::Architecture::Arm64;
+        case winrt::Windows::System::ProcessorArchitecture::Unknown:
+            return ::AppInstaller::Utility::Architecture::Unknown;
         }
 
-        return ::AppInstaller::Utility::Architecture::Unknown;
+        return {};
     }
 }

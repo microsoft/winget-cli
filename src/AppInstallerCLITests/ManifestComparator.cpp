@@ -444,10 +444,10 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
 
         RequireInstaller(result, x86);
     }
-    SECTION("Neutral")
+    SECTION("Unknown")
     {
         ManifestComparatorTestContext context;
-        context.Add<Data::AllowedArchitectures>({ Architecture::Neutral });
+        context.Add<Data::AllowedArchitectures>({ Architecture::Unknown });
 
         ManifestComparator mc(context, {});
         auto result = mc.GetPreferredInstaller(manifest);
@@ -455,10 +455,10 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
         REQUIRE(result);
         REQUIRE(result->Arch == GetApplicableArchitectures()[0]);
     }
-    SECTION("x86 and Neutral")
+    SECTION("x86 and Unknown")
     {
         ManifestComparatorTestContext context;
-        context.Add<Data::AllowedArchitectures>({ Architecture::X86, Architecture::Neutral });
+        context.Add<Data::AllowedArchitectures>({ Architecture::X86, Architecture::Unknown });
 
         ManifestComparator mc(context, {});
         auto result = mc.GetPreferredInstaller(manifest);

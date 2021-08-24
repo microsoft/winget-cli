@@ -314,7 +314,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 std::vector<AppInstaller::Utility::Architecture> allowedArchitectures;
                 for (auto architecture : options.AllowedArchitectures())
                 {
-                    allowedArchitectures.push_back(GetUtilityArchitecture(architecture));
+                    auto convertedArchitecture = GetUtilityArchitecture(architecture);
+                    if (convertedArchitecture)
+                    {
+                        allowedArchitectures.push_back(convertedArchitecture.value());
+                    }
                 }
                 context->Add<Data::AllowedArchitectures>(std::move(allowedArchitectures));
             }

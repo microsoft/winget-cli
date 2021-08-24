@@ -32,19 +32,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CorrelationData(hstring const& value);
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
-        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture> AllowedArchitectures();
+        winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> AllowedArchitectures();
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         std::wstring m_preferredInstallLocation = L"";
-        winrt::Microsoft::Management::Deployment::PackageInstallScope m_packageInstallScope = winrt::Microsoft::Management::Deployment::PackageInstallScope::User;
+        winrt::Microsoft::Management::Deployment::PackageInstallScope m_packageInstallScope = winrt::Microsoft::Management::Deployment::PackageInstallScope::Any;
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_correlationData = L"";
         std::wstring m_additionalPackageCatalogArguments = L"";
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::ProcessorArchitecture> m_allowedArchitectures{
-            winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::ProcessorArchitecture>() };
+        Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
+            winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
