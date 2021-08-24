@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "UninstallFlow.h"
+#include "ShowFlow.h"
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
@@ -62,6 +63,82 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() <<
                 Resource::String::InstallationDisclaimer1 << std::endl <<
                 Resource::String::InstallationDisclaimer2 << std::endl;
+        }
+    }
+
+    void ShowLicenseAgreements::operator()(Execution::Context& context) const
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
+
+        if (agreements.empty())
+        {
+            // Nothing to do
+            return;
+        }
+
+        context << Workflow::ShowPackageInfo;
+        context.Reporter.Info() << std::endl;
+
+        if (m_ensureAcceptance)
+        {
+            context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ true);
+        }
+    }
+
+    void EnsureLicenseAcceptance::operator()(Execution::Context& context) const
+    {
+        if (context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements))
+        {
+            AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
+            return;
+        }
+
+        if (m_showPrompt)
+        {
+            bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::LicenseAgreementPrompt);
+            if (accepted)
+            {
+                AICLI_LOG(CLI, Info, << "License agreements accepted in prompt");
+                return;
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "License agreements not accepted in prompt");
+            }
+        }
+
+        AICLI_LOG(CLI, Error, << "License not agreed to.");
+        context.Reporter.Error() << Resource::String::LicenseNotAgreedTo << std::endl;
+        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    }
+
+    void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context)
+    {
+        bool hasLicenseAgreements = false;
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            // Show agreements for each package in a sub-context
+            auto showContextPtr = context.Clone();
+            Execution::Context& showContext = *showContextPtr;
+
+            showContext.Add<Execution::Data::Manifest>(package.Manifest);
+
+            showContext <<
+                Workflow::ReportManifestIdentity <<
+                Workflow::ShowLicenseAgreements(/* ensureAcceptance */ false);
+            if (showContext.IsTerminated())
+            {
+                AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
+            }
+
+            hasLicenseAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+        }
+
+        // If any package has agreements, ensure they are accepted
+        if (hasLicenseAgreements)
+        {
+            context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ false);
         }
     }
 
@@ -409,32 +486,42 @@ namespace AppInstaller::CLI::Workflow
             Workflow::RemoveInstaller;
     }
 
-    void InstallPackageVersion(Execution::Context& context)
+    void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowLicenseAgreements(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
     }
 
-    const struct PackagesAndInstallers
+    void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
-        PackagesAndInstallers(std::optional<AppInstaller::Manifest::ManifestInstaller> inst,
-            AppInstaller::CLI::Execution::PackageToInstall pkg) : Installer(inst), Package(pkg) {}
+        // Show all license agreements before installing anything
+        context << Workflow::EnsureLicenseAcceptanceForMultipleInstallers;
+        if (context.IsTerminated())
+        {
+            return;
+        }
 
-        std::optional<AppInstaller::Manifest::ManifestInstaller> Installer;
-        AppInstaller::CLI::Execution::PackageToInstall Package;
-    };
-
-    void InstallMultiple(Execution::Context& context)
-    {
-        bool allSucceeded = true;
+        // Report dependencies
         DependencyList allDependencies;
-        std::vector<PackagesAndInstallers> installers;
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            {
+                allDependencies.Add(package.Installer.Dependencies);
+            }
+        }
 
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
+        }
+
+        bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -446,52 +533,15 @@ namespace AppInstaller::CLI::Workflow
             // Extract the data needed for installing
             installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
             installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
-
-            // TODO: In the future, it would be better to not have to convert back and forth from a string
-            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
-
-            installContext <<
-                Workflow::SelectInstaller <<
-                Workflow::EnsureApplicableInstaller;
-            
-            if (installContext.IsTerminated())
-            {
-                allSucceeded = false;
-                continue;
-            }
-
-            const auto& installer = installContext.Get<Execution::Data::Installer>();
-            installers.push_back(PackagesAndInstallers(installer, package));
-            
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-            {
-                if (installer) allDependencies.Add(installer->Dependencies);
-            }
-        }
-
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            context.Add<Execution::Data::Dependencies>(allDependencies);
-            context << Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies);
-        }
-
-        for (auto packageAndInstaller : installers)
-        {
-            auto package = packageAndInstaller.Package;
-            auto installer = packageAndInstaller.Installer;
-
-            auto installContextPtr = context.Clone();
-            Execution::Context& installContext = *installContextPtr;
-
-            // set data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
-            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
-            installContext.Add<Execution::Data::Installer>(installer);
+            installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
+            installContext.Add<Execution::Data::Installer>(package.Installer);
 
             installContext <<
-                ReportIdentityAndInstallationDisclaimer <<
+                Workflow::ReportManifestIdentity <<
+                Workflow::ShowInstallationDisclaimer <<
                 Workflow::InstallPackageInstaller;
+
+            installContext.Reporter.Info() << std::endl;
 
             if (installContext.IsTerminated())
             {
@@ -502,14 +552,16 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                allSucceeded = false;
+                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
+                {
+                    allSucceeded = false;
+                }
             }
         }
 
         if (!allSucceeded)
         {
-            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+            AICLI_TERMINATE_CONTEXT(m_resultOnFailure);
         }
     }
 

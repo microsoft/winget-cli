@@ -125,6 +125,14 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_UNSUPPORTED_RESTSOURCE = unchecked((int)0x8A150038);
             public const int ERROR_RESTSOURCE_INVALID_DATA = unchecked((int)0x8A150039);
             public const int ERROR_BLOCKED_BY_POLICY = unchecked((int)0x8a15003A);
+            public const int ERROR_RESTSOURCE_INTERNAL_ERROR = unchecked((int)0x8a15003B);
+            public const int ERROR_RESTSOURCE_INVALID_URL = unchecked((int)0x8a15003C);
+            public const int ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE = unchecked((int)0x8a15003D);
+            public const int ERROR_RESTSOURCE_INVALID_VERSION = unchecked((int)0x8a15003E);
+            public const int ERROR_SOURCE_DATA_INTEGRITY_FAILURE = unchecked((int)0x8a15003F);
+            public const int ERROR_STREAM_READ_FAILURE = unchecked((int)0x8a150040);
+            public const int ERROR_LICENSE_NOT_ACCEPTED = unchecked((int)0x8a150041);
+            public const int ERROR_PROMPT_INPUT_ERROR = unchecked((int)0x8a150042);
         }
     }
 }

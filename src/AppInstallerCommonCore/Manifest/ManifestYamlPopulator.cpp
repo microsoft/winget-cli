@@ -342,6 +342,16 @@ namespace AppInstaller::Manifest
 
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_1 =
+                {
+                    { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); } },
+                };
+
+                std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -384,6 +394,23 @@ namespace AppInstaller::Manifest
             {
                 { "PackageIdentifier", [this](const YAML::Node& value)->ValidationErrors { m_p_packageDependency->Id = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "MinimumVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_packageDependency->MinVersion = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAgreementFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            result =
+            {
+                { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -475,6 +502,28 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
+    {
+        ValidationErrors resultErrors;
+        std::vector<Agreement> agreements;
+
+        for (auto const& entry : agreementsNode.Sequence())
+        {
+            Agreement agreement;
+            m_p_agreement = &agreement;
+            auto errors = ValidateAndProcessFields(entry, AgreementFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            agreements.emplace_back(std::move(agreement));
+        }
+
+        if (!agreements.empty())
+        {
+            m_p_localization->Add<Localization::Agreements>(std::move(agreements));
+        }
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
     {
         m_fullValidation = fullValidation;
@@ -490,6 +539,7 @@ namespace AppInstaller::Manifest
         DependenciesFieldInfos = GetDependenciesFieldProcessInfo(manifestVersion);
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
+        AgreementFieldInfos = GetAgreementFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;

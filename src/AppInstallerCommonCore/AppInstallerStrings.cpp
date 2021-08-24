@@ -4,7 +4,6 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
-#include "icu.h"
 
 namespace AppInstaller::Utility
 {

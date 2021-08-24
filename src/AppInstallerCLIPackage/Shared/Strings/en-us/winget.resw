@@ -141,6 +141,9 @@
     <value>The following sub-commands are available:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>upgrades available.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use the specified channel; default is general audience</value>
   </data>
@@ -948,5 +951,72 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="WindowsLibrariesDependencies" xml:space="preserve">
     <value>Windows Libraries</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Terms</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accept all license agreements for packages</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Exported package requires license agreement to install:</value>
+  </data>
+  <data name="LicenseAgreementPrompt" xml:space="preserve">
+    <value>The publisher requires that you view the following information and accept the EULA before installing.
+Do you agree to the terms?</value>
+  </data>
+  <data name="LicenseNotAgreedTo" xml:space="preserve">
+    <value>License not agreed to. Installation cancelled.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Agreements:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installer:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Locale:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store Product Id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>License:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>License Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Yes</value>
   </data>
 </root>
