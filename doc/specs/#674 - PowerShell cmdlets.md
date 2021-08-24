@@ -37,6 +37,8 @@ to keep the discussion focussed, I'll create GitHub discussions for each of thes
 consensus.
 
 The PowerShell module name will be "WindowsPackageManager"
+The Adjective "WinGet" may change, but is used consistently in the cmdlets until such time as we agree on the proper term.
+>Note: Naming things is hard.
 
 ### `winget install`
 
