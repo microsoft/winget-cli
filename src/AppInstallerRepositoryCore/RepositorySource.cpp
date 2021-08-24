@@ -881,7 +881,11 @@ namespace AppInstaller::Repository
             }
 
             auto detailsInternal = GetCurrentSource(details.Name);
-            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !detailsInternal);
+            if (!detailsInternal)
+            {
+                // No source to update.
+                return;
+            }
 
             detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
             detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementIdentifier;

@@ -13,6 +13,7 @@
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
 #include <Workflows/ShowFlow.h>
+#include <Workflows/SourceFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/WorkflowBase.h>
 #include <Public/AppInstallerRepositorySource.h>
@@ -23,6 +24,7 @@
 #include <Commands/ShowCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
+#include <Commands/SourceCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
@@ -485,6 +487,27 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
 
     context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
     {
+    } });
+}
+
+void OverrideForSourceAddWithAgreements(TestContext& context)
+{
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&)
+    {
+    } });
+
+    context.Override({ AddSource, [](TestContext&)
+    {
+    } });
+
+    context.Override({ OpenSourceForSourceAdd, [](TestContext& context)
+    {
+        auto testSource = std::make_shared<TestSource>();
+        testSource->Details.Information.SourceAgreementIdentifier = "AgreementsIdentifier";
+        testSource->Details.Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
+        testSource->Details.Information.RequiredPackageMatchFields.emplace_back("Market");
+        testSource->Details.Information.RequiredQueryParameters.emplace_back("Market");
+        context.Add<Execution::Data::Source>(std::move(testSource));
     } });
 }
 
@@ -1976,4 +1999,85 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     // Verify root dependencies are shown
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
+}
+
+TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
+{
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, std::cin };
+    OverrideForSourceAddWithAgreements(context);
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+    context.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+}
+
+TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
+{
+    // Accept the agreements by saying "Yes" at the prompt
+    std::istringstream sourceAddInput{ "y" };
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, sourceAddInput };
+    OverrideForSourceAddWithAgreements(context);
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+}
+
+TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
+{
+    // Accept the agreements by saying "No" at the prompt
+    std::istringstream sourceAddInput{ "n" };
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, sourceAddInput };
+    OverrideForSourceAddWithAgreements(context);
+    // This tests RemoveSource is called after agreement is not accepted. If they are not called, the test fails with unused override.
+    context.Override({ GetSourceListWithFilter, [](TestContext&)
+    {
+    } });
+    context.Override({ RemoveSources, [](TestContext&)
+    {
+    } });
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
 }

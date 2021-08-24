@@ -336,7 +336,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             AICLI_LOG(Repo, Error, << "Missing installer type.");
             return {};
         }
-        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(installerType.value());
+        installer.InstallerType = ConvertToInstallerType(installerType.value());
         installer.Locale = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
