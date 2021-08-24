@@ -21,6 +21,8 @@
 namespace AppInstaller::Msi
 {
     DEFINE_ENUM_FLAG_OPERATORS(INSTALLUILEVEL);
+    DEFINE_ENUM_FLAG_OPERATORS(INSTALLLOGMODE);
+    DEFINE_ENUM_FLAG_OPERATORS(INSTALLLOGATTRIBUTES);
 
     // Arguments parsed from a command line string.
     // Arguments currently supported are:

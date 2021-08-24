@@ -12,14 +12,15 @@ namespace AppInstaller::CLI::Workflow
         {
             if (msiArgs.LogFile)
             {
-                MsiEnableLogW(msiArgs.LogMode, msiArgs.LogFile->c_str(), msiArgs.LogAttributes);
+                THROW_IF_WIN32_ERROR(MsiEnableLogW(msiArgs.LogMode, msiArgs.LogFile->c_str(), msiArgs.LogAttributes));
             }
             else
             {
                 // Disable logging
-                MsiEnableLogW(0, nullptr, 0);
+                THROW_IF_WIN32_ERROR(MsiEnableLogW(0, nullptr, 0));
             }
 
+            // Returns old UI level. We don't need to reset it so we ignore it.
             MsiSetInternalUI(msiArgs.UILevel, nullptr);
 
             // TODO: Use progress callback

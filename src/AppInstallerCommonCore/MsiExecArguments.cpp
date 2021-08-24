@@ -13,8 +13,12 @@ namespace AppInstaller::Msi
 
     namespace
     {
-        const char MSIEXEC_QUIET_OPTION = 'q';
-        const char MSIEXEC_LOG_OPTION = 'l';
+        const char MsiExecQuietOption = 'q';
+        const char MsiExecLogOption = 'l';
+
+        const INSTALLLOGMODE DefaultLogMode =
+            INSTALLLOGMODE_FATALEXIT | INSTALLLOGMODE_ERROR | INSTALLLOGMODE_WARNING | INSTALLLOGMODE_INFO |
+            INSTALLLOGMODE_OUTOFDISKSPACE | INSTALLLOGMODE_ACTIONSTART | INSTALLLOGMODE_ACTIONDATA;
 
         // Modifiers for UI level
         // Description of how a long option is replaced by a short option.
@@ -33,11 +37,89 @@ namespace AppInstaller::Msi
             return token[0] == '-' || token[0] == '/';
         }
 
-        void ParseLogOption(std::string_view modifier, std::string_view value, MsiParsedArguments& parsedArgs)
+        // Parses the log mode and log file for the Log (/l) option.
+        void ParseLogOption(std::string_view logModeString, std::string_view logFile, MsiParsedArguments& parsedArgs)
         {
-            UNREFERENCED_PARAMETER(modifier);
-            UNREFERENCED_PARAMETER(value);
-            UNREFERENCED_PARAMETER(parsedArgs);
+            if (Utility::IsEmptyOrWhitespace(logFile))
+            {
+                AICLI_LOG(Core, Error, << "MSI log file path cannot be empty");
+                THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+            }
+
+            INSTALLLOGMODE logMode = {};
+            INSTALLLOGATTRIBUTES logAttributes = {};
+
+            // Note: These flags are mostly consecutive bits in the order given, except where indicated.
+            // Skipped flags are not mapped to a command line option.
+            std::map<char, INSTALLLOGMODE> ValidLogModes
+            {
+                { 'm', INSTALLLOGMODE_FATALEXIT },
+                { 'e', INSTALLLOGMODE_ERROR },
+                { 'w', INSTALLLOGMODE_WARNING },
+                { 'u', INSTALLLOGMODE_USER },
+                { 'i', INSTALLLOGMODE_INFO },
+                // FILESINUSE
+                // RESOLVESOURCE
+                { 'o', INSTALLLOGMODE_OUTOFDISKSPACE },
+                { 'a', INSTALLLOGMODE_ACTIONSTART },
+                { 'r', INSTALLLOGMODE_ACTIONDATA },
+                { 'p', INSTALLLOGMODE_PROPERTYDUMP },
+                { 'c', INSTALLLOGMODE_COMMONDATA },
+                { 'v', INSTALLLOGMODE_VERBOSE },
+                { 'x', INSTALLLOGMODE_EXTRADEBUG },
+                // LOGONLYONERROR
+                // LOGPERFORMANCE
+            };
+
+            // Total of bits used for log mode, including the skipped bits.
+            const size_t LogModeBitsCount = ValidLogModes.size() + 2;
+
+            std::map<char, INSTALLLOGATTRIBUTES> ValidLogAttributes
+            {
+                { '+', INSTALLLOGATTRIBUTES_APPEND },
+                { '!', INSTALLLOGATTRIBUTES_FLUSHEACHLINE },
+            };
+
+            bool isLogModeSet = false;
+            for (char c : logModeString)
+            {
+                // Log-all option
+                if (c == '*')
+                {
+                    // These four have to be set explicitly
+                    const INSTALLLOGMODE ExplicitFlags = INSTALLLOGMODE_VERBOSE | INSTALLLOGMODE_EXTRADEBUG | INSTALLLOGMODE_LOGONLYONERROR | INSTALLLOGMODE_LOGPERFORMANCE;
+                    logMode |= (INSTALLLOGMODE)((1 << LogModeBitsCount) - 1) & ~ExplicitFlags;
+                    isLogModeSet = true;
+                    continue;
+                }
+
+                auto modeItr = ValidLogModes.find(c);
+                if (modeItr != ValidLogModes.end())
+                {
+                    logMode |= modeItr->second;
+                    isLogModeSet = true;
+                    continue;
+                }
+
+                auto attributeItr = ValidLogAttributes.find(c);
+                if (attributeItr != ValidLogAttributes.end())
+                {
+                    logAttributes |= attributeItr->second;
+                    continue;
+                }
+
+                AICLI_LOG(Core, Error, << "Unknown msiexec log modifier: " << c);
+                THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+            }
+
+            if (!isLogModeSet)
+            {
+                logMode = DefaultLogMode;
+            }
+
+            parsedArgs.LogMode = logMode;
+            parsedArgs.LogAttributes = logAttributes;
+            parsedArgs.LogFile = Utility::ConvertToUTF16(logFile);
         }
 
         // Parses the modifier for the UI Level option (/q)
@@ -221,12 +303,12 @@ namespace AppInstaller::Msi
             // Options are case-insensitive
             switch (std::tolower(option))
             {
-            case MSIEXEC_QUIET_OPTION:
+            case MsiExecQuietOption:
             {
                 ParseQuietOption(optionModifier, parsedArgs);
                 break;
             }
-            case MSIEXEC_LOG_OPTION:
+            case MsiExecLogOption:
             {
                 if (tokens.empty())
                 {
