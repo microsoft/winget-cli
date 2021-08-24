@@ -20,7 +20,6 @@ namespace AppInstaller::Msi
             INSTALLLOGMODE_FATALEXIT | INSTALLLOGMODE_ERROR | INSTALLLOGMODE_WARNING | INSTALLLOGMODE_INFO |
             INSTALLLOGMODE_OUTOFDISKSPACE | INSTALLLOGMODE_ACTIONSTART | INSTALLLOGMODE_ACTIONDATA;
 
-        // Modifiers for UI level
         // Description of how a long option is replaced by a short option.
         struct TokenReplacement
         {
@@ -38,6 +37,9 @@ namespace AppInstaller::Msi
         }
 
         // Parses the log mode and log file for the Log (/l) option.
+        // The option has a modifier specifying the log mode (what is logged)
+        // and a value specifying the log file.
+        // E.g. /l* log.txt, /lw warnings.txt
         void ParseLogOption(std::string_view logModeString, std::string_view logFile, MsiParsedArguments& parsedArgs)
         {
             if (Utility::IsEmptyOrWhitespace(logFile))
@@ -206,21 +208,184 @@ namespace AppInstaller::Msi
             parsedArgs.UILevel = uiLevelBase | uiLevelModifiers;
         }
 
-        // Split the arguments string into tokens. Tokens are delimited by whitespace,
-        // but consider quotes. Each token represents an option (like /q), an argument
+        bool IsWhitespace(char c)
+        {
+            return c == ' ' || c == '\t';
+        }
+
+        std::string_view GetNextToken(std::string_view arguments, size_t& start)
+        {
+            // Eat leading whitespace
+            while (start < arguments.size() && IsWhitespace(arguments[start]))
+            {
+                ++start;
+            }
+
+            if (start == arguments.size())
+            {
+                // We reached the end
+                return {};
+            }
+
+            size_t pos = start;
+            bool seekingSpaceSeparator = ('\"' != arguments[pos]);
+            bool withinQuotes = false;
+
+            // Start looking from the next character
+            ++pos;
+
+            // Advance until we hit the end or the next separator
+            while (pos < arguments.size())
+            {
+                bool isSpace = IsWhitespace(arguments[pos]);
+                bool isQuote = ('\"' == arguments[pos]);
+
+                if (isSpace || isQuote)
+                {
+                    // We've encountered one of the two separators we're interested in
+                    if (seekingSpaceSeparator)
+                    {
+                        if (isQuote)
+                        {
+                            // We will ignore space characters enclosed between double quotes
+                            withinQuotes = !withinQuotes;
+                        }
+                        else
+                        {
+                            // This is a space character. If it is between quotes we ignore it;
+                            // otherwise it is a separator.
+                            if (!withinQuotes)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (isQuote)
+                        {
+                            // we've got what we needed, it is OK to stop
+                            break;
+                        }
+                    }
+                }
+
+                ++pos;
+            }
+
+            if (!seekingSpaceSeparator)
+            {
+                // we were looking for a terminating " character.
+                if (pos < arguments.size())
+                {
+                    // we move past the " character (it is OK for the end of the line
+                    // to act as the matching " character)
+                    ++pos;
+                }
+            }
+
+            auto result = arguments.substr(start, pos - start);
+            start = pos;
+            return result;
+        }
+
+        // Split the arguments string into tokens. Tokens are delimited by whitespace
+        // unless quoted. Each token represents an option (like /q), an argument
         // for an option, or a property.
         std::list<std::string> TokenizeMsiArguments(std::string_view arguments)
         {
-            // TODO: This only splits in whitespace. Need to split better around quotes.
-            std::stringstream ss(arguments.data());
+            size_t start = 0;
             std::list<std::string> result;
-            std::string s;
-            while (ss >> s)
+            auto token = GetNextToken(arguments, start);
+            while (!token.empty())
             {
-                result.push_back(std::move(s));
+                result.emplace_back(token);
+                token = GetNextToken(arguments, start);
             }
 
             return result;
+        }
+
+        // Parses a token that represents an argument to an option.
+        // If the value is unquoted, returns it as is.
+        // If the value is quoted, removes the quotes and replaces escaped characters.
+        std::string ParseValue(std::string_view valueToken)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, valueToken.empty());
+
+            if (valueToken[0] != '"')
+            {
+                // Nothing to do for unquoted tokens
+                return std::string{ valueToken };
+            }
+
+            // Verify that token is quoted correctly
+            if (valueToken.size() <= 1 || valueToken.back() != '"')
+            {
+                AICLI_LOG(Core, Error, << "Invalid msiexec argument value: " << valueToken);
+                THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+            }
+
+            // Copy the string ignoring the quotes and replacing escaped characters.
+            // In quoted tokens, the back quote represents double quotes (` means ")
+            // and can be escaped with back slash (\` means `).
+            std::string result;
+            for (size_t i = 1; i + 1 < valueToken.size(); ++i)
+            {
+                if (valueToken[i] == '\\' && valueToken[i + 1] == '`')
+                {
+                    result += '`';
+                    ++i;
+                }
+                else if (valueToken[i] == '`')
+                {
+                    result += '"';
+                }
+                else
+                {
+                    result += valueToken[i];
+                }
+            }
+
+            return result;
+        }
+
+        // Validates that a token represents a property.
+        // This checks that the property has the form PropertyName=Value,
+        // with the value optionally quoted.
+        bool IsValidPropertyToken(std::string_view propertyToken)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, propertyToken.empty());
+
+            // an additional catch on properties.  Prevents bad things like:
+            //  "Property=Value Property=Value" which would current get
+            // read as the first property name starts with a quote.
+            if (propertyToken[0] != '%' && !IsCharAlphaNumericW(propertyToken[0]))
+            {
+                AICLI_LOG(Core, Error, << "Bad property for msiexec: " << propertyToken);
+                return false;
+            }
+
+            auto separatorItr = propertyToken.begin();
+            while (separatorItr != propertyToken.end() && !IsWhitespace(*separatorItr) && *separatorItr != '=')
+            {
+                ++separatorItr;
+            }
+
+            if (*separatorItr != '=')
+            {
+                AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << propertyToken);
+                return false;
+            }
+
+            auto valueStartItr = separatorItr + 1;
+            if (valueStartItr == propertyToken.end())
+            {
+                // Accept empty values
+                return true;
+            }
+
+            return true;
         }
 
         // Replaces long options in the arguments (e.g. /quiet), by their short equivalents
@@ -280,11 +445,12 @@ namespace AppInstaller::Msi
         {
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, tokens.empty());
 
-            const auto token = std::move(tokens.front());
+            auto token = std::move(tokens.front());
             tokens.pop_front();
             if (!IsSwitch(token))
             {
                 // Token is a property, i.e. NAME=value. Add it to the parsed args.
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT, !IsValidPropertyToken(token));
                 parsedArgs.Properties += L" " + Utility::ConvertToUTF16(token);
                 tokens.pop_front();
                 return;
@@ -298,7 +464,7 @@ namespace AppInstaller::Msi
             }
 
             char option = token[1];
-            auto optionModifier = std::string_view(token).substr(2);
+            auto optionModifier = ParseValue(std::string_view(token).substr(2));
 
             // Options are case-insensitive
             switch (std::tolower(option))
@@ -317,8 +483,9 @@ namespace AppInstaller::Msi
                     THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
                 }
 
-                const auto optionValue = std::move(tokens.front());
+                const auto optionValue = ParseValue(tokens.front());
                 tokens.pop_front();
+
                 ParseLogOption(optionModifier, optionValue, parsedArgs);
                 break;
             }
