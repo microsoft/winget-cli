@@ -44,7 +44,10 @@ namespace AppInstaller::CLI::Workflow
             MachineArchitectureComparator() : details::ComparisonField("Machine Architecture") {}
 
             MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
-                details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures)) {}
+                details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures))
+            {
+                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << GetAllowedArchitecturesString());
+            }
 
             // TODO: At some point we can do better about matching the currently installed architecture
             static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata&)
@@ -138,6 +141,22 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return Utility::IsApplicableArchitecture(architecture, m_allowedArchitectures);
                 }
+            }
+
+            std::string GetAllowedArchitecturesString()
+            {
+                std::stringstream result;
+                bool prependComma = false;
+                for (Utility::Architecture architecture : m_allowedArchitectures)
+                {
+                    if (prependComma)
+                    {
+                        result << ", ";
+                    }
+                    result << Utility::ToString(architecture);
+                    prependComma = true;
+                }
+                return result.str();
             }
 
             std::vector<Utility::Architecture> m_allowedArchitectures;
