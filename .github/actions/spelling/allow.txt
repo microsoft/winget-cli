@@ -275,6 +275,7 @@ NOMINMAX
 NONAME
 nonexistentsetting
 NONINFRINGEMENT
+normalizednameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -297,6 +298,7 @@ OSVERSIONINFOEXW
 outfile
 OUTOFMEMORY
 OWC
+packagefamilyname
 PACKAGESSCHEMA
 Params
 params

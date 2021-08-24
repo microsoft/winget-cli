@@ -39,13 +39,13 @@ namespace AppInstaller
         COMContext() : NullStream(), CLI::Execution::Context(*m_nullOut, *m_nullIn)
         {
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::SkipAgreementsAcceptence);
+            SetFlags(CLI::Execution::ContextFlag::SkipAgreementsAcceptance);
         }
 
         COMContext(std::ostream& out, std::istream& in) : CLI::Execution::Context(out, in) 
         {
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::SkipAgreementsAcceptence);
+            SetFlags(CLI::Execution::ContextFlag::SkipAgreementsAcceptance);
         }
 
         ~COMContext() = default;

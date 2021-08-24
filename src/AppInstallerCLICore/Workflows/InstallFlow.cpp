@@ -82,15 +82,15 @@ namespace AppInstaller::CLI::Workflow
 
         if (m_ensureAcceptance)
         {
-            context << Workflow::EnsurePackageAgreemenstsAcceptance(/* showPrompt */ true);
+            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ true);
         }
     }
 
-    void EnsurePackageAgreemenstsAcceptance::operator()(Execution::Context& context) const
+    void EnsurePackageAgreementsAcceptance::operator()(Execution::Context& context) const
     {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SkipAgreementsAcceptence))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SkipAgreementsAcceptance))
         {
-            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptence check because SkipAgreementsAcceptence flag is set.");
+            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because SkipAgreementsAcceptance flag is set.");
             return;
         }
 
@@ -144,7 +144,7 @@ namespace AppInstaller::CLI::Workflow
         // If any package has agreements, ensure they are accepted
         if (hasPackageAgreements)
         {
-            context << Workflow::EnsurePackageAgreemenstsAcceptance(/* showPrompt */ false);
+            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ false);
         }
     }
 

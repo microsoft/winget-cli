@@ -782,9 +782,9 @@ namespace AppInstaller::CLI::Workflow
 
     void HandleSourceAgreements(Execution::Context& context)
     {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SkipAgreementsAcceptence))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SkipAgreementsAcceptance))
         {
-            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptence check because SkipAgreementsAcceptence flag is set.");
+            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptance check because SkipAgreementsAcceptance flag is set.");
             return;
         }
 
@@ -806,17 +806,17 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        auto sourcesNeedsAcceptence = CheckSourceAgreements(sourcesToCheck);
+        auto sourcesNeedsAcceptance = CheckSourceAgreements(sourcesToCheck);
 
-        if (sourcesNeedsAcceptence.empty())
+        if (sourcesNeedsAcceptance.empty())
         {
-            AICLI_LOG(CLI, Info, << "No source agreement needs acceptence.");
+            AICLI_LOG(CLI, Info, << "No source agreement needs acceptance.");
             return;
         }
 
         std::string agreementsTitleMessage = Resource::LocString{ Resource::String::SourceAgreementsTitle };
 
-        for (auto const& sourceToAccept : sourcesNeedsAcceptence)
+        for (auto const& sourceToAccept : sourcesNeedsAcceptance)
         {
             // Show source agreements
             context.Reporter.Info() << Execution::SourceInfoEmphasis <<
@@ -861,7 +861,7 @@ namespace AppInstaller::CLI::Workflow
         if (accepted)
         {
             AICLI_LOG(CLI, Info, << "Source agreements accepted");
-            SaveAcceptedSourceAgreements(sourcesNeedsAcceptence);
+            SaveAcceptedSourceAgreements(sourcesNeedsAcceptance);
         }
         else
         {

@@ -54,7 +54,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
                 "1.0.0",
                 "1.1.0"],
               "SourceAgreements": {
-                "AgreementsIdentifier": "agreementv1",
+                "AgreementsIdentifier": "agreementV1",
                 "Agreements": [{
                     "AgreementLabel": "EULA",
                     "Agreement": "this is store agreement",
@@ -82,7 +82,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
     REQUIRE(information.ServerSupportedVersions.size() == 2);
     REQUIRE(information.ServerSupportedVersions.at(0) == "1.0.0");
     REQUIRE(information.ServerSupportedVersions.at(1) == "1.1.0");
-    REQUIRE(information.SourceAgreementsIdentifier == "agreementv1");
+    REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
     REQUIRE(information.SourceAgreements.size() == 1);
     REQUIRE(information.SourceAgreements.at(0).Label == "EULA");
     REQUIRE(information.SourceAgreements.at(0).Text == "this is store agreement");
@@ -161,7 +161,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
                 "1.0.0",
                 "1.1.0"],
               "SourceAgreements": {
-                "AgreementsIdentifier": "agreementv1",
+                "AgreementsIdentifier": "agreementV1",
                 "Agreements": [{
                     "AgreementLabel": "EULA",
                     "Agreement": "this is store agreement",
@@ -187,7 +187,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
     RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
-    REQUIRE(information.SourceAgreementsIdentifier == "agreementv1");
+    REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
     REQUIRE(information.SourceAgreements.size() == 1);
     REQUIRE(information.SourceAgreements.at(0).Label == "EULA");
     REQUIRE(information.SourceAgreements.at(0).Text == "this is store agreement");

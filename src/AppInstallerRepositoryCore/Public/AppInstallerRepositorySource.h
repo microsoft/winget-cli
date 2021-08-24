@@ -227,7 +227,7 @@ namespace AppInstaller::Repository
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
 
-    // Checks the source agreements and return a list that needs user acceptence.
+    // Checks the source agreements and return a list that needs user acceptance.
     std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources);
 
     // Saves the accepted source agreements in metadata.

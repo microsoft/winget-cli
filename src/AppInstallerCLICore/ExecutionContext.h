@@ -54,7 +54,7 @@ namespace AppInstaller::CLI::Execution
         InstallerExecutionUseUpdate = 0x1,
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
-        SkipAgreementsAcceptence = 0x8,
+        SkipAgreementsAcceptance = 0x8,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

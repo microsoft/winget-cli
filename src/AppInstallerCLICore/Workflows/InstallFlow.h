@@ -42,9 +42,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct EnsurePackageAgreemenstsAcceptance : public WorkflowTask
+    struct EnsurePackageAgreementsAcceptance : public WorkflowTask
     {
-        EnsurePackageAgreemenstsAcceptance(bool showPrompt) : WorkflowTask("EnsurePackageAgreemenstsAcceptance"), m_showPrompt(showPrompt) {}
+        EnsurePackageAgreementsAcceptance(bool showPrompt) : WorkflowTask("EnsurePackageAgreementsAcceptance"), m_showPrompt(showPrompt) {}
 
         void operator()(Execution::Context& context) const override;
 
