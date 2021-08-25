@@ -201,19 +201,21 @@ namespace AppInstaller::Msi
             // When using UI Level None, allow showing the UAC prompt.
             WI_SetFlagIf(uiLevelModifiers, INSTALLUILEVEL_UACONLY, uiLevelBase == INSTALLUILEVEL_NONE);
 
-
             parsedArgs.UILevel = uiLevelBase | uiLevelModifiers;
         }
 
-        bool IsWhitespace(char c)
+        bool IsWhiteSpace(char c)
         {
             return c == ' ' || c == '\t';
         }
 
+        // Gets the next token found in the arguments string, starting the search on the given position.
+        // If there are no more tokens, return empty.
+        // After finding the token, updates `start` to point to the next place we need to start the next token search.
         std::string_view GetNextToken(std::string_view arguments, size_t& start)
         {
             // Eat leading whitespace
-            while (start < arguments.size() && IsWhitespace(arguments[start]))
+            while (start < arguments.size() && IsWhiteSpace(arguments[start]))
             {
                 ++start;
             }
@@ -225,7 +227,7 @@ namespace AppInstaller::Msi
             }
 
             size_t pos = start;
-            bool seekingSpaceSeparator = ('\"' != arguments[pos]);
+            bool seekingSpaceSeparator = ('"' != arguments[pos]);
             bool withinQuotes = false;
 
             // Start looking from the next character
@@ -234,8 +236,8 @@ namespace AppInstaller::Msi
             // Advance until we hit the end or the next separator
             while (pos < arguments.size())
             {
-                bool isSpace = IsWhitespace(arguments[pos]);
-                bool isQuote = ('\"' == arguments[pos]);
+                bool isSpace = IsWhiteSpace(arguments[pos]);
+                bool isQuote = ('"' == arguments[pos]);
 
                 if (isSpace || isQuote)
                 {
@@ -272,10 +274,10 @@ namespace AppInstaller::Msi
 
             if (!seekingSpaceSeparator)
             {
-                // we were looking for a terminating " character.
+                // We were looking for a terminating " character.
                 if (pos < arguments.size())
                 {
-                    // we move past the " character (it is OK for the end of the line
+                    // We move past the " character (it is OK for the end of the line
                     // to act as the matching " character)
                     ++pos;
                 }
@@ -348,36 +350,27 @@ namespace AppInstaller::Msi
         // Validates that a token represents a property.
         // This checks that the property has the form PropertyName=Value,
         // with the value optionally quoted.
-        bool IsValidPropertyToken(std::string_view propertyToken)
+        bool IsValidPropertyToken(std::string_view token)
         {
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, propertyToken.empty());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, token.empty());
 
-            // an additional catch on properties.  Prevents bad things like:
-            //  "Property=Value Property=Value" which would current get
-            // read as the first property name starts with a quote.
-            if (propertyToken[0] != '%' && !IsCharAlphaNumericW(propertyToken[0]))
+            if (token[0] != '%' && !IsCharAlphaNumericA(token[0]))
             {
-                AICLI_LOG(Core, Error, << "Bad property for msiexec: " << propertyToken);
+                AICLI_LOG(Core, Error, << "Bad property for msiexec: " << token);
                 return false;
             }
 
-            auto separatorItr = propertyToken.begin();
-            while (separatorItr != propertyToken.end() && !IsWhitespace(*separatorItr) && *separatorItr != '=')
+            // Find the = separator
+            size_t pos = 0;
+            while (pos < token.size() && !IsWhiteSpace(token[pos]) && token[pos])
             {
-                ++separatorItr;
+                ++pos;
             }
 
-            if (separatorItr == propertyToken.end() || *separatorItr != '=')
+            if (pos == token.size() || token[pos] != '=')
             {
-                AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << propertyToken);
+                AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << token);
                 return false;
-            }
-
-            auto valueStartItr = separatorItr + 1;
-            if (valueStartItr == propertyToken.end())
-            {
-                // Accept empty values
-                return true;
             }
 
             return true;
@@ -434,7 +427,7 @@ namespace AppInstaller::Msi
         }
 
         // Consumes the next argument token in the list. If the token is an option
-        // that takes an argument, also consumes it. After consumen the token(s),
+        // that takes an argument, also consumes it. After consuming the token(s),
         // removes it from the list and updates the parsed arguments accordingly.
         void ConsumeNextToken(std::list<std::string>& tokens, MsiParsedArguments& parsedArgs)
         {
