@@ -352,29 +352,6 @@ namespace
         std::istream& m_in;
         bool m_isClone = false;
     };
-
-    SourceDetails AddRestSourceHelper()
-    {
-        SetSetting(Streams::UserSources, R"(Sources:)"sv);
-        TestHook_ClearSourceFactoryOverrides();
-
-        SourceDetails details;
-        details.Name = "restsource";
-        details.Type = "Microsoft.Rest";
-        details.Arg = "thisIsTheArg";
-        details.Data = "thisIsTheData";
-        details.CustomHeader = "CustomHeader";
-
-        bool receivedCustomHeader = false;
-        TestSourceFactory factory{ TestRestSource::Create };
-        factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
-        TestHook_SetSourceFactoryOverride(details.Type, factory);
-
-        TestProgress progress;
-        AddSource(details, progress);
-
-        return details;
-    }
 }
 
 void OverrideForOpenSource(TestContext& context)
@@ -2007,86 +1984,35 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
 
-TEST_CASE("ShowFlow_CustomHeader", "[ShowFlow][CustomHeader]")
+TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 {
-    auto details = AddRestSourceHelper();
+    SetSetting(Streams::UserSources, R"(Sources:)"sv);
+    TestHook_ClearSourceFactoryOverrides();
+
+    SourceDetails details;
+    details.Name = "restsource";
+    details.Type = "Microsoft.Rest";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
+    details.CustomHeader = "CustomHeader";
+
+    bool receivedCustomHeader = false;
+    TestSourceFactory factory{ TestRestSource::Create };
+    factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    TestProgress progress;
+    AddSource(details, progress);
 
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
 
-    std::string customHeader2 = "Test custom header in Show Flow";
+    std::string customHeader2 = "Test custom header in Open source Flow";
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
     context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
-    OverrideForOpenSource(context);
-    ShowCommand show({});
-    show.Execute(context);
-
-    REQUIRE(context.Contains(Execution::Data::CustomHeader));
-    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
-}
-
-TEST_CASE("InstallFlow_CustomHeader", "[InstallFlow][CustomHeader]")
-{
-    auto details = AddRestSourceHelper();
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideForOpenSource(context);
-    OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
-    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
-
-    std::string customHeader2 = "Test custom header in Install Flow";
-    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
-    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
-
-    InstallCommand install({});
-    install.Execute(context);
-     
-    REQUIRE(context.Contains(Execution::Data::CustomHeader));
-    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
-}
-
-TEST_CASE("SearchFlow_CustomHeader", "[SearchFlow][CustomHeader]")
-{
-    auto details = AddRestSourceHelper();
-
-    std::ostringstream searchOutput;
-    TestContext context{ searchOutput, std::cin };
-    OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
-
-    std::string customHeader2 = "Test custom header in Search Flow";
-    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
-    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
-
-    SearchCommand search({});
-    search.Execute(context);
-
-    REQUIRE(context.Contains(Execution::Data::CustomHeader));
-    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
-}
-
-TEST_CASE("UpgradeFlow_CustomHeader", "[UpgradeFlow][CustomHeader]")
-{
-    auto details = AddRestSourceHelper();
-
-    std::ostringstream updateOutput;
-    TestContext context{ updateOutput, std::cin };
-    OverrideForCompositeInstalledSource(context);
-    OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
-    context.Args.AddArg(Execution::Args::Type::Silent);
-
-    std::string customHeader2 = "Test custom header in Upgrade Flow";
-    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
-    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
-
-    UpgradeCommand update({});
-    update.Execute(context);
-
-    REQUIRE(context.Contains(Execution::Data::CustomHeader));
-    REQUIRE(context.Get<Execution::Data::CustomHeader>().compare(customHeader2) == 0);
+    OpenSource(context);
+    auto source = context.Get<Execution::Data::Source>();
+    REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
 }

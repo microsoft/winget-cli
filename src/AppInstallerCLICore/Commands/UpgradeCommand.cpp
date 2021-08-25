@@ -126,7 +126,6 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::ReadCustomHeader <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 

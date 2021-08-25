@@ -132,9 +132,9 @@ TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
     TestProgress progress;
     AddSource(details, progress);
 
-    std::string customHeaderTwo = "Custom Header";
-    auto source = OpenSource(details.Name, customHeaderTwo, progress).Source;
-    REQUIRE(customHeaderTwo.compare(source.get()->GetDetails().CustomHeader.value_or("")) == 0);
+    details.CustomHeader = "Custom Header";
+    auto source = OpenSourceFromDetails(details, progress).Source;
+    REQUIRE(details.CustomHeader.value().compare(source.get()->GetDetails().CustomHeader.value_or("")) == 0);
 }
 
 TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]")
@@ -159,7 +159,7 @@ TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]"
     TestProgress progress;
     AddSource(details, progress);
 
-    std::string customHeaderTwo = "Custom Header";
-    auto source = OpenSource(details.Name, customHeaderTwo, progress).Source;
+    details.CustomHeader = {};
+    auto source = OpenSourceFromDetails(details, progress).Source;
     REQUIRE(!source.get()->GetDetails().CustomHeader.has_value());
 }

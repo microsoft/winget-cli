@@ -124,7 +124,7 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    OpenSourceResult OpenSource(std::string_view name, std::optional<std::string> customHeader, IProgressCallback& progress);
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
     // Opens an existing source.
     OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress);

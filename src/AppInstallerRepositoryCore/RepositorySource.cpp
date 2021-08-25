@@ -913,7 +913,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    OpenSourceResult OpenSource(std::string_view name, std::optional<std::string> customHeader, IProgressCallback& progress)
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
 
@@ -936,7 +936,7 @@ namespace AppInstaller::Repository
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, std::move(customHeader), progress);
+                    return OpenSource(currentSources[0].get().Name, progress);
                 }
             }
             else
@@ -995,12 +995,6 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
-                if (Utility::CaseInsensitiveEquals(source->Type, Rest::RestSourceFactory::Type()))
-                {
-                    source->CustomHeader = std::move(customHeader);
-                }
-
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))

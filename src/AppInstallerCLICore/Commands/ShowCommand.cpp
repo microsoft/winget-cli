@@ -72,7 +72,6 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
-                    Workflow::ReadCustomHeader <<
                     Workflow::OpenSource <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<

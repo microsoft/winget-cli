@@ -76,7 +76,6 @@ namespace AppInstaller::CLI
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::ReadCustomHeader <<
             Workflow::OpenSource <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(false) <<

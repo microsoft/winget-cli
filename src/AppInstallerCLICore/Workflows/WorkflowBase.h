@@ -321,10 +321,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstalledPackageVersion
     void GetInstalledPackageVersion(Execution::Context& context);
 
-    // Gets the additional data and adds to the Execution context.
-    // Required Args: None
-    void ReadCustomHeader(Execution::Context& context);
-
     // Reports execution stage in a workflow
     // Required Args: ExecutionStage
     // Inputs: ExecutionStage?
