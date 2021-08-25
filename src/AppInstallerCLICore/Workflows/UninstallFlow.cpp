@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "UninstallFlow.h"
 #include "WorkflowBase.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
+
+#include <AppInstallerDeployment.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Msix;

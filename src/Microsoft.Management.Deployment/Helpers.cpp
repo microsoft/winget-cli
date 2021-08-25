@@ -13,7 +13,7 @@ using namespace std::string_view_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    std::optional<DWORD> GetCallerProcessId()
+    std::pair<HRESULT, DWORD> GetCallerProcessId()
     {
         RPC_STATUS rpcStatus = RPC_S_OK;
         RPC_CALL_ATTRIBUTES callAttributes = {};
@@ -25,9 +25,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             !((rpcStatus == RPC_S_OK) && HandleToULong(callAttributes.ClientPID) == GetCurrentProcessId()))
         {
             DWORD callerProcessId = HandleToULong(callAttributes.ClientPID);
-            return callerProcessId;
+            return { S_OK, callerProcessId };
         }
-        return {};
+        return { E_ACCESSDENIED, 0 };
     }
 
     std::wstring_view GetStringForCapability(Capability capability)
@@ -57,14 +57,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     HRESULT EnsureComCallerHasCapability(Capability requiredCapability)
     {
-        auto callerProcessId = GetCallerProcessId();
-        RETURN_HR_IF(E_ACCESSDENIED, !callerProcessId.has_value());
-        HRESULT hr = EnsureProcessHasCapability(requiredCapability, callerProcessId.value());
+        auto [hr, callerProcessId] = GetCallerProcessId();
+        RETURN_IF_FAILED(hr);
+        hr = EnsureProcessHasCapability(requiredCapability, callerProcessId);
         // The Windows.Management.Deployment API has set the precedent that packageManagement is a superset of packageQuery
         // and packageQuery does not need to be declared separately.
         if (FAILED(hr) && requiredCapability == Capability::PackageQuery)
         {
-            return EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId.value());
+            return EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId);
         }
         return hr;
     }

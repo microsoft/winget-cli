@@ -42,14 +42,21 @@ namespace AppInstaller::CLI::Execution
     
     void ContextOrchestrator::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
-        std::lock_guard<std::mutex> lock{ m_queueLock };
+        {
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
-        m_queueItems.push_back(item);
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
+            m_queueItems.push_back(item);
+        }
 
         // Add the package to the Installing source so that it can be queried using the ISource interface.
         const auto& manifest = item->GetContext().Get<Execution::Data::Manifest>();
         m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+
+        {
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+            item->SetState(OrchestratorQueueItemState::Queued);
+        }
     }
 
     void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
@@ -62,7 +69,7 @@ namespace AppInstaller::CLI::Execution
 
     std::shared_ptr<OrchestratorQueueItem> ContextOrchestrator::GetNextItem()
     {
-        std::lock_guard<std::mutex> lock{ m_queueLock };
+        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
         if (m_queueItems.empty())
         {
@@ -73,10 +80,10 @@ namespace AppInstaller::CLI::Execution
 
         // Check if item can be dequeued.
         // Since only one item can be installed at a time currently the logic is very simple,
-        // and can just check if the first item is already running. This logic will need to become
+        // and can just check if the first item is ready to run. This logic will need to become
         // more complicated if multiple operation types (e.g. Download & Install) are added that can
         // run simultaneously.
-        if (item->GetState() == OrchestratorQueueItemState::Running)
+        if (item->GetState() != OrchestratorQueueItemState::Queued)
         {
             return {};
         }
@@ -121,21 +128,32 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state)
     {
-        std::lock_guard<std::mutex> lock{ m_queueLock };
+        // OrchestratorQueueItemState::Running items should only be removed by the thread that ran the item.
+        // Queued items can be removed by any thread. 
+        // NotQueued items should not be removed since, if found in the queue, they are in the process of being queued by another thread.
+        bool foundItem = false;
 
-        // Look for the item. It's ok if the item is not found since multiple listeners may try to remove the same item.
-        //auto itr = std::find(m_queueItems.begin(), m_queueItems.end(), item);
-        auto itr = FindIteratorById(item.GetId());
-        if (itr != m_queueItems.end() && (*itr)->GetState() == state)
         {
-            m_queueItems.erase(itr);
+            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
+            // Look for the item. It's ok if the item is not found since multiple listeners may try to remove the same item.
+            auto itr = FindIteratorById(item.GetId());
+            if (itr != m_queueItems.end() && (*itr)->GetState() == state)
+            {
+                foundItem = true;
+                m_queueItems.erase(itr);
+            }
+        }
+
+        if (foundItem)
+        {
             const auto& manifest = item.GetContext().Get<Execution::Data::Manifest>();
             m_installingWriteableSource->RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
 
             item.GetCompletedEvent().SetEvent();
         }
     }
+
     void ContextOrchestrator::CancelQueueItem(const OrchestratorQueueItem& item)
     {
         // Always cancel the item, even if it isn't running yet, to get the terminationHR set correctly.
