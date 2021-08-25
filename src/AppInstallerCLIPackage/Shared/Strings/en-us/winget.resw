@@ -1019,4 +1019,7 @@ Do you agree to the terms?</value>
   <data name="PromptOptionYes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Successfully installed. Restart the application to complete the update.</value>
+  </data>
 </root>
