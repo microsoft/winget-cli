@@ -100,6 +100,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowRegistrationDeferred);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);

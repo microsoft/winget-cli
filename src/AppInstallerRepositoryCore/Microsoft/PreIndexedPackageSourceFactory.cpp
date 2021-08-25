@@ -6,6 +6,9 @@
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
 
+#include <AppInstallerDeployment.h>
+#include <AppInstallerMsixInfo.h>
+
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
