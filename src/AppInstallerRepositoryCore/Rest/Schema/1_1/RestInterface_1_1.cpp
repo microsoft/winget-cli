@@ -112,7 +112,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         }
 
         SearchRequestSerializer serializer;
-        return serializer.Serialize(searchRequest);
+        return serializer.Serialize(resultSearchRequest);
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
