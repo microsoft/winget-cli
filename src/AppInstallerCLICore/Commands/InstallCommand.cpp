@@ -117,11 +117,6 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
             }
         }
-
-        if (execArgs.Contains(Args::Type::CustomHeader) && !execArgs.Contains(Args::Type::Source))
-        {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Args::Type::CustomHeader).Name(), {});
-        }
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const

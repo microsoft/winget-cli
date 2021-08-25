@@ -5,8 +5,6 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
-#include "AppInstallerRepositorySource.h"
-#include "Rest/RestSourceFactory.h"
 #include <winget/ManifestYamlParser.h>
 
 
@@ -58,7 +56,7 @@ namespace AppInstaller::CLI::Workflow
                         {
                             if (!(Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.value().Type)))
                             {
-                                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForPreIndexedWarning << std::endl;
+                                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
                             }
                             else
                             {

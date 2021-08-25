@@ -50,14 +50,6 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-show";
     }
 
-    void ShowCommand::ValidateArgumentsInternal(Args& execArgs) const
-    {
-        if (execArgs.Contains(Args::Type::CustomHeader) && !execArgs.Contains(Args::Type::Source))
-        {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Args::Type::CustomHeader).Name(), {});
-        }
-    }
-
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::ListVersions))

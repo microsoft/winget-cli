@@ -5,7 +5,6 @@
 #include "TestSource.h"
 #include "TestHooks.h"
 #include "TestSettings.h"
-#include "RestSourceTestHelper.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
@@ -1997,15 +1996,15 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     details.CustomHeader = "CustomHeader";
 
     bool receivedCustomHeader = false;
-    TestSourceFactory factory{ TestRestSource::Create };
+    TestSourceFactory factory { [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
     factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
     TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     TestProgress progress;
     AddSource(details, progress);
 
-    std::ostringstream showOutput;
-    TestContext context{ showOutput, std::cin };
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
     context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
 
     std::string customHeader2 = "Test custom header in Open source Flow";

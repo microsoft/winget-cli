@@ -22,6 +22,21 @@ namespace AppInstaller::Repository::Rest
 
     constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
 
+    namespace {
+        std::unordered_map<utility::string_t, utility::string_t> GetHeaders(std::optional<std::string> customHeader)
+        {
+            if (!customHeader)
+            {
+                AICLI_LOG(Repo, Verbose, << "Custom header not found.");
+                return {};
+            }
+
+            std::unordered_map<utility::string_t, utility::string_t> headers;
+            headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
+            return headers;
+        }
+    }
+
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
         : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
@@ -110,18 +125,5 @@ namespace AppInstaller::Repository::Rest
 
         std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, latestCommonVersion.value());
         return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
-    }
-
-    std::unordered_map<utility::string_t, utility::string_t> RestClient::GetHeaders(std::optional<std::string> customHeader)
-    {
-        if (!customHeader)
-        {
-            AICLI_LOG(Repo, Verbose, << "Custom header not found.");
-            return {};
-        }
-
-        std::unordered_map<utility::string_t, utility::string_t> headers;
-        headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
-        return headers;
     }
 }

@@ -113,11 +113,6 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
         }
-
-        if (execArgs.Contains(Args::Type::CustomHeader) && !execArgs.Contains(Args::Type::Source))
-        {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Args::Type::CustomHeader).Name(), {});
-        }
     }
 
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const

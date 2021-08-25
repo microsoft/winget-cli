@@ -67,6 +67,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableForNonRestSourceWarning);
+        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableWithoutSource);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpForDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
@@ -287,9 +290,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableForPreIndexedWarning);
-        WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableWithoutSource);
     };
 
     // A localized string

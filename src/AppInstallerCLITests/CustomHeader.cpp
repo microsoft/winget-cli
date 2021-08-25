@@ -4,19 +4,17 @@
 #include "TestCommon.h"
 #include "TestHooks.h"
 #include "TestSettings.h"
-#include "RestSourceTestHelper.h"
+#include "TestSource.h"
 #include "TestRestRequestHandler.h"
 #include <Rest/Schema/1_0/Interface.h>
 #include <Rest/Schema/JsonHelper.h>
-#include <Rest/Schema/IRestClient.h>
 #include <Rest/RestClient.h>
-#include <AppInstallerRepositorySource.h>
-#include <AppInstallerErrors.h>
 #include <winget/Settings.h>
 
 using namespace TestCommon;
 using namespace AppInstaller;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Rest;
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::V1_0;
@@ -101,7 +99,7 @@ TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
     details.CustomHeader = customHeader;
 
     bool receivedCustomHeader = false;
-    TestSourceFactory factory{ TestRestSource::Create };
+    TestSourceFactory factory{ [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
     factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = customHeader.compare(sd.CustomHeader.value()) == 0; };
     TestHook_SetSourceFactoryOverride(details.Type, factory);
 
@@ -125,7 +123,7 @@ TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
     details.CustomHeader = customHeader;
 
     bool receivedCustomHeader = false;
-    TestSourceFactory factory{ TestRestSource::Create };
+    TestSourceFactory factory{ [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
     factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = customHeader.compare(sd.CustomHeader.value()) == 0; };
     TestHook_SetSourceFactoryOverride(details.Type, factory);
 
@@ -152,7 +150,7 @@ TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]"
     details.CustomHeader = customHeader;
 
     bool receivedCustomHeader = false;
-    TestSourceFactory factory{ TestRestSource::Create };
+    TestSourceFactory factory{ [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
     factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = customHeader.compare(sd.CustomHeader.value()) == 0; };
     TestHook_SetSourceFactoryOverride(details.Type, factory);
 
