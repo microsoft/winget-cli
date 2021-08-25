@@ -477,7 +477,7 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
+    <CopyFileToFolders Include="TestData\Installer_Msix_WFDependency.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesOnRoot.yaml">

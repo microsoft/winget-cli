@@ -536,7 +536,7 @@
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
+    <CopyFileToFolders Include="TestData\Installer_Msix_WFDependency.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesOnRoot.yaml">
