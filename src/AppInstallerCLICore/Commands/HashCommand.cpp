@@ -5,6 +5,8 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+#include <AppInstallerMsixInfo.h>
+
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;

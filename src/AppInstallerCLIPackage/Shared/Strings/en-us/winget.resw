@@ -1038,4 +1038,7 @@ Do you agree to the terms?</value>
   <data name="SourceAgreementsMarketMessage" xml:space="preserve">
     <value>The source requires current machine's geographic region to be sent to function properly.</value>
   </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Successfully installed. Restart the application to complete the upgrade.</value>
+  </data>
 </root>

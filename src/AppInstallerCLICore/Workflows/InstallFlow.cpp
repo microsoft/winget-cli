@@ -10,6 +10,9 @@
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 
+#include <AppInstallerDeployment.h>
+#include <AppInstallerMsixInfo.h>
+
 namespace AppInstaller::CLI::Workflow
 {
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
@@ -414,26 +417,26 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixInstall(Execution::Context& context)
     {
-        Uri uri = nullptr;
+        std::string uri;
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            uri = Uri(context.Get<Execution::Data::InstallerPath>().c_str());
+            uri = context.Get<Execution::Data::InstallerPath>().u8string();
         }
         else
         {
-            uri = Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
+            uri = context.Get<Execution::Data::Installer>()->Url;
         }
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
+        bool registrationDeferred = false;
+
         try
         {
-            DeploymentOptions deploymentOptions =
-                DeploymentOptions::ForceApplicationShutdown |
-                DeploymentOptions::ForceTargetApplicationShutdown;
-
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions,
-                WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), std::placeholders::_1));
+            registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+            {
+                return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+            });
         }
         catch (const wil::ResultException& re)
         {
@@ -444,7 +447,14 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
 
-        context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+        if (registrationDeferred)
+        {
+            context.Reporter.Warn() << Resource::String::InstallFlowRegistrationDeferred << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+        }
     }
 
     void RemoveInstaller(Execution::Context& context)
