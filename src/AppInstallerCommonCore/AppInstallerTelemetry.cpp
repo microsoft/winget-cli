@@ -7,6 +7,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "winget/UserSettings.h"
+#include "Public/winget/ThreadGlobals.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
@@ -14,10 +15,10 @@
 #define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
 g_hTraceProvider,\
 _eventName_,\
-GetActivityId(false),\
+GetActivityId(),\
 nullptr,\
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
-TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
+TraceLoggingPackedFieldEx(m_telemetryCorelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
 __VA_ARGS__)
 
 // Helper to print a GUID
@@ -55,37 +56,17 @@ namespace AppInstaller::Logging
         {
             Telemetry().LogFailure(info);
         }
-
-        GUID CreateGuid()
-        {
-            GUID result{};
-            (void)CoCreateGuid(&result);
-            return result;
-        }
     }
 
-    const GUID* GetActivityId(bool isNewActivity)
+    const GUID* TelemetryTraceLogger::GetActivityId() const
     {
-        static GUID activityId;
-        if (isNewActivity == true)
-        {
-            activityId = CreateGuid();
-        }
-        return &activityId;
-    }
-
-    void SetActivityId()
-    {
-        GetActivityId(true);
+        return &m_activityId;
     }
 
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
-        // TODO: Needs to be made a singleton registration/removal in the future
         RegisterTraceLogging();
-
-        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
-        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+        std::ignore = CoCreateGuid(&m_activityId);
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -109,7 +90,13 @@ namespace AppInstaller::Logging
         m_isRuntimeEnabled = true;
     }
 
-    void TelemetryTraceLogger::SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept
+    void TelemetryTraceLogger::Initialize()
+    {
+        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
+        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+    }
+
+    void TelemetryTraceLogger::SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept
     {
         // Check if passed in string is a valid Json formatted before returning the value
         // If invalid, return empty Json
@@ -127,7 +114,7 @@ namespace AppInstaller::Logging
 
         if (result)
         {
-            m_telemetryCorrelationJsonW = jsonStrW;
+            m_telemetryCorelationJsonW = jsonStrW;
             AICLI_LOG(Core, Info, << "Passed in Correlation Vector Json is valid: " << jsonStr);
         }
         else
@@ -179,8 +166,6 @@ namespace AppInstaller::Logging
             packageVersion = Runtime::GetPackageVersion();
         }
 
-        Logging::SetActivityId();
-
         if (IsTelemetryEnabled())
         {
             AICLI_TraceLoggingWriteActivity(
@@ -192,7 +177,7 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId(false) << ']');
+        AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
         AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
@@ -541,7 +526,8 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(url, "Url"),
                 TraceLoggingHResult(hr, "HResult"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance));
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
     }
 
@@ -573,8 +559,15 @@ namespace AppInstaller::Logging
             return *s_TelemetryTraceLogger_TestOverride.get();
         }
 #endif
-
-        return TelemetryTraceLogger::GetInstance();
+        if (AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread())
+        {
+            return AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetTelemetryLogger();
+        }
+        else
+        {
+            static TelemetryTraceLogger processGlobalTelemetry;
+            return processGlobalTelemetry;
+        }
     }
 
     void EnableWilFailureTelemetry()

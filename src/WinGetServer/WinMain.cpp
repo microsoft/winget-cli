@@ -56,7 +56,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int
         winrt::check_hresult(globalOptions->Set(COMGLB_RO_SETTINGS, COMGLB_FAST_RUNDOWN));
     }
 
-    AppInstaller::COMContext::SetLoggers();
+    AppInstaller::COMContext::SetGlobalLoggers();
 
     _comServerExitEvent.create();
     auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);

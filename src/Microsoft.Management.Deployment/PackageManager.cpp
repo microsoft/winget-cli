@@ -261,7 +261,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         std::unique_ptr<::AppInstaller::COMContext> context = std::make_unique<::AppInstaller::COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
-        context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
+        context->SetContextLoggers(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
 
         // Convert the options to arguments for the installer.
         if (options)
@@ -399,7 +399,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             {
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
-                correlationData = hstring(queueItem->GetContext().GetCorrelationJson());
+                correlationData = hstring(queueItem->GetContext().GetCorelationJson());
             }
 
             wil::unique_event progressEvent{ wil::EventOptions::None };

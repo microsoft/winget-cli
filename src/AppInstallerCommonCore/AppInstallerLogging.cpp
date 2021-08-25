@@ -8,6 +8,7 @@
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/AppInstallerRuntime.h"
+#include "Public/winget/ThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -48,12 +49,6 @@ namespace AppInstaller::Logging
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
-
-    DiagnosticLogger& DiagnosticLogger::GetInstance()
-    {
-        static DiagnosticLogger instance;
-        return instance;
-    }
 
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
@@ -113,8 +108,8 @@ namespace AppInstaller::Logging
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
-                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
-                (AsNum(level) >= AsNum(m_enabledLevel)));
+            (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
+            (AsNum(level) >= AsNum(m_enabledLevel)));
     }
 
     void DiagnosticLogger::Write(Channel channel, Level level, std::string_view message)
@@ -127,6 +122,19 @@ namespace AppInstaller::Logging
             {
                 logger->Write(channel, level, message);
             }
+        }
+    }
+
+    DiagnosticLogger& Log()
+    {
+        if (AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread())
+        {
+            return AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetDiagnosticLogger();
+        }
+        else
+        {
+            static DiagnosticLogger processGlobalLogger;
+            return processGlobalLogger;
         }
     }
 

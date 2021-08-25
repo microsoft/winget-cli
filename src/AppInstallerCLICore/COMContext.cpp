@@ -51,22 +51,30 @@ namespace AppInstaller
         Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
-    void COMContext::SetLoggerContext(const std::wstring_view telemetryCorrelationJson, const std::string& caller)
+    void COMContext::SetGlobalLoggers()
     {
-        m_correlationData = telemetryCorrelationJson;
-        Logging::Telemetry().SetTelemetryCorrelationJson(telemetryCorrelationJson);
+        COMContext::SetLoggers();
+    }
+
+    void COMContext::SetContextLoggers(const std::wstring_view TelemetryCorelationJson, const std::string& caller)
+    {
+        m_corelationData = TelemetryCorelationJson;
+
+        SetThreadGlobalsActive(true);
+        SetLoggers();
+        Logging::Telemetry().SetTelemetryCorelationJson(TelemetryCorelationJson);
         Logging::Telemetry().SetCaller(caller);
         Logging::Telemetry().LogStartup(true);
     }
-    
-    std::wstring_view COMContext::GetCorrelationJson()
+
+    std::wstring_view COMContext::GetCorelationJson()
     {
-        return m_correlationData;
+        return m_corelationData;
     }
 
     void COMContext::SetLoggers()
     {
-        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::Log().SetLevel(Logging::Level::Info);
         Logging::Log().EnableChannel(Logging::Channel::All);
 
         // TODO: Log to file for COM API calls only when debugging in visual studio

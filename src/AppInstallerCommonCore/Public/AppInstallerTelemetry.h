@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -15,6 +16,8 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
+        TelemetryTraceLogger();
+
         virtual ~TelemetryTraceLogger();
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
@@ -30,11 +33,17 @@ namespace AppInstaller::Logging
         bool DisableRuntime();
         void EnableRuntime();
 
+        // Return address of m_activityId
+        const GUID* GetActivityId() const;
+
+        // Capture if UserSettings is enabled
+        void Initialize();
+
         // Store the passed in name of the Caller for COM calls
         void SetCaller(const std::string& caller);
 
         // Store the passed in Telemetry Correlation Json for COM calls
-        void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
+        void SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -123,8 +132,6 @@ namespace AppInstaller::Logging
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
     protected:
-        TelemetryTraceLogger();
-
         bool IsTelemetryEnabled() const noexcept;
 
         // Used to anonymize a string to the best of our ability.
@@ -135,7 +142,8 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
 
-        std::wstring m_telemetryCorrelationJsonW = L"{}";
+        GUID m_activityId = GUID_NULL;
+        std::wstring m_telemetryCorelationJsonW = L"{}";
         std::string m_caller;
 
         // Data that is needed by AnonymizeString
@@ -147,11 +155,6 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
-
-    const GUID* GetActivityId(bool isNewActivity);
-
-    // Set ActivityId
-    void SetActivityId();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.

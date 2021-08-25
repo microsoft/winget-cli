@@ -14,6 +14,7 @@ TRACELOGGING_DEFINE_PROVIDER(
 bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
+int g_TelemetryProviderRefCount{};
 
 void WINAPI TelemetryProviderEnabledCallback(
     _In_      LPCGUID /*sourceId*/,
@@ -31,10 +32,21 @@ void WINAPI TelemetryProviderEnabledCallback(
 
 void RegisterTraceLogging()
 {
-    TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
+    // Ensure successful registration attempt of the Trace Provider is done only once to avoid exceptions thrown for trying to register an already registered handle
+    if (!g_hTraceProvider->RegHandle)
+    {
+        TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
+    }
+
+    g_TelemetryProviderRefCount++;
 }
 
 void UnRegisterTraceLogging()
 {
-    TraceLoggingUnregister(g_hTraceProvider);
+    g_TelemetryProviderRefCount--;
+
+    if (g_TelemetryProviderRefCount == 0)
+    {
+        TraceLoggingUnregister(g_hTraceProvider);
+    }
 }

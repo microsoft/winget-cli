@@ -102,6 +102,9 @@ namespace AppInstaller::CLI::Execution
             try
             {
                 ::AppInstaller::CLI::RootCommand rootCommand;
+
+                item->GetContext().SetThreadGlobalsActive();
+
                 std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
                 ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);

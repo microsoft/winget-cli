@@ -42,6 +42,7 @@ bytearray
 cdecl
 cer
 certutil
+cguid
 chrono
 cin
 cla
