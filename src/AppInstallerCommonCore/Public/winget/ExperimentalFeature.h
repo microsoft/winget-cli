@@ -23,16 +23,13 @@ namespace AppInstaller::Settings
             ExperimentalMSStore = 0x1,
             PackagedAPI = 0x2,
             Dependencies = 0x4,
+            DirectMSI = 0x8,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
             // This can be used to hide highly experimental features (or these example ones)
             ExperimentalCmd = 0x10000,
             ExperimentalArg = 0x20000,
-
-            // This is implemented just enough to prove that it is a viable option for the future.
-            // Because it is so early on, placing it here until we get the chance to fully implement it.
-            DirectMSI = 0x40000,
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;

@@ -5,8 +5,6 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace std::string_view_literals;
-
     // Ensures that there is an applicable installer.
     // Required Args: None
     // Inputs: InstallerArgs, Installer, InstallerPath, Manifest
