@@ -7,6 +7,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 
+
 namespace AppInstaller::Msi
 {
     using namespace std::string_view_literals;
@@ -15,10 +16,6 @@ namespace AppInstaller::Msi
     {
         const char MsiExecQuietOption = 'q';
         const char MsiExecLogOption = 'l';
-
-        const INSTALLLOGMODE DefaultLogMode =
-            INSTALLLOGMODE_FATALEXIT | INSTALLLOGMODE_ERROR | INSTALLLOGMODE_WARNING | INSTALLLOGMODE_INFO |
-            INSTALLLOGMODE_OUTOFDISKSPACE | INSTALLLOGMODE_ACTIONSTART | INSTALLLOGMODE_ACTIONDATA;
 
         // Description of how a long option is replaced by a short option.
         struct TokenReplacement
@@ -311,11 +308,9 @@ namespace AppInstaller::Msi
         // If the value is quoted, removes the quotes and replaces escaped characters.
         std::string ParseValue(std::string_view valueToken)
         {
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, valueToken.empty());
-
-            if (valueToken[0] != '"')
+            if (valueToken.empty() || valueToken[0] != '"')
             {
-                // Nothing to do for unquoted tokens
+                // Nothing to do for empty or unquoted tokens
                 return std::string{ valueToken };
             }
 
@@ -372,7 +367,7 @@ namespace AppInstaller::Msi
                 ++separatorItr;
             }
 
-            if (*separatorItr != '=')
+            if (separatorItr == propertyToken.end() || *separatorItr != '=')
             {
                 AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << propertyToken);
                 return false;
@@ -452,7 +447,6 @@ namespace AppInstaller::Msi
                 // Token is a property, i.e. NAME=value. Add it to the parsed args.
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT, !IsValidPropertyToken(token));
                 parsedArgs.Properties += L" " + Utility::ConvertToUTF16(token);
-                tokens.pop_front();
                 return;
             }
 
