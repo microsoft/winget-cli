@@ -69,9 +69,6 @@ namespace AppInstaller::Msi
                 // LOGPERFORMANCE
             };
 
-            // Total of bits used for log mode, including the skipped bits.
-            const size_t LogModeBitsCount = ValidLogModes.size() + 2;
-
             std::map<char, INSTALLLOGATTRIBUTES> ValidLogAttributes
             {
                 { '+', INSTALLLOGATTRIBUTES_APPEND },
@@ -217,7 +214,7 @@ namespace AppInstaller::Msi
                 ++start;
             }
 
-            if (start == arguments.size())
+            if (start >= arguments.size())
             {
                 // We reached the end
                 return {};
@@ -359,7 +356,7 @@ namespace AppInstaller::Msi
 
             // Find the = separator
             size_t pos = 0;
-            while (pos < token.size() && !IsWhiteSpace(token[pos]) && token[pos])
+            while (pos < token.size() && token[pos] != '=')
             {
                 ++pos;
             }
