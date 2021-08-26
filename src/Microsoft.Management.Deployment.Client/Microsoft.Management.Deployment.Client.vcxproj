@@ -82,7 +82,6 @@
     <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
   <PropertyGroup>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>

@@ -22,8 +22,6 @@
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <NoWarn>;2008</NoWarn>
