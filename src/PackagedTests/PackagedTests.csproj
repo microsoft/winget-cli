@@ -23,7 +23,6 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <NoWarn>;2008</NoWarn>
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -51,6 +50,10 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutputPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutputPath>
+    <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
