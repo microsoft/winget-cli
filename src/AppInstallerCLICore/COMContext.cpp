@@ -56,20 +56,20 @@ namespace AppInstaller
         COMContext::SetLoggers();
     }
 
-    void COMContext::SetContextLoggers(const std::wstring_view TelemetryCorelationJson, const std::string& caller)
+    void COMContext::SetContextLoggers(const std::wstring_view TelemetryCorrelationJson, const std::string& caller)
     {
-        m_corelationData = TelemetryCorelationJson;
+        m_correlationData = TelemetryCorrelationJson;
 
         SetThreadGlobalsActive(true);
         SetLoggers();
-        Logging::Telemetry().SetTelemetryCorelationJson(TelemetryCorelationJson);
+        Logging::Telemetry().SetTelemetryCorrelationJson(TelemetryCorrelationJson);
         Logging::Telemetry().SetCaller(caller);
         Logging::Telemetry().LogStartup(true);
     }
 
-    std::wstring_view COMContext::GetCorelationJson()
+    std::wstring_view COMContext::GetCorrelationJson()
     {
-        return m_corelationData;
+        return m_correlationData;
     }
 
     void COMContext::SetLoggers()

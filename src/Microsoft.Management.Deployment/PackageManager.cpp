@@ -399,7 +399,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             {
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
-                correlationData = hstring(queueItem->GetContext().GetCorelationJson());
+                correlationData = hstring(queueItem->GetContext().GetCorrelationJson());
             }
 
             wil::unique_event progressEvent{ wil::EventOptions::None };

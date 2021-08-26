@@ -18,7 +18,7 @@ _eventName_,\
 GetActivityId(),\
 nullptr,\
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
-TraceLoggingPackedFieldEx(m_telemetryCorelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
+TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
 __VA_ARGS__)
 
 // Helper to print a GUID
@@ -96,7 +96,7 @@ namespace AppInstaller::Logging
         m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
     }
 
-    void TelemetryTraceLogger::SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept
+    void TelemetryTraceLogger::SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept
     {
         // Check if passed in string is a valid Json formatted before returning the value
         // If invalid, return empty Json
@@ -114,7 +114,7 @@ namespace AppInstaller::Logging
 
         if (result)
         {
-            m_telemetryCorelationJsonW = jsonStrW;
+            m_telemetryCorrelationJsonW = jsonStrW;
             AICLI_LOG(Core, Info, << "Passed in Correlation Vector Json is valid: " << jsonStr);
         }
         else

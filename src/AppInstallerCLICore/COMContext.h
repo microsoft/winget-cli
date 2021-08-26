@@ -62,9 +62,9 @@ namespace AppInstaller
 
         // Set COM call context for diagnostic and telemetry loggers
         // This should be called for every COMContext object instance
-        void SetContextLoggers(const std::wstring_view TelemetryCorelationJson, const std::string& caller);
+        void SetContextLoggers(const std::wstring_view TelemetryCorrelationJson, const std::string& caller);
 
-        std::wstring_view GetCorelationJson();
+        std::wstring_view GetCorrelationJson();
 
         // Set Diagnostic and Telemetry loggers, Wil failure callback
         // This should be called only once per COM Server instance
@@ -76,7 +76,7 @@ namespace AppInstaller
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         std::vector<ProgressCallBackFunction> m_comProgressCallbacks;
-        std::wstring m_corelationData = L"";
+        std::wstring m_correlationData = L"";
         std::mutex m_callbackLock;
     };
 }

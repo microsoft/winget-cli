@@ -43,7 +43,7 @@ namespace AppInstaller::Logging
         void SetCaller(const std::string& caller);
 
         // Store the passed in Telemetry Correlation Json for COM calls
-        void SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept;
+        void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -143,7 +143,7 @@ namespace AppInstaller::Logging
         std::atomic_bool m_isRuntimeEnabled{ true };
 
         GUID m_activityId = GUID_NULL;
-        std::wstring m_telemetryCorelationJsonW = L"{}";
+        std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
 
         // Data that is needed by AnonymizeString
