@@ -43,13 +43,13 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        bool ShouldUseDirectMSIInstall(InstallerTypeEnum type)
+        bool ShouldUseDirectMSIInstall(InstallerTypeEnum type, bool isSilentInstall)
         {
             switch (type)
             {
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
-                return ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
+                return isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
             default:
                 return false;
             }
@@ -399,7 +399,7 @@ namespace AppInstaller::CLI::Workflow
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            if (ShouldUseDirectMSIInstall(installer.InstallerType))
+            if (ShouldUseDirectMSIInstall(installer.InstallerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
                 context << DirectMSIInstall;
             }
