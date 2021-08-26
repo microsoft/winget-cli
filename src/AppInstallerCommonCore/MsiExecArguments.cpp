@@ -84,9 +84,7 @@ namespace AppInstaller::Msi
                 // Log-all option
                 if (c == '*')
                 {
-                    // These four have to be set explicitly
-                    const INSTALLLOGMODE ExplicitFlags = INSTALLLOGMODE_VERBOSE | INSTALLLOGMODE_EXTRADEBUG | INSTALLLOGMODE_LOGONLYONERROR | INSTALLLOGMODE_LOGPERFORMANCE;
-                    logMode |= (INSTALLLOGMODE)((1 << LogModeBitsCount) - 1) & ~ExplicitFlags;
+                    logMode |= AllLogMode;
                     isLogModeSet = true;
                     continue;
                 }

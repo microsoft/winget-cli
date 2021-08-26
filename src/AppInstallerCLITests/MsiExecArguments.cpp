@@ -104,18 +104,7 @@ TEST_CASE("MsiExecArgs_ParseLogMode", "[msiexec]")
 
     {
         auto args = Msi::ParseMSIArguments("/l* all.txt"sv);
-        REQUIRE(WI_AreAllFlagsSet(args.LogMode,
-            (INSTALLLOGMODE_FATALEXIT |
-                INSTALLLOGMODE_ERROR |
-                INSTALLLOGMODE_WARNING |
-                INSTALLLOGMODE_USER |
-                INSTALLLOGMODE_INFO |
-                INSTALLLOGMODE_RESOLVESOURCE |
-                INSTALLLOGMODE_OUTOFDISKSPACE |
-                INSTALLLOGMODE_ACTIONSTART |
-                INSTALLLOGMODE_ACTIONDATA |
-                INSTALLLOGMODE_COMMONDATA |
-                INSTALLLOGMODE_PROPERTYDUMP)));
+        REQUIRE(args.LogMode == Msi::AllLogMode);
         REQUIRE(args.LogAttributes == 0);
         REQUIRE(args.LogFile == L"all.txt"sv);
         REQUIRE(args.UILevel == INSTALLUILEVEL_DEFAULT);
