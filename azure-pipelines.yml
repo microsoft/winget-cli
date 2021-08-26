@@ -65,6 +65,11 @@ jobs:
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+
+  - task: NuGetCommand@2
+    displayName: Restore PackagedTests
+    inputs:
+      restoreSolution: 'src\PackagedTests\PackagedTests.csproj'
   
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
