@@ -111,6 +111,15 @@ TEST_CASE("MsiExecArgs_ParseLogMode", "[msiexec]")
         REQUIRE(args.Properties.empty());
     }
 
+    {
+        auto args = Msi::ParseMSIArguments("/l* \"without closing quote.txt"sv);
+        REQUIRE(args.LogMode == Msi::AllLogMode);
+        REQUIRE(args.LogAttributes == 0);
+        REQUIRE(args.LogFile == L"without closing quote.txt"sv);
+        REQUIRE(args.UILevel == INSTALLUILEVEL_DEFAULT);
+        REQUIRE(args.Properties.empty());
+    }
+
     REQUIRE_THROWS_HR(Msi::ParseMSIArguments("/l"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
     REQUIRE_THROWS_HR(Msi::ParseMSIArguments("/lz log.txt"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
 }
@@ -139,6 +148,13 @@ TEST_CASE("MsiExecArgs_ParseProperties", "[msiexec]")
     }
 
     {
+        auto args = Msi::ParseMSIArguments("PROPERTY=\"escaped "" quotes\""sv);
+        REQUIRE(!args.LogFile.has_value());
+        REQUIRE(args.UILevel == INSTALLUILEVEL_DEFAULT);
+        REQUIRE(args.Properties == L" PROPERTY=\"escaped "" quotes\""sv);
+    }
+
+    {
         auto args = Msi::ParseMSIArguments("PROPERTY1=value1       PROPERTY2=value2"sv);
         REQUIRE(!args.LogFile.has_value());
         REQUIRE(args.UILevel == INSTALLUILEVEL_DEFAULT);
@@ -148,6 +164,8 @@ TEST_CASE("MsiExecArgs_ParseProperties", "[msiexec]")
     REQUIRE_THROWS_HR(Msi::ParseMSIArguments("NOSEPARATOR"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
     REQUIRE_THROWS_HR(Msi::ParseMSIArguments("$NOTAPROPERTY=value"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
     REQUIRE_THROWS_HR(Msi::ParseMSIArguments("PROPERTY=not quoted"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+    REQUIRE_THROWS_HR(Msi::ParseMSIArguments("PROPERTY=\"bad \"internal\" quotes\""sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+    REQUIRE_THROWS_HR(Msi::ParseMSIArguments("PROPERTY=\"mismatched quote"sv), APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
 }
 
 TEST_CASE("MsiExecArgs_ParseMultipleOptions", "[msiexec]")

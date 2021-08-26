@@ -272,7 +272,7 @@ namespace AppInstaller::Msi
                 if (pos < arguments.size())
                 {
                     // We move past the " character (it is OK for the end of the line
-                    // to act as the matching " character)
+                    // to act as the matching " character in some cases)
                     ++pos;
                 }
             }
@@ -310,20 +310,31 @@ namespace AppInstaller::Msi
                 return std::string{ valueToken };
             }
 
-            // Verify that token is quoted correctly
-            if (valueToken.size() <= 1 || valueToken.back() != '"')
-            {
-                AICLI_LOG(Core, Error, << "Invalid msiexec argument value: " << valueToken);
-                THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
-            }
-
             // Copy the string ignoring the quotes and replacing escaped characters.
             // In quoted tokens, the back quote represents double quotes (` means ")
             // and can be escaped with back slash (\` means `).
+            // Note that we accept quoted values with a missing closing quote (the end
+            // of string signals the end).
             std::string result;
-            for (size_t i = 1; i + 1 < valueToken.size(); ++i)
+            for (size_t i = 1; i < valueToken.size(); ++i)
             {
-                if (valueToken[i] == '\\' && valueToken[i + 1] == '`')
+                if (valueToken[i] == '"')
+                {
+                    // The tokenizer can leave several pairs of quotes in the token
+                    // but they are not accepted in this case. We only accept the final
+                    // closing quotes.
+                    if (i + 1 == valueToken.size())
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Error, << "Invalid msiexec argument: " << valueToken);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+                    }
+                }
+
+                if (i + 1 < valueToken.size() && valueToken[i] == '\\' && valueToken[i + 1] == '`')
                 {
                     result += '`';
                     ++i;
@@ -354,9 +365,9 @@ namespace AppInstaller::Msi
                 return false;
             }
 
-            // Find the = separator
+            // Find the = separator at the end of the property name
             size_t pos = 0;
-            while (pos < token.size() && token[pos] != '=')
+            while (pos < token.size() && !IsWhiteSpace(token[pos]) && token[pos] != '=')
             {
                 ++pos;
             }
@@ -365,6 +376,66 @@ namespace AppInstaller::Msi
             {
                 AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << token);
                 return false;
+            }
+
+            // Validate the property value.
+            // It should be completely enclosed in quotes, or not contain white space.
+            // If quoted, there can be pairs of consecutive quotes that work as escape sequences.
+            // We accept empty property values.
+            ++pos;
+            if (pos == token.size())
+            {
+                // Empty value
+                return true;
+            }
+
+            // If quoted, we will only inspect the values between the quotes.
+            bool quoted = false;
+            size_t end = token.size();
+            if (token[pos] == '"')
+            {
+                ++pos;
+
+                if (pos >= end || token.back() != '"')
+                {
+                    AICLI_LOG(Core, Error, << "Badly quoted msiexec property: " << token);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+                }
+
+                --end;
+                quoted = true;
+            }
+
+            while (pos < end)
+            {
+                if (quoted)
+                {
+                    // For quoted values, any internal quote must be followed by another one.
+                    if (token[pos] == '"')
+                    {
+                        if (pos + 1 < end && token[pos + 1] == '"')
+                        {
+                            // Skip the two quotes
+                            ++pos;
+                        }
+                        else
+                        {
+                            AICLI_LOG(Core, Error, << "Unexpected quotes in msiexec property arg: " << token);
+                            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+                        }
+                    }
+                }
+                else
+                {
+                    // For unquoted values, we only check that there is no whitespace
+                    if (IsWhiteSpace(token[pos]))
+                    {
+                        AICLI_LOG(Core, Error, << "Unexpected space in msiexec property arg: " << token);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT);
+                    }
+                }
+
+                ++pos;
             }
 
             return true;
