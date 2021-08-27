@@ -266,6 +266,7 @@
     <ClInclude Include="PackageCollection.h" />
     <ClInclude Include="Workflows\CompletionFlow.h" />
     <ClInclude Include="Workflows\ImportExportFlow.h" />
+    <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
@@ -313,6 +314,7 @@
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
+    <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />

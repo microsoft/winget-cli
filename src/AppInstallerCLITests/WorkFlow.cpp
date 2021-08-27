@@ -9,6 +9,7 @@
 #include <AppInstallerStrings.h>
 #include <Workflows/ImportExportFlow.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/MsiInstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
@@ -38,6 +39,7 @@ using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Logging;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 
 
@@ -225,7 +227,7 @@ namespace
 
             if (input == "AppInstallerCliTest.TestMsixInstaller.WFDep")
             {
-                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msi_WFDependency.yaml"));
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msix_WFDependency.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -401,6 +403,32 @@ void OverrideForShellExecute(TestContext& context)
     } });
 
     OverrideForUpdateInstallerMotw(context);
+}
+
+void OverrideForDirectMsi(TestContext& context)
+{
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        // We don't have an msi installer for tests, but we won't execute it anyway
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+
+    context.Override({ DirectMSIInstallImpl, [](TestContext& context)
+    {
+        // Write out the install command
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMsiInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::InstallerArgs>();
+        file.close();
+    } });
 }
 
 void OverrideForExeUninstall(TestContext& context)
@@ -622,6 +650,32 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     Uri uri = Uri(ConvertToUTF16(installResultStr));
     REQUIRE(uri.SchemeName() == L"https");
+}
+
+TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestMsiInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFDirectMSI>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDirectMsi(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")

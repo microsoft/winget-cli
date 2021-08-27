@@ -164,6 +164,9 @@
     <ClInclude Include="Commands\COMInstallCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\MsiInstallFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -294,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="Commands\COMInstallCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\MsiInstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
