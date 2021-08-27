@@ -30,6 +30,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomHeader),
         };
     }
 

@@ -46,9 +46,23 @@ namespace AppInstaller::CLI::Workflow
             std::shared_ptr<Repository::ISource> source;
             try
             {
-                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
-                source = result.Source;
+                OpenSourceResult result;
+                if (!sourceName.empty())
+                {
+                    auto sourceDetails = Repository::GetSource(sourceName);
+                    if (sourceDetails)
+                    {
+                        sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
 
+                        result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+                    }
+                }
+                else
+                {
+                    result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+                }
+
+                source = result.Source;
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : result.SourcesWithUpdateFailure)
                 {
@@ -353,7 +367,7 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Version),
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
                 sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
-            });
+                });
         }
 
         table.Complete();
@@ -696,6 +710,24 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
         }
+    }
+
+    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const SourceDetails& sourceDetails)
+    {
+        std::optional<std::string> customHeader;
+        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
+        {
+            if (!SupportsCustomHeader(sourceDetails))
+            {
+                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
+            }
+            else
+            {
+                customHeader = context.Args.GetArg(Execution::Args::Type::CustomHeader);
+            }
+        }
+
+        return customHeader;
     }
 
     void EnsureFeatureEnabled::operator()(Execution::Context& context) const

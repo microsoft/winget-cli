@@ -38,10 +38,10 @@ TEST_CASE("GetLatestCommonVersion_UnsupportedVersion", "[RestSource]")
 TEST_CASE("GetSupportedInterface", "[RestSource]")
 {
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, version)->GetVersion() == version);
 
     Version invalid{ "1.2.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), invalid));
+    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, invalid));
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
@@ -56,7 +56,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    IRestClient::Information information = RestClient::GetInformation(TestRestUri, std::move(helper));
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, std::move(helper));
     REQUIRE(information.SourceIdentifier == "Source123");
     REQUIRE(information.ServerSupportedVersions.size() == 2);
     REQUIRE(information.ServerSupportedVersions.at(0) == "0.2.0");
@@ -75,7 +75,7 @@ TEST_CASE("RestClientCreate_UnexpectedVersion", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", std::move(helper)),
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, std::move(helper)),
         APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
@@ -91,6 +91,6 @@ TEST_CASE("RestClientCreate_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }

@@ -81,19 +81,22 @@ namespace AppInstaller::CLI::Workflow
 
     void AddSource(Execution::Context& context)
     {
-        std::string name(context.Args.GetArg(Args::Type::SourceName));
-        std::string arg(context.Args.GetArg(Args::Type::SourceArg));
-        std::string type;
+        Repository::SourceDetails sourceDetails;
+        sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
+        sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
+
         if (context.Args.Contains(Args::Type::SourceType))
         {
-            type = context.Args.GetArg(Args::Type::SourceType);
+            sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
+
+        sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
 
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
-            "  "_liv << name << " -> "_liv << arg << std::endl;
+            "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1)))
+        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Done;
         }

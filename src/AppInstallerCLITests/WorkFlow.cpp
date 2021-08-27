@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include "TestHooks.h"
+#include "TestSettings.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
@@ -22,6 +24,7 @@
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/SearchCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/LocIndependent.h>
@@ -29,6 +32,7 @@
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
+#include <winget/Settings.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -41,6 +45,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Settings;
 
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
@@ -2030,4 +2035,37 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     // Verify root dependencies are shown
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
+}
+
+TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
+{
+    SetSetting(Streams::UserSources, R"(Sources:)"sv);
+    TestHook_ClearSourceFactoryOverrides();
+
+    SourceDetails details;
+    details.Name = "restsource";
+    details.Type = "Microsoft.Rest";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
+    details.CustomHeader = "CustomHeader";
+
+    bool receivedCustomHeader = false;
+    TestSourceFactory factory { [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
+    factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    TestProgress progress;
+    AddSource(details, progress);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
+
+    std::string customHeader2 = "Test custom header in Open source Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
+
+    OpenSource(context);
+    auto source = context.Get<Execution::Data::Source>();
+    REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
 }

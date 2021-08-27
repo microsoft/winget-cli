@@ -6,6 +6,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/HttpClientHelper.h"
 #include "cpprest/json.h"
+#include "AppInstallerRepositorySource.h"
 
 namespace AppInstaller::Repository::Rest
 {
@@ -33,12 +34,11 @@ namespace AppInstaller::Repository::Rest
 
         static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
 
-        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const HttpClientHelper& httpClientHelper);
+        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const HttpClientHelper& httpClientHelper);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, const HttpClientHelper& helper = {});
-
+        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, const HttpClientHelper & helper = {});
     private:
         std::unique_ptr<Schema::IRestClient> m_interface;
         std::string m_sourceIdentifier;

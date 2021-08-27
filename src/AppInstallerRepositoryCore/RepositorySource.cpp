@@ -955,16 +955,16 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress)
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
+        THROW_HR_IF(E_INVALIDARG, sourceDetails.Name.empty());
 
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << name << "], Type[" << type << "], Arg[" << arg << "]");
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        auto source = sourceList.GetCurrentSource(name);
+        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
         // Check for a non-user tombstone; hidden source data that we don't want to collide.
@@ -973,26 +973,22 @@ namespace AppInstaller::Repository
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, tombstoneSource && tombstoneSource->Origin != SourceOrigin::User);
 
         // Check sources allowed by group policy
-        auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
+        auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);
         if (blockingPolicy != TogglePolicy::Policy::None)
         {
             throw GroupPolicyException(blockingPolicy);
         }
 
-        SourceDetailsInternal details;
-        details.Name = name;
-        details.Type = type;
-        details.Arg = arg;
-        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
-        details.Origin = SourceOrigin::User;
+        sourceDetails.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
+        sourceDetails.Origin = SourceOrigin::User;
 
-        bool result = AddSourceFromDetails(details, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress);
         if (result)
         {
-            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << sourceDetails.Identifier);
 
-            sourceList.AddSource(details);
+            sourceList.AddSource(sourceDetails);
         }
 
         return result;
@@ -1080,7 +1076,6 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))
@@ -1303,6 +1298,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails)
+    {
+        return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 
     bool SearchRequest::IsForEverything() const
