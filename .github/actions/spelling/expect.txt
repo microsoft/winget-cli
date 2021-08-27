@@ -239,6 +239,7 @@ PMS
 positionals
 powertoys
 productcode
+pseudocode
 pvk
 pvm
 pwabuilder
