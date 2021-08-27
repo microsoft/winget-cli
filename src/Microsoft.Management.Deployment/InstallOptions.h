@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #endif
     struct InstallOptions : InstallOptionsT<InstallOptions>
     {
-        InstallOptions() = default;
+        InstallOptions();
 
         winrt::Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
         void PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value);
