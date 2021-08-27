@@ -1,7 +1,7 @@
 ---
 author: Demitrius Nelon @denelon
 created on: 2021-08-06
-last updated: 2021-08-06
+last updated: 2021-08-27
 issue id: 674
 ---
 
@@ -38,12 +38,17 @@ consensus.
 
 The PowerShell module name will be "WindowsPackageManager"
 The Adjective "WinGet" may change, but is used consistently in the cmdlets until such time as we agree on the proper term.
->Note: Naming things is hard.
 
-### `winget install`
+>Note: Naming things is hard. One of the conventions of PowerShell is to make nouns singular.
+---
 
+### Client command `winget install`
+
+**PowerShell Cmdlet**
+
+```PowerShell
 Install-WinGetPackage
-
+```
 **Parameters**
 
 -Manifest
@@ -75,57 +80,169 @@ Install-WinGetPackage
 
 -Location
 
-### `winget show`
+### Client command `winget show`
 
-Get-WinGetPackage
+>Note: We considered Show-WinGetPackage, but in PowerShell users may want to perform their own search. We are currently thinking we would use "Find-WingetPackage -detail".
 
-### `winget source`
+### Client command `winget source`
 
+**PowerShell Cmdlets**
+
+```PowerShell
 Add-WinGetSource
+```
 
+```PowerShell
 Remove-WinGetSource
+```
 
-### `winget search`
+```PowerShell
+Get-WinGetSource
+```
 
+**Example**
+> Note: `winget source export` was added as a helper for adding approved sources to Group Policy. To get the same values with PowerShell the example blow would perform the same behavior.
+
+
+```PowerShell
+Get-WinGetSource | convertto-json -compress
+```
+
+### Client command `winget search`
+
+**PowerShell Cmdlet**
+
+```PowerShell
+Find-WinGetPackage
+```
+
+**Parameters**
+
+-Detail
+
+-PackageIdentfier
+
+-Name
+
+-Moniker
+
+-Tag
+
+-Command
+
+-Source
+
+-Count
+
+-Exact
+
+### Client command `winget list`
+
+**PowerShell Cmdlet**
+
+```PowerShell
 Get-WinGetPackage
+```
 
-### `winget list`
+### Client command `winget upgrade`
 
-Get-WinGetInstalledPackages
+**PowerShell Cmdlet**
 
-### `winget upgrade`
-
+```PowerShell
 Update-WinGetPackage
+```
 
-### `winget uninstall`
+### Client command `winget uninstall`
 
+**PowerShell Cmdlet**
+
+```PowerShell
 Uninstall-WinGetPackage
+```
 
-### `winget hash`
+>Note: One example below could be executed to remove all packages with "xbox" in their name, or in other metadata fields provided in the manifest.
 
-Get-WinGetPackageSha256
+```PowerShell
+Get-WingetPackage xbox | UninstallWingetPackage
+```
 
-Get-WinGetSignatureSha256
+### Client command `winget hash`
 
-### `winget validate`
+**PowerShell Cmdlet**
+
+```PowerShell
+Get-WinGetHash
+```
+
+**Parameters**
+
+-Installer
+
+-Signature
+
+### Client command `winget validate`
+
+**PowerShell Cmdlet**
 
 Test-WinGetManifest
 
-### `winget settings`
+> Note: we are considering building an "interactive" validation that could test installing the package in the Windows Sandbox for example. That could be another cmdlet or a switch like "-validate".
 
-Set-WinGetSettings
+### Client command `winget settings`
 
-### `winget features`
+**PowerShell Cmdlets**
 
-Get-WinGetFeatures
+```PowerShell
+Get-WinGetSetting
+```
 
-### `winget export`
+```PowerShell
+Set-WinGetSetting
+```
 
-Export-WinGetPackages
+### Client command `winget features`
 
-### `winget import`
+**PowerShell Cmdlets**
 
-Import-WinGetPackages
+```PowerShell
+Get-WinGetFeature
+```
+
+```PowerShell
+Enable-WingetFeature
+```
+
+```PowerShell
+Disable-WingetFeature
+```
+
+### Client command `winget export`
+
+**PowerShell Cmdlet**
+
+```PowerShell
+Export-WinGetPackageSet 
+```
+**Parameters**
+
+-Source
+
+-IncludeVersions
+
+### Client command `winget import`
+
+**PowerShell Cmdlet**
+
+```PowerShell
+Import-WinGetPackageSet
+```
+**Parameters**
+
+-ImportFile
+
+-IgnoreUnavailable
+
+-IgnoreVersions
 
 ## Capabilities
 
