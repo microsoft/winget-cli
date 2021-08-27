@@ -80,9 +80,13 @@ Install-WinGetPackage
 
 -Location
 
+---
+
 ### Client command `winget show`
 
 >Note: We considered Show-WinGetPackage, but in PowerShell users may want to perform their own search. We are currently thinking we would use "Find-WingetPackage -detail".
+
+---
 
 ### Client command `winget source`
 
@@ -107,6 +111,8 @@ Get-WinGetSource
 ```PowerShell
 Get-WinGetSource | convertto-json -compress
 ```
+
+---
 
 ### Client command `winget search`
 
@@ -136,6 +142,8 @@ Find-WinGetPackage
 
 -Exact
 
+---
+
 ### Client command `winget list`
 
 **PowerShell Cmdlet**
@@ -143,6 +151,8 @@ Find-WinGetPackage
 ```PowerShell
 Get-WinGetPackage
 ```
+
+---
 
 ### Client command `winget upgrade`
 
@@ -152,6 +162,8 @@ Get-WinGetPackage
 Update-WinGetPackage
 ```
 
+---
+
 ### Client command `winget uninstall`
 
 **PowerShell Cmdlet**
@@ -160,11 +172,15 @@ Update-WinGetPackage
 Uninstall-WinGetPackage
 ```
 
->Note: One example below could be executed to remove all packages with "xbox" in their name, or in other metadata fields provided in the manifest.
+**Example**
+
+>Note: The example below could be executed to remove all packages with "xbox" in their name, or in other metadata fields provided in the manifest (assumes there is a match with the installed package in a configured source).
 
 ```PowerShell
 Get-WingetPackage xbox | UninstallWingetPackage
 ```
+
+---
 
 ### Client command `winget hash`
 
@@ -180,6 +196,8 @@ Get-WinGetHash
 
 -Signature
 
+---
+
 ### Client command `winget validate`
 
 **PowerShell Cmdlet**
@@ -187,6 +205,8 @@ Get-WinGetHash
 Test-WinGetManifest
 
 > Note: we are considering building an "interactive" validation that could test installing the package in the Windows Sandbox for example. That could be another cmdlet or a switch like "-validate".
+
+---
 
 ### Client command `winget settings`
 
@@ -199,6 +219,8 @@ Get-WinGetSetting
 ```PowerShell
 Set-WinGetSetting
 ```
+
+---
 
 ### Client command `winget features`
 
@@ -216,6 +238,8 @@ Enable-WingetFeature
 Disable-WingetFeature
 ```
 
+---
+
 ### Client command `winget export`
 
 **PowerShell Cmdlet**
@@ -228,6 +252,8 @@ Export-WinGetPackageSet
 -Source
 
 -IncludeVersions
+
+---
 
 ### Client command `winget import`
 
@@ -243,6 +269,8 @@ Import-WinGetPackageSet
 -IgnoreUnavailable
 
 -IgnoreVersions
+
+---
 
 ## Capabilities
 
