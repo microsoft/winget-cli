@@ -151,6 +151,23 @@ Find-WinGetPackage
 ```PowerShell
 Get-WinGetPackage
 ```
+**Parameters**
+
+-PackageIdentifier
+
+-Name
+
+-Moniker
+
+-Source
+
+-Tag
+
+-Command
+
+-Count
+
+-Exact
 
 ---
 
@@ -161,6 +178,33 @@ Get-WinGetPackage
 ```PowerShell
 Update-WinGetPackage
 ```
+**Parameters**
+
+-Manifest  
+
+-PackageIdentifier
+
+-Name
+
+-Moniker
+
+-Version
+
+-Source
+
+-Exact
+
+-Interactive
+
+-Silent
+
+-Log
+
+-Override
+
+-Location
+
+-All
 
 ---
 
@@ -171,6 +215,28 @@ Update-WinGetPackage
 ```PowerShell
 Uninstall-WinGetPackage
 ```
+
+**Parameters**
+
+-Manifest  
+
+-PackageIdentifier
+
+-Name
+
+-Moniker
+
+-Version
+
+-Source
+
+-Exact
+
+-Interactive
+
+-Silent
+
+-Log
 
 **Example**
 
