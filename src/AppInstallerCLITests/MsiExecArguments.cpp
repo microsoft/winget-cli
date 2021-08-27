@@ -148,10 +148,10 @@ TEST_CASE("MsiExecArgs_ParseProperties", "[msiexec]")
     }
 
     {
-        auto args = Msi::ParseMSIArguments("PROPERTY=\"escaped "" quotes\""sv);
+        auto args = Msi::ParseMSIArguments("PROPERTY=\"escaped \"\" quotes\""sv);
         REQUIRE(!args.LogFile.has_value());
         REQUIRE(args.UILevel == INSTALLUILEVEL_DEFAULT);
-        REQUIRE(args.Properties == L" PROPERTY=\"escaped "" quotes\""sv);
+        REQUIRE(args.Properties == L" PROPERTY=\"escaped \"\" quotes\""sv);
     }
 
     {

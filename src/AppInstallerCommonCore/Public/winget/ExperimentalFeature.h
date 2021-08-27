@@ -23,6 +23,7 @@ namespace AppInstaller::Settings
             ExperimentalMSStore = 0x1,
             PackagedAPI = 0x2,
             Dependencies = 0x4,
+            // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x8,
             Max, // This MUST always be after all experimental features
 
