@@ -39,7 +39,7 @@ consensus.
 The PowerShell module name will be "WindowsPackageManager"
 The Adjective "WinGet" may change, but is used consistently in the cmdlets until such time as we agree on the proper term.
 
->Note: Naming things is hard. One of the conventions of PowerShell is to make nouns singular.
+>Note: Naming things is hard, and one of the conventions of PowerShell is to make nouns singular.
 ---
 
 ### Client command `winget install`
