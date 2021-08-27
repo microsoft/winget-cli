@@ -85,12 +85,15 @@ namespace AppInstaller::CLI::Workflow
         Repository::SourceDetails sourceDetails;
         sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
         sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
-        sourceDetails.Type = context.Args.Contains(Args::Type::SourceType) ? context.Args.GetArg(Args::Type::SourceType) :
-            Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+
+        if (context.Args.Contains(Args::Type::SourceType))
+        {
+            sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
+        }
 
         if (context.Args.Contains(Args::Type::CustomHeader)) 
         {
-            if (!Utility::CaseInsensitiveEquals(sourceDetails.Type, Repository::Rest::RestSourceFactory::Type()))
+            if (!Repository::SupportsCustomHeader(sourceDetails))
             {
                 context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
             }

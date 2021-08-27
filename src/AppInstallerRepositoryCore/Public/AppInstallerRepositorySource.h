@@ -193,4 +193,7 @@ namespace AppInstaller::Repository
     // Return value indicates whether the named source was found.
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
+
+    // Checks if a source supports passing custom header.
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails);
 }

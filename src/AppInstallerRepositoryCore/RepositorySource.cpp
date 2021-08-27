@@ -1247,6 +1247,11 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails)
+    {
+        return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
+    }
+
     bool SearchRequest::IsForEverything() const
     {
         return (!Query.has_value() && Inclusions.empty() && Filters.empty());

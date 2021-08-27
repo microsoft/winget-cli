@@ -62,6 +62,4 @@
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Locale.h>
-#include <Rest/RestSourceFactory.h>
-#include "Microsoft/PreIndexedPackageSourceFactory.h"
 

@@ -54,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         if (context.Args.Contains(Execution::Args::Type::CustomHeader))
                         {
-                            if (!(Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.value().Type)))
+                            if (!SupportsCustomHeader(sourceDetails.value()))
                             {
                                 context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
                             }
@@ -64,7 +64,7 @@ namespace AppInstaller::CLI::Workflow
                             }
                         }
 
-                        result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, std::move(sourceDetails.value()), std::placeholders::_1), true);
+                        result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
                     }
                 }
                 else
