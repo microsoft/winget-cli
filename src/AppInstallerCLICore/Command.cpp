@@ -676,7 +676,8 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
         }
 
-        if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source))
+        if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
+           !execArgs.Contains(Execution::Args::Type::SourceName))
         {
             throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name(), {});
         }

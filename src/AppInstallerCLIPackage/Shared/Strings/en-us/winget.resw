@@ -1026,7 +1026,7 @@ Do you agree to the terms?</value>
     <value>Optional Windows-Package-Manager REST source HTTP header</value>
   </data>
   <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
-    <value>Ignoring the optional header as it is only applicable for a Rest source.</value>
+    <value>Ignoring the optional header as it is not applicable for this source.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>The optional header is not applicable without specifying a Rest source</value>
