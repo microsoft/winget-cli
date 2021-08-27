@@ -180,6 +180,7 @@ libsolv
 libyaml
 Linq
 liv
+liwpx
 llvm
 localhost
 localizationpriority
@@ -187,6 +188,8 @@ LPBYTE
 LPWSTR
 LSTATUS
 LTDA
+lw
+lz
 malware
 MBH
 megamorf
@@ -218,6 +221,8 @@ netlify
 Newtonsoft
 NOEXPAND
 normer
+NOSEPARATOR
+NOTAPROPERTY
 npp
 nsis
 nuffing
@@ -239,6 +244,7 @@ PMS
 positionals
 powertoys
 productcode
+pseudocode
 pvk
 pvm
 pwabuilder

@@ -167,6 +167,9 @@
     <ClCompile Include="CustomHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MsiExecArguments.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -477,7 +480,7 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
+    <CopyFileToFolders Include="TestData\Installer_Msix_WFDependency.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesOnRoot.yaml">

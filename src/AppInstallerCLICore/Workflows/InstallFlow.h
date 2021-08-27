@@ -102,6 +102,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShellExecuteInstall(Execution::Context& context);
 
+    // Runs an MSI installer directly via MSI APIs.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
+    void DirectMSIInstall(Execution::Context& context);
+
     // Deploys the MSIX.
     // Required Args: None
     // Inputs: Manifest?, Installer || InstallerPath
