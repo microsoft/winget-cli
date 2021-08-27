@@ -91,17 +91,7 @@ namespace AppInstaller::CLI::Workflow
             sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
 
-        if (context.Args.Contains(Args::Type::CustomHeader)) 
-        {
-            if (!Repository::SupportsCustomHeader(sourceDetails))
-            {
-                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
-            }
-            else
-            {
-                sourceDetails.CustomHeader = context.Args.GetArg(Args::Type::CustomHeader);
-            }
-        }
+        sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
 
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<

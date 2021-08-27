@@ -52,17 +52,7 @@ namespace AppInstaller::CLI::Workflow
                     auto sourceDetails = Repository::GetSource(sourceName);
                     if (sourceDetails)
                     {
-                        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
-                        {
-                            if (!SupportsCustomHeader(sourceDetails.value()))
-                            {
-                                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
-                            }
-                            else
-                            {
-                                sourceDetails.value().CustomHeader = context.Args.GetArg(Execution::Args::Type::CustomHeader);
-                            }
-                        }
+                        sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
 
                         result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
                     }
@@ -720,6 +710,24 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
         }
+    }
+
+    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const SourceDetails& sourceDetails)
+    {
+        std::optional<std::string> customHeader;
+        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
+        {
+            if (!SupportsCustomHeader(sourceDetails))
+            {
+                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
+            }
+            else
+            {
+                customHeader = context.Args.GetArg(Execution::Args::Type::CustomHeader);
+            }
+        }
+
+        return customHeader;
     }
 
     void EnsureFeatureEnabled::operator()(Execution::Context& context) const
