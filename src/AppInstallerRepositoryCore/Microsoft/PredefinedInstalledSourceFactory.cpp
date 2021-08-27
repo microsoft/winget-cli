@@ -90,7 +90,7 @@ namespace AppInstaller::Repository::Microsoft
                 
                 manifest.Installers[0].PackageFamilyName = familyName;
 
-                // Use the family name as a unique key for the path
+                // Use the full name as a unique key for the path
                 auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FullName().c_str() });
 
                 index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 

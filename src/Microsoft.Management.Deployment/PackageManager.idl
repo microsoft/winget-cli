@@ -150,11 +150,11 @@ namespace Microsoft.Management.Deployment
     {
         /// The comparison did not result in a succesful ordering.
         Unknown,
-        /// The given value is lesser than the object value.
+        /// The object value is lesser than the given value.
         Lesser,
-        /// The given value is equal to the object value.
+        /// The object value is equal to the given value.
         Equal,
-        /// The given value is greater than the object value.
+        /// The object value is greater than the given value.
         Greater,
     };
 
