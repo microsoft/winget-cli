@@ -281,10 +281,22 @@ Test-WinGetManifest
 ```PowerShell
 Get-WinGetSetting
 ```
+>Note: This will not open the settings file. It will just get the object.
+
+**Parameters**
+
+-Path
+>Note: This would provide the path to the settings.json file.
 
 ```PowerShell
 Set-WinGetSetting
 ```
+
+> Note: This would apply the settings provided by the object built or modified by the user.
+
+**Parameters**
+
+-File
 
 ---
 
@@ -328,9 +340,16 @@ Export-WinGetPackageSet
 ```PowerShell
 Import-WinGetPackageSet
 ```
+
+> Note: This will not actually install the packages, this will just build a set of packages for the user to send to "Install-WingetPackage" or "Upgrade-WingetPackage".
+
 **Parameters**
 
 -ImportFile
+
+-Install
+
+>Note: This would behave like the current `winget install` command.
 
 -IgnoreUnavailable
 
