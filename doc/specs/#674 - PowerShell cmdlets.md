@@ -13,7 +13,7 @@ issue id: 674
 
 This specification is to begin drafting PowerShell cmdlets for the Windows Package Manager. @doctordns submitted the issue
 and this specification is intended to capture the intent for the syntax. The PowerShell Team has recently released
-[PowerShell Crescendo Preview.3](https://devblogs.microsoft.com/powershell/announcing-powershell-crescendo-preview-3/). we
+[PowerShell Crescendo Preview.3](https://devblogs.microsoft.com/powershell/announcing-powershell-crescendo-preview-3/). We
 are considering using this framework to help model the syntax and create a module so users can experiment with the syntax.
 Several of the winget.exe commands provide output that is not representative of properly formatted objects, so there will
 likely be gaps to address natively in the COM interface for the Windows Package Manager.
