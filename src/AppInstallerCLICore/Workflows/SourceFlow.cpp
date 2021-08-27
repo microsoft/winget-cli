@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Workflow
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(sourceDetails), std::placeholders::_1)))
+        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Done;
         }
