@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "COMContext.h"
 
-namespace AppInstaller
+namespace AppInstaller::CLI::Execution
 {
     static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
 
@@ -19,7 +19,7 @@ namespace AppInstaller
         m_comProgressCallbacks.push_back(std::move(f));
     }
 
-    void COMContext::FireCallbacks(::AppInstaller::ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
+    void COMContext::FireCallbacks(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase)
     {
         // Lock around iterating through the list. Callbacks should not do long running tasks.
         std::lock_guard<std::mutex> lock{ m_callbackLock };

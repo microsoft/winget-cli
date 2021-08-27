@@ -9,9 +9,24 @@
 #include "InstallOptions.h"
 #pragma warning( pop )
 #include "InstallOptions.g.cpp"
+#include "Converters.h"
+
+#include <AppInstallerArchitecture.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    InstallOptions::InstallOptions()
+    {
+        // Populate the allowed architectures with the default values for the machine
+        for (AppInstaller::Utility::Architecture architecture : AppInstaller::Utility::GetApplicableArchitectures())
+        {
+            auto convertedArchitecture = GetWindowsSystemProcessorArchitecture(architecture);
+            if (convertedArchitecture)
+            {
+                m_allowedArchitectures.Append(convertedArchitecture.value());
+            }
+        }
+    }
     winrt::Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
         return m_packageVersionId;
@@ -83,6 +98,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void InstallOptions::AdditionalPackageCatalogArguments(hstring const& value)
     {
         m_additionalPackageCatalogArguments = value;
+    }
+    winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> InstallOptions::AllowedArchitectures()
+    {
+        return m_allowedArchitectures;
     }
     CoCreatableCppWinRtClass(InstallOptions);
 }

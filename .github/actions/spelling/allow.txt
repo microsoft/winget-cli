@@ -363,6 +363,8 @@ realloc
 REALTIME
 REBOOTPROMPT
 Redistributable
+Refactor
+refactoring
 REFCLSID
 regex
 regexp
