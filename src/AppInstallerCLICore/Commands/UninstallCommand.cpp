@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
 {
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
-        // TODO: determine exact arguments needed
         return
         {
             Argument::ForType(Args::Type::Query),
@@ -31,6 +30,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomHeader),
         };
     }
 
@@ -79,7 +79,6 @@ namespace AppInstaller::CLI
 
     std::string UninstallCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-uninstall";
     }
 

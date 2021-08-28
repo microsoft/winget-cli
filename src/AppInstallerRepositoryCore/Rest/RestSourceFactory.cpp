@@ -19,7 +19,7 @@ namespace AppInstaller::Repository::Rest
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
 
-                RestClient restClient = RestClient::Create(details.Arg);
+                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
 
                 return std::make_shared<RestSource>(details, restClient.GetSourceIdentifier(), std::move(restClient));
             }

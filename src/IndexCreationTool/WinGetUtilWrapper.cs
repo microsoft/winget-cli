@@ -181,7 +181,7 @@ namespace IndexCreationTool
         {
             if (disposing)
             {
-                if (this.indexHandle != null)
+                if (this.indexHandle != IntPtr.Zero)
                 {
                     WinGetSQLiteIndexClose(this.indexHandle);
                 }

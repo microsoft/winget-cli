@@ -295,6 +295,10 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureRunningAsAdmin(Execution::Context& context);
 
+    // Gets the custom header from Arguments.
+    // Returns: Custom header if provided and applicable.
+    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const AppInstaller::Repository::SourceDetails& sourceDetails);
+
     // Ensures that the feature is enabled.
     // Required Args: the desired feature
     // Inputs: None

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(1)]
+    [contractversion(2)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -144,6 +144,20 @@ namespace Microsoft.Management.Deployment
         PublisherDisplayName,
     };
 
+    /// The result of a comparison.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+    enum CompareResult
+    {
+        /// The comparison did not result in a succesful ordering.
+        Unknown,
+        /// The object value is lesser than the given value.
+        Lesser,
+        /// The object value is equal to the given value.
+        Equal,
+        /// The object value is greater than the given value.
+        Greater,
+    };
+
     /// IMPLEMENTATION NOTE: IPackageVersion from AppInstallerRepositorySearch.h
     /// A single package version.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -169,6 +183,17 @@ namespace Microsoft.Management.Deployment
 
         /// Gets the package catalog  where this package version is from.
         PackageCatalog PackageCatalog { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        {
+            /// Compares the given value against the package version of this object, with the result being
+            /// the enum value that represents where PackageVersionInfo::Version is ordered relative to the
+            /// versionString.  "if (this.CompareToVersion(that) == Greater)" can be thought of as reading
+            /// the sentence "If this is compared to version that and is found to be greater".
+            /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
+            /// Passing in an empty string will result in Unknown.
+            CompareResult CompareToVersion(String versionString);
+        }
 
         /// DESIGN NOTE:
         /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
@@ -402,6 +427,7 @@ namespace Microsoft.Management.Deployment
     {
         OpenWindowsCatalog,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     /// Local Catalogs with PackageCatalogOrigin Predefined
@@ -409,6 +435,7 @@ namespace Microsoft.Management.Deployment
     enum LocalPackageCatalog
     {
         InstalledPackages,
+        InstallingPackages
     };
 
     /// Options for creating a composite catalog.
@@ -479,6 +506,16 @@ namespace Microsoft.Management.Deployment
         String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalPackageCatalogArguments;
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        {
+            // The set of allowed Architectures, in preference order, that will be considered for
+            // the install operation.  Initially the vector contains the default allowed architectures
+            // in the default preference order for the current system.  It is allowed to have repeated
+            // values in the list, to make prepending a preference override easier.  Instances of an
+            // architecture after the first will simply be ignored.
+            Windows.Foundation.Collections.IVector<Windows.System.ProcessorArchitecture> AllowedArchitectures { get; };
+        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -502,6 +539,12 @@ namespace Microsoft.Management.Deployment
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        {
+            /// Get install progress
+            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
     }
 
     /// Force midl3 to generate vector marshalling info. 

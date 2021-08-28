@@ -1,5 +1,7 @@
 abi
 ACCESSDENIED
+ACTIONDATA
+ACTIONSTART
 addmanifest
 addstore
 admins
@@ -53,6 +55,7 @@ cnt
 codepage
 COMMANDBARFLYOUT
 Commandline
+COMMONDATA
 comparand
 conemu
 config
@@ -87,6 +90,7 @@ delstore
 Demitrius
 denelon
 depersist
+deque
 Deserialize
 deserializer
 deserializing
@@ -107,6 +111,7 @@ dword
 DWORDLONG
 elseif
 emoji
+ENDDIALOG
 endif
 endl
 ensureandinsert
@@ -119,6 +124,7 @@ errstr
 esrp
 etag
 ETW
+EULA
 EVENTTAG
 exe
 executables
@@ -129,19 +135,24 @@ exesilent
 exeswp
 exitcode
 expr
+EXTRADEBUG
 EXTRAFLAGS
 FAILIFTHERE
 fakeswitch
+FATALEXIT
 FIELDTAG
 FILEFLAGS
 FILEFLAGSMASK
 FILELOGGER
 FILEOS
 filepath
+FILESINUSE
 FILESUBTYPE
 filesystem
 FILETYPE
 FILEVERSION
+FLUSHEACHLINE
+forcerestart
 foreach
 fstream
 func
@@ -152,6 +163,7 @@ github
 githubusercontent
 hfile
 HGLOBAL
+HIDECANCEL
 hinternet
 HKEY
 hmac
@@ -192,7 +204,10 @@ Inq
 installertype
 Installeruniqueness
 installlocation
+INSTALLLOGATTRIBUTES
+INSTALLLOGMODE
 INSTALLPATH
+INSTALLUILEVEL
 interop
 INVALIDARG
 iomanip
@@ -219,7 +234,9 @@ LLVM
 llvmorg
 LOCALAPPDATA
 localtime
+LOGONLYONERROR
 LOGPATH
+LOGPERFORMANCE
 logsql
 logto
 LONGLONG
@@ -273,6 +290,7 @@ NOMINMAX
 NONAME
 nonexistentsetting
 NONINFRINGEMENT
+norestart
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -293,6 +311,7 @@ ostream
 ostringstream
 OSVERSIONINFOEXW
 outfile
+OUTOFDISKSPACE
 OUTOFMEMORY
 OWC
 PACKAGESSCHEMA
@@ -324,6 +343,9 @@ PRIMARYKEY
 prioritization
 PRODUCTNAME
 PRODUCTVERSION
+PROGRESSONLY
+promptrestart
+PROPERTYDUMP
 psz
 ptr
 publiccontainer
@@ -339,7 +361,10 @@ READONLY
 READWRITE
 realloc
 REALTIME
+REBOOTPROMPT
 Redistributable
+Refactor
+refactoring
 REFCLSID
 regex
 regexp
@@ -348,6 +373,7 @@ repolibtest
 rescap
 resheader
 resmimetype
+RESOLVESOURCE
 RESTSOURCE
 resw
 resx
@@ -457,8 +483,10 @@ TEXTINCLUDE
 there're
 Timeline
 todo
+tokenizer
 tolower
 toupper
+TOutput
 towlower
 TRACELOGGING
 triaged
@@ -469,6 +497,7 @@ ttl
 typedef
 typename
 UAC
+UACONLY
 uap
 UBool
 UBreak
@@ -552,6 +581,7 @@ wstring
 wstringstream
 www
 xamarin
+xaml
 XElement
 xlang
 xml

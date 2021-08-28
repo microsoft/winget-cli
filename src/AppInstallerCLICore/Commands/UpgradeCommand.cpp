@@ -42,7 +42,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::CustomHeader),
         };
     }
 
@@ -93,7 +95,6 @@ namespace AppInstaller::CLI
 
     std::string UpgradeCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-upgrade";
     }
 
@@ -149,11 +150,8 @@ namespace AppInstaller::CLI
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
-                EnsureApplicableInstaller << 
-                ReportIdentityAndInstallationDisclaimer <<
-                GetDependenciesFromInstaller <<
-                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-                InstallPackageInstaller;
+                EnsureApplicableInstaller <<
+                InstallSinglePackage;
         }
         else
         {
@@ -179,11 +177,7 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << 
-                ReportIdentityAndInstallationDisclaimer <<
-                GetDependenciesFromInstaller << 
-                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-                InstallPackageInstaller;
+            context << InstallSinglePackage;
         }
     }
 }

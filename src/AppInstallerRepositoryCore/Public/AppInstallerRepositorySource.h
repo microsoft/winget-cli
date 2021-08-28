@@ -65,6 +65,9 @@ namespace AppInstaller::Repository
 
         // Whether the source behavior has restrictions
         bool Restricted = false; 
+
+        // Custom header for Rest sources
+        std::optional<std::string> CustomHeader;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -89,13 +92,16 @@ namespace AppInstaller::Repository
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
-    // Interface extension to ISource for locally installed packages.
-    struct IInstalledPackageSource : public ISource
+    // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages
+    struct IMutablePackageSource
     {
-        virtual ~IInstalledPackageSource() = default;
+        virtual ~IMutablePackageSource() = default;
 
-        // Adds an installed package version to the source.
-        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        // Adds a package version to the source.
+        virtual void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+
+        // Removes a package version from the source.
+        virtual void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
     // Gets the details for all sources.
@@ -105,7 +111,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress);
 
     struct OpenSourceResult
     {
@@ -130,6 +136,7 @@ namespace AppInstaller::Repository
         Installed,
         ARP,
         MSIX,
+        Installing,
     };
 
     // A well known source.
@@ -138,6 +145,7 @@ namespace AppInstaller::Repository
     {
         WinGet,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
@@ -186,4 +194,7 @@ namespace AppInstaller::Repository
     // Return value indicates whether the named source was found.
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
+
+    // Checks if a source supports passing custom header.
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails);
 }
