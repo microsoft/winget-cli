@@ -86,6 +86,30 @@ Install-WinGetPackage
 
 >Note: We considered Show-WinGetPackage, but in PowerShell users may want to perform their own search. We are currently thinking we would use "Find-WingetPackage -detail".
 
+**PowerShell Cmdlet**
+```PowerShell
+Get-WinGetPackageVersion
+```
+
+-Detail
+
+-All
+
+-Version
+
+**Examples**
+
+>Note: The current behavior for `winget show vscode` would look like the example below.
+
+```PowerShell
+Find-WinGetPackage -Moniker vscode | GetWinGetPackageVersion -Detail
+```
+
+>Note: The current behavior for `winget show vscode --versions` would look like the example below.
+```PowerShell
+Find-WingetPackage -Moniker vscode | GetWingetPackageVersion -All
+```
+
 ---
 
 ### Client command `winget source`
@@ -123,8 +147,6 @@ Find-WinGetPackage
 ```
 
 **Parameters**
-
--Detail
 
 -PackageIdentfier
 
@@ -326,6 +348,8 @@ Disable-WingetFeature
 Export-WinGetPackageSet 
 ```
 **Parameters**
+
+-Output
 
 -Source
 
