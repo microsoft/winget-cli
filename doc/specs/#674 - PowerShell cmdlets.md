@@ -100,12 +100,12 @@ Get-WinGetPackageVersion
 >Note: The current behavior for `winget show vscode` would look like the example below.
 
 ```PowerShell
-Find-WinGetPackage -Moniker vscode | GetWinGet-PackageVersion -Detail
+Find-WinGetPackage -Moniker vscode | Get-WinGetPackageVersion -Detail
 ```
 
 >Note: The current behavior for `winget show vscode --versions` would look like the example below.
 ```PowerShell
-Find-WingetPackage -Moniker vscode | Get-WingetPackageVersion -All
+Find-WinGetPackage -Moniker vscode | Get-WinGetPackageVersion -All
 ```
 
 ---
