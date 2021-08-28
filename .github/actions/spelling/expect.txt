@@ -68,6 +68,7 @@ contosainstaller
 contoso
 count'th
 countryregion
+convertto
 createmanifestmetadata
 cstdint
 ctc
@@ -80,6 +81,8 @@ deleteifnotneeded
 desktopappinstaller
 dirs
 dnld
+doctordns
+DSL
 dustojnikhummer
 dvinns
 dw
@@ -92,6 +95,7 @@ EQU
 ERANGE
 errno
 ESRB
+etail
 etest
 execustom
 EXEHASH
@@ -151,6 +155,7 @@ itr
 IVector
 IWeb
 IZone
+Jaifroid
 JDKs
 jfearn
 JObject
@@ -185,6 +190,7 @@ MBH
 megamorf
 memcpy
 middleware
+mikefrobbins
 minexample
 minschema
 MMmmbbbb
@@ -206,6 +212,7 @@ mysilentwithprogress
 mytool
 netlify
 Newtonsoft
+Nieto
 NOEXPAND
 normer
 nsis
@@ -226,6 +233,7 @@ pkgmgr
 pkindex
 PMS
 positionals
+powershellexplained
 powertoys
 productcode
 pvk
@@ -342,6 +350,7 @@ wsv
 wto
 Wunused
 WZDNCRFJ
+xbox
 XPLATSTR
 xsi
 zy

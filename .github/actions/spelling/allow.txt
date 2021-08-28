@@ -47,6 +47,7 @@ cin
 cla
 CLSCTX
 cmake
+cmdlet
 cmp
 CNG
 cnt
