@@ -137,12 +137,16 @@ namespace AppInstaller::Utility
 
     int IsApplicableArchitecture(Architecture arch)
     {
-        const std::vector<Architecture>& applicableArchs = GetApplicableArchitectures();
-        auto it = std::find(applicableArchs.begin(), applicableArchs.end(), arch);
+        return IsApplicableArchitecture(arch, GetApplicableArchitectures());
+    }
 
-        if (it != applicableArchs.end())
+    int IsApplicableArchitecture(Architecture arch, const std::vector<Architecture>& allowedArchitectures)
+    {
+        auto it = std::find(allowedArchitectures.begin(), allowedArchitectures.end(), arch);
+
+        if (it != allowedArchitectures.end())
         {
-            return static_cast<int>(std::distance(it, applicableArchs.end()));
+            return static_cast<int>(std::distance(it, allowedArchitectures.end()));
         }
         else
         {

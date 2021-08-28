@@ -39,6 +39,7 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             HashOverride, // Ignore hash mismatches
+            AcceptPackageAgreements, // Accept all license agreements for packages
 
             //Source Command
             SourceName,
@@ -76,6 +77,7 @@ namespace AppInstaller::CLI::Execution
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
+            CustomHeader, // Optional Rest source header
 
             // Used for demonstration purposes
             ExperimentalArg,

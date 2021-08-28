@@ -20,6 +20,23 @@ namespace AppInstaller::Repository::Rest
     // Supported versions
     std::set<Version> WingetSupportedContracts = { Version_1_0_0 };
 
+    constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
+
+    namespace {
+        std::unordered_map<utility::string_t, utility::string_t> GetHeaders(std::optional<std::string> customHeader)
+        {
+            if (!customHeader)
+            {
+                AICLI_LOG(Repo, Verbose, << "Custom header not found.");
+                return {};
+            }
+
+            std::unordered_map<utility::string_t, utility::string_t> headers;
+            headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
+            return headers;
+        }
+    }
+
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
         : m_interface(std::move(supportedInterface)), m_sourceIdentifier(std::move(sourceIdentifier))
     {
@@ -46,10 +63,11 @@ namespace AppInstaller::Repository::Rest
         return endpoint;
     }
 
-    IRestClient::Information RestClient::GetInformation(const utility::string_t& restApi, const HttpClientHelper& clientHelper)
+    IRestClient::Information RestClient::GetInformation(
+        const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const HttpClientHelper& clientHelper)
     {
         // Call information endpoint
-        std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi));
+        std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi), additionalHeaders);
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
 
@@ -80,26 +98,32 @@ namespace AppInstaller::Repository::Rest
         return *commonVersions.rbegin();
     }
 
-    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(const std::string& api, const Version& version)
+    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(
+        const std::string& api, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Version& version)
     {
         if (version == Version_1_0_0)
         {
             return std::make_unique<Schema::V1_0::Interface>(api);
         }
        
+        // TODO: USE additionalHeaders with V1.1 changes.
+        (void)additionalHeaders;
+
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, const HttpClientHelper& helper)
+    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        IRestClient::Information information = GetInformation(restEndpoint, helper);
+        auto headers = GetHeaders(customHeader);
+
+        IRestClient::Information information = GetInformation(restEndpoint, headers, helper);
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), latestCommonVersion.value());
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, latestCommonVersion.value());
         return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

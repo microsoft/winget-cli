@@ -14,6 +14,7 @@ namespace AppInstaller::CLI::Execution
 {
     enum class OrchestratorQueueItemState
     {
+        NotQueued,
         Queued,
         Running
     };
@@ -40,7 +41,7 @@ namespace AppInstaller::CLI::Execution
         const wil::unique_event& GetCompletedEvent() const { return m_completedEvent; }
         const OrchestratorQueueItemId& GetId() const { return m_id; }
     private:
-        OrchestratorQueueItemState m_state = OrchestratorQueueItemState::Queued;
+        OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
         std::unique_ptr<COMContext> m_context;
         wil::unique_event m_completedEvent{ wil::EventOptions::ManualReset };
         OrchestratorQueueItemId m_id;

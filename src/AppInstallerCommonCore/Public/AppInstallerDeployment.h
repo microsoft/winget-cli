@@ -15,6 +15,16 @@ namespace AppInstaller::Deployment
         bool skipSmartScreen,
         IProgressCallback& callback);
 
+    // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync if skipSmartScreen is true,
+    // Otherwise, calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync.
+    // If the Add function fails due to the package being in use, we fall back to stage and register, which allows
+    // a deferred registration.
+    // Returns true if the registration was deferred; false if not.
+    bool AddPackageWithDeferredFallback(
+        const std::string& uri,
+        bool skipSmartScreen,
+        IProgressCallback& callback);
+
     // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync
     void RemovePackage(
         std::string_view packageFullName,
