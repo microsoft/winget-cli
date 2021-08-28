@@ -50,6 +50,7 @@ cla
 CLSCTX
 cmake
 cmdlet
+cmdlets
 cmp
 CNG
 cnt
