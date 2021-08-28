@@ -6,6 +6,7 @@
 #include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
@@ -40,14 +41,77 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+
+    constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/platform"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
+
     namespace
     {
-        // SourceDetails with additional data used by this file.
+        // SourceDetails with additional data.
         struct SourceDetailsInternal : public SourceDetails
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            SourceDetailsInternal() = default;
+
+            SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
+
+        SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
+        {
+            switch (source)
+            {
+            case WellKnownSource::WinGet:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_WingetCommunityDefault_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_WingetCommunityDefault_Arg;
+                details.Data = s_Source_WingetCommunityDefault_Data;
+                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                return details;
+            }
+            case WellKnownSource::MicrosoftStore:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_MSStoreDefault_Name;
+                details.Type = Rest::RestSourceFactory::Type();
+                details.Arg = s_Source_MSStoreDefault_Arg;
+                details.Identifier = s_Source_MSStoreDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted;
+                details.Restricted = true;
+                return details;
+            }
+            case WellKnownSource::DesktopFrameworks:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_DesktopFrameworks_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_DesktopFrameworks_Arg;
+                details.Data = s_Source_DesktopFrameworks_Data;
+                details.Identifier = s_Source_DesktopFrameworks_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
+                // of this file, while still allowing it to properly save metadata.  There might be problems
+                // if someone chooses the exact same name as this, which is why its name is very long.
+                // TODO: When refactoring the source interface, handle this with Visibility or similar.
+                details.IsTombstone = true;
+                return details;
+            }
+            }
+
+            THROW_HR(E_UNEXPECTED);
+        }
 
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
@@ -82,6 +146,11 @@ namespace AppInstaller::Repository
         bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
             return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
+        {
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -147,6 +216,11 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::MSStoreSource;
                 }
 
+                if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
+                {
+                    return TogglePolicy::Policy::MSStoreSource;
+                }
+
                 // Any other tombstone is allowed
                 return TogglePolicy::Policy::None;
             }
@@ -168,6 +242,12 @@ namespace AppInstaller::Repository
                 return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
             }
 
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
+            {
+                return IsMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
+            }
+
             // Case 3:
             // If the source has the same name as a default source, it is shadowing with a different argument
             // (as it didn't match above). We only care if Group Policy requires the default source.
@@ -179,7 +259,13 @@ namespace AppInstaller::Repository
 
             if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
             {
-                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                return TogglePolicy::Policy::MSStoreSource;
+            }
+
+            if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
+            {
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
                 return TogglePolicy::Policy::MSStoreSource;
             }
 
@@ -396,14 +482,7 @@ namespace AppInstaller::Repository
             {
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetCommunityDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetCommunityDefault_Arg;
-                    details.Data = s_Source_WingetCommunityDefault_Data;
-                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
                 }
 
                 if (IsWingetMSStoreDefaultSourceEnabled())
@@ -417,6 +496,15 @@ namespace AppInstaller::Repository
                     details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
                     result.emplace_back(std::move(details));
                 }
+
+                if (IsMSStoreDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
+                }
+
+                // Since we are using the tombstone trick, this is added just to have the source in the internal
+                // list for tracking updates.  Thus there is no need to check a policy.
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
             }
             break;
             case SourceOrigin::User:
@@ -576,6 +664,11 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedWriteableSourceFactory::Create();
+            }
             else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
                 return Rest::RestSourceFactory::Create();
@@ -683,6 +776,8 @@ namespace AppInstaller::Repository
             // Add/remove a current source
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
+
+            void UpdateSourceLastUpdateTime(const SourceDetails& source);
 
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
@@ -860,39 +955,40 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress)
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
+        THROW_HR_IF(E_INVALIDARG, sourceDetails.Name.empty());
 
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << name << "], Type[" << type << "], Arg[" << arg << "]");
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        auto source = sourceList.GetCurrentSource(name);
+        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
+        // Check for a non-user tombstone; hidden source data that we don't want to collide.
+        // TODO: Refactor the source interface so that we don't do this
+        auto tombstoneSource = sourceList.GetSource(name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, tombstoneSource && tombstoneSource->Origin != SourceOrigin::User);
+
         // Check sources allowed by group policy
-        auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
+        auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);
         if (blockingPolicy != TogglePolicy::Policy::None)
         {
             throw GroupPolicyException(blockingPolicy);
         }
 
-        SourceDetailsInternal details;
-        details.Name = name;
-        details.Type = type;
-        details.Arg = arg;
-        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
-        details.Origin = SourceOrigin::User;
+        sourceDetails.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
+        sourceDetails.Origin = SourceOrigin::User;
 
-        bool result = AddSourceFromDetails(details, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress);
         if (result)
         {
-            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << sourceDetails.Identifier);
 
-            sourceList.AddSource(details);
+            sourceList.AddSource(sourceDetails);
         }
 
         return result;
@@ -901,10 +997,10 @@ namespace AppInstaller::Repository
     OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
-        auto currentSources = sourceList.GetCurrentSourceRefs();
 
         if (name.empty())
         {
+            auto currentSources = sourceList.GetCurrentSourceRefs();
             if (currentSources.empty())
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
@@ -912,8 +1008,17 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
+                // Restricted sources may not support the full set of functionality
+                if (currentSources[0].get().Restricted)
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
+                    return {};
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                    return OpenSource(currentSources[0].get().Name, progress);
+                }
             }
             else
             {
@@ -924,6 +1029,13 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
+                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
+                    if (source.get().Restricted)
+                    {
+                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
+                        continue;
+                    }
+
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -940,6 +1052,7 @@ namespace AppInstaller::Repository
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
+
                     aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
@@ -963,7 +1076,6 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))
@@ -988,7 +1100,53 @@ namespace AppInstaller::Repository
         }
     }
 
+    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+    {
+        OpenSourceResult result;
+
+        // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
+        // if the details came from the same instance of the list that's being saved.
+        // Some sources that do not need updating like the Installed source, do not have Name values.
+        // Restricted sources don't have full functionality
+        if (!details.Name.empty() &&
+            !details.Restricted)
+        {
+            SourceListInternal sourceList;
+            auto source = sourceList.GetSource(details.Name);
+            if (!source)
+            {
+                AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
+                return {};
+            }
+
+            if (ShouldUpdateBeforeOpen(*source))
+            {
+                try
+                {
+                    if (BackgroundUpdateSourceFromDetails(*source, progress))
+                    {
+                        sourceList.SaveMetadata();
+                    }
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                    result.SourcesWithUpdateFailure.emplace_back(*source);
+                }
+            }
+        }
+
+        result.Source = CreateSourceFromDetails(details, progress);
+        return result;
+    }
+
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details = GetPredefinedSourceDetails(source);
+        return CreateSourceFromDetails(details, progress);
+    }
+
+    SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
     {
         SourceDetails details;
         details.Origin = SourceOrigin::Predefined;
@@ -998,18 +1156,29 @@ namespace AppInstaller::Repository
         case PredefinedSource::Installed:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::ARP:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
-            return CreateSourceFromDetails(details, progress);
+            return details;
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
-            return CreateSourceFromDetails(details, progress);
+            return details;
+        case PredefinedSource::Installing:
+            details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+            // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
+            // so this is used here for consistency with other predefined sources.
+            details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
+            return details;
         }
 
         THROW_HR(E_UNEXPECTED);
+    }
+
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
+    {
+        return GetWellKnownSourceDetailsInternal(source);
     }
 
     std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
@@ -1023,6 +1192,26 @@ namespace AppInstaller::Repository
         }
 
         result->SetInstalledSource(installedSource, searchBehavior);
+
+        return result;
+    }
+
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::vector<std::shared_ptr<ISource>>& availableSources,
+        CompositeSearchBehavior searchBehavior)
+    {
+        std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
+
+        for (const auto& availableSource : availableSources)
+        {
+            result->AddAvailableSource(availableSource);
+        }
+
+        if (installedSource)
+        {
+            result->SetInstalledSource(installedSource, searchBehavior);
+        }
 
         return result;
     }
@@ -1109,6 +1298,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails)
+    {
+        return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 
     bool SearchRequest::IsForEverything() const

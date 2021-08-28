@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
@@ -141,6 +140,12 @@ namespace AppInstaller
                 return "Invalid rest source contract version";
             case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
                 return "The source data is corrupted or tampered";
+            case APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE:
+                return "Error reading from the stream";
+            case APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED:
+                return "License not agreed to";
+            case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
+                return "Error reading input in prompt";
             default:
                 return "Unknown Error Code";
             }

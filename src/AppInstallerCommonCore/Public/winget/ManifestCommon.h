@@ -3,7 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
-
+#include <functional>
 #include <map>
 #include <string_view>
 
@@ -20,6 +20,9 @@ namespace AppInstaller::Manifest
 
     // V1 manifest version for GA
     constexpr std::string_view s_ManifestVersionV1 = "1.0.0"sv;
+
+    // V1.1 manifest version
+    constexpr std::string_view s_ManifestVersionV1_1 = "1.1.0"sv;
 
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
@@ -112,20 +115,125 @@ namespace AppInstaller::Manifest
         Preview,
     };
 
-    struct PackageDependency
+    enum class DependencyType
     {
-        string_t Id;
-        string_t MinVersion;
+        WindowsFeature,
+        WindowsLibrary,
+        Package,
+        External
     };
 
     struct Dependency
     {
-        std::vector<string_t> WindowsFeatures;
-        std::vector<string_t> WindowsLibraries;
-        std::vector<PackageDependency> PackageDependencies;
-        std::vector<string_t> ExternalDependencies;
+        DependencyType Type;
+        string_t Id;
+        std::optional<string_t> MinVersion;
+
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
+        Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
+        Dependency(DependencyType type) : Type(type) {}
     };
 
+    struct DependencyList
+    {
+        DependencyList() = default;
+
+        void Add(const Dependency& newDependency)
+        { 
+            Dependency* existingDependency = this->HasDependency(newDependency);
+
+            if (existingDependency != NULL) {
+                if (newDependency.MinVersion) 
+                {
+                    if (existingDependency->MinVersion)
+                    {
+                        const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
+                        const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
+                        if (newDependencyVersion > existingDependencyVersion) 
+                        {
+                            existingDependency->MinVersion.value() = newDependencyVersion.ToString();
+                        }
+                    }
+                    else
+                    {
+                        existingDependency->MinVersion.value() = newDependency.MinVersion.value();
+                    }
+                }
+            }
+            else 
+            {
+                dependencies.push_back(newDependency); 
+            }
+        }
+
+        void Add(const DependencyList& otherDependencyList)
+        {
+            for (const auto& dependency : otherDependencyList.dependencies)
+            {
+                this->Add(dependency);
+            }
+        }
+
+        bool HasAny() const { return !dependencies.empty(); }
+        bool HasAnyOf(DependencyType type) const 
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type) return true;
+            };
+            return false;
+        }
+
+        Dependency* HasDependency(const Dependency& dependencyToSearch)
+        {
+            for (auto& dependency : dependencies) {
+                if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+                {
+                    return &dependency;
+                }
+            }
+            return nullptr;
+        }
+
+        // for testing purposes
+        bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "")
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
+                {
+                    if (dependency.MinVersion) {
+                        if (dependency.MinVersion.value() == minVersion)
+                        {
+                            return true;
+                        }
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        size_t Size()
+        {
+            return dependencies.size();
+        }
+
+        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
+        {
+            for (const auto& dependency : dependencies)
+            {
+                if (dependency.Type == type) func(dependency);
+            }
+        }
+
+        void Clear() { dependencies.clear(); }
+
+    private:
+        std::vector<Dependency> dependencies;
+    };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 

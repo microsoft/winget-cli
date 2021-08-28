@@ -12,7 +12,7 @@ ms.localizationpriority: medium
 
 The **list** command of the [winget](index.md) tool displays a list of the applications currently installed on your computer.  The list command will show apps that were installed through the Windows Package Manager as well as apps that were installed by other means.
 
-In addition, the **list** command will also display if an update is available for an app, and you can use the [**upgrade**](.\upgrade.md) command to update the app.
+In addition, the **list** command will also display if an update is available for an app, and you can use the [**upgrade**](upgrade.md) command to update the app.
 
 The **list** command also supports filters which can be used to limit your list query. 
 

@@ -6,6 +6,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 using AppInstaller::CLI::Execution::Args;
@@ -15,7 +16,6 @@ namespace AppInstaller::CLI
 {
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
-        // TODO: determine exact arguments needed
         return
         {
             Argument::ForType(Args::Type::Query),
@@ -30,6 +30,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomHeader),
         };
     }
 
@@ -78,7 +79,6 @@ namespace AppInstaller::CLI
 
     std::string UninstallCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-uninstall";
     }
 
@@ -128,6 +128,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::GetUninstallInfo <<
+            Workflow::GetDependenciesInfoForUninstall <<
+            Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteUninstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution);

@@ -5,7 +5,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 
-namespace AppInstaller
+namespace AppInstaller::CLI::Execution
 {
     enum class ReportType: uint32_t
     {
@@ -56,21 +56,27 @@ namespace AppInstaller
         //Execution::Context
         void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase, bool);
 
-        void SetProgressCallbackFunction(ProgressCallBackFunction&& f)
-        {
-            m_comProgressCallback = std::move(f);
-        }
+        CLI::Workflow::ExecutionStage GetExecutionStage() const { return m_executionStage; }
+
+        void AddProgressCallbackFunction(ProgressCallBackFunction&& f);
 
         // Set COM call context for diagnostic and telemetry loggers
         // This should be called for every COMContext object instance
-        void SetLoggerContext(const std::wstring_view telemetryCorelationJson, const std::string& caller);
+        void SetLoggerContext(const std::wstring_view telemetryCorrelationJson, const std::string& caller);
+        
+        std::wstring_view GetCorrelationJson();
 
         // Set Diagnostic and Telemetry loggers, Wil failure callback
         // This should be called only once per COM Server instance
         static void SetLoggers();
 
     private:
+        void FireCallbacks(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
+        std::vector<ProgressCallBackFunction> GetCallbacks();
+
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
-        ProgressCallBackFunction m_comProgressCallback;
+        std::vector<ProgressCallBackFunction> m_comProgressCallbacks;
+        std::wstring m_correlationData = L"";
+        std::mutex m_callbackLock;
     };
 }

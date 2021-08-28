@@ -36,14 +36,33 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
+        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id, std::string_view version)
+        {
+            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
+        }
+
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
             std::shared_ptr<Repository::ISource> source;
             try
             {
-                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
-                source = result.Source;
+                OpenSourceResult result;
+                if (!sourceName.empty())
+                {
+                    auto sourceDetails = Repository::GetSource(sourceName);
+                    if (sourceDetails)
+                    {
+                        sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
 
+                        result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+                    }
+                }
+                else
+                {
+                    result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+                }
+
+                source = result.Source;
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : result.SourcesWithUpdateFailure)
                 {
@@ -348,7 +367,7 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Version),
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
                 sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
-            });
+                });
         }
 
         table.Complete();
@@ -441,6 +460,8 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchSource
             });
 
+        int availableUpgradesCount = 0;
+
         for (const auto& match : searchResult.Matches)
         {
             auto installedVersion = match.Package->GetInstalledVersion();
@@ -459,6 +480,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+                        availableUpgradesCount++;
                     }
 
                     table.OutputLine({
@@ -477,6 +499,8 @@ namespace AppInstaller::CLI::Workflow
         if (table.IsEmpty())
         {
             context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+        } else if (m_onlyShowUpgrades) {
+            context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
         }
 
         if (searchResult.Truncated)
@@ -537,7 +561,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));
-        };
+        }
     }
 
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
@@ -645,7 +669,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
     }
 
     void GetManifest(Execution::Context& context)
@@ -675,7 +699,7 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(context.Args, installationMetadata);
+        ManifestComparator manifestComparator(context, installationMetadata);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 
@@ -686,6 +710,24 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
         }
+    }
+
+    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const SourceDetails& sourceDetails)
+    {
+        std::optional<std::string> customHeader;
+        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
+        {
+            if (!SupportsCustomHeader(sourceDetails))
+            {
+                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
+            }
+            else
+            {
+                customHeader = context.Args.GetArg(Execution::Args::Type::CustomHeader);
+            }
+        }
+
+        return customHeader;
     }
 
     void EnsureFeatureEnabled::operator()(Execution::Context& context) const

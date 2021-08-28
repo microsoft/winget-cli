@@ -102,12 +102,15 @@ The `network` settings influence how winget uses the network to retrieve package
 ### Downloader
 
 The `downloader` setting controls which code is used when downloading packages. The default is `default`, which may be any of the options based on our determination.
-`wininet` uses the [WinINet](https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet) APIs, while `do` uses the
-[Delivery Optimization](https://support.microsoft.com/en-us/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
+`wininet` uses the [WinINet](https://docs.microsoft.com/windows/win32/wininet/about-wininet) APIs, while `do` uses the
+[Delivery Optimization](https://support.microsoft.com/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
+
+The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600. 
 
 ```json
    "network": {
-       "downloader": "do"
+       "downloader": "do",
+       "doProgressTimeoutInSeconds": 60
    }
 ```
 
@@ -131,5 +134,24 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
 ```json
    "experimentalFeatures": {
        "experimentalMSStore": true
+   },
+```
+
+### packagedAPI
+
+Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use the Windows Package Manager. You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "packagedAPI": true
+   },
+```
+### Dependencies
+
+Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "dependencies": true
    },
 ```

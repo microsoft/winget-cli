@@ -58,7 +58,7 @@ These include other packages. The restriction on these dependencies is that they
 ### External Dependencies
 These include dependencies from outside of the source the original package is distributed. In some cases suitable items may exist in the same source, but for licensing or personal preference, no explicit package should be required. One example is Java. Many vendors offer JREs and JDKs so it may be more reasonable to have a user informed, and allow the user to confirm the presence of a dependency.
 
-
+As a first step the Windows Package Manager should show dependency information to the user, see issue [1012](github.com/microsoft/winget-cli/issues/1012) with [spec](../../dependencies/doc/specs/%231012%20-%20Show%20dependencies.md).
 
 ## UI/UX Design
 
@@ -108,7 +108,7 @@ The import command may be able to take advantage of determining all dependencies
 
 [RPM Dependencies](https://jfearn.fedorapeople.org/en-US/RPM/4/html/RPM_Guide/ch-advanced-packaging.html)
 
-[Node.js package.json configuration](https://docs.microsoft.com/en-us/visualstudio/javascript/configure-packages-with-package-json?view=vs-2019#:~:text=package.json%20configuration%201%20In%20a%20major%20version%20update%2C,fixes%20are%20included.%20Bug%20fixes%20are%20always%20backwards-compatible.)
+[Node.js package.json configuration](https://docs.microsoft.com/visualstudio/javascript/configure-packages-with-package-json?view=vs-2019#:~:text=package.json%20configuration%201%20In%20a%20major%20version%20update%2C,fixes%20are%20included.%20Bug%20fixes%20are%20always%20backwards-compatible.)
 
 [R Package metadata](https://r-pkgs.org/description.html)
 

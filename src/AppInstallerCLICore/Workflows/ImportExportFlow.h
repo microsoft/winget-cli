@@ -35,4 +35,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageCollection, Sources, Source
     // Outputs: PackagesToInstall
     void SearchPackagesForImport(Execution::Context& context);
+
+    // Installs all the packages found in the import file.
+    // Required Args: None
+    // Inputs: PackagesToInstall
+    // Outputs: None
+    void InstallImportedPackages(Execution::Context& context);
 }

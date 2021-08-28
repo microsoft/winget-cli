@@ -6,6 +6,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
 
 using namespace AppInstaller::CLI::Execution;
@@ -41,7 +42,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::CustomHeader),
         };
     }
 
@@ -92,7 +95,6 @@ namespace AppInstaller::CLI
 
     std::string UpgradeCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-upgrade";
     }
 
@@ -149,7 +151,7 @@ namespace AppInstaller::CLI
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
-                InstallPackageInstaller;
+                InstallSinglePackage;
         }
         else
         {
@@ -175,7 +177,7 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << InstallPackageInstaller;
+            context << InstallSinglePackage;
         }
     }
 }

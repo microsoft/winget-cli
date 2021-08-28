@@ -42,18 +42,40 @@ namespace AppInstaller::CLI::Execution
         // On export: A collection of packages to be exported to a file
         // On import: A collection of packages read from a file
         PackageCollection,
-        // On import: A collection of specific package versions to install
+        // On import and upgrade all: A collection of specific package versions to install
         PackagesToInstall,
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
+        Dependencies,
+        AllowedArchitectures,
         Max
     };
 
+    // Contains all the information needed to install a package.
+    // This is used when installing multiple packages to pass all the
+    // data to a sub-context.
     struct PackageToInstall
     {
+        PackageToInstall(
+            std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
+            std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
+            Manifest::Manifest&& manifest,
+            Manifest::ManifestInstaller&& installer,
+            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown)
+            : PackageVersion(std::move(packageVersion)), InstalledPackageVersion(std::move(installedPackageVersion)), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope) { }
+
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
-        PackageCollection::Package PackageRequest;
+
+        // Used to uninstall the old version if needed.
+        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
+
+        // Use this instead of the PackageVersion->GetManifest() as the locale was
+        // applied when selecting the installer.
+        Manifest::Manifest Manifest;
+
+        Manifest::ManifestInstaller Installer;
+        Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
     };
 
     namespace details
@@ -183,6 +205,18 @@ namespace AppInstaller::CLI::Execution
         {
             // Contains the { Id, Version, Channel }
             using value_t = std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>>;
+        };
+
+        template <>
+        struct DataMapping<Data::Dependencies>
+        {
+            using value_t = Manifest::DependencyList;
+        };
+
+        template <>
+        struct DataMapping<Data::AllowedArchitectures>
+        {
+            using value_t = std::vector<Utility::Architecture>;
         };
     }
 }

@@ -69,12 +69,13 @@ TEST_CASE("PIPS_Add", "[pips]")
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     ProgressCallback callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
@@ -98,12 +99,13 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     TestProgress callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
@@ -111,7 +113,7 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
     bool progressCalled = false;
     callback.m_OnProgress = [&](uint64_t, uint64_t, ProgressType) { progressCalled = true; };
 
-    UpdateSource(name, callback);
+    UpdateSource(details.Name, callback);
     REQUIRE(!progressCalled);
 }
 
@@ -123,12 +125,13 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     TestDataFile indexMsix1(s_MsixFile_1);
     CopyIndexFileToDirectory(indexMsix1, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     TestProgress callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
@@ -147,7 +150,7 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     bool progressCalled = false;
     callback.m_OnProgress = [&](uint64_t, uint64_t, ProgressType) { progressCalled = true; };
 
-    UpdateSource(name, callback);
+    UpdateSource(details.Name, callback);
     REQUIRE(progressCalled);
 
     std::string manifestContents2 = GetContents(manifestPath);
@@ -165,12 +168,13 @@ TEST_CASE("PIPS_Remove", "[pips]")
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     ProgressCallback callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
@@ -183,6 +187,6 @@ TEST_CASE("PIPS_Remove", "[pips]")
     indexFile /= s_IndexFileName;
     REQUIRE(fs::exists(indexFile));
 
-    RemoveSource(name, callback);
+    RemoveSource(details.Name, callback);
     REQUIRE(!fs::exists(state));
 }
