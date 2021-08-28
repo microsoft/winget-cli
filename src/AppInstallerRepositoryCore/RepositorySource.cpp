@@ -969,7 +969,7 @@ namespace AppInstaller::Repository
 
         // Check for a non-user tombstone; hidden source data that we don't want to collide.
         // TODO: Refactor the source interface so that we don't do this
-        auto tombstoneSource = sourceList.GetSource(name);
+        auto tombstoneSource = sourceList.GetSource(sourceDetails.Name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, tombstoneSource && tombstoneSource->Origin != SourceOrigin::User);
 
         // Check sources allowed by group policy
