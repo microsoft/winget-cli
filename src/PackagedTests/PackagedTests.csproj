@@ -52,6 +52,7 @@
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup>
+    <OutputPath>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutputPath>
     <OutDir>$(SolutionDir)$(PlatformTarget)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
