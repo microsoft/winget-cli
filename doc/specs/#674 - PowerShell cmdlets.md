@@ -126,6 +126,10 @@ Remove-WinGetSource
 Get-WinGetSource
 ```
 
+```PowerShell
+Reset-WinGetSource
+```
+
 **Example**
 > Note: `winget source export` was added as a helper for adding approved sources to Group Policy. To get the same values with PowerShell the example blow would perform the same behavior.
 
@@ -146,7 +150,7 @@ Find-WinGetPackage
 
 **Parameters**
 
--PackageIdentfier
+-PackageIdentifier
 
 -Name
 
