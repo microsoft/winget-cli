@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "Argument.h"
 #include "Resources.h"
@@ -53,6 +52,8 @@ namespace AppInstaller::CLI
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
             return Argument{ "force", Argument::NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+        case Args::Type::AcceptPackageAgreements:
+            return Argument{ "accept-package-agreements", Argument::NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
             return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:
@@ -79,6 +80,8 @@ namespace AppInstaller::CLI
             return Argument{ "verbose-logs", NoAlias, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ExperimentalArg:
             return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
+        case Args::Type::CustomHeader:
+            return Argument{ "header", NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         default:
             THROW_HR(E_UNEXPECTED);
         }

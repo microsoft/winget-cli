@@ -155,11 +155,17 @@
     <ClInclude Include="COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="ContextOrchestrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Workflows\DependenciesFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Commands\COMInstallCommand.h">
       <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\MsiInstallFlow.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,11 +289,17 @@
     <ClCompile Include="COMContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ContextOrchestrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Workflows\DependenciesFlow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Commands\COMInstallCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\MsiInstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
