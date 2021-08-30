@@ -1031,4 +1031,37 @@ Do you agree to the terms?</value>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>The optional header is not applicable without specifying a Rest source</value>
   </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Application is currently running. Exit the application then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Another installation is already in progress. Try again later.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>One or more file is being used. Exit the application then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>This package has a dependency missing from your system.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>There's no more space on your PC. Make space, then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>There's not enough memory available to install. Close other applications then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>This application requires internet connectivity. Connect to a network then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+      <value>This application encountered an error during installation. Contact support. </value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installation abandoned</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installer failed with exit code:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installer log is available at:</value>
+  </data>
 </root>

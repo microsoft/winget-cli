@@ -258,6 +258,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_LicenseAgreement.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

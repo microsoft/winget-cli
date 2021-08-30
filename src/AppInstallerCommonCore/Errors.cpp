@@ -146,6 +146,24 @@ namespace AppInstaller
                 return "License not agreed to";
             case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
                 return "Error reading input in prompt";
+            case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
+                return "Arguments for msiexec are invalid";
+            case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
+                return "Application is currently running.Exit the application then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
+                return "Another installation is already in progress.Try again later.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE:
+                return "One or more file is being used.Exit the application then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY:
+                return "This package has a dependency missing from your system.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL:
+                return "There's no more space on your PC. Make space, then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY:
+                return "There's not enough memory available to install. Close other applications then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK:
+                return "This application requires internet connectivity.Connect to a network then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT:
+                return "This application encountered an error during installation.Contact support.";
             default:
                 return "Unknown Error Code";
             }

@@ -249,6 +249,16 @@ namespace AppInstaller::Manifest
                     std::move(v1InstallerFields.begin(), v1InstallerFields.end(), std::inserter(result, result.end()));
                 }
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                std::vector<FieldProcessInfo> v1_1CommonFields =
+                {
+                    { "ExpectedReturnCodes", [this](const YAML::Node& value)->ValidationErrors { m_p_returnCodes = &(m_p_installer->ExpectedReturnCodes); return ValidateAndProcessFields(value, ExpectedReturnCodesFieldInfos); } },
+                };
+
+                std::move(v1_1CommonFields.begin(), v1_1CommonFields.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -277,6 +287,25 @@ namespace AppInstaller::Manifest
         else if (manifestVersion.Major() == 1)
         {
             result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetExpectedReturnCodesFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            result.emplace_back("PackageInUse", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::PackageInUse] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("InstallInProgress", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::InstallInProgress] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("FileInUse", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::FileInUse] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("MissingDependency", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::MissingDependency] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("DiskFull", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::DiskFull] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("InsufficientMemory", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::InsufficientMemory] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("NoNetwork", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::NoNetwork] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("ContactSupport", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::ContactSupport] = static_cast<DWORD>(value.as<int>()); return {}; });
         }
 
         return result;
@@ -536,6 +565,7 @@ namespace AppInstaller::Manifest
         RootFieldInfos = GetRootFieldProcessInfo(manifestVersion);
         InstallerFieldInfos = GetInstallerFieldProcessInfo(manifestVersion);
         SwitchesFieldInfos = GetSwitchesFieldProcessInfo(manifestVersion);
+        ExpectedReturnCodesFieldInfos = GetExpectedReturnCodesFieldProcessInfo(manifestVersion);
         DependenciesFieldInfos = GetDependenciesFieldProcessInfo(manifestVersion);
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);

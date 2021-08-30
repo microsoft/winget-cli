@@ -114,6 +114,22 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MsixInstall(Execution::Context& context);
 
+    // Reports the return code returned by the installer.
+    // Required Args: None
+    // Inputs: Installer, InstallerResult
+    // Outputs: None
+    struct ReportInstallerResult : public WorkflowTask
+    {
+        ReportInstallerResult(std::string_view installerType) : WorkflowTask("ReportInstallerResult"), m_installerType(installerType) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        // Installer type used when reporting failures
+        std::string_view m_installerType;
+    };
+
+
     // Deletes the installer file.
     // Required Args: None
     // Inputs: InstallerPath

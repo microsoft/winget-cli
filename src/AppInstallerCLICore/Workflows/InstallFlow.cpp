@@ -54,6 +54,41 @@ namespace AppInstaller::CLI::Workflow
                 return false;
             }
         }
+
+        struct ExpectedReturnCode
+        {
+            ExpectedReturnCode(InstallerReturnCodeEnum installerReturnCode, HRESULT hr, Resource::StringId message) :
+                InstallerReturnCode(installerReturnCode), HResult(hr), Message(message) {}
+
+            static ExpectedReturnCode GetExpectedReturnCode(InstallerReturnCodeEnum returnCode)
+            {
+                switch (returnCode)
+                {
+                case InstallerReturnCodeEnum::PackageInUse:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, Resource::String::InstallFlowReturnCodePackageInUse);
+                case InstallerReturnCodeEnum::InstallInProgress:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS, Resource::String::InstallFlowReturnCodeInstallInProgress);
+                case InstallerReturnCodeEnum::FileInUse:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE, Resource::String::InstallFlowReturnCodeFileInUse);
+                case InstallerReturnCodeEnum::MissingDependency:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY, Resource::String::InstallFlowReturnCodeMissingDependency);
+                case InstallerReturnCodeEnum::DiskFull:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL, Resource::String::InstallFlowReturnCodeDiskFull);
+                case InstallerReturnCodeEnum::InsufficientMemory:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY, Resource::String::InstallFlowReturnCodeInsufficientMemory);
+                case InstallerReturnCodeEnum::NoNetwork:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK, Resource::String::InstallFlowReturnCodeNoNetwork);
+                case InstallerReturnCodeEnum::ContactSupport:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT, Resource::String::InstallFlowReturnCodeContactSupport);
+                default:
+                    THROW_HR(E_UNEXPECTED);
+                }
+            }
+
+            InstallerReturnCodeEnum InstallerReturnCode;
+            HRESULT HResult;
+            Resource::StringId Message;
+        };
     }
 
     void EnsureApplicableInstaller(Execution::Context& context)
@@ -427,7 +462,8 @@ namespace AppInstaller::CLI::Workflow
         context <<
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
-            ShellExecuteInstallImpl;
+            ShellExecuteInstallImpl <<
+            ReportInstallerResult("ShellExecute"sv);
     }
 
     void DirectMSIInstall(Execution::Context& context)
@@ -435,7 +471,8 @@ namespace AppInstaller::CLI::Workflow
         context <<
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
-            DirectMSIInstallImpl;
+            DirectMSIInstallImpl <<
+            ReportInstallerResult("MsiInstallProduct"sv);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -473,6 +510,41 @@ namespace AppInstaller::CLI::Workflow
         if (registrationDeferred)
         {
             context.Reporter.Warn() << Resource::String::InstallFlowRegistrationDeferred << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+        }
+    }
+
+    void ReportInstallerResult::operator()(Execution::Context& context) const
+    {
+        DWORD installResult = context.Get<Execution::Data::InstallerReturnCode>();
+        const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
+        if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
+            context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+
+            // Show installer log path if exists
+            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
+            {
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable << ' ' << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
+            }
+
+            // Show a specific message if we can identify the return code
+            for (const auto& expectedReturnCode : context.Get<Execution::Data::Installer>()->ExpectedReturnCodes)
+            {
+                if (installResult == expectedReturnCode.second)
+                {
+                    auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCode.first);
+                    context.Reporter.Error() << returnCode.Message << std::endl;
+                    AICLI_TERMINATE_CONTEXT(returnCode.HResult);
+                }
+            }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
         }
         else
         {

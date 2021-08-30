@@ -97,6 +97,18 @@ namespace AppInstaller::Manifest
         SilentWithProgress,
     };
 
+    enum class InstallerReturnCodeEnum
+    {
+        PackageInUse,
+        InstallInProgress,
+        FileInUse,
+        MissingDependency,
+        DiskFull,
+        InsufficientMemory,
+        NoNetwork,
+        ContactSupport,
+    };
+
     enum class PlatformEnum
     {
         Unknown,

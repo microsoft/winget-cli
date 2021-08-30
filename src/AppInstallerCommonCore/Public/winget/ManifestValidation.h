@@ -39,6 +39,7 @@ namespace AppInstaller::Manifest
         const char* const InconsistentMultiFileManifestDefaultLocale = "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest.";
         const char* const FieldFailedToProcess = "Failed to process field.";
         const char* const InvalidBcp47Value = "The locale value is not a well formed bcp47 language tag.";
+        const char* const DuplicateReturnCodeEntry = "Duplicate installer return code found.";
     }
 
     struct ValidationError

@@ -433,6 +433,8 @@ void OverrideForDirectMsi(TestContext& context)
         std::ofstream file(temp, std::ofstream::out);
         file << context.Get<Execution::Data::InstallerArgs>();
         file.close();
+
+        context.Add<Execution::Data::InstallerReturnCode>(0);
     } });
 }
 
@@ -566,6 +568,26 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/ExitCode 0x80070005") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Override, "/ExitCode 8"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify install failed with the right message
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallFlowReturnCodeContactSupport).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
