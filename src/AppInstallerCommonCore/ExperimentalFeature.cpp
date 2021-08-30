@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "AppInstallerLogging.h"
 #include "winget/ExperimentalFeature.h"
@@ -48,6 +47,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFPackagedAPI>();
             case ExperimentalFeature::Feature::Dependencies:
                 return userSettings.Get<Setting::EFDependencies>();
+            case ExperimentalFeature::Feature::DirectMSI:
+                return userSettings.Get<Setting::EFDirectMSI>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -80,6 +81,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Packaged API Support", "packagedAPI", "https://aka.ms/winget-settings", Feature::PackagedAPI };
         case Feature::Dependencies:
             return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
+        case Feature::DirectMSI:
+            return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
         default:
             THROW_HR(E_UNEXPECTED);
         }

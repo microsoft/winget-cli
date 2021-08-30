@@ -5,7 +5,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 
-namespace AppInstaller
+namespace AppInstaller::CLI::Execution
 {
     enum class ReportType : uint32_t
     {
@@ -71,7 +71,7 @@ namespace AppInstaller
         std::wstring_view GetCorrelationJson();
 
     private:
-        void FireCallbacks(::AppInstaller::ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
+        void FireCallbacks(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
 
         // Set Diagnostic and Telemetry loggers, Wil failure callback
         static void SetLoggers();

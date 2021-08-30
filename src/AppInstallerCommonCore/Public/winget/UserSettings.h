@@ -77,6 +77,7 @@ namespace AppInstaller::Settings
         InstallLocalePreference,
         InstallLocaleRequirement,
         EFPackagedAPI,
+        EFDirectMSI,
         Max
     };
 
@@ -124,6 +125,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFPackagedAPI, bool, bool, false, ".experimentalFeatures.packagedAPI"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

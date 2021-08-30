@@ -1,8 +1,344 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+# 1. Background
+
+The Windows Package Manager currently exposes a command line interface to search for packages,
+install them, view progress, and more. This API is designed to provide another way for callers to
+make use of that functionality. The API will be preferred by callers that want to receive progress
+and completion events, and UWP packages that do not have permission to launch command line processes.
+The goal for this api is to provide the full set of install functionality possible using the Windows
+Package Manager command line. The command line is documented at
+https://docs.microsoft.com/en-us/windows/package-manager/winget/
+
+# 2. Description
+
+Windows Package Manager is a package manager for windows applications. It comes with a predefined
+repository of applications and users can add new repositories using the winget command line. This
+API allows packaged apps with the packageManagement capability and other higher privilege processes
+to start, manage, and monitor installation of packages that are listed in Windows Package Manager
+repositories.
+
+# 3. Examples
+
+Sample member values for the following examples:
+m_installAppId = L"Microsoft.VisualStudioCode";
+
+## 3.1. Create objects
+
+Creation of objects has to be done through CoCreateInstance rather than normal winrt initialization
+since it's hosted by an out of proc com server. These helper methods will be used in the rest of the
+examples.
+
+```c++ (C++ish pseudocode)
+    AppInstaller CreateAppInstaller() {
+        return winrt::create_instance<AppInstaller>(CLSID_AppInstaller, CLSCTX_ALL);
+    }
+    InstallOptions CreateInstallOptions() {
+        return winrt::create_instance<InstallOptions>(CLSID_InstallOptions, CLSCTX_ALL);
+    }
+    FindPackagesOptions CreateFindPackagesOptions() {
+        return winrt::create_instance<FindPackagesOptions>(CLSID_FindPackagesOptions, CLSCTX_ALL);
+    }
+    CreateCompositeAppCatalogOptions CreateCreateCompositeAppCatalogOptions() {
+        return winrt::create_instance<CreateCompositeAppCatalogOptions>(CLSID_CreateCompositeAppCatalogOptions, CLSCTX_ALL);
+    }
+    PackageMatchFilter CreatePackageMatchFilter() {
+        return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter, CLSCTX_ALL);
+    }
+```
+
+## 3.2. Search
+
+The api can be used to search for packages in a catalog known to Windows Package Manager. This can
+be used to get availability information or start an install.
+
+```c++ (C++ish pseudocode)
+
+    // Sample of using synchronous methods on background thread.
+    CatalogPackage MainPage::FindPackageOnBackgroundThread()
+    {
+        PackageManager packageManager = CreatePackageManager();
+        PackageCatalogReference catalogRef{ 
+            packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
+        ConnectResult connectResult = catalogRef.Connect();
+        if (connectResult.Status() != ConnectResultStatus::Ok)
+        {
+            return nullptr;
+        }
+        PackageCatalog catalog = connectResult.PackageCatalog();
+
+        FindPackagesOptions findPackagesOptions = CreateFindPackagesOptions();
+        PackageMatchFilter filter = CreatePackageMatchFilter();
+        filter.Field(PackageMatchField::Id);
+        filter.Option(PackageFieldMatchOption::Equals);
+        filter.Value(m_installAppId);
+        findPackagesOptions.Filters().Append(filter);
+        // We've already switched to a background thread, so do everything synchronously.
+        FindPackagesResult findPackagesResult{ catalog.FindPackages(findPackagesOptions) };
+
+        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
+        if (matches.Size() == 0)
+        {
+            return nullptr;
+        }
+        return matches.GetAt(0).CatalogPackage();
+    }
+
+    // Sample of using async methods.
+    IAsyncOperation<CatalogPackage> MainPage::FindPackageInCatalogAsync(PackageCatalog catalog, 
+            std::wstring packageId)
+    {
+        FindPackagesOptions findPackagesOptions = CreateFindPackagesOptions();
+        PackageMatchFilter filter = CreatePackageMatchFilter();
+        filter.Field(PackageMatchField::Id);
+        filter.Option(PackageFieldMatchOption::Equals);
+        filter.Value(packageId);
+        findPackagesOptions.Filters().Append(filter);
+        FindPackagesResult findPackagesResult{ co_await catalog.FindPackagesAsync(findPackagesOptions) };
+
+        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
+        if (matches.Size() == 0)
+        {
+            co_return nullptr;
+        }
+        co_return matches.GetAt(0).CatalogPackage();
+    }
+
+    IAsyncOperation<CatalogPackage> MainPage::FindPackageAsync()
+    {
+        PackageManager packageManager = CreatePackageManager();
+        PackageCatalogReference catalogRef{ 
+            packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
+        ConnectResult connectResult = catalogRef.Connect();
+        if (connectResult.Status() != ConnectResultStatus::Ok)
+        {
+            co_return nullptr;
+        }
+        PackageCatalog catalog = connectResult.PackageCatalog();
+        co_return FindPackageInCatalogAsync(catalog, m_installAppId).get();
+    }
+```
+
+## 3.3. Install
+
+```c++ (C++ish pseudocode)
+
+    IAsyncOperationWithProgress<InstallResult, InstallProgress> MainPage::InstallPackage(CatalogPackage package)
+    {
+        PackageManager packageManager = CreatePackageManager();
+        InstallOptions installOptions = CreateInstallOptions();
+        installOptions.PackageInstallScope(PackageInstallScope::Any);
+
+        return packageManager.InstallPackageAsync(package, installOptions);
+    }
+
+     IAsyncAction UpdateUIProgress(
+        InstallProgress progress, 
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        co_await winrt::resume_foreground(progressBar.Dispatcher());
+        progressBar.Value(progress.DownloadProgress*100);
+
+        std::wstring downloadText{ L"Downloading. " };
+        switch (progress.State)
+        {
+        case PackageInstallProgressState::Queued:
+            statusText.Text(L"Queued");
+            break;
+        case PackageInstallProgressState::Downloading:
+            downloadText += std::to_wstring(progress.BytesDownloaded) + L" bytes of " + std::to_wstring(progress.BytesRequired);
+            statusText.Text(downloadText);
+            break;
+        case PackageInstallProgressState::Installing:
+            statusText.Text(L"Installing");
+            progressBar.IsIndeterminate(true);
+            break;
+        case PackageInstallProgressState::PostInstall:
+            statusText.Text(L"Finishing install");
+            break;
+        case PackageInstallProgressState::Finished:
+            statusText.Text(L"Finished install.");
+            progressBar.IsIndeterminate(false);
+            break;
+        default:
+            statusText.Text(L"");
+        }
+        co_return;
+    }
+
+    // This method is called from a background thread.
+    IAsyncAction UpdateUIForInstall(
+        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation, 
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        if (installPackageOperation)
+        {
+
+            installPackageOperation.Progress([=](
+                IAsyncOperationWithProgress<InstallResult, InstallProgress> const& /* sender */,
+                InstallProgress const& progress)
+                {
+                    UpdateUIProgress(progressBar, statusText, 50, stateStr).get();
+                });
+
+
+            winrt::hresult installOperationHr = S_OK;
+            std::wstring errorMessage{ L"Unknown Error" };
+            InstallResult installResult{ nullptr };
+            try
+            {
+                installResult = co_await installPackageOperation;
+            }
+            catch (hresult_canceled const&)
+            {
+                errorMessage = L"Cancelled";
+                OutputDebugString(L"Operation was cancelled");
+            }
+            catch (...)
+            {
+                // Operation failed
+                // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
+                installOperationHr = winrt::to_hresult();
+                // Example: "There is not enough space on the disk."
+                errorMessage = winrt::to_message();
+                OutputDebugString(L"Operation failed");
+            }
+
+            // Switch back to ui thread context.
+            co_await winrt::resume_foreground(progressBar.Dispatcher());
+
+            cancelButton.IsEnabled(false);
+            installButton.IsEnabled(true);
+            progressBar.IsIndeterminate(false);
+
+            if (installPackageOperation.Status() == AsyncStatus::Canceled)
+            {
+                installButton.Content(box_value(L"Retry"));
+                statusText.Text(L"Install cancelled.");
+            }
+            if (installPackageOperation.Status() == AsyncStatus::Error || installResult == nullptr)
+            {
+                installButton.Content(box_value(L"Retry"));
+                statusText.Text(errorMessage);
+            }
+            else if (installResult.RebootRequired())
+            {
+                installButton.Content(box_value(L"Install"));
+                statusText.Text(L"Reboot to finish installation.");
+            }
+            else if (installResult.Status() == InstallResultStatus::Ok)
+            {
+                installButton.Content(box_value(L"Install"));
+                statusText.Text(L"Finished.");
+            }
+            else
+            {
+                installButton.Content(box_value(L"Install"));
+                statusText.Text(L"Install failed.");
+            }
+        }
+    }
+
+    IAsyncAction MainPage::StartInstall(
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        installButton.IsEnabled(false);
+        cancelButton.IsEnabled(true);
+
+        co_await winrt::resume_background();
+
+        PackageManager packageManager = CreatePackageManager();
+        PackageCatalogReference catalogRef{ 
+            packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
+        ConnectResult connectResult = catalogRef.Connect();
+        if (connectResult.Status() != ConnectResultStatus::Ok)
+        {
+            co_await winrt::resume_foreground(progressBar.Dispatcher());
+            statusText.Text(L"Connecting to catalog failed.");
+            co_return;
+        }
+        PackageCatalog catalog = connectResult.PackageCatalog();
+
+        FindPackagesResult findPackagesResult{ FindPackageOnBackgroundThread(catalog, m_installAppId) };
+
+        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
+        if (matches.Size() > 0)
+        {
+            m_installPackageOperation = InstallPackage(matches.GetAt(0).CatalogPackage());
+            UpdateUIForInstall(m_installPackageOperation, installButton, cancelButton, progressBar, statusText);
+        }
+        else
+        {
+            co_await winrt::resume_foreground(progressBar.Dispatcher());
+            statusText.Text(L"Could not find package.");
+            co_return;
+        }
+    }
+```
+
+## 3.4.1 Cancel
+
+The async operation can be stored, or the install code can wait on an event that can be triggered.
+
+```c++ (C++ish pseudocode)
+    void MainPage::CancelButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        if (m_installPackageOperation)
+        {
+            m_installPackageOperation.Cancel();
+        }
+    }
+```
+
+## 3.5. Open a catalog by name
+
+Open a catalog known to the caller. There is no way to use the api to add a catalog, that must be done
+on the command line.
+
+```c++ (C++ish pseudocode)
+    IAsyncOperation<PackageCatalog> MainPage::FindSourceAsync(std::wstring packageSource)
+    {
+        PackageManager packageManager = CreatePackageManager();
+        PackageCatalogReference catalogRef{ packageManager.GetPackageCatalogByName(packageSource) };
+        if (catalogRef)
+        {
+            ConnectResult connectResult{ co_await catalogRef.ConnectAsync() };
+            // PackageCatalog will be null if connectResult.ErrorCode() is a failure
+            PackageCatalog catalog = connectResult.PackageCatalog();
+            co_return catalog;
+        }
+    }
+```
+
+# 4 Remarks
+
+Notes have been added inline throughout the api details.
+
+
+For this api there are multiple similar apis that are
+relevant with regard to naming and consistency. There is the Windows Package Manager command line which uses
+"source" to describe the various repositories that can host packages and "search" to describe looking up an app.
+https://docs.microsoft.com/en-us/windows/package-manager/winget/
+There is the Windows::ApplicationModel::PackageCatalog which exists as a Windows API for installing packages
+and monitoring their installation progress.
+https://docs.microsoft.com/en-us/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
+And there is Windows.Management.Deployment.PackageManager which allows packages with the packageManagement
+capability to install msix apps and uses "Find" to describe looking up an app
+https://docs.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041
+
+This API has aligned with those Windows APIs in using \*Catalog and Find.
+
+# 5 API Details
+
+```c# (but really MIDL3)
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(2)]
+    [contractversion(1)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -144,20 +480,6 @@ namespace Microsoft.Management.Deployment
         PublisherDisplayName,
     };
 
-    /// The result of a comparison.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
-    enum CompareResult
-    {
-        /// The comparison did not result in a succesful ordering.
-        Unknown,
-        /// The object value is lesser than the given value.
-        Lesser,
-        /// The object value is equal to the given value.
-        Equal,
-        /// The object value is greater than the given value.
-        Greater,
-    };
-
     /// IMPLEMENTATION NOTE: IPackageVersion from AppInstallerRepositorySearch.h
     /// A single package version.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -183,17 +505,6 @@ namespace Microsoft.Management.Deployment
 
         /// Gets the package catalog  where this package version is from.
         PackageCatalog PackageCatalog { get; };
-
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
-        {
-            /// Compares the given value against the package version of this object, with the result being
-            /// the enum value that represents where PackageVersionInfo::Version is ordered relative to the
-            /// versionString.  "if (this.CompareToVersion(that) == Greater)" can be thought of as reading
-            /// the sentence "If this is compared to version that and is found to be greater".
-            /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
-            /// Passing in an empty string will result in Unknown.
-            CompareResult CompareToVersion(String versionString);
-        }
 
         /// DESIGN NOTE:
         /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
@@ -353,14 +664,11 @@ namespace Microsoft.Management.Deployment
         /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h 
         /// That class is a container for data used to filter the available manifests in an package catalog.
         /// Its properties can be thought of as:
-        /// (Query || Inclusions...) && Filters...
-        /// If Query and Inclusions are both empty, the starting data set will be the entire database.
+        /// (Query || Selectors...) && Filters...
+        /// If Query and Selectors are both empty, the starting data set will be the entire database.
         /// Everything && Filters...
-        /// That has been translated in this api so that 
-        /// Inclusions are Selectors below
-        /// Filters are Filters below
-        /// Query is PackageFieldMatchOption::PackageCatalogDefined and in the Selector list.
-        /// USAGE NOTE: Only one selector with PackageFieldMatchOption::PackageCatalogDefined is allowed.
+        /// Query is PackageMatchField::CatalogDefault and in the Selector list.
+        /// USAGE NOTE: Only one selector with PackageMatchField::CatalogDefault is allowed.
 
         /// Selectors = you have to match at least one selector (if there are no selectors, then nothing is selected)
         Windows.Foundation.Collections.IVector<PackageMatchFilter> Selectors { get; };
@@ -426,8 +734,6 @@ namespace Microsoft.Management.Deployment
     enum PredefinedPackageCatalog
     {
         OpenWindowsCatalog,
-        MicrosoftStore,
-        DesktopFrameworks,
     };
 
     /// Local Catalogs with PackageCatalogOrigin Predefined
@@ -435,7 +741,6 @@ namespace Microsoft.Management.Deployment
     enum LocalPackageCatalog
     {
         InstalledPackages,
-        InstallingPackages
     };
 
     /// Options for creating a composite catalog.
@@ -506,16 +811,6 @@ namespace Microsoft.Management.Deployment
         String CorrelationData;
         /// A string that will be passed to the source server if using a REST source
         String AdditionalPackageCatalogArguments;
-
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
-        {
-            // The set of allowed Architectures, in preference order, that will be considered for
-            // the install operation.  Initially the vector contains the default allowed architectures
-            // in the default preference order for the current system.  It is allowed to have repeated
-            // values in the list, to make prepending a preference override easier.  Instances of an
-            // architecture after the first will simply be ignored.
-            Windows.Foundation.Collections.IVector<Windows.System.ProcessorArchitecture> AllowedArchitectures { get; };
-        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -539,12 +834,6 @@ namespace Microsoft.Management.Deployment
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
-
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
-        {
-            /// Get install progress
-            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
-        }
     }
 
     /// Force midl3 to generate vector marshalling info. 
@@ -570,6 +859,8 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<InstallResult>;
         interface Windows.Foundation.Collections.IVector<MatchResult>;
         interface Windows.Foundation.Collections.IVectorView<MatchResult>;
+        interface Windows.Foundation.Collections.IVector<PackageManager>;
+        interface Windows.Foundation.Collections.IVectorView<PackageManager>;
         interface Windows.Foundation.Collections.IVector<PackageMatchFilter>;
         interface Windows.Foundation.Collections.IVectorView<PackageMatchFilter>;
         interface Windows.Foundation.Collections.IVector<PackageVersionId>;
@@ -578,3 +869,6 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageVersionInfo>;
     }
 }
+```
+
+# Appendix

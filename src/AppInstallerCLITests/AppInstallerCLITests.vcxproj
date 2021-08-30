@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -132,7 +132,7 @@
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -157,8 +157,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -186,6 +186,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
+    <ClCompile Include="CustomHeader.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
@@ -193,6 +194,7 @@
     <ClCompile Include="HttpClientHelper.cpp" />
     <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
+    <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
@@ -535,7 +537,7 @@
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer_Msi_WFDependency.yaml">
+    <CopyFileToFolders Include="TestData\Installer_Msix_WFDependency.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesOnRoot.yaml">
