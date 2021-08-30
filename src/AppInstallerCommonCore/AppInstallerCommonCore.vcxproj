@@ -311,7 +311,6 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ActivateThreadGlobals.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="GroupPolicy.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>

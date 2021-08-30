@@ -108,8 +108,8 @@ namespace AppInstaller::Logging
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
-            (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
-            (AsNum(level) >= AsNum(m_enabledLevel)));
+                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
+                (AsNum(level) >= AsNum(m_enabledLevel)));
     }
 
     void DiagnosticLogger::Write(Channel channel, Level level, std::string_view message)
@@ -127,9 +127,10 @@ namespace AppInstaller::Logging
 
     DiagnosticLogger& Log()
     {
-        if (AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread())
+        ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        if (pThreadGlobals)
         {
-            return AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetDiagnosticLogger();
+            return pThreadGlobals->GetDiagnosticLogger();
         }
         else
         {

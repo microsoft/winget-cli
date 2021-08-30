@@ -15,7 +15,7 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetTelemetryLogger().GetActivityId(),
+            AppInstaller::Logging::Telemetry().GetActivityId(),
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }

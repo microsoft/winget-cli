@@ -63,23 +63,6 @@ namespace AppInstaller::Logging
         return &m_activityId;
     }
 
-    TelemetryTraceLogger::TelemetryTraceLogger()
-    {
-        RegisterTraceLogging();
-        std::ignore = CoCreateGuid(&m_activityId);
-    }
-
-    TelemetryTraceLogger::~TelemetryTraceLogger()
-    {
-        UnRegisterTraceLogging();
-    }
-
-    TelemetryTraceLogger& TelemetryTraceLogger::GetInstance()
-    {
-        static TelemetryTraceLogger instance;
-        return instance;
-    }
-
     bool TelemetryTraceLogger::DisableRuntime()
     {
         return m_isRuntimeEnabled.exchange(false);
@@ -92,6 +75,8 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::Initialize()
     {
+        std::ignore = CoCreateGuid(&m_activityId);
+
         m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
         m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
     }
@@ -559,9 +544,10 @@ namespace AppInstaller::Logging
             return *s_TelemetryTraceLogger_TestOverride.get();
         }
 #endif
-        if (AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread())
+        ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        if (pThreadGlobals)
         {
-            return AppInstaller::ThreadLocalStorage::ThreadGlobals::GetForCurrentThread()->GetTelemetryLogger();
+            return pThreadGlobals->GetTelemetryLogger();
         }
         else
         {

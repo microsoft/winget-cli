@@ -51,25 +51,28 @@ namespace AppInstaller
         Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
-    void COMContext::SetGlobalLoggers()
+    void COMContext::SetContextLoggers(const std::wstring_view telemetryCorrelationJson, const std::string& caller)
     {
-        COMContext::SetLoggers();
-    }
+        m_correlationData = telemetryCorrelationJson;
 
-    void COMContext::SetContextLoggers(const std::wstring_view TelemetryCorrelationJson, const std::string& caller)
-    {
-        m_correlationData = TelemetryCorrelationJson;
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState;
+        setThreadGlobalsToPreviousState.reset(GetThreadGlobalsActive().SetForCurrentThread());
 
-        SetThreadGlobalsActive(true);
         SetLoggers();
-        Logging::Telemetry().SetTelemetryCorrelationJson(TelemetryCorrelationJson);
-        Logging::Telemetry().SetCaller(caller);
-        Logging::Telemetry().LogStartup(true);
+        GetThreadGlobalsActive().GetTelemetryLogger().SetTelemetryCorrelationJson(telemetryCorrelationJson);
+        GetThreadGlobalsActive().GetTelemetryLogger().SetCaller(caller);
+        GetThreadGlobalsActive().GetTelemetryLogger().LogStartup(true);
     }
 
     std::wstring_view COMContext::GetCorrelationJson()
     {
         return m_correlationData;
+    }
+
+    void COMContext::SetGlobalLoggers()
+    {
+        SetLoggers();
+        AppInstaller::Logging::Telemetry().Initialize();
     }
 
     void COMContext::SetLoggers()

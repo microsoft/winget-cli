@@ -206,9 +206,9 @@ namespace AppInstaller::CLI::Execution
         Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
-    void Context::SetThreadGlobalsActive(bool isNewContext)
+    AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobalsActive()
     {
-        m_threadGlobals.SetForCurrentThread(isNewContext);
+        return m_threadGlobals;
     }
 
 }

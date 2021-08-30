@@ -16,18 +16,15 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        TelemetryTraceLogger();
+        TelemetryTraceLogger() = default;
 
-        virtual ~TelemetryTraceLogger();
+        ~TelemetryTraceLogger() = default;
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
 
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
-
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
 
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
@@ -36,7 +33,7 @@ namespace AppInstaller::Logging
         // Return address of m_activityId
         const GUID* GetActivityId() const;
 
-        // Capture if UserSettings is enabled
+        // Capture if UserSettings is enabled and set user profile path
         void Initialize();
 
         // Store the passed in name of the Caller for COM calls
