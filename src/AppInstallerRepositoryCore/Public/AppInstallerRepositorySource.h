@@ -86,6 +86,10 @@ namespace AppInstaller::Repository
         // Whether the source behavior has restrictions
         bool Restricted = false;
 
+        // Custom header for Rest sources
+        std::optional<std::string> CustomHeader;
+
+        // Source information containing source agreements, required/unsupported match fields.
         SourceInformation Information;
     };
 
@@ -144,7 +148,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress);
 
     struct OpenSourceResult
     {
@@ -178,6 +182,7 @@ namespace AppInstaller::Repository
     {
         WinGet,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
@@ -226,6 +231,9 @@ namespace AppInstaller::Repository
     // Return value indicates whether the named source was found.
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
+
+    // Checks if a source supports passing custom header.
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails);
 
     // Checks the source agreements and return a list that needs user acceptance.
     std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources);

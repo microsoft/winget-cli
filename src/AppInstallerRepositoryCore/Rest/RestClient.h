@@ -6,6 +6,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
 #include "cpprest/json.h"
+#include "AppInstallerRepositorySource.h"
 
 namespace AppInstaller::Repository::Rest
 {
@@ -28,12 +29,11 @@ namespace AppInstaller::Repository::Rest
 
         static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const Schema::HttpClientHelper& httpClientHelper);
+        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::HttpClientHelper& httpClientHelper);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, const Schema::HttpClientHelper& helper = {});
-
+        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, const Schema::HttpClientHelper& helper = {});
     private:
         RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
 

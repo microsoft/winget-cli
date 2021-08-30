@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "Argument.h"
 #include "Resources.h"
@@ -83,6 +82,8 @@ namespace AppInstaller::CLI
             return Argument{ "accept-source-agreements", NoAlias, Args::Type::AcceptSourceAgreements, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ExperimentalArg:
             return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
+        case Args::Type::CustomHeader:
+            return Argument{ "header", NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         default:
             THROW_HR(E_UNEXPECTED);
         }

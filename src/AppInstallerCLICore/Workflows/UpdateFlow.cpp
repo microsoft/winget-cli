@@ -25,7 +25,7 @@ namespace AppInstaller::CLI::Workflow
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
-        ManifestComparator manifestComparator(context.Args, installedPackage->GetMetadata());
+        ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
 
         // The version keys should have already been sorted by version

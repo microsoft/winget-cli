@@ -3,12 +3,15 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include "TestHooks.h"
+#include "TestSettings.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/ImportExportFlow.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/MsiInstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
@@ -22,6 +25,7 @@
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/SearchCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <Commands/SourceCommand.h>
@@ -30,6 +34,7 @@
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
+#include <winget/Settings.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -40,7 +45,9 @@ using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Logging;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Settings;
 
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
@@ -227,7 +234,7 @@ namespace
 
             if (input == "AppInstallerCliTest.TestMsixInstaller.WFDep")
             {
-                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msi_WFDependency.yaml"));
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msix_WFDependency.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -403,6 +410,32 @@ void OverrideForShellExecute(TestContext& context)
     } });
 
     OverrideForUpdateInstallerMotw(context);
+}
+
+void OverrideForDirectMsi(TestContext& context)
+{
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        // We don't have an msi installer for tests, but we won't execute it anyway
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+
+    context.Override({ DirectMSIInstallImpl, [](TestContext& context)
+    {
+        // Write out the install command
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMsiInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::InstallerArgs>();
+        file.close();
+    } });
 }
 
 void OverrideForExeUninstall(TestContext& context)
@@ -645,6 +678,32 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     Uri uri = Uri(ConvertToUTF16(installResultStr));
     REQUIRE(uri.SchemeName() == L"https");
+}
+
+TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestMsiInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFDirectMSI>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForDirectMsi(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
@@ -2080,4 +2139,37 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
 
     // Verify Installer is called.
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
+}
+
+TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
+{
+    SetSetting(Streams::UserSources, R"(Sources:)"sv);
+    TestHook_ClearSourceFactoryOverrides();
+
+    SourceDetails details;
+    details.Name = "restsource";
+    details.Type = "Microsoft.Rest";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
+    details.CustomHeader = "CustomHeader";
+
+    bool receivedCustomHeader = false;
+    TestSourceFactory factory { [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
+    factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    TestProgress progress;
+    AddSource(details, progress);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
+
+    std::string customHeader2 = "Test custom header in Open source Flow";
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::Source, details.Name);
+
+    OpenSource(context);
+    auto source = context.Get<Execution::Data::Source>();
+    REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
 }

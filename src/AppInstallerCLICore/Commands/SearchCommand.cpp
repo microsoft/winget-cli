@@ -23,6 +23,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }

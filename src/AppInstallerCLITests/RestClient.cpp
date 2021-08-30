@@ -38,10 +38,10 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     IRestClient::Information info{ "TestId", { "1.0.0" } };
 
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), info,  version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, version)->GetVersion() == version);
 
     Version invalid{ "1.2.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), info, invalid));
+    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, invalid));
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
@@ -77,7 +77,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    IRestClient::Information information = RestClient::GetInformation(TestRestUri, std::move(helper));
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, std::move(helper));
     REQUIRE(information.SourceIdentifier == "Source123");
     REQUIRE(information.ServerSupportedVersions.size() == 2);
     REQUIRE(information.ServerSupportedVersions.at(0) == "1.0.0");
@@ -132,7 +132,7 @@ TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
@@ -147,7 +147,7 @@ TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 

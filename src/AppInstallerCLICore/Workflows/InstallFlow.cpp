@@ -7,6 +7,7 @@
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
+#include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 
@@ -22,6 +23,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
+    using namespace AppInstaller::Settings;
 
     namespace
     {
@@ -36,6 +38,18 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Wix:
                 return true;
+            default:
+                return false;
+            }
+        }
+
+        bool ShouldUseDirectMSIInstall(InstallerTypeEnum type, bool isSilentInstall)
+        {
+            switch (type)
+            {
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Wix:
+                return isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
             default:
                 return false;
             }
@@ -391,7 +405,14 @@ namespace AppInstaller::CLI::Workflow
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            context << ShellExecuteInstall;
+            if (ShouldUseDirectMSIInstall(installer.InstallerType, context.Args.Contains(Execution::Args::Type::Silent)))
+            {
+                context << DirectMSIInstall;
+            }
+            else
+            {
+                context << ShellExecuteInstall;
+            }
             break;
         case InstallerTypeEnum::Msix:
             context << MsixInstall;
@@ -413,6 +434,14 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
             ShellExecuteInstallImpl;
+    }
+
+    void DirectMSIInstall(Execution::Context& context)
+    {
+        context <<
+            GetInstallerArgs <<
+            RenameDownloadedInstaller <<
+            DirectMSIInstallImpl;
     }
 
     void MsixInstall(Execution::Context& context)

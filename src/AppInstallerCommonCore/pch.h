@@ -11,6 +11,7 @@
 #include <Shlwapi.h>
 #include <wow64apiset.h>
 #include <icu.h>
+#include <msi.h>
 
 #include "TraceLogging.h"
 
