@@ -308,6 +308,10 @@ Test-WinGetManifest
 **PowerShell Cmdlets**
 
 ```PowerShell
+Show-WingetSetting
+```
+
+```PowerShell
 Get-WinGetSetting
 ```
 >Note: This will not open the settings file. It will just get the object.
