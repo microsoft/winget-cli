@@ -273,6 +273,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer type uses the ProductCode system reference.
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given installer type writes ARP entry.
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType);
+
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
 
