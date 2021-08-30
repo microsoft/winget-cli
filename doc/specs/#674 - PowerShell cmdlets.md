@@ -54,6 +54,7 @@ Install-WinGetPackage
 -Manifest
 
 -PackageIdentifier
+[Alias("Id")]
 
 -Name
 
@@ -131,7 +132,7 @@ Reset-WinGetSource
 ```
 
 **Example**
-> Note: `winget source export` was added as a helper for adding approved sources to Group Policy. To get the same values with PowerShell the example blow would perform the same behavior.
+> Note: `winget source export` was added as a helper for adding approved sources to Group Policy. To get the same values with PowerShell the example below would perform the same behavior.
 
 
 ```PowerShell
@@ -151,6 +152,7 @@ Find-WinGetPackage
 **Parameters**
 
 -PackageIdentifier
+[Alias("Id")]
 
 -Name
 
@@ -178,6 +180,7 @@ Get-WinGetPackage
 **Parameters**
 
 -PackageIdentifier
+[Alias("Id")]
 
 -Name
 
@@ -207,6 +210,7 @@ Update-WinGetPackage
 -Manifest  
 
 -PackageIdentifier
+[Alias("Id")]
 
 -Name
 
@@ -245,6 +249,7 @@ Uninstall-WinGetPackage
 -Manifest  
 
 -PackageIdentifier
+[Alias("Id")]
 
 -Name
 
@@ -267,7 +272,7 @@ Uninstall-WinGetPackage
 >Note: The example below could be executed to remove all packages with "xbox" in their name, or in other metadata fields provided in the manifest (assumes there is a match with the installed package in a configured source).
 
 ```PowerShell
-Get-WingetPackage xbox | UninstallWingetPackage
+Get-WingetPackage xbox | Uninstall-WingetPackage
 ```
 
 ---
@@ -377,9 +382,9 @@ Import-WinGetPackageSet
 
 >Note: This would behave like the current `winget install` command.
 
--IgnoreUnavailable
+-SkipUnavailable
 
--IgnoreVersions
+-SkipVersions
 
 ---
 
