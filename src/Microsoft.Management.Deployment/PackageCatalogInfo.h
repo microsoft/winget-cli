@@ -9,7 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         PackageCatalogInfo() = default;
         void Initialize(const ::AppInstaller::Repository::SourceDetails& sourceDetails);
-        ::AppInstaller::Repository::SourceDetails GetSourceDetails();
+        ::AppInstaller::Repository::SourceDetails& GetSourceDetails();
 
         hstring Id();
         hstring Name();
