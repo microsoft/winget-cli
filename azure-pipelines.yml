@@ -86,11 +86,12 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
   
+  # Build all solutions in the root directory.
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
       platform: 'x86'
-      solution: '$(solution)'
+      solution: 'src\*.sln'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)" 
