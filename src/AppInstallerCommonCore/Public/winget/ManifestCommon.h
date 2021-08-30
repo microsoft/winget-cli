@@ -134,6 +134,22 @@ namespace AppInstaller::Manifest
         Dependency(DependencyType type) : Type(type) {}
     };
 
+    struct AppsAndFeaturesEntry
+    {
+        string_t DisplayName;
+        string_t Publisher;
+        string_t DisplayVersion;
+        string_t ProductCode;
+        string_t UpgradeCode;
+        InstallerTypeEnum InstallerType = InstallerTypeEnum::Unknown;
+    };
+
+    struct MarketsInfo
+    {
+        std::vector<string_t> AllowedMarkets;
+        std::vector<string_t> ExcludedMarkets;
+    };
+
     struct DependencyList
     {
         DependencyList() = default;
