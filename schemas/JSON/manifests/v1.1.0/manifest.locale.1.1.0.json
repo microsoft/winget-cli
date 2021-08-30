@@ -143,6 +143,16 @@
       },
       "maxItems": 128
     },
+    "ReleaseNotes": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "The package release notes"
+    },
+    "ReleaseNotesUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The package release notes url"
+    },
     "ManifestType": {
       "type": "string",
       "default": "locale",
