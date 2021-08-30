@@ -7,8 +7,6 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::CLI::Execution;
-
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ShowCommand::GetArguments() const

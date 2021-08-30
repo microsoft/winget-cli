@@ -124,10 +124,10 @@ namespace AppInstaller::Repository::Rest
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        auto headers = GetHeaders(customHeader);        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
+        auto headers = GetHeaders(customHeader);
 
         IRestClient::Information information = GetInformation(restEndpoint, headers, helper);
-        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information, WingetSupportedContracts);
+        std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
         std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, information, latestCommonVersion.value());

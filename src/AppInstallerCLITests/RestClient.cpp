@@ -117,7 +117,7 @@ TEST_CASE("GetInformation_Fail_AgreementsWithoutIdentifier", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
@@ -184,7 +184,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");

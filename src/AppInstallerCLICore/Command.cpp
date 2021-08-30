@@ -665,7 +665,7 @@ namespace AppInstaller::CLI
         if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
            !execArgs.Contains(Execution::Args::Type::SourceName))
         {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name(), {});
+            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name());
         }
 
         ValidateArgumentsInternal(execArgs);
