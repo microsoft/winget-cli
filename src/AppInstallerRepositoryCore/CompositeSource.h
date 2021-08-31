@@ -32,6 +32,9 @@ namespace AppInstaller::Repository
         // and thus the packages may come from disparate sources as well.
         bool IsComposite() const override { return true; }
 
+        // Gets the available sources if the source is composite.
+        std::vector<std::shared_ptr<ISource>> GetAvailableSources() const override { return m_availableSources; }
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 

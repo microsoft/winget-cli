@@ -3,14 +3,14 @@
 #include "pch.h"
 #include "HttpClientHelper.h"
 
-namespace AppInstaller::Repository::Rest
+namespace AppInstaller::Repository::Rest::Schema
 {
     HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
         const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
-        AICLI_LOG(Repo, Verbose, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
+        AICLI_LOG(Repo, Info, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
         web::http::http_request request{ web::http::methods::POST };
         request.headers().set_content_type(web::http::details::mime_types::application_json);
@@ -22,6 +22,8 @@ namespace AppInstaller::Repository::Rest
             request.headers().add(pair.first, pair.second);
         }
 
+        AICLI_LOG(Repo, Verbose, << "Http POST request details:\n" << utility::conversions::to_utf8string(request.to_string()));
+
         return client.request(request);
     }
 
@@ -31,17 +33,16 @@ namespace AppInstaller::Repository::Rest
         web::http::http_response httpResponse;
         HttpClientHelper::Post(uri, body, headers).then([&httpResponse](const web::http::http_response& response)
             {
-                AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
                 httpResponse = response;
             }).wait();
 
-            return ValidateAndExtractResponse(httpResponse);
+        return ValidateAndExtractResponse(httpResponse);
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(
         const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
     {
-        AICLI_LOG(Repo, Verbose, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
+        AICLI_LOG(Repo, Info, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
         web::http::http_request request{ web::http::methods::GET };
         request.headers().set_content_type(web::http::details::mime_types::application_json);
@@ -52,6 +53,8 @@ namespace AppInstaller::Repository::Rest
             request.headers().add(pair.first, pair.second);
         }
 
+        AICLI_LOG(Repo, Verbose, << "Http GET request details:\n" << utility::conversions::to_utf8string(request.to_string()));
+
         return client.request(request);
     }
 
@@ -61,11 +64,10 @@ namespace AppInstaller::Repository::Rest
         web::http::http_response httpResponse;
         Get(uri, headers).then([&httpResponse](const web::http::http_response& response)
             {
-                AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
                 httpResponse = response;
             }).wait();
 
-            return ValidateAndExtractResponse(httpResponse);
+        return ValidateAndExtractResponse(httpResponse);
     }
 
     web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const
@@ -83,6 +85,9 @@ namespace AppInstaller::Repository::Rest
 
     std::optional<web::json::value> HttpClientHelper::ValidateAndExtractResponse(const web::http::http_response& response) const
     {
+        AICLI_LOG(Repo, Info, << "Response status: " << response.status_code());
+        AICLI_LOG(Repo, Verbose, << "Response details: " << utility::conversions::to_utf8string(response.to_string()));
+
         std::optional<web::json::value> result;
         switch (response.status_code())
         {
@@ -91,6 +96,9 @@ namespace AppInstaller::Repository::Rest
             break;
 
         case web::http::status_codes::NotFound:
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+            break;
+
         case web::http::status_codes::NoContent:
             result = {};
             break;

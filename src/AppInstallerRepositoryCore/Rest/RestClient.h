@@ -4,7 +4,7 @@
 #include <set>
 #include <cpprest/json.h>
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/HttpClientHelper.h"
+#include "Rest/Schema/HttpClientHelper.h"
 #include "cpprest/json.h"
 #include "AppInstallerRepositorySource.h"
 
@@ -12,11 +12,6 @@ namespace AppInstaller::Repository::Rest
 {
     struct RestClient
     {
-        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
-
-        // The return type of Search
-        using SearchResult = Rest::Schema::IRestClient::SearchResult;
-
         RestClient(const RestClient&) = delete;
         RestClient& operator=(const RestClient&) = delete;
 
@@ -30,16 +25,18 @@ namespace AppInstaller::Repository::Rest
 
         std::string GetSourceIdentifier() const;
 
-        static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const AppInstaller::Repository::Rest::Schema::IRestClient::Information& information, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
+        Schema::IRestClient::Information GetSourceInformation() const;
 
-        static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
+        static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const HttpClientHelper& httpClientHelper);
+        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::HttpClientHelper& httpClientHelper);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, const HttpClientHelper & helper = {});
+        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, const Schema::HttpClientHelper& helper = {});
     private:
+        RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
+
         std::unique_ptr<Schema::IRestClient> m_interface;
         std::string m_sourceIdentifier;
     };

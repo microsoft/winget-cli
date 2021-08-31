@@ -18,6 +18,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo Info();
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectAsync();
         winrt::Microsoft::Management::Deployment::ConnectResult Connect();
+        hstring AdditionalPackageCatalogArguments();
+        void AdditionalPackageCatalogArguments(hstring const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

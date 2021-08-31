@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
     {
         std::vector<ValidationError> resultErrors;
 
@@ -23,10 +23,11 @@ namespace AppInstaller::Manifest
         }
         catch (const std::exception&)
         {
-            resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
+            resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        ValidateManifestLocalization(manifest.ManifestVersion, manifest.DefaultLocalization, resultErrors);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization);
+        std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
@@ -63,6 +64,12 @@ namespace AppInstaller::Manifest
         // Validate installers
         for (auto const& installer : manifest.Installers)
         {
+            // If not full validation, for future compatibility, skip validating unknown installers.
+            if (installer.InstallerType == InstallerTypeEnum::Unknown && !fullValidation)
+            {
+                continue;
+            }
+
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
@@ -71,7 +78,7 @@ namespace AppInstaller::Manifest
 
             if (installer.Arch == Utility::Architecture::Unknown)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Architecture");
             }
 
             if (installer.InstallerType == InstallerTypeEnum::Unknown)
@@ -97,10 +104,13 @@ namespace AppInstaller::Manifest
 
             if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
-                // MSStore type is not supported in community repo
-                resultErrors.emplace_back(
-                    ManifestError::FieldValueNotSupported, "InstallerType",
-                    InstallerTypeToString(installer.InstallerType));
+                if (fullValidation)
+                {
+                    // MSStore type is not supported in community repo
+                    resultErrors.emplace_back(
+                        ManifestError::FieldValueNotSupported, "InstallerType",
+                        InstallerTypeToString(installer.InstallerType));
+                }
 
                 if (installer.ProductId.empty())
                 {
@@ -112,11 +122,11 @@ namespace AppInstaller::Manifest
                 // For other types, Url and Sha256 are required
                 if (installer.Url.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Url");
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerUrl");
                 }
                 if (installer.Sha256.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Sha256");
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerSha256");
                 }
                 // ProductId should not be used
                 if (!installer.ProductId.empty())
@@ -135,7 +145,7 @@ namespace AppInstaller::Manifest
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerUrl", installer.Url);
             }
 
             if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))
@@ -147,20 +157,23 @@ namespace AppInstaller::Manifest
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            ValidateManifestLocalization(manifest.ManifestVersion, localization, resultErrors);
+            auto locErrors = ValidateManifestLocalization(localization);
+            std::move(locErrors.begin(), locErrors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
         return resultErrors;
     }
 
-    void ValidateManifestLocalization(const ManifestVer& manifestVersion, const ManifestLocalization& localization, std::vector<ValidationError>& resultErrors)
+    std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization)
     {
+        std::vector<ValidationError> resultErrors;
+
         if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
         {
             resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
         }
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (localization.Contains(Localization::Agreements))
         {
             const auto& agreements = localization.Get<Localization::Agreements>();
             for (const auto& agreement : agreements)
@@ -172,5 +185,7 @@ namespace AppInstaller::Manifest
                 }
             }
         }
+
+        return resultErrors;
     }
 }

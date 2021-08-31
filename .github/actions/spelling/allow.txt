@@ -45,6 +45,7 @@ bytearray
 cdecl
 cer
 certutil
+cguid
 chrono
 cin
 cla
@@ -79,6 +80,7 @@ cref
 csproj
 CStr
 CURSORPOSITON
+CUSTOMHEADER
 cwctype
 datatelemetry
 dbconn
@@ -251,7 +253,9 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+MAXLENGTH
 MBs
+MContext
 mday
 memset
 metadata
@@ -293,6 +297,7 @@ NONAME
 nonexistentsetting
 NONINFRINGEMENT
 norestart
+normalizednameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -316,6 +321,7 @@ outfile
 OUTOFDISKSPACE
 OUTOFMEMORY
 OWC
+packagefamilyname
 PACKAGESSCHEMA
 Params
 params

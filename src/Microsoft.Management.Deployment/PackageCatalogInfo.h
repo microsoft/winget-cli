@@ -11,7 +11,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(const ::AppInstaller::Repository::SourceDetails& sourceDetails);
-        ::AppInstaller::Repository::SourceDetails GetSourceDetails();
+        ::AppInstaller::Repository::SourceDetails& GetSourceDetails();
 #endif
 
         hstring Id();

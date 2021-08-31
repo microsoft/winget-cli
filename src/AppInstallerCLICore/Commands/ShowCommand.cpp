@@ -7,8 +7,6 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::CLI::Execution;
-
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ShowCommand::GetArguments() const
@@ -26,6 +24,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::ListVersions),
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }
 

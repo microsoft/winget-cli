@@ -5,7 +5,7 @@
 #include "SearchResponseDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
 #include "Rest/Schema/RestHelper.h"
-#include "CommonJsonConstants.h"
+#include "Rest/Schema/CommonRestConstants.h"
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {

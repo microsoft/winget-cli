@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_sourceDetails = sourceDetails;
     }
-    ::AppInstaller::Repository::SourceDetails PackageCatalogInfo::GetSourceDetails()
+    ::AppInstaller::Repository::SourceDetails& PackageCatalogInfo::GetSourceDetails()
     {
         return m_sourceDetails;
     }

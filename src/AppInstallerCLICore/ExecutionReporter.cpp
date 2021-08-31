@@ -12,6 +12,7 @@ namespace AppInstaller::CLI::Execution
     const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
     const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
     const Sequence& ManifestInfoEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& SourceInfoEmphasis = TextFormat::Foreground::Bright;
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
@@ -103,7 +104,6 @@ namespace AppInstaller::CLI::Execution
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
     {
-        bool defaultResponse = false;
         const std::vector<BoolPromptOption> options
         {
             BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
@@ -136,12 +136,6 @@ namespace AppInstaller::CLI::Execution
             if (!std::getline(m_in, response))
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
-            }
-
-            // If response was empty, use the default
-            if (Utility::IsEmptyOrWhitespace(response))
-            {
-                return defaultResponse;
             }
 
             // Find the matching option ignoring whitespace
