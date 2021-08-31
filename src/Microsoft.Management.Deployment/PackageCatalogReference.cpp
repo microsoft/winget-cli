@@ -134,7 +134,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (IsComposite())
         {
             // Can't set AdditionalPackageCatalogArguments on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
-            throw winrt::hresult_error(ERROR_INVALID_STATE);
+            throw winrt::hresult_illegal_state_change();
         }
         else
         {
