@@ -149,6 +149,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (IsComposite())
         {
+            // Store the value to allow this value to override the individual values stored in each PackageCatalogReference \ SourceDetails in the composite source.
             m_compositeAdditionalPackageCatalogArguments = ::AppInstaller::Utility::ConvertToUTF8(value);
         }
         else
