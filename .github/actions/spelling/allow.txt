@@ -78,6 +78,7 @@ cref
 csproj
 CStr
 CURSORPOSITON
+CUSTOMHEADER
 cwctype
 datatelemetry
 dbconn
@@ -249,6 +250,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+MAXLENGTH
 MBs
 mday
 memset

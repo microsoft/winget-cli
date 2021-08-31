@@ -137,6 +137,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND = unchecked((int)0x8a150044);
             public const int ERROR_SOURCE_OPEN_FAILED = unchecked((int)0x8a150045);
             public const int ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8a150046);
+            public const int ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH = unchecked((int)0x8a150047);
         }
     }
 }
