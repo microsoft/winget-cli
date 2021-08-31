@@ -64,7 +64,6 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::OpenSource <<
-                    Workflow::HandleSourceAgreements <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::ReportPackageIdentity <<

@@ -105,9 +105,9 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsurePackageAgreementsAcceptance::operator()(Execution::Context& context) const
     {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SkipAgreementsAcceptance))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
         {
-            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because SkipAgreementsAcceptance flag is set.");
+            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
             return;
         }
 

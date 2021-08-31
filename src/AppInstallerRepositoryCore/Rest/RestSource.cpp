@@ -322,7 +322,7 @@ namespace AppInstaller::Repository::Rest
         m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
         m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
 
-        m_details.Information.SourceAgreementIdentifier = sourceInformation.SourceAgreementsIdentifier;
+        m_details.Information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
         for (auto const& agreement : sourceInformation.SourceAgreements)
         {
             m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);

@@ -25,6 +25,15 @@ TEST_CASE("GetLatestCommonVersion", "[RestSource]")
     REQUIRE(actual.value().ToString() == "1.2.0");
 }
 
+TEST_CASE("GetLatestCommonVersion_OnlyMajorMinorVersionMatched", "[RestSource]")
+{
+    std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.0.0"}, Version {"1.2.0"} };
+    std::vector<std::string> versions{ "1.0.0", "2.0.0", "1.2.1" };
+    std::optional<Version> actual = RestClient::GetLatestCommonVersion(versions, wingetSupportedContracts);
+    REQUIRE(actual);
+    REQUIRE(actual.value().ToString() == "1.2.0");
+}
+
 TEST_CASE("GetLatestCommonVersion_UnsupportedVersion", "[RestSource]")
 {
     std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"3.0.0"}, Version {"4.2.0"} };

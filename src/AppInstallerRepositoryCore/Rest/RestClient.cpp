@@ -84,7 +84,14 @@ namespace AppInstaller::Repository::Rest
         for (auto& version : serverSupportedVersions)
         {
             Version versionInfo(version);
-            if (wingetSupportedVersions.find(versionInfo) != wingetSupportedVersions.end())
+            if (wingetSupportedVersions.end() != std::find_if(wingetSupportedVersions.begin(), wingetSupportedVersions.end(),
+                [&](auto Version& v)
+                {
+                    // Only check major and minor version match
+                    return versionInfo.GetParts().size() == 3 &&
+                        versionInfo.GetParts().at(0) == v.GetParts().at(0) &&
+                        versionInfo.GetParts().at(1) == v.GetParts().at(1);
+                }))
             {
                 commonVersions.insert(std::move(versionInfo));
             }

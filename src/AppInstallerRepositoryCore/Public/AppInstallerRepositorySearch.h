@@ -284,150 +284,15 @@ namespace AppInstaller::Repository
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
 
-        std::string GetErrorFieldsMessage(const std::vector<std::string>& input) const noexcept
-        {
-            std::string result;
-            bool first = true;
-            for (auto const& field : input)
-            {
-                if (first)
-                {
-                    result += field;
-                    first = false;
-                }
-                else
-                {
-                    result += ", " + field;
-                }
-            }
-            return result;
-        }
-
-        const char* what() const noexcept override
-        {
-            if (m_whatMessage.empty())
-            {
-                m_whatMessage = "The request is not supported.";
-
-                if (!UnsupportedPackageMatchFields.empty())
-                {
-                    m_whatMessage += "Unsupported Package Match Fields: " + GetErrorFieldsMessage(UnsupportedPackageMatchFields);
-                }
-                if (!RequiredPackageMatchFields.empty())
-                {
-                    m_whatMessage += "Required Package Match Fields: " + GetErrorFieldsMessage(RequiredPackageMatchFields);
-                }
-                if (!UnsupportedQueryParameters.empty())
-                {
-                    m_whatMessage += "Unsupported Query Parameters: " + GetErrorFieldsMessage(UnsupportedQueryParameters);
-                }
-                if (!RequiredQueryParameters.empty())
-                {
-                    m_whatMessage += "Required Query Parameters: " + GetErrorFieldsMessage(RequiredQueryParameters);
-                }
-            }
-            return m_whatMessage.c_str();
-        }
+        const char* what() const noexcept override;
 
     private:
         mutable std::string m_whatMessage;
     };
 
-    inline std::string_view MatchTypeToString(MatchType type)
-    {
-        using namespace std::string_view_literals;
+    std::string_view MatchTypeToString(MatchType type);
 
-        switch (type)
-        {
-        case MatchType::Exact:
-            return "Exact"sv;
-        case MatchType::CaseInsensitive:
-            return "CaseInsensitive"sv;
-        case MatchType::StartsWith:
-            return "StartsWith"sv;
-        case MatchType::Substring:
-            return "Substring"sv;
-        case MatchType::Wildcard:
-            return "Wildcard"sv;
-        case MatchType::Fuzzy:
-            return "Fuzzy"sv;
-        case MatchType::FuzzySubstring:
-            return "FuzzySubstring"sv;
-        }
+    std::string_view PackageMatchFieldToString(PackageMatchField matchField);
 
-        return "UnknownMatchType"sv;
-    }
-
-    inline std::string_view PackageMatchFieldToString(PackageMatchField matchField)
-    {
-        using namespace std::string_view_literals;
-
-        switch (matchField)
-        {
-        case PackageMatchField::Command:
-            return "Command"sv;
-        case PackageMatchField::Id:
-            return "Id"sv;
-        case PackageMatchField::Moniker:
-            return "Moniker"sv;
-        case PackageMatchField::Name:
-            return "Name"sv;
-        case PackageMatchField::Tag:
-            return "Tag"sv;
-        case PackageMatchField::PackageFamilyName:
-            return "PackageFamilyName"sv;
-        case PackageMatchField::ProductCode:
-            return "ProductCode"sv;
-        case PackageMatchField::NormalizedNameAndPublisher:
-            return "NormalizedNameAndPublisher"sv;
-        case PackageMatchField::Market:
-            return "Market"sv;
-        }
-
-        return "UnknownMatchField"sv;
-    }
-
-    inline PackageMatchField StringToPackageMatchField(std::string_view field)
-    {
-        std::string toLower = Utility::ToLower(field);
-
-        if (toLower == "command")
-        {
-            return PackageMatchField::Command;
-        }
-        else if (toLower == "id")
-        {
-            return PackageMatchField::Id;
-        }
-        else if (toLower == "moniker")
-        {
-            return PackageMatchField::Moniker;
-        }
-        else if (toLower == "name")
-        {
-            return PackageMatchField::Name;
-        }
-        else if (toLower == "tag")
-        {
-            return PackageMatchField::Tag;
-        }
-        else if (toLower == "packagefamilyname")
-        {
-            return PackageMatchField::PackageFamilyName;
-        }
-        else if (toLower == "productcode")
-        {
-            return PackageMatchField::ProductCode;
-        }
-        else if (toLower == "normalizednameandpublisher")
-        {
-            return PackageMatchField::NormalizedNameAndPublisher;
-        }
-        else if (toLower == "market")
-        {
-            return PackageMatchField::Market;
-        }
-
-        return PackageMatchField::Unknown;
-    }
+    PackageMatchField StringToPackageMatchField(std::string_view field);
 }

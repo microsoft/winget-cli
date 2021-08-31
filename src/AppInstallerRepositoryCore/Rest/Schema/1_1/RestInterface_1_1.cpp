@@ -104,6 +104,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
                 continue;
             }
 
+            if (searchRequest.Inclusions.end() != std::find_if(searchRequest.Inclusions.begin(), searchRequest.Inclusions.end(), [&](const PackageMatchFilter& inclusion) { return inclusion.Field == matchField; }))
+            {
+                AICLI_LOG(Repo, Info, << "Search request Inclusions contains package match field not supported by the rest source. Ignoring the field. Unsupported package match field: " << field);
+
+                auto itr = std::find_if(resultSearchRequest.Inclusions.begin(), resultSearchRequest.Inclusions.end(), [&](const PackageMatchFilter& inclusion) { return inclusion.Field == matchField; });
+                resultSearchRequest.Inclusions.erase(itr);
+            }
+
             if (searchRequest.Filters.end() != std::find_if(searchRequest.Filters.begin(), searchRequest.Filters.end(), [&](const PackageMatchFilter& filter) { return filter.Field == matchField; }))
             {
                 AICLI_LOG(Repo, Error, << "Search request is not supported by the rest source. Unsupported package match field: " << field);

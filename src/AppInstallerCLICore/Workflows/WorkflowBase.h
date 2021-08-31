@@ -347,10 +347,18 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Handles all opened source(s) agreements if needed.
-    // Required Args: RemoveIfRejected, bool indicating if the source(s) should be removed if user rejects the agreements
-    // Inputs: Source or Sources
+    // Required Args: The source to be checked for agreements
+    // Inputs: None
     // Outputs: None
-    void HandleSourceAgreements(Execution::Context& context);
+    struct HandleSourceAgreements : public WorkflowTask
+    {
+        HandleSourceAgreements(std::shared_ptr<Repository::ISource> source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::shared_ptr<Repository::ISource> m_source;
+    };
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

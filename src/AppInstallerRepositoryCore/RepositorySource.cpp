@@ -793,7 +793,7 @@ namespace AppInstaller::Repository
             bool CheckSourceAgreements(const SourceDetails& details);
 
             // SaveMetadata() should be called after all accepted source agreements are updated.
-            void UpdateAcceptedSourceAgreements(const SourceDetails& details);
+            void SaveAcceptedSourceAgreements(const SourceDetails& details);
 
         private:
             std::vector<SourceDetailsInternal> m_sourceList;
@@ -929,7 +929,7 @@ namespace AppInstaller::Repository
         {
             auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
 
-            if (agreementFields == ImplicitAgreementField::None && details.Information.SourceAgreementIdentifier.empty())
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
             {
                 // No agreements to be accepted.
                 return true;
@@ -943,14 +943,14 @@ namespace AppInstaller::Repository
             }
 
             return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
-                details.Information.SourceAgreementIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+                details.Information.SourceAgreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
         }
 
-        void SourceListInternal::UpdateAcceptedSourceAgreements(const SourceDetails& details)
+        void SourceListInternal::SaveAcceptedSourceAgreements(const SourceDetails& details)
         {
             auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
 
-            if (agreementFields == ImplicitAgreementField::None && details.Information.SourceAgreementIdentifier.empty())
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
             {
                 // No agreements to be accepted.
                 return;
@@ -964,7 +964,28 @@ namespace AppInstaller::Repository
             }
 
             detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
-            detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementIdentifier;
+            detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementsIdentifier;
+
+            SaveMetadata();
+        }
+
+        std::string GetStringVectorMessage(const std::vector<std::string>& input)
+        {
+            std::string result;
+            bool first = true;
+            for (auto const& field : input)
+            {
+                if (first)
+                {
+                    result += field;
+                    first = false;
+                }
+                else
+                {
+                    result += ", " + field;
+                }
+            }
+            return result;
         }
     }
 
@@ -983,14 +1004,14 @@ namespace AppInstaller::Repository
         }
     }
 
-    ImplicitAgreementField GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
+    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
     {
-        ImplicitAgreementField result = ImplicitAgreementField::None;
+        ImplicitAgreementFieldEnum result = ImplicitAgreementFieldEnum::None;
 
         if (info.RequiredPackageMatchFields.end() != std::find_if(info.RequiredPackageMatchFields.begin(), info.RequiredPackageMatchFields.end(), [&](const auto& field) { return Utility::CaseInsensitiveEquals(field, "market"); }) ||
             info.RequiredQueryParameters.end() != std::find_if(info.RequiredQueryParameters.begin(), info.RequiredQueryParameters.end(), [&](const auto& param) { return Utility::CaseInsensitiveEquals(param, "market"); }))
         {
-            WI_SetFlag(result, ImplicitAgreementField::Market);
+            WI_SetFlag(result, ImplicitAgreementFieldEnum::Market);
         }
 
         return result;
@@ -1375,32 +1396,16 @@ namespace AppInstaller::Repository
         return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 
-    std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources)
+    bool CheckSourceAgreements(const SourceDetails& source)
     {
-        std::vector<SourceDetails> results;
         SourceListInternal sourceList;
-
-        for (auto const& source : sources)
-        {
-            if (!sourceList.CheckSourceAgreements(source))
-            {
-                results.emplace_back(source);
-            }
-        }
-
-        return results;
+        return sourceList.CheckSourceAgreements(source);
     }
 
-    void SaveAcceptedSourceAgreements(const std::vector<SourceDetails>& sources)
+    void SaveAcceptedSourceAgreements(const SourceDetails& source)
     {
         SourceListInternal sourceList;
-
-        for (auto const& source : sources)
-        {
-            sourceList.UpdateAcceptedSourceAgreements(source);
-        }
-
-        sourceList.SaveMetadata();
+        sourceList.SaveAcceptedSourceAgreements(source);
     }
 
     bool SearchRequest::IsForEverything() const
@@ -1458,6 +1463,130 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
         default: return "Unknown"sv;
         }
+    }
+
+    const char* UnsupportedRequestException::what() const noexcept
+    {
+        if (m_whatMessage.empty())
+        {
+            m_whatMessage = "The request is not supported.";
+
+            if (!UnsupportedPackageMatchFields.empty())
+            {
+                m_whatMessage += "Unsupported Package Match Fields: " + GetStringVectorMessage(UnsupportedPackageMatchFields);
+            }
+            if (!RequiredPackageMatchFields.empty())
+            {
+                m_whatMessage += "Required Package Match Fields: " + GetStringVectorMessage(RequiredPackageMatchFields);
+            }
+            if (!UnsupportedQueryParameters.empty())
+            {
+                m_whatMessage += "Unsupported Query Parameters: " + GetStringVectorMessage(UnsupportedQueryParameters);
+            }
+            if (!RequiredQueryParameters.empty())
+            {
+                m_whatMessage += "Required Query Parameters: " + GetStringVectorMessage(RequiredQueryParameters);
+            }
+        }
+        return m_whatMessage.c_str();
+    }
+
+    std::string_view MatchTypeToString(MatchType type)
+    {
+        using namespace std::string_view_literals;
+
+        switch (type)
+        {
+        case MatchType::Exact:
+            return "Exact"sv;
+        case MatchType::CaseInsensitive:
+            return "CaseInsensitive"sv;
+        case MatchType::StartsWith:
+            return "StartsWith"sv;
+        case MatchType::Substring:
+            return "Substring"sv;
+        case MatchType::Wildcard:
+            return "Wildcard"sv;
+        case MatchType::Fuzzy:
+            return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
+        }
+
+        return "UnknownMatchType"sv;
+    }
+
+    std::string_view PackageMatchFieldToString(PackageMatchField matchField)
+    {
+        using namespace std::string_view_literals;
+
+        switch (matchField)
+        {
+        case PackageMatchField::Command:
+            return "Command"sv;
+        case PackageMatchField::Id:
+            return "Id"sv;
+        case PackageMatchField::Moniker:
+            return "Moniker"sv;
+        case PackageMatchField::Name:
+            return "Name"sv;
+        case PackageMatchField::Tag:
+            return "Tag"sv;
+        case PackageMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case PackageMatchField::ProductCode:
+            return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedNameAndPublisher"sv;
+        case PackageMatchField::Market:
+            return "Market"sv;
+        }
+
+        return "UnknownMatchField"sv;
+    }
+
+    PackageMatchField StringToPackageMatchField(std::string_view field)
+    {
+        std::string toLower = Utility::ToLower(field);
+
+        if (toLower == "command")
+        {
+            return PackageMatchField::Command;
+        }
+        else if (toLower == "id")
+        {
+            return PackageMatchField::Id;
+        }
+        else if (toLower == "moniker")
+        {
+            return PackageMatchField::Moniker;
+        }
+        else if (toLower == "name")
+        {
+            return PackageMatchField::Name;
+        }
+        else if (toLower == "tag")
+        {
+            return PackageMatchField::Tag;
+        }
+        else if (toLower == "packagefamilyname")
+        {
+            return PackageMatchField::PackageFamilyName;
+        }
+        else if (toLower == "productcode")
+        {
+            return PackageMatchField::ProductCode;
+        }
+        else if (toLower == "normalizednameandpublisher")
+        {
+            return PackageMatchField::NormalizedNameAndPublisher;
+        }
+        else if (toLower == "market")
+        {
+            return PackageMatchField::Market;
+        }
+
+        return PackageMatchField::Unknown;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -536,7 +536,7 @@ void OverrideForSourceAddWithAgreements(TestContext& context)
     context.Override({ OpenSourceForSourceAdd, [](TestContext& context)
     {
         auto testSource = std::make_shared<TestSource>();
-        testSource->Details.Information.SourceAgreementIdentifier = "AgreementsIdentifier";
+        testSource->Details.Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
         testSource->Details.Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
         testSource->Details.Information.RequiredPackageMatchFields.emplace_back("Market");
         testSource->Details.Information.RequiredQueryParameters.emplace_back("Market");

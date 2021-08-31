@@ -80,9 +80,9 @@ namespace AppInstaller::CLI
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceList <<
             Workflow::CheckSourceListAgainstAdd <<
+        // TODO: Could improve the workflow by opening the source before adding during ISource refactoring work
             Workflow::AddSource <<
-            Workflow::OpenSourceForSourceAdd <<
-            Workflow::HandleSourceAgreements;
+            Workflow::OpenSourceForSourceAdd;
 
         if (context.IsTerminated() &&
             (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED ||

@@ -36,6 +36,7 @@ namespace AppInstaller::Repository
 
     std::string_view ToString(SourceOrigin origin);
 
+    // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {
         std::string Label;
@@ -48,11 +49,22 @@ namespace AppInstaller::Repository
 
     struct SourceInformation
     {
-        std::string SourceAgreementIdentifier;
+        // Identifier of the source agreements. This is used to identify if source agreements have changed.
+        std::string SourceAgreementsIdentifier;
+
+        // List of source agreements that require user to accept.
         std::vector<SourceAgreement> SourceAgreements;
+
+        // Unsupported match fields in search request. If this field is in the filters, the request may fail.
         std::vector<std::string> UnsupportedPackageMatchFields;
+
+        // Required match fields in search request. If this field is not found in the filters, the request may fail(except Market).
         std::vector<std::string> RequiredPackageMatchFields;
+
+        // Unsupported query parameters in get manifest request.
         std::vector<std::string> UnsupportedQueryParameters;
+
+        // Required query parameters in get manifest request.
         std::vector<std::string> RequiredQueryParameters;
     };
 
@@ -93,16 +105,16 @@ namespace AppInstaller::Repository
         SourceInformation Information;
     };
 
-    // List of fields that require user agreements.
-    enum class ImplicitAgreementField : int
+    // Fields that require user agreements.
+    enum class ImplicitAgreementFieldEnum : int
     {
         None = 0x0,
         Market = 0x1,
     };
 
-    DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementField);
+    DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementFieldEnum);
 
-    ImplicitAgreementField GetAgreementFieldsFromSourceInformation(const SourceInformation& info);
+    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info);
 
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
@@ -235,9 +247,9 @@ namespace AppInstaller::Repository
     // Checks if a source supports passing custom header.
     bool SupportsCustomHeader(const SourceDetails& sourceDetails);
 
-    // Checks the source agreements and return a list that needs user acceptance.
-    std::vector<SourceDetails> CheckSourceAgreements(const std::vector<SourceDetails>& sources);
+    // Checks the source agreements and returns if agreements are satisfied.
+    bool CheckSourceAgreements(const SourceDetails& source);
 
     // Saves the accepted source agreements in metadata.
-    void SaveAcceptedSourceAgreements(const std::vector<SourceDetails>& sources);
+    void SaveAcceptedSourceAgreements(const SourceDetails& source);
 }

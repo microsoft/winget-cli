@@ -110,7 +110,18 @@ namespace AppInstaller::CLI::Workflow
     {
         try
         {
-            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, context.Args.GetArg(Args::Type::SourceName), std::placeholders::_1), true);
+            Repository::SourceDetails sourceDetails;
+            sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
+            sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
+
+            if (context.Args.Contains(Args::Type::SourceType))
+            {
+                sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
+            }
+
+            sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
+
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails, std::placeholders::_1), true);
 
             if (!result.Source)
             {
@@ -118,7 +129,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
             }
 
-            context.Add<Execution::Data::Source>(std::move(result.Source));
+            context << Workflow::HandleSourceAgreements(result.Source);
         }
         catch (...)
         {

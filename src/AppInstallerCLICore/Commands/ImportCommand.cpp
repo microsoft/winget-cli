@@ -45,7 +45,6 @@ namespace AppInstaller::CLI
             Workflow::ReadImportFile <<
             Workflow::OpenSourcesForImport <<
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
-            Workflow::HandleSourceAgreements <<
             Workflow::SearchPackagesForImport <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
             Workflow::InstallImportedPackages;

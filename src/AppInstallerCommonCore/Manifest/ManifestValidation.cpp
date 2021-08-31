@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool validateForRead)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
     {
         std::vector<ValidationError> resultErrors;
 
@@ -64,8 +64,8 @@ namespace AppInstaller::Manifest
         // Validate installers
         for (auto const& installer : manifest.Installers)
         {
-            // If the validation is for read, for future compatibility, skip validating unknown installers.
-            if (validateForRead && installer.InstallerType == InstallerTypeEnum::Unknown)
+            // If not full validation, for future compatibility, skip validating unknown installers.
+            if (installer.InstallerType == InstallerTypeEnum::Unknown && !fullValidation)
             {
                 continue;
             }
@@ -104,7 +104,7 @@ namespace AppInstaller::Manifest
 
             if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
-                if (!validateForRead)
+                if (fullValidation)
                 {
                     // MSStore type is not supported in community repo
                     resultErrors.emplace_back(
