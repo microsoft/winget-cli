@@ -4,7 +4,7 @@
 #include <cpprest/json.h>
 #include "Rest/Schema/IRestClient.h"
 
-namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
+namespace AppInstaller::Repository::Rest::Schema
 {
     // Information response Deserializer.
     struct InformationResponseDeserializer

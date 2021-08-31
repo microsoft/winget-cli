@@ -47,3 +47,6 @@ REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
 
 # URL escaped characters
 \%[0-9A-F]{2}
+
+# Sample store product id for App Installer
+9nblggh4nns1

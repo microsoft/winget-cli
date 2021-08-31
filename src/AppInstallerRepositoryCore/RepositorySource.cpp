@@ -30,6 +30,8 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
     constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
     constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
@@ -57,6 +59,10 @@ namespace AppInstaller::Repository
         {
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
+
+            std::string AcceptedAgreementsIdentifier;
+
+            int AcceptedAgreementFields = 0;
 
             SourceDetailsInternal() = default;
 
@@ -449,6 +455,8 @@ namespace AppInstaller::Repository
                     int64_t lastUpdateInEpoch{};
                     if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                     details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                     return true;
                 });
         }
@@ -520,7 +528,7 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
+                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                         return true;
                     });
 
@@ -614,6 +622,8 @@ namespace AppInstaller::Repository
                 out << YAML::BeginMap;
                 out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
                 out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
                 out << YAML::EndMap;
             }
 
@@ -777,10 +787,13 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
-            void UpdateSourceLastUpdateTime(const SourceDetails& source);
-
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
+
+            bool CheckSourceAgreements(const SourceDetails& details);
+
+            // SaveMetadata() should be called after all accepted source agreements are updated.
+            void SaveAcceptedSourceAgreements(const SourceDetails& details);
 
         private:
             std::vector<SourceDetailsInternal> m_sourceList;
@@ -818,6 +831,8 @@ namespace AppInstaller::Repository
                 if (source)
                 {
                     source->LastUpdateTime = metaSource.LastUpdateTime;
+                    source->AcceptedAgreementFields = metaSource.AcceptedAgreementFields;
+                    source->AcceptedAgreementsIdentifier = metaSource.AcceptedAgreementsIdentifier;
                 }
             }
         }
@@ -909,6 +924,69 @@ namespace AppInstaller::Repository
         {
             SetMetadata(m_sourceList);
         }
+
+        bool SourceListInternal::CheckSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return true;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            if (!detailsInternal)
+            {
+                // Source not found.
+                return false;
+            }
+
+            return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
+                details.Information.SourceAgreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+        }
+
+        void SourceListInternal::SaveAcceptedSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            if (!detailsInternal)
+            {
+                // No source to update.
+                return;
+            }
+
+            detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
+            detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementsIdentifier;
+
+            SaveMetadata();
+        }
+
+        std::string GetStringVectorMessage(const std::vector<std::string>& input)
+        {
+            std::string result;
+            bool first = true;
+            for (auto const& field : input)
+            {
+                if (first)
+                {
+                    result += field;
+                    first = false;
+                }
+                else
+                {
+                    result += ", " + field;
+                }
+            }
+            return result;
+        }
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -924,6 +1002,19 @@ namespace AppInstaller::Repository
         default:
             THROW_HR(E_UNEXPECTED);
         }
+    }
+
+    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
+    {
+        ImplicitAgreementFieldEnum result = ImplicitAgreementFieldEnum::None;
+
+        if (info.RequiredPackageMatchFields.end() != std::find_if(info.RequiredPackageMatchFields.begin(), info.RequiredPackageMatchFields.end(), [&](const auto& field) { return Utility::CaseInsensitiveEquals(field, "market"); }) ||
+            info.RequiredQueryParameters.end() != std::find_if(info.RequiredQueryParameters.begin(), info.RequiredQueryParameters.end(), [&](const auto& param) { return Utility::CaseInsensitiveEquals(param, "market"); }))
+        {
+            WI_SetFlag(result, ImplicitAgreementFieldEnum::Market);
+        }
+
+        return result;
     }
 
     std::vector<SourceDetails> GetSources()
@@ -1305,6 +1396,18 @@ namespace AppInstaller::Repository
         return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 
+    bool CheckSourceAgreements(const SourceDetails& source)
+    {
+        SourceListInternal sourceList;
+        return sourceList.CheckSourceAgreements(source);
+    }
+
+    void SaveAcceptedSourceAgreements(const SourceDetails& source)
+    {
+        SourceListInternal sourceList;
+        sourceList.SaveAcceptedSourceAgreements(source);
+    }
+
     bool SearchRequest::IsForEverything() const
     {
         return (!Query.has_value() && Inclusions.empty() && Filters.empty());
@@ -1360,6 +1463,130 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
         default: return "Unknown"sv;
         }
+    }
+
+    const char* UnsupportedRequestException::what() const noexcept
+    {
+        if (m_whatMessage.empty())
+        {
+            m_whatMessage = "The request is not supported.";
+
+            if (!UnsupportedPackageMatchFields.empty())
+            {
+                m_whatMessage += "Unsupported Package Match Fields: " + GetStringVectorMessage(UnsupportedPackageMatchFields);
+            }
+            if (!RequiredPackageMatchFields.empty())
+            {
+                m_whatMessage += "Required Package Match Fields: " + GetStringVectorMessage(RequiredPackageMatchFields);
+            }
+            if (!UnsupportedQueryParameters.empty())
+            {
+                m_whatMessage += "Unsupported Query Parameters: " + GetStringVectorMessage(UnsupportedQueryParameters);
+            }
+            if (!RequiredQueryParameters.empty())
+            {
+                m_whatMessage += "Required Query Parameters: " + GetStringVectorMessage(RequiredQueryParameters);
+            }
+        }
+        return m_whatMessage.c_str();
+    }
+
+    std::string_view MatchTypeToString(MatchType type)
+    {
+        using namespace std::string_view_literals;
+
+        switch (type)
+        {
+        case MatchType::Exact:
+            return "Exact"sv;
+        case MatchType::CaseInsensitive:
+            return "CaseInsensitive"sv;
+        case MatchType::StartsWith:
+            return "StartsWith"sv;
+        case MatchType::Substring:
+            return "Substring"sv;
+        case MatchType::Wildcard:
+            return "Wildcard"sv;
+        case MatchType::Fuzzy:
+            return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
+        }
+
+        return "UnknownMatchType"sv;
+    }
+
+    std::string_view PackageMatchFieldToString(PackageMatchField matchField)
+    {
+        using namespace std::string_view_literals;
+
+        switch (matchField)
+        {
+        case PackageMatchField::Command:
+            return "Command"sv;
+        case PackageMatchField::Id:
+            return "Id"sv;
+        case PackageMatchField::Moniker:
+            return "Moniker"sv;
+        case PackageMatchField::Name:
+            return "Name"sv;
+        case PackageMatchField::Tag:
+            return "Tag"sv;
+        case PackageMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case PackageMatchField::ProductCode:
+            return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedNameAndPublisher"sv;
+        case PackageMatchField::Market:
+            return "Market"sv;
+        }
+
+        return "UnknownMatchField"sv;
+    }
+
+    PackageMatchField StringToPackageMatchField(std::string_view field)
+    {
+        std::string toLower = Utility::ToLower(field);
+
+        if (toLower == "command")
+        {
+            return PackageMatchField::Command;
+        }
+        else if (toLower == "id")
+        {
+            return PackageMatchField::Id;
+        }
+        else if (toLower == "moniker")
+        {
+            return PackageMatchField::Moniker;
+        }
+        else if (toLower == "name")
+        {
+            return PackageMatchField::Name;
+        }
+        else if (toLower == "tag")
+        {
+            return PackageMatchField::Tag;
+        }
+        else if (toLower == "packagefamilyname")
+        {
+            return PackageMatchField::PackageFamilyName;
+        }
+        else if (toLower == "productcode")
+        {
+            return PackageMatchField::ProductCode;
+        }
+        else if (toLower == "normalizednameandpublisher")
+        {
+            return PackageMatchField::NormalizedNameAndPublisher;
+        }
+        else if (toLower == "market")
+        {
+            return PackageMatchField::Market;
+        }
+
+        return PackageMatchField::Unknown;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -142,10 +142,18 @@ namespace AppInstaller
                 return "The source data is corrupted or tampered";
             case APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE:
                 return "Error reading from the stream";
-            case APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED:
-                return "License not agreed to";
+            case APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED:
+                return "Package agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
                 return "Error reading input in prompt";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST:
+                return "The search request is not supported by one or more sources";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND:
+                return "The rest source endpoint is not found.";
+            case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
+                return "Failed to open the source.";
+            case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
+                return "Source agreements were not agreed to";
             default:
                 return "Unknown Error Code";
             }

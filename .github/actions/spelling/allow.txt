@@ -291,6 +291,7 @@ NONAME
 nonexistentsetting
 NONINFRINGEMENT
 norestart
+normalizednameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -314,6 +315,7 @@ outfile
 OUTOFDISKSPACE
 OUTOFMEMORY
 OWC
+packagefamilyname
 PACKAGESSCHEMA
 Params
 params

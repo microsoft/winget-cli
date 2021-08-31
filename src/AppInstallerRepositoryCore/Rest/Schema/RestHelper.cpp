@@ -3,10 +3,9 @@
 #include "pch.h"
 #include "RestHelper.h"
 #include "Rest/Schema/JsonHelper.h"
-#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+#include "Rest/Schema/CommonRestConstants.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
-using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 
 namespace AppInstaller::Repository::Rest::Schema
 {
