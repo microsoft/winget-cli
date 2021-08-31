@@ -539,11 +539,6 @@ namespace AppInstaller::Logging
     static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
 #endif
 
-    void GlobalTelemetryTraceLogger::Initialize()
-    {
-        logger.Initialize();
-    }
-
     TelemetryTraceLogger& Telemetry()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -560,7 +555,7 @@ namespace AppInstaller::Logging
         else
         {
             static GlobalTelemetryTraceLogger processGlobalTelemetry;
-            return processGlobalTelemetry.logger;
+            return processGlobalTelemetry;
         }
     }
 

@@ -36,7 +36,7 @@ namespace AppInstaller::ThreadLocalStorage
                     m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
                     m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();
                     
-                    // The above make_unique for TelemtryTraceLogger will either create an object or will throw which is caught below.
+                    // The above make_unique for TelemetryTraceLogger will either create an object or will throw which is caught below.
                     m_pTelemetryLogger->Initialize();
                 });
         }
