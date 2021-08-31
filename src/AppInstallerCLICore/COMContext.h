@@ -60,9 +60,9 @@ namespace AppInstaller::CLI::Execution
 
         void AddProgressCallbackFunction(ProgressCallBackFunction&& f);
 
-        // Set Global Loggers and initialize them
+        // Set Diagnostic and Telemetry loggers, Wil failure callback
         // This should be called only once per COM Server instance
-        static void SetGlobalLoggers();
+        static void SetLoggers();
 
         // Set COM call context for diagnostic and telemetry loggers
         // This should be called for every COMContext object instance
@@ -72,9 +72,6 @@ namespace AppInstaller::CLI::Execution
 
     private:
         void FireCallbacks(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ::AppInstaller::CLI::Workflow::ExecutionStage executionPhase);
-
-        // Set Diagnostic and Telemetry loggers, Wil failure callback
-        static void SetLoggers();
 
         CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
         std::vector<ProgressCallBackFunction> m_comProgressCallbacks;

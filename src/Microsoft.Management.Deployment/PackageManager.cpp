@@ -123,7 +123,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         manifest.ApplyLocale(targetLocale);
 
-        context->GetThreadGlobalsActive().GetTelemetryLogger().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
+        context->GetThreadGlobals().GetTelemetryLogger().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
 
         context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
         context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));

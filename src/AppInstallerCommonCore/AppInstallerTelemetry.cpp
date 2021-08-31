@@ -58,6 +58,11 @@ namespace AppInstaller::Logging
         }
     }
 
+    TelemetryTraceLogger::TelemetryTraceLogger()
+    {
+        std::ignore = CoCreateGuid(&m_activityId);
+    }
+    
     const GUID* TelemetryTraceLogger::GetActivityId() const
     {
         return &m_activityId;
@@ -75,8 +80,6 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::Initialize()
     {
-        std::ignore = CoCreateGuid(&m_activityId);
-
         m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
         m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
     }
@@ -536,6 +539,11 @@ namespace AppInstaller::Logging
     static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
 #endif
 
+    void GlobalTelemetryTraceLogger::Initialize()
+    {
+        logger.Initialize();
+    }
+
     TelemetryTraceLogger& Telemetry()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -551,8 +559,8 @@ namespace AppInstaller::Logging
         }
         else
         {
-            static TelemetryTraceLogger processGlobalTelemetry;
-            return processGlobalTelemetry;
+            static GlobalTelemetryTraceLogger processGlobalTelemetry;
+            return processGlobalTelemetry.logger;
         }
     }
 

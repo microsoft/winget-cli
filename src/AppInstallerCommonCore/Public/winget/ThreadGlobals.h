@@ -20,7 +20,7 @@ namespace AppInstaller::ThreadLocalStorage
 
         // Set Globals for Current Thread
         // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state
-        AppInstaller::ThreadLocalStorage::PreviousThreadGlobals* SetForCurrentThread();
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
         // Return Globals for Current Thread
         static ThreadGlobals* GetForCurrentThread();
@@ -29,14 +29,10 @@ namespace AppInstaller::ThreadLocalStorage
         
         void Initialize();
 
-        // Set and return Globals for Current Thread
-        static ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals = nullptr);
-
         std::unique_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
         std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger> m_pTelemetryLogger;
         std::once_flag loggerInitOnceFlag;
         
-        friend struct PreviousThreadGlobals;
     };
 
     struct PreviousThreadGlobals

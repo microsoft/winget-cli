@@ -5,6 +5,9 @@ namespace AppInstaller::ThreadLocalStorage
 {
     using namespace AppInstaller::Logging;
 
+    // Set and return Globals for Current Thread
+    static ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals = nullptr);
+
     DiagnosticLogger& ThreadGlobals::GetDiagnosticLogger()
     {
         return *(m_pDiagnosticLogger);
@@ -15,13 +18,13 @@ namespace AppInstaller::ThreadLocalStorage
         return *(m_pTelemetryLogger);
     }
 
-    PreviousThreadGlobals* ThreadGlobals::SetForCurrentThread()
+    std::unique_ptr<PreviousThreadGlobals> ThreadGlobals::SetForCurrentThread()
     {
         Initialize();
 
         std::unique_ptr<PreviousThreadGlobals> p_prevThreadGlobals = std::make_unique<PreviousThreadGlobals>(SetOrGetThreadGlobals(true, this));
 
-        return p_prevThreadGlobals.release();
+        return p_prevThreadGlobals;
     }
 
     void ThreadGlobals::Initialize()
@@ -32,11 +35,9 @@ namespace AppInstaller::ThreadLocalStorage
                 {
                     m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
                     m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();
-
-                    if (m_pTelemetryLogger)
-                    {
-                        m_pTelemetryLogger->Initialize();
-                    }
+                    
+                    // The above make_unique for TelemtryTraceLogger will either create an object or will throw which is caught below.
+                    m_pTelemetryLogger->Initialize();
                 });
         }
         catch (...)
@@ -52,7 +53,7 @@ namespace AppInstaller::ThreadLocalStorage
         return SetOrGetThreadGlobals(false);
     }
 
-    ThreadGlobals* ThreadGlobals::SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals)
+    ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals)
     {
         thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals* t_pThreadGlobals = nullptr;
 
@@ -68,6 +69,6 @@ namespace AppInstaller::ThreadLocalStorage
 
     PreviousThreadGlobals::~PreviousThreadGlobals()
     {
-        std::ignore = ThreadGlobals::SetOrGetThreadGlobals(true, m_previous);
+        std::ignore = SetOrGetThreadGlobals(true, m_previous);
     }
 }

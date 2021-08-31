@@ -16,7 +16,7 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        TelemetryTraceLogger() = default;
+        TelemetryTraceLogger();
 
         ~TelemetryTraceLogger() = default;
 
@@ -145,6 +145,17 @@ namespace AppInstaller::Logging
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
+    };
+
+    struct GlobalTelemetryTraceLogger
+    {
+        TelemetryTraceLogger logger;
+
+        GlobalTelemetryTraceLogger() = default;
+
+        ~GlobalTelemetryTraceLogger() = default;
+
+        void Initialize();
     };
 
     // Helper to make the call sites look clean.

@@ -123,7 +123,7 @@ namespace AppInstaller::CLI::Execution
         virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
 
         // Get Globals for Current Thread
-        AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobalsActive();
+        AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobals();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
