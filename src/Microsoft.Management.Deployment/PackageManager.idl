@@ -419,6 +419,12 @@ namespace Microsoft.Management.Deployment
         /// may require downloading information from a server.
         Windows.Foundation.IAsyncOperation<ConnectResult> ConnectAsync();
         ConnectResult Connect();
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
+        {
+            /// A string that will be passed to the source server if using a REST source
+            String AdditionalPackageCatalogArguments;
+        }
     }
 
     /// Catalogs with PackageCatalogOrigin Predefined

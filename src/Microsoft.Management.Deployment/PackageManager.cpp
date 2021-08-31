@@ -130,6 +130,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
+        if (!options)
+        {
+            // Can't make a composite source if the options aren't specified.
+            throw hresult_invalid_argument();
+        }
+
         for (uint32_t i = 0; i < options.Catalogs().Size(); ++i)
         {
             auto catalog = options.Catalogs().GetAt(i);
