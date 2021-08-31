@@ -131,7 +131,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        AICLI_LOG(CLI, Error, << "Package agreements not agreed to.");
+        AICLI_LOG(CLI, Error, << "Package agreements were not agreed to.");
         context.Reporter.Error() << Resource::String::PackageAgreementsNotAgreedTo << std::endl;
         AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     }
