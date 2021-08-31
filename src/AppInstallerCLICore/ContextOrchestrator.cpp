@@ -102,8 +102,11 @@ namespace AppInstaller::CLI::Execution
             try
             {
                 ::AppInstaller::CLI::RootCommand rootCommand;
+
+                std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
+
                 std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
-                ::AppInstaller::Logging::Telemetry().LogCommand(command->FullName());
+                item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);
 
                 item->GetContext().EnableCtrlHandler();
