@@ -63,8 +63,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 {
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
-                    ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+                    
+                    ::AppInstaller::Repository::SourceDetails details = catalogInfoImpl->GetSourceDetails();
+                    // If the AdditionalPackageCatalogArguments value has been explicitly set on the composite, then override the value on each individual catalog.
+                    if (m_compositeAdditionalPackageCatalogArguments.has_value())
+                    {
+                        details.CustomHeader = m_compositeAdditionalPackageCatalogArguments.value();
+                    }
+                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(details, progress).Source;
                     if (!remoteSource)
                     {
                         // If source is null, return the error. There's no way to get the hresult that caused the error right now.
@@ -87,8 +93,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else
             {
                 winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
-                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                source = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+                source = ::AppInstaller::Repository::OpenSourceFromDetails(catalogInfoImpl->GetSourceDetails(), progress).Source;
             }
 
             if (!source)
@@ -117,46 +122,39 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     hstring PackageCatalogReference::AdditionalPackageCatalogArguments()
     {
-        if (m_compositePackageCatalogOptions)
+        if (IsComposite())
         {
-            std::vector<std::shared_ptr<::AppInstaller::Repository::ISource>> remoteSources;
-
-            auto catalogItr = m_compositePackageCatalogOptions.Catalogs().First();
-            if (catalogItr.HasCurrent())
+            if (m_compositeAdditionalPackageCatalogArguments.has_value())
             {
-                winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalogItr.Current().Info());
-                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                return winrt::to_hstring(sourceDetails.CustomHeader.value());
+                // If this is a composite, then only return the value if it was set explicitly through the composite reference.
+                // Since composites contain multiple catalog references and each one could have a different value, there is no good string
+                // to return here if it wasn't set explicitly on the composite.
+                return winrt::to_hstring(m_compositeAdditionalPackageCatalogArguments.value());
             }
         }
         else
         {
             winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
             ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-            return winrt::to_hstring(sourceDetails.CustomHeader.value());
+            auto customHeader = catalogInfoImpl->GetSourceDetails().CustomHeader;
+            if (customHeader.has_value())
+            {
+                return winrt::to_hstring(customHeader.value());
+            }
         }
 
         return {};
     }
     void PackageCatalogReference::AdditionalPackageCatalogArguments(hstring const& value)
     {
-        if (m_compositePackageCatalogOptions)
+        if (IsComposite())
         {
-            std::vector<std::shared_ptr<::AppInstaller::Repository::ISource>> remoteSources;
-
-            for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
-            {
-                auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
-                winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
-                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                sourceDetails.CustomHeader = ::AppInstaller::Utility::ConvertToUTF8(value);
-            }
+            m_compositeAdditionalPackageCatalogArguments = ::AppInstaller::Utility::ConvertToUTF8(value);
         }
         else
         {
             winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
-            ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-            sourceDetails.CustomHeader = ::AppInstaller::Utility::ConvertToUTF8(value);
+            catalogInfoImpl->GetSourceDetails().CustomHeader = ::AppInstaller::Utility::ConvertToUTF8(value);
         }
     }
 }

@@ -20,5 +20,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_compositePackageCatalogOptions{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
+        std::optional<std::string> m_compositeAdditionalPackageCatalogArguments;
     };
 }
