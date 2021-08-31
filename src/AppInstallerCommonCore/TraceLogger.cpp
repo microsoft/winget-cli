@@ -15,7 +15,7 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            nullptr, // TODO: ActivityId of the Global and COMcontext telemetry to be logged in future
+            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }
