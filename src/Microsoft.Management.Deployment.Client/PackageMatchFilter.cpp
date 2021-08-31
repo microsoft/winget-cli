@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PackageMatchFilter.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+#include <PackageMatchFilter.h>
+#include <Client.PackageMatchFilter.h>
+#pragma warning( pop )
 #include "PackageMatchFilter.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PackageCatalogReference.h"
+#include <PackageCatalogReference.h>
 #include "PackageCatalogReference.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation

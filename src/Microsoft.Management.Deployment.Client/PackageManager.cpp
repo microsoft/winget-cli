@@ -1,5 +1,9 @@
 #include "pch.h"
-#include "PackageManager.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+#include <PackageManager.h>
+#include <Client.PackageManager.h>
+#pragma warning( pop )
 #include "PackageManager.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -28,4 +32,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
+    {
+        throw hresult_not_implemented();
+    }
+
 }

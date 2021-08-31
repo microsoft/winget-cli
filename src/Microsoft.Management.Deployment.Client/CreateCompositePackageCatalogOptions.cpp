@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "CreateCompositePackageCatalogOptions.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+#include <CreateCompositePackageCatalogOptions.h>
+#include <Client.CreateCompositePackageCatalogOptions.h>
+#pragma warning( pop )
 #include "CreateCompositePackageCatalogOptions.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation

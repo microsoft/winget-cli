@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "FindPackagesOptions.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+#include <FindPackagesOptions.h>
+#include <Client.FindPackagesOptions.h>
+#pragma warning( pop )
 #include "FindPackagesOptions.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation

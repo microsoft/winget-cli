@@ -1,11 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "InstallOptions.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 6388)
+#include <InstallOptions.h>
+#include <Client.InstallOptions.h>
+#pragma warning( pop )
 #include "InstallOptions.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    InstallOptions::InstallOptions()
+    {
+        throw hresult_not_implemented();
+    }
     winrt::Microsoft::Management::Deployment::PackageVersionId InstallOptions::PackageVersionId()
     {
         throw hresult_not_implemented();
@@ -75,6 +83,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         throw hresult_not_implemented();
     }
     void InstallOptions::AdditionalPackageCatalogArguments(hstring const&)
+    {
+        throw hresult_not_implemented();
+    }
+    winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> InstallOptions::AllowedArchitectures()
     {
         throw hresult_not_implemented();
     }

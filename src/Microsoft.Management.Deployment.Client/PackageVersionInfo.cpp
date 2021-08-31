@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PackageVersionInfo.h"
+#include <PackageVersionInfo.h>
 #include "PackageVersionInfo.g.cpp"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -35,6 +35,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         throw hresult_not_implemented();
     }
     winrt::Microsoft::Management::Deployment::PackageCatalog PackageVersionInfo::PackageCatalog()
+    {
+        throw hresult_not_implemented();
+    }
+    winrt::Microsoft::Management::Deployment::CompareResult PackageVersionInfo::CompareToVersion(hstring versionString)
     {
         throw hresult_not_implemented();
     }
