@@ -9,6 +9,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
     struct Interface : public V1_0::Interface
     {
         Interface(const std::string& restApi, IRestClient::Information information, const HttpClientHelper& httpClientHelper = {});
+        Interface(const std::string& restApi, IRestClient::Information information, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const HttpClientHelper& httpClientHelper = {});
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;

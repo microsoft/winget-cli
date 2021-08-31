@@ -33,6 +33,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         m_requiredRestApiHeaders[JsonHelper::GetUtilityString(ContractVersion)] = JsonHelper::GetUtilityString(Version_1_1_0.ToString());
     }
 
+    Interface::Interface(
+        const std::string& restApi,
+        IRestClient::Information information,
+        const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders,
+        const HttpClientHelper& httpClientHelper) : Interface::Interface(restApi, std::move(information), httpClientHelper)
+    {
+        if (!additionalHeaders.empty())
+        {
+            m_requiredRestApiHeaders.insert(additionalHeaders.begin(), additionalHeaders.end());
+        }
+    }
+
     Utility::Version Interface::GetVersion() const
     {
         return Version_1_1_0;

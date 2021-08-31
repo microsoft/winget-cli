@@ -154,6 +154,8 @@ namespace AppInstaller
                 return "Failed to open the source.";
             case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
                 return "Source agreements were not agreed to";
+            case APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH:
+                return "Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.";
             default:
                 return "Unknown Error Code";
             }

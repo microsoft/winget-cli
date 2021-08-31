@@ -20,6 +20,7 @@ namespace AppInstaller::Repository::Rest
     std::set<Version> WingetSupportedContracts = { Version_1_0_0, Version_1_1_0 };
 
     constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
+    constexpr size_t WindowsPackageManagerHeaderMaxLength = 1024;
 
     namespace {
         std::unordered_map<utility::string_t, utility::string_t> GetHeaders(std::optional<std::string> customHeader)
@@ -29,6 +30,8 @@ namespace AppInstaller::Repository::Rest
                 AICLI_LOG(Repo, Verbose, << "Custom header not found.");
                 return {};
             }
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH, customHeader.value().size() > WindowsPackageManagerHeaderMaxLength);
 
             std::unordered_map<utility::string_t, utility::string_t> headers;
             headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
@@ -125,11 +128,8 @@ namespace AppInstaller::Repository::Rest
         }
         else if (version == Version_1_1_0)
         {
-            return std::make_unique<Schema::V1_1::Interface>(api, information);
+            return std::make_unique<Schema::V1_1::Interface>(api, information, additionalHeaders);
         }
-
-        // TODO: USE additionalHeaders with V1.1 changes.
-        (void)additionalHeaders;
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }

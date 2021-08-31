@@ -90,8 +90,6 @@ namespace AppInstaller::CLI::Workflow
             sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
 
-        sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
-
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
