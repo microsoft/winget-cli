@@ -96,6 +96,10 @@ namespace AppInstaller::CLI
                 Workflow::GetSourceListWithFilter <<
                 Workflow::RemoveSources;
         }
+        else
+        {
+            context.Reporter.Info() << Resource::String::Done << std::endl;
+        }
     }
 
     std::vector<Argument> SourceListCommand::GetArguments() const

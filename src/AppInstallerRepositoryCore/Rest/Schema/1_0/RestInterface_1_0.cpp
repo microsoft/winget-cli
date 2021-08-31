@@ -234,7 +234,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         for (auto& manifestItem : manifests)
         {
             std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
-                AppInstaller::Manifest::ValidateManifest(manifestItem, true);
+                AppInstaller::Manifest::ValidateManifest(manifestItem, false);
 
             int errors = 0;
             for (auto& error : validationErrors)

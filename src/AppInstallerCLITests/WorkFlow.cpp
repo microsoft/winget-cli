@@ -540,7 +540,7 @@ void OverrideForSourceAddWithAgreements(TestContext& context)
         testSource->Details.Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
         testSource->Details.Information.RequiredPackageMatchFields.emplace_back("Market");
         testSource->Details.Information.RequiredQueryParameters.emplace_back("Market");
-        context.Add<Execution::Data::Source>(std::move(testSource));
+        context << Workflow::HandleSourceAgreements(testSource);
     } });
 }
 

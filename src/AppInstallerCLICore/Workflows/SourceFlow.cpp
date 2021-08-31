@@ -96,11 +96,7 @@ namespace AppInstaller::CLI::Workflow
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
-        {
-            context.Reporter.Info() << Resource::String::Done << std::endl;
-        }
-        else
+        if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
         }
@@ -110,18 +106,10 @@ namespace AppInstaller::CLI::Workflow
     {
         try
         {
-            Repository::SourceDetails sourceDetails;
-            sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
-            sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
+            auto sourceDetails = Repository::GetSource(context.Args.GetArg(Args::Type::SourceName));
+            sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
 
-            if (context.Args.Contains(Args::Type::SourceType))
-            {
-                sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
-            }
-
-            sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
-
-            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails, std::placeholders::_1), true);
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
 
             if (!result.Source)
             {
