@@ -64,13 +64,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
                     
-                    ::AppInstaller::Repository::SourceDetails details = catalogInfoImpl->GetSourceDetails();
-                    // If the AdditionalPackageCatalogArguments value has been explicitly set on the composite, then override the value on each individual catalog.
-                    if (m_compositeAdditionalPackageCatalogArguments.has_value())
-                    {
-                        details.CustomHeader = m_compositeAdditionalPackageCatalogArguments.value();
-                    }
-                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(details, progress).Source;
+                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(catalogInfoImpl->GetSourceDetails(), progress).Source;
                     if (!remoteSource)
                     {
                         // If source is null, return the error. There's no way to get the hresult that caused the error right now.
@@ -122,17 +116,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     hstring PackageCatalogReference::AdditionalPackageCatalogArguments()
     {
-        if (IsComposite())
-        {
-            if (m_compositeAdditionalPackageCatalogArguments.has_value())
-            {
-                // If this is a composite, then only return the value if it was set explicitly through the composite reference.
-                // Since composites contain multiple catalog references and each one could have a different value, there is no good string
-                // to return here if it wasn't set explicitly on the composite.
-                return winrt::to_hstring(m_compositeAdditionalPackageCatalogArguments.value());
-            }
-        }
-        else
+        if (!IsComposite())
         {
             winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
             ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
@@ -149,8 +133,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (IsComposite())
         {
-            // Store the value to allow this value to override the individual values stored in each PackageCatalogReference \ SourceDetails in the composite source.
-            m_compositeAdditionalPackageCatalogArguments = ::AppInstaller::Utility::ConvertToUTF8(value);
+            // Can't set AdditionalPackageCatalogArguments on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_error(ERROR_INVALID_STATE);
         }
         else
         {
