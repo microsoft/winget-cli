@@ -165,7 +165,7 @@
         }
       }
     },
-    "ReturnCode": {
+    "InstallerReturnCode": {
       "type": "integer",
       "not": {
         "enum": [ 0 ]
@@ -175,7 +175,7 @@
     "InstallerSuccessCodes": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/definitions/ReturnCode"
+        "$ref": "#/definitions/InstallerReturnCode"
       },
       "maxItems": 16,
       "uniqueItems": true,
@@ -185,28 +185,28 @@
       "type": "object",
       "properties": {
         "PackageInUse": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "InstallInProgress": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "FileInUse": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "MissingDependency": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "DiskFull": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "InsufficientMemory": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "NoNetwork": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         },
         "ContactSupport": {
-          "$ref": "#/definitions/ReturnCode"
+          "$ref": "#/definitions/InstallerReturnCode"
         }
       },
       "description": "Installer exit codes for common errors"
