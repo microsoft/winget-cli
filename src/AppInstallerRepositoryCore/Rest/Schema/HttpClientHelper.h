@@ -7,7 +7,7 @@
 #include <optional>
 #include <vector>
 
-namespace AppInstaller::Repository::Rest
+namespace AppInstaller::Repository::Rest::Schema
 {
     struct HttpClientHelper
     {

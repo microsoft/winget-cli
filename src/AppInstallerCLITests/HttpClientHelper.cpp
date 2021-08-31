@@ -4,9 +4,9 @@
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
 #include <AppInstallerErrors.h>
-#include <Rest/HttpClientHelper.h>
+#include <Rest/Schema/HttpClientHelper.h>
 
-using namespace AppInstaller::Repository::Rest;
+using namespace AppInstaller::Repository::Rest::Schema;
 
 TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 {
@@ -18,4 +18,10 @@ TEST_CASE("ValidateAndExtractResponse_ServiceUnavailable", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::ServiceUnavailable) };
     REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, web::http::status_codes::ServiceUnavailable));
+}
+
+TEST_CASE("ValidateAndExtractResponse_NotFound", "[RestSource]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }

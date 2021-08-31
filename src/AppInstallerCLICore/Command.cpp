@@ -12,26 +12,12 @@ using namespace AppInstaller::Settings;
 namespace AppInstaller::CLI
 {
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
-    constexpr std::string_view s_CommandException_ReplacementToken = "%1"sv;
 
     const Utility::LocIndString CommandException::Message() const
     {
         if (m_replace)
         {
-            std::string result;
-
-            // Find the %1 in the message
-            std::string_view message = m_message.get();
-            size_t index = message.find(s_CommandException_ReplacementToken);
-
-            if (index != std::string::npos)
-            {
-                result = message.substr(0, index);
-                result += m_replace.value();
-                result += message.substr(index + s_CommandException_ReplacementToken.length());
-
-                return Utility::LocIndString{ std::move(result) };
-            }
+            return Utility::LocIndString{ Utility::FindAndReplaceMessageToken(m_message, m_replace.value()) };
         }
 
         // Fall back to just using the message.
@@ -679,7 +665,7 @@ namespace AppInstaller::CLI
         if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
            !execArgs.Contains(Execution::Args::Type::SourceName))
         {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name(), {});
+            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name());
         }
 
         ValidateArgumentsInternal(execArgs);

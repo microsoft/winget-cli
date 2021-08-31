@@ -24,11 +24,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
     {
         m_compositePackageCatalogOptions = options;
-        m_isComposite = true;
     }
     bool PackageCatalogReference::IsComposite()
     {
-        return m_isComposite;
+        return (m_compositePackageCatalogOptions != nullptr);
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogInfo PackageCatalogReference::Info()
     {
@@ -64,8 +63,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 {
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(catalog.Info());
-                    ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+                    
+                    std::shared_ptr<::AppInstaller::Repository::ISource> remoteSource = ::AppInstaller::Repository::OpenSourceFromDetails(catalogInfoImpl->GetSourceDetails(), progress).Source;
                     if (!remoteSource)
                     {
                         // If source is null, return the error. There's no way to get the hresult that caused the error right now.
@@ -88,8 +87,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else
             {
                 winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
-                ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
-                source = ::AppInstaller::Repository::OpenSourceFromDetails(sourceDetails, progress).Source;
+                source = ::AppInstaller::Repository::OpenSourceFromDetails(catalogInfoImpl->GetSourceDetails(), progress).Source;
             }
 
             if (!source)
@@ -114,5 +112,34 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
         connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
         return *connectResult;
+    }
+
+    hstring PackageCatalogReference::AdditionalPackageCatalogArguments()
+    {
+        if (!IsComposite())
+        {
+            winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
+            ::AppInstaller::Repository::SourceDetails sourceDetails = catalogInfoImpl->GetSourceDetails();
+            auto customHeader = catalogInfoImpl->GetSourceDetails().CustomHeader;
+            if (customHeader.has_value())
+            {
+                return winrt::to_hstring(customHeader.value());
+            }
+        }
+
+        return {};
+    }
+    void PackageCatalogReference::AdditionalPackageCatalogArguments(hstring const& value)
+    {
+        if (IsComposite())
+        {
+            // Can't set AdditionalPackageCatalogArguments on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+        else
+        {
+            winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo* catalogInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>(m_info);
+            catalogInfoImpl->GetSourceDetails().CustomHeader = ::AppInstaller::Utility::ConvertToUTF8(value);
+        }
     }
 }

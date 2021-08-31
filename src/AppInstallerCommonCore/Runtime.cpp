@@ -220,6 +220,12 @@ namespace AppInstaller::Runtime
 
         return LocIndString{ strstr.str() };
     }
+
+    std::string GetOSRegion()
+    {
+        winrt::Windows::Globalization::GeographicRegion region;
+        return Utility::ConvertToUTF8(region.CodeTwoLetter());
+    }
 #endif
 
     std::filesystem::path GetPathTo(PathName path)

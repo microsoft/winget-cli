@@ -78,6 +78,7 @@ namespace AppInstaller::CLI::Execution
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
             CustomHeader, // Optional Rest source header
+            AcceptSourceAgreements, // Accept all source agreements
 
             // Used for demonstration purposes
             ExperimentalArg,

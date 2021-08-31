@@ -13,6 +13,7 @@ namespace AppInstaller::Utility
     using namespace std::string_view_literals;
     constexpr std::string_view s_SpaceChars = AICLI_SPACE_CHARS;
     constexpr std::wstring_view s_WideSpaceChars = L"" AICLI_SPACE_CHARS;
+    constexpr std::string_view s_MessageReplacementToken = "%1"sv;
 
     namespace
     {
@@ -502,6 +503,13 @@ namespace AppInstaller::Utility
             result.resize(result.size() - 1);
         }
 
+        return result;
+    }
+
+    std::string FindAndReplaceMessageToken(std::string_view message, std::string_view value)
+    {
+        std::string result{ message };
+        FindAndReplace(result, s_MessageReplacementToken, value);
         return result;
     }
 }

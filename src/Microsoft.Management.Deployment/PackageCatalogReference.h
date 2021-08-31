@@ -15,9 +15,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo Info();
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectAsync();
         winrt::Microsoft::Management::Deployment::ConnectResult Connect();
+        hstring AdditionalPackageCatalogArguments();
+        void AdditionalPackageCatalogArguments(hstring const& value);
     private:
         winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_compositePackageCatalogOptions{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
-        bool m_isComposite = false;
     };
 }
