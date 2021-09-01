@@ -96,6 +96,7 @@ namespace AppInstaller
     // Gets error messages that are presentable to the user.
     std::string GetUserPresentableMessage(const wil::ResultException& re);
     std::string GetUserPresentableMessage(const std::exception& e);
+    std::string GetUserPresentableMessage(HRESULT hr);
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
     std::string GetUserPresentableMessage(const winrt::hresult_error& hre);

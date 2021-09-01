@@ -500,11 +500,9 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const wil::ResultException& re)
         {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "MSIX", re.GetErrorCode());
-
-            context.Reporter.Error() << GetUserPresentableMessage(re) << std::endl;
-            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+            context.Add<Execution::Data::InstallerReturnCode>(re.GetErrorCode());
+            context << ReportInstallerResult("MSIX", /* isHResult */ true);
+            return;
         }
 
         if (registrationDeferred)
@@ -525,7 +523,17 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
-            context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+
+            HRESULT hr = APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED;
+            if (m_isHResult)
+            {
+                hr = installResult;
+                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << GetUserPresentableMessage(installResult) << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+            }
 
             // Show installer log path if exists
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
@@ -543,7 +551,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
+            AICLI_TERMINATE_CONTEXT(hr);
         }
         else
         {

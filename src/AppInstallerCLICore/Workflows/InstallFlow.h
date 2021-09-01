@@ -116,17 +116,21 @@ namespace AppInstaller::CLI::Workflow
 
     // Reports the return code returned by the installer.
     // Required Args: None
-    // Inputs: Installer, InstallerResult
+    // Inputs: Manifest, Installer, InstallerResult
     // Outputs: None
     struct ReportInstallerResult : public WorkflowTask
     {
-        ReportInstallerResult(std::string_view installerType) : WorkflowTask("ReportInstallerResult"), m_installerType(installerType) {}
+        ReportInstallerResult(std::string_view installerType, bool isHResult = false) :
+            WorkflowTask("ReportInstallerResult"), m_installerType(installerType), m_isHResult(isHResult) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        // Installer type used when reporting failures
+        // Installer type used when reporting failures.
         std::string_view m_installerType;
+        // Whether the installer result is an HRESULT.
+        // In case of failure we would return that HRESULT directly instead of a generic one.
+        bool m_isHResult;
     };
 
 
