@@ -83,28 +83,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view Capabilities = "Capabilities"sv;
         constexpr std::string_view RestrictedCapabilities = "RestrictedCapabilities"sv;
 
-        std::vector<Manifest::string_t> ConvertToManifestStringArray(const std::vector<std::string>& values)
-        {
-            std::vector<Manifest::string_t> result;
-            for (const auto& value : values)
-            {
-                result.emplace_back(value);
-            }
-
-            return result;
-        }
-
-        template <Manifest::Localization L>
-        void TryParseStringLocaleField(Manifest::ManifestLocalization& manifestLocale, const web::json::value& localeJsonObject, std::string_view localeJsonFieldName)
-        {
-            auto value = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(localeJsonFieldName));
-
-            if (JsonHelper::IsValidNonEmptyStringValue(value))
-            {
-                manifestLocale.Add<L>(value.value());
-            }
-        }
-
         void TryParseInstallerSwitchField(
             std::map<InstallerSwitchType, Utility::NormalizedString>& installerSwitches,
             InstallerSwitchType switchType,
@@ -523,5 +501,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         return InstallerTypeEnum::Unknown;
+    }
+
+    std::vector<Manifest::string_t> ManifestDeserializer::ConvertToManifestStringArray(const std::vector<std::string>& values) const
+    {
+        std::vector<Manifest::string_t> result;
+        for (const auto& value : values)
+        {
+            result.emplace_back(value);
+        }
+
+        return result;
     }
 }
