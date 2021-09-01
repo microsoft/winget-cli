@@ -57,35 +57,35 @@ namespace AppInstaller::CLI::Workflow
 
         struct ExpectedReturnCode
         {
-            ExpectedReturnCode(InstallerReturnCodeEnum installerReturnCode, HRESULT hr, Resource::StringId message) :
+            ExpectedReturnCode(ExpectedReturnCodeEnum installerReturnCode, HRESULT hr, Resource::StringId message) :
                 InstallerReturnCode(installerReturnCode), HResult(hr), Message(message) {}
 
-            static ExpectedReturnCode GetExpectedReturnCode(InstallerReturnCodeEnum returnCode)
+            static ExpectedReturnCode GetExpectedReturnCode(ExpectedReturnCodeEnum returnCode)
             {
                 switch (returnCode)
                 {
-                case InstallerReturnCodeEnum::PackageInUse:
+                case ExpectedReturnCodeEnum::PackageInUse:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, Resource::String::InstallFlowReturnCodePackageInUse);
-                case InstallerReturnCodeEnum::InstallInProgress:
+                case ExpectedReturnCodeEnum::InstallInProgress:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS, Resource::String::InstallFlowReturnCodeInstallInProgress);
-                case InstallerReturnCodeEnum::FileInUse:
+                case ExpectedReturnCodeEnum::FileInUse:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE, Resource::String::InstallFlowReturnCodeFileInUse);
-                case InstallerReturnCodeEnum::MissingDependency:
+                case ExpectedReturnCodeEnum::MissingDependency:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY, Resource::String::InstallFlowReturnCodeMissingDependency);
-                case InstallerReturnCodeEnum::DiskFull:
+                case ExpectedReturnCodeEnum::DiskFull:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL, Resource::String::InstallFlowReturnCodeDiskFull);
-                case InstallerReturnCodeEnum::InsufficientMemory:
+                case ExpectedReturnCodeEnum::InsufficientMemory:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY, Resource::String::InstallFlowReturnCodeInsufficientMemory);
-                case InstallerReturnCodeEnum::NoNetwork:
+                case ExpectedReturnCodeEnum::NoNetwork:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK, Resource::String::InstallFlowReturnCodeNoNetwork);
-                case InstallerReturnCodeEnum::ContactSupport:
+                case ExpectedReturnCodeEnum::ContactSupport:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT, Resource::String::InstallFlowReturnCodeContactSupport);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
             }
 
-            InstallerReturnCodeEnum InstallerReturnCode;
+            ExpectedReturnCodeEnum InstallerReturnCode;
             HRESULT HResult;
             Resource::StringId Message;
         };
@@ -534,14 +534,13 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Show a specific message if we can identify the return code
-            for (const auto& expectedReturnCode : context.Get<Execution::Data::Installer>()->ExpectedReturnCodes)
+            const auto& expectedReturnCodes = context.Get<Execution::Data::Installer>()->ExpectedReturnCodes;
+            auto expectedReturnCodeItr = expectedReturnCodes.find(installResult);
+            if (expectedReturnCodeItr != expectedReturnCodes.end() && expectedReturnCodeItr->second != ExpectedReturnCodeEnum::Unknown)
             {
-                if (installResult == expectedReturnCode.second)
-                {
-                    auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCode.first);
-                    context.Reporter.Error() << returnCode.Message << std::endl;
-                    AICLI_TERMINATE_CONTEXT(returnCode.HResult);
-                }
+                auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second);
+                context.Reporter.Error() << returnCode.Message << std::endl;
+                AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);

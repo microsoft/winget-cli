@@ -51,7 +51,7 @@ namespace AppInstaller::Manifest
 
         std::vector<DWORD> InstallerSuccessCodes;
 
-        std::map<InstallerReturnCodeEnum, DWORD> ExpectedReturnCodes;
+        std::map<DWORD, ExpectedReturnCodeEnum> ExpectedReturnCodes;
 
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 

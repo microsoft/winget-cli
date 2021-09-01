@@ -262,6 +262,46 @@ namespace AppInstaller::Manifest
         }
     }
 
+    ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in)
+    {
+        ExpectedReturnCodeEnum result = ExpectedReturnCodeEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "PackageInUse"))
+        {
+            result = ExpectedReturnCodeEnum::PackageInUse;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "InstallInProgress"))
+        {
+            result = ExpectedReturnCodeEnum::InstallInProgress;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "FileInUse"))
+        {
+            result = ExpectedReturnCodeEnum::FileInUse;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "MissingDependency"))
+        {
+            result = ExpectedReturnCodeEnum::MissingDependency;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "DiskFull"))
+        {
+            result = ExpectedReturnCodeEnum::DiskFull;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "InsufficientMemory"))
+        {
+            result = ExpectedReturnCodeEnum::InsufficientMemory;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "NoNetwork"))
+        {
+            result = ExpectedReturnCodeEnum::NoNetwork;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "ContactSupport"))
+        {
+            result = ExpectedReturnCodeEnum::ContactSupport;
+        }
+
+        return result;
+    }
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType)
     {
         switch (installerType)
@@ -374,6 +414,37 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
+        default:
+            return {};
+        }
+    }
+
+    std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Msi:
+            // See https://docs.microsoft.com/windows/win32/msi/error-codes
+            return
+            {
+                { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
+                { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
+                // { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredSuccess },
+                // { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootRequiredSuccess },
+                // { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::UserCancelled },
+            };
+        case InstallerTypeEnum::Inno:
+            // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
+            return
+            {
+                // { 2, ExpectedReturnCodeEnum::UserCancelled },
+                // { 5, ExpectedReturnCodeEnum::UserCancelled },
+                // { 8, ExpectedReturnCodeEnum::RebootRequiredFailure },
+            };
+        case InstallerTypeEnum::Msix:
+            // See https://docs.microsoft.com/en-us/windows/win32/appxpkg/troubleshooting
         default:
             return {};
         }

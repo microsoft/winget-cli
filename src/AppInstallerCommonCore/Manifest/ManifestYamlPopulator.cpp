@@ -254,7 +254,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> v1_1CommonFields =
                 {
-                    { "ExpectedReturnCodes", [this](const YAML::Node& value)->ValidationErrors { m_p_returnCodes = &(m_p_installer->ExpectedReturnCodes); return ValidateAndProcessFields(value, ExpectedReturnCodesFieldInfos); } },
+                    { "ExpectedReturnCodes", [this](const YAML::Node& value)->ValidationErrors { return ProcessExpectedReturnCodesNode(value); } },
                 };
 
                 std::move(v1_1CommonFields.begin(), v1_1CommonFields.end(), std::inserter(result, result.end()));
@@ -298,14 +298,8 @@ namespace AppInstaller::Manifest
 
         if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
         {
-            result.emplace_back("PackageInUse", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::PackageInUse] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("InstallInProgress", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::InstallInProgress] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("FileInUse", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::FileInUse] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("MissingDependency", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::MissingDependency] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("DiskFull", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::DiskFull] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("InsufficientMemory", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::InsufficientMemory] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("NoNetwork", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::NoNetwork] = static_cast<DWORD>(value.as<int>()); return {}; });
-            result.emplace_back("ContactSupport", [this](const YAML::Node& value)->ValidationErrors { (*m_p_returnCodes)[InstallerReturnCodeEnum::ContactSupport] = static_cast<DWORD>(value.as<int>()); return {}; });
+            result.emplace_back("InstallerReturnCode", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->InstallerReturnCode = static_cast<int>(value.as<int>()); return {}; });
+            result.emplace_back("ReturnResponse", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>()); return {}; });
         }
 
         return result;
@@ -531,7 +525,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    std::vector<ValidationError> ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
+    ValidationErrors ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
     {
         ValidationErrors resultErrors;
         std::vector<Agreement> agreements;
@@ -550,6 +544,30 @@ namespace AppInstaller::Manifest
             m_p_localization->Add<Localization::Agreements>(std::move(agreements));
         }
 
+        return resultErrors;
+    }
+
+    ValidationErrors ManifestYamlPopulator::ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !returnCodesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::map<DWORD, ExpectedReturnCodeEnum> returnCodes;
+
+        for (auto const& entry : returnCodesNode.Sequence())
+        {
+            ExpectedReturnCode returnCode;
+            m_p_expectedReturnCode = &returnCode;
+            auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second)
+            {
+                resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
+            }
+        }
+
+        m_p_installer->ExpectedReturnCodes = returnCodes;
         return resultErrors;
     }
 
@@ -621,6 +639,16 @@ namespace AppInstaller::Manifest
                 if (installer.Switches.find(defaultSwitch.first) == installer.Switches.end())
                 {
                     installer.Switches[defaultSwitch.first] = defaultSwitch.second;
+                }
+            }
+
+            // Populate installer default return codes if not present
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            for (auto const& defaultReturnCode : defaultReturnCodes)
+            {
+                if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end())
+                {
+                    installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
                 }
             }
 

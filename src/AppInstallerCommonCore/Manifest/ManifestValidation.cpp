@@ -143,12 +143,12 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
             }
 
-            // Check expected return codes for duplicates
+            // Check expected return codes for duplicates between successful and expected error codes
             std::set<DWORD> returnCodeSet;
             returnCodeSet.insert(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end());
             for (const auto& code : installer.ExpectedReturnCodes)
             {
-                if (!returnCodeSet.insert(code.second).second)
+                if (!returnCodeSet.insert(code.first).second)
                 {
                     resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
 

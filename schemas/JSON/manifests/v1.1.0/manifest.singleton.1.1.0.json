@@ -182,33 +182,29 @@
       "description": "List of additional non-zero installer success exit codes other than known default values by winget"
     },
     "ExpectedReturnCodes": {
-      "type": "object",
-      "properties": {
-        "PackageInUse": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "InstallInProgress": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "FileInUse": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "MissingDependency": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "DiskFull": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "InsufficientMemory": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "NoNetwork": {
-          "$ref": "#/definitions/InstallerReturnCode"
-        },
-        "ContactSupport": {
-          "$ref": "#/definitions/InstallerReturnCode"
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "InstallerReturnCode": {
+            "$ref": "#/definitions/InstallerReturnCode"
+          },
+          "ReturnResponse": {
+            "type": [ "string", "null" ],
+            "enum": [
+              "PackageInUse",
+              "InstallInProgress",
+              "FileInUse",
+              "MissingDependency",
+              "DiskFull",
+              "InsufficientMemory",
+              "NoNetwork",
+              "ContactSupport"
+            ]
+          }
         }
       },
+      "maxItems": 16,
       "description": "Installer exit codes for common errors"
     },
     "UpgradeBehavior": {

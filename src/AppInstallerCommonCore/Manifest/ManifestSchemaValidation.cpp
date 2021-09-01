@@ -25,14 +25,7 @@ namespace AppInstaller::Manifest::YamlParser
         const std::map<std::string_view, YamlScalarType> ManifestFieldTypes=
         {
             { "InstallerSuccessCodes"sv, YamlScalarType::Int },
-            { "PackageInUse"sv, YamlScalarType::Int },
-            { "InstallInProgress"sv, YamlScalarType::Int },
-            { "FileInUse"sv, YamlScalarType::Int },
-            { "MissingDependency"sv, YamlScalarType::Int },
-            { "DiskFull"sv, YamlScalarType::Int },
-            { "InsufficientMemory"sv, YamlScalarType::Int },
-            { "NoNetwork"sv, YamlScalarType::Int },
-            { "ContactSupport"sv, YamlScalarType::Int },
+            { "InstallerReturnCode"sv, YamlScalarType::Int },
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)

@@ -12,13 +12,21 @@ Installers:
       InstallerType: exe
       InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
       ExpectedReturnCodes:
-          PackageInUse: 1
-          InstallInProgress: 2
-          FileInUse: 3
-          MissingDependency: 4
-          DiskFull: 5
-          InsufficientMemory: 6
-          NoNetwork: 7
-          ContactSupport: 8
+          - InstallerReturnCode: 1
+            ReturnResponse: PackageInUse
+          - InstallerReturnCode: 2
+            ReturnResponse: InstallInProgress
+          - InstallerReturnCode: 3
+            ReturnResponse: FileInUse
+          - InstallerReturnCode: 4
+            ReturnResponse: MissingDependency
+          - InstallerReturnCode: 5
+            ReturnResponse: DiskFull
+          - InstallerReturnCode: 6
+            ReturnResponse: InsufficientMemory
+          - InstallerReturnCode: 7
+            ReturnResponse: NoNetwork
+          - InstallerReturnCode: 8
+            ReturnResponse: ContactSupport
 ManifestType: singleton
 ManifestVersion: 1.1.0

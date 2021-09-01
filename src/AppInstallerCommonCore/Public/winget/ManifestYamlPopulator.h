@@ -39,7 +39,7 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
         AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
         std::map<InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
-        std::map<InstallerReturnCodeEnum, DWORD>* m_p_returnCodes = nullptr;
+        AppInstaller::Manifest::ExpectedReturnCode* m_p_expectedReturnCode = nullptr;
         AppInstaller::Manifest::DependencyList* m_p_dependencyList = nullptr;
         AppInstaller::Manifest::Dependency* m_p_packageDependency = nullptr;
         AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
@@ -69,6 +69,7 @@ namespace AppInstaller::Manifest
         void ProcessDependenciesNode(DependencyType type, const YAML::Node& rootNode);
         std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode);
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode);
+        std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
 
         std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
     };
