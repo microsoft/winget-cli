@@ -1,7 +1,7 @@
 ---
 author: Ashwini Patil @ashpatil
 created on: 2021-08-11
-last updated: 2021-08-11
+last updated: 2021-09-01
 issue id: 893
 ---
 
@@ -28,7 +28,7 @@ The client will send the header as a value of HTTP header named `Windows-Package
 
 ## UI/UX Design
 
-An optional command-line argument named `--header` will be exposed on the commands `winget source add, search, install, uninstall, list, upgrade and show`. Support for `import/export` commands with header will be added when we get more information on how custom header will be used in those commands.
+An optional command-line argument named `--header` will be exposed on the winget commands `source add, search, install, uninstall, list, upgrade and show`. Support for `import/export` commands with header will be added when we get more information on how custom header will be used in those commands.
 
 ### Accessibility
 
