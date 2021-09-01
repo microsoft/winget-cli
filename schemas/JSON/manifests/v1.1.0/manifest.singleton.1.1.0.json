@@ -37,7 +37,7 @@
       "type": "object",
       "properties": {
         "AgreementLabel": {
-          "type": "string",
+          "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 100,
           "description": "The label of the Agreement. i.e. EULA, AgeRating, etc. This field should be localized. Either Agreement or AgreementUrl is required. When we show the agreements, we would Bold the AgreementLabel"
