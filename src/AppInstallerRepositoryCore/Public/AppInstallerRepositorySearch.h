@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
@@ -43,6 +44,8 @@ namespace AppInstaller::Repository
         PackageFamilyName,
         ProductCode,
         NormalizedNameAndPublisher,
+        Market,
+        Unknown = 9999
     };
 
     // A single match to be performed during a search.
@@ -263,55 +266,33 @@ namespace AppInstaller::Repository
         bool Truncated = false;
     };
 
-    inline std::string_view MatchTypeToString(MatchType type)
+    struct UnsupportedRequestException : public wil::ResultException
     {
-        using namespace std::string_view_literals;
+        UnsupportedRequestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST) {}
 
-        switch (type)
-        {
-        case MatchType::Exact:
-            return "Exact"sv;
-        case MatchType::CaseInsensitive:
-            return "CaseInsensitive"sv;
-        case MatchType::StartsWith:
-            return "StartsWith"sv;
-        case MatchType::Substring:
-            return "Substring"sv;
-        case MatchType::Wildcard:
-            return "Wildcard"sv;
-        case MatchType::Fuzzy:
-            return "Fuzzy"sv;
-        case MatchType::FuzzySubstring:
-            return "FuzzySubstring"sv;
-        }
+        UnsupportedRequestException(
+            std::vector<std::string> unsupportedPackageMatchFields,
+            std::vector<std::string> requiredPackageMatchFields,
+            std::vector<std::string> unsupportedQueryParameters,
+            std::vector<std::string> requiredQueryParameters) :
+            wil::ResultException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST),
+            UnsupportedPackageMatchFields(std::move(unsupportedPackageMatchFields)), RequiredPackageMatchFields(std::move(requiredPackageMatchFields)),
+            UnsupportedQueryParameters(std::move(unsupportedQueryParameters)), RequiredQueryParameters(std::move(requiredQueryParameters)) {}
 
-        return "UnknownMatchType"sv;
-    }
+        std::vector<std::string> UnsupportedPackageMatchFields;
+        std::vector<std::string> RequiredPackageMatchFields;
+        std::vector<std::string> UnsupportedQueryParameters;
+        std::vector<std::string> RequiredQueryParameters;
 
-    inline std::string_view PackageMatchFieldToString(PackageMatchField matchField)
-    {
-        using namespace std::string_view_literals;
+        const char* what() const noexcept override;
 
-        switch (matchField)
-        {
-        case PackageMatchField::Command:
-            return "Command"sv;
-        case PackageMatchField::Id:
-            return "Id"sv;
-        case PackageMatchField::Moniker:
-            return "Moniker"sv;
-        case PackageMatchField::Name:
-            return "Name"sv;
-        case PackageMatchField::Tag:
-            return "Tag"sv;
-        case PackageMatchField::PackageFamilyName:
-            return "PackageFamilyName"sv;
-        case PackageMatchField::ProductCode:
-            return "ProductCode"sv;
-        case PackageMatchField::NormalizedNameAndPublisher:
-            return "NormalizedNameAndPublisher"sv;
-        }
+    private:
+        mutable std::string m_whatMessage;
+    };
 
-        return "UnknownMatchField"sv;
-    }
+    std::string_view MatchTypeToString(MatchType type);
+
+    std::string_view PackageMatchFieldToString(PackageMatchField matchField);
+
+    PackageMatchField StringToPackageMatchField(std::string_view field);
 }

@@ -315,6 +315,18 @@ namespace AppInstaller::Repository::Rest
         : m_details(details), m_restClient(std::move(restClient))
     {
         m_details.Identifier = std::move(identifier);
+
+        const auto& sourceInformation = m_restClient.GetSourceInformation();
+        m_details.Information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
+        m_details.Information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
+        m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
+        m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+
+        m_details.Information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
+        for (auto const& agreement : sourceInformation.SourceAgreements)
+        {
+            m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+        }
     }
 
     const SourceDetails& RestSource::GetDetails() const
@@ -334,7 +346,7 @@ namespace AppInstaller::Repository::Rest
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        RestClient::SearchResult results = m_restClient.Search(request);
+        IRestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
         std::shared_ptr<const RestSource> sharedThis = shared_from_this();
@@ -347,6 +359,8 @@ namespace AppInstaller::Repository::Rest
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }
+
+        searchResult.Truncated = results.Truncated;
 
         return searchResult;
     }

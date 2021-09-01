@@ -15,6 +15,15 @@ bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
 
+struct TraceProvider
+{
+    TraceProvider();
+
+    ~TraceProvider();
+};
+
+TraceProvider g_TraceProvider{};
+
 void WINAPI TelemetryProviderEnabledCallback(
     _In_      LPCGUID /*sourceId*/,
     _In_      ULONG isEnabled,
@@ -29,12 +38,12 @@ void WINAPI TelemetryProviderEnabledCallback(
     g_TelemetryProviderMatchAnyKeyword = matchAnyKeyword;
 }
 
-void RegisterTraceLogging()
+TraceProvider::TraceProvider()
 {
     TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
 }
 
-void UnRegisterTraceLogging()
+TraceProvider::~TraceProvider()
 {
     TraceLoggingUnregister(g_hTraceProvider);
 }

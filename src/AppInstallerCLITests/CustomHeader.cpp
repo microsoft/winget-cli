@@ -6,7 +6,7 @@
 #include "TestSettings.h"
 #include "TestSource.h"
 #include "TestRestRequestHandler.h"
-#include <Rest/Schema/1_0/Interface.h>
+#include <Rest/Schema/1_1/Interface.h>
 #include <Rest/Schema/JsonHelper.h>
 #include <Rest/RestClient.h>
 #include <winget/Settings.h>
@@ -160,4 +160,53 @@ TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]"
     details.CustomHeader = {};
     auto source = OpenSourceFromDetails(details, progress).Source;
     REQUIRE(!source.get()->GetDetails().CustomHeader.has_value());
+}
+
+TEST_CASE("RestSourceSearch_CustomHeader", "[RestSource][CustomHeader]")
+{
+    utility::string_t customHeader = L"Testing custom header";
+    auto header = std::make_pair<>(CustomHeaderName, customHeader);
+    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
+    std::unordered_map<utility::string_t, utility::string_t> headers;
+    headers.emplace(CustomHeaderName, customHeader);
+
+    V1_1::Interface v1_1{ "https://restsource.com/api", {}, headers, std::move(helper) };
+    Schema::IRestClient::SearchResult searchResponse = v1_1.Search({});
+    REQUIRE(searchResponse.Matches.size() == 1);
+    Schema::IRestClient::Package package = searchResponse.Matches.at(0);
+}
+
+TEST_CASE("RestSourceSearch_WhitespaceCustomHeader", "[RestSource][CustomHeader]")
+{
+    utility::string_t customHeader = L"    ";
+    auto header = std::make_pair<>(CustomHeaderName, customHeader);
+    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
+    std::unordered_map<utility::string_t, utility::string_t> headers;
+    headers.emplace(CustomHeaderName, customHeader);
+
+    V1_1::Interface v1_1{ "https://restsource.com/api", {}, headers, std::move(helper) };
+    Schema::IRestClient::SearchResult searchResponse = v1_1.Search({});
+    REQUIRE(searchResponse.Matches.size() == 1);
+}
+
+TEST_CASE("RestSourceSearch_NoCustomHeader", "[RestSource][CustomHeader]")
+{
+    utility::string_t customHeader = L"    ";
+    auto header = std::make_pair<>(CustomHeaderName, customHeader);
+    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
+    std::unordered_map<utility::string_t, utility::string_t> headers;
+    headers.emplace(CustomHeaderName, customHeader);
+
+    V1_1::Interface v1_1{ "https://restsource.com/api", {}, {}, std::move(helper) };
+    REQUIRE_THROWS_HR(v1_1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
+}
+
+TEST_CASE("RestSourceSearch_CustomHeaderExceedingSize", "[RestSource][CustomHeader]")
+{
+    std::string customHeader = "This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. This is a custom header that is longer than 1024 characters. ";
+    auto header = std::make_pair<>(CustomHeaderName, JsonHelper::GetUtilityString(customHeader));
+    HttpClientHelper helper{ GetCustomHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
+
+    REQUIRE_THROWS_HR(RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, std::move(helper)),
+        APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH);
 }

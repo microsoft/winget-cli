@@ -31,6 +31,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 

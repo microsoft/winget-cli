@@ -41,6 +41,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 

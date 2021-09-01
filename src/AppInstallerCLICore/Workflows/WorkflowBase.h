@@ -277,6 +277,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportManifestIdentity(Execution::Context& context);
 
+    // Reports the manifest's identity with version.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ReportManifestIdentityWithVersion(Execution::Context& context);
+
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
     // Inputs: None
@@ -338,6 +344,20 @@ namespace AppInstaller::CLI::Workflow
     private:
         ExecutionStage m_stage;
         bool m_allowBackward;
+    };
+
+    // Handles all opened source(s) agreements if needed.
+    // Required Args: The source to be checked for agreements
+    // Inputs: None
+    // Outputs: None
+    struct HandleSourceAgreements : public WorkflowTask
+    {
+        HandleSourceAgreements(std::shared_ptr<Repository::ISource> source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::shared_ptr<Repository::ISource> m_source;
     };
 }
 

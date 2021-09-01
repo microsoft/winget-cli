@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -15,7 +16,9 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        virtual ~TelemetryTraceLogger();
+        TelemetryTraceLogger();
+
+        ~TelemetryTraceLogger() = default;
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
@@ -23,12 +26,15 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
-
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
         void EnableRuntime();
+
+        // Return address of m_activityId
+        const GUID* GetActivityId() const;
+
+        // Capture if UserSettings is enabled and set user profile path
+        void Initialize();
 
         // Store the passed in name of the Caller for COM calls
         void SetCaller(const std::string& caller);
@@ -123,8 +129,6 @@ namespace AppInstaller::Logging
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
     protected:
-        TelemetryTraceLogger();
-
         bool IsTelemetryEnabled() const noexcept;
 
         // Used to anonymize a string to the best of our ability.
@@ -135,6 +139,7 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
 
+        GUID m_activityId = GUID_NULL;
         std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
 
@@ -142,16 +147,18 @@ namespace AppInstaller::Logging
         std::wstring m_userProfile;
     };
 
+    struct GlobalTelemetryTraceLogger : TelemetryTraceLogger
+    {
+        GlobalTelemetryTraceLogger() { Initialize(); }
+
+        ~GlobalTelemetryTraceLogger() = default;
+    };
+
     // Helper to make the call sites look clean.
     TelemetryTraceLogger& Telemetry();
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
-
-    const GUID* GetActivityId(bool isNewActivity);
-
-    // Set ActivityId
-    void SetActivityId();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.
