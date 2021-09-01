@@ -22,7 +22,7 @@ An ability for the REST source to define custom behavior based on data provided 
 
 ## Solution Design
 
-An optional command-line argument named `--header` will be exposed for the commands that interact with Rest source. The header argument should be accompanied with a source argument that specifies which source should the custom header should be sent to. If the source specified is something other than a Rest source in the command, the header will be ignored and a warning message will be displayed. If no source is specified, an error message will be displayed with more information.
+An optional command-line argument named `--header` will be exposed for the commands that interact with Rest source. The header argument should be accompanied with a source argument that specifies which source should the custom header should be sent to. If the source specified is something other than a Rest source in the command, the header will be ignored and a warning message will be displayed. If no source is specified, an error message will be displayed with more information. The header can have a maximum length of 1024 characters. If the length of the header input exceeds this, an error message will be displayed with information.
 
 The client will send the header as a value of HTTP header named `Windows-Package-Manager`. The source may use it any way the source sees fit.
 
