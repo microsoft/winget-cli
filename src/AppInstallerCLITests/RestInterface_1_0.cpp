@@ -54,7 +54,6 @@ namespace
 
     struct GoodManifest_AllFields
     {
-    public:
         utility::string_t GetSampleManifest_AllFields()
         {
             utility::string_t id = L"Foo.Bar";
