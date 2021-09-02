@@ -325,22 +325,23 @@
     },
     "Markets": {
       "description": "The installer markets",
+      "type": [ "object", "null" ],
       "oneOf": [
         {
-          "type": "object",
           "properties": {
             "AllowedMarkets": {
               "$ref": "#/definitions/MarketArray"
             }
-          }
+          },
+          "required": [ "AllowedMarkets" ]
         },
         {
-          "type": "object",
           "properties": {
             "ExcludedMarkets": {
               "$ref": "#/definitions/MarketArray"
             }
-          }
+          },
+          "required": [ "ExcludedMarkets" ]
         }
       ]
     },
