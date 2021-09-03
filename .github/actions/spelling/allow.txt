@@ -17,6 +17,7 @@ apps
 appx
 appxbundle
 appxmanifest
+appxrecipe
 appxsdk
 APSTUDIO
 argc
