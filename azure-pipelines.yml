@@ -300,17 +300,6 @@ jobs:
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
-  - task: VSTest@2
-    displayName: Run Com Interface Tests
-    inputs:
-      testRunTitle: 'Com Interface Tests'
-      platform: 'x64'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: |
-        src\x64\Release\PackagedTests.build.appxrecipe
-        src\x64\Release\*TestAdapter.dll
-    condition: succeededOrFailed()
-
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x86 Log
     inputs:
@@ -318,6 +307,17 @@ jobs:
       ArtifactName: 'E2ETestPackagedx86Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
+
+  - task: VSTest@2
+    displayName: Run Com Interface Tests
+    inputs:
+      testRunTitle: 'Com Interface Tests'
+      platform: 'x64'
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        src\x64\Release\PackagedTests\PackagedTests.build.appxrecipe
+        src\x64\Release\PackagedTests\*TestAdapter.dll
+    condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
