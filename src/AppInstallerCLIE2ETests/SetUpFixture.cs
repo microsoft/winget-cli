@@ -67,7 +67,6 @@ namespace AppInstallerCLIE2ETests
             ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe;.msi", false);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
 
             if (TestCommon.PackagedContext)
             {
@@ -114,7 +113,6 @@ namespace AppInstallerCLIE2ETests
             }
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
-            TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
 
             TestCommon.PublishE2ETestLogs();
 
