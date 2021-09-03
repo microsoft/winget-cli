@@ -165,6 +165,7 @@ namespace
                     "InstallLocationRequired": true,
                     "RequireExplicitUpgrade": true,
                     "UnsupportedOSArchitectures": [ "arm" ],
+                    "ElevationRequirement": "elevatesSelf",
                     "AppsAndFeaturesEntries": [{
                       "DisplayName": "DisplayName",
                       "DisplayVersion": "DisplayVersion",
@@ -280,6 +281,7 @@ namespace
             REQUIRE(actualInstaller.InstallerAbortsTerminal);
             REQUIRE(actualInstaller.InstallLocationRequired);
             REQUIRE(actualInstaller.RequireExplicitUpgrade);
+            REQUIRE(actualInstaller.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
             REQUIRE(actualInstaller.UnsupportedOSArchitectures.size() == 1);
             REQUIRE(actualInstaller.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.size() == 1);

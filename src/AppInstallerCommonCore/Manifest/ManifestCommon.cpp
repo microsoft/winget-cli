@@ -230,6 +230,26 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
+    {
+        ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "elevationRequired"))
+        {
+            result = ElevationRequirementEnum::ElevationRequired;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevationProhibited"))
+        {
+            result = ElevationRequirementEnum::ElevationProhibited;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevatesSelf"))
+        {
+            result = ElevationRequirementEnum::ElevatesSelf;
+        }
+
+        return result;
+    }
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in)
     {
         if (in == "singleton")

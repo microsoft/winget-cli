@@ -411,6 +411,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
         REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
         REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
+        REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
         REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
@@ -476,6 +477,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE_FALSE(installer1.InstallerAbortsTerminal);
         REQUIRE_FALSE(installer1.InstallLocationRequired);
         REQUIRE_FALSE(installer1.RequireExplicitUpgrade);
+        REQUIRE(installer1.ElevationRequirement == ElevationRequirementEnum::ElevationRequired);
         REQUIRE(installer1.UnsupportedOSArchitectures.size() == 1);
         REQUIRE(installer1.UnsupportedOSArchitectures.at(0) == Architecture::Arm64);
         REQUIRE(installer1.AppsAndFeaturesEntries.size() == 0);
@@ -499,6 +501,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer2.InstallerAbortsTerminal);
             REQUIRE(installer2.InstallLocationRequired);
             REQUIRE(installer2.RequireExplicitUpgrade);
+            REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
             REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
             REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
             REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);

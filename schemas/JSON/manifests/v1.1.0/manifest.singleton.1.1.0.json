@@ -418,6 +418,15 @@
       },
       "description": "List of ARP entries."
     },
+    "ElevationRequirement": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "elevationRequired",
+        "elevationProhibited",
+        "elevatesSelf"
+      ],
+      "description": "The installer's elevation requirement"
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -519,6 +528,9 @@
         },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
+        },
+        "ElevationRequirement": {
+          "$ref": "#/definitions/ElevationRequirement"
         }
       },
       "required": [
@@ -712,6 +724,9 @@
     },
     "AppsAndFeaturesEntries": {
       "$ref": "#/definitions/AppsAndFeaturesEntries"
+    },
+    "ElevationRequirement": {
+      "$ref": "#/definitions/ElevationRequirement"
     },
     "Installers": {
       "type": "array",

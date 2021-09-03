@@ -27,6 +27,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         constexpr std::string_view Markets = "Markets"sv;
         constexpr std::string_view AllowedMarkets = "AllowedMarkets"sv;
         constexpr std::string_view ExcludedMarkets = "ExcludedMarkets"sv;
+        constexpr std::string_view ElevationRequirement = "ElevationRequirement"sv;
 
         // Locale
         constexpr std::string_view ReleaseNotes = "ReleaseNotes"sv;
@@ -62,6 +63,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             installer.InstallerAbortsTerminal = JsonHelper::GetRawBoolValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerAbortsTerminal)).value_or(false);
             installer.InstallLocationRequired = JsonHelper::GetRawBoolValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallLocationRequired)).value_or(false);
             installer.RequireExplicitUpgrade = JsonHelper::GetRawBoolValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(RequireExplicitUpgrade)).value_or(false);
+            installer.ElevationRequirement = Manifest::ConvertToElevationRequirementEnum(
+                JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(ElevationRequirement)).value_or(""));
 
             // list of unsupported OS architectures
             std::optional<std::reference_wrapper<const web::json::array>> unsupportedOSArchitectures = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(UnsupportedOSArchitectures));

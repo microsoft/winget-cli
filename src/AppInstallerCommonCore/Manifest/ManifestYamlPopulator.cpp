@@ -273,6 +273,7 @@ namespace AppInstaller::Manifest
                     { "RequireExplicitUpgrade", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RequireExplicitUpgrade = value.as<bool>(); return {}; } },
                     { "ReleaseDate", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ReleaseDate = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "UnsupportedOSArchitectures", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->UnsupportedOSArchitectures = ProcessArchitectureSequenceNode(value); return {}; } },
+                    { "ElevationRequirement", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ElevationRequirement = ConvertToElevationRequirementEnum(value.as<std::string>()); return {}; } },
                     { "Markets", [this](const YAML::Node& value)->ValidationErrors { return ProcessMarketsNode(value); } },
                     { "AppsAndFeaturesEntries", [this](const YAML::Node& value)->ValidationErrors { return ProcessAppsAndFeaturesEntriesNode(value); } },
                 };

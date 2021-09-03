@@ -54,6 +54,7 @@ ReleaseDate: 2021-01-01
 InstallerAbortsTerminal: true
 InstallLocationRequired: true
 RequireExplicitUpgrade: true
+ElevationRequirement: elevatesSelf
 UnsupportedOSArchitectures:
   - arm
 AppsAndFeaturesEntries:
@@ -118,6 +119,7 @@ Installers:
     InstallerAbortsTerminal: false
     InstallLocationRequired: false
     RequireExplicitUpgrade: false
+    ElevationRequirement: elevationRequired
     UnsupportedOSArchitectures:
       - arm64
     Markets:

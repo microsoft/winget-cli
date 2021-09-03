@@ -104,6 +104,14 @@ namespace AppInstaller::Manifest
         Desktop,
     };
 
+    enum class ElevationRequirementEnum
+    {
+        Unknown,
+        ElevationRequired,
+        ElevationProhibited,
+        ElevatesSelf,
+    };
+
     enum class ManifestTypeEnum
     {
         Singleton,
@@ -260,6 +268,8 @@ namespace AppInstaller::Manifest
     InstallModeEnum ConvertToInstallModeEnum(const std::string& in);
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
+
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
 
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 

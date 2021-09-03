@@ -85,6 +85,8 @@ namespace AppInstaller::Manifest
 
         std::vector<AppsAndFeaturesEntry> AppsAndFeaturesEntries;
 
+        ElevationRequirementEnum ElevationRequirement = ElevationRequirementEnum::Unknown;
+
         MarketsInfo Markets;
     };
 }
