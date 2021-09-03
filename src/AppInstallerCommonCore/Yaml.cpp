@@ -417,6 +417,13 @@ namespace AppInstaller::YAML
         return operator<<(stream.str());
     }
 
+    Emitter& Emitter::operator<<(int value)
+    {
+        std::ostringstream stream;
+        stream << value;
+        return operator<<(stream.str());
+    }
+
     Emitter& Emitter::operator<<(bool value)
     {
         return operator<<(value ? "true"sv : "false"sv);

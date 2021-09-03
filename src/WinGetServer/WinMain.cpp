@@ -30,13 +30,6 @@ static void _releaseNotifier() noexcept
 // Check whether the packaged api is enabled and the overarching winget group policy is enabled.
 bool IsServerEnabled()
 {
-    ::AppInstaller::Utility::Version version("10.0.22000.0");
-
-    if (!::AppInstaller::Runtime::IsCurrentOSVersionGreaterThanOrEqual(version) &&
-        !::AppInstaller::Settings::ExperimentalFeature::IsEnabled(::AppInstaller::Settings::ExperimentalFeature::Feature::PackagedAPI))
-    {
-        return false;
-    }
     if (!::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet))
     {
         return false;

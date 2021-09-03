@@ -137,13 +137,15 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
    },
 ```
 
-### packagedAPI
+### directMSI
 
-Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use the Windows Package Manager. You can enable the feature as shown below.
+This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 
+Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it. 
+You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "packagedAPI": true
+       "directMSI": true
    },
 ```
 ### Dependencies

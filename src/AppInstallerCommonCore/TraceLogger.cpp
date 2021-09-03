@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/TraceLogger.h"
 #include "Public/AppInstallerTelemetry.h"
+#include "Public/winget/ThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -14,7 +15,7 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            AppInstaller::Logging::GetActivityId(false),
+            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }

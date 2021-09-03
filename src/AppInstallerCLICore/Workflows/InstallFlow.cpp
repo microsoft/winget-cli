@@ -118,7 +118,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ShowLicenseAgreements::operator()(Execution::Context& context) const
+    void ShowPackageAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
@@ -134,40 +134,46 @@ namespace AppInstaller::CLI::Workflow
 
         if (m_ensureAcceptance)
         {
-            context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ true);
+            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ true);
         }
     }
 
-    void EnsureLicenseAcceptance::operator()(Execution::Context& context) const
+    void EnsurePackageAgreementsAcceptance::operator()(Execution::Context& context) const
     {
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
+        {
+            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
+            return;
+        }
+
         if (context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements))
         {
-            AICLI_LOG(CLI, Info, << "License agreements accepted by CLI flag");
+            AICLI_LOG(CLI, Info, << "Package agreements accepted by CLI flag");
             return;
         }
 
         if (m_showPrompt)
         {
-            bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::LicenseAgreementPrompt);
+            bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PackageAgreementsPrompt);
             if (accepted)
             {
-                AICLI_LOG(CLI, Info, << "License agreements accepted in prompt");
+                AICLI_LOG(CLI, Info, << "Package agreements accepted in prompt");
                 return;
             }
             else
             {
-                AICLI_LOG(CLI, Info, << "License agreements not accepted in prompt");
+                AICLI_LOG(CLI, Info, << "Package agreements not accepted in prompt");
             }
         }
 
-        AICLI_LOG(CLI, Error, << "License not agreed to.");
-        context.Reporter.Error() << Resource::String::LicenseNotAgreedTo << std::endl;
-        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+        AICLI_LOG(CLI, Error, << "Package agreements were not agreed to.");
+        context.Reporter.Error() << Resource::String::PackageAgreementsNotAgreedTo << std::endl;
+        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     }
 
-    void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context)
+    void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context)
     {
-        bool hasLicenseAgreements = false;
+        bool hasPackageAgreements = false;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             // Show agreements for each package in a sub-context
@@ -177,20 +183,20 @@ namespace AppInstaller::CLI::Workflow
             showContext.Add<Execution::Data::Manifest>(package.Manifest);
 
             showContext <<
-                Workflow::ReportManifestIdentity <<
-                Workflow::ShowLicenseAgreements(/* ensureAcceptance */ false);
+                Workflow::ReportManifestIdentityWithVersion <<
+                Workflow::ShowPackageAgreements(/* ensureAcceptance */ false);
             if (showContext.IsTerminated())
             {
                 AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
             }
 
-            hasLicenseAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+            hasPackageAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
         }
 
         // If any package has agreements, ensure they are accepted
-        if (hasLicenseAgreements)
+        if (hasPackageAgreements)
         {
-            context << Workflow::EnsureLicenseAcceptance(/* showPrompt */ false);
+            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ false);
         }
     }
 
@@ -584,7 +590,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
-            Workflow::ReportManifestIdentity <<
+            Workflow::ReportManifestIdentityWithVersion <<
             Workflow::ShowInstallationDisclaimer;
     }
 
@@ -606,7 +612,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowLicenseAgreements(/* ensureAcceptance */ true) <<
+            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller << 
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
@@ -615,7 +621,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
         // Show all license agreements before installing anything
-        context << Workflow::EnsureLicenseAcceptanceForMultipleInstallers;
+        context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
         if (context.IsTerminated())
         {
             return;
@@ -653,8 +659,7 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Installer>(package.Installer);
 
             installContext <<
-                Workflow::ReportManifestIdentity <<
-                Workflow::ShowInstallationDisclaimer <<
+                Workflow::ReportIdentityAndInstallationDisclaimer <<
                 Workflow::InstallPackageInstaller;
 
             installContext.Reporter.Info() << std::endl;

@@ -90,19 +90,37 @@ namespace AppInstaller::CLI::Workflow
             sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
 
-        sourceDetails.CustomHeader = GetCustomHeaderFromArg(context, sourceDetails);
-
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
-        {
-            context.Reporter.Info() << Resource::String::Done;
-        }
-        else
+        if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+        }
+    }
+
+    void OpenSourceForSourceAdd(Execution::Context& context)
+    {
+        try
+        {
+            auto sourceDetails = Repository::GetSource(context.Args.GetArg(Args::Type::SourceName));
+            sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
+
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+
+            if (!result.Source)
+            {
+                context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+            }
+
+            context << Workflow::HandleSourceAgreements(result.Source);
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
         }
     }
 

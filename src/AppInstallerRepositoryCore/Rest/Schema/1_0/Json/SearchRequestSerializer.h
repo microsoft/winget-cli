@@ -17,5 +17,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         std::optional<web::json::value> GetRequestMatchJsonObject(const AppInstaller::Repository::RequestMatch& requestMatch) const;
 
         std::optional<web::json::value> GetPackageMatchFilterJsonObject(const PackageMatchFilter& packageMatchFilter) const;
+
+        virtual std::optional<std::string_view> ConvertPackageMatchFieldToString(AppInstaller::Repository::PackageMatchField field) const;
     };
 }

@@ -227,7 +227,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalMSStore)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
-        WINGET_VALIDATE_PASS_THROUGH(EFPackagedAPI)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
 
         WINGET_VALIDATE_SIGNATURE(InstallScopePreference)

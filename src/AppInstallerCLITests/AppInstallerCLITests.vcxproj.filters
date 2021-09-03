@@ -170,6 +170,9 @@
     <ClCompile Include="MsiExecArguments.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RestInterface_1_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

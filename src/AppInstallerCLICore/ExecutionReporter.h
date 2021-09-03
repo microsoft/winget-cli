@@ -159,6 +159,7 @@ namespace AppInstaller::CLI::Execution
     extern const VirtualTerminal::Sequence& HelpCommandEmphasis;
     extern const VirtualTerminal::Sequence& HelpArgumentEmphasis;
     extern const VirtualTerminal::Sequence& ManifestInfoEmphasis;
+    extern const VirtualTerminal::Sequence& SourceInfoEmphasis;
     extern const VirtualTerminal::Sequence& NameEmphasis;
     extern const VirtualTerminal::Sequence& IdEmphasis;
     extern const VirtualTerminal::Sequence& UrlEmphasis;
