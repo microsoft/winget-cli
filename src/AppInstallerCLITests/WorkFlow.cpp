@@ -514,10 +514,6 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
         } });
     }
 
-    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
-    {
-    } });
-
     context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
     {
     } });
