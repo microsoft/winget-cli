@@ -148,6 +148,8 @@ namespace AppInstaller
                 return "Error reading input in prompt";
             case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
                 return "Arguments for msiexec are invalid";
+            case APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED:
+                return "Running MSI install failed";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:

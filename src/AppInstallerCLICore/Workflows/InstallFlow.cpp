@@ -463,7 +463,7 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
             ShellExecuteInstallImpl <<
-            ReportInstallerResult("ShellExecute"sv);
+            ReportInstallerResult("ShellExecute"sv, APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
     }
 
     void DirectMSIInstall(Execution::Context& context)
@@ -472,7 +472,7 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
             DirectMSIInstallImpl <<
-            ReportInstallerResult("MsiInstallProduct"sv);
+            ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED, /* isHResult */ true);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -501,7 +501,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             context.Add<Execution::Data::InstallerReturnCode>(re.GetErrorCode());
-            context << ReportInstallerResult("MSIX", /* isHResult */ true);
+            context << ReportInstallerResult("MSIX", re.GetErrorCode(), /* isHResult */ true);
             return;
         }
 
@@ -524,10 +524,8 @@ namespace AppInstaller::CLI::Workflow
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
 
-            HRESULT hr = APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED;
             if (m_isHResult)
             {
-                hr = installResult;
                 context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << GetUserPresentableMessage(installResult) << std::endl;
             }
             else
@@ -551,7 +549,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
-            AICLI_TERMINATE_CONTEXT(hr);
+            AICLI_TERMINATE_CONTEXT(m_hr);
         }
         else
         {
