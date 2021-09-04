@@ -517,11 +517,20 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowInstallationDisclaimer;
     }
 
+    void DownloadPackageVersion(Execution::Context& context)
+    {
+        context <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::GetDependenciesFromInstaller << 
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller;
+    }
+
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
@@ -534,10 +543,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
-            Workflow::GetDependenciesFromInstaller << 
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::DownloadPackageVersion <<
             Workflow::InstallPackageInstaller;
     }
 

@@ -13,12 +13,29 @@ using namespace AppInstaller::Utility::literals;
 namespace AppInstaller::CLI
 {
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
-    void COMInstallCommand::ExecuteInternal(Context& context) const
+    void COMDownloadCommand::ExecuteInternal(Context& context) const
     {
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::InstallSinglePackage;
+            Workflow::DownloadPackageVersion;
+    }
+
+    // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
+    void COMInstallCommand::ExecuteInternal(Context& context) const
+    {
+        context <<
+            Workflow::InstallPackageInstaller;
+    }
+
+    bool COMDownloadCommand::IsCommandAllowedToRunNow(std::map<std::string, UINT32>&, UINT32 runningCommandsOfCurrentType) const
+    {
+        return (runningCommandsOfCurrentType < 5);
+    }
+    
+    bool COMInstallCommand::IsCommandAllowedToRunNow(std::map<std::string, UINT32>&, UINT32 runningCommandsOfCurrentType) const
+    {
+        return (runningCommandsOfCurrentType == 0);
     }
 }

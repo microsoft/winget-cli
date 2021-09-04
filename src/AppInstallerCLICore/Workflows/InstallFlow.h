@@ -126,6 +126,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
 
+    // Downloads a specific package installer.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void DownloadPackageVersion(Execution::Context& context);
+    
     // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
     // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
