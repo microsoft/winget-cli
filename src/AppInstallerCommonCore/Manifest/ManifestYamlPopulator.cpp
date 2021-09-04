@@ -101,6 +101,20 @@ namespace AppInstaller::Manifest
 
             return result;
         }
+
+        std::vector<AppInstaller::Utility::Architecture> ProcessArchitectureSequenceNode(const YAML::Node& node)
+        {
+            THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
+
+            std::vector<AppInstaller::Utility::Architecture> result;
+
+            for (auto const& entry : node.Sequence())
+            {
+                result.emplace_back(Utility::ConvertToArchitectureEnum(entry.as<std::string>()));
+            }
+
+            return result;
+        }
     }
 
     std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetRootFieldProcessInfo(const ManifestVer& manifestVersion)
@@ -249,6 +263,23 @@ namespace AppInstaller::Manifest
                     std::move(v1InstallerFields.begin(), v1InstallerFields.end(), std::inserter(result, result.end()));
                 }
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_1 =
+                {
+                    { "InstallerAbortsTerminal", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerAbortsTerminal = value.as<bool>(); return {}; } },
+                    { "InstallLocationRequired", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallLocationRequired = value.as<bool>(); return {}; } },
+                    { "RequireExplicitUpgrade", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RequireExplicitUpgrade = value.as<bool>(); return {}; } },
+                    { "ReleaseDate", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ReleaseDate = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "UnsupportedOSArchitectures", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->UnsupportedOSArchitectures = ProcessArchitectureSequenceNode(value); return {}; } },
+                    { "ElevationRequirement", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ElevationRequirement = ConvertToElevationRequirementEnum(value.as<std::string>()); return {}; } },
+                    { "Markets", [this](const YAML::Node& value)->ValidationErrors { return ProcessMarketsNode(value); } },
+                    { "AppsAndFeaturesEntries", [this](const YAML::Node& value)->ValidationErrors { return ProcessAppsAndFeaturesEntriesNode(value); } },
+                };
+
+                std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -348,6 +379,8 @@ namespace AppInstaller::Manifest
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
                     { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); } },
+                    { "ReleaseNotes", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotes>(value.as<std::string>()); return {}; } },
+                    { "ReleaseNotesUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotesUrl>(value.as<std::string>()); return {}; } },
                 };
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
@@ -411,6 +444,42 @@ namespace AppInstaller::Manifest
                 { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetMarketsFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            result =
+            {
+                { "AllowedMarkets", [this](const YAML::Node& value)->ValidationErrors { m_p_markets->AllowedMarkets = ProcessStringSequenceNode(value); return {}; } },
+                { "ExcludedMarkets", [this](const YAML::Node& value)->ValidationErrors { m_p_markets->ExcludedMarkets = ProcessStringSequenceNode(value); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAppsAndFeaturesEntryFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            result =
+            {
+                { "DisplayName", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Publisher", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->Publisher = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->DisplayVersion = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "ProductCode", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->ProductCode = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "UpgradeCode", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->UpgradeCode = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -496,7 +565,7 @@ namespace AppInstaller::Manifest
             m_p_packageDependency = &packageDependency;
             auto errors = ValidateAndProcessFields(entry, PackageDependenciesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-            m_p_dependencyList->Add(std::move(std::move(packageDependency)));
+            m_p_dependencyList->Add(std::move(packageDependency));
         }
 
         return resultErrors;
@@ -504,6 +573,8 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
     {
+        THROW_HR_IF(E_INVALIDARG, !agreementsNode.IsSequence());
+
         ValidationErrors resultErrors;
         std::vector<Agreement> agreements;
 
@@ -524,6 +595,36 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessMarketsNode(const YAML::Node& marketsNode)
+    {
+        MarketsInfo markets;
+        m_p_markets = &markets;
+        auto errors = ValidateAndProcessFields(marketsNode, MarketsFieldInfos);
+        m_p_installer->Markets = markets;
+        return errors;
+    }
+
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !appsAndFeaturesEntriesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<AppsAndFeaturesEntry> appsAndFeaturesEntries;
+
+        for (auto const& entry : appsAndFeaturesEntriesNode.Sequence())
+        {
+            AppsAndFeaturesEntry appsAndFeaturesEntry;
+            m_p_appsAndFeaturesEntry = &appsAndFeaturesEntry;
+            auto errors = ValidateAndProcessFields(entry, AppsAndFeaturesEntryFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            appsAndFeaturesEntries.emplace_back(std::move(appsAndFeaturesEntry));
+        }
+
+        m_p_installer->AppsAndFeaturesEntries = appsAndFeaturesEntries;
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
     {
         m_fullValidation = fullValidation;
@@ -540,6 +641,8 @@ namespace AppInstaller::Manifest
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
         AgreementFieldInfos = GetAgreementFieldProcessInfo(manifestVersion);
+        MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
+        AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;
@@ -557,9 +660,10 @@ namespace AppInstaller::Manifest
         {
             ManifestInstaller installer = manifest.DefaultInstallerInfo;
 
-            // Clear these defaults as PackageFamilyName and ProductCode needs to be copied based on InstallerType
+            // Clear these defaults as PackageFamilyName, ProductCode, AppsAndFeaturesEntries need to be copied based on InstallerType
             installer.PackageFamilyName.clear();
             installer.ProductCode.clear();
+            installer.AppsAndFeaturesEntries.clear();
             // Clear dependencies as installer overrides root dependencies
             installer.Dependencies.Clear();
 
@@ -576,6 +680,11 @@ namespace AppInstaller::Manifest
             if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
+            }
+
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            {
+                installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
             }
 
             // If there are no dependencies on installer use default ones

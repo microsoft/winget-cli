@@ -58,10 +58,6 @@ namespace AppInstallerCLIE2ETests
                     experimentalArg = status,
                     experimentalCmd = status,
                     experimentalMSStore = status,
-                    list = status,
-                    upgrade = status,
-                    uninstall = status,
-                    packagedAPI = status,
                 }
             };
 

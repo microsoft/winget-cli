@@ -24,6 +24,16 @@ namespace AppInstaller::CLI::Workflow
         // TODO: Come up with a prettier format
         info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelVersion << " " << manifest.Version << std::endl;
         info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisher << " " << manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>() << std::endl;
+        auto publisherUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherUrl>();
+        if (!publisherUrl.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherUrl << " " << publisherUrl << std::endl;
+        }
+        auto publisherSupportUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
+        if (!publisherSupportUrl.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherSupportUrl << " " << publisherSupportUrl << std::endl;
+        }
         auto author = manifest.CurrentLocalization.Get<Manifest::Localization::Author>();
         if (!author.empty())
         {
@@ -53,6 +63,31 @@ namespace AppInstaller::CLI::Workflow
         if (!licenseUrl.empty())
         {
             info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelLicenseUrl << " " << licenseUrl << std::endl;
+        }
+        auto privacyUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PrivacyUrl>();
+        if (!privacyUrl.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPrivacyUrl << " " << privacyUrl << std::endl;
+        }
+        auto copyright = manifest.CurrentLocalization.Get<Manifest::Localization::Copyright>();
+        if (!copyright.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyright << " " << copyright << std::endl;
+        }
+        auto copyrightUrl = manifest.CurrentLocalization.Get<Manifest::Localization::CopyrightUrl>();
+        if (!copyrightUrl.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyrightUrl << " " << copyrightUrl << std::endl;
+        }
+        auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
+        if (!releaseNotes.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes << " " << releaseNotes << std::endl;
+        }
+        auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
+        if (!releaseNotesUrl.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl << " " << releaseNotesUrl << std::endl;
         }
         auto agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
@@ -104,6 +139,10 @@ namespace AppInstaller::CLI::Workflow
             if (!installer->ProductId.empty())
             {
                 info << "  " << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerProductId << " " << installer->ProductId << std::endl;
+            }
+            if (!installer->ReleaseDate.empty())
+            {
+                info << "  " << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerReleaseDate << " " << installer->ReleaseDate << std::endl;
             }
 
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))

@@ -138,7 +138,9 @@
         "type": "integer",
         "not": {
           "enum": [ 0 ]
-        }
+        },
+        "minimum": -2147483648,
+        "maximum": 4294967295
       },
       "maxItems": 16,
       "uniqueItems": true,
@@ -275,6 +277,124 @@
       "uniqueItems": true,
       "description": "List of appx or msix installer restricted capabilities"
     },
+    "Market": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "The installer target market"
+    },
+    "MarketArray": {
+      "type": [ "array", "null" ],
+      "uniqueItems": true,
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/definitions/Market"
+      },
+      "description": "Array of markets"
+    },
+    "Markets": {
+      "description": "The installer markets",
+      "type": [ "object", "null" ],
+      "oneOf": [
+        {
+          "properties": {
+            "AllowedMarkets": {
+              "$ref": "#/definitions/MarketArray"
+            }
+          },
+          "required": [ "AllowedMarkets" ]
+        },
+        {
+          "properties": {
+            "ExcludedMarkets": {
+              "$ref": "#/definitions/MarketArray"
+            }
+          },
+          "required": [ "ExcludedMarkets" ]
+        }
+      ]
+    },
+    "InstallerAbortsTerminal": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the installer will abort terminal. Default is false"
+    },
+    "ReleaseDate": {
+      "type": [ "string", "null" ],
+      "format": "date",
+      "description": "The installer release date"
+    },
+    "InstallLocationRequired": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the installer requires an install location provided"
+    },
+    "RequireExplicitUpgrade": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the installer should be pinned by default from upgrade"
+    },
+    "UnsupportedOSArchitectures": {
+      "type": [ "array", "null" ],
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "x86",
+          "x64",
+          "arm",
+          "arm64"
+        ]
+      },
+      "description": "List of OS architectures the installer does not support"
+    },
+    "AppsAndFeaturesEntry": {
+      "type": "object",
+      "properties": {
+        "DisplayName": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The DisplayName registry value"
+        },
+        "Publisher": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The Publisher registry value"
+        },
+        "DisplayVersion": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "The DisplayVersion registry value"
+        },
+        "ProductCode": {
+          "$ref": "#/definitions/ProductCode"
+        },
+        "UpgradeCode": {
+          "$ref": "#/definitions/ProductCode"
+        },
+        "InstallerType": {
+          "$ref": "#/definitions/InstallerType"
+        }
+      },
+      "description": "Various key values under installer's ARP entry"
+    },
+    "AppsAndFeaturesEntries": {
+      "type": [ "array", "null" ],
+      "uniqueItems": true,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/definitions/AppsAndFeaturesEntry"
+      },
+      "description": "List of ARP entries."
+    },
+    "ElevationRequirement": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "elevationRequired",
+        "elevationProhibited",
+        "elevatesSelf"
+      ],
+      "description": "The installer's elevation requirement"
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -355,6 +475,30 @@
         },
         "RestrictedCapabilities": {
           "$ref": "#/definitions/RestrictedCapabilities"
+        },
+        "Markets": {
+          "$ref": "#/definitions/Markets"
+        },
+        "InstallerAbortsTerminal": {
+          "$ref": "#/definitions/InstallerAbortsTerminal"
+        },
+        "ReleaseDate": {
+          "$ref": "#/definitions/ReleaseDate"
+        },
+        "InstallLocationRequired": {
+          "$ref": "#/definitions/InstallLocationRequired"
+        },
+        "RequireExplicitUpgrade": {
+          "$ref": "#/definitions/RequireExplicitUpgrade"
+        },
+        "UnsupportedOSArchitectures": {
+          "$ref": "#/definitions/UnsupportedOSArchitectures"
+        },
+        "AppsAndFeaturesEntries": {
+          "$ref": "#/definitions/AppsAndFeaturesEntries"
+        },
+        "ElevationRequirement": {
+          "$ref": "#/definitions/ElevationRequirement"
         }
       },
       "required": [
@@ -426,13 +570,37 @@
     "RestrictedCapabilities": {
       "$ref": "#/definitions/RestrictedCapabilities"
     },
+    "Markets": {
+      "$ref": "#/definitions/Markets"
+    },
+    "InstallerAbortsTerminal": {
+      "$ref": "#/definitions/InstallerAbortsTerminal"
+    },
+    "ReleaseDate": {
+      "$ref": "#/definitions/ReleaseDate"
+    },
+    "InstallLocationRequired": {
+      "$ref": "#/definitions/InstallLocationRequired"
+    },
+    "RequireExplicitUpgrade": {
+      "$ref": "#/definitions/RequireExplicitUpgrade"
+    },
+    "UnsupportedOSArchitectures": {
+      "$ref": "#/definitions/UnsupportedOSArchitectures"
+    },
+    "AppsAndFeaturesEntries": {
+      "$ref": "#/definitions/AppsAndFeaturesEntries"
+    },
+    "ElevationRequirement": {
+      "$ref": "#/definitions/ElevationRequirement"
+    },
     "Installers": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Installer"
       },
       "minItems": 1,
-      "maxItems": 128
+      "maxItems": 1024
     },
     "ManifestType": {
       "type": "string",

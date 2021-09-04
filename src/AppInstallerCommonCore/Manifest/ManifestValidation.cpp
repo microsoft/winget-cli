@@ -102,6 +102,11 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
+            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            {
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "InstallerType", InstallerTypeToString(installer.InstallerType));
+            }
+
             if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
                 if (fullValidation)
@@ -151,6 +156,11 @@ namespace AppInstaller::Manifest
             if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))
             {
                 resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
+            }
+
+            if (!installer.Markets.AllowedMarkets.empty() && !installer.Markets.ExcludedMarkets.empty())
+            {
+                resultErrors.emplace_back(ManifestError::BothAllowedAndExcludedMarketsDefined);
             }
         }
 

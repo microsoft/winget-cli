@@ -138,7 +138,9 @@
         "type": "integer",
         "not": {
           "enum": [ 0 ]
-        }
+        },
+        "minimum": -2147483648,
+        "maximum": 4294967295
       },
       "maxItems": 16,
       "uniqueItems": true,

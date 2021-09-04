@@ -26,10 +26,6 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceName = @"TestSource";
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
 
-        // Todo: not needed if switch to use prod index for source tests
-        public const string IndexPackageRootCert = "IndexPackageIntRoot.cer";
-        public const string IndexPackageRootCertThumbprint = "d17697cc206ed26e1a51f5bb96e9356d6d610b74";
-
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
         public const string AICLIAppId = "WinGetDev";

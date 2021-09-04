@@ -19,6 +19,9 @@
     <Filter Include="TestData\MultiFileManifestV1">
       <UniqueIdentifier>{69fcd25c-e737-4d28-a6d1-39ce491bf293}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_1">
+      <UniqueIdentifier>{81fadc81-4327-4b9e-b588-97155b770aa3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -396,6 +399,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-ProductCodeOnMSIX.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidUpdateBehavior.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -450,6 +456,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_1-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -460,6 +469,18 @@
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
