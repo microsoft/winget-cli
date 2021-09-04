@@ -59,6 +59,13 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void ContextOrchestrator::RequeueItem(OrchestratorQueueItem& item)
+    {
+        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+
+        item.SetState(OrchestratorQueueItemState::Queued);
+    }
+
     void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
         EnqueueItem(item);
@@ -76,21 +83,31 @@ namespace AppInstaller::CLI::Execution
             return {};
         }
 
-        std::shared_ptr<OrchestratorQueueItem> item = m_queueItems.front();
-
-        // Check if item can be dequeued.
-        // Since only one item can be installed at a time currently the logic is very simple,
-        // and can just check if the first item is ready to run. This logic will need to become
-        // more complicated if multiple operation types (e.g. Download & Install) are added that can
-        // run simultaneously.
-        if (item->GetState() != OrchestratorQueueItemState::Queued)
+        for (auto itr = m_queueItems.cbegin(); itr != m_queueItems.cend(); ++itr) 
         {
-            return {};
+            UINT32 runningCommandsOfNextType = 0;
+            auto foundVal = m_runningCommandCountMap.find((*itr)->GetNextCommand().NameAsString());
+            if (foundVal != m_runningCommandCountMap.cend())
+            {
+                runningCommandsOfNextType = foundVal->second;
+            }
+            if ((*itr)->GetNextCommand().IsCommandAllowedToRunNow(m_runningCommandCountMap, runningCommandsOfNextType))
+            {
+                if (foundVal != m_runningCommandCountMap.cend())
+                {
+                    foundVal->second = runningCommandsOfNextType + 1;
+                }
+                else
+                {
+                    m_runningCommandCountMap.insert(std::pair<std::string, UINT32>((*itr)->GetNextCommand().NameAsString(), 1));
+                }
+                // Running state must be set inside the queueLock so that multiple threads don't try to run the same item.
+                (*itr)->SetState(OrchestratorQueueItemState::Running);
+                return *itr;
+            }
         }
 
-        // Running state must be set inside the queueLock so that multiple threads don't try to run the same item.
-        item->SetState(OrchestratorQueueItemState::Running);
-        return item;
+        return {};
     }
 
     void ContextOrchestrator::RunItems()
@@ -101,11 +118,10 @@ namespace AppInstaller::CLI::Execution
             HRESULT terminationHR = S_OK;
             try
             {
-                ::AppInstaller::CLI::RootCommand rootCommand;
+                std::unique_ptr<Command> command = item->PopNextCommand();
 
                 std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
 
-                std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
                 item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);
 
@@ -123,7 +139,14 @@ namespace AppInstaller::CLI::Execution
                 item->GetContext().SetTerminationHR(terminationHR);
             }
 
-            RemoveItemInState(*item, OrchestratorQueueItemState::Running);
+            if (FAILED(terminationHR) || item->IsComplete())
+            {
+                RemoveItemInState(*item, OrchestratorQueueItemState::Running);
+            }
+            else
+            {
+                RequeueItem(*item);
+            }
 
             item = GetNextItem();
         }
@@ -179,8 +202,12 @@ namespace AppInstaller::CLI::Execution
     }
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
-    {
-        return std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
+    { 
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
+        ::AppInstaller::CLI::RootCommand rootCommand;
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(rootCommand.Name()));
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name()));
+        return item;
     }
 
 }
