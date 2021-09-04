@@ -51,6 +51,11 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (context.Args.GetArg(Execution::Args::Type::Query).empty())
+        {
+            context.Reporter.Info() << Resource::String::NoPackageNameProvided;
+            return ;
+        }
         if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
             if (context.Args.Contains(Execution::Args::Type::Manifest))

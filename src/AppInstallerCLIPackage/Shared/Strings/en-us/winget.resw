@@ -401,6 +401,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="NoPackageFound" xml:space="preserve">
     <value>No package found matching input criteria.</value>
   </data>
+  <data name="NoPackageNameProvided" xml:space="preserve">
+    <value>No package name provided.</value>
+  </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>

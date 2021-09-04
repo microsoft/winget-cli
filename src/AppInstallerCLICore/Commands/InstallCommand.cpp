@@ -122,6 +122,11 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
+        if (context.Args.GetArg(Execution::Args::Type::Query).empty())
+        {
+            context.Reporter.Info() << Resource::String::NoPackageNameProvided;
+            return;
+        }
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
