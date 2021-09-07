@@ -317,7 +317,6 @@ jobs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
         src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
-        src\x86\Release\PackagedTests\x64\PackagedTests\*TestAdapter.dll
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
