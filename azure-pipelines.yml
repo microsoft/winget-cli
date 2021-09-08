@@ -325,6 +325,7 @@ jobs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
         src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
+      runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
     condition: succeededOrFailed()
 
   - task: PowerShell@2

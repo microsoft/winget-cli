@@ -40,5 +40,7 @@ if (-not (Test-Path $Local:ManifestPath))
 {
     $Local:ManifestPath = Join-Path $PackageRoot "AppX\AppxManifest.xml"
 }
+Get-AppxPackage WinGetDevCLI 
 Write-Host "Registering manifest at path: $Local:ManifestPath"
 Add-AppxPackage -Register $Local:ManifestPath
+Get-AppxPackage WinGetDevCLI 
