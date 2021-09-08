@@ -32,40 +32,48 @@ namespace AppInstaller::Utility
 
         DEFINE_ENUM_FLAG_OPERATORS(MACHINE_ATTRIBUTES);
 
-        using GetMachineTypeAttributesPtr = HRESULT (WINAPI *)(USHORT Machine, MACHINE_ATTRIBUTES* MachineTypeAttributes);
+        using GetMachineTypeAttributesPtr = HRESULT(WINAPI*)(USHORT Machine, MACHINE_ATTRIBUTES* MachineTypeAttributes);
 
-        void AddArchitectureIfMachineTypeAttributesUserEnabled(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+        // GetMachineTypeAttributes can apparently replace IsWow64GuestMachineSupported, but no reason to do so right now.
+        struct GetMachineTypeAttributesHelper
         {
-            wil::unique_hmodule onecoreModule;
-            onecoreModule.reset(LoadLibraryEx(L"api-ms-win-core-processthreads-l1-1-7.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
-            if (!onecoreModule)
+            GetMachineTypeAttributesHelper()
             {
-                AICLI_LOG(Core, Verbose, << "Could not load api-ms-win-core-processthreads-l1-1-7.dll");
-                return;
-            }
-
-            GetMachineTypeAttributesPtr getMachineTypeAttributes =
-                reinterpret_cast<GetMachineTypeAttributesPtr>(GetProcAddress(onecoreModule.get(), "GetMachineTypeAttributes"));
-            if (!getMachineTypeAttributes)
-            {
-                AICLI_LOG(Core, Verbose, << "Could not get proc address of GetMachineTypeAttributes");
-                return;
-            }
-
-            MACHINE_ATTRIBUTES attributes = MACHINE_ATTRIBUTES::None;
-            if (SUCCEEDED_LOG(getMachineTypeAttributes(guestMachine, &attributes)))
-            {
-                if (WI_IsFlagSet(attributes, MACHINE_ATTRIBUTES::UserEnabled))
+                m_module.reset(LoadLibraryEx(L"api-ms-win-core-processthreads-l1-1-7.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+                if (!m_module)
                 {
-                    AICLI_LOG(Test, Info, << "UserEnabled for guest machine: " << guestMachine);
-                    target.push_back(architecture);
+                    AICLI_LOG(Core, Verbose, << "Could not load api-ms-win-core-processthreads-l1-1-7.dll");
+                    return;
                 }
-                else
+
+                m_getMachineTypeAttributes =
+                    reinterpret_cast<GetMachineTypeAttributesPtr>(GetProcAddress(m_module.get(), "GetMachineTypeAttributes"));
+                if (!m_getMachineTypeAttributes)
                 {
-                    AICLI_LOG(Test, Info, << "UserNOTEnabled for guest machine: " << guestMachine);
+                    AICLI_LOG(Core, Verbose, << "Could not get proc address of GetMachineTypeAttributes");
+                    return;
                 }
             }
-        }
+
+            void AddArchitectureIfMachineTypeAttributesUserEnabled(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+            {
+                if (m_getMachineTypeAttributes)
+                {
+                    MACHINE_ATTRIBUTES attributes = MACHINE_ATTRIBUTES::None;
+                    if (SUCCEEDED_LOG(m_getMachineTypeAttributes(guestMachine, &attributes)))
+                    {
+                        if (WI_IsFlagSet(attributes, MACHINE_ATTRIBUTES::UserEnabled))
+                        {
+                            target.push_back(architecture);
+                        }
+                    }
+                }
+            }
+
+        private:
+            wil::unique_hmodule m_module;
+            GetMachineTypeAttributesPtr m_getMachineTypeAttributes = nullptr;
+        };
 
         // Gets the applicable architectures for the current machine.
         std::vector<Architecture> CreateApplicableArchitecturesVector()
@@ -75,11 +83,15 @@ namespace AppInstaller::Utility
             switch (GetSystemArchitecture())
             {
             case Architecture::Arm64:
+            {
+                GetMachineTypeAttributesHelper gmtaHelper;
+
                 applicableArchs.push_back(Architecture::Arm64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
-                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
+                gmtaHelper.AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
+            }
                 break;
             case Architecture::Arm:
                 applicableArchs.push_back(Architecture::Arm);
@@ -91,9 +103,7 @@ namespace AppInstaller::Utility
                 break;
             case Architecture::X64:
                 applicableArchs.push_back(Architecture::X64);
-                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
-                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
-                //AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
+                AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
                 break;
             default:
