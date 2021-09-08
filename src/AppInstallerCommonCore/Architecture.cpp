@@ -84,11 +84,11 @@ namespace AppInstaller::Utility
             {
             case Architecture::Arm64:
             {
-                GetMachineTypeAttributesHelper gmtaHelper;
+                GetMachineTypeAttributesHelper helper;
 
                 applicableArchs.push_back(Architecture::Arm64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
-                gmtaHelper.AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
+                helper.AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
             }
