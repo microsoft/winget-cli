@@ -868,9 +868,21 @@ namespace AppInstaller::CLI
         {
             std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
+            try
+            {
+                context.Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    message << std::endl;
+            }
+            // If resource.pri is not present trying to log using Resource will throw the exception
+            // again. Default to English message.
+            catch (const winrt::hresult_error&)
+            {
+                context.Reporter.Error() <<
+                    "An unexpected error occurred while executing the command:"  << ' ' << std::endl <<
+                    message << std::endl;
+            }
+            
             return hre.code();
         }
         catch (const Settings::GroupPolicyException& e)

@@ -125,16 +125,7 @@ namespace AppInstaller::CLI
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
 
-        try
-        {
-            return Execute(context, command);
-        }
-        catch (hresult_error const& e)
-        {
-            AICLI_LOG(CLI, Error, << "Error " << e.to_abi() << " with message '" << e.message().c_str() <<
-                "' encountered while executing command");
-            return e.to_abi();
-        }
+        return Execute(context, command);
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.

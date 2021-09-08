@@ -4,7 +4,6 @@
 #include "Resources.h"
 
 using namespace AppInstaller::Utility::literals;
-using namespace winrt;
 
 namespace AppInstaller::CLI::Resource
 {
@@ -22,9 +21,10 @@ namespace AppInstaller::CLI::Resource
         {
             m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
         }
-        catch (hresult_error const& e)
+        catch (const winrt::hresult_error& hre)
         {
-            AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << e.to_abi());
+            // This message cannot be localized.
+            AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
             throw;
         }
     }
