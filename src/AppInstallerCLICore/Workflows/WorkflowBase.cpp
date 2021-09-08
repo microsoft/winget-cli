@@ -158,7 +158,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!agreement.Label.empty())
                 {
-                    context.Reporter.Info() << Execution::SourceInfoEmphasis << Utility::LocIndString{ agreement.Label } << " ";
+                    context.Reporter.Info() << Execution::SourceInfoEmphasis << Utility::LocIndString{ agreement.Label } << ": ";
                 }
 
                 if (!agreement.Text.empty())
