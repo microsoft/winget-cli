@@ -308,7 +308,15 @@ jobs:
       publishLocation: 'Container'
     condition: succeededOrFailed()  
 
-  # Run the tests from the x64 package.
+  - task: PowerShell@2
+    displayName: Install WinGetDev package
+    inputs:
+      filePath: 'src\PackagedTests\Run-InstallPackage.ps1'
+      arguments: '-BuildRoot x86\Release -PackageRoot AppInstallerCLIPackage\bin\x86\Release'
+      workingDirectory: 'src'
+    condition: succeededOrFailed()
+
+  # Run the tests from the x64 package. These tests make cross package com calls to the previously installed WinGetDev package.
   - task: VSTest@2
     displayName: Run Com Interface Tests
     inputs:
@@ -317,6 +325,13 @@ jobs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
         src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Remove WinGetDev package
+    inputs:
+      filePath: 'src\PackagedTests\Run-RemovePackage.ps1'
+      workingDirectory: 'src'
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
