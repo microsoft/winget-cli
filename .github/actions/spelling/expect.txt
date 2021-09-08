@@ -246,6 +246,7 @@ pkindex
 PMS
 positionals
 powertoys
+pri
 productcode
 pseudocode
 pvk
