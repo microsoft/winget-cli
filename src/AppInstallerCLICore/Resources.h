@@ -196,7 +196,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAuthor);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyright);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyrightUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
@@ -207,6 +209,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicense);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicenseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelMoniker);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPackageUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPrivacyUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisher);
@@ -215,6 +218,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsFeaturesDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
