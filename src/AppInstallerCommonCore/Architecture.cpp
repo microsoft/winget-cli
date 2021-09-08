@@ -21,6 +21,52 @@ namespace AppInstaller::Utility
             }
         }
 
+        // These types are defined in a future SDK and can be removed when we actually have them available.
+        // The exception is that None was added (and this is an enum class).
+        enum class MACHINE_ATTRIBUTES {
+            None = 0,
+            UserEnabled = 0x00000001,
+            KernelEnabled = 0x00000002,
+            Wow64Container = 0x00000004
+        };
+
+        DEFINE_ENUM_FLAG_OPERATORS(MACHINE_ATTRIBUTES);
+
+        using GetMachineTypeAttributesPtr = HRESULT (WINAPI *)(USHORT Machine, MACHINE_ATTRIBUTES* MachineTypeAttributes);
+
+        void AddArchitectureIfMachineTypeAttributesUserEnabled(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+        {
+            wil::unique_hmodule onecoreModule;
+            onecoreModule.reset(LoadLibraryEx(L"api-ms-win-core-processthreads-l1-1-7.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+            if (!onecoreModule)
+            {
+                AICLI_LOG(Core, Verbose, << "Could not load api-ms-win-core-processthreads-l1-1-7.dll");
+                return;
+            }
+
+            GetMachineTypeAttributesPtr getMachineTypeAttributes =
+                reinterpret_cast<GetMachineTypeAttributesPtr>(GetProcAddress(onecoreModule.get(), "GetMachineTypeAttributes"));
+            if (!getMachineTypeAttributes)
+            {
+                AICLI_LOG(Core, Verbose, << "Could not get proc address of GetMachineTypeAttributes");
+                return;
+            }
+
+            MACHINE_ATTRIBUTES attributes = MACHINE_ATTRIBUTES::None;
+            if (SUCCEEDED_LOG(getMachineTypeAttributes(guestMachine, &attributes)))
+            {
+                if (WI_IsFlagSet(attributes, MACHINE_ATTRIBUTES::UserEnabled))
+                {
+                    AICLI_LOG(Test, Info, << "UserEnabled for guest machine: " << guestMachine);
+                    target.push_back(architecture);
+                }
+                else
+                {
+                    AICLI_LOG(Test, Info, << "UserNOTEnabled for guest machine: " << guestMachine);
+                }
+            }
+        }
+
         // Gets the applicable architectures for the current machine.
         std::vector<Architecture> CreateApplicableArchitecturesVector()
         {
@@ -31,6 +77,7 @@ namespace AppInstaller::Utility
             case Architecture::Arm64:
                 applicableArchs.push_back(Architecture::Arm64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
+                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
                 break;
@@ -44,7 +91,9 @@ namespace AppInstaller::Utility
                 break;
             case Architecture::X64:
                 applicableArchs.push_back(Architecture::X64);
-                AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
+                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
+                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
+                //AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
                 break;
             default:
