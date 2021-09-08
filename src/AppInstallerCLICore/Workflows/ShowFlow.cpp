@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!agreement.Label.empty())
                 {
-                    info << Execution::ManifestInfoEmphasis << agreement.Label << " ";
+                    info << Execution::ManifestInfoEmphasis << agreement.Label << ": ";
                 }
 
                 if (!agreement.AgreementText.empty())
