@@ -181,12 +181,8 @@
     </Midl>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AppInstallerCaller_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
-    <Text Include="readme.txt">
-      <DeploymentContent>false</DeploymentContent>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Management.Deployment">

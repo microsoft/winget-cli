@@ -2,10 +2,8 @@
 
 #include "InstallingPackageView.h"
 #include <winrt\Microsoft.Management.Deployment.h>
-//#include <winrt\Microsoft.Management.Deployment.Client.h>
 
 #include "MainPage.g.h"
-//namespace Deployment = winrt::Microsoft::Management::Deployment::Client;
 namespace Deployment = winrt::Microsoft::Management::Deployment;
 
 namespace winrt::AppInstallerCaller::implementation

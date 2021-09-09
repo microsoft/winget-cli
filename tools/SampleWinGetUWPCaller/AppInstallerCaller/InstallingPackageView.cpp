@@ -9,11 +9,13 @@ namespace winrt::AppInstallerCaller::implementation
     {
         return m_package;
     }
+
     void InstallingPackageView::Package(winrt::Microsoft::Management::Deployment::CatalogPackage const& value)
     {
         m_package = value;;
     }
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> InstallingPackageView::AsyncOperation()
+
+    InstallingPackageView::AsyncOperation_t InstallingPackageView::AsyncOperation()
     {
         return m_asyncOperation;
     }
@@ -25,20 +27,23 @@ namespace winrt::AppInstallerCaller::implementation
         co_await winrt::resume_foreground(view.Dispatcher());
         view.Progress(progress.DownloadProgress * 100);
     }
-    void InstallingPackageView::AsyncOperation(winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> const& value)
+
+    void InstallingPackageView::AsyncOperation(InstallingPackageView::AsyncOperation_t const& value)
     {
         m_asyncOperation = value;
         m_asyncOperation.Progress([=](
-            winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> const& /* sender */,
+            InstallingPackageView::AsyncOperation_t const& /* sender */,
             winrt::Microsoft::Management::Deployment::InstallProgress const& progress)
             {
                 UpdateUIProgress(progress, *this);
             });
     }
+
     double InstallingPackageView::Progress()
     {
         return m_progress;
     }
+
     void InstallingPackageView::Progress(double value)
     {
         if (m_progress != value)
@@ -47,22 +52,27 @@ namespace winrt::AppInstallerCaller::implementation
             m_propertyChanged(*this, Windows::UI::Xaml::Data::PropertyChangedEventArgs{ L"Progress" });
         }
     }
+
     hstring InstallingPackageView::StatusText()
     {
         return m_text;
     }
+
     void InstallingPackageView::StatusText(hstring const& value)
     {
         m_text = value;
     }
+
     winrt::Windows::UI::Core::CoreDispatcher InstallingPackageView::Dispatcher()
     {
         return m_dispatcher;
     }
+
     void InstallingPackageView::Dispatcher(winrt::Windows::UI::Core::CoreDispatcher const& value)
     {
         m_dispatcher = value;
     }
+
     winrt::event_token InstallingPackageView::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
     {
         return m_propertyChanged.add(handler);
