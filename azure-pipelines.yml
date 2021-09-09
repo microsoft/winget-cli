@@ -13,7 +13,7 @@ pr:
     - src/*
 
 pool:
-  vmImage: 'windows-2022'
+  vmImage: 'windows-latest'
 
 variables:
   solution: 'src/AppInstallerCLI.sln'
@@ -334,6 +334,14 @@ jobs:
     inputs:
       filePath: 'src\PackagedTests\Run-RemovePackage.ps1'
       workingDirectory: 'src'
+    condition: succeededOrFailed()
+    
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Com Trace from Interface tests
+    inputs:
+      PathtoPublish: 'tools\wpr\comTrace.etl'
+      ArtifactName: 'ComTraceFromInterfaceTest'
+      publishLocation: 'Container'
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1

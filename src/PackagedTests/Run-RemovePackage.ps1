@@ -7,3 +7,5 @@
 
 Write-Host "Remove registered package"
 Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
+Write-Host "Ending com trace"
+..\tools\wpr\wpr.exe -stop ..\tools\wpr\comTrace.etl

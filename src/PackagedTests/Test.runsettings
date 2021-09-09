@@ -1,13 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <RunSettings>
-  <!-- 
-  Parameters used by tests at run time.
-       AICLIPackagePath: Used in packaged context. Path to the package containing executable under test.
-  -->
-  <TestRunParameters>
-    <Parameter name="AICLIPackagePath" value="..\AppInstallerCLIPackage\AppPackages\Version\Packagename.msixbundle" />
-  </TestRunParameters>
   <!-- Configurations that affect the Test Framework -->
   <RunConfiguration>
     <!-- Value that specifies the exit code when no tests are discovered -->
