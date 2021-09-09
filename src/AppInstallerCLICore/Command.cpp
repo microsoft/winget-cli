@@ -868,21 +868,9 @@ namespace AppInstaller::CLI
         {
             std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            try
-            {
-                context.Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    message << std::endl;
-            }
-            // If resource.pri is not present trying to log using Resource will throw the exception
-            // again. Default to English message.
-            catch (const winrt::hresult_error&)
-            {
-                context.Reporter.Error() <<
-                    "An unexpected error occurred while executing the command:"  << ' ' << std::endl <<
-                    message << std::endl;
-            }
-            
+            context.Reporter.Error() <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                message << std::endl;
             return hre.code();
         }
         catch (const Settings::GroupPolicyException& e)
@@ -890,6 +878,12 @@ namespace AppInstaller::CLI
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+        }
+        catch (const Resource::MissingResourceFileException& e)
+        {
+            Logging::Telemetry().LogException(command->FullName(), "MissingResourceFileException", e.what());
+            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
+            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
         }
         catch (const std::exception& e)
         {

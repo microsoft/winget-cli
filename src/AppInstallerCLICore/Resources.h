@@ -344,6 +344,13 @@ namespace AppInstaller::CLI::Resource
     };
 
     Utility::LocIndView GetFixedString(FixedString fs);
+
+    struct MissingResourceFileException : std::exception
+    {
+        MissingResourceFileException() {}
+
+        const char* what() const noexcept override { return "The system cannot find resource.pri file."; }
+    };
 }
 
 inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::StringId si)
