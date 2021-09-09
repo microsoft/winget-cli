@@ -326,6 +326,7 @@ jobs:
       testAssemblyVer2: |
         src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
       runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
+      overrideTestrunParameters: '-AICLIPackagePath $(appxPackageDir)AppInstallerCLIPackage_0.0.2.0_Test\AppInstallerCLIPackage_0.0.2.0_x86_x64.msixbundle'
     condition: succeededOrFailed()
 
   - task: PowerShell@2
