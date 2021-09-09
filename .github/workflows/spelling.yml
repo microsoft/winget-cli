@@ -1,0 +1,17 @@
+# spelling.yml is disabled per
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fcheck-spelling%2Fcheck-spelling%2Fsecurity%2Fadvisories%2FGHSA-g86g-chm8-7r2p&amp;data=04%7C01%7Cjohnmcp%40xbox.com%7Cdcb0dc219fbd463785c108d94fd923c3%7C72f988bf86f141af91ab2d7cd011db47%7C0%7C0%7C637628616589409754%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&amp;sdata=DtBPkkcHlXoiJOyGb2AM7iYl3QhiXVw4ouctYne%2Bnkw%3D&amp;reserved=0
+name: Workflow should not run!
+on:
+  push:
+    branches: ''
+
+jobs:
+  placeholder:
+    name: Should be disabled
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+    - name: Task
+      run: |
+        echo 'Running this task would be bad'
+        exit 1
