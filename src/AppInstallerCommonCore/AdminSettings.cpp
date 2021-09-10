@@ -15,7 +15,7 @@ namespace AppInstaller::Settings
 
     namespace
     {
-        constexpr std::string_view s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFile"sv;
+        constexpr std::string_view s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFiles"sv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>

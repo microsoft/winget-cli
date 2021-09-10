@@ -177,10 +177,10 @@
     <ClInclude Include="Public\winget\ThreadGlobals.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\MsiExecArguments.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\AdminSettings.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\MsiExecArguments.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
