@@ -309,10 +309,9 @@ jobs:
     condition: succeededOrFailed()  
 
   - task: PowerShell@2
-    displayName: Install WinGetDev package
+    displayName: Remove WinGetDev package
     inputs:
-      filePath: 'src\PackagedTests\Run-InstallPackage.ps1'
-      arguments: '-BuildRoot x86\Release -PackageRoot $(appxPackageDir)\AppInstallerCLIPackage_*_Test'
+      filePath: 'src\PackagedTests\Run-RemovePackage.ps1'
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
@@ -342,7 +341,7 @@ jobs:
       ArtifactName: 'ComTraceFromInterfaceTest'
       publishLocation: 'Container'
     condition: succeededOrFailed()
-    
+
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:
