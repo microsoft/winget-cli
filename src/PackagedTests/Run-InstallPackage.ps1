@@ -19,11 +19,29 @@ if ([String]::IsNullOrEmpty($PackageRoot))
 $PackageRoot = Resolve-Path $PackageRoot
 Write-Host "Using PackageRoot = $PackageRoot"
 
-Get-AppxPackage WinGetDevCLI 
+Get-AppxPackage WinGetDevCLI
 Write-Host "Remove registered package"
 Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
-$Local:AddScript = Join-Path $PackageRoot "Add-AppDevPackage.ps1"
-Write-Host "Installing package at path: $Local:AddScript"
-& $Local:AddScript -Force
+
+$Local:BundlePackageFormat = Join-Path $PackageRoot "AppInstallerCLIPackage*.msixbundle"
+$Local:ResolvedPackagePath = Resolve-Path $Local:BundlePackageFormat
+$Local:ExtractedBundlePath = Join-Path $PackageRoot "ExtractedBundle"
+$Local:BundleCopyPath = Join-Path $PackageRoot "bundle.zip"
+Copy-Item -Path $Local:ResolvedPackagePath -Destination $Local:BundleCopyPath
+Write-Host "Expanding bundle at: $Local:ResolvedPackagePath"
+Expand-Archive -Path $Local:BundleCopyPath -DestinationPath $Local:ExtractedBundlePath
+
+$Local:MainPackageFormat = Join-Path $Local:ExtractedBundlePath "AppInstallerCLIPackage*x86*.msix"
+$Local:ResolvedMainPackagePath = Resolve-Path $Local:MainPackageFormat
+$Local:ExtractedMainPath = Join-Path $PackageRoot "ExtractedMain"
+$Local:MainCopyPath = Join-Path $PackageRoot "main.zip"
+Copy-Item -Path $Local:ResolvedMainPackagePath -Destination $Local:MainCopyPath
+Write-Host "Expanding package at: $Local:ResolvedMainPackagePath"
+Expand-Archive -Path $Local:MainCopyPath -DestinationPath $Local:ExtractedMainPath
+
+$Local:ManifestPath = Join-Path $ExtractedMainPath "AppxManifest.xml"
+Write-Host "Registering manifest at path: $Local:ManifestPath"
+Add-AppxPackage -Register $Local:ManifestPath
+
 Get-AppxPackage WinGetDevCLI 
 
