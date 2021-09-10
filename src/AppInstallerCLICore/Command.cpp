@@ -632,18 +632,25 @@ namespace AppInstaller::CLI
 
         for (const auto& arg : GetArguments())
         {
-            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
-            {
-                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
-            }
-
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
                 auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
                 throw GroupPolicyException(arg.GroupPolicy());
+            }
+
+            if (arg.AdminSetting() != AdminSetting::Unknown && !Settings::IsAdminSettingEnabled(arg.AdminSetting()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto setting = Settings::AdminSettingToString(arg.AdminSetting());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
+                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage, Utility::LocIndView{ setting }, {});
+            }
+
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
