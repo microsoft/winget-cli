@@ -312,7 +312,7 @@ jobs:
     displayName: Install WinGetDev package
     inputs:
       filePath: 'src\PackagedTests\Run-InstallPackage.ps1'
-      arguments: '-PackageRoot $(appxPackageDir)\AppInstallerCLIPackage_*_Test'
+      arguments: '-BuildRoot x86\Release -PackageRoot $(appxPackageDir)\AppInstallerCLIPackage_*_Test'
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
@@ -335,6 +335,14 @@ jobs:
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Com Trace from Interface tests
+    inputs:
+      PathtoPublish: 'tools\wpr\traces'
+      ArtifactName: 'ComTraceFromInterfaceTest'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()
+    
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:
