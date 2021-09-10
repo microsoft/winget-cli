@@ -42,7 +42,15 @@ if (-not (Test-Path $Local:ManifestPath))
 }
 Get-AppxPackage WinGetDevCLI 
 Write-Host "Enabling com tracing."
-..\tools\wpr\wpr.exe -start ..\tools\wpr\ComTrace.wprp -filemode
+D:\a\1\s\tools\wpr\wpr.exe -start D:\a\1\s\tools\wpr\ComTrace.wprp -filemode
 Write-Host "Registering manifest at path: $Local:ManifestPath"
 Add-AppxPackage -Register $Local:ManifestPath
 Get-AppxPackage WinGetDevCLI 
+
+$Local:AppxRecipePath = Join-Path $BuildRoot "PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe"
+Write-Host "Running tests: $Local:AppxRecipePath"
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" $Local:AppxRecipePath /logger:trx;LogFileName=D:\a\1\s\tools\wpr\traces\comTestRun.trx
+Write-Host "Finished Tests"
+Write-Host "Ending com trace"
+D:\a\1\s\tools\wpr\wpr.exe -stop D:\a\1\s\tools\wpr\traces\comTrace.etl
+Write-Host "Ended com trace"

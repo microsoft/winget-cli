@@ -316,19 +316,6 @@ jobs:
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
-  # Run the tests from the x64 package. These tests make cross package com calls to the previously installed WinGetDev package.
-  - task: VSTest@2
-    displayName: Run Com Interface Tests
-    inputs:
-      testRunTitle: 'Com Interface Tests'
-      platform: 'x64'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: |
-        src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
-      runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
-      overrideTestrunParameters: '-AICLIPackagePath $(appxPackageDir)AppInstallerCLIPackage_0.0.2.0_Test\AppInstallerCLIPackage_0.0.2.0_x86_x64.msixbundle'
-    condition: succeededOrFailed()
-
   - task: PowerShell@2
     displayName: Remove WinGetDev package
     inputs:
@@ -339,7 +326,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish Com Trace from Interface tests
     inputs:
-      PathtoPublish: 'tools\wpr\comTrace.etl'
+      PathtoPublish: 'tools\wpr\traces'
       ArtifactName: 'ComTraceFromInterfaceTest'
       publishLocation: 'Container'
     condition: succeededOrFailed()
