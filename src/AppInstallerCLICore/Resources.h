@@ -242,6 +242,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListData);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListField);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
