@@ -87,9 +87,6 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <None Include="$(SolutionDir)$(PlatformTarget)\$(Configuration)\WinGetServer\WindowsPackageManagerServer.exe" Link="WinGetServer\%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">

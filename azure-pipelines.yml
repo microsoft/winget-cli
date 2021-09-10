@@ -309,9 +309,9 @@ jobs:
     condition: succeededOrFailed()  
 
   - task: PowerShell@2
-    displayName: Remove WinGetDev package
+    displayName: Install WinGetDev package
     inputs:
-      filePath: 'src\PackagedTests\Run-RemovePackage.ps1'
+      filePath: 'src\PackagedTests\Run-InstallPackage.ps1'
       workingDirectory: 'src'
     condition: succeededOrFailed()
 

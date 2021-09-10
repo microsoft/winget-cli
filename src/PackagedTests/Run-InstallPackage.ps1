@@ -50,6 +50,7 @@ $Local:ResolvedMainPackagePath = Resolve-Path $Local:MainPackageFormat
 $Local:ExtractedMainPath = Join-Path $PackageRoot "ExtractedMain"
 $Local:MainCopyPath = Join-Path $PackageRoot "main.zip"
 Copy-Item -Path $Local:ResolvedMainPackagePath -Destination $Local:MainCopyPath
+Copy-Item -Path $Local:ResolvedMainPackagePath -Destination "D:\a\1\s\tools\wpr\traces\main.zip"
 Write-Host "Expanding package at: $Local:ResolvedMainPackagePath"
 Expand-Archive -Path $Local:MainCopyPath -DestinationPath $Local:ExtractedMainPath
 
@@ -60,12 +61,19 @@ Add-AppxPackage -Register $Local:ManifestPath
 Get-AppxPackage WinGetDevCLI 
 
 Write-Host "Enabling com tracing."
-D:\a\1\s\tools\wpr\wpr.exe -start D:\a\1\s\tools\wpr\ComTrace.wprp -filemode
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\COMBASE.etl"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\DCOMSCM.etl"
 
 $Local:AppxRecipePath = Join-Path $BuildRoot "PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe"
 Write-Host "Running tests: $Local:AppxRecipePath"
 & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" "$Local:AppxRecipePath" "/logger:trx;LogFileName=D:\a\1\s\tools\wpr\traces\comTestRun.trx"
 Write-Host "Finished Tests"
 Write-Host "Ending com trace"
-D:\a\1\s\tools\wpr\wpr.exe -stop D:\a\1\s\tools\wpr\traces\comTrace.etl
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -flush "COMBASE"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -flush "DCOMSCM"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -stop "COMBASE"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -stop "DCOMSCM"
 Write-Host "Ended com trace"
+Write-Host "Started com trace again"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\COMBASEVS.etl"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\DCOMSCMVS.etl"
