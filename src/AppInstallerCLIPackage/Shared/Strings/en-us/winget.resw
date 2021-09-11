@@ -544,6 +544,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Name</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifier</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Did not find a source named:</value>
   </data>
