@@ -454,7 +454,6 @@ namespace AppInstaller::CLI::Workflow
             break;
         case InstallerTypeEnum::MSStore:
             context <<
-                EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
                 EnsureStorePolicySatisfied <<
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;

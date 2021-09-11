@@ -31,6 +31,7 @@ namespace AppInstaller::Manifest
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
         const char* const InstallerTypeDoesNotSupportPackageFamilyName = "The specified installer type does not support PackageFamilyName.";
         const char* const InstallerTypeDoesNotSupportProductCode = "The specified installer type does not support ProductCode.";
+        const char* const InstallerTypeDoesNotWriteAppsAndFeaturesEntry = "The specified installer type does not write to Apps and Features entry.";
         const char* const IncompleteMultiFileManifest = "The multi file manifest is incomplete. A multi file manifest must contain at least version, installer and defaultLocale manifest.";
         const char* const InconsistentMultiFileManifestFieldValue = "The multi file manifest has inconsistent field values.";
         const char* const DuplicateMultiFileManifestType = "The multi file manifest should contain only one file with the particular ManifestType.";
@@ -39,6 +40,7 @@ namespace AppInstaller::Manifest
         const char* const InconsistentMultiFileManifestDefaultLocale = "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest.";
         const char* const FieldFailedToProcess = "Failed to process field.";
         const char* const InvalidBcp47Value = "The locale value is not a well formed bcp47 language tag.";
+        const char* const BothAllowedAndExcludedMarketsDefined = "Both AllowedMarkets and ExcludedMarkets defined.";
         const char* const DuplicateReturnCodeEntry = "Duplicate installer return code found.";
     }
 

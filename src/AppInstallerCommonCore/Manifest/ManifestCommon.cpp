@@ -230,6 +230,26 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
+    {
+        ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "elevationRequired"))
+        {
+            result = ElevationRequirementEnum::ElevationRequired;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevationProhibited"))
+        {
+            result = ElevationRequirementEnum::ElevationProhibited;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevatesSelf"))
+        {
+            result = ElevationRequirementEnum::ElevatesSelf;
+        }
+
+        return result;
+    }
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in)
     {
         if (in == "singleton")
@@ -348,6 +368,18 @@ namespace AppInstaller::Manifest
     }
 
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Exe ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Wix ||
+            installerType == InstallerTypeEnum::Burn
+            );
+    }
+
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType)
     {
         return (
             installerType == InstallerTypeEnum::Exe ||

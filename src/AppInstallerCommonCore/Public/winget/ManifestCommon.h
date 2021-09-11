@@ -123,6 +123,14 @@ namespace AppInstaller::Manifest
         Desktop,
     };
 
+    enum class ElevationRequirementEnum
+    {
+        Unknown,
+        ElevationRequired,
+        ElevationProhibited,
+        ElevatesSelf,
+    };
+
     enum class ManifestTypeEnum
     {
         Singleton,
@@ -151,6 +159,22 @@ namespace AppInstaller::Manifest
         Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
         Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
+    };
+
+    struct AppsAndFeaturesEntry
+    {
+        string_t DisplayName;
+        string_t Publisher;
+        string_t DisplayVersion;
+        string_t ProductCode;
+        string_t UpgradeCode;
+        InstallerTypeEnum InstallerType = InstallerTypeEnum::Unknown;
+    };
+
+    struct MarketsInfo
+    {
+        std::vector<string_t> AllowedMarkets;
+        std::vector<string_t> ExcludedMarkets;
     };
 
     struct DependencyList
@@ -264,6 +288,8 @@ namespace AppInstaller::Manifest
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
 
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 
     ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in);
@@ -277,6 +303,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer type uses the ProductCode system reference.
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer type writes ARP entry.
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType);
 
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);

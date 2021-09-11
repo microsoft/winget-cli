@@ -130,6 +130,7 @@ hhx
 HINSTANCE
 hkey
 hlocal
+hmodule
 hre
 hresults
 htm
@@ -246,6 +247,7 @@ pkindex
 PMS
 positionals
 powertoys
+processthreads
 productcode
 pseudocode
 pvk

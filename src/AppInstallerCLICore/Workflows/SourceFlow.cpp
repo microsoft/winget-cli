@@ -139,6 +139,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListType), source.Type });
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListData), source.Data });
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListIdentifier), source.Identifier });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {

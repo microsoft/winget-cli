@@ -205,10 +205,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAuthor);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyright);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyrightUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerReleaseDate);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerType);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerUrl);
@@ -216,7 +219,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicenseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelMoniker);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPackageUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPrivacyUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisher);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherSupportUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
@@ -245,6 +253,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListData);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListField);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);

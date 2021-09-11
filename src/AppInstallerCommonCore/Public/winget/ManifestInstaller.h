@@ -74,5 +74,21 @@ namespace AppInstaller::Manifest
         std::vector<string_t> RestrictedCapabilities;
 
         DependencyList Dependencies;
+
+        bool InstallerAbortsTerminal = false;
+
+        string_t ReleaseDate;
+
+        bool InstallLocationRequired = false;
+
+        bool RequireExplicitUpgrade = false;
+
+        std::vector<AppInstaller::Utility::Architecture> UnsupportedOSArchitectures;
+
+        std::vector<AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+
+        ElevationRequirementEnum ElevationRequirement = ElevationRequirementEnum::Unknown;
+
+        MarketsInfo Markets;
     };
 }
