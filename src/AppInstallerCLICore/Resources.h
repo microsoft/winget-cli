@@ -345,11 +345,14 @@ namespace AppInstaller::CLI::Resource
 
     Utility::LocIndView GetFixedString(FixedString fs);
 
-    struct MissingResourceFileException : std::exception
+    struct ResourceOpenException : std::exception
     {
-        MissingResourceFileException() {}
+        ResourceOpenException(const winrt::hresult_error& hre);
 
-        const char* what() const noexcept override { return "The system cannot find resource.pri file."; }
+        const char* what() const noexcept override { return m_message.c_str(); }
+
+    private:
+        std::string m_message;
     };
 }
 

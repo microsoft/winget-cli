@@ -32,7 +32,7 @@ namespace AppInstaller::CLI::Resource
         {
             // This message cannot be localized.
             AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
-            throw MissingResourceFileException();
+            throw ResourceOpenException(hre);
         }
     }
 
@@ -50,5 +50,10 @@ namespace AppInstaller::CLI::Resource
         }
 
         THROW_HR(E_UNEXPECTED);
+    }
+
+    ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
+    {
+        m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
     }
 }
