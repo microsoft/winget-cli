@@ -50,7 +50,14 @@ $Local:ResolvedMainPackagePath = Resolve-Path $Local:MainPackageFormat
 $Local:ExtractedMainPath = Join-Path $PackageRoot "ExtractedMain"
 $Local:MainCopyPath = Join-Path $PackageRoot "main.zip"
 Copy-Item -Path $Local:ResolvedMainPackagePath -Destination $Local:MainCopyPath
-Copy-Item -Path $Local:ResolvedMainPackagePath -Destination "D:\a\1\s\tools\wpr\traces\main.zip"
+$Local:WorkingDirSrc = Get-Location
+Write-Host "Dir at: $Local:WorkingDirSrc"
+$Local:WorkingDir = Split-Path $Local:WorkingDirSrc -Parent
+Write-Host "Dir at: $Local:WorkingDir"
+$Local:TraceOutputDir = Join-Path $Local:WorkingDir "tools\wpr\traces"
+$Local:MainCopyArtifactPath = Join-Path $Local:TraceOutputDir "main.zip"
+New-Item -Force $Local:MainCopyArtifactPath
+Copy-Item -Path $Local:ResolvedMainPackagePath -Destination $Local:MainCopyArtifactPath
 Write-Host "Expanding package at: $Local:ResolvedMainPackagePath"
 Expand-Archive -Path $Local:MainCopyPath -DestinationPath $Local:ExtractedMainPath
 
@@ -61,12 +68,17 @@ Add-AppxPackage -Register $Local:ManifestPath
 Get-AppxPackage WinGetDevCLI 
 
 Write-Host "Enabling com tracing."
-& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\COMBASE.etl"
-& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\DCOMSCM.etl"
+
+$Local:ComTracePath = Join-Path $Local:TraceOutputDir "COMBASE.etl"
+$Local:DComTracePath = Join-Path $Local:TraceOutputDir "DCOMSCM.etl"
+Write-Host "Enabling com tracing. $Local:ComTracePath"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "$Local:ComTracePath"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "$Local:DComTracePath"
 
 $Local:AppxRecipePath = Join-Path $BuildRoot "PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe"
 Write-Host "Running tests: $Local:AppxRecipePath"
-& "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" "$Local:AppxRecipePath" "/logger:trx;LogFileName=D:\a\1\s\tools\wpr\traces\comTestRun.trx"
+$Local:TRXFilePath = Join-Path $Local:TraceOutputDir "comTestRun.trx"
+& "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" "$Local:AppxRecipePath" "/logger:trx;LogFileName=$Local:TRXFilePath"
 Write-Host "Finished Tests"
 Write-Host "Ending com trace"
 & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -flush "COMBASE"
@@ -75,5 +87,7 @@ Write-Host "Ending com trace"
 & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -stop "DCOMSCM"
 Write-Host "Ended com trace"
 Write-Host "Started com trace again"
-& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\COMBASEVS.etl"
-& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "D:\a\1\s\tools\wpr\traces\DCOMSCMVS.etl"
+$Local:ComTraceVSPath = Join-Path $Local:TraceOutputDir "COMBASEVS.etl"
+$Local:DComTraceVSPath = Join-Path $Local:TraceOutputDir "DCOMSCMVS.etl"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "COMBASE" -guid "#bda92ae8-9f11-4d49-ba1d-a4c2abca692e"  -flags "7" -f "$Local:ComTraceVSPath"
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\tracelog.exe" -start "DCOMSCM" -guid "#9474a749-a98d-4f52-9f45-5b20247e4f01"  -flags "7" -f "$Local:DComTraceVSPath"
