@@ -312,6 +312,7 @@ jobs:
     displayName: Install WinGetDev package
     inputs:
       filePath: 'src\PackagedTests\Run-InstallPackage.ps1'
+      arguments: '-BuildRoot x86\Release -PackageRoot $(appxPackageDir)\AppInstallerCLIPackage_*_Test'
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
