@@ -879,6 +879,12 @@ namespace AppInstaller::CLI
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
+        catch (const Resource::ResourceOpenException& e)
+        {
+            Logging::Telemetry().LogException(command->FullName(), "ResourceOpenException", e.what());
+            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
+            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
+        }
         catch (const std::exception& e)
         {
             Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
