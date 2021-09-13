@@ -138,7 +138,7 @@
         "enum": [ 0 ]
       },
       "minimum": -2147483648,
-      "maximum": 429496729,
+      "maximum": 429496725,
       "description": "An exit code that can be returned by the installer after execution"
     },
     "InstallerSuccessCodes": {

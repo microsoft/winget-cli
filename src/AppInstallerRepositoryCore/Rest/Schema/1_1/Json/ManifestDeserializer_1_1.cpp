@@ -28,6 +28,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         constexpr std::string_view AllowedMarkets = "AllowedMarkets"sv;
         constexpr std::string_view ExcludedMarkets = "ExcludedMarkets"sv;
         constexpr std::string_view ElevationRequirement = "ElevationRequirement"sv;
+        constexpr std::string_view ExpectedReturnCodes = "ExpectedReturnCodes"sv;
+        constexpr std::string_view InstallerReturnCode = "InstallerReturnCode"sv;
+        constexpr std::string_view ReturnResponse = "ReturnResponse"sv;
 
         // Locale
         constexpr std::string_view ReleaseNotes = "ReleaseNotes"sv;
@@ -122,6 +125,27 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
                     JsonHelper::GetRawStringArrayFromJsonNode(marketsNode.value().get(), JsonHelper::GetUtilityString(ExcludedMarkets)));
                 installer.Markets.AllowedMarkets = V1_0::Json::ManifestDeserializer::ConvertToManifestStringArray(
                     JsonHelper::GetRawStringArrayFromJsonNode(marketsNode.value().get(), JsonHelper::GetUtilityString(AllowedMarkets)));
+            }
+
+            // Expected return codes
+            std::optional<std::reference_wrapper<const web::json::array>> expectedReturnCodesNode = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(ExpectedReturnCodes));
+            if (expectedReturnCodesNode)
+            {
+                for (auto& returnCodeNode : expectedReturnCodesNode.value().get())
+                {
+                    ExpectedReturnCodeEnum returnResponse = Manifest::ConvertToExpectedReturnCodeEnum(JsonHelper::GetRawStringValueFromJsonNode(returnCodeNode, JsonHelper::GetUtilityString(ReturnResponse)).value_or(""));
+                    DWORD installerReturnCode = JsonHelper::GetRawIntValueFromJsonNode(returnCodeNode, JsonHelper::GetUtilityString(InstallerReturnCode)).value_or(0);
+
+                    // Only add when it is valid
+                    if (installerReturnCode != 0 && returnResponse != ExpectedReturnCodeEnum::Unknown)
+                    {
+                        if (!installer.ExpectedReturnCodes.insert({ installerReturnCode, returnResponse }).second)
+                        {
+                            AICLI_LOG(Repo, Error, << "Expected return codes cannot have repeated value.");
+                            return {};
+                        }
+                    }
+                }
             }
         }
 

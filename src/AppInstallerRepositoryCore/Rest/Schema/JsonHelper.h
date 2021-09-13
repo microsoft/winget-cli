@@ -23,6 +23,8 @@ namespace AppInstaller::Repository::Rest::Schema
 
         static std::optional<int> GetRawIntValueFromJsonValue(const web::json::value& value);
 
+        static std::optional<int> GetRawIntValueFromJsonNode(const web::json::value& value, const utility::string_t& keyName);
+
         static utility::string_t GetUtilityString(std::string_view nodeName);
 
         static std::vector<std::string> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
