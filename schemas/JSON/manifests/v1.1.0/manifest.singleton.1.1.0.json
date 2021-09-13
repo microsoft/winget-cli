@@ -201,7 +201,14 @@
               "DiskFull",
               "InsufficientMemory",
               "NoNetwork",
-              "ContactSupport"
+              "ContactSupport",
+              "RebootRequiredToFinish",
+              "RebootRequiredForInstall",
+              "RebootInitiated",
+              "CancelledByUser",
+              "AlreadyInstalled",
+              "Downgrade",
+              "BlockedByPolicy"
             ]
           }
         }

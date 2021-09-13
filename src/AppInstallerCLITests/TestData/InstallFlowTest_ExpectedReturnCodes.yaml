@@ -28,5 +28,19 @@ Installers:
             ReturnResponse: NoNetwork
           - InstallerReturnCode: 8
             ReturnResponse: ContactSupport
+          - InstallerReturnCode: 9
+            ReturnResponse: RebootRequiredToFinish
+          - InstallerReturnCode: 10
+            ReturnResponse: RebootRequiredForInstall
+          - InstallerReturnCode: 11
+            ReturnResponse: RebootInitiated
+          - InstallerReturnCode: 12
+            ReturnResponse: CancelledByUser
+          - InstallerReturnCode: 13
+            ReturnResponse: AlreadyInstalled
+          - InstallerReturnCode: 14
+            ReturnResponse: Downgrade
+          - InstallerReturnCode: 15
+            ReturnResponse: BlockedByPolicy
 ManifestType: singleton
 ManifestVersion: 1.1.0

@@ -108,6 +108,13 @@ namespace AppInstaller::Manifest
         InsufficientMemory,
         NoNetwork,
         ContactSupport,
+        RebootRequiredToFinish,
+        RebootRequiredForInstall,
+        RebootInitiated,
+        CancelledByUser,
+        AlreadyInstalled,
+        Downgrade,
+        BlockedByPolicy,
     };
 
     struct ExpectedReturnCode

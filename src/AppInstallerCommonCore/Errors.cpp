@@ -176,6 +176,20 @@ namespace AppInstaller
                 return "This application requires internet connectivity.Connect to a network then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT:
                 return "This application encountered an error during installation.Contact support.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
+                return "Restart your PC to finish installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
+                return "Your PC will restart to finish installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED:
+                return "Installation failed. Restart your PC then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER:
+                return "You cancelled the installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED:
+                return "Another version of this application is already installed.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE:
+                return "A higher version of this application is already installed.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY:
+                return "Organization policies are preventing installation. Contact your admin.";
             default:
                 return "Unknown Error Code";
             }

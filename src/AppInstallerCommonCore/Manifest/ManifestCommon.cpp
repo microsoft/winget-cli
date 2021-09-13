@@ -318,6 +318,34 @@ namespace AppInstaller::Manifest
         {
             result = ExpectedReturnCodeEnum::ContactSupport;
         }
+        else if (Utility::CaseInsensitiveEquals(in, "RebootRequiredToFinish"))
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredToFinish;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "RebootRequiredForInstall"))
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredForInstall;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "RebootInitiated"))
+        {
+            result = ExpectedReturnCodeEnum::RebootInitiated;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "CancelledByUser"))
+        {
+            result = ExpectedReturnCodeEnum::CancelledByUser;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "AlreadyInstalled"))
+        {
+            result = ExpectedReturnCodeEnum::AlreadyInstalled;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "Downgrade"))
+        {
+            result = ExpectedReturnCodeEnum::Downgrade;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "BlockedByPolicy"))
+        {
+            result = ExpectedReturnCodeEnum::BlockedByPolicy;
+        }
 
         return result;
     }
