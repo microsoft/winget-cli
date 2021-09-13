@@ -334,6 +334,7 @@ pdb
 PEVENT
 pfp
 PGP
+php
 PII
 pipssource
 placeholders
@@ -408,6 +409,7 @@ SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
 setschemaversion
+setupexitcodes
 setvariable
 setw
 shcore
@@ -536,6 +538,7 @@ URegular
 uri
 url
 urlmon
+USEREXIT
 userguide
 USERPROFILE
 usersources

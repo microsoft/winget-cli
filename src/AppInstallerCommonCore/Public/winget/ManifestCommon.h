@@ -320,6 +320,6 @@ namespace AppInstaller::Manifest
     // Get a list of default switches for known installer types
     std::map<InstallerSwitchType, Utility::NormalizedString> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
 
-    // Get a lsit of default return codes for known installer types
+    // Get a list of default return codes for known installer types
     std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType);
 }
