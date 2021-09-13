@@ -491,20 +491,33 @@ namespace AppInstaller::Manifest
             {
                 { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
                 { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
-                // { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredSuccess },
-                // { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootRequiredSuccess },
-                // { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::UserCancelled },
+                { ERROR_INSTALL_SERVICE_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
+                { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
+                { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
             };
         case InstallerTypeEnum::Inno:
             // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
             return
             {
-                // { 2, ExpectedReturnCodeEnum::UserCancelled },
-                // { 5, ExpectedReturnCodeEnum::UserCancelled },
-                // { 8, ExpectedReturnCodeEnum::RebootRequiredFailure },
+                { 2, ExpectedReturnCodeEnum::CancelledByUser },
+                { 5, ExpectedReturnCodeEnum::CancelledByUser },
+                { 8, ExpectedReturnCodeEnum::RebootRequiredForInstall },
             };
         case InstallerTypeEnum::Msix:
             // See https://docs.microsoft.com/en-us/windows/win32/appxpkg/troubleshooting
+            return
+            {
+                { ERROR_INSTALL_PREREQUISITE_FAILED, ExpectedReturnCodeEnum::MissingDependency },
+                { ERROR_INSTALL_RESOLVE_DEPENDENCY_FAILED, ExpectedReturnCodeEnum::MissingDependency },
+                { ERROR_INSTALL_OPTIONAL_PACKAGE_REQUIRES_MAIN_PACKAGE, ExpectedReturnCodeEnum::MissingDependency },
+                { ERROR_INSTALL_OUT_OF_DISK_SPACE, ExpectedReturnCodeEnum::DiskFull },
+                { ERROR_INSTALL_CANCEL, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_PACKAGE_ALREADY_EXISTS, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_PACKAGE_DOWNGRADE, ExpectedReturnCodeEnum::Downgrade },
+            };
         default:
             return {};
         }
