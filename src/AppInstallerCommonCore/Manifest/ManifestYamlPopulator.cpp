@@ -266,7 +266,6 @@ namespace AppInstaller::Manifest
 
             if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
             {
-                std::move(v1_1CommonFields.begin(), v1_1CommonFields.end(), std::inserter(result, result.end()));
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
                     { "InstallerAbortsTerminal", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerAbortsTerminal = value.as<bool>(); return {}; } },
@@ -661,7 +660,7 @@ namespace AppInstaller::Manifest
         }
 
         m_p_installer->ExpectedReturnCodes = returnCodes;
-        
+
         return resultErrors;
     }
 
