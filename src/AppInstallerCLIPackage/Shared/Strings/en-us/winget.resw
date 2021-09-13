@@ -466,10 +466,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The following failures were found validating the settings:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings</value>
+    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings This command can also be used to set administrator settings by providing 'enable' or 'disable' argument</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Open settings</value>
+    <value>Open settings or set administrator settings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
@@ -1077,5 +1077,24 @@ Do you agree to the terms?</value>
   </data>
   <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
     <value>Release Notes Url:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable %1' as administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Enables the specific administrator setting</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Disables the specific administrator setting</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Too many admin setting arguments provided</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Admin setting enabled.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Admin setting disabled.</value>
   </data>
 </root>

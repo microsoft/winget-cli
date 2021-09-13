@@ -23,6 +23,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptSourceAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableHeader);
@@ -52,6 +56,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandShortDescription);
@@ -275,6 +280,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolInfoArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolVersionArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(TooManyAdminSettingArgumentsError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
