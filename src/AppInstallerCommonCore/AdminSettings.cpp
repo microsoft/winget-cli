@@ -25,7 +25,7 @@ namespace AppInstaller::Settings
 
             if (!valueNode || !valueNode.IsScalar())
             {
-                AICLI_LOG(Core, Info, << "Admin setting '" << name << "' was not found or did not contain the expected format");
+                AICLI_LOG(Core, Verbose, << "Admin setting '" << name << "' was not found or did not contain the expected format");
                 return false;
             }
 
@@ -88,7 +88,7 @@ namespace AppInstaller::Settings
             auto stream = Settings::GetSettingStream(Settings::Streams::AdminSettings);
             if (!stream)
             {
-                AICLI_LOG(Core, Info, << "Admin settings was not found");
+                AICLI_LOG(Core, Verbose, << "Admin settings was not found");
                 return;
             }
 
@@ -168,16 +168,14 @@ namespace AppInstaller::Settings
 
     bool IsAdminSettingEnabled(AdminSetting setting)
     {
-        AdminSettingsInternal adminSettingsInternal;
-        bool isEnabled = adminSettingsInternal.GetAdminSettingBoolValue(setting);
-
         // For some admin settings, even if it's disabled, if the corresponding policy is enabled then override it.
         if (setting == AdminSetting::LocalManifestFiles &&
             GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles) == PolicyState::Enabled)
         {
-            isEnabled = true;
+            return true;
         }
 
-        return isEnabled;
+        AdminSettingsInternal adminSettingsInternal;
+        return adminSettingsInternal.GetAdminSettingBoolValue(setting);
     }
 }
