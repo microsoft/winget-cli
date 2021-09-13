@@ -363,6 +363,16 @@ namespace AppInstaller::CLI::Resource
     };
 
     Utility::LocIndView GetFixedString(FixedString fs);
+
+    struct ResourceOpenException : std::exception
+    {
+        ResourceOpenException(const winrt::hresult_error& hre);
+
+        const char* what() const noexcept override { return m_message.c_str(); }
+
+    private:
+        std::string m_message;
+    };
 }
 
 inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::StringId si)
