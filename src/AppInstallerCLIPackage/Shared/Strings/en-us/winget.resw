@@ -1104,7 +1104,7 @@ Do you agree to the terms?</value>
     <value>Another installation is already in progress. Try again later.</value>
   </data>
   <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
-    <value>One or more file are being used. Exit the application then try again.</value>
+    <value>One or more files are being used. Exit the application then try again.</value>
   </data>
   <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
     <value>This package has a dependency missing from your system.</value>
