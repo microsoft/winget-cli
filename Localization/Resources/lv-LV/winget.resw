@@ -141,6 +141,9 @@
     <value>Ir pieejamas šādas apakškomandas:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>pieejamie jauninājumi.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Izmantot norādīto kanālu; noklusējums ir vispārēja auditorija</value>
   </data>
@@ -419,9 +422,6 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Kursora pozīcija komandrindā</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Priekšskatījums</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Paziņojums par konfidencialitāti</value>
   </data>
@@ -464,12 +464,6 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Iestatījumu validēšanai tika konstatētas šādas kļūmes:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Atver iestatījumus noklusējuma JSON teksta redaktorā. Ja nav konfigurēts neviens redaktors, iestatījumi tiek atvērti programmā Piezīmjbloks. Pieejamos iestatījumus skatiet https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Atver iestatījumus</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ielādējot iestatījumus, radās neparedzēta kļūda. Lūdzu, pārbaudiet savus iestatījumus, izpildot komandu iestatījumi.</value>
@@ -920,5 +914,134 @@ Konfigurācija ir atspējota grupas politikas dēļ.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Argumenta '%1' norādītā vērtība nav derīga</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Atcelts</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ārējais</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Šajā importā atrasto pakotņu atkarības ir:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Šai pakotnei nepieciešamas šādas atkarības:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakotnes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Šai pakotnei bija atkarības, kas, iespējams, vairs nav vajadzīgas:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestā ir šādas nevalidētas atkarības; pārliecinieties, vai tās ir derīgas:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows līdzekļi</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows bibliotēkas</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Teams</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akceptēt visus pakotņu licences līgumus</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Lai instalētu eksportēto pakotni, ir nepieciešams licences līgums:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Izdevējs pieprasa, lai pirms instalēšanas skatītu iepriekš minēto informāciju un piekristu līgumiem.
+Vai piekrītat nosacījumiem?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Netika piekrists pakotnes līgumiem. Operācija atcelta.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Līgumi:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autors:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Apraksts:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalētājs:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Darbības vieta:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store produkta ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tips:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Lejupielādes vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licence:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licences vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Pavārds:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Sākumlapa:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Izdevējs:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versija:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nē</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Jā</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Neizdevās atvērt pievienoto avotu.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akceptēt visus avota līgumus avota operāciju laikā</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Avotam “%1” ir nepieciešams, lai pirms lietošanas skatītu tālāk norādītos līgumus.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Vai piekrītat visiem avota līgumu nosacījumiem?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Viens vai vairāki avota līgumi netika vienoti. Operācija atcelta. Lūdzu, akceptējiet avota līgumus vai noņemiet atbilstošos avotus.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Lai avots darbotos pareizi, ir nepieciešams, lai pašreizējā datora ģeogrāfiskais reģions darbotos pareizi.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Sekmīgi instalēts. Lai pabeigtu jaunināšanu, restartējiet lietojumprogrammu.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Papildu Windows-Package-Manager REST avota HTTP galvene</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Neobligātā galvene tiek ignorēta, jo tā nav lietojama šim avotam.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Neobligātā galvene nav lietojama, nenorādot avotu</value>
   </data>
 </root>

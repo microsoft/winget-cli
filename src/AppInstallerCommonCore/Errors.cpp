@@ -201,7 +201,9 @@ namespace AppInstaller
 #ifndef WINGET_DISABLE_FOR_FUZZING
     std::string GetUserPresentableMessage(const winrt::hresult_error& hre)
     {
-        return Utility::ConvertToUTF8(hre.message());
+        std::ostringstream strstr;
+        GetUserPresentableMessageForHR(strstr, hre.code());
+        return strstr.str();
     }
 #endif
 }

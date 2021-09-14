@@ -141,6 +141,9 @@
     <value>Sub-perintah berikut tersedia:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>pembaruan tersedia.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Gunakan saluran yang ditentukan; default adalah audiens umum</value>
   </data>
@@ -419,9 +422,6 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Posisi kursor dalam baris perintah</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Pratinjau</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Pernyataan Privasi</value>
   </data>
@@ -464,12 +464,6 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Kegagalan berikut ditemukan saat memvalidasi pengaturan:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Buka pengaturan di editor teks json default. Jika tidak ada editor yang dikonfigurasi, buka pengaturan di notepad. Untuk pengaturan yang tersedia, lihat https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Buka pengaturan</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Kesalahan tak terduga saat memuat pengaturan. Silakan verifikasi pengaturan Anda dengan menjalankan perintah pengaturan.</value>
@@ -920,5 +914,134 @@ Konfigurasi dinonaktifkan karena kebijakan grup.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Nilai yang diberikan untuk argumen '%1' tidak valid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Dibatalkan</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Eksternal</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Paket yang ditemukan dalam impor ini memiliki dependensi berikut:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Paket ini memerlukan dependensi berikut:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paket</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Paket ini memiliki dependensi yang mungkin tidak diperlukan lagi:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifes memiliki dependensi berikut yaitu tidak divalidasi; pastikan valid:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Fitur Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Pustaka Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Syarat Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Terima semua perjanjian lisensi untuk paket</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Paket yang diekspor memerlukan perjanjian lisensi untuk diinstal:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Penerbit mengharuskan Anda melihat informasi di atas dan menyetujui perjanjian sebelum menginstal.
+Apakah Anda menyetujui ketentuan?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Perjanjian paket tidak disetujui. Operasi dibatalkan.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Perjanjian:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Pengarang:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Deskripsi:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Penginstal:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Lokal:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id Store Product:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipe:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Unduh Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisensi:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Url Lisensi:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Halaman Beranda:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Penerbit:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versi:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Tidak</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ya</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Gagal membuka sumber yang ditambahkan.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Terima semua perjanjian sumber selama operasi sumber</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Sumber '%1' mengharuskan Anda melihat perjanjian berikut sebelum menggunakannya.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Apakah Anda menyetujui semua ketentuan perjanjian sumber?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Satu atau beberapa perjanjian sumber tidak disetujui. Operasi dibatalkan. Terima perjanjian sumber atau hapus sumber terkait.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Sumber mengharuskan wilayah geografis komputer saat ini dikirim agar berfungsi dengan benar.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Berhasil diinstal. Mulai ulang aplikasi untuk menyelesaikan pemutakhiran.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Header HTTP sumber REST WINDOWS-Package-Manager opsional</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Mengabaikan header opsional karena tidak berlaku untuk sumber ini.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Header opsional tidak berlaku tanpa menentukan sumber</value>
   </data>
 </root>

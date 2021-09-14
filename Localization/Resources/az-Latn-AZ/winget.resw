@@ -141,6 +141,9 @@
     <value>Aşağıdakı alt əmrlər əlçatandır:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>yeniləşdirmələr əlçatandır.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Qeyd edilmiş kanaldan istifadə edin; standart kimi ümumi auditoriya nəzərdə tutulur</value>
   </data>
@@ -419,9 +422,6 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Əmr sətrinin daxilindəki kursorun mövqeyi</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Önbaxış</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Məxfilik Bildirişi</value>
   </data>
@@ -464,12 +464,6 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Parametrləri təsdiq edərkən aşağıdakı xətalar tapıldı:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Parametrləri standart json mətn redaktorunda açın. Heç bir redaktor konfiqurasiya edilməyibsə, parametrləri bloknotda açır. Mövcud parametrlər üçün https://aka.ms/winget-settings səhifəsinə nəzər salın</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Parametrləri açın</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Parametrlər yüklənərkən gözlənilməz səhv baş verdi. Parametrlər əmrini icra etməklə parametrlərinizi təsdiq edin.</value>
@@ -920,5 +914,134 @@ Konfiqurasiya Qrup Siyasətinə görə qeyri-aktiv edilib.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>`%1` arqumenti üçün verilən qiymət etibarsızdır</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>İmtina edildi</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Xarici</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Bu idxalda olan paketlər aşağıdakı asılılıqlara malikdir:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Bu paket aşağıdakı asılılıqları tələb edir:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketlər</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Bu paketdə artıq lazım olmayacaq asılılıqlar var:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest yoxlanılmamış aşağıdakı asılılıqlara malikdir; yoxlanıldığından əmin olun:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Xüsusiyyətləri</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Kitabxanalar</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Mağaza Şərtləri</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Paketlər üçün bütün lisenziya müqavilələrini qəbul edin</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>İxrac edilən paketin quraşdırılması üçün lisenziya müqaviləsi tələb olunur:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Naşir quraşdırmadan əvvəl yuxarıdakı məlumatları nəzərdən keçirməyinizi və müqavilələri qəbul etməyinizi tələb edir.
+Bu şərtlərə razısınız?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paket müqavilələri qəbul edilmədi. Əməliyyat ləğv edildi.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Müqavilələr:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Müəllif:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Təsvir:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Quraşdırıcı:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Dil standartları:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Mağaza Məhsulunun İdentifikasiyası:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Növ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url-i Endir:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisenziya:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lisenziya Url-i:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Ləqəb:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Başlanğıc səhifə:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Naşir:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versiya:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Xeyr</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Bəli</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Əlavə edilmiş mənbəni açmaq alınmadı.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Mənbə əməliyyatları zamanı bütün mənbə müqavilələrini qəbul edin</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1` adlı mənbə istifadə etməzdən əvvəl aşağıdakı müqavilələrə baxmanızı tələb edir.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Bütün mənbə müqavilələrinin şərtləri ilə razısınız?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Bir və ya daha çox mənbə müqaviləsi qəbul edilmədi. Əməliyyat ləğv edildi. Mənbə müqavilələrini qəbul edin və ya müvafiq mənbələri silin.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Mənbə cari maşının coğrafi regionunun düzgün işləməsi üçün göndərilməsini tələb edir.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Uğurla quraşdırıldı. Yeniləşdirməni tamamlamaq üçün proqramı yenidən başladın.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>İxtiyari Windows-Paket-Meneceri REST mənbəyi HTTP başlığı</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Bu mənbə üçün tətbiq olunmadığı üçün ixtiyari başlığı nəzərə almayın.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>İxtiyari başlıq mənbə göstərilmədən tətbiq oluna bilməz</value>
   </data>
 </root>

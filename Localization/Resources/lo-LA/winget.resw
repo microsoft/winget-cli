@@ -141,6 +141,9 @@
     <value>ສາມາດໃຊ້ຄຳສັ່ງຍ່ອຍຕໍ່ໄປນີ້ໄດ້:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>ມີການຍົກລະດັບ.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ໃຊ້ຊ່ອງທີ່ລະບຸໄວ້; ຄ່າເລີ່ມຕົ້ນແມ່ນຜູ້ຊົມທົ່ວໄປ</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>ຕຳແໜ່ງຂອງເຄີເຊີພາຍໃນແຖວຄຳສັ່ງ</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>ຕົວຢ່າງ</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>ຖະແຫຼງການຄວາມເປັນສ່ວນຕົວ</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ພົບຂໍ້ຜິດພາດຕໍ່ໄປນີ້ໃນການກວດສອບການຕັ້ງຄ່າ:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>ເປີດການຕັ້ງຄ່າໃນຕົວແກໄຂຂໍ້ຄວາມ json ເລີ່ມຕົ້ນ. ຫາກບໍ່ໄດ້ຕັ້ງຄ່າຕົວແກ້ໄຂໃດໄວ້, ໃຫ້ເປີດການຕັ້ງຄ່າໃນ notepad. ສຳລັບການຕັ້ງຄ່າທີ່ສາມາດໃຊ້ໄດ້, ກະລຸນາເບິ່ງ https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>ເປີດການຕັ້ງຄ່າ</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ເກີດຄວາມຜິດພາດທີ່ບໍ່ຄາດຄິດຂຶ້ນໃນລະຫວ່າງການໂຫຼດການຕັ້ງຄ່າ. ກະລຸນາຢັ້ງຢືນການຕັ້ງຄ່າຂອງທ່ານໂດຍການໃຊ້ຄຳສັ່ງການຕັ້ງຄ່າ.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>ຄ່າທີ່ລະບຸສຳລັບອາກິວເມັນ `%1` ແມ່ນບໍ່ຖືກຕ້ອງ</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ຍົກເລີກແລ້ວ</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>ພາຍນອກ</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>ແພັກເກັດທີ່ພົບເຫັນໃນການນໍາເຂົ້ານີ້ ມີຄວາມເພິ່ງພາອາໄສດັ່ງຕໍ່ໄປນີ້:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>ແພັກເກັດນຈຳເປັນຕ້ອງ້ມີການເພິ່ງພາອາໄສດັ່ງຕໍ່ໄປນີ້:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>ແພັກເກດ</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>ແພັກເກັດນີ້ມີຄວາມເພິ່ງພາອາໄສທີ່ອາດຈະບໍ່ຕ້ອງການອີກຕໍ່ໄປ:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest ມີການເພິ່ງພາອາໄສດັ່ງຕໍ່ໄປນີ້ ທີ່ບໍ່ໄດ້ຮັບການຢັ້ງຢືນ; ໃຫ້ແນ່ໃຈວ່າມັນໃຊ້ໄດ້:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>ຄຸນລັກສະນະຂອງ Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>ຄັງຂອງ Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>ຂໍ້ກຳນົດຂອງ Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ຮັບເອົາຂໃບອະນຸຍາດໍ້ຕົກລົງທັງຫມົດສໍາລັບແພັກເກັດ</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ແພັກເກັດທີ່ສົ່ງອອກຕ້ອງມີໃບອະນຸຍາດຂໍ້ຕົກລົງເພື່ອຕິດຕັ້ງ:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>ຜູ້ເຜີຍແຜ່ຈຳເປັນຕ້ອງໃຫ້ທ່ານເບິ່ງຂໍ້ມູນຂ້າງເທິງ ແລະ ຍອມຮັບຂໍ້ຕົກລົງກ່ອນທີ່ຈະຕິດຕັ້ງ.
+ທ່ານເຫັນດີກັບເງື່ອນໄຂບໍ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ຂໍ້ຕົກລົງແພັກເກັດບໍ່ໄດ້ຕົກລົງກັບ. ການດໍາເນີນງານໄດ້ຖືກຍົກເລີກ.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>ຂໍ້ຕົກລົງ:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>ຜູ້ປະພັນ:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>ລາຍລະອຽດ:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>ຕົວຕິດຕັ້ງ:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>ຕຳແໜ່ງທີ່ຕັ້ງ:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ລະຫັດ Id ຜະລິດຕະພັນຂອງ Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>ປະເພດ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>ດາວໂຫຼດ Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>ໃບອະນຸຍາດ:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>ໃບອະນຸຍາດ Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>ໜ້າຫຼັກ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>ຜູ້ເຜີຍແຜ່:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>ລຸ້ນ:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>ບໍ່</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>ແມ່ນ</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>ການເປີດແຫຼ່ງເພີ່ມເຕີມລົ້ມເຫຼວ.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>ຍອມຮັບຂໍ້ຕົກລົງແຫຼ່ງຂໍ້ມູນທັງໝົດໃນລະຫວ່າງການດໍາເນີນງານແຫຼ່ງຂໍ້ມູນ</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>ແຫຼ່ງ '%1' ຈຳເປັນຕ້ອງໃຫ້ທ່ານເບິ່ງຂໍ້ຕົກລົງດັ່ງຕໍ່ໄປນີ້ກ່ອນທີ່ຈະນໍາໃຊ້.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>ທ່ານເຫັນດີກັບເງື່ອນໄຂຂອງຂໍ້ຕົກລົງແຫຼ່ງຂໍ້ມູນທັງໝົດບໍ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ໜຶ່ງ ຫຼື ຫຼາຍຂໍ້ຕົກລົງແຫຼ່ງບໍ່ໄດ້ຖືກຕົກລົງເຫັນດີນໍາ. ການດໍາເນີນງານໄດ້ຖືກຍົກເລີກ. ກະລຸນາຍອມຮັບຂໍ້ຕົກລົງແຫຼ່ງທີ່ມາ ຫຼື ລຶບແຫຼ່ງທີ່ກ່ຽວຂ້ອງອອກ.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ແຫຼ່ງຂໍ້ມູນຈຳເປັນຕ້ອງມີພາກພື້ນພູມສາດຂອງເຄື່ອງຈັກໃນປະຈຸບັນເພື່ອສົ່ງໄປເຮັດວຽກຢ່າງຖືກຕ້ອງ.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>ຕິດຕັ້ງສຳເລັດແລ້ວ. ຣີສະຕາດແອັບພລິເຄຊັນຄືນໃໝ່ເພື່ອສຳເລັດການອັບເກຣດ.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>ທາງເລືອກຫົວຂໍ້ HTTP ແຫຼ່ງ REST ຂອງ Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>ການບໍ່ເອົາໃຈໃສ່ຫົວຂໍ້ທາງເລືອກ ເນື່ອງຈາກວ່າມັນບໍ່ສາມາດໃຊ້ໄດ້ສໍາລັບແຫຼ່ງຂໍ້ມູນນີ້.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>ຫົວຂໍ້ທາງເລືອກໃຊ້ບໍ່ໄດ້ໂດຍບໍ່ໄດ້ລະບຸແຫຼ່ງ</value>
   </data>
 </root>

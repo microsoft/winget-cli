@@ -141,6 +141,9 @@
     <value>Folgende Unterbefehle sind verfügbar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>Aktualisierungen verfügbar.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Verwendet den angegebenen Kanal. Der Standard ist die allgemeine Benutzergruppe</value>
   </data>
@@ -194,7 +197,7 @@
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
-    <value>Zeigt den Status der experimentelle Features an</value>
+    <value>Zeigt den Status von experimentellen Features an</value>
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Deaktiviert</value>
@@ -419,9 +422,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Die Position des Cursors innerhalb der Befehlszeile</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Vorschau</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Datenschutzerklärung</value>
   </data>
@@ -464,12 +464,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Die folgenden Fehler wurden beim Überprüfen der Einstellungen gefunden:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Öffnen Sie die Einstellungen im standardmäßigen JSON-Text-Editor. Wenn kein Editor konfiguriert ist, werden die Einstellungen in Editor geöffnet. Die verfügbaren Einstellungen finden Sie unter https://aka.ms/winget-settings.</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Einstellungen öffnen</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unerwarteter Fehler beim Laden von Einstellungen. Über prüfen Sie die Einstellungen, indem Sie den Befehl "Einstellungen" ausführen.</value>
@@ -920,5 +914,134 @@ Die Konfiguration ist aufgrund der Gruppen Richtlinie deaktiviert.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Der für das Argument „%1“ angegebene Wert ist ungültig</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Abgebrochen</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Die Pakete die in diesem Import gefunden wurden, weisen die folgenden Abhängigkeiten auf:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Dieses Paket erfordert folgende Abhängigkeiten:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakete</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Dieses Paket hat Abhängigkeiten die möglicherweise nicht mehr benötigt werden:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Das Manifest weist folgende Abhängigkeiten auf, die nicht überprüft wurden; stellen Sie sicher, dass sie gültig sind:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-Features</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-Bibliotheken</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Nutzungsbedingungen</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akzeptieren aller Lizenzvereinbarungen für Pakete</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Die exportierten Pakete erfordern eine Lizenzvereinbarung um diese zu installieren:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Der Herausgeber verlangt, dass Sie die oben genannten Informationen anzeigen und den Vereinbarungen vor der Installation zustimmen.
+Stimmen Sie den Bedingungen zu?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketvereinbarungen wurden nicht akzeptiert. Der Vorgang wurde abgebrochen.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Vereinbarungen:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beschreibung:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installationsprogramm:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Gebietsschema:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-Produkt-ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download-URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lizenz:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lizenz-URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startseite:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Herausgeber:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Fehler beim Öffnen der hinzugefügten Quelle.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Alle Quellvereinbarungen während Quellvorgängen akzeptieren</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Die Quelle "%1" erfordert, dass Sie die folgenden Verträge vor der Verwendung anzeigen.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Stimmen Sie allen Nutzungsbedingungen der Quelle zu?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Mindestens einer der Quellvereinbarungen wurde nicht zugestimmt. Vorgang abgebrochen. Akzeptieren Sie bitte die Quellvereinbarungen, oder entfernen Sie die entsprechenden Quellen.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Die Quelle erfordert, dass die geografische Region des aktuellen Computers gesendet wird, damit sie ordnungsgemäß funktioniert.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Die Installation war erfolgreich. Starten Sie die Anwendung neu, um das Upgrade abzuschließen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optionaler Windows-Package-Manager REST-Quelle HTTP-Kopfzeile</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Die optionale Kopfzeile wird ignoriert, da sie für diese Quelle nicht anwendbar ist.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Die optionale Kopfziele ist nicht anwendbar, ohne eine Quelle anzugeben.</value>
   </data>
 </root>

@@ -25,6 +25,7 @@
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/SettingsCommand.h>
 #include <Commands/SearchCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
@@ -2168,4 +2169,45 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     OpenSource(context);
     auto source = context.Get<Execution::Data::Source>();
     REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
+}
+
+TEST_CASE("AdminSetting_LocalManifestFiles", "[LocalManifests][workflow]")
+{
+    RemoveSetting(Streams::AdminSettings);
+
+    // If there's no admin setting, using local manifest should fail.
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand({});
+    REQUIRE_THROWS(installCommand.ValidateArguments(args));
+
+    // Using settings command to enable local manifests
+    std::ostringstream settingsOutput;
+    TestContext context{ settingsOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&){} });
+    SettingsCommand settings({});
+    settings.Execute(context);
+    INFO(settingsOutput.str());
+
+    // Now using local manifests should succeed
+    Execution::Args args2;
+    args2.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand2({});
+    REQUIRE_NOTHROW(installCommand2.ValidateArguments(args2));
+
+    // Using settings command to disable local manifests
+    std::ostringstream settingsOutput2;
+    TestContext context2{ settingsOutput2, std::cin };
+    context2.Args.AddArg(Execution::Args::Type::AdminSettingDisable, "LocalManifestFiles"sv);
+    context2.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+    SettingsCommand settings2({});
+    settings2.Execute(context2);
+    INFO(settingsOutput2.str());
+
+    // Now using local manifests should fail
+    Execution::Args args3;
+    args3.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand3({});
+    REQUIRE_THROWS(installCommand3.ValidateArguments(args3));
 }

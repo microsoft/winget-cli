@@ -141,6 +141,9 @@
     <value>以下子命令可用：</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>升级可用。</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>使用指定的频道；默认为普通受众</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>光标在命令行中的位置</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>预览</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>隐私声明</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>发现以下故障以验证设置：</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>在默认 json 文本编辑器中打开设置。如果未配置任何编辑器，请在记事本中打开设置。有关可用设置，请参阅 https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>打开设置</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>加载设置时出现意外错误。请运行 "设置" 命令以验证您的设置。</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>为 "%1" 参数提供的值无效</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>在此导入中找到的包具有以下依赖项：</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>此包需要以下依赖项：</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>程序包</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>此包具有可能不再需要的依赖项：</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>清单具有以下未验证的依赖项;确保它们有效：</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows 功能</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows 库</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows 应用商店条款</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>接受包的所有许可协议</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>导出的包需要许可协议才能安装：</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>发行商要求你在安装前查看上述信息并接受协议。
+是否同意上述条款?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>未同意包协议。操作已取消。</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>协议：</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>作者:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>描述:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>安装：</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>区域设置:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>应用商店产品 ID：</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>类型:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>下载 URL：</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>许可证:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>许可证 URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>绰号：</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>主页:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>发布者:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>版本:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>无法打开添加的源。</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>在源操作期间接受所有源协议</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>"%1"源要求在使用前查看以下协议。</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>是否同意所有源协议条款?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>未同意一个或多个源协议。操作已取消。请接受源协议或删除相应的源。</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>源要求发送当前计算机的地理区域才能正常工作。</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>已成功安装。重启应用程序以完成升级。</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>可选的 Windows-Package-Manager REST 源 HTTP 标头</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>忽略可选标头，因为它不适用于此源。</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>在未指定源的情况下，可选标头不适用</value>
   </data>
 </root>

@@ -141,6 +141,9 @@
     <value>Saadaval on järgmised alamkäsud:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>täiendust on saadaval.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Saate kasutada määratud kanalit; vaikeväärtus on üldine vaatajaskond</value>
   </data>
@@ -419,9 +422,6 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Kursori asukoht käsureal</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Eelvaade</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privaatsusavaldus</value>
   </data>
@@ -464,12 +464,6 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Sätete valideerimisel leiti järgmised tõrked:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Avage sätted JSON-failide vaikeredaktoris. Kui redaktorit pole konfigureeritud, avatakse sätted Notepadis. Saadaolevate sätete valiku leiate siit: https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Ava sätted</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Sätete laadimisel ilmnes ootamatu tõrge. Palun kinnitage oma sätted sätete käsu käitamine.</value>
@@ -920,5 +914,134 @@ Konfiguratsioon on rühmapoliitika tõttu keelatud.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Argumendis "%1" esitatud väärtus ei sobi</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Tühistatud</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Välised</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Selles impordis leitud pakettidel on järgmised sõltuvused:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>See pakett nõuab järgmisi sõltuvusi:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketid</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Paketil oli sõltuvusi, mida ei pruugi enam vaja minna:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestil on järgmised sõltuvused, mida ei valideeritud; veenduge, et need oleksid kehtivad:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windowsi funktsioonid</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windowsi teegid</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windowsi poe tingimused</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aktsepteeri kõik pakettide litsentsilepingud</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Eksporditud pakett nõuab installimiseks litsentsilepingut:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Väljaandja nõuab, et vaataksite ülalpool toodud teabe läbi ja aktsepteeriksite lepingute tingimused enne installimist.
+Kas nõustute tingimustega?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketilepingutega ei nõustutud. Toiming on tühistatud.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Lepingud:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Kirjeldus:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installer:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Lokaat:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Microsoft Store‘i toote ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tüüp:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Allalaadimise URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Litsents:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Litsentsi URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Hüüdnimi:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Koduleht:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Väljaandja:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versioon:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ei</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Jah</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Lisatud allikat ei saanud avada.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aktsepteeri allikatoimingute ajal kõik allikalepingud</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Allikas „%1“ nõuab enne kasutamist järgmiste lepingute vaatamist.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Kas nõustute kõigi lähtelepingute tingimustega?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Vähemalt ühe lähtelepinguga ei nõustutud. Toiming on tühistatud. Nõustuge lähtelepingutega või eemaldage vastavad allikad.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Allikas nõuab õigeks töötamiseks praeguse arvuti geograafilise regiooni teabe saatmist.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installimine õnnestus. Versioonitäienduse lõpuleviimiseks taaskäivitage rakendus.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valikuline Windows-Package-Manager REST-allika HTTP-päis</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Valikulist päist ignoreeritakse, kuna see pole selle allika jaoks kohaldatav.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Valikulist päist ei saa rakendada ilma allikat määramata</value>
   </data>
 </root>
