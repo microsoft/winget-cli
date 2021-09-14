@@ -66,9 +66,9 @@ namespace AppInstaller::CLI::Execution
 
     private:
         template <typename T>
-        void Write(const T&t, bool byPassifNotEnabled) 
+        void Write(const T&t, bool bypassIfNotEnabled) 
         {
-            if (m_enabled || byPassifNotEnabled )
+            if (m_enabled || bypassIfNotEnabled)
             {
                 m_out << t;
             }
