@@ -1,8 +1,8 @@
-# Windows Package Manager Roadmap
+# Windows Package Manager Release Roadmap
 
 ## Overview
 
-This document outlines our aspirational roadmap to delivering Windows Package Manager v1.0 by March-May 2021. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
+This document outlines our aspirational roadmap to deliver Windows Package Manager v1.1. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
 
 ## Milestones
 
@@ -41,9 +41,9 @@ We use [GitHub milestones](https://github.com/microsoft/winget-cli/milestones) t
 
 | Milestone | Description |
 |    ---    |     ---     |
-| [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 | [v1.1](https://github.com/microsoft/winget-cli/milestone/35) | Work Targeted for v1.1 |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34) | Triage for the next Milestone |
+| [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 
 ## Issue Triage & Prioritization
 
