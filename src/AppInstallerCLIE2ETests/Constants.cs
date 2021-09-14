@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH = unchecked((int)0x8a150047);
             public const int ERROR_MISSING_RESOURCE_FILE = unchecked((int)0x8a150048);
             public const int ERROR_MSI_INSTALL_FAILED = unchecked((int)0x8a150049);
-            public const int ERROR_INVALID_MSIEXEC_ARGUMENT = unchecked((int)0x8a150050);
+            public const int ERROR_INVALID_MSIEXEC_ARGUMENT = unchecked((int)0x8a15004a);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8a150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8a150102);
@@ -147,12 +147,12 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_NO_NETWORK = unchecked((int)0x8a150107);
             public const int ERROR_INSTALL_CONTACT_SUPPORT = unchecked((int)0x8a150108);
             public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH = unchecked((int)0x8a150109);
-            public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL = unchecked((int)0x8a150110);
-            public const int ERROR_INSTALL_REBOOT_INITIATED = unchecked((int)0x8a150111);
-            public const int ERROR_INSTALL_CANCELLED_BY_USER = unchecked((int)0x8a150112);
-            public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8a150113);
-            public const int ERROR_INSTALL_DOWNGRADE = unchecked((int)0x8a150114);
-            public const int ERROR_INSTALL_BLOCKED_BY_POLICY = unchecked((int)0x8a150115);
+            public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL = unchecked((int)0x8a15010a);
+            public const int ERROR_INSTALL_REBOOT_INITIATED = unchecked((int)0x8a15010b);
+            public const int ERROR_INSTALL_CANCELLED_BY_USER = unchecked((int)0x8a15010c);
+            public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8a15010d);
+            public const int ERROR_INSTALL_DOWNGRADE = unchecked((int)0x8a15010e);
+            public const int ERROR_INSTALL_BLOCKED_BY_POLICY = unchecked((int)0x8a15010f);
         }
     }
 }
