@@ -63,6 +63,25 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 source = result.Source;
+
+                // If the warning flag is not set, fail the open
+                if (!result.SourcesWithOpenFailure.empty())
+                {
+                    if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
+                    {
+                        auto warn = context.Reporter.Warn();
+                        for (const auto& failure : result.SourcesWithOpenFailure)
+                        {
+                            warn << Resource::String::SourceOpenWithFailedOpen << ' ' << failure.Source.Name << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        // rethrow the first exception that occurred for now
+                        std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
+                    }
+                }
+
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : result.SourcesWithUpdateFailure)
                 {
@@ -451,6 +470,28 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Truncated)
         {
             context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
+    void HandleSearchResultFailures(Execution::Context& context)
+    {
+        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        if (!searchResult.Failures.empty())
+        {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
+            {
+                auto warn = context.Reporter.Warn();
+                for (const auto& failure : searchResult.Failures)
+                {
+                    warn << Resource::String::SearchFailureWarning << ' ' << failure.Source->GetDetails().Name << std::endl;
+                }
+            }
+            else
+            {
+                // Rethrow first error for now
+                std::rethrow_exception(searchResult.Failures[0].Exception);
+            }
         }
     }
 

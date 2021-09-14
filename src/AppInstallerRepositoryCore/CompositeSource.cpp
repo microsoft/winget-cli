@@ -326,11 +326,32 @@ namespace AppInstaller::Repository
 
                 result.Truncated = Truncated;
 
+                result.Failures = std::move(Failures);
+
                 return result;
+            }
+
+            bool AddFailureIfSourceNotPresent(SearchResult::Failure&& failure)
+            {
+                auto itr = std::find_if(Failures.begin(), Failures.end(),
+                    [&failure](const SearchResult::Failure& present) {
+                        const auto& presentDetails = present.Source->GetDetails();
+                        const auto& incomingDetails = failure.Source->GetDetails();
+                        return (presentDetails.Identifier == incomingDetails.Identifier && presentDetails.Type == incomingDetails.Type);
+                    });
+
+                if (itr == Failures.end())
+                {
+                    Failures.emplace_back(std::move(failure));
+                    return true;
+                }
+
+                return false;
             }
 
             std::vector<CompositeResultMatch> Matches;
             bool Truncated = false;
+            std::vector<SearchResult::Failure> Failures;
 
         private:
             void AddSystemReferenceStrings(IPackageVersion* version, PackageData& data)
@@ -440,7 +461,7 @@ namespace AppInstaller::Repository
         // only in the Installed source, but do not have an AvailableVersion.
         if (m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed)
         {
-            // Search installed source
+            // Search installed source (allow exceptions out as we own the installed source)
             SearchResult installedResult = m_installedSource->Search(request);
             result.Truncated = installedResult.Truncated;
 
@@ -467,7 +488,26 @@ namespace AppInstaller::Repository
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
-                        SearchResult availableResult = source->Search(systemReferenceSearch);
+                        SearchResult availableResult;
+
+                        try
+                        {
+                            availableResult = source->Search(systemReferenceSearch);
+                        }
+                        catch (...)
+                        {
+                            if (result.AddFailureIfSourceNotPresent({ source, std::current_exception() }))
+                            {
+                                LOG_CAUGHT_EXCEPTION();
+                                AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
+                            }
+                        }
+
+                        // Move failures into the single result
+                        for (SearchResult::Failure& failure : availableResult.Failures)
+                        {
+                            result.AddFailureIfSourceNotPresent(std::move(failure));
+                        }
 
                         if (availableResult.Matches.empty())
                         {
@@ -532,7 +572,21 @@ namespace AppInstaller::Repository
         // Search available sources
         for (const auto& source : m_availableSources)
         {
-            auto availableResult = source->Search(request);
+            SearchResult availableResult;
+
+            try
+            {
+                availableResult = source->Search(request);
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
+                result.Failures.emplace_back(SearchResult::Failure{ source, std::current_exception() });
+            }
+
+            // Move failures into the single result
+            std::move(availableResult.Failures.begin(), availableResult.Failures.end(), std::back_inserter(result.Failures));
 
             for (auto&& match : availableResult.Matches)
             {
@@ -551,6 +605,7 @@ namespace AppInstaller::Repository
                         srs.AddToFilters(systemReferenceSearch.Inclusions);
                     }
 
+                    // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
 
                     for (auto&& crossRef : installedCrossRef.Matches)
@@ -590,13 +645,22 @@ namespace AppInstaller::Repository
         // Search available sources
         for (const auto& source : m_availableSources)
         {
-            auto oneSourceResult = source->Search(request);
+            SearchResult oneSourceResult;
 
-            // Move all matches into the single result
-            for (auto&& match : oneSourceResult.Matches)
+            try
             {
-                result.Matches.emplace_back(std::move(match));
+                oneSourceResult = source->Search(request);
             }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
+                result.Failures.emplace_back(SearchResult::Failure{ source, std::current_exception() });
+            }
+
+            // Move into the single result
+            std::move(oneSourceResult.Matches.begin(), oneSourceResult.Matches.end(), std::back_inserter(result.Matches));
+            std::move(oneSourceResult.Failures.begin(), oneSourceResult.Failures.end(), std::back_inserter(result.Failures));
         }
 
         SortResultMatches(result.Matches);

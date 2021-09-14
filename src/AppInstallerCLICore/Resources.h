@@ -177,6 +177,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchName);
@@ -252,6 +253,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedOpen);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedUpdate);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);

@@ -94,7 +94,6 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_MSStoreDefault_Arg;
                 details.Identifier = s_Source_MSStoreDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
-                details.Restricted = true;
                 return details;
             }
             case WellKnownSource::DesktopFrameworks:
@@ -1099,17 +1098,8 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                // Restricted sources may not support the full set of functionality
-                if (currentSources[0].get().Restricted)
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
-                    return {};
-                }
-                else
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, progress);
-                }
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                return OpenSource(currentSources[0].get().Name, progress);
             }
             else
             {
@@ -1120,13 +1110,6 @@ namespace AppInstaller::Repository
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
-                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
-                    if (source.get().Restricted)
-                    {
-                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
-                        continue;
-                    }
-
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -1139,17 +1122,40 @@ namespace AppInstaller::Repository
                         }
                         catch (...)
                         {
+                            LOG_CAUGHT_EXCEPTION();
                             AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
 
-                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
+                    std::shared_ptr<ISource> openedSource;
+
+                    try
+                    {
+                        openedSource = CreateSourceFromDetails(source, progress);
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
+                        result.SourcesWithOpenFailure.emplace_back(OpenSourceResult::Failure{ source, std::current_exception() });
+                    }
+
+                    if (openedSource)
+                    {
+                        aggregatedSource->AddAvailableSource(std::move(openedSource));
+                    }
                 }
 
                 if (sourceUpdated)
                 {
                     sourceList.SaveMetadata();
+                }
+
+                // If all sources failed to open, then just rethrow the first exception that occurred for now.
+                if (!aggregatedSource->HasAvailableSource())
+                {
+                    std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
                 }
 
                 result.Source = aggregatedSource;
@@ -1199,8 +1205,7 @@ namespace AppInstaller::Repository
         // if the details came from the same instance of the list that's being saved.
         // Some sources that do not need updating like the Installed source, do not have Name values.
         // Restricted sources don't have full functionality
-        if (!details.Name.empty() &&
-            !details.Restricted)
+        if (!details.Name.empty())
         {
             SourceListInternal sourceList;
             auto source = sourceList.GetSource(details.Name);

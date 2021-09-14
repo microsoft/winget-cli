@@ -164,6 +164,12 @@ namespace AppInstaller::CLI::Workflow
         bool m_onlyShowUpgrades;
     };
 
+    // Handles failures in the SearchResult either by warning or failing.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void HandleSearchResultFailures(Execution::Context& context);
+
     // Outputs the search results when multiple packages found but only one expected.
     // Required Args: None
     // Inputs: SearchResult

@@ -53,6 +53,8 @@ namespace AppInstaller::CLI
 
     void ExportCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         context <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::OpenSource <<

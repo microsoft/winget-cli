@@ -120,6 +120,13 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
 
+        // Only allow for source failures when doing a list of available upgrades.
+        // We have to set it now to allow for source open failures to also just warn.
+        if (ShouldListUpgrade(context))
+        {
+            context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+        }
+
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
