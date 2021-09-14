@@ -141,6 +141,9 @@
     <value>కింది ఉప ఆదేశాలు అందుబాటులో ఉన్నాయి:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>అప్‌గ్రేడ్‌లు అందుబాటులో ఉన్నాయి.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>పేర్కొన్న ఛానెల్‌ని ఉపయోగించండి; సాధారణ ప్రేక్షకులు డిఫాల్ట్ అవుతారు</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>ఆదేశ పంక్తి పరిమితిలో కర్సర్ యొక్క స్థానం</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>పరిదృశ్యం</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>గోప్యతా ప్రకటన</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>సెట్టింగులను ధృవీకరించే సమయంలో క్రింది వైఫల్యాలు కనుగొనబడ్డాయి:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>డిఫాల్ట్ json టెక్స్ట్ ఎడిటర్‌లో సెట్టింగులను తెరవండి. ఎడిటర్ నిర్మితీకరించబడి ఉండకపోతే, నోట్‌ప్యాడ్‌లో సెట్టింగులను తెరుస్తుంది. అందుబాటులో ఉన్న సెట్టింగుల కొరకు https://aka.ms/winget-settings చూడండి</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>సెట్టింగ్‌లను తెరువు</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>సెట్టింగులను లోడ్ చేస్తున్నప్పుడు ఊహించని లోపం. సెట్టింగుల ఆదేశాన్ని అమలు చేయడం ద్వారా దయచేసి మీ సెట్టింగులను ధృవీకరించండి.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>`%1` కారకం కోసం అందించిన విలువ చెల్లదు</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>రద్దయింది</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>బాహ్యం</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>ఈ దిగుమతిలో కనిపించే ప్యాకేజీలు దిగువ డిపెండెన్సీలను కలిగి ఉంటాయి:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>ఈ ప్యాకేజీకి దిగువ డిపెండెన్సీలు అవసరం అవుతాయి:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>ప్యాకేజీలు</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>ఈ ప్యాకేజి ఇకపై మరి అవసరం లేని డిపెండెన్సీలను కలిగి ఉంది:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>ఈ క్రింది ప్రమాణీకరించని డిపెండెన్సీలు మానిఫెస్ట్‌లో ఉన్నాయి; అవి చెల్లుబాటు అయినట్లు చూసుకోండి:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows ఫీచర్‌లు</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows లైబ్రరీలు</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store నిబంధనలు</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ప్యాకేజీల కోసం లైసెన్స్ ఒప్పందాలన్నింటినీ ఆమోదించండి</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ఎగుమతి చేయబడిన ప్యాకేజీని ఇన్‌స్టాల్ చేయడానికి లైసెన్స్ ఒప్పందం అవసరం ఉంటుంది:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>ప్రచురణకర్త ప్రకారం మీరు ఇన్‌స్టాల్ చేయడానికి ముందు పై సమాచారాన్ని వీక్షించి, ఒప్పందాలను ఆమోదించాలి. 
+మీరు నిబంధనలను అంగీకరిస్తున్నారా?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ప్యాకేజీ ఒప్పందాలకు అంగీకరించబడలేదు. ఆపరేషన్ రద్దు చేయబడింది.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>ఒప్పందాలు:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>రచయిత:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>వివరణ:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>ఇన్‌స్టాలర్:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>స్థానికాంశం:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store ఉత్పత్తి Id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>రకం:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>డౌన్‌లోడ్ Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>లైసెన్స్:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>లైసెన్స్ Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>మోనికర్:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>హోమ్ పేజీ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>ప్రచురణకర్త:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>వెర్షన్:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>లేదు</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>అవును</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>జోడించబడిన మూలాన్ని తెరవడం విఫలమైంది.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>మూల ఆపరేషన్‌ల సమయంలో మూల ఒప్పందాలన్నింటినీ అంగీకరించండి</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>`%1` మూలాన్ని ఉపయోగించే ముందు మీరు ఈ క్రింది ఒప్పందాలను చూడాల్సి ఉంటుంది.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>మూల ఒప్పంద నిబంధనలన్నింటినీ మీరు అంగీకరిస్తారా?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ఒకటి లేదా అంతకంటే ఎక్కువ మూల ఒప్పందాలు అంగీకరించబడలేదు. ఆపరేషన్ రద్దు చేయబడింది. దయచేసి మూల ఒప్పందాలను అంగీకరించండి లేదా సంబంధిత మూలాలను తీసివేయండి.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>మూలం సరిగ్గా పనిచేయడానికి ప్రస్తుత మెషీన్ యొక్క భౌగోళిక ప్రాంతాన్ని పంపించాల్సి ఉంటుంది.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>విజయవంతంగా ఇన్‌స్టాల్ చేయబడింది. అప్‌గ్రేడ్ పూర్తి చేయడానికి అప్లికేషన్‌ని పునః ప్రారంభించండి.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>ఐచ్ఛిక Windows-Package-Manager REST మూలం HTTP శీర్షిక</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>ఐచ్ఛిక శీర్షిక ఈ మూలానికి వర్తించనందు వలన ఇది విస్మరించడమైనది.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>మూలాన్ని పేర్కొనకుండా ఐచ్ఛిక శీర్షిక వర్తించదు</value>
   </data>
 </root>

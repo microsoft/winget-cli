@@ -141,6 +141,9 @@
     <value>Os seguintes subcomandos estão disponíveis:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>Atualizações disponíveis.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Usar o canal especificado; o padrão é público geral</value>
   </data>
@@ -419,9 +422,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>A posição do cursor na linha de comando</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Visualização</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Política de Privacidade</value>
   </data>
@@ -464,12 +464,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>As seguintes falhas foram encontradas ao validar as configurações:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Abra as configurações no editor de texto json padrão. Se nenhum editor estiver configurado, abra as configurações no bloco de notas. Para configurações disponíveis, confira https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Abrir configurações</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erro inesperado ao carregar as configurações. Verifique suas configurações executando o comando configurações.</value>
@@ -739,7 +733,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Desinstala o pacote selecionado, encontrado pesquisando a lista de pacotes instalados ou diretamente de um manifesto. Por padrão, a consulta deve corresponder de forma insensível à ID, ao nome ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada.</value>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
-    <value>Instala um determinado pacote</value>
+    <value>Desinstala um determinado pacote</value>
   </data>
   <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
     <value>Iniciando a desinstalação do pacote...</value>
@@ -920,5 +914,134 @@ A configuração está desabilitada devido à política de grupo.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>O valor fornecido para o argumento '%1' é inválido</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Os pacotes encontrados nesta importação têm as seguintes dependências:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Este pacote requer as seguintes dependências:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pacotes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Este pacote tinha dependências que podem não ser mais necessárias:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>O manifesto tem as seguintes dependências que não foram validadas; verifique se eles são válidos:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Recursos do Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotecas do Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Termos da Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceitar todos os contratos de licença para pacotes</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>O pacote exportado requer contrato de licença para instalar:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>O editor requer que você exiba as informações acima e aceite os contratos antes de instalar.
+Você concorda com os termos?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Os contratos de pacote não foram concordados. Operação cancelada.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acordos:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descrição:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instaladora:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Localidade:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id do Produto da Microsoft Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url de download:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licença:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL da licença:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Página inicial:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Fornecedor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versão:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Falha ao abrir a fonte adicionada.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceitar todos os acordos de origem durante as operações de origem</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>A fonte '%1' requer que você exiba os seguintes contratos antes de usar.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Você concorda com todos os termos dos contratos de origem?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Um ou mais contratos de origem não foram concordados. Operação cancelada. Aceite os contratos de origem ou remova as fontes correspondentes.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>A origem requer que a região geográfica do computador atual seja enviada para funcionar corretamente.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Instalado com êxito. Reinicie o aplicativo para concluir a atualização.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Cabeçalho HTTP de origem REST opcional do Gerenciador de Pacotes do Windows</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorando o cabeçalho opcional, pois ele não é aplicável a esta fonte.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>O cabeçalho opcional não é aplicável sem especificar uma fonte</value>
   </data>
 </root>

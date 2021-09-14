@@ -141,6 +141,9 @@
     <value>निम्न उप-आदेश उपलब्ध हैं:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>नवीनीकरण उपलब्ध.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>निर्दिष्ट चैनल का उपयोग करें; डिफ़ॉल्ट सामान्य ऑडियंस है</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>आदेश पंक्ति के भीतर कर्सर की स्थिति</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>पूर्वावलोकन</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>गोपनीयता कथन</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>सेटिंग्स को सत्यापित करते समय निम्नलिखित विफलताएँ मिलीं:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>डिफ़ॉल्ट Json पाठ संपादक में सेटिंग्स खोलें. यदि कोई संपादक कॉंफ़िगर किया हुआ नहीं है, तो (यह) नोटपैड में सेटिंग्स खोलता है. उपलब्ध सेटिंग्स के लिए https://aka.ms/winget-settings देखें</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>सेटिंग्स खोलें</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>सेटिंग्स लोड करने के दौरान अनपेक्षित त्रुटि. कृपया सेटिंग्स आदेश चलाकर अपनी सेटिंग्स सत्यापित करें.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>'%1' तर्क के लिए प्रदान किया गया मान अमान्य है</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>रद्द किया गया</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>बाहरी</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>इस आयात में प्राप्त पैकेजों में निम्न निर्भरताएँ हैं:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>इस पैकेज के लिए निम्न निर्भरताओं की आवश्यकता है:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>पैकेज</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>इस पैकेज में वे निर्भरताएँ थीं जिनकी अब आवश्यकता नहीं है:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>अनुप्रयोग बीजक में निम्नलिखित निर्भरताएँ हैं जिन्हें मान्य नहीं किया गया; सुनिश्चित करें कि वे मान्य हैं:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows सुविधाएँ</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows लायब्रेरीज़</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store शर्तें</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>पैकेज के लिए सभी लायसेंस एग्रीमेंट स्वीकार करें</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>निर्यात पैकेज को इंस्टॉल करने के लिए लाइसेंस एग्रीमेंट की आवश्यकता है:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>प्रकाशक के लिए आवश्यक है कि आप इंस्टॉल करने से पहले उपरोक्त जानकारी देखें और अनुबंधों को स्वीकार करें.
+क्या आप शर्तों से सहमत हैं?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>पैकेज एग्रीमेंट सहमत नहीं थे. कार्रवाई रद्द की गई.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>अनुबंध:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>लेखक:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>विवरण:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>इंस्टॉलर:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>स्थानीय भाषा:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Microsoft Store उत्पाद Id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>प्रकार:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url डाउनलोड करें:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>लाइसेंस:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>लाइसेंस Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>लिकं पथ:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>मुख पृष्ठ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>प्रकाशक:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>संस्करण:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>नहीं</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>हाँ</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>जोड़े गए स्रोत को खोलने में विफल.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>स्रोत कार्रवाइयों के दौरान सभी स्रोत अनुबंध स्वीकार करें</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>`%1` स्रोत के लिए आवश्यक है कि आप उपयोग करने से पहले निम्न एग्रीमेंट देखें.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>क्या आप सभी स्रोत अनुबंध शर्तों से सहमत हैं?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>एक या अधिक स्रोत अनुबंध करने के लिए सहमत नहीं थे. कार्रवाई रद्द की गई. कृपया स्रोत अनुबंध को स्वीकार करें या संगत स्रोत को निकालें.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>स्रोत को ठीक से कार्य करने के लिए भेजे जाने के लिए वर्तमान मशीन के भौगोलिक क्षेत्र की आवश्यकता है.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>सफलतापूर्वक स्थापित किया गया. नवीनीकरण पूर्ण करने के लिए अनुप्रयोग पुनरारंभ करें.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>वैकल्पिक Windows-पैकेज-प्रबंधक REST स्रोत HTTP शीर्षलेख</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>वैकल्पिक शीर्षलेख पर ध्यान नहीं दिया जा रहा है क्योंकि यह इस स्रोत के लिए लागू नहीं है.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>वैकल्पिक शीर्षलेख किसी स्रोत को निर्दिष्ट किए बिना लागू नहीं होता है</value>
   </data>
 </root>

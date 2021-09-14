@@ -141,6 +141,9 @@
     <value>Les sous-commandes suivantes sont disponibles :</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>des mises à niveau sont disponibles.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utiliser le canal spécifié; par défaut, il s’agit du grand public</value>
   </data>
@@ -419,9 +422,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Position du curseur dans la ligne de commande</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Aperçu</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Déclaration de confidentialité</value>
   </data>
@@ -464,12 +464,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Les erreurs suivantes ont été détectées lors de la validation des paramètres :</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Ouvrir les paramètres dans l’éditeur de texte par défaut. Si aucun éditeur n’est configuré, ouvrir les paramètre dans le bloc-notes. Pour les paramètres disponibles, consultez https://aka.ms/winget-settings.</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Ouvrir les paramètres</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erreur inattendue lors du chargement des paramètres. Veuillez vérifier vos paramètres en exécutant la commande paramètres.</value>
@@ -920,5 +914,134 @@ La configuration est désactivée en raison d’une stratégie de groupe.</value
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>La valeur indiquée pour l’argument « %1 » n’est pas valide.</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Annulé</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externe</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Les packages trouvés dans cette importation ont les dépendances suivantes :</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Ce package nécessite les dépendances suivantes :</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Packages</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Ce package comportait des dépendances qui n’étaient peut-être plus nécessaires :</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Le manifeste a les dépendances suivantes qui n’ont pas été validées ; vérifiez qu’ils sont valides :</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Fonctionnalités de Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliothèques Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Conditions générales du Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepter tous les contrats de licence pour les packages</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>L’installation du package exporté nécessite un contrat de licence :</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>L’éditeur exige que vous consultiez les informations ci-dessus et acceptiez les contrats avant de procéder à l’installation.
+Acceptez-vous les conditions ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Les contrats de package n’ont pas été acceptés. Opération annulée.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Contrats :</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Auteur :</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Description :</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Programme d'installation :</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Paramètres régionaux :</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID de produit du Store :</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256 :</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type :</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL de téléchargement :</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licence :</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL de la licence :</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker :</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Page d’accueil :</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publisher :</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version :</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Échec de l’ouverture de la source ajoutée.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepter tous les contrats sources pendant les opérations sources</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>La source '%1' nécessite que vous consultiez les contrats suivants avant de l’utiliser.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Acceptez-vous toutes les conditions des contrats sources ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Un ou plusieurs contrats sources n’ont pas été acceptés. Opération annulée. Acceptez les contrats sources ou supprimez les sources correspondantes.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>La source nécessite que la région géographique de l’ordinateur actuel soit envoyée pour fonctionner correctement.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installation réussie. Redémarrez l’application pour terminer la mise à niveau.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optional Windows-Package-Manager REST source HTTP header</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorer l'en-tête facultatif car il n'est pas applicable pour cette source.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>L’en-tête facultatif n’est pas applicable sans spécifier une source</value>
   </data>
 </root>

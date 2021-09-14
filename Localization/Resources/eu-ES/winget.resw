@@ -141,6 +141,9 @@
     <value>Honako azpi-komandoak daude erabilgarri:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>erabilgarri dauden eguneratzeak</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Erabili zehaztutako kanala; hartzaile orokorrak dira lehenetsiak</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Kurtsoreak komando-lerroaren barruak duen posizioa</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Aurrebista</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Pribatutasun-adierazpena</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Ezarpenak baliozkotzean akats hauek aurkitu dira:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Ireki ezarpenak json testu-editore lehenetsian. Ez badago editorerik konfiguratuta, ireki ezarpenak ohar-blokan. Erabilgarri dauden ezarpenak ikusteko, joan hona: https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Ireki ezarpenak</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ustekabeko errorea gertatu da ezarpenak kargatzean. Egiaztatu zure ezarpenak ezarpen-komandoa exekutatuz.</value>
@@ -920,5 +914,134 @@ Konfigurazioa desgaituta dago talde-gidalerroak direla eta.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>"%1" argumenturako emandako balioa ez da egokia</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Bertan behera utzi dira</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Kanpokoa</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Inportazio horretan dauden paketeek hurrengo mendekotasunak dituzte:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Pakete hori hurrengo mendekotasunak eskatzen ditu:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketeak</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Pakete horrek beharrezko ez diren gelak zituen:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Adierazpenak baliozkotu ez ziren mendekotasun hauek ditu; ziurtatu baliozkoak direla:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows eginbideak</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-eko liburutegiak</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows dendako baldintzak</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Onartu paketeen lizentzia-akordio guztiak</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Esportatutako paketeak instalatzeko lizentzia-hitzarmena behar du:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Editoreak eskatzen dizu aurreko informazioa ikusi eta erabakiak onartzea instalatu aurretik.
+Baldintzak onartzen dituzu?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketeen akordioak ez ziren adostu. Eragiketa bertan behera utzi da.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Hitzarmenak:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Egilea:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Azalpena:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalatzailea:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Eskualdea:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-ko produktuaren IDa:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Mota:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Deskargatu URLa:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lizentzia:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lizentzia URLa:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Etxeko orria:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Argitaratzailea:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Bertsioa:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ez</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Bai</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Ezin izan da ireki gehitutako iturburua.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Onartu iturburuko hitzarmen guztiak iturburuko eragiketa bitartean</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>%1 iturburuak erabili aurretik hurrengo hitzarmenak irakurtzea eskatzen du.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Jatorrizko akordioetako baldintza guztiekin ados zaude?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Jatorrizko akordioetako bat edo gehiago ez ziren adostu. Eragiketa bertan behera utzi da. Onartu jatorrizko erabakiak edo ezabatu dagozkien iturriak.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Iturriak makinaren uneko eremu geografikoa bidaltzea eskatzen du, behar bezala funtziona dezan.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Ongi instalatu da. Berrabiarazi aplikazioa eguneratzea osatzeko.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Aukerazko Windows-Package-Manager REST iturburuaren HTTP goiburua</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Hautazko goiburua kontuan hartu gabe, iturri honi ezin baitzaio aplikatu.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Hautazko goiburua ezin da aplikatu iturri bat zehaztu gabe</value>
   </data>
 </root>
