@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionProgress.h"
 #include "Resources.h"
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
@@ -45,15 +44,15 @@ namespace AppInstaller::CLI::Execution
     // The base stream for all channels.
     struct BaseStream
     {
-        BaseStream(std::ostream& out, bool enabled, bool VTEnabled);
+        BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
+            BaseStream(out, enabled, VTEnabled, VirtualTerminal::TextFormat::Default) {};
+
+        BaseStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) ;
 
         template <typename T>
         BaseStream& operator<<(const T& t)
         {
-            if (m_enabled)
-            {
-                m_out << t;
-            }
+            Write<T>(t, false);
             return *this;
         }
 
@@ -61,8 +60,22 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void DisableVT() { m_VTEnabled = false; }
+
+        void Close();
+
     private:
+        template <typename T>
+        void Write(const T&t, bool byPassifNotEnabled) 
+        {
+            if (m_enabled || byPassifNotEnabled )
+            {
+                m_out << t;
+            }
+        };
+
         std::ostream& m_out;
+        VirtualTerminal::Sequence m_defaultSequence;
         bool m_enabled;
         bool m_VTEnabled;
     };
@@ -102,6 +115,9 @@ namespace AppInstaller::CLI::Execution
         OutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
         OutputStream& operator<<(const std::filesystem::path& path);
 
+        void DisableVT() { m_out.DisableVT(); }
+
+        void Close();
     private:
         // Applies the format for the stream.
         void ApplyFormat();
@@ -126,7 +142,6 @@ namespace AppInstaller::CLI::Execution
         NoVTStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
         NoVTStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
         NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
-
     private:
         BaseStream m_out;
     };

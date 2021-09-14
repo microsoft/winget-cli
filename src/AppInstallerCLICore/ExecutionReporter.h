@@ -86,6 +86,9 @@ namespace AppInstaller::CLI::Execution
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
 
+        // Restore default settings to previous execution state.
+        void RestoreDefault();
+
         void EmptyLine() { GetBasicOutputStream() << std::endl; }
 
         // Sets the channel that will be reported to.
@@ -140,11 +143,11 @@ namespace AppInstaller::CLI::Execution
         // Gets whether VT is enabled for this reporter.
         bool IsVTEnabled() const;
 
-        // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
         std::ostream& m_out;
+        OutputStream m_standardOutputStream;
         std::istream& m_in;
         bool m_isVTEnabled = true;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;

@@ -9,8 +9,8 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
-    BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
-        m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled) {}
+    BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) :
+        m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled), m_defaultSequence(sequence) {}
 
     BaseStream& BaseStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
@@ -37,6 +37,15 @@ namespace AppInstaller::CLI::Execution
             m_out << sequence;
         }
         return *this;
+    }
+
+    void BaseStream::Close() 
+    {
+        m_enabled = false;
+        if (m_VTEnabled)
+        {
+            Write(m_defaultSequence, true);
+        }
     }
 
     OutputStream::OutputStream(std::ostream& out, bool enabled, bool VTEnabled) :
@@ -90,6 +99,11 @@ namespace AppInstaller::CLI::Execution
         ApplyFormat();
         m_out << path.u8string();
         return *this;
+    }
+
+    void OutputStream::Close()
+    {
+        m_out.Close();
     }
 
     NoVTStream::NoVTStream(std::ostream& out, bool enabled) :

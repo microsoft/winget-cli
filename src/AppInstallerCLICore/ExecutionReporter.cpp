@@ -21,8 +21,9 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_progressBar(std::in_place, outStream, IsVTEnabled()),
-        m_spinner(std::in_place, outStream, IsVTEnabled())
+        m_standardOutputStream(m_out, m_channel == Channel::Output, IsVTEnabled()),
+        m_progressBar(std::in_place, m_standardOutputStream, IsVTEnabled()),
+        m_spinner(std::in_place, m_standardOutputStream, IsVTEnabled())
     {
         SetProgressSink(this);
     }
@@ -31,7 +32,7 @@ namespace AppInstaller::CLI::Execution
     {
         // The goal of this is to return output to its previous state.
         // For now, we assume this means "default".
-        GetBasicOutputStream() << TextFormat::Default;
+        RestoreDefault();
     }
 
     Reporter::Reporter(const Reporter& other, clone_t) :
@@ -45,7 +46,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetOutputStream(Level level)
     {
-        OutputStream result = GetBasicOutputStream();
+        OutputStream result = m_standardOutputStream;
 
         switch (level)
         {
@@ -76,6 +77,7 @@ namespace AppInstaller::CLI::Execution
     void Reporter::SetChannel(Channel channel)
     {
         m_channel = channel;
+        m_standardOutputStream.DisableVT();
 
         if (m_channel != Channel::Output)
         {
@@ -207,6 +209,12 @@ namespace AppInstaller::CLI::Execution
         {
             callback->Cancel();
         }
+    }
+
+    void Reporter::RestoreDefault() 
+    {
+        EndProgress(true);
+        m_standardOutputStream.Close();
     }
 
     bool Reporter::IsVTEnabled() const

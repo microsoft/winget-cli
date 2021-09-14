@@ -4,6 +4,7 @@
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
 #include <winget/UserSettings.h>
+#include <ChannelStreams.h>
 
 #include <wil/resource.h>
 
@@ -21,13 +22,13 @@ namespace AppInstaller::CLI::Execution
         // Shared functionality for progress visualizers.
         struct ProgressVisualizerBase
         {
-            ProgressVisualizerBase(std::ostream& stream, bool enableVT) :
+            ProgressVisualizerBase(Execution::OutputStream& stream, bool enableVT) :
                 m_out(stream), m_enableVT(enableVT) {}
 
             void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
         protected:
-            std::ostream& m_out;
+            Execution::OutputStream& m_out;
             Settings::VisualStyle m_style = AppInstaller::Settings::VisualStyle::Accent;
 
             bool UseVT() const { return m_enableVT && m_style != AppInstaller::Settings::VisualStyle::NoVT; }
@@ -43,7 +44,7 @@ namespace AppInstaller::CLI::Execution
     // Displays an indefinite spinner.
     struct IndefiniteSpinner : public details::ProgressVisualizerBase
     {
-        IndefiniteSpinner(std::ostream& stream, bool enableVT) :
+        IndefiniteSpinner(Execution::OutputStream& stream, bool enableVT) :
             details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowSpinner();
@@ -62,7 +63,7 @@ namespace AppInstaller::CLI::Execution
     class ProgressBar : public details::ProgressVisualizerBase
     {
     public:
-        ProgressBar(std::ostream& stream, bool enableVT) :
+        ProgressBar(Execution::OutputStream& stream, bool enableVT) :
             details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type);
