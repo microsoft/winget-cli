@@ -298,7 +298,7 @@ namespace
             REQUIRE(actualInstaller.Markets.AllowedMarkets.size() == 1);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.at(0) == "US");
             REQUIRE(actualInstaller.ExpectedReturnCodes.size() == 1);
-            REQUIRE(actualInstaller.ExpectedReturnCodes[3] == ExpectedReturnCodeEnum::InstallInProgress);
+            REQUIRE(actualInstaller.ExpectedReturnCodes.at(3) == ExpectedReturnCodeEnum::InstallInProgress);
         }
     };
 }

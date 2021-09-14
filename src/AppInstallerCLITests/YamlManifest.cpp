@@ -223,6 +223,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-DuplicateKey.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateReturnCode-ExpectedCodes.yaml", "Duplicate installer return code found." },
+        { "Manifest-Bad-DuplicateReturnCode-SuccessCodes.yaml", "Duplicate installer return code found." },
         { "Manifest-Bad-IdInvalid.yaml", "Failed to validate against schema associated with property name 'Id'" },
         { "Manifest-Bad-IdMissing.yaml", "Missing required property 'Id'" },
         { "Manifest-Bad-InstallersMissing.yaml", "Missing required property 'Installers'" },
@@ -423,6 +425,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
         REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
+        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
     }
 
     if (isSingleton)
@@ -484,6 +488,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.Markets.AllowedMarkets.size() == 0);
         REQUIRE(installer1.Markets.ExcludedMarkets.size() == 1);
         REQUIRE(installer1.Markets.ExcludedMarkets.at(0) == "US");
+        REQUIRE(installer1.ExpectedReturnCodes.at(2) == ExpectedReturnCodeEnum::ContactSupport);
     }
 
     if (!isSingleton)
@@ -513,6 +518,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
             REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
             REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
+            REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
+            REQUIRE(installer2.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
         }
 
         // Localization

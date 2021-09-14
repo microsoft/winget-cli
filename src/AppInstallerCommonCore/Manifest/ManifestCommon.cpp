@@ -284,65 +284,66 @@ namespace AppInstaller::Manifest
 
     ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in)
     {
+        std::string inStrLower = Utility::ToLower(in);
         ExpectedReturnCodeEnum result = ExpectedReturnCodeEnum::Unknown;
 
-        if (Utility::CaseInsensitiveEquals(in, "PackageInUse"))
+        if (inStrLower == "packageinuse")
         {
             result = ExpectedReturnCodeEnum::PackageInUse;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "InstallInProgress"))
+        else if (inStrLower == "installinprogress")
         {
             result = ExpectedReturnCodeEnum::InstallInProgress;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "FileInUse"))
+        else if (inStrLower == "fileinuse")
         {
             result = ExpectedReturnCodeEnum::FileInUse;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "MissingDependency"))
+        else if (inStrLower == "missingdependency")
         {
             result = ExpectedReturnCodeEnum::MissingDependency;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "DiskFull"))
+        else if (inStrLower == "diskfull")
         {
             result = ExpectedReturnCodeEnum::DiskFull;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "InsufficientMemory"))
+        else if (inStrLower == "insufficientmemory")
         {
             result = ExpectedReturnCodeEnum::InsufficientMemory;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "NoNetwork"))
+        else if (inStrLower == "nonetwork")
         {
             result = ExpectedReturnCodeEnum::NoNetwork;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "ContactSupport"))
+        else if (inStrLower == "contactsupport")
         {
             result = ExpectedReturnCodeEnum::ContactSupport;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "RebootRequiredToFinish"))
+        else if (inStrLower == "rebootrequiredtofinish")
         {
             result = ExpectedReturnCodeEnum::RebootRequiredToFinish;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "RebootRequiredForInstall"))
+        else if (inStrLower == "rebootrequiredforinstall")
         {
             result = ExpectedReturnCodeEnum::RebootRequiredForInstall;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "RebootInitiated"))
+        else if (inStrLower == "rebootinitiated")
         {
             result = ExpectedReturnCodeEnum::RebootInitiated;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "CancelledByUser"))
+        else if (inStrLower == "cancelledbyuser")
         {
             result = ExpectedReturnCodeEnum::CancelledByUser;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "AlreadyInstalled"))
+        else if (inStrLower == "alreadyinstalled")
         {
             result = ExpectedReturnCodeEnum::AlreadyInstalled;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "Downgrade"))
+        else if (inStrLower == "downgrade")
         {
             result = ExpectedReturnCodeEnum::Downgrade;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "BlockedByPolicy"))
+        else if (inStrLower == "blockedbypolicy")
         {
             result = ExpectedReturnCodeEnum::BlockedByPolicy;
         }
@@ -510,13 +511,13 @@ namespace AppInstaller::Manifest
             // See https://docs.microsoft.com/en-us/windows/win32/appxpkg/troubleshooting
             return
             {
-                { ERROR_INSTALL_PREREQUISITE_FAILED, ExpectedReturnCodeEnum::MissingDependency },
-                { ERROR_INSTALL_RESOLVE_DEPENDENCY_FAILED, ExpectedReturnCodeEnum::MissingDependency },
-                { ERROR_INSTALL_OPTIONAL_PACKAGE_REQUIRES_MAIN_PACKAGE, ExpectedReturnCodeEnum::MissingDependency },
-                { ERROR_INSTALL_OUT_OF_DISK_SPACE, ExpectedReturnCodeEnum::DiskFull },
-                { ERROR_INSTALL_CANCEL, ExpectedReturnCodeEnum::CancelledByUser },
-                { ERROR_PACKAGE_ALREADY_EXISTS, ExpectedReturnCodeEnum::AlreadyInstalled },
-                { ERROR_INSTALL_PACKAGE_DOWNGRADE, ExpectedReturnCodeEnum::Downgrade },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_PREREQUISITE_FAILED), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_RESOLVE_DEPENDENCY_FAILED), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_OPTIONAL_PACKAGE_REQUIRES_MAIN_PACKAGE), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_OUT_OF_DISK_SPACE), ExpectedReturnCodeEnum::DiskFull },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_CANCEL), ExpectedReturnCodeEnum::CancelledByUser },
+                { HRESULT_FROM_WIN32(ERROR_PACKAGE_ALREADY_EXISTS), ExpectedReturnCodeEnum::AlreadyInstalled },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_PACKAGE_DOWNGRADE), ExpectedReturnCodeEnum::Downgrade },
             };
         default:
             return {};

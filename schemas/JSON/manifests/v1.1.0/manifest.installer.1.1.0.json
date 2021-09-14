@@ -159,27 +159,28 @@
             "$ref": "#/definitions/InstallerReturnCode"
           },
           "ReturnResponse": {
-            "type": [ "string", "null" ],
+            "type": "string",
             "enum": [
-              "PackageInUse",
-              "InstallInProgress",
-              "FileInUse",
-              "MissingDependency",
-              "DiskFull",
-              "InsufficientMemory",
-              "NoNetwork",
-              "ContactSupport",
-              "RebootRequiredToFinish",
-              "RebootRequiredForInstall",
-              "RebootInitiated",
-              "CancelledByUser",
-              "AlreadyInstalled",
-              "Downgrade",
-              "BlockedByPolicy"
+              "packageInUse",
+              "installInProgress",
+              "fileInUse",
+              "missingDependency",
+              "diskFull",
+              "insufficientMemory",
+              "noNetwork",
+              "contactSupport",
+              "rebootRequiredToFinish",
+              "rebootRequiredForInstall",
+              "rebootInitiated",
+              "cancelledByUser",
+              "alreadyInstalled",
+              "downgrade",
+              "blockedByPolicy"
             ]
           }
         }
       },
+      "maxItems": 128,
       "description": "Installer exit codes for common errors"
     },
     "UpgradeBehavior": {

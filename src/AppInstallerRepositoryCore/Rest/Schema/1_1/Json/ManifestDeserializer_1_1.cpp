@@ -134,7 +134,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
                 for (auto& returnCodeNode : expectedReturnCodesNode.value().get())
                 {
                     ExpectedReturnCodeEnum returnResponse = Manifest::ConvertToExpectedReturnCodeEnum(JsonHelper::GetRawStringValueFromJsonNode(returnCodeNode, JsonHelper::GetUtilityString(ReturnResponse)).value_or(""));
-                    DWORD installerReturnCode = JsonHelper::GetRawIntValueFromJsonNode(returnCodeNode, JsonHelper::GetUtilityString(InstallerReturnCode)).value_or(0);
+                    DWORD installerReturnCode = static_cast<DWORD>(JsonHelper::GetRawIntValueFromJsonNode(returnCodeNode, JsonHelper::GetUtilityString(InstallerReturnCode)).value_or(0));
 
                     // Only add when it is valid
                     if (installerReturnCode != 0 && returnResponse != ExpectedReturnCodeEnum::Unknown)

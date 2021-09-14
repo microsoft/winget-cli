@@ -340,6 +340,12 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-DuplicateKey.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-DuplicateReturnCode-ExpectedCodes.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-DuplicateReturnCode-SuccessCodes.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-IdInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

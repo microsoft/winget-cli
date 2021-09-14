@@ -13,34 +13,34 @@ Installers:
       InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
       ExpectedReturnCodes:
           - InstallerReturnCode: 1
-            ReturnResponse: PackageInUse
+            ReturnResponse: packageInUse
           - InstallerReturnCode: 2
-            ReturnResponse: InstallInProgress
+            ReturnResponse: installInProgress
           - InstallerReturnCode: 3
-            ReturnResponse: FileInUse
+            ReturnResponse: fileInUse
           - InstallerReturnCode: 4
-            ReturnResponse: MissingDependency
+            ReturnResponse: missingDependency
           - InstallerReturnCode: 5
-            ReturnResponse: DiskFull
+            ReturnResponse: diskFull
           - InstallerReturnCode: 6
-            ReturnResponse: InsufficientMemory
+            ReturnResponse: insufficientMemory
           - InstallerReturnCode: 7
-            ReturnResponse: NoNetwork
+            ReturnResponse: noNetwork
           - InstallerReturnCode: 8
-            ReturnResponse: ContactSupport
+            ReturnResponse: contactSupport
           - InstallerReturnCode: 9
-            ReturnResponse: RebootRequiredToFinish
+            ReturnResponse: rebootRequiredToFinish
           - InstallerReturnCode: 10
-            ReturnResponse: RebootRequiredForInstall
+            ReturnResponse: rebootRequiredForInstall
           - InstallerReturnCode: 11
-            ReturnResponse: RebootInitiated
+            ReturnResponse: rebootInitiated
           - InstallerReturnCode: 12
-            ReturnResponse: CancelledByUser
+            ReturnResponse: cancelledByUser
           - InstallerReturnCode: 13
-            ReturnResponse: AlreadyInstalled
+            ReturnResponse: alreadyInstalled
           - InstallerReturnCode: 14
-            ReturnResponse: Downgrade
+            ReturnResponse: downgrade
           - InstallerReturnCode: 15
-            ReturnResponse: BlockedByPolicy
+            ReturnResponse: blockedByPolicy
 ManifestType: singleton
 ManifestVersion: 1.1.0

@@ -491,7 +491,7 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             RenameDownloadedInstaller <<
             DirectMSIInstallImpl <<
-            ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED, /* isHResult */ true);
+            ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -520,7 +520,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             context.Add<Execution::Data::InstallerReturnCode>(re.GetErrorCode());
-            context << ReportInstallerResult("MSIX", re.GetErrorCode(), /* isHResult */ true);
+            context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
             return;
         }
 
