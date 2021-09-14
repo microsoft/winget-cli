@@ -141,6 +141,9 @@
     <value>Ang sumusunod na mga sub-command ay magagamit:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>mga upgrade ang available.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Gamitin ang tinukoy na channel; ang default ay pangkalahatang madla</value>
   </data>
@@ -419,9 +422,6 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Ang posisyon ng cursor sa loob ng command line</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Preview</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Pahayag ng Privacy</value>
   </data>
@@ -464,12 +464,6 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Natagpuan ang mga sumusunod na pagkabigo na pinapatnayan ang mga setting:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Buksan ang mga setting sa default na text editor. Kung walang editor ang nakompigura, buksan ang mga setting sa notepad. Para sa mga available na setting tingnan ang https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Buksan ang mga setting</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>May hindi inaasahang error habang naglo-load ng mga seting. Pakitiyak ang iyong mga seting sa pamamagitan ng pagpapatakbo sa utos ng mga setting.</value>
@@ -920,5 +914,134 @@ Hindi pinagana ang kompigurasyon dahil sa Patakaran ng Grupo.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Hindi tama ang halaga na ibinigay para sa `%1` na argumento</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Kinansela</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Panlabas</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Ang mga package na nakita sa pag-import na ito ay may mga sumusunod na dependency:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Kailangan ng package na ito ng mga sumusunod na dependency:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Mga Package</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Nagkaroon ng mga dependency ang package na ito na maaaring hindi na kailangan:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>May mga sumusunod na dependency na hindi napatunayan ang Manifest; tiyaking valid ang mga ito:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Mga Tampok ng Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Mga Library ng Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Mga Tuntunin ng Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Tanggapin ang lahat ng kasunduan sa lisensya para sa mga package</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Nangangailangan ang na-export na package ng kasunduan sa lisensiya para ma-install:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Kinakailangan ng publisher na tingnan mo ang impormasyon sa itaas at tanggapin ang mga kasunduan bago i-install.
+Sumasang-ayon ka ba sa mga tuntunin?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Hindi sumang-ayon sa mga kasunduan sa package. Kinansela ang pag-andar.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Mga Kasunduan:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>May-akda:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Paglalarawan:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Pang-install:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Locale:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id ng Produkto sa Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Uri:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url ng Download:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisensiya:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Url ng Lisensiya:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Bersyon:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Hindi</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Oo</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Hindi nabuksan ang idinagdag na pinagmulan.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Tanggapin ang lahat ng kasunduan sa pinagmulan sa panahon ng mga pag-andar ng pinagmulan</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Kailangan ng pinagmulan na '%1' na tingnan mo ang mga sumusunod na kasunduan bago gamitin.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Sumasang-ayon ka ba sa lahat ng mga tuntunin ng mga kasunduan sa pinagmulan?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Isa o higit pa sa mga kasunduan sa pinagmulan ay hindi sinang-ayunan. Kinansela ang pag-andar. Mangyaring tanggapin ang mga kasunduan sa pinagmulan o tanggalin ang mga kaukulang pinagmulan.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Nangangailangan ng pinagmulan na maipadala ang kasalukuyang pangheyograpikong rehiyon ng machine para gumana ng maayos.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Matagumpay na na-install. I-restart ang aplikasyon para kumpletuhin ang pag-upgrade.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Opsyonal na HTTP header ng pinagmulan na Windows-Package-Manager REST</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Binabalewala ang opsyonal na header dahil hindi ito naaangkop para sa pinagmumulang ito.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Hindi naaangkop ang opsyonal na header nang hindi tumutukoy ng isang pinagmulan</value>
   </data>
 </root>

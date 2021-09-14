@@ -141,6 +141,9 @@
     <value>Están disponibles los siguientes subcomandos:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>actualizaciones disponibles.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use el canal especificado; el predeterminado es público general</value>
   </data>
@@ -419,9 +422,6 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>La posición del cursor dentro de la línea de comandos</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Vista previa</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Declaración de privacidad</value>
   </data>
@@ -464,12 +464,6 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Se encontraron los siguientes fallos al validar la configuración:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Abre la configuración en el editor de texto JSON predeterminado. Si no hay ningún editor configurado, ábrela en el Bloc de notas. Para ver las configuraciones disponibles, consulta https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Abrir configuración</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Error inesperado al cargar la configuración. Por favor verifica tu configuración ejecutando el comando configuración.</value>
@@ -920,5 +914,134 @@ La configuración está deshabilitada debido a la directiva de grupo.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>El valor proporcionado para el argumento `%1` no es válido</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Los paquetes encontrados en esta importación tienen las siguientes dependencias:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Este paquete requiere las siguientes dependencias:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paquetes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Este paquete tenía dependencias que es posible que ya no sean necesarias:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>El manifiesto tiene las siguientes dependencias que no se validaron; asegúrese de que son válidas:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Características de Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotecas de Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Condiciones de la Tienda Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceptar todos los contratos de licencia para paquetes</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>El paquete exportado requiere un contrato de licencia para instalar:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>El editor requiere que vea la información anterior y acepte los contratos antes de la instalación.
+¿Acepta los términos?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>No se han aceptado los acuerdos de paquete. Operación cancelada.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acuerdos:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descripción:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalador:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Configuración regional:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id. de producto de Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Dirección URL de descarga:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licencia:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Dirección URL de la licencia:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Página principal:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versión:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>No se pudo abrir el origen agregado.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceptar todos los contratos de origen durante las operaciones de origen</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>El origen '%1' requiere que veas los siguientes contratos antes de usarlos.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>¿Está de acuerdo con todos los términos de los contratos de origen?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>No se han aceptado uno o varios de los contratos de origen. Operación cancelada. Acepta los contratos de origen o quita los orígenes correspondientes.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>El origen requiere que se envíe la región geográfica de la máquina actual para que funcione correctamente.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Se instaló correctamente. Reinicia la aplicación para completar la actualización.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Encabezado HTTP de origen REST opcional de Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Omitiendo el encabezado opcional porque no es aplicable para este origen.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>El encabezado opcional no es aplicable sin especificar un origen</value>
   </data>
 </root>

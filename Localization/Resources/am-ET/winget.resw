@@ -141,6 +141,9 @@
     <value>የሚከተሉት ንዑስ-ትዕዛዞች ይገኛሉ:-</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>ማሻሻያዎች ይገኛሉ።</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>የተገለጸውን ጣቢያ ተጠቀም፤ ነባሪው ጠቅላላ ታዳሚ ነው</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>በትእዛዝ መስመሩ ውስጥ የጠቋሚው አቀማመጥ</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>ቅድመ ዕይታ</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>የግላዊነት መግለጫ</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ቅንብሮችን በማረጋገጥ ጊዜ የሚከተሉት ስህተቶች ተከስተዋል:፡</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>ቅንብሮችን በመደበኛው የጄሰን ኤዲተር ይክፈቱ። ምንም ኤዲተር ካልተመደበ፣ ቅንብሮችን በ ኖትፓድ ነው የሚከፍተው።</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>ቅንብሮችን ይክፈቱ</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ቅንብሮችን በመጫን ላይ ያልተጠበቀ ስህተት ተከስቷል። እባክዎ የቅንብሮች ትዕዛዝ በማስኬድ ቅንብሮችዎን ያረጋግጡ።</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>ለ `%1` ክርክር የቀረበው ዋጋ ልክ ያልሆነ ነው</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ተሰርዟል</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>ውጫዊ</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>በዚህ አስመጪ የተገኙት ጥቅሎች የሚከተሉት ቅድመ ሁኔታዎች አሏቸው፦</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>ይህ ጥቅል የሚከተሉት ቅድመ ሁኔታዎችን ይጠይቃል፦</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>ጥቅሎች</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>ይህ ጥቅል ካሁን በኋላ ሊያስፈልጉ የማይችሉ ቅድመ ሁኔታዎችን ይዞ ነበር፦</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>ማኒፌስት ያልተረጋገጡ የነበሩ ቅድመ ሁኔታዎች አሉት፤ ልክ መሆናቸዉን ያረጋግጡ፦</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>የ Windows ባህሪያት</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows ቤተ መጻህፍት</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>የ Windows Store ውሎች</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ለጥቅሎች ሁሉንም የፈቃድ ስምምነቶች ይቀበሉ</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ወደ ውጪ የተላከ ጥቅል ለመጫን የፈቃድ ስምምነት ይጠይቃል፦</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>አታሚው ከመጫንዎ በፊት ከላይ ያሉውን መረጃ እንዲመለከቱ እና ስምምነቶችን እንዲቀበሉ ይጠይቃል።
+በውሎቹ ይስማማሉ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>የጥቅል ስምምነቶች አልተስማሙም። ክንውን ተሰርዟል።</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>ስምምነቶች፦</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>ደራሲ፥</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>መግለጫ፦</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>የመተግበሪያ ጫኝ፦</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>አካባቢያዊ፦</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>የ Store ምርት መታወቂያ፦</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256፦</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>ዓይነት፦</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>የማውረጃ Url፦</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>ፈቃድ፦</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>የፈቃድ Url፦</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>ሞኒከር፦</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>መነሻ ገጽ፦</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>አታሚ፥</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>ስሪት፥</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>አይ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>አዎ</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>የተጨመረውን ምንጭ ለመክፈት አልተቻለም።</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>በምንጭ ክንውኖች ጊዜ ሁሉንም የምንጭ ስምምነቶች ይቀበሉ</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1' ምንጭ ከመጠቀምዎ በፊት የሚከተሉትን ስምምነቶች እንዲመለከቱ ይጠይቃል።</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>ሁሉንም የምንጭ ስምምነቶች ውሎች ይስማማሉ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>አንድ ወይም ከዚያ በላይ የሆኑት የምንጭ ስምምነቶች ስምምነት አልተስማሙም ነበር። ክንውን ተሰርዟል። እባክዎ የምንጭ ስምምነቶችን ይቀበሉ ወይም ተዛማጅ ምንጮችን ያስወግዱ።</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ምንጩ የአሁን የማሽኑ ጂኦግራፊያዊ ክልል በአግባቡ ለመስራት እንዲላክ ይጠይቃል።</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>በተሳካ ሁኔታ ተጭኗል። ማሻሻያውን ለማጠናቀቅ መተግበሪያውን እንደገና ያስጀምሩ።</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>አማራጭ የ Windows-Package-Manager REST ምንጭ HTTP ርእስ</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>አማራጭ ርእስ ለዚህ ምንጭ ስለማይሰራ ችላ ማለት።</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>አማራጭ ርእስ ምንጩ ሳይገለጽ አይሰራም</value>
   </data>
 </root>

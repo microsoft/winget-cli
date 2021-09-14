@@ -141,6 +141,9 @@
     <value>Următoarele sub-comenzi sunt disponibile:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>upgrade-uri disponibile.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utilizarea canalului specificat; valoarea implicită este publicul general</value>
   </data>
@@ -419,9 +422,6 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Poziția cursorului în linia de comandă</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Previzualizare</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Angajament de respectare a confidențialității</value>
   </data>
@@ -464,12 +464,6 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>S-au găsit următoarele erori la validarea setărilor:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Deschideți setările din editorul implicit de text JSON. Dacă nu este configurat niciun editor, deschide setările în Notepad. Pentru setările disponibile, vedeți https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Deschideți setările</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Eroare neașteptată la încărcarea setărilor. Verificați setările rulând comanda de setări.</value>
@@ -920,5 +914,134 @@ Configurația este dezactivată din cauza politicii de grup.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Valoarea furnizată pentru argumentul "%1" este nevalidă</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Anulat</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Pachetele găsite în acest import au următoarele dependențe:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Acest pachet necesită următoarele dependențe:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pachete</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Acest pachet avea dependențe care pot să nu mai fie necesare:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestul are următoarele dependențe care nu au fost validate; asigurați-vă că sunt valide:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Caracteristici Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Biblioteci Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Termenii Magazinului Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptați toate acordurile de licență pentru pachete</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Pachetul exportat necesită un acord de licență pentru instalare:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Editorul solicită să vizualizați informațiile de mai sus și să acceptați acordurile înainte de instalare.
+Sunteți de acord cu termenii?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Acordurile de pachet nu au fost acceptate. Operațiune anulată.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acorduri:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descriere:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Program de instalare:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Setări regionale:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID produs magazin:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tip:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL descărcare:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licență:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL licență:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Pagina de pornire:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versiune:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nu</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Da</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Nu s-a reușit deschiderea sursei adăugate.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptați toate acordurile sursă în timpul operațiunilor sursă</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Sursa "%1" necesită să vizualizați următoarele acorduri înainte de a utiliza.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Sunteți de acord cu toți termenii acordurilor sursă?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Unul sau mai multe acorduri sursă nu au fost acceptate. Operațiune anulată. Acceptați acordurile sursă sau eliminați sursele corespunzătoare.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Sursa necesită ca regiunea geografică a computerului curent să fie trimisă pentru a funcționa corect.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Instalat cu succes. Reporniți aplicația pentru a finaliza upgrade-ul.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Antet HTTP sursă REST Windows-Package-Manager opțional</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Se ignoră antetul opțional, deoarece nu se aplică pentru această sursă.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Antetul opțional nu se aplică fără a specifica o sursă</value>
   </data>
 </root>

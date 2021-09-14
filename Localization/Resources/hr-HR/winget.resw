@@ -141,6 +141,9 @@
     <value>Dostupne su sljedeće podnaredbe:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>dostupne nadogradnje.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Upotrijebi specificirani kanal; zadano je opća publika</value>
   </data>
@@ -419,9 +422,6 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Položaj pokazivača unutar naredbenog retka</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Pretpregled</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Izjava o zaštiti privatnosti</value>
   </data>
@@ -464,12 +464,6 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Pronađene su sljedeće pogreške provjere valjanosti postavki:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Otvorite postavke u zadanom uređivaču teksta json. Ako uređivač nije konfiguriran, otvorite postavke u bloku za pisanje. Dostupne postavke potražite na https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Otvori postavke</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Prilikom učitavanja postavki došlo je do neočekivane pogreške. Provjerite postavke na koje se izvode naredba.</value>
@@ -920,5 +914,134 @@ Konfiguracija je onemogućena zbog pravilnika grupe.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Vrijednost navedena za argument "%1" nije valjana</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Otkazano</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Vanjska</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Paketi pronađeni u ovom uvozu imaju sljedeće ovisnosti:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Ovaj paket zahtijeva sljedeće ovisnosti:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketi</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Ovaj paket imao je ovisnosti koje možda više nisu potrebne:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest sadrži sljedeće ovisnosti kojima nije provjerena valjanost; provjerite jesu li valjane:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Značajke sustava Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Biblioteke sustava Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Uvjeti Windows trgovine</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Prihvati sve licencne ugovore za pakete</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Za instalaciju izvezenog paketa potreban je licencni ugovor:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Izdavač zahtijeva da prije instalacije pregledate gore navedene informacije i prihvatite sporazume.
+Prihvaćate li uvjete?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Ugovori o paketu nisu dogovoreni. Operacija je otkazana.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Sporazumi:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Opis:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalacijski program:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Područje:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID proizvoda iz trgovine Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Vrsta:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL za preuzimanje:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licenca:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL licence:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Nadimak:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Početna stranica:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Izdavač:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Verzija:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ne</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Da</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Otvaranje dodanog izvora nije uspjelo.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Prihvatite sve izvorišne sporazume tijekom operacija izvora</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Izvor „%1“ zahtijeva da prije upotrebe pregledate sljedeće sporazume.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Pristajete li na sve uvjete izvorišnih sporazuma?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Na jedan ili više izvorišnih sporazuma nije dan pristanak. Operacija je otkazana. Prihvatite izvorišne sporazume ili uklonite odgovarajuće izvore.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Izvor zahtijeva da se pošalje geografsko područje trenutnog računala kako bi ispravno funkcioniralo.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Uspješno instalirano. Ponovno pokrenite aplikaciju da biste dovršili nadogradnju.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Neobavezno HTTP zaglavlje REST-a za upravitelja paketa za Windows</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Neobavezno zaglavlje se zanemaruje jer nije primjenjivo za ovaj izvor.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Neobavezno zaglavlje nije primjenjivo bez navođenja izvora</value>
   </data>
 </root>

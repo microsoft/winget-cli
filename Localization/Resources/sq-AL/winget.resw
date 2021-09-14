@@ -141,6 +141,9 @@
     <value>Nënkomandat në vijim janë në dispozicion:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>përmirësime në dispozicion.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Përdor kanalin e specifikuar; parazgjedhja është publiku i përgjithshëm</value>
   </data>
@@ -419,9 +422,6 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Pozicioni i kursorit brenda rreshtit të komandës</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Paraafishim</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Deklarata e privatësisë</value>
   </data>
@@ -464,12 +464,6 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Gjatë vërtetimit të parametrave u gjetën dështimet në vijim:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Hapni parametrat në redaktorin e tekstit të paracaktuar json. Nëse nuk është konfiguruar asnjë redaktues, hap parametrat në notepad. Për parametrat në dispozicion, shihni https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Hap parametrat</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Gabim i papritur gjatë ngarkimit të parametrave. Verifiko parametrat e tu duke ekzekutuar komandën e parametrave.</value>
@@ -920,5 +914,134 @@ Konfigurimi është çaktivizuar për shkak të Rregullores së Grupit.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Vlera e dhënë për argumentin `%1` është e pavlefshme</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>U anulua</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Të jashtme</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Paketat e gjetura në këtë import kanë varësitë e mëposhtme:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Kjo paketë kërkon varësitë në vijim:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketat</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Kjo paketë kishte varësi që mund të mos nevojiten më:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifesti ka varësitë në vijim që nuk janë verifikuar. Sigurohu se janë të vlefshme:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Tiparet e Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotekat e Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Kushtet e Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Prano të gjitha marrëveshjet e licencës për paketat</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Paketa e eksportuar kërkon marrëveshjen e licencës për t’u instaluar:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Publikuesi kërkon që të paraqesësh informacionin e mësipërm dhe të pranosh marrëveshjet para se të instalosh.
+A pajtohesh me kushtet?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Marrëveshjet e paketave nuk u pranuan. Operacioni u anulua.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Marrëveshjet:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autori:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Përshkrimi:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instaluesi:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Parametrat rajonalë:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID-ja e produktit në Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Lloji:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL-ja e shkarkimit:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licenca:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL-ja e licencës:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Pseudonimi:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Faqja bazë:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publikuesi:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versioni:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Jo</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Po</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Hapja e burimit të shtuar dështoi.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Prano të gjitha marrëveshjet e burimit gjatë operacioneve të burimit</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Burimi i "%1" kërkon që të paraqesësh marrëveshjet në vijim para se ta përdorësh.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>A pajtohesh me të gjitha kushtet e marrëveshjeve të burimit?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Një ose më shumë nga marrëveshjet e burimit nuk u pranuan. Operacioni u anulua. Prano marrëveshjet e burimit ose hiq burimet përkatëse.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Burimi kërkon që të dërgohet rajoni gjeografik i makinës aktuale për të funksionuar siç duhet.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>U instalua me sukses. Rinis aplikacionin për të përfunduar përmirësimin.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Koka opsionale HTTP për burimin REST të Menaxherit të paketave të Windows</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Duke injoruar kokën opsionale, pasi nuk vlen për këtë burim.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Koka opsionale nuk vlen pa specifikuar një burim</value>
   </data>
 </root>

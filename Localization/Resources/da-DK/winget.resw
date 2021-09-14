@@ -141,6 +141,9 @@
     <value>Følgende underkommandoer er tilgængelige:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>opgraderinger tilgængelige.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Brug den angivne kanal; standarden er generel målgruppe</value>
   </data>
@@ -419,9 +422,6 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Placeringen af markøren på kommandolinjen</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Eksempel</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Erklæring om beskyttelse af personlige oplysninger</value>
   </data>
@@ -464,12 +464,6 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Følgende fejl blev fundet under valideringen af indstillingerne:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Åbn indstillingerne i standardredigeringsprogrammet til JSON. Hvis der ikke er konfigureret noget redigeringsprogram, åbnes indstillingerne i Notesblok. Se https://aka.ms/winget-settings vedrørende de tilgængelige indstillinger</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Åbn indstillinger</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Der opstod en uventet fejl under indlæsning af indstillinger. Kontrollér dine indstillinger ved at køre kommandoen Indstillinger.</value>
@@ -920,5 +914,134 @@ Konfiguration er deaktiveret på grund af en gruppepolitik.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Den værdi, der er angivet for argumentet '%1', er ugyldig</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Annulleret</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ekstern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Pakkerne, der blev fundet i denne import, har følgende afhængigheder:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Denne pakke kræver følgende afhængigheder:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakker</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Denne pakke havde afhængigheder, der muligvis ikke længere er nødvendige:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest har følgende afhængigheder, der ikke blev valideret; vær sikker på, at de er gyldige:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-funktioner</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-biblioteker</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Vilkår og betingelser for Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptér alle licensaftaler for pakker</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Eksporteret pakke kræver licensaftale for at kunne installeres:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Udgiveren kræver, at du får vist ovenstående oplysninger og accepterer aftalerne, før du installerer.
+Accepterer du vilkårene?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Pakkeaftaler blev ikke accepteret. Handlingen blev annulleret.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Aftaler:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Forfatter:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beskrivelse:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installationsprogram:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Landestandard:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id for store-produkt:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download URL-adresse:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licens:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licens-URL-adresse:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startside:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Udgiver:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nej</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Kunne ikke åbne den tilføjede kilde.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptér alle kildeaftaler under kildehandlinger</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Kilden '%1' kræver, at du får vist følgende aftaler, før du bruger dem.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Accepterer du alle vilkår for kildeaftaler?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>En eller flere af kildeaftaler blev ikke accepteret. Handlingen blev annulleret. Acceptér kildeaftaler, eller fjern de tilsvarende kilder.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Kilden kræver, at den aktuelle computers geografiske område sendes for at fungere korrekt.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installeret. Genstart programmet for at fuldføre opgraderingen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valgfri Windows-Pakke-Administrator REST-kilde HTTP-overskrift</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorerer den valgfrie overskrift, da det ikke er relevant for denne kilde.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Den valgfri header kan ikke anvendes uden angivelse af en kilde</value>
   </data>
 </root>

@@ -141,6 +141,9 @@
     <value>فرمان‌های فرعی زیر در دسترس هستند:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>ارتقاء موجود است.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>از کانال مشخص‌شده استفاده می‌کند؛ حالت پیش‌فرض مخاطبان عمومی است</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>موقعیت مکان‌نما در خط فرمان</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>پیش‌نمایش</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>اعلامیه حریم خصوصی</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>عیب‌های زیر هنگام تأیید اعتبار تنظیمات یافت شد:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>تنظیمات را در ویرایشگر متن پیش‌فرض json باز کنید. اگر هیچ ویرایشگری پیکربندی نشده باشد، تنظیمات را در دفترچه یادداشت باز می‌کند. برای اطلاع از تنظیمات موجود، به https://aka.ms/winget-settings مراجعه کنید</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>باز کردن تنظیمات</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>هنگام بارگیری تنظیمات، خطای غیرمنتظره‌ای رخ داد. لطفاً تنظیمات خود را با اجرای فرمان تنظیمات تأیید کنید.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>مقدار ارائه‌شده برای آرگومان «%1» نامعتبر است</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>لغو شد</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>خارجی</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>بسته‌های موجود در این وارد کردن وابستگی‌های زیر را دارد:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>این بسته به وابستگی‌های زیر نیاز دارد:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>بسته‌ها</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>این بسته وابستگی‌هایی داشت که ممکن است دیگر مورد نیاز نباشند:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>مانیفست دارای وابستگی‌های زیر است که اعتبارسنجی نشده‌اند؛ مطمئن شوید که معتبر هستند:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>ویژگی‌های Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>کتابخانه‌های Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>شرایط فروشگاه Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>همه توافقنامه‌های مجوز بسته‌ها را بپذیرید</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>بسته صادر شده برای نصب نیاز به توافقنامه مجوز دارد:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>ناشر ایجاب می‌کند که اطلاعات بالا را مشاهده کنید و قبل از نصب، توافق نامه‌ها را بپذیرید.
+آیا با این شرایط موافقت می‌کنید؟</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>توافقنامه‌های بسته مورد موافقت قرار نگرفت. عملیات لغو شد.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>توافتنامه‌ها:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>نگارنده:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>شرح:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>نصب‌کننده:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>محلی:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>شناسه محصول Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>نوع:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>بارگیری Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>مجوز:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>آدرس وب مجوز:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>صفحه اصلی:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>ناشر:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>نسخه:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>خیر</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>بله</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>منبع اضافه شده باز نشد.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>در طول عملیات منبع، همه توافقنامه‌های منبع را بپذیرید</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>منبع `%1` مستلزم این است که قبل از استفاده، توافقنامه‌های زیر را مشاهده کنید.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>آیا با همه شرایط توافقنامه‌های منبع موافقت می‌کنید؟</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>با یک یا چند توافقنامه منبع موافقت نشد. عملیات لغو شد. لطفاً توافقنامه‌های منبع را بپذیرید یا منابع مربوطه را حذف کنید.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>منبع برای عملکرد صحیح نیاز به ارسال منطقه جغرافیایی دستگاه فعلی دارد.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>با موفقیت نصب شد. برای تکمیل ارتقاء، برنامه را راه‌اندازی مجدد کنید.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>سرصفحه HTTP منبع REST مربوط به Windows-Package-Manager اختیاری</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>نادیده گرفتن سرصفحه اختیاری زیرا برای این منبع قابل استفاده نیست.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>سرصفحه اختیاری بدون تعیین منبع قابل اجرا نیست</value>
   </data>
 </root>

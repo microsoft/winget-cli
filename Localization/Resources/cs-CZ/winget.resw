@@ -141,6 +141,9 @@
     <value>K dispozici jsou následující dílčí příkazy:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>dostupné upgrady.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Použít konkrétní kanál (výchozí je obecné publikum)</value>
   </data>
@@ -419,9 +422,6 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Pozice kurzoru na příkazovém řádku</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Preview</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Prohlášení o zásadách ochrany osobních údajů</value>
   </data>
@@ -464,12 +464,6 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Byly nalezeny následující chyby ověření nastavení:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Otevře nastavení ve výchozím textovém editoru pro JSON. Pokud není žádný editor nakonfigurovaný, nastavení se otevře v poznámkovém bloku. Dostupná nastavení viz https://aka.ms/winget-settings.</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Otevřít nastavení</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Při načítání nastavení došlo k neočekávané chybě. Zkontrolujte nastavení spuštěním příkazu nastavení.</value>
@@ -920,5 +914,134 @@ Konfigurace je zakázána kvůli zásadám skupiny.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Hodnota zadaná pro argument%1je neplatná.</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Zrušeno</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externí</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Balíčky nalezené v tomto importu mají následující závislosti:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Tento balíček vyžaduje následující závislosti:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Balíčky</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Tento balíček měl závislosti, které už nemusí být potřeba:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest obsahuje následující závislosti, které nebyly ověřeny. Ujistěte se, že jsou platné:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Funkce systému Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Knihovny Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Podmínky pro Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Přijmout všechny licenční smlouvy pro balíčky</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Exportovaný balíček vyžaduje k instalaci licenční smlouvu:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Vydavatel požaduje, abyste před instalací zobrazili výše uvedené informace a přijali podmínky.
+Souhlasíte s podmínkami?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Smlouvy o balíčku nebyly odsouhlasené. Operace byla zrušena.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Dohody:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Popis:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalační služby:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Národní prostředí:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID produktu ze Storu:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Adresa URL pro stahování:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licence:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL licence:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Domovská stránka:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Vydavatel:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Verze:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ne</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ano</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Nepovedlo se otevřít přidaný zdroj.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Přijmout všechny zdrojové smlouvy během zdrojových operací</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Zdroj %1 vyžaduje, abyste před použitím zobrazili následující smlouvy.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Souhlasíte se všemi podmínkami zdrojových smluv?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Nejméně jedna ze zdrojových smluv nebyla odsouhlasena. Operace byla zrušena. Přijměte zdrojové smlouvy nebo odeberte odpovídající zdroje.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Zdroj vyžaduje, aby geografická oblast aktuálního počítače fungovala správně.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Instalace proběhla úspěšně. Upgrade dokončíte restartováním aplikace.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Volitelná hlavička HTTP zdroje REST Správce balíčků systému Windows</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Volitelná hlavička se ignoruje, protože se pro tento zdroj nedá použít.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Volitelná hlavička se nedá použít bez zadání zdroje.</value>
   </data>
 </root>
