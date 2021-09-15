@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # upgrade command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Optionally, you may use the [**list**](list.md) command to identify the application you want to upgrade.  
 
 The **upgrade** command requires that you specify the exact string to upgrade. If there is any ambiguity, you will be prompted to further filter the **upgrade** command to  an exact application.
@@ -80,6 +78,3 @@ In the example below you will see [**list**](list.md) identifies that an update 
 ## **upgrade** --all
 
 **upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the.
-
->[!NOTE]
-Some applications do not provide a version.  They are always latest.  Because the Windows Package Manager cannot identify if their is a newer version of the app, an upgrade will not be possible.
