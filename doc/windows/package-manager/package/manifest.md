@@ -65,7 +65,7 @@ ManifestVersion: 1.0.0
 
 #### [Example](#tab/minexample/)
 
-Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / WindowsTerminal.yaml
+Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.yaml
 
 ```YAML
 PackageIdentifier: Microsoft.WindowsTerminal
@@ -207,9 +207,7 @@ by the Windows Package Manager client (winget.exe). For example, the `Moniker` f
 
 * The length of strings in this specification should be limited to 100 characters before a line break.
 
-* The "PackageName" should match the entry made in Add / Remove Programs to help the correlation with manifests to support **export**, and **upgrade**.
-
-* The "Publisher" should match the entry made in Add / Remove Programs to help the correlation with manifests to support **export**, and **upgrade**.
+* The "PackageName" and "Publisher" should match the entry made in Add / Remove Programs to help the correlation with manifests to support **export**, and **upgrade**.
 
 * Package installers in MSI format use [Product Codes](https://docs.microsoft.com/windows/win32/msi/product-codes) to uniquely identify applications. The product code for a given version of a package should be included in the manifest to help ensure the best **upgrade** experience.
 
