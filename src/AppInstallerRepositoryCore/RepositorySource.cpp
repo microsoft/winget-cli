@@ -461,14 +461,14 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                if (IsWingetCommunityDefaultSourceEnabled())
-                {
-                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
-                }
-
                 if (IsMSStoreDefaultSourceEnabled())
                 {
                     result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
+                }
+
+                if (IsWingetCommunityDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
                 }
 
                 // Since we are using the tombstone trick, this is added just to have the source in the internal
