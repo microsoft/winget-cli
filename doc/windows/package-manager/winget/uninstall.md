@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # uninstall command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **uninstall** command of the [winget](index.md) tool uninstalls the specified application.
 
 The **uninstall** command requires that you specify the exact string to uninstall. If there is any ambiguity, you will be prompted to further filter the **uninstall** command to an exact application.
