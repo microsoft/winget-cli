@@ -14,7 +14,7 @@ The **uninstall** command requires that you specify the exact string to uninstal
 
 ## Usage
 
-`winget uninstall [[-q] \<query>] [\<options>]`
+`winget uninstall [[-q] <query>] [<options>]`
 
 ![uninstall command](images/uninstall.png)
 
