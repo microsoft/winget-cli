@@ -14,7 +14,7 @@ The **show** command only shows metadata that was submitted with the application
 
 ## Usage
 
-`winget show [[-q] \<query>] [\<options>]`
+`winget show [[-q] <query>] [<options>]`
 
 ![show command](images/show.png)
 
