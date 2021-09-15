@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # export command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **export** command of the [winget](index.md) tool exports a JSON file of apps to a specified file.  The **export** command users JSON as the format.  The JSON schema used by **winget** can be found [here](https://aka.ms/winget-packages.schema.1.0.json).
 
 The **export** combined with the [**import**](import.md) command allows you to batch install applications on your PC.
@@ -46,8 +44,8 @@ The JSON file includes the following hierarchy:
 |-------------|-------------|  
 | **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
-| **Id**  |  The Windows Package Manager package identifier used to specify the package.  |
-| **Version**  |  [optional] The specific version of the package to install.  |
+| **PackageIdentifier**  |  The Windows Package Manager package identifier used to specify the package.  |
+| **Version**  |  [Optional] The specific version of the package to install.  |
 
 ## exporting files
 
@@ -55,8 +53,8 @@ When the Windows Package Manager exports the JSON file, it attempts to export al
 
 Note: matching an application depends on metadata in the manifest from a configured source, and metadata in Add / Remove Programs in Windows based on the package installer.
 
-In the example below, you will see warnings for _reSearch_ and _Angry Birds_.
+In the example below, you will see warnings for _WhatsApp Desktop_ and _Canon IJ Scan Utility_.
 
 ![export](images/export-command.png)
 
-Once the export is complete, you can edit the resulting JSON file in your favorite editor.  You can remove apps you do not wish to import in the future.
+Once the export is complete, you can edit the resulting JSON file in your favorite editor. You can remove apps you do not wish to import in the future.
