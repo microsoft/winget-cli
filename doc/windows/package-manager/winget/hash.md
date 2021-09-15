@@ -12,11 +12,11 @@ The **hash** command of the [winget](index.md) tool generates the SHA256 hash fo
 
 ## Usage
 
-`winget hash [-f] \<file> [\<options>]`
+`winget hash [--file] <file> [<options>]`
 
 ![hash](images/hash.png)
 
-The **hash** sub-command can only run on a local file. To use the **hash** sub command, download your installer to a known location. Then pass in the file path as an argument to the **hash** sub-command.
+The **hash** sub-command can only run on a local file. To use the **hash** sub-command, download your installer to a known location. Then pass in the file path as an argument to the **hash** sub-command.
 
 ## Arguments
 
