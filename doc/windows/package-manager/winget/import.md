@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # import command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **import** command of the [winget](index.md) tool imports a JSON file of apps to install.  The **import** command combined with the [**export**](export.md) command allows you to batch install applications on your PC.
 
 The **import** command is often used to share your developer environment or build up your PC image with your favorite apps.
@@ -44,7 +42,7 @@ The JSON file includes the following hierarchy:
 |-------------|-------------|  
 | **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
-| **Id**  |  The Windows Package Manager package identifier used to specify the package.  |
+| **PackageIdentifier**  |  The Windows Package Manager package identifier used to specify the package.  |
 | **Version**  |  [optional] The specific version of the package to install.  |
 
 ## Importing files
