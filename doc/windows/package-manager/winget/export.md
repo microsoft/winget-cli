@@ -31,8 +31,8 @@ The following arguments are available.
 
 The options allow you to customize the export experience to meet your needs.
 
-|<div style="width:290px">Option</div>     | Description |
-|----------------|-------------|  
+| Option | Description |
+|--------|-------------|  
 | **-s, --source**  |  [optional] Specifies a source to export files from.  Use this option when you only want files from a specific source.  |
 | **--include-versions** | [optional] Includes the version of the app currently installed.  Use this option if you want a specific version.  By default, unless specified, [**import**](import.md) will use latest. |
 
@@ -40,7 +40,7 @@ The options allow you to customize the export experience to meet your needs.
 The driving force behind the **export** command is the JSON file.  As mentioned, you can find the schema for the JSON file [here](https://aka.ms/winget-packages.schema.1.0.json).
 
 The JSON file includes the following hierarchy:
-| Entry      | Description |
+| Entry | Description |
 |-------------|-------------|  
 | **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
@@ -53,8 +53,13 @@ When the Windows Package Manager exports the JSON file, it attempts to export al
 
 Note: matching an application depends on metadata in the manifest from a configured source, and metadata in Add / Remove Programs in Windows based on the package installer.
 
-In the example below, you will see warnings for _WhatsApp Desktop_ and _Canon IJ Scan Utility_.
+In the example below, you will see warnings for **WhatsApp Desktop** and **7-Zip**.
 
 ![export](images/export-command.png)
 
 Once the export is complete, you can edit the resulting JSON file in your favorite editor. You can remove apps you do not wish to import in the future.
+
+## Related topics
+
+* [Use the winget tool to install and manage applications](index.md)
+
