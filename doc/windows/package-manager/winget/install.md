@@ -14,7 +14,7 @@ The **install** command requires that you specify the exact string to install. I
 
 ## Usage
 
-`winget install [[-q] \<query>] [\<options>]`
+`winget install [[-q] <query>] [<options>]`
 
 ![search command](images/install.png)
 
@@ -22,31 +22,31 @@ The **install** command requires that you specify the exact string to install. I
 
 The following arguments are available.
 
-| Argument      | Description |
+| Argument | Description |
 |-------------|-------------|  
-| **-q,--query**  |  The query used to search for an app. |
-| **-?, --help** |  Get additional help on this command. |
+| **-q,--query** | The query used to search for an app. |
+| **-?, --help** | Get additional help on this command. |
 
 ## Options
 
 The options allow you to customize the install experience to meet your needs.
 
-| Option      | Description |
+| Option | Description |
 |-------------|-------------|  
-| **-m, --manifest** |   Must be followed by the path to the manifest (YAML) file. You can use the manifest to run the install experience from a [local YAML file](#local-install). |
-| **--id**    |  Limits the install to the ID of the application.   |  
-| **--name**   |  Limits the search to the name of the application. |  
-| **--moniker**   | Limits the search to the moniker listed for the application. |  
-| **-v, --version**  |  Enables you to specify an exact version to install. If not specified, latest will install the highest versioned application. |  
-| **-s, --source**   |  Restricts the search to the source name provided. Must be followed by the source name. |
-| **--scope**   |  Select install scope (user or machine) |
-| **-e, --exact**   |   Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
-| **-i, --interactive** |  Runs the installer in interactive mode. The default experience shows installer progress. |  
-| **-h, --silent** |  Runs the installer in silent mode. This suppresses all UI. The default experience shows installer progress. |  
-| **-o, --log**  |  Directs the logging to a log file. You must provide a path to a file that you have the write rights to. |
-| **--override** | A string that will be passed directly to the installer.    |
-| **-l, --location** |    Location to install to (if supported). |
-| **--force**   |  Override the installer hash check. |
+| **-m, --manifest** | Must be followed by the path to the manifest (YAML) file. You can use the manifest to run the install experience from a [local YAML file](#local-install). |
+| **--id** | Limits the install to the ID of the application. |  
+| **--name** | Limits the search to the name of the application. |  
+| **--moniker** | Limits the search to the moniker listed for the application. |  
+| **-v, --version** | Enables you to specify an exact version to install. If not specified, latest will install the highest versioned application. |  
+| **-s, --source** | Restricts the search to the source name provided. Must be followed by the source name. |
+| **--scope** | Select install scope (user or machine) |
+| **-e, --exact** | Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
+| **-i, --interactive** | Runs the installer in interactive mode. The default experience shows installer progress. |  
+| **-h, --silent** | Runs the installer in silent mode. This suppresses all UI. The default experience shows installer progress. |  
+| **-o, --log** | Directs the logging to a log file. You must provide a path to a file that you have the write rights to. |
+| **--override** | A string that will be passed directly to the installer. |
+| **-l, --location** | Location to install to (if supported). |
+| **--force** | Override the installer hash check. |
 
 ### Example queries
 
@@ -56,7 +56,7 @@ The following example installs a specific version of an application.
 winget install powertoys --version 0.15.2
 ```
 
-The following example installs an application from its ID.
+The following example installs an application from its **Package Identifier**.
 
 ```CMD
 winget install --id Microsoft.PowerToys
@@ -88,11 +88,11 @@ winget install --id Git.Git -e --source winget
 
 The **manifest** option enables you to install an application by passing in a YAML file directly to the client. If the manifest is a multi file manifest, the directory containing the files must be used. The **manifest** option has the following usage.
 
-Usage: `winget install --manifest \<path>`
+Usage: `winget install --manifest <path>`
 
 | Option  | Description |
-|-------------|-------------|  
-|  **-m, --manifest** | The path to the manifest of the application to install. |
+|---------|-------------|  
+| **-m, --manifest** | The path to the manifest of the application to install. |
 
 ### Log files
 
