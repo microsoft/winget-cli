@@ -77,7 +77,7 @@ The current preview of the **winget** tool supports the following options.
 
 The current version of the **winget** tool supports the following types of installers:
 
-* EXE (with Silent and SilentWithProgress flags)
+* EXE (with **Silent** and **SilentWithProgress** flags)
 * INNO
 * NULLSOFT
 * MSI
@@ -89,7 +89,7 @@ The current version of the **winget** tool supports the following types of insta
 
 You can author batch scripts and PowerShell scripts to install multiple applications.
 
-``` CMD
+```CMD
 @echo off  
 Echo Install Powertoys and Terminal  
 REM Powertoys  
@@ -97,7 +97,7 @@ winget install Microsoft.Powertoys
 if %ERRORLEVEL% EQU 0 Echo Powertoys installed successfully.  
 REM Terminal  
 winget install Microsoft.WindowsTerminal  
-if %ERRORLEVEL% EQU 0 Echo Terminal installed successfully.   %ERRORLEVEL%
+if %ERRORLEVEL% EQU 0 Echo Terminal installed successfully. %ERRORLEVEL%
 ```
 
 > When scripted, **winget** will launch the applications in the specified order. When an installer returns success or failure, **winget** will launch the next installer. If an installer launches another process, it is possible that it will return to **winget** prematurely. This will cause **winget** to install the next installer before the previous installer has completed.
