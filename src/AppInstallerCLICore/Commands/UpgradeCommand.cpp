@@ -168,7 +168,7 @@ namespace AppInstaller::CLI
             // The remaining case: search for single installed package to update
             context <<
                 SearchSourceForSingle <<
-                Workflow::HandleSearchResultFailures <<
+                HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion;
 

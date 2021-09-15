@@ -156,6 +156,28 @@ namespace
             return result;
         }
     };
+
+    // Failing source for use with s_TwoSource_AggregateSourceTest
+    struct FailingSourcesTestSource : public TestSource
+    {
+        static constexpr HRESULT FailingHR = 0xBADDAD0D;
+
+        FailingSourcesTestSource() = default;
+        FailingSourcesTestSource(const SourceDetails& details)
+        {
+            Details = details;
+        }
+
+        static std::shared_ptr<ISource> Create(const SourceDetails& details)
+        {
+            if (details.Name == "winget")
+            {
+                THROW_HR(FailingHR);
+            }
+
+            return std::shared_ptr<ISource>(new FailingSourcesTestSource(details));
+        }
+    };
 }
 
 
@@ -941,4 +963,35 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             REQUIRE(sources[0].Origin == SourceOrigin::Default);
         }
     }
+}
+
+TEST_CASE("RepoSources_OpenMultipleWithFailure", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::Create };
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    auto result = OpenSource("", progress);
+
+    REQUIRE(result.Source);
+    REQUIRE(result.SourcesWithUpdateFailure.empty());
+
+    REQUIRE(result.SourcesWithOpenFailure.size() == 1);
+    REQUIRE(result.SourcesWithOpenFailure[0].Source.Name == "winget");
+
+    HRESULT openFailure = S_OK;
+    try
+    {
+        std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
+    }
+    catch (const wil::ResultException& re)
+    {
+        openFailure = re.GetErrorCode();
+    }
+    catch (...) {}
+
+    REQUIRE(openFailure == FailingSourcesTestSource::FailingHR);
 }

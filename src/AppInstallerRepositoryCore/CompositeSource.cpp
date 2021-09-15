@@ -588,7 +588,7 @@ namespace AppInstaller::Repository
             {
                 LOG_CAUGHT_EXCEPTION();
                 AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.Failures.emplace_back(SearchResult::Failure{ source, std::current_exception() });
+                result.AddFailureIfSourceNotPresent({ source, std::current_exception() });
             }
 
             // Move failures into the single result
