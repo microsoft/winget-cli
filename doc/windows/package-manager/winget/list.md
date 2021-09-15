@@ -62,7 +62,7 @@ The following example limits the output of list to 9 apps.
 
 As stated above, the **list** command allows you to see what apps you have installed that have updates available.
 
-In the image below, you will notice the preview version of Terminal has an update available.
+In the image below, you will notice the current version of **Google Chrome** has an update available.
 
 ![list update command](images/list-update.png)
 
