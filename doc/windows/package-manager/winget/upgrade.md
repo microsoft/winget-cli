@@ -14,9 +14,7 @@ The **upgrade** command requires that you specify the exact string to upgrade. I
 
 ## Usage
 
-```CMD
-winget upgrade [[-q] <query>] [<options>]
-```
+`winget upgrade [[-q] <query>] [<options>]`
 
 ![search command](images/upgrade.png)
 
