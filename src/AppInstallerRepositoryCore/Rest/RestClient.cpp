@@ -51,8 +51,7 @@ namespace AppInstaller::Repository::Rest
 
     IRestClient::SearchResult RestClient::Search(const SearchRequest&) const
     {
-        //return m_interface->Search(request);
-        THROW_HR(E_NOTIMPL);
+        return m_interface->Search(request);
     }
 
     std::string RestClient::GetSourceIdentifier() const
