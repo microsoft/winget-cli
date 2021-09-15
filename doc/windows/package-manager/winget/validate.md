@@ -12,7 +12,9 @@ The **validate** command of the [winget](index.md) tool validates a [manifest](.
 
 ## Usage
 
-`winget validate [--manifest] \<path>`
+```CMD
+winget validate [--manifest] <path>
+```
 
 ## Arguments
 
