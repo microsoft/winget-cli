@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # validate command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **validate** command of the [winget](index.md) tool validates a [manifest](../package/manifest.md) for submitting software to the **Microsoft Community Package Manifest Repository** on GitHub. The manifest must be a YAML file that follows the [specification](/doc/ManifestSpecv1.0.md).
 
 ## Usage
