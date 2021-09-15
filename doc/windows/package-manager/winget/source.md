@@ -8,9 +8,6 @@ ms.localizationpriority: medium
 
 # source command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
-> [!NOTE]
 > The **source** command is currently for internal use only. Additional sources are not supported at this time.
 
 The **source** command of the [winget](index.md) tool manages the repositories accessed by Windows Package Manager. With the **source** command you can **add**, **remove**, **list**, and **update** the repositories.
@@ -42,6 +39,7 @@ Source supports the following sub commands for manipulating the sources.
 |  **update** | Updates a source. |
 |  **remove** | Removes a source. |
 |  **reset** | Resets **winget** back to the initial configuration.  |
+|  **export** | Export current sources |
 
 ## Options
 
@@ -78,26 +76,13 @@ Usage: `winget source list [-n, --name] \<name>`
 
 The **list** sub-command by itself will reveal the complete list of supported sources. For example:
 
-```CMD
-> C:\winget source list
-> Name   Arg
-> -----------------------------------------
-> winget https://winget.azureedge.net/cache
-
-```
+![Source list image](images/source-list.png)
 
 ### list source details
 
 In order to get complete details on the source, pass in the name used to identify the source. For example:
 
-```CMD
-> C:\winget source list --name contoso  
-> Name   : contoso  
-> Type   : Microsoft.PreIndexed.Package  
-> Arg    : https://pkgmgr-int.azureedge.net/cache  
-> Data   : AppInstallerSQLiteIndex-int_g4ype1skzj3jy  
-> Updated: 2020-4-14 17:45:32.000
-```
+![Source list winget image](images/source-list-winget.png)
 
 **Name** displays the name to identify the source by.
 **Type** displays the type of repo.
@@ -117,7 +102,7 @@ The **update** sub command by itself will request and update to each repo. For e
 
 ### update source
 
-The **update** sub command combined with the **--name** option can direct and update to an individual source. For example:  `C:\winget source update --name contoso`
+The **update** sub command combined with the **--name** option can direct and update to an individual source. For example:  `C:\winget source update --name winget`
 
 ## remove
 
