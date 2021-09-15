@@ -162,6 +162,20 @@ namespace AppInstaller::Manifest
             {
                 resultErrors.emplace_back(ManifestError::BothAllowedAndExcludedMarketsDefined);
             }
+
+            // Check expected return codes for duplicates between successful and expected error codes
+            std::set<DWORD> returnCodeSet;
+            returnCodeSet.insert(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end());
+            for (const auto& code : installer.ExpectedReturnCodes)
+            {
+                if (!returnCodeSet.insert(code.first).second)
+                {
+                    resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
+
+                    // Stop checking to avoid repeated errors
+                    break;
+                }
+            }
         }
 
         // Validate localizations

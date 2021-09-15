@@ -176,7 +176,11 @@ namespace
                     }],
                     "Markets" : {
                       "AllowedMarkets": [ "US" ]
-                    }
+                    },
+                    "ExpectedReturnCodes": [{
+                      "InstallerReturnCode": 3,
+                      "ReturnResponse": "InstallInProgress"
+                    }]
                   }
                 ]
               }
@@ -293,6 +297,8 @@ namespace
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.size() == 1);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.at(0) == "US");
+            REQUIRE(actualInstaller.ExpectedReturnCodes.size() == 1);
+            REQUIRE(actualInstaller.ExpectedReturnCodes.at(3) == ExpectedReturnCodeEnum::InstallInProgress);
         }
     };
 }
