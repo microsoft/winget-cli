@@ -141,6 +141,9 @@
     <value>Các lệnh phụ sau đây đang sẵn dùng:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>nâng cấp có sẵn.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Sử dụng kênh cụ thể; mặc định là người xem chung</value>
   </data>
@@ -419,9 +422,6 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Vị trí con trỏ trong dòng lệnh</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Bản xem trước</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Điều khoản về Quyền riêng tư</value>
   </data>
@@ -464,12 +464,6 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Các lỗi sau đây đã được tìm thấy xác thực thiết đặt:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Mở thiết đặt trong trình soạn thảo văn bản json mặc định. Nếu không có trình soạn thảo nào được đặt cấu hình, hãy mở cài đặt trong Notepad. Đối với các cài đặt sẵn dùng, hãy xem https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Mở cài đặt</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Lỗi bất ngờ trong khi tải cài đặt. Vui lòng xác minh cài đặt của bạn bằng cách chạy lệnh cài đặt.</value>
@@ -920,5 +914,134 @@ Cấu hình bị tắt do Chính sách Nhóm.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Giá trị được cung cấp cho đối số `%1` không hợp lệ</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Đã hủy</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Bên ngoài</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Các gói được tìm thấy trong lần nhập này có các thành phần phụ thuộc sau:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Gói này yêu cầu các thành phần phụ thuộc sau:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Gói</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Gói này có các thành phần phụ thuộc có thể không cần thiết nữa:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Tệp kê khai có các phần phụ thuộc sau chưa được xác thực; hãy đảm bảo rằng chúng hợp lệ:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Tính năng của Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Các Thư viện Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Điều khoản của Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Chấp nhận tất cả các thỏa thuận cấp phép cho các gói</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Gói đã xuất yêu cầu thỏa thuận cấp phép để cài đặt:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Nhà phát hành yêu cầu bạn xem thông tin ở trên và chấp nhận thỏa thuận trước khi cài đặt.
+Bạn có đồng ý với các điều khoản không?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Các thỏa thuận trọn gói đã không được đồng ý. Thao tác bị hủy bỏ.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Thỏa thuận:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Tác giả:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Mô tả:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Trình cài đặt:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Ngôn ngữ:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id Sản phẩm Microsoft Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Loại:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url tải xuống:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Giấy phép:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Url giấy phép:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Biệt danh:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Trang chủ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Nhà xuất bản:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Phiên bản:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Không mở được nguồn đã thêm.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Hãy chấp nhận tất cả các thỏa thuận nguồn trong quá trình vận hành nguồn</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Nguồn `%1` yêu cầu bạn xem các thỏa thuận sau trước khi sử dụng.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Bạn có đồng ý với tất cả các Điều khoản thỏa thuận nguồn không?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Một hoặc nhiều thỏa thuận nguồn không được đồng ý. Thao tác bị hủy bỏ. Vui lòng chấp nhận thỏa thuận nguồn hoặc loại bỏ các nguồn tương ứng.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Nguồn yêu cầu gửi vùng địa lý của máy hiện tại để hoạt động bình thường.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Đã cài đặt thành công. Khởi động lại ứng dụng để hoàn tất nâng cấp.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Tiêu đề HTTP nguồn Windows-Package-Manager REST tùy chọn</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Bỏ qua tiêu đề tùy chọn vì nó không thể áp dụng cho nguồn này.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Không thể áp dụng tiêu đề tùy chọn mà không chỉ định nguồn</value>
   </data>
 </root>

@@ -141,6 +141,9 @@
     <value>De volgende subopdrachten zijn beschikbaar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>beschikbare upgrades.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Gebruik het opgegeven kanaal, standaard is algemene doelgroep</value>
   </data>
@@ -419,9 +422,6 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>De positie van de cursor binnen de opdrachtregel</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Vooruitblik</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privacyverklaring</value>
   </data>
@@ -464,12 +464,6 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>De volgende fouten zijn aangetroffen bij het valideren van de instellingen:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open instellingen in de standaard json-teksteditor. Als er geen editor is geconfigureerd, worden de instellingen in Kladblok geopend. Voor meer informatie over beschikbare instellingen gaat u naar https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Instellingen openen</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Onverwachte fout bij het laden van de instellingen. Controleer de instellingen door de opdracht instellingen uit te voeren.</value>
@@ -920,5 +914,134 @@ Configuratie is uitgeschakeld vanwege Groepsbeleid.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>De opgegeven waarde voor het argument%1is ongeldig.</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Geannuleerd</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>De pakketten die in deze import zijn gevonden, hebben de volgende afhankelijkheden:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Voor dit pakket zijn de volgende afhankelijkheden vereist:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakketten</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Dit pakket bevat afhankelijkheden die mogelijk niet meer nodig zijn:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest heeft de volgende afhankelijkheden die niet zijn gevalideerd; zorg ervoor dat ze geldig zijn:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-onderdelen</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-bibliotheken</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store-voorwaarden</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Alle licentieovereenkomsten voor pakketten accepteren</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Voor het geëxporteerde pakket is een licentieovereenkomst vereist om het volgende te installeren:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>De uitgever vereist dat u de bovenstaande informatie bekijkt en de overeenkomsten accepteert voordat u installeert.
+Gaat u akkoord met de voorwaarden?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Er zijn geen pakketovereenkomsten overeengekomen. De bewerking is geannuleerd.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Overeenkomsten:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Auteur:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beschrijving:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installatieprogramma:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Landinstellingen:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-product-id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download-URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licentie:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licentie-URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Koppelingspad:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startpagina:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Uitgever:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versie:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nee</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Kan de toegevoegde bron niet openen.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Alle bronovereenkomsten accepteren tijdens bronbewerkingen</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Voor de bron '%1' moet u de volgende overeenkomsten weergeven voordat u deze gebruikt.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Gaat u akkoord met alle voorwaarden van de bronovereenkomsten?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Een of meer bronovereenkomsten zijn niet geaccepteerd. De bewerking is geannuleerd. Accepteer de bronovereenkomsten of verwijder de bijbehorende bronnen.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Voor goed functioneren van de bron moet de geografische regio van de huidige computer worden verzonden.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Geïnstalleerd. Start de toepassing opnieuw om de upgrade te voltooien.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optionele HTTP-header voor Windows-Package-Manager REST-bron</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>De optionele header wordt genegeerd omdat deze niet van toepassing is op deze bron.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>De optionele koptekst is niet van toepassing zonder een bron op te geven</value>
   </data>
 </root>

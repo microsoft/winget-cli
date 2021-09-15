@@ -146,6 +146,8 @@ namespace AppInstaller
                 return "Package agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
                 return "Error reading input in prompt";
+            case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
+                return "Arguments for msiexec are invalid";
             case APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST:
                 return "The search request is not supported by one or more sources";
             case APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND:
@@ -156,6 +158,38 @@ namespace AppInstaller
                 return "Source agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH:
                 return "Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.";
+            case APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED:
+                return "Running MSI install failed";
+            case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
+                return "Application is currently running.Exit the application then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
+                return "Another installation is already in progress.Try again later.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE:
+                return "One or more file is being used.Exit the application then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY:
+                return "This package has a dependency missing from your system.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL:
+                return "There's no more space on your PC. Make space, then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY:
+                return "There's not enough memory available to install. Close other applications then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK:
+                return "This application requires internet connectivity.Connect to a network then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT:
+                return "This application encountered an error during installation.Contact support.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
+                return "Restart your PC to finish installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
+                return "Your PC will restart to finish installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED:
+                return "Installation failed. Restart your PC then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER:
+                return "You cancelled the installation.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED:
+                return "Another version of this application is already installed.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE:
+                return "A higher version of this application is already installed.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY:
+                return "Organization policies are preventing installation. Contact your admin.";
             default:
                 return "Unknown Error Code";
             }
@@ -198,10 +232,19 @@ namespace AppInstaller
         return e.what();
     }
 
+    std::string GetUserPresentableMessage(HRESULT hr)
+    {
+        std::ostringstream strstr;
+        GetUserPresentableMessageForHR(strstr, hr);
+        return strstr.str();
+    }
+
 #ifndef WINGET_DISABLE_FOR_FUZZING
     std::string GetUserPresentableMessage(const winrt::hresult_error& hre)
     {
-        return Utility::ConvertToUTF8(hre.message());
+        std::ostringstream strstr;
+        GetUserPresentableMessageForHR(strstr, hre.code());
+        return strstr.str();
     }
 #endif
 }

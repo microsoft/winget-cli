@@ -7,6 +7,7 @@ agg
 aicli
 AICLIC
 ajor
+alreadyinstalled
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -20,8 +21,8 @@ argumentlist
 ARMNT
 arp
 arphelper
-Ashwini
 ashpatil
+Ashwini
 asm
 ASwitch
 Atest
@@ -38,6 +39,7 @@ bght
 bitmask
 bkup
 blargle
+blockedbypolicy
 blogs
 Bluetooth
 bomgar
@@ -45,6 +47,7 @@ BOMs
 brk
 Buf
 BUILTINS
+cancelledbyuser
 casemap
 casemappings
 cch
@@ -67,6 +70,7 @@ COINIT
 COMGLB
 commandline
 Concat
+contactsupport
 contosa
 contosainstaller
 contoso
@@ -85,6 +89,7 @@ deigh
 deleteifnotneeded
 desktopappinstaller
 dirs
+diskfull
 dnld
 dustojnikhummer
 dvinns
@@ -105,6 +110,7 @@ experimentalfeatures
 fcb
 fd
 fedorapeople
+fileinuse
 fintimes
 Fixfor
 flargle
@@ -148,7 +154,9 @@ IMutable
 IName
 inet
 inor
+installinprogress
 installshield
+insufficientmemory
 IPackage
 IPersist
 IService
@@ -201,6 +209,7 @@ middleware
 midl
 minexample
 minschema
+missingdependency
 MMmmbbbb
 monicka
 MPNS
@@ -223,6 +232,7 @@ mytool
 netlify
 Newtonsoft
 NOEXPAND
+nonetwork
 normer
 NOSEPARATOR
 NOTAPROPERTY
@@ -234,6 +244,7 @@ NX
 objbase
 ofile
 Packagedx
+packageinuse
 pathparts
 pathpaths
 Patil
@@ -247,6 +258,7 @@ pkindex
 PMS
 positionals
 powertoys
+pri
 processthreads
 productcode
 pseudocode
@@ -261,6 +273,9 @@ qb
 qword
 rbegin
 readonly
+rebootinitiated
+rebootrequiredforinstall
+rebootrequiredtofinish
 redirector
 regexes
 REGSAM
