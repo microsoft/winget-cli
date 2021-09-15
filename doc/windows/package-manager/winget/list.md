@@ -54,7 +54,7 @@ The following example lists all application by ID from a specific source.
 
 ![list id with source command](images/list-id-source.png)
 
-The following example limits the output of list to 12 apps.
+The following example limits the output of list to 9 apps.
 
 ![list count command](images/list-count.png)
 
