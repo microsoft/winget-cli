@@ -16,7 +16,7 @@ The **list** command also supports filters which can be used to limit your list 
 
 ## Usage
 
-`winget list [[-q] \<query>] [\<options>]`
+`winget list [[-q] <query>] [<options>]`
 
 ![list help command](images/list.png)
 
@@ -24,10 +24,10 @@ The **list** command also supports filters which can be used to limit your list 
 
 The following arguments are available.
 
-| Argument      | Description |
+| Argument | Description |
 |-------------|-------------|  
-| **-q,--query**  |  The query used to search for an app. |
-| **-?, --help** |  Get additional help on this command. |
+| **-q,--query** | The query used to search for an app. |
+| **-?, --help** | Get additional help on this command. |
 
 ## Options
 
@@ -35,14 +35,14 @@ The options allow you to customize the list experience to meet your needs.
 
 | Option      | Description |
 |-------------|-------------|  
-| **--id**    |  Limits the list to the ID of the application.   |  
-| **--name**   |  Limits the list to the name of the application. |  
-| **--moniker**   | Limits the list to the moniker listed for the application. |  
-| **-s, --source**   |  Restricts the list to the source name provided. Must be followed by the source name. |  
-| **--tag** |  Filters results by tags. |  
-| **--command** |  Filters results by command specified by the application. |  
-| **-n, --count** | Limits the number of apps displayed in one query.   |
-| **-e, --exact**   |   Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
+| **--id** |  Limits the list to the ID of the application. |  
+| **--name** | Limits the list to the name of the application. |  
+| **--moniker** | Limits the list to the moniker listed for the application. |  
+| **-s, --source** | Restricts the list to the source name provided. Must be followed by the source name. |  
+| **--tag** | Filters results by tags. |  
+| **--command** | Filters results by command specified by the application. |  
+| **-n, --count** | Limits the number of apps displayed in one query. |
+| **-e, --exact** | Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
 
 ### Example queries
 
@@ -68,4 +68,6 @@ In the image below, you will notice the preview version of Terminal has an updat
 
 The **list** command will show not only the update version available, but the source that the update is available from.
 
-* [Use the winget tool to list and manage applications](index.md)
+## Related topics
+
+* [Use the winget tool to install and manage applications](index.md)
