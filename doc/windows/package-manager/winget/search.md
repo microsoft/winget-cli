@@ -8,8 +8,6 @@ ms.localizationpriority: medium
 
 # search command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **search** command of the [winget](index.md) tool queries the sources for available applications that can be installed.  
 
 The **search** command can show all applications available, or it can be filtered down to a specific application. The **search** command is used typically to identify the string to use to install a specific application.
@@ -59,7 +57,7 @@ The search commands supports a number of options or filters to help limit the re
  --------------|-------------|
 | **-e, --exact**  |     Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring.  |  
 | **-n, --count**      |  Restricts the output of the display to the specified count. |
-| **-s, --source**     |  Restricts the search to the specified [source](source.md) name.  |
+| **-s, --source**     |  Restricts the search to the specified [source](source.md) name. |
 
 ## Related topics
 
