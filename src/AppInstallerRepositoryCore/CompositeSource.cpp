@@ -488,6 +488,12 @@ namespace AppInstaller::Repository
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
+                        // Do not attempt to correlate local packages against this source
+                        if (source->GetDetails().DoNotCorrelateAgainst)
+                        {
+                            continue;
+                        }
+
                         SearchResult availableResult;
 
                         try

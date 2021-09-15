@@ -71,16 +71,16 @@ namespace AppInstaller::CLI
         }
 
         context <<
-            Workflow::OpenSource <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            OpenSource <<
+            OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         switch (valueType)
         {
         case Execution::Args::Type::Query:
             context <<
-                Workflow::RequireCompletionWordNonEmpty <<
-                Workflow::SearchSourceForManyCompletion <<
-                Workflow::CompleteWithMatchedField;
+                RequireCompletionWordNonEmpty <<
+                SearchSourceForManyCompletion <<
+                CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
@@ -89,7 +89,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
             context <<
-                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
+                CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }
     }
@@ -128,23 +128,25 @@ namespace AppInstaller::CLI
         }
 
         context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::OpenSource <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            ReportExecutionStage(ExecutionStage::Discovery) <<
+            OpenSource <<
+            OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         if (ShouldListUpgrade(context))
         {
             // Upgrade with no args list packages with updates available
             context <<
-                Workflow::SearchSourceForMany <<
-                Workflow::EnsureMatchesFromSearchResult(true) <<
-                Workflow::ReportListResult(true);
+                SearchSourceForMany <<
+                HandleSearchResultFailures <<
+                EnsureMatchesFromSearchResult(true) <<
+                ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
         {
             // --all switch updates all packages found
             context <<
                 SearchSourceForMany <<
+                HandleSearchResultFailures <<
                 EnsureMatchesFromSearchResult(true) <<
                 UpdateAllApplicable;
         }
@@ -166,6 +168,7 @@ namespace AppInstaller::CLI
             // The remaining case: search for single installed package to update
             context <<
                 SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion;
 

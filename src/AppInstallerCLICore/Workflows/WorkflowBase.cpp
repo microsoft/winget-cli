@@ -44,6 +44,8 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
             std::shared_ptr<Repository::ISource> source;
+            std::string suggestionSourceName{ sourceName };
+
             try
             {
                 OpenSourceResult result;
@@ -72,11 +74,12 @@ namespace AppInstaller::CLI::Workflow
                         auto warn = context.Reporter.Warn();
                         for (const auto& failure : result.SourcesWithOpenFailure)
                         {
-                            warn << Resource::String::SourceOpenWithFailedOpen << ' ' << failure.Source.Name << std::endl;
+                            warn << Resource::String::SourceOpenWithFailedOpenWarning << ' ' << failure.Source.Name << std::endl;
                         }
                     }
                     else
                     {
+                        suggestionSourceName = result.SourcesWithOpenFailure[0].Source.Name;
                         // rethrow the first exception that occurred for now
                         std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
                     }
@@ -90,7 +93,7 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (...)
             {
-                context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
+                context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << ' ' << suggestionSourceName << std::endl;
                 throw;
             }
 
@@ -489,6 +492,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
+                context.Reporter.Error() << Resource::String::SearchFailureError << ' ' << searchResult.Failures[0].Source->GetDetails().Name << std::endl;
                 // Rethrow first error for now
                 std::rethrow_exception(searchResult.Failures[0].Exception);
             }
@@ -807,6 +811,7 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 OpenSource <<
                 SearchSourceForSingle <<
+                HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(false) <<
                 GetManifestFromPackage;
         }

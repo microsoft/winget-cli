@@ -124,6 +124,7 @@ namespace AppInstaller::CLI
             // search for a single package to uninstall
             context <<
                 Workflow::SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(true) <<
                 Workflow::ReportPackageIdentity;
         }

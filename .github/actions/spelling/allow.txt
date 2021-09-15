@@ -370,6 +370,7 @@ REALTIME
 REBOOTPROMPT
 Redistributable
 Refactor
+refactored
 refactoring
 REFCLSID
 regex

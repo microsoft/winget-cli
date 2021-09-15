@@ -38,12 +38,7 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-
-    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "msstore"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
 
@@ -94,6 +89,7 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_MSStoreDefault_Arg;
                 details.Identifier = s_Source_MSStoreDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
+                details.DoNotCorrelateAgainst = true;
                 return details;
             }
             case WellKnownSource::DesktopFrameworks:
@@ -146,11 +142,6 @@ namespace AppInstaller::Repository
         bool IsWingetCommunityDefaultSourceEnabled(bool onlyExplicit = false)
         {
             return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
-        }
-
-        bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
-        {
-            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
@@ -216,11 +207,6 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::DefaultSource;
                 }
 
-                if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
-                {
-                    return TogglePolicy::Policy::MSStoreSource;
-                }
-
                 if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
                 {
                     return TogglePolicy::Policy::MSStoreSource;
@@ -241,12 +227,6 @@ namespace AppInstaller::Repository
                 return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
             }
 
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg) &&
-                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
-            {
-                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
-            }
-
             if (Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg) &&
                 Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
             {
@@ -260,12 +240,6 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
                 return TogglePolicy::Policy::DefaultSource;
-            }
-
-            if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
-            {
-                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
-                return TogglePolicy::Policy::MSStoreSource;
             }
 
             if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
@@ -321,7 +295,7 @@ namespace AppInstaller::Repository
                 }
 
                 if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
-                    source.Identifier == s_Source_WingetMSStoreDefault_Identifier)
+                    source.Identifier == s_Source_MSStoreDefault_Identifier)
                 {
                     throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
                 }
@@ -490,18 +464,6 @@ namespace AppInstaller::Repository
                 if (IsWingetCommunityDefaultSourceEnabled())
                 {
                     result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
-                }
-
-                if (IsWingetMSStoreDefaultSourceEnabled())
-                {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetMSStoreDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetMSStoreDefault_Arg;
-                    details.Data = s_Source_WingetMSStoreDefault_Data;
-                    details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
                 }
 
                 if (IsMSStoreDefaultSourceEnabled())
@@ -1153,12 +1115,11 @@ namespace AppInstaller::Repository
                 }
 
                 // If all sources failed to open, then just rethrow the first exception that occurred for now.
-                if (!aggregatedSource->HasAvailableSource())
+                if (aggregatedSource->HasAvailableSource())
                 {
-                    std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
+                    result.Source = aggregatedSource;
                 }
 
-                result.Source = aggregatedSource;
                 return result;
             }
         }
