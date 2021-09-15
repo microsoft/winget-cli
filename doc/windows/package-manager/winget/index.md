@@ -8,7 +8,7 @@ ms.localizationpriority: medium
 
 # Use the winget tool to install and manage applications
 
-The **winget** command line tool enables developers to discover, install, upgrade, remove and configure applications on Windows 10 and 11 computers. This tool is the client interface to the Windows Package Manager service.
+The **winget** command line tool enables users to discover, install, upgrade, remove and configure applications on Windows 10 and 11 computers. This tool is the client interface to the Windows Package Manager service.
 
 ## Install winget
 
@@ -40,8 +40,7 @@ One of the most common usage scenarios is to search for and install a favorite t
 2. After you have confirmed that the tool you want is available, you can [install](install.md) the tool by typing `winget install <appname>`. The **winget** tool will launch the installer and install the application on your PC.
     ![winget commandline](images/install.png)
 3. In addition to install and search, **winget** provides a number of other commands that enable you to [show details](show.md) on applications, [change sources](source.md), and [validate packages](validate.md). To get a complete list of commands, type: `winget --help`.
-
-![winget help](images/help.png)
+    ![winget help](images/help.png)
 
 ### Commands
 
