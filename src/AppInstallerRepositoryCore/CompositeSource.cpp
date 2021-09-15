@@ -553,13 +553,42 @@ namespace AppInstaller::Repository
 
                     SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
 
-                    for (auto&& crossRef : installedCrossRef.Matches)
+                    std::shared_ptr<IPackage> installedPackage;
+                    if (installedCrossRef.Matches.size() == 1)
                     {
-                        if (!result.ContainsInstalledPackage(crossRef.Package.get()))
+                        installedPackage = std::move(installedCrossRef.Matches[0].Package);
+                    }
+                    else if (installedCrossRef.Matches.size() > 1)
+                    {
+                        AICLI_LOG(Repo, Info,
+                            << "Found multiple matches for available package [" << match.Package->GetProperty(PackageProperty::Id) <<
+                            "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+
+                        // More than one match found for the system reference; run some heuristics to check for a match
+                        for (auto&& crossRef : installedCrossRef.Matches)
                         {
-                            foundInstalledMatch = true;
-                            result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(crossRef.Package), std::move(match.Package)), match.MatchCriteria);
+                            AICLI_LOG(Repo, Info, << "  Checking match with package id: " << crossRef.Package->GetProperty(PackageProperty::Id));
+
+                            if (IsStrongMatchField(crossRef.MatchCriteria.Field))
+                            {
+                                if (!installedPackage)
+                                {
+                                    installedPackage = std::move(crossRef.Package);
+                                }
+                                else
+                                {
+                                    AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
+                                    installedPackage.reset();
+                                    break;
+                                }
+                            }
                         }
+                    }
+
+                    if (installedPackage)
+                    {
+                        foundInstalledMatch = true;
+                        result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
                     }
                 }
 
