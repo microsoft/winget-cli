@@ -33,7 +33,7 @@ To submit a manifest to the repository, follow these steps.
 The **winget** tool provides the [validate](../winget/validate.md) command to confirm that you have created your manifest correctly. To validate your manifest, use this command.
 
 ```CMD
-winget validate \<manifest-file>
+winget validate <path-to-the-manifests>
 ```
 
 If your validation fails, use the errors to locate the line number and make a correction. After your manifest is validated, you can submit it to the repository.
@@ -47,12 +47,12 @@ Next, create a fork of the repository and clone it.
 
 2. From a command line environment such as the Windows Command Prompt or PowerShell, use the following command to clone your fork.
     ```CMD
-    git clone \<your-fork-name>
+    git clone <your-fork-name>
     ```
 
  3. If you are making multiple submissions, make a branch instead of a fork. We currently allow only one manifest file per PR.
     ```CMD
-    git checkout -b \<branch-name>
+    git checkout -b <branch-name>
     ```
 
 ### Step 3: Add your manifest to the local repository
