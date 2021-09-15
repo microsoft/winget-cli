@@ -641,17 +641,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Report dependencies
-        DependencyList allDependencies;
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            DependencyList allDependencies;
+            for (auto package : context.Get<Execution::Data::PackagesToInstall>())
             {
                 allDependencies.Add(package.Installer.Dependencies);
             }
-        }
 
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
             context.Add<Execution::Data::Dependencies>(allDependencies);
             context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }

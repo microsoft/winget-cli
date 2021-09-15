@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Workflow
     // Ensures that there is only one result in the search.
     // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
-    // Outputs: None
+    // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
         EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
