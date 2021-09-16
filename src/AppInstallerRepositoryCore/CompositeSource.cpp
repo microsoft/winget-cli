@@ -569,17 +569,20 @@ namespace AppInstaller::Repository
                         {
                             AICLI_LOG(Repo, Info, << "  Checking match with package id: " << crossRef.Package->GetProperty(PackageProperty::Id));
 
-                            if (IsStrongMatchField(crossRef.MatchCriteria.Field))
+                            if (!result.ContainsInstalledPackage(crossRef.Package.get()))
                             {
-                                if (!installedPackage)
+                                if (IsStrongMatchField(crossRef.MatchCriteria.Field))
                                 {
-                                    installedPackage = std::move(crossRef.Package);
-                                }
-                                else
-                                {
-                                    AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
-                                    installedPackage.reset();
-                                    break;
+                                    if (!installedPackage)
+                                    {
+                                        installedPackage = std::move(crossRef.Package);
+                                    }
+                                    else
+                                    {
+                                        AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
+                                        installedPackage.reset();
+                                        break;
+                                    }
                                 }
                             }
                         }
