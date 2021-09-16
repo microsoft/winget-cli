@@ -529,11 +529,6 @@ namespace AppInstaller::CLI::Workflow
 
     void HandleSearchResultFailures(Execution::Context& context)
     {
-        context << HandleSearchResultFailuresFor(HandleSearchResultFailuresFor::Behavior::None);
-    }
-
-    void HandleSearchResultFailuresFor::operator()(Execution::Context& context) const
-    {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
         if (!searchResult.Failures.empty())
@@ -562,14 +557,17 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                if (searchResult.Matches.empty())
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::ShowSearchResultsOnPartialFailure))
                 {
-                    context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorNoMatches << std::endl;
-                }
-                else
-                {
-                    context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
-                    context << ReportMultiplePackageFoundResultWithSource;
+                    if (searchResult.Matches.empty())
+                    {
+                        context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorNoMatches << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
+                        context << ReportMultiplePackageFoundResultWithSource;
+                    }
                 }
 
                 AICLI_TERMINATE_CONTEXT(overallHR);

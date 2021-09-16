@@ -58,6 +58,7 @@ namespace AppInstaller::CLI::Execution
         // Allows a failure in a single source to generate a warning rather than an error.
         // TODO: Remove when the source interface is refactored.
         TreatSourceFailuresAsWarning = 0x10,
+        ShowSearchResultsOnPartialFailure = 0x20,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
