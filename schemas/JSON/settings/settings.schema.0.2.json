@@ -114,11 +114,6 @@
           "type": "boolean",
           "default": false
         },
-        "experimentalMSStore": {
-          "description": "Experimental support for Microsoft Store source",
-          "type": "boolean",
-          "default": false
-        },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",

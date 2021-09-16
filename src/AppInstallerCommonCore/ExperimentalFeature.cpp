@@ -17,14 +17,6 @@ namespace AppInstaller::Settings
                 return true;
             }
 
-            // Even if all experimental features are disabled, if the store policy is enabled then override it.
-            if (feature == ExperimentalFeature::Feature::ExperimentalMSStore &&
-                GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
-            {
-                // Force enable the feature
-                return true;
-            }
-
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
                 AICLI_LOG(Core, Info, <<
@@ -41,8 +33,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalArg:
                 return userSettings.Get<Setting::EFExperimentalArg>();
-            case ExperimentalFeature::Feature::ExperimentalMSStore:
-                return userSettings.Get<Setting::EFExperimentalMSStore>();
             case ExperimentalFeature::Feature::Dependencies:
                 return userSettings.Get<Setting::EFDependencies>();
             case ExperimentalFeature::Feature::DirectMSI:
@@ -73,8 +63,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Command Sample", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
         case Feature::ExperimentalArg:
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
-        case Feature::ExperimentalMSStore:
-            return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
         case Feature::Dependencies:
             return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         case Feature::DirectMSI:

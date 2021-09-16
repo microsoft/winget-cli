@@ -150,7 +150,7 @@ namespace AppInstaller::Repository
 
         bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
-            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
