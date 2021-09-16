@@ -164,21 +164,11 @@ namespace AppInstaller::Repository
 
     struct OpenSourceResult
     {
-        // Contains the failure that occurred when opening a source.
-        struct Failure
-        {
-            SourceDetails Source;
-            std::exception_ptr Exception;
-        };
-
         // The ISource returned by OpenSource
         std::shared_ptr<ISource> Source;
 
         // List of SourceDetails that failed to update
         std::vector<SourceDetails> SourcesWithUpdateFailure;
-
-        // List of SourceDetails that failed to open
-        std::vector<Failure> SourcesWithOpenFailure;
     };
 
     // Opens an existing source.

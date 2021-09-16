@@ -231,6 +231,9 @@
     <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h">
       <Filter>Rest\Schema\1_1\Json</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -355,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer_1_1.cpp">
       <Filter>Rest\Schema\1_1\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

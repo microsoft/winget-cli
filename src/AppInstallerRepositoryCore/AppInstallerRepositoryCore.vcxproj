@@ -259,6 +259,7 @@
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
+    <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rest\RestClient.h" />
     <ClInclude Include="Rest\RestSource.h" />
@@ -296,6 +297,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
+    <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />

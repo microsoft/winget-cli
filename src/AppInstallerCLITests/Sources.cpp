@@ -168,7 +168,7 @@ namespace
             Details = details;
         }
 
-        static std::shared_ptr<ISource> Create(const SourceDetails& details)
+        static std::shared_ptr<ISource> CreateFailWinget(const SourceDetails& details)
         {
             if (details.Name == "winget")
             {
@@ -176,6 +176,11 @@ namespace
             }
 
             return std::shared_ptr<ISource>(new FailingSourcesTestSource(details));
+        }
+
+        static std::shared_ptr<ISource> CreateFailAll(const SourceDetails& details)
+        {
+            THROW_HR(FailingHR);
         }
     };
 }
@@ -965,10 +970,10 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
     }
 }
 
-TEST_CASE("RepoSources_OpenMultipleWithFailure", "[sources]")
+TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
 {
     TestHook_ClearSourceFactoryOverrides();
-    TestSourceFactory factory{ FailingSourcesTestSource::Create };
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailWinget };
     TestHook_SetSourceFactoryOverride("testType", factory);
 
     SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
@@ -979,13 +984,14 @@ TEST_CASE("RepoSources_OpenMultipleWithFailure", "[sources]")
     REQUIRE(result.Source);
     REQUIRE(result.SourcesWithUpdateFailure.empty());
 
-    REQUIRE(result.SourcesWithOpenFailure.size() == 1);
-    REQUIRE(result.SourcesWithOpenFailure[0].Source.Name == "winget");
+    SearchResult searchResult = result.Source->Search({});
+
+    REQUIRE(searchResult.Failures.size() == 1);
 
     HRESULT openFailure = S_OK;
     try
     {
-        std::rethrow_exception(result.SourcesWithOpenFailure[0].Exception);
+        std::rethrow_exception(searchResult.Failures[0].Exception);
     }
     catch (const wil::ResultException& re)
     {
@@ -994,4 +1000,16 @@ TEST_CASE("RepoSources_OpenMultipleWithFailure", "[sources]")
     catch (...) {}
 
     REQUIRE(openFailure == FailingSourcesTestSource::FailingHR);
+}
+
+TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    REQUIRE_THROWS_HR(OpenSource("", progress), APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES);
 }

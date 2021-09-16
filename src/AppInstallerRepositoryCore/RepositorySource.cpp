@@ -10,6 +10,10 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include "Microsoft/ConfigurableTestSourceFactory.h"
+#endif
+
 #include <winget/GroupPolicy.h>
 
 namespace AppInstaller::Repository
@@ -622,6 +626,11 @@ namespace AppInstaller::Repository
             {
                 return itr->second();
             }
+
+            if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+            {
+                return Microsoft::ConfigurableTestSourceFactory::Create();
+            }
 #endif
 
             // For now, enable an empty type to represent the only one we have.
@@ -948,6 +957,28 @@ namespace AppInstaller::Repository
             }
             return result;
         }
+
+        // Carries the exception from an OpenSource call and presents it back at search time.
+        struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
+        {
+            OpenExceptionProxy(const SourceDetails& details, std::exception_ptr exception) :
+                m_details(details), m_exception(std::move(exception)) {}
+
+            const SourceDetails& GetDetails() const override { return m_details; }
+
+            const std::string& GetIdentifier() const override { return m_details.Identifier; }
+
+            SearchResult Search(const SearchRequest&) const override
+            {
+                SearchResult result;
+                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
+                return result;
+            }
+
+        private:
+            SourceDetails m_details;
+            std::exception_ptr m_exception;
+        };
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -1068,6 +1099,7 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
                 OpenSourceResult result;
+                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -1100,7 +1132,7 @@ namespace AppInstaller::Repository
                     {
                         LOG_CAUGHT_EXCEPTION();
                         AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
-                        result.SourcesWithOpenFailure.emplace_back(OpenSourceResult::Failure{ source, std::current_exception() });
+                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source, std::current_exception()));
                     }
 
                     if (openedSource)
@@ -1114,12 +1146,16 @@ namespace AppInstaller::Repository
                     sourceList.SaveMetadata();
                 }
 
-                // If all sources failed to open, then just rethrow the first exception that occurred for now.
-                if (aggregatedSource->HasAvailableSource())
+                // If all sources failed to open, then throw an exception that is specific to this case.
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
+
+                // Place all of the proxies into the source to be searched later
+                for (auto& proxy : openExceptionProxies)
                 {
-                    result.Source = aggregatedSource;
+                    aggregatedSource->AddAvailableSource(std::move(proxy));
                 }
 
+                result.Source = aggregatedSource;
                 return result;
             }
         }
@@ -1359,6 +1395,13 @@ namespace AppInstaller::Repository
 
     bool SupportsCustomHeader(const SourceDetails& sourceDetails)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), sourceDetails.Type))
+        {
+            return true;
+        }
+#endif
+
         return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 

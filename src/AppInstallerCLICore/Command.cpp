@@ -861,52 +861,9 @@ namespace AppInstaller::CLI
 
             command->Execute(context);
         }
-        // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const wil::ResultException& re)
-        {
-            // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
-            return re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
-            return hre.code();
-        }
-        catch (const Settings::GroupPolicyException& e)
-        {
-            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
-            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
-        catch (const Resource::ResourceOpenException& e)
-        {
-            Logging::Telemetry().LogException(command->FullName(), "ResourceOpenException", e.what());
-            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
-        }
-        catch (const std::exception& e)
-        {
-            Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
         catch (...)
         {
-            LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException(command->FullName(), "unknown", {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
         }
 
         if (SUCCEEDED(context.GetTerminationHR()))
