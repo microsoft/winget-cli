@@ -139,13 +139,20 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.RunAICLICommand("source add", "failSearch \"{ \"\"SearchHR\"\": \"\"0x80070002\"\" }\" Microsoft.Test.Configurable --header \"{}\"");
 
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-            Assert.AreEqual(unchecked((int)0x80070002), result.ExitCode);
-            Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-            Assert.False(result.StdOut.Contains("Successfully installed"));
-            Assert.False(VerifyTestExeInstalled(installDir, "/execustom"));
+            try
+            {
+                var installDir = TestCommon.GetRandomTestDir();
+                var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+                Assert.AreEqual(unchecked((int)0x80070002), result.ExitCode);
+                Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
+                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+                Assert.False(result.StdOut.Contains("Successfully installed"));
+                Assert.False(VerifyTestExeInstalled(installDir, "/execustom"));
+            }
+            finally
+            {
+                ResetTestSource();
+            }
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
