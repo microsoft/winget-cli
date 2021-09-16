@@ -134,6 +134,20 @@ namespace AppInstallerCLIE2ETests
             Assert.False(VerifyTestMsixInstalledAndCleanup());
         }
 
+        [Test]
+        public void InstallExeWithAlternateSourceFailure()
+        {
+            TestCommon.RunAICLICommand("source add", "failSearch \"{ \"\"SearchHR\"\": \"\"0x80070002\"\" }\" Microsoft.Test.Configurable --header \"{}\"");
+
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+            Assert.AreEqual(unchecked((int)0x80070002), result.ExitCode);
+            Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.False(result.StdOut.Contains("Successfully installed"));
+            Assert.False(VerifyTestExeInstalled(installDir, "/execustom"));
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))

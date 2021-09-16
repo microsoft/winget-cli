@@ -1078,9 +1078,6 @@ Do you agree to the terms?</value>
   <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
     <value>Release Notes Url:</value>
   </data>
-  <data name="SourceOpenWithFailedOpenWarning" xml:space="preserve">
-    <value>Failed to open a source; results will not be included:</value>
-  </data>
   <data name="SearchFailureWarning" xml:space="preserve">
     <value>Failed when searching source; results will not be included:</value>
   </data>
