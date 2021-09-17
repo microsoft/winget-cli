@@ -29,8 +29,6 @@ authz
 autocomplete
 auxdata
 azureedge
-bcp
-bcp47
 bcrypt
 binver
 Bitmask
@@ -51,6 +49,7 @@ cla
 CLSCTX
 cmake
 cmdlet
+cmdlets
 cmp
 CNG
 cnt
