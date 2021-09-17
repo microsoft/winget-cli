@@ -16,7 +16,7 @@ The **upgrade** command requires that you specify the exact string to upgrade. I
 
 `winget upgrade [[-q] <query>] [<options>]`
 
-![search command](images/upgrade.png)
+![upgrade command](images/upgrade.png)
 
 ## Arguments
 
@@ -73,7 +73,7 @@ It is common to use the [**list**](list.md) command to identify apps in need of 
 
 In the example below you will see [**list**](list.md) identifies that an update is available for **JetBrains.Toolbox**, and then the user uses **upgrade** to update the application.
 
-https://user-images.githubusercontent.com/83997633/133472081-42ac8cd7-b4b2-4e07-8dfe-2759839b1fb0.mp4
+![upgrade command usage](images/upgrade.gif)
 
 ## **upgrade** --all
 
