@@ -8,7 +8,7 @@ ms.localizationpriority: medium
 
 # Use the winget tool to install and manage applications
 
-The **winget** command line tool enables users to discover, install, upgrade, remove and configure applications on Windows 10 and 11 computers. This tool is the client interface to the Windows Package Manager service.
+The **winget** command line tool enables users to discover, install, upgrade, remove and configure applications on Windows 10 and Windows 11 computers. This tool is the client interface to the Windows Package Manager service.
 
 ## Install winget
 
