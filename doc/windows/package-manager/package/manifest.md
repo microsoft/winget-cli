@@ -8,7 +8,7 @@ ms.localizationpriority: medium
 
 # Create your package manifest
 
-If you want to submit a software package to the [Windows Package Manager repository](repository.md), start by creating a package manifest. The manifest is a YAML file that describes the application to be installed.
+If you want to submit a software package to the [Windows Package Manager Community Repository](repository.md), start by creating a package manifest. The manifest is a YAML file that describes the application to be installed.
 
 You may either use the [Windows Package Manager Manifest Creator](https://github.com/microsoft/winget-create), the [YAMLCreate](#using-the-yamlcreateps1) PowerShell script, or you can craft a manifest manually following the instructions below.
 
