@@ -552,11 +552,16 @@ namespace AppInstaller::CLI::Workflow
                 {
                     Utility::LocIndString availableVersion, sourceName;
 
-                    if (updateAvailable)
+                    if (latestVersion)
                     {
-                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                        if (updateAvailable)
+                        {
+                            availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                            availableUpgradesCount++;
+                        }
+
+                        // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
-                        availableUpgradesCount++;
                     }
 
                     table.OutputLine({
@@ -575,14 +580,20 @@ namespace AppInstaller::CLI::Workflow
         if (table.IsEmpty())
         {
             context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-        } else if (m_onlyShowUpgrades) {
-            context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+        }
+        else
+        {
+            if (searchResult.Truncated)
+            {
+                context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+            }
+
+            if (m_onlyShowUpgrades)
+            {
+                context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+            }
         }
 
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
-        }
     }
 
     void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
