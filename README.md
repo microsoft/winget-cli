@@ -51,7 +51,7 @@ You can also [build the client yourself](#building-the-client). While the client
 [![Build Status](https://dev.azure.com/ms/winget-cli/_apis/build/status/microsoft.winget-cli?branchName=master)](https://dev.azure.com/ms/winget-cli/_build/latest?definitionId=344&branchName=master)
 
 ## Windows Package Manager Release Roadmap
-The plan for delivering next Windows Package Manager release [is described here](doc/windows-package-manager-roadmap.md), and will be updated as the project proceeds.
+The plan for delivering next Windows Package Manager release [is described here](doc/windows-package-manager-release-roadmap.md), and will be updated as the project proceeds.
 
 ## Overview of the  Windows Package Manager
 The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those tools that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite tool: 
