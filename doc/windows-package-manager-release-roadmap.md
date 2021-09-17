@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines our aspirational roadmap to deliver Windows Package Manager v1.1. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
+This document outlines our aspirational roadmap to deliver next release ofWindows Package Manager. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
 
 ## Milestones
 
@@ -41,18 +41,20 @@ We use [GitHub milestones](https://github.com/microsoft/winget-cli/milestones) t
 
 | Milestone | Description |
 |    ---    |     ---     |
-| [v1.1](https://github.com/microsoft/winget-cli/milestone/35) | Work Targeted for v1.1 |
-| [v.Next](https://github.com/microsoft/winget-cli/milestone/34) | Triage for the next Milestone |
-| [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
+| [v1.1-Client](https://github.com/microsoft/winget-cli/milestone/35) | Work Targeted for v1.1 |
+| [v1.2-Client](https://github.com/microsoft/winget-cli/milestone/36) | Work Targeted for v1.2 |
+| [v.Next-Client](https://github.com/microsoft/winget-cli/milestone/34) | Triage for the next Milestone |
+| [Backlog-Client](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 
 ## Issue Triage & Prioritization
 
 Incoming issues/asks/etc. are triaged several times a week, labelled appropriately, and assigned to a milestone in priority order:
 
 * P0 (serious crashes, data loss, etc.) issues are scheduled to be dealt with ASAP.
-* P1/2 issues/features/asks  assigned to the current or future milestone, or to the [Windows Package Manager v1.0 milestone](https://github.com/microsoft/winget-cli/milestone/1) for future assignment, if required to deliver a v1.0 feature.
-* Issues/features/asks not on our list of v1.0 features is assigned to the [Windows Package Manager Backlog](https://github.com/microsoft/winget-cli/milestone/2) for subsequent triage, prioritization & scheduling.
+* P1/2 issues/features/asks assigned to the current or future milestone.
+* Issues/features/asks not on our list of the features of next release is assigned to the [Windows Package Manager Backlog](https://github.com/microsoft/winget-cli/milestone/2) for subsequent triage, prioritization & scheduling.
 
+<!--
 ## v1.1 Scenarios
 
 The following are a list of the key scenarios we're aiming to deliver for Windows Package Manager v1.1.
@@ -78,5 +80,6 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#225](https://github.com/microsoft/winget-cli/issues/225) Parallel download | The client should support multiple connections per package for download. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#166](https://github.com/microsoft/winget-cli/issues/166) Fonts | The client should support installing fonts. |
 | [v.Next](https://github.com/microsoft/winget-cli/milestone/34)  | [#212](https://github.com/microsoft/winget-cli/issues/212) Auto Upgrade | The client should be able to auto upgrade installed apps if configured to do so. |
+-->
 
 #### Feature Priorities will be influenced by community feedback on issues.
