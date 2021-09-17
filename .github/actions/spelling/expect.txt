@@ -33,6 +33,7 @@ Aysnc
 azurewebsites
 badbit
 Baz
+bcp
 Beigi
 bfd
 bght
@@ -78,6 +79,7 @@ contractversion
 count'th
 countof
 countryregion
+convertto
 createmanifestmetadata
 cstdint
 ctc
@@ -92,6 +94,8 @@ dirs
 diskfull
 dnld
 Dobbeleer
+doctordns
+DSL
 dustojnikhummer
 dvinns
 dw
@@ -104,6 +108,7 @@ EQU
 ERANGE
 errno
 ESRB
+etail
 etest
 execustom
 EXEHASH
@@ -130,7 +135,7 @@ GES
 GESMBH
 GHS
 gity
-Globals
+globals
 Google
 helplib
 helplibrary
@@ -171,7 +176,9 @@ itr
 IVector
 IWeb
 IZone
+Jaifroid
 jdk
+JDKs
 jfearn
 JObject
 jp
@@ -209,6 +216,7 @@ megamorf
 memcpy
 middleware
 midl
+mikefrobbins
 minexample
 minschema
 missingdependency
@@ -233,6 +241,7 @@ mysilentwithprogress
 mytool
 netlify
 Newtonsoft
+Nieto
 NOEXPAND
 nonetwork
 normer
@@ -259,6 +268,7 @@ pkgmgr
 pkindex
 PMS
 positionals
+powershellexplained
 powertoys
 pri
 processthreads
@@ -378,11 +388,12 @@ winreg
 withstarts
 wn
 Workflows
-WSL
+wsl
 wsv
 wto
 wwinmain
 WZDNCRFJ
+xbox
 XPLATSTR
 xsi
 yamlcreateps
