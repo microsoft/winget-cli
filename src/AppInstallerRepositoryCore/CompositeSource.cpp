@@ -489,7 +489,7 @@ namespace AppInstaller::Repository
                     for (const auto& source : m_availableSources)
                     {
                         // Do not attempt to correlate local packages against this source
-                        if (source->GetDetails().DoNotCorrelateAgainst)
+                        if (!source->GetDetails().SupportCorrelation)
                         {
                             continue;
                         }
@@ -592,7 +592,10 @@ namespace AppInstaller::Repository
             }
 
             // Move failures into the single result
-            std::move(availableResult.Failures.begin(), availableResult.Failures.end(), std::back_inserter(result.Failures));
+            for (auto& failure : availableResult.Failures)
+            {
+                result.AddFailureIfSourceNotPresent(std::move(failure));
+            }
 
             for (auto&& match : availableResult.Matches)
             {

@@ -101,8 +101,8 @@ namespace AppInstaller::Repository
         // Source information containing source agreements, required/unsupported match fields.
         SourceInformation Information;
 
-        // Prevent correlation against this source if true.
-        bool DoNotCorrelateAgainst = false;
+        // Support correlation against this source if true.
+        bool SupportCorrelation = true;
     };
 
     // Fields that require user agreements.

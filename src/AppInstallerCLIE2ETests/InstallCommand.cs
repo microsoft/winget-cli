@@ -147,7 +147,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
                 Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
                 Assert.False(result.StdOut.Contains("Successfully installed"));
-                Assert.False(VerifyTestExeInstalled(installDir, "/execustom"));
+                Assert.False(VerifyTestExeInstalled(installDir));
             }
             finally
             {
