@@ -91,6 +91,7 @@ desktopappinstaller
 dirs
 diskfull
 dnld
+Dobbeleer
 dustojnikhummer
 dvinns
 dw
@@ -130,6 +131,7 @@ GESMBH
 GHS
 gity
 Globals
+Google
 helplib
 helplibrary
 hhx
@@ -370,6 +372,7 @@ wesome
 windir
 windowsdeveloper
 winerror
+wingetcreate
 wingetdev
 winreg
 withstarts
@@ -382,9 +385,6 @@ wwinmain
 WZDNCRFJ
 XPLATSTR
 xsi
+yamlcreateps
 Zanollo
 zy
-Dobbeleer
-Google
-wingetcreate
-yamlcreateps
