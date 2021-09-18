@@ -200,6 +200,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureError);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureErrorListMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureErrorNoMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchName);

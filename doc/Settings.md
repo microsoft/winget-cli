@@ -127,16 +127,6 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    },
 ```
 
-### experimentalMSStore
-
-Microsoft Store App support in WinGet is currently implemented as an experimental feature. It supports a curated list of utility apps from Microsoft Store. You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "experimentalMSStore": true
-   },
-```
-
 ### directMSI
 
 This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 

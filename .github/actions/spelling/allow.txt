@@ -370,7 +370,8 @@ realloc
 REALTIME
 REBOOTPROMPT
 Redistributable
-Refactor
+refactor
+refactored
 refactoring
 REFCLSID
 regex
@@ -384,6 +385,7 @@ RESOLVESOURCE
 RESTSOURCE
 resw
 resx
+rethrowing
 roadmap
 robuffer
 rowcount
@@ -464,6 +466,7 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+strtoll
 subcontext
 SUBLANG
 subresource

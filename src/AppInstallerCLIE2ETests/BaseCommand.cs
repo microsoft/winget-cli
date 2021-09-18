@@ -32,9 +32,10 @@ namespace AppInstallerCLIE2ETests
         public void ResetTestSource()
         {
             TestCommon.RunAICLICommand("source reset", "--force");
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultSourceName);
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
             TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
         }
 
         public void ConfigureFeature(string featureName, bool status)

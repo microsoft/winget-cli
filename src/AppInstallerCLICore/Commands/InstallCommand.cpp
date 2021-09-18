@@ -122,6 +122,8 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<

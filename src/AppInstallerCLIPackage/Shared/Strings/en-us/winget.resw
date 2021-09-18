@@ -574,7 +574,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Name of the source</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Failed to open the source; try the 'source reset' command if the problem persists.</value>
+    <value>Failed when opening source(s); try the 'source reset' command if the problem persists.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1078,6 +1078,12 @@ Do you agree to the terms?</value>
   <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
     <value>Release Notes Url:</value>
   </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Failed when searching source; results will not be included:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Failed when searching source:</value>
+  </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
     <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable %1' as administrator.</value>
     <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
@@ -1150,5 +1156,13 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
     <value>Installer log is available at:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>The following packages were found among the working sources.
+Please specify one of them using the `--source` option to proceed.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>No packages were found among the working sources.</value>
   </data>
 </root>

@@ -21,8 +21,10 @@ namespace AppInstallerCLIE2ETests
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
         // Test Sources
-        public const string DefaultSourceName = @"winget";
-        public const string DefaultSourceUrl = @"https://winget.azureedge.net/cache";
+        public const string DefaultWingetSourceName = @"winget";
+        public const string DefaultWingetSourceUrl = @"https://winget.azureedge.net/cache";
+        public const string DefaultMSStoreSourceName = @"msstore";
+        public const string DefaultMSStoreSourceUrl = @"https://storeedgefd.dsx.mp.microsoft.com/v9.0";
         public const string TestSourceName = @"TestSource";
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
 
