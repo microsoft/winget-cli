@@ -29,6 +29,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> RootFieldInfos;
         std::vector<FieldProcessInfo> InstallerFieldInfos;
         std::vector<FieldProcessInfo> SwitchesFieldInfos;
+        std::vector<FieldProcessInfo> ExpectedReturnCodesFieldInfos;
         std::vector<FieldProcessInfo> DependenciesFieldInfos;
         std::vector<FieldProcessInfo> PackageDependenciesFieldInfos;
         std::vector<FieldProcessInfo> LocalizationFieldInfos;
@@ -40,6 +41,7 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
         AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
         std::map<InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
+        AppInstaller::Manifest::ExpectedReturnCode* m_p_expectedReturnCode = nullptr;
         AppInstaller::Manifest::DependencyList* m_p_dependencyList = nullptr;
         AppInstaller::Manifest::Dependency* m_p_packageDependency = nullptr;
         AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
@@ -54,6 +56,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetRootFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
         std::vector<FieldProcessInfo> GetSwitchesFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetExpectedReturnCodesFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
@@ -74,6 +77,7 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode);
         std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode);
         std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode);
+        std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
 
         std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
     };

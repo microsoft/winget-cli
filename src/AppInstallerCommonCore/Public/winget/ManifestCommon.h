@@ -97,6 +97,32 @@ namespace AppInstaller::Manifest
         SilentWithProgress,
     };
 
+    enum class ExpectedReturnCodeEnum
+    {
+        Unknown,
+        PackageInUse,
+        InstallInProgress,
+        FileInUse,
+        MissingDependency,
+        DiskFull,
+        InsufficientMemory,
+        NoNetwork,
+        ContactSupport,
+        RebootRequiredToFinish,
+        RebootRequiredForInstall,
+        RebootInitiated,
+        CancelledByUser,
+        AlreadyInstalled,
+        Downgrade,
+        BlockedByPolicy,
+    };
+
+    struct ExpectedReturnCode
+    {
+        DWORD InstallerReturnCode;
+        ExpectedReturnCodeEnum ReturnResponse;
+    };
+
     enum class PlatformEnum
     {
         Unknown,
@@ -273,6 +299,8 @@ namespace AppInstaller::Manifest
 
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 
+    ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in);
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view ScopeToString(ScopeEnum scope);
@@ -291,4 +319,7 @@ namespace AppInstaller::Manifest
 
     // Get a list of default switches for known installer types
     std::map<InstallerSwitchType, Utility::NormalizedString> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
+
+    // Get a list of default return codes for known installer types
+    std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType);
 }

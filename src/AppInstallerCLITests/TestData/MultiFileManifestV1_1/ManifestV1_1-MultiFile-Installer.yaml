@@ -67,6 +67,9 @@ AppsAndFeaturesEntries:
 Markets:
   AllowedMarkets:
     - "US"
+ExpectedReturnCodes:
+  - InstallerReturnCode: 10
+    ReturnResponse: packageInUse
 
 Installers:
   - Architecture: x86
@@ -125,6 +128,9 @@ Installers:
     Markets:
       ExcludedMarkets:
         - "US"
+    ExpectedReturnCodes:
+      - InstallerReturnCode: 2
+        ReturnResponse: contactSupport
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe

@@ -132,19 +132,56 @@
         }
       }
     },
+    "InstallerReturnCode": {
+      "type": "integer",
+      "not": {
+        "enum": [ 0 ]
+      },
+      "minimum": -2147483648,
+      "maximum": 4294967295,
+      "description": "An exit code that can be returned by the installer after execution"
+    },
     "InstallerSuccessCodes": {
       "type": [ "array", "null" ],
       "items": {
-        "type": "integer",
-        "not": {
-          "enum": [ 0 ]
-        },
-        "minimum": -2147483648,
-        "maximum": 4294967295
+        "$ref": "#/definitions/InstallerReturnCode"
       },
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of additional non-zero installer success exit codes other than known default values by winget"
+    },
+    "ExpectedReturnCodes": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "InstallerReturnCode": {
+            "$ref": "#/definitions/InstallerReturnCode"
+          },
+          "ReturnResponse": {
+            "type": "string",
+            "enum": [
+              "packageInUse",
+              "installInProgress",
+              "fileInUse",
+              "missingDependency",
+              "diskFull",
+              "insufficientMemory",
+              "noNetwork",
+              "contactSupport",
+              "rebootRequiredToFinish",
+              "rebootRequiredForInstall",
+              "rebootInitiated",
+              "cancelledByUser",
+              "alreadyInstalled",
+              "downgrade",
+              "blockedByPolicy"
+            ]
+          }
+        }
+      },
+      "maxItems": 128,
+      "description": "Installer exit codes for common errors"
     },
     "UpgradeBehavior": {
       "type": [ "string", "null" ],
@@ -449,6 +486,9 @@
         "InstallerSuccessCodes": {
           "$ref": "#/definitions/InstallerSuccessCodes"
         },
+        "ExpectedReturnCodes": {
+          "$ref": "#/definitions/ExpectedReturnCodes"
+        },
         "UpgradeBehavior": {
           "$ref": "#/definitions/UpgradeBehavior"
         },
@@ -542,6 +582,9 @@
     },
     "InstallerSuccessCodes": {
       "$ref": "#/definitions/InstallerSuccessCodes"
+    },
+    "ExpectedReturnCodes": {
+      "$ref": "#/definitions/ExpectedReturnCodes"
     },
     "UpgradeBehavior": {
       "$ref": "#/definitions/UpgradeBehavior"

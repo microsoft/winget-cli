@@ -283,6 +283,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Find the single version we want is available
                 searchContext <<
+                    Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
                     Workflow::GetInstalledPackageVersion <<

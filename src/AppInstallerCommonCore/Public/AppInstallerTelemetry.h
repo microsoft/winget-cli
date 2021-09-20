@@ -58,7 +58,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept;
+        void LogException(std::string_view type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;

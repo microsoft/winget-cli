@@ -221,7 +221,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
-    void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept
+    void TelemetryTraceLogger::LogException(std::string_view type, std::string_view message) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -230,7 +230,6 @@ namespace AppInstaller::Logging
             AICLI_TraceLoggingWriteActivity(
                 "Exception",
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                AICLI_TraceLoggingStringView(commandName, "Command"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingWStringView(anonMessage, "Message"),
                 TraceLoggingUInt32(s_executionStage, "ExecutionStage"),

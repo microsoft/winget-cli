@@ -56,6 +56,9 @@ namespace AppInstaller::CLI::Workflow
         std::string m_name;
     };
 
+    // Helper to report exceptions and return the HRESULT.
+    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
+
     // Creates the source object.
     // Required Args: None
     // Inputs: None
@@ -163,6 +166,12 @@ namespace AppInstaller::CLI::Workflow
     private:
         bool m_onlyShowUpgrades;
     };
+
+    // Handles failures in the SearchResult either by warning or failing.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void HandleSearchResultFailures(Execution::Context& context);
 
     // Outputs the search results when multiple packages found but only one expected.
     // Required Args: None
