@@ -25,7 +25,7 @@
 
 // Consider using this macro when the string might be larger than 4K.
 // The normal macro has some buffering that occurs; it can cut off larger strings and is slower.
-#define AICLI_LOG_LARGE_STRING(_channel_,_level_,_headerstream_,_largestring_) \
+#define AICLI_LOG_LARGE_STRING(_channel_,_level_,_headerStream_,_largeString_) \
     do { \
         auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
         auto _aicli_log_level = AppInstaller::Logging::Level:: _level_; \
@@ -33,9 +33,9 @@
         if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
         { \
             AppInstaller::Logging::LoggingStream _aicli_log_strstr; \
-            _aicli_log_strstr _headerstream_; \
+            _aicli_log_strstr _headerStream_; \
             _aicli_log_log.Write(_aicli_log_channel, _aicli_log_level, _aicli_log_strstr.str()); \
-            _aicli_log_log.WriteDirect(_aicli_log_channel, _aicli_log_level, _largestring_); \
+            _aicli_log_log.WriteDirect(_aicli_log_channel, _aicli_log_level, _largeString_); \
         } \
     } while (0, 0)
 
