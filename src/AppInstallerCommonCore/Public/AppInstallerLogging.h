@@ -23,6 +23,22 @@
         } \
     } while (0, 0)
 
+// Consider using this macro when the string might be larger than 4K.
+// The normal macro has some buffering that occurs; it can cut off larger strings and is slower.
+#define AICLI_LOG_LARGE_STRING(_channel_,_level_,_headerstream_,_largestring_) \
+    do { \
+        auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
+        auto _aicli_log_level = AppInstaller::Logging::Level:: _level_; \
+        auto& _aicli_log_log = AppInstaller::Logging::Log(); \
+        if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
+        { \
+            AppInstaller::Logging::LoggingStream _aicli_log_strstr; \
+            _aicli_log_strstr _headerstream_; \
+            _aicli_log_log.Write(_aicli_log_channel, _aicli_log_level, _aicli_log_strstr.str()); \
+            _aicli_log_log.WriteDirect(_aicli_log_channel, _aicli_log_level, _largestring_); \
+        } \
+    } while (0, 0)
+
 namespace AppInstaller::Logging
 {
     // The channel that the log is from.
@@ -65,6 +81,9 @@ namespace AppInstaller::Logging
 
         // Informs the logger of the given log.
         virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
+
+        // Informs the logger of the given log with the intention that no buffering occurs (in winget code).
+        virtual void WriteDirect(std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -119,6 +138,10 @@ namespace AppInstaller::Logging
 
         // Writes a log line, if the given channel and level are enabled.
         void Write(Channel channel, Level level, std::string_view message);
+
+        // Writes a log line, if the given channel and level are enabled.
+        // Use to make large logs more efficient by writing directly to the output streams.
+        void WriteDirect(Channel channel, Level level, std::string_view message);
 
     private:
 
