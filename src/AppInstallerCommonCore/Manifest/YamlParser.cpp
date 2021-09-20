@@ -405,9 +405,10 @@ namespace AppInstaller::Manifest::YamlParser
         std::vector<ValidationError> ParseManifestImpl(
             std::vector<YamlManifestInfo>& input,
             Manifest& manifest,
-            bool fullValidation,
             const std::filesystem::path& mergedManifestPath,
-            bool schemaValidationOnly)
+            bool fullValidation,
+            bool schemaValidationOnly,
+            bool errorOnVerifiedPublisherFields)
         {
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 0, "No manifest file found");
             THROW_HR_IF_MSG(E_INVALIDARG, schemaValidationOnly && !mergedManifestPath.empty(), "Manifest cannot be merged if only schema validation is performed");
@@ -430,7 +431,7 @@ namespace AppInstaller::Manifest::YamlParser
             // Merge manifests in multi file manifest case
             const YAML::Node& manifestDoc = (input.size() > 1) ? MergeMultiFileManifest(input) : input[0].Root;
 
-            auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation);
+            auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation, errorOnVerifiedPublisherFields);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Extra semantic validations after basic validation and field population
@@ -458,10 +459,8 @@ namespace AppInstaller::Manifest::YamlParser
 
     Manifest CreateFromPath(
         const std::filesystem::path& inputPath,
-        bool fullValidation,
-        bool throwOnWarning,
-        const std::filesystem::path& mergedManifestPath,
-        bool schemaValidationOnly)
+        ManifestValidateOption validateOption,
+        const std::filesystem::path& mergedManifestPath)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -492,15 +491,13 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return ParseManifest(docList, fullValidation, throwOnWarning, mergedManifestPath, schemaValidationOnly);
+        return ParseManifest(docList, validateOption, mergedManifestPath);
     }
 
     Manifest Create(
         const std::string& input,
-        bool fullValidation,
-        bool throwOnWarning,
-        const std::filesystem::path& mergedManifestPath,
-        bool schemaValidationOnly)
+        ManifestValidateOption validateOption,
+        const std::filesystem::path& mergedManifestPath)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -515,22 +512,25 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return ParseManifest(docList, fullValidation, throwOnWarning, mergedManifestPath, schemaValidationOnly);
+        return ParseManifest(docList, validateOption, mergedManifestPath);
     }
 
     Manifest ParseManifest(
         std::vector<YamlManifestInfo>& input,
-        bool fullValidation,
-        bool throwOnWarning,
-        const std::filesystem::path& mergedManifestPath,
-        bool schemaValidationOnly)
+        ManifestValidateOption validateOption,
+        const std::filesystem::path& mergedManifestPath)
     {
+        bool fullValidation = WI_IsFlagSet(validateOption, ManifestValidateOption::FullValidation);
+        bool throwOnWarning = WI_IsFlagSet(validateOption, ManifestValidateOption::ThrowOnWarning);
+        bool schemaValidationOnly = WI_IsFlagSet(validateOption, ManifestValidateOption::SchemaValidationOnly);
+        bool errorOnVerifiedPublisherFields = WI_IsFlagSet(validateOption, ManifestValidateOption::ErrorOnVerifiedPublisherFields);
+
         Manifest manifest;
         std::vector<ValidationError> errors;
 
         try
         {
-            errors = ParseManifestImpl(input, manifest, fullValidation, mergedManifestPath, schemaValidationOnly);
+            errors = ParseManifestImpl(input, manifest, mergedManifestPath, fullValidation, schemaValidationOnly, errorOnVerifiedPublisherFields);
         }
         catch (const ManifestException&)
         {

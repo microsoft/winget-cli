@@ -1,10 +1,11 @@
-PackageIdentifier: TestInstallerWithLicenseAgreement
+PackageIdentifier: TestInstaller.WithLicenseAgreement
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
+ShortDescription: TestInstallerWithLicenseAgreement
 Agreements:
   - AgreementLabel: Agreement with text
     Agreement: This is the text of the agreement.

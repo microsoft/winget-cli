@@ -9,6 +9,7 @@
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
+    using namespace AppInstaller::Manifest;
 
     std::vector<Argument> ValidateCommand::GetArguments() const
     {
@@ -42,7 +43,8 @@ namespace AppInstaller::CLI
 
             try
             {
-                auto manifest = Manifest::YamlParser::CreateFromPath(inputFile, true, true);
+                YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning;
+                auto manifest = YamlParser::CreateFromPath(inputFile, validateOption);
 
                 context.Add<Execution::Data::Manifest>(manifest);
                 context <<
@@ -51,7 +53,7 @@ namespace AppInstaller::CLI
 
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }
-            catch (const Manifest::ManifestException& e)
+            catch (const ManifestException& e)
             {
                 HRESULT hr = S_OK;
                 if (e.IsWarningOnly())

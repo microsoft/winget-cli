@@ -183,7 +183,7 @@ extern "C"
 
         try
         {
-            (void)YamlParser::CreateFromPath(manifestPath, true, true);
+            (void)YamlParser::CreateFromPath(manifestPath, YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
@@ -211,9 +211,10 @@ extern "C"
 
         try
         {
-            (void)YamlParser::CreateFromPath(inputPath, true, true,
-                mergedManifestPath ? mergedManifestPath : L"",
-                option == WinGetValidateManifestOption::SchemaValidationOnly);
+            auto validateOption = static_cast<YamlParser::ManifestValidateOption>(option);
+            WI_SetFlag(validateOption, YamlParser::ManifestValidateOption::FullValidation);
+            WI_SetFlag(validateOption, YamlParser::ManifestValidateOption::ThrowOnWarning);
+            (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)

@@ -168,16 +168,24 @@ private:
     bool m_expectedWarningOnly;
 };
 
-void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedMessage = {}, bool expectedWarningOnly = false)
+void TestManifest(
+    const std::filesystem::path& manifestPath,
+    const std::string& expectedMessage = {},
+    bool expectedWarningOnly = false,
+    YamlParser::ManifestValidateOption additionalValidateOption = YamlParser::ManifestValidateOption::Default)
 {
     INFO(manifestPath.u8string());
+
+    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning;
+    WI_SetAllFlags(validateOption, additionalValidateOption);
+
     if (expectedMessage.empty())
     {
-        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true));
+        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption));
     }
     else
     {
-        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
+        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
     }
 }
 
@@ -186,6 +194,7 @@ struct ManifestTestCase
     std::string TestFile;
     std::string ExpectedMessage = {};
     bool IsWarningOnly = false;
+    YamlParser::ManifestValidateOption AdditionalValidateOption = YamlParser::ManifestValidateOption::Default;
 };
 
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
@@ -256,12 +265,14 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
-        { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." }
+        { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, YamlParser::ManifestValidateOption::ErrorOnVerifiedPublisherFields },
     };
 
     for (auto const& testCase : TestCases)
     {
-        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly);
+        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly, testCase.AdditionalValidateOption);
     }
 }
 
@@ -278,10 +289,12 @@ TEST_CASE("ManifestEncoding", "[ManifestValidation]")
         { "Manifest-Encoding-UTF16LE-BOM.yaml" },
     };
 
+    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning;
+
     for (auto const& testCase : TestCases)
     {
         INFO(testCase.TestFile);
-        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), true, true);
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), validateOption);
         REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == u8"MSIX SDK\xA9");
     }
 }
@@ -545,9 +558,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
 
 TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
+    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1-Singleton.yaml" }, singletonDirectory);
-    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, true, true);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
     VerifyV1ManifestContent(singletonManifest, true);
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
@@ -558,7 +572,7 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
         "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, mergedManifestFile);
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
     VerifyV1ManifestContent(multiFileManifest, false);
 
     // Read from merged manifest should have the same content as multi file manifest
@@ -568,9 +582,10 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 
 TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
+    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
-    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, true, true);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
     VerifyV1ManifestContent(singletonManifest, true, ManifestVer{s_ManifestVersionV1_1});
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
@@ -581,7 +596,7 @@ TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
         "ManifestV1_1-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, mergedManifestFile);
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
     VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_1 });
 
     // Read from merged manifest should have the same content as multi file manifest

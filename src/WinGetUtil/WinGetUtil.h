@@ -17,11 +17,15 @@ extern "C"
 
 #define WINGET_SQLITE_INDEX_VERSION_LATEST ((UINT32)-1)
 
+    // Values must match ones defined in ManifestValidateOption in ManifestYamlParser
     enum WinGetValidateManifestOption
     {
-        Default,
-        SchemaValidationOnly
+        Default = 0,
+        SchemaValidationOnly = 0x1,
+        ErrorOnVerifiedPublisherFields = 0x2,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
 
     // Initializes the logging infrastructure.
     WINGET_UTIL_API WinGetLoggingInit(
