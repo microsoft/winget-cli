@@ -35,7 +35,7 @@ namespace AppInstaller::Repository::Microsoft
                 else
                 {
                     AICLI_LOG(Repo, Error, << "Error parsing test source config: " << error);
-                    THROW_HR_MSG(E_INVALIDARG, "%S", error.c_str());
+                    THROW_HR_MSG(E_INVALIDARG, "%hs", error.c_str());
                 }
             }
 
