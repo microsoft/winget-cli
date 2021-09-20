@@ -263,6 +263,27 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Finished applying motw");
     }
 
+    void RemoveMotwIfApplicable(const std::filesystem::path& filePath)
+    {
+        AICLI_LOG(Core, Info, << "Started removing motw to " << filePath);
+
+        if (!IsNTFS(filePath))
+        {
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped removing motw");
+            return;
+        }
+
+        Microsoft::WRL::ComPtr<IZoneIdentifier> zoneIdentifier;
+        THROW_IF_FAILED(CoCreateInstance(CLSID_PersistentZoneIdentifier, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&zoneIdentifier)));
+        THROW_IF_FAILED(zoneIdentifier->Remove());
+
+        Microsoft::WRL::ComPtr<IPersistFile> persistFile;
+        THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
+        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
+
+        AICLI_LOG(Core, Info, << "Finished removing motw");
+    }
+
     HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
     {
         AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
@@ -281,6 +302,8 @@ namespace AppInstaller::Utility
             RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
             RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
             RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+            // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
+            RemoveMotwIfApplicable(filePath);
             aesSaveResult = attachmentExecute->Save();
             RETURN_IF_FAILED(aesSaveResult);
             return S_OK;
