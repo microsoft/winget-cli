@@ -21,18 +21,18 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_standardOutputStream(m_out, m_channel == Channel::Output, IsVTEnabled()),
-        m_progressBar(std::in_place, m_standardOutputStream, IsVTEnabled()),
-        m_spinner(std::in_place, m_standardOutputStream, IsVTEnabled())
+        m_vtOutputStream(m_out),
+        m_nonVTOutputStream(m_out),
+        m_progressBar(std::in_place, m_vtOutputStream, IsVTEnabled()),
+        m_spinner(std::in_place, m_vtOutputStream, IsVTEnabled())
     {
         SetProgressSink(this);
+        SetChannel(Channel::Output);
     }
 
     Reporter::~Reporter()
     {
-        // The goal of this is to return output to its previous state.
-        // For now, we assume this means "default".
-        RestoreDefault();
+        CloseOutputStream();
     }
 
     Reporter::Reporter(const Reporter& other, clone_t) :
@@ -44,47 +44,55 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    OutputStream Reporter::GetOutputStream(Level level)
+    void Reporter::SetChannel(Channel channel)
     {
-        OutputStream result = m_standardOutputStream;
+        m_channel = channel;
+
+        if (m_channel == Channel::Output)
+        {
+            m_vtOutputStream.Enable();
+        }
+        else
+        {
+            // Disable virtual terminal and progress for non-output channels.
+            m_vtOutputStream.Disable();
+
+            // Disable progress for non-output channels
+            m_spinner.reset();
+            m_progressBar.reset();
+            if (m_channel == Channel::Completion)
+            {
+                m_nonVTOutputStream.Enable();
+            }
+        }
+    }
+
+    BaseOutputStream& Reporter::GetOutputStream(Level level = Level::Info)
+    {
+        if (!IsVTEnabled() || m_channel == Channel::Completion)
+        {
+            return m_nonVTOutputStream;
+        }
 
         switch (level)
         {
         case Level::Verbose:
-            result.AddFormat(TextFormat::Default);
+            m_vtOutputStream.AddFormat(TextFormat::Default);
             break;
         case Level::Info:
-            result.AddFormat(TextFormat::Default);
+            m_vtOutputStream.AddFormat(TextFormat::Default);
             break;
         case Level::Warning:
-            result.AddFormat(TextFormat::Foreground::BrightYellow);
+            m_vtOutputStream.AddFormat(TextFormat::Foreground::BrightYellow);
             break;
         case Level::Error:
-            result.AddFormat(TextFormat::Foreground::BrightRed);
+            m_vtOutputStream.AddFormat(TextFormat::Foreground::BrightRed);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
 
-        return result;
-    }
-
-    OutputStream Reporter::GetBasicOutputStream()
-    {
-        return { m_out, m_channel == Channel::Output, IsVTEnabled() };
-    }
-
-    void Reporter::SetChannel(Channel channel)
-    {
-        m_channel = channel;
-        m_standardOutputStream.DisableVT();
-
-        if (m_channel != Channel::Output)
-        {
-            // Disable progress for non-output channels
-            m_spinner.reset();
-            m_progressBar.reset();
-        }
+        return m_vtOutputStream;
     }
 
     void Reporter::SetStyle(VisualStyle style)
@@ -179,7 +187,7 @@ namespace AppInstaller::CLI::Execution
     
     void Reporter::BeginProgress()
     {
-        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
+        GetOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
         ShowIndefiniteProgress(true);
     };
 
@@ -190,7 +198,7 @@ namespace AppInstaller::CLI::Execution
         {
             m_progressBar->EndProgress(hideProgressWhenDone);
         }
-        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+        GetOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
     };
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)
@@ -211,10 +219,9 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Reporter::RestoreDefault() 
+    void Reporter::CloseOutputStream() 
     {
-        EndProgress(true);
-        m_standardOutputStream.Close();
+        GetOutputStream().Close();
     }
 
     bool Reporter::IsVTEnabled() const

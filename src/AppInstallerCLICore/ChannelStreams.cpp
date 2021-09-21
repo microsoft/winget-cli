@@ -9,10 +9,10 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
-    BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) :
+    BaseOutputStream::BaseOutputStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) :
         m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled), m_defaultSequence(sequence) {}
 
-    BaseStream& BaseStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
+    BaseOutputStream& BaseOutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
         if (m_enabled)
         {
@@ -21,7 +21,7 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    BaseStream& BaseStream::operator<<(const Sequence& sequence)
+    BaseOutputStream& BaseOutputStream::operator<<(const Sequence& sequence)
     {
         if (m_enabled && m_VTEnabled)
         {
@@ -30,7 +30,7 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    BaseStream& BaseStream::operator<<(const ConstructedSequence& sequence)
+    BaseOutputStream& BaseOutputStream::operator<<(const ConstructedSequence& sequence)
     {
         if (m_enabled && m_VTEnabled)
         {
@@ -39,24 +39,24 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    void BaseStream::Close() 
+    void BaseOutputStream::Close() 
     {
-        m_enabled = false;
+        Disable();
         if (m_VTEnabled)
         {
             Write(m_defaultSequence, true);
         }
     }
 
-    OutputStream::OutputStream(std::ostream& out, bool enabled, bool VTEnabled) :
-        m_out(out, enabled, VTEnabled) {}
+    VTOutputStream::VTOutputStream(std::ostream& out, bool enabled) :
+        BaseOutputStream(out, enabled, true) {}
 
-    void OutputStream::AddFormat(const Sequence& sequence)
+    void VTOutputStream::AddFormat(const Sequence& sequence)
     {
         m_format.Append(sequence);
     }
 
-    void OutputStream::ApplyFormat()
+    void VTOutputStream::ApplyFormat()
     {
         // Only apply format if m_applyFormatAtOne == 1 coming into this function.
         if (m_applyFormatAtOne)
@@ -68,13 +68,13 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    OutputStream& OutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
+    VTOutputStream& VTOutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
         m_out << f;
         return *this;
     }
 
-    OutputStream& OutputStream::operator<<(const Sequence& sequence)
+    VTOutputStream& VTOutputStream::operator<<(const Sequence& sequence)
     {
         m_out << sequence;
         // An incoming sequence will be valid for 1 "standard" output after this one.
@@ -84,7 +84,7 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    OutputStream& OutputStream::operator<<(const ConstructedSequence& sequence)
+    VTOutputStream& VTOutputStream::operator<<(const ConstructedSequence& sequence)
     {
         m_out << sequence;
         // An incoming sequence will be valid for 1 "standard" output after this one.
@@ -94,22 +94,17 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    OutputStream& OutputStream::operator<<(const std::filesystem::path& path)
+    VTOutputStream& VTOutputStream::operator<<(const std::filesystem::path& path)
     {
         ApplyFormat();
         m_out << path.u8string();
         return *this;
     }
 
-    void OutputStream::Close()
-    {
-        m_out.Close();
-    }
+    NoVTOutputStream::NoVTOutputStream(std::ostream& out, bool enabled) :
+        BaseOutputStream(out, enabled, false) {}
 
-    NoVTStream::NoVTStream(std::ostream& out, bool enabled) :
-        m_out(out, enabled, false) {}
-
-    NoVTStream& NoVTStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
+    NoVTOutputStream& NoVTOutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
         m_out << f;
         return *this;

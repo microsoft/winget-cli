@@ -42,27 +42,31 @@ namespace AppInstaller::CLI::Execution
     }
 
     // The base stream for all channels.
-    struct BaseStream
+    struct BaseOutputStream
     {
-        BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
-            BaseStream(out, enabled, VTEnabled, VirtualTerminal::TextFormat::Default) {};
+        BaseOutputStream(std::ostream& out, bool enabled, bool VTEnabled) :
+            BaseOutputStream(out, enabled, VTEnabled, VirtualTerminal::TextFormat::Default) {};
 
-        BaseStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) ;
+        BaseOutputStream(std::ostream& out, bool enabled, bool VTEnabled, VirtualTerminal::Sequence sequence) ;
 
         template <typename T>
-        BaseStream& operator<<(const T& t)
+        BaseOutputStream& operator<<(const T& t)
         {
             Write<T>(t, false);
             return *this;
         }
 
-        BaseStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
-        BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
+        BaseOutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
+        BaseOutputStream& operator<<(const VirtualTerminal::Sequence& sequence);
+        BaseOutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
-        void DisableVT() { m_VTEnabled = false; }
+        void Disable() { m_enabled = false; }
+
+        void Enable() { m_enabled = true; }
 
         void Close();
+    protected:
+        std::ostream& m_out;
 
     private:
         template <typename T>
@@ -74,22 +78,21 @@ namespace AppInstaller::CLI::Execution
             }
         };
 
-        std::ostream& m_out;
         VirtualTerminal::Sequence m_defaultSequence;
         bool m_enabled;
         bool m_VTEnabled;
     };
 
     // Holds output formatting information.
-    struct OutputStream
+    struct VTOutputStream : BaseOutputStream
     {
-        OutputStream(std::ostream& out, bool enabled, bool VTEnabled);
+        VTOutputStream(std::ostream& out, bool enabled = false);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);
 
         template <typename T>
-        OutputStream& operator<<(const T& t)
+        VTOutputStream& operator<<(const T& t)
         {
             // You've found your way here because you tried to output a type that may not localized.
             // In order to ensure that all output is localized, only the types with specializations of
@@ -110,39 +113,33 @@ namespace AppInstaller::CLI::Execution
             return *this;
         }
 
-        OutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        OutputStream& operator<<(const VirtualTerminal::Sequence& sequence);
-        OutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
-        OutputStream& operator<<(const std::filesystem::path& path);
+        VTOutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
+        VTOutputStream& operator<<(const VirtualTerminal::Sequence& sequence);
+        VTOutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
+        VTOutputStream& operator<<(const std::filesystem::path& path);
 
-        void DisableVT() { m_out.DisableVT(); }
-
-        void Close();
     private:
         // Applies the format for the stream.
         void ApplyFormat();
 
-        BaseStream m_out;
         size_t m_applyFormatAtOne = 1;
         VirtualTerminal::ConstructedSequence m_format;
     };
 
     // Does not allow VT at all.
-    struct NoVTStream
+    struct NoVTOutputStream : BaseOutputStream
     {
-        NoVTStream(std::ostream& out, bool enabled);
+        NoVTOutputStream(std::ostream& out, bool enabled = false);
 
         template <typename T>
-        NoVTStream& operator<<(const T& t)
+        NoVTOutputStream& operator<<(const T& t)
         {
             m_out << t;
             return *this;
         }
 
-        NoVTStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        NoVTStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
-        NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
-    private:
-        BaseStream m_out;
+        NoVTOutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
+        NoVTOutputStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
+        NoVTOutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
     };
 }

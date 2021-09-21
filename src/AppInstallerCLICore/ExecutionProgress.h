@@ -22,13 +22,13 @@ namespace AppInstaller::CLI::Execution
         // Shared functionality for progress visualizers.
         struct ProgressVisualizerBase
         {
-            ProgressVisualizerBase(Execution::OutputStream& stream, bool enableVT) :
+            ProgressVisualizerBase(Execution::VTOutputStream& stream, bool enableVT) :
                 m_out(stream), m_enableVT(enableVT) {}
 
             void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
         protected:
-            Execution::OutputStream& m_out;
+            Execution::VTOutputStream& m_out;
             Settings::VisualStyle m_style = AppInstaller::Settings::VisualStyle::Accent;
 
             bool UseVT() const { return m_enableVT && m_style != AppInstaller::Settings::VisualStyle::NoVT; }
@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Execution
     // Displays an indefinite spinner.
     struct IndefiniteSpinner : public details::ProgressVisualizerBase
     {
-        IndefiniteSpinner(Execution::OutputStream& stream, bool enableVT) :
+        IndefiniteSpinner(Execution::VTOutputStream& stream, bool enableVT) :
             details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowSpinner();
@@ -63,7 +63,7 @@ namespace AppInstaller::CLI::Execution
     class ProgressBar : public details::ProgressVisualizerBase
     {
     public:
-        ProgressBar(Execution::OutputStream& stream, bool enableVT) :
+        ProgressBar(Execution::VTOutputStream& stream, bool enableVT) :
             details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type);

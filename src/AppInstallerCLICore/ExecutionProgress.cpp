@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Execution
             return s_bytesFormatData[ARRAYSIZE(s_bytesFormatData) - 1];
         }
 
-        void OutputBytes(Execution::OutputStream& out, uint64_t byteCount)
+        void OutputBytes(Execution::VTOutputStream& out, uint64_t byteCount)
         {
             const BytesFormatData& bfd = GetFormatForSize(byteCount);
 
@@ -76,7 +76,7 @@ namespace AppInstaller::CLI::Execution
             out << ' ' << bfd.Name;
         }
 
-        void SetColor(Execution::OutputStream& out, const TextFormat::Color& color, bool enabled)
+        void SetColor(Execution::VTOutputStream& out, const TextFormat::Color& color, bool enabled)
         {
             if (enabled)
             {
@@ -95,7 +95,7 @@ namespace AppInstaller::CLI::Execution
             }
         }
 
-        void SetRainbowColor(Execution::OutputStream& out, size_t i, size_t max, bool enabled)
+        void SetRainbowColor(Execution::VTOutputStream& out, size_t i, size_t max, bool enabled)
         {
             TextFormat::Color rainbow[] =
             {

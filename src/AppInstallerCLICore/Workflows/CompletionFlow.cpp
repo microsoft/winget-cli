@@ -11,7 +11,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Outputs the completion string, wrapping it in quotes if needed.
-        void OutputCompletionString(Execution::NoVTStream& stream, std::string_view value)
+        void OutputCompletionString(Execution::NoVTOutputStream& stream, std::string_view value)
         {
             if (value.find_first_of(' ') != std::string_view::npos)
             {

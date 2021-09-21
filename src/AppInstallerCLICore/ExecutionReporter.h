@@ -69,27 +69,29 @@ namespace AppInstaller::CLI::Execution
         ~Reporter();
 
         // Get a stream for verbose output.
-        OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
+        BaseOutputStream& Verbose() { return GetOutputStream(Level::Verbose); }
 
         // Get a stream for informational output.
-        OutputStream Info() { return GetOutputStream(Level::Info); }
+        BaseOutputStream& Info() { return GetOutputStream(Level::Info); }
 
         // Get a stream for warning output.
-        OutputStream Warn() { return GetOutputStream(Level::Warning); }
+        BaseOutputStream& Warn() { return GetOutputStream(Level::Warning); }
 
         // Get a stream for error output.
-        OutputStream Error() { return GetOutputStream(Level::Error); }
-
-        // Get a stream for outputting completion words.
-        NoVTStream Completion() { return NoVTStream(m_out, m_channel == Channel::Completion); }
+        BaseOutputStream& Error() { return GetOutputStream(Level::Error); }
 
         // Gets a stream for output of the given level.
-        OutputStream GetOutputStream(Level level);
+        BaseOutputStream& GetOutputStream(Level level);
+
+        NoVTOutputStream& Completion() { return m_nonVTOutputStream; }
 
         // Restore default settings to previous execution state.
-        void RestoreDefault();
+        void CloseOutputStream();
 
-        void EmptyLine() { GetBasicOutputStream() << std::endl; }
+        void EmptyLine() 
+        {
+            m_out << std::endl; 
+        }
 
         // Sets the channel that will be reported to.
         // Only do this once and as soon as the channel is determined.
@@ -143,11 +145,10 @@ namespace AppInstaller::CLI::Execution
         // Gets whether VT is enabled for this reporter.
         bool IsVTEnabled() const;
 
-        OutputStream GetBasicOutputStream();
-
-        Channel m_channel = Channel::Output;
+        Channel m_channel;
         std::ostream& m_out;
-        OutputStream m_standardOutputStream;
+        VTOutputStream m_vtOutputStream;
+        NoVTOutputStream m_nonVTOutputStream;
         std::istream& m_in;
         bool m_isVTEnabled = true;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
