@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Execution
     {
         m_channel = channel;
 
-        if (m_channel == Channel::Output)
+        if (m_channel == Channel::Output && IsVTEnabled())
         {
             m_vtOutputStream.Enable();
         }
@@ -60,20 +60,12 @@ namespace AppInstaller::CLI::Execution
             // Disable progress for non-output channels
             m_spinner.reset();
             m_progressBar.reset();
-            if (m_channel == Channel::Completion)
-            {
-                m_nonVTOutputStream.Enable();
-            }
+            m_nonVTOutputStream.Enable();
         }
     }
 
-    BaseOutputStream& Reporter::GetOutputStream(Level level = Level::Info)
+    VTOutputStream& Reporter::GetVTOutputStream(Level level)
     {
-        if (!IsVTEnabled() || m_channel == Channel::Completion)
-        {
-            return m_nonVTOutputStream;
-        }
-
         switch (level)
         {
         case Level::Verbose:
@@ -93,6 +85,16 @@ namespace AppInstaller::CLI::Execution
         }
 
         return m_vtOutputStream;
+    }
+
+    BaseOutputStream& Reporter::GetActiveOutputStream()
+    {
+        if (m_channel == Channel::Output && IsVTEnabled())
+        {
+            return m_vtOutputStream;
+        }
+
+        return m_nonVTOutputStream;
     }
 
     void Reporter::SetStyle(VisualStyle style)
@@ -120,7 +122,7 @@ namespace AppInstaller::CLI::Execution
             BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
         };
 
-        auto out = GetOutputStream(level);
+        auto out = GetVTOutputStream(level);
         out << message << std::endl;
 
         // Try prompting until we get a recognized option
@@ -187,7 +189,7 @@ namespace AppInstaller::CLI::Execution
     
     void Reporter::BeginProgress()
     {
-        GetOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
+        GetActiveOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
         ShowIndefiniteProgress(true);
     };
 
@@ -198,7 +200,7 @@ namespace AppInstaller::CLI::Execution
         {
             m_progressBar->EndProgress(hideProgressWhenDone);
         }
-        GetOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+        GetActiveOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
     };
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)
@@ -221,7 +223,7 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::CloseOutputStream() 
     {
-        GetOutputStream().Close();
+        GetActiveOutputStream().Close();
     }
 
     bool Reporter::IsVTEnabled() const

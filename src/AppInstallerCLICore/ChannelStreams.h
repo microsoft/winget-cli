@@ -65,8 +65,6 @@ namespace AppInstaller::CLI::Execution
         void Enable() { m_enabled = true; }
 
         void Close();
-    protected:
-        std::ostream& m_out;
 
     private:
         template <typename T>
@@ -81,6 +79,7 @@ namespace AppInstaller::CLI::Execution
         VirtualTerminal::Sequence m_defaultSequence;
         bool m_enabled;
         bool m_VTEnabled;
+        std::ostream& m_out;
     };
 
     // Holds output formatting information.
@@ -109,7 +108,7 @@ namespace AppInstaller::CLI::Execution
             // TODO: Convert the rest of the code base and uncomment to enforce localization.
             //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
             ApplyFormat();
-            m_out << t;
+            BaseOutputStream::operator<<(t);
             return *this;
         }
 
@@ -134,7 +133,7 @@ namespace AppInstaller::CLI::Execution
         template <typename T>
         NoVTOutputStream& operator<<(const T& t)
         {
-            m_out << t;
+            BaseOutputStream::operator<<(t);
             return *this;
         }
 

@@ -69,19 +69,19 @@ namespace AppInstaller::CLI::Execution
         ~Reporter();
 
         // Get a stream for verbose output.
-        BaseOutputStream& Verbose() { return GetOutputStream(Level::Verbose); }
+        VTOutputStream& Verbose() { return GetVTOutputStream(Level::Verbose); }
 
         // Get a stream for informational output.
-        BaseOutputStream& Info() { return GetOutputStream(Level::Info); }
+        VTOutputStream& Info() { return GetVTOutputStream(Level::Info); }
 
         // Get a stream for warning output.
-        BaseOutputStream& Warn() { return GetOutputStream(Level::Warning); }
+        VTOutputStream& Warn() { return GetVTOutputStream(Level::Warning); }
 
         // Get a stream for error output.
-        BaseOutputStream& Error() { return GetOutputStream(Level::Error); }
+        VTOutputStream& Error() { return GetVTOutputStream(Level::Error); }
 
         // Gets a stream for output of the given level.
-        BaseOutputStream& GetOutputStream(Level level);
+        VTOutputStream& GetVTOutputStream(Level level);
 
         NoVTOutputStream& Completion() { return m_nonVTOutputStream; }
 
@@ -144,6 +144,9 @@ namespace AppInstaller::CLI::Execution
     private:
         // Gets whether VT is enabled for this reporter.
         bool IsVTEnabled() const;
+
+        BaseOutputStream& GetActiveOutputStream();
+
 
         Channel m_channel;
         std::ostream& m_out;

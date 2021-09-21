@@ -63,20 +63,20 @@ namespace AppInstaller::CLI::Execution
         {
             if (!--m_applyFormatAtOne)
             {
-                m_out << m_format;
+                BaseOutputStream::operator<<(m_format);
             }
         }
     }
 
     VTOutputStream& VTOutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
-        m_out << f;
+        BaseOutputStream::operator<<(f);
         return *this;
     }
 
     VTOutputStream& VTOutputStream::operator<<(const Sequence& sequence)
     {
-        m_out << sequence;
+        BaseOutputStream::operator<<(sequence);
         // An incoming sequence will be valid for 1 "standard" output after this one.
         // We set this to 2 to make that happen, because when it is 1, we will output
         // the format for the current OutputStream.
@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Execution
 
     VTOutputStream& VTOutputStream::operator<<(const ConstructedSequence& sequence)
     {
-        m_out << sequence;
+        BaseOutputStream::operator<<(sequence);
         // An incoming sequence will be valid for 1 "standard" output after this one.
         // We set this to 2 to make that happen, because when it is 1, we will output
         // the format for the current OutputStream.
@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Execution
     VTOutputStream& VTOutputStream::operator<<(const std::filesystem::path& path)
     {
         ApplyFormat();
-        m_out << path.u8string();
+        BaseOutputStream::operator<<(path.u8string());
         return *this;
     }
 
@@ -106,7 +106,7 @@ namespace AppInstaller::CLI::Execution
 
     NoVTOutputStream& NoVTOutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
-        m_out << f;
+        BaseOutputStream::operator<<(f);
         return *this;
     }
 }
