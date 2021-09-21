@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "winget/ManifestValidation.h"
 #include "winget/Locale.h"
 
@@ -72,6 +73,10 @@ namespace AppInstaller::Manifest
 
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
+                AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.InstallerType) <<
+                    "] Architecture[" << Utility::ToString(installer.Arch) << "] Locale[" << installer.Locale <<
+                    "] Scope[" << ScopeToString(installer.Scope) << "]");
+
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
                 duplicateInstallerFound = true;
             }

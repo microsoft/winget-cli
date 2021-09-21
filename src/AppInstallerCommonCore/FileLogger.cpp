@@ -73,6 +73,15 @@ namespace AppInstaller::Logging
         // Just eat any exceptions here; better than losing logs
     }
 
+    void FileLogger::WriteDirect(std::string_view message) noexcept try
+    {
+        m_stream << message << std::endl;
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better than losing logs
+    }
+
     void FileLogger::BeginCleanup(const std::filesystem::path& filePath)
     {
         std::thread([filePath]()
