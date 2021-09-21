@@ -568,27 +568,23 @@ namespace AppInstaller::Repository
                         for (auto&& crossRef : installedCrossRef.Matches)
                         {
                             AICLI_LOG(Repo, Info, << "  Checking match with package id: " << crossRef.Package->GetProperty(PackageProperty::Id));
-
-                            if (!result.ContainsInstalledPackage(crossRef.Package.get()))
+                            if (IsStrongMatchField(crossRef.MatchCriteria.Field))
                             {
-                                if (IsStrongMatchField(crossRef.MatchCriteria.Field))
+                                if (!installedPackage)
                                 {
-                                    if (!installedPackage)
-                                    {
-                                        installedPackage = std::move(crossRef.Package);
-                                    }
-                                    else
-                                    {
-                                        AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
-                                        installedPackage.reset();
-                                        break;
-                                    }
+                                    installedPackage = std::move(crossRef.Package);
+                                }
+                                else
+                                {
+                                    AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
+                                    installedPackage.reset();
+                                    break;
                                 }
                             }
                         }
                     }
 
-                    if (installedPackage)
+                    if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
                     {
                         foundInstalledMatch = true;
                         result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
