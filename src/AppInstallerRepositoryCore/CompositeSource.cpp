@@ -489,7 +489,7 @@ namespace AppInstaller::Repository
                     for (const auto& source : m_availableSources)
                     {
                         // Do not attempt to correlate local packages against this source
-                        if (!source->GetDetails().SupportCorrelation)
+                        if (!source->GetDetails().SupportInstalledSearchCorrelation)
                         {
                             continue;
                         }
@@ -578,6 +578,12 @@ namespace AppInstaller::Repository
         // Search available sources
         for (const auto& source : m_availableSources)
         {
+            // Do not attempt to correlate local packages against this source.
+            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source->GetDetails().SupportInstalledSearchCorrelation)
+            {
+                continue;
+            }
+
             SearchResult availableResult;
 
             try
