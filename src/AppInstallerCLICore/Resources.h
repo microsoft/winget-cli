@@ -65,6 +65,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesLink);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesMessageDisabledByBuild);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesMessageDisabledByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesProperty);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesStatus);
