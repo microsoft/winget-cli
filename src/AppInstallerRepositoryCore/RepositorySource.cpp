@@ -93,7 +93,7 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_MSStoreDefault_Arg;
                 details.Identifier = s_Source_MSStoreDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
-                details.SupportCorrelation = false;
+                details.SupportInstalledSearchCorrelation = false;
                 return details;
             }
             case WellKnownSource::DesktopFrameworks:

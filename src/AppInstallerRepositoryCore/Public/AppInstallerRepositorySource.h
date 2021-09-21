@@ -102,7 +102,7 @@ namespace AppInstaller::Repository
         SourceInformation Information;
 
         // Support correlation against this source if true.
-        bool SupportCorrelation = true;
+        bool SupportInstalledSearchCorrelation = true;
     };
 
     // Fields that require user agreements.
