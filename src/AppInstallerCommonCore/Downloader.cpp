@@ -302,9 +302,19 @@ namespace AppInstaller::Utility
             RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
             RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
             RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+
             // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
             RemoveMotwIfApplicable(filePath);
+
             aesSaveResult = attachmentExecute->Save();
+
+            // Reapply desired zone upon scan failure.
+            // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+            if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
+            {
+                ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
+            }
+
             RETURN_IF_FAILED(aesSaveResult);
             return S_OK;
         };
@@ -326,13 +336,6 @@ namespace AppInstaller::Utility
         aesThread.join();
 
         AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
-
-        // Reapply desired zone upon scan failure.
-        // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
-        if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
-        {
-            ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
-        }
 
         return aesSaveResult;
     }
