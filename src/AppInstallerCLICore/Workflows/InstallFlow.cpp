@@ -409,7 +409,7 @@ namespace AppInstaller::CLI::Workflow
             else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
             {
                 const auto& installer = context.Get<Execution::Data::Installer>();
-                HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+                HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url, URLZONE_INTERNET);
 
                 // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
                 if (hr != S_OK)

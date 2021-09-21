@@ -284,7 +284,7 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Finished removing motw");
     }
 
-    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
+    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure)
     {
         AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
 
@@ -326,6 +326,13 @@ namespace AppInstaller::Utility
         aesThread.join();
 
         AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
+
+        // Reapply desired zone upon scan failure.
+        // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+        if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
+        {
+            ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
+        }
 
         return aesSaveResult;
     }
