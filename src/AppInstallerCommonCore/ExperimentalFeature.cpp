@@ -17,6 +17,11 @@ namespace AppInstaller::Settings
                 return true;
             }
 
+#ifdef WINGET_DISABLE_EXPERIMENTAL_FEATURES
+            UNREFERENCED_PARAMETER(userSettings);
+            return false;
+#else
+
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
                 AICLI_LOG(Core, Info, <<
@@ -40,6 +45,7 @@ namespace AppInstaller::Settings
             default:
                 THROW_HR(E_UNEXPECTED);
             }
+#endif
         }
     }
 
