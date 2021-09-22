@@ -186,7 +186,8 @@ namespace AppInstaller::CLI::Workflow
         // 1. First, try to rename.
         // 2. Then, create an empty file for the target, and attempt to rename.
         // 3. Then, try repeatedly for 500ms in case it is a timing thing.
-        // 4. Finally, attempt to use a hard link if available or copy if not.
+        // 4. Attempt to use a hard link if available.
+        // 5. Copy the file if nothing else has worked so far.
         void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to)
         {
             // 1. First, try to rename.
@@ -220,21 +221,25 @@ namespace AppInstaller::CLI::Workflow
                 CATCH_LOG();
             }
 
-            // 4. Finally, attempt to use a hard link if available or copy if not.
+            // 4. Attempt to use a hard link if available.
             if (Runtime::SupportsHardLinks(from))
             {
-                // Create a hard link to the file; the installer will be left in the temp directory afterward
-                // but it is better to succeed the operation and leave a file around than to fail.
-                // First we have to remove the target file as the function will not overwrite.
-                std::filesystem::remove(to);
-                std::filesystem::create_hard_link(from, to);
+                try
+                {
+                    // Create a hard link to the file; the installer will be left in the temp directory afterward
+                    // but it is better to succeed the operation and leave a file around than to fail.
+                    // First we have to remove the target file as the function will not overwrite.
+                    std::filesystem::remove(to);
+                    std::filesystem::create_hard_link(from, to);
+                    return;
+                }
+                CATCH_LOG();
             }
-            else
-            {
-                // Create a copy of the file; the installer will be left in the temp directory afterward
-                // but it is better to succeed the operation and leave a file around than to fail.
-                std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-            }
+
+            // 5. Copy the file if nothing else has worked so far.
+            // Create a copy of the file; the installer will be left in the temp directory afterward
+            // but it is better to succeed the operation and leave a file around than to fail.
+            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
         }
     }
 
