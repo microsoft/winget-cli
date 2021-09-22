@@ -163,6 +163,7 @@ gdi
 getline
 github
 githubusercontent
+hardlink
 hfile
 HGLOBAL
 HIDECANCEL
