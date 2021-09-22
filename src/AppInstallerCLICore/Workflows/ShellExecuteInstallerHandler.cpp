@@ -256,8 +256,9 @@ namespace AppInstaller::CLI::Workflow
         if (retry)
         {
             std::this_thread::sleep_for(250ms);
-            // If it fails again, let that one throw
-            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+            // If retry fails, try copying with hardlink. The file at installerPath will not be cleaned up after installation,
+            // but it is in a temp folder.
+            std::filesystem::copy(installerPath, renamedDownloadedInstaller, std::filesystem::copy_options::create_hard_links);
         }
 
         installerPath.assign(renamedDownloadedInstaller);
