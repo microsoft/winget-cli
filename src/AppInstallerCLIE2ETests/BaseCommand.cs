@@ -58,7 +58,8 @@ namespace AppInstallerCLIE2ETests
                 {
                     experimentalArg = status,
                     experimentalCmd = status,
-                    experimentalMSStore = status,
+                    dependencies = status,
+                    directMSI = status,
                 }
             };
 

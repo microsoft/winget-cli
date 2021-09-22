@@ -152,23 +152,23 @@ namespace AppInstaller::CLI::Workflow
 
                 if (dependencies.HasAny())
                 {
-                    info << Execution::ManifestInfoEmphasis << "  Dependencies: " << std::endl;
+                    info << Execution::ManifestInfoEmphasis << "  "_liv << Resource::String::ShowLabelDependencies << ' ' << std::endl;
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsFeature))
                     {
-                        info << "    - WindowsFeatures: " << std::endl;
+                        info << "    - "_liv << Resource::String::ShowLabelWindowsFeaturesDependencies << ' ' << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibrary))
                     {
-                        info << "    - WindowsLibraries: " << std::endl;
+                        info << "    - "_liv << Resource::String::ShowLabelWindowsLibrariesDependencies << ' ' << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::Package))
                     {
-                        info << "    - PackageDependencies: " << std::endl;
+                        info << "    - "_liv << Resource::String::ShowLabelPackageDependencies << ' ' << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
                             {
                                 info << "        "_liv << dependency.Id;
@@ -179,7 +179,7 @@ namespace AppInstaller::CLI::Workflow
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::External))
                     {
-                        info << "    - ExternalDependencies: " << std::endl;
+                        info << "    - "_liv << Resource::String::ShowLabelExternalDependencies << ' ' << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
                     }
                 }
