@@ -203,7 +203,9 @@ namespace AppInstaller::CLI::Workflow
             //    This seems to fix things in certain cases, so we do it.
             try
             {
-                std::ofstream targetFile{ to };
+                {
+                    std::ofstream targetFile{ to };
+                }
                 std::filesystem::rename(from, to);
                 return;
             }
