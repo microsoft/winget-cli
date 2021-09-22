@@ -243,21 +243,38 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // If rename fails, don't give up quite yet.
-        bool retry = true;
+        bool renamedFilePresent = false;
 
-        try
+        for (int i = 0; i < 6 && !renamedFilePresent; ++i)
         {
-            // std::filesystem::rename() handles motw correctly if applicable.
-            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
-            retry = false;
+            if (i)
+            {
+                std::this_thread::sleep_for(100ms);
+            }
+
+            try
+            {
+                // std::filesystem::rename() handles motw correctly if applicable.
+                std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+                renamedFilePresent = true;
+            }
+            CATCH_LOG();
         }
-        CATCH_LOG();
 
-        if (retry)
+        if (!renamedFilePresent)
         {
-            std::this_thread::sleep_for(250ms);
-            // If it fails again, let that one throw
-            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+            if (Runtime::IsNTFS(installerPath))
+            {
+                // Create a hard link to the file; the installer will be left in the temp directory afterward
+                // but it is better to succeed the operation and leave a file around than to fail.
+                std::filesystem::copy_file(installerPath, renamedDownloadedInstaller,
+                    std::filesystem::copy_options::create_hard_links | std::filesystem::copy_options::overwrite_existing);
+            }
+            else
+            {
+                // Just try rename one more time and let it throw
+                std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+            }
         }
 
         installerPath.assign(renamedDownloadedInstaller);

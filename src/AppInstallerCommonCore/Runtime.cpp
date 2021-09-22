@@ -409,6 +409,9 @@ namespace AppInstaller::Runtime
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
     }
 
+    // TODO: Replace this function with proper checks for supported functionality rather
+    //       than simply relying on "is it NTFS?", even if those functions delegate to
+    //       this one for the answer.
     bool IsNTFS(const std::filesystem::path& filePath)
     {
         wil::unique_hfile fileHandle{ CreateFileW(
