@@ -116,4 +116,4 @@ Install failed: error 0x80070490: Opening the package from location appxbundle_N
 0x80070490 : Element not found.
 ```
 
-A possible troubleshooting step is to install the KB5005565 update, reboot your machine and try installing the appxbundle again.
+A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/en-us/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.
