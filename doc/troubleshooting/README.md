@@ -106,3 +106,14 @@ This error is related to Delivery Optimization (DO). You may configure the Windo
 This error is related to Delivery Optimization (DO). You may configure the Windows Package Manager settings to use the standard `WININET` library. Add the following network setting:
 
 >`"network": {"downloader": "wininet"}`
+
+#### Error 0x80070490
+
+The following error is displayed when trying to install some appxbundles.
+
+```
+Install failed: error 0x80070490: Opening the package from location appxbundle_Name.appxbundle failed.
+0x80070490 : Element not found.
+```
+
+A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/en-us/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.

@@ -15,6 +15,7 @@ appmodel
 apps
 appx
 appxbundle
+appxbundles
 appxmanifest
 appxsdk
 APSTUDIO
