@@ -439,7 +439,7 @@ namespace AppInstaller::Runtime
         return _wcsicmp(fileSystemName, L"NTFS") == 0;
     }
 
-    bool SupportsHardlinks(const std::filesystem::path& path)
+    bool SupportsHardLinks(const std::filesystem::path& path)
     {
         return IsNTFS(path);
     }

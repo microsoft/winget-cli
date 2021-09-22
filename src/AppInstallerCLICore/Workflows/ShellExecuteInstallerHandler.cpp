@@ -221,7 +221,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // 4. Finally, attempt to use a hard link if available or copy if not.
-            if (Runtime::SupportsHardlinks(from))
+            if (Runtime::SupportsHardLinks(from))
             {
                 // Create a hard link to the file; the installer will be left in the temp directory afterward
                 // but it is better to succeed the operation and leave a file around than to fail.
