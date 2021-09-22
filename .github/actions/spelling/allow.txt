@@ -84,6 +84,7 @@ cwctype
 datatelemetry
 dbconn
 DBId
+debugbreak
 declspec
 decltype
 declval
@@ -202,6 +203,7 @@ ILogger
 impl
 Inet
 inno
+INotify
 INPROC
 Inq
 installertype
@@ -213,6 +215,7 @@ INSTALLPATH
 INSTALLUILEVEL
 interop
 INVALIDARG
+IObservable
 iomanip
 iostream
 IOutput
