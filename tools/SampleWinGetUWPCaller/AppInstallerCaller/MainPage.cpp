@@ -2,8 +2,6 @@
 #include "MainPage.h"
 #include "MainPage.g.cpp"
 
-
-#pragma region Added code for calling appinstaller
 #include <wrl.h>
 #include <winrt/Microsoft.Management.Deployment.h>
 #include <winrt/Windows.UI.Core.h>
@@ -18,8 +16,6 @@ namespace winrt
     using namespace Windows::Foundation;
     using namespace Windows::Foundation::Collections;
 }
-
-#pragma endregion
 
 // CLSIDs for WinGet package
 const CLSID CLSID_PackageManager = { 0xC53A4F16, 0x787E, 0x42A4, 0xB3, 0x04, 0x29, 0xEF, 0xFB, 0x4B, 0xF5, 0x97 };  //C53A4F16-787E-42A4-B304-29EFFB4BF597
@@ -129,9 +125,7 @@ namespace winrt::AppInstallerCaller::implementation
 
         // Passing PackageInstallScope::User causes the install to fail if there's no installer that supports that.
         installOptions.PackageInstallScope(PackageInstallScope::Any);
-        // Passing Silent causes the installer to fail if it requires UAC. Not sure if that is permanent.
-        //installOptions.PackageInstallMode(PackageInstallMode::Silent);
-        installOptions.LogOutputPath(L"D:\\logs\\wingetlog.txt");
+        installOptions.PackageInstallMode(PackageInstallMode::Silent);
 
         return packageManager.InstallPackageAsync(package, installOptions);
     }
@@ -343,8 +337,6 @@ namespace winrt::AppInstallerCaller::implementation
         }
 
         FindPackagesOptions findPackagesOptions = CreateFindPackagesOptions();
-        //FindPackagesResult findResult{ installingCatalog.FindPackages(findPackagesOptions) };
-        //auto matches = findResult.Matches();
 
         FindPackagesResult findResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
         auto matches = findResult.Matches();
@@ -442,7 +434,6 @@ namespace winrt::AppInstallerCaller::implementation
         // Do the search.
         FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(compositeCatalog, m_installAppId).get() };
 
-        //auto name = selectedRemoteCatalog.Info().Id();
         winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
         if (matches.Size() > 0)
         {

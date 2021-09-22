@@ -163,6 +163,7 @@ gdi
 getline
 github
 githubusercontent
+globals
 hfile
 HGLOBAL
 HIDECANCEL
@@ -312,6 +313,7 @@ OAuth
 ofstream
 opencode
 opensource
+openxmlformats
 ostream
 ostringstream
 OSVERSIONINFOEXW

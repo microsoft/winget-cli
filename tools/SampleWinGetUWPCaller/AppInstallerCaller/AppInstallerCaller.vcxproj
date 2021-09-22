@@ -86,7 +86,6 @@
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxBundle>Always</AppxBundle>
-    <PackageCertificateKeyFile>AppInstallerCaller_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
