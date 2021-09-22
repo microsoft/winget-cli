@@ -84,6 +84,7 @@ cwctype
 datatelemetry
 dbconn
 DBId
+debugbreak
 declspec
 decltype
 declval
@@ -163,6 +164,7 @@ gdi
 getline
 github
 githubusercontent
+globals
 hfile
 HGLOBAL
 HIDECANCEL
@@ -201,6 +203,7 @@ ILogger
 impl
 Inet
 inno
+INotify
 INPROC
 Inq
 installertype
@@ -212,6 +215,7 @@ INSTALLPATH
 INSTALLUILEVEL
 interop
 INVALIDARG
+IObservable
 iomanip
 iostream
 IOutput
@@ -312,6 +316,7 @@ OAuth
 ofstream
 opencode
 opensource
+openxmlformats
 ostream
 ostringstream
 OSVERSIONINFOEXW
