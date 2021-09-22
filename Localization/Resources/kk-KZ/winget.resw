@@ -141,6 +141,9 @@
     <value>Келесі қосымша пәрмендер қолжетімді:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>қолжетімді жаңартулар.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Көрсетілген арнаны пайдаланыңыз; әдепкі бойынша жалпы аудитория орнатылған</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Пәрмен жолындағы курсордың орналасуы</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Алдын ала қарау</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Құпиялылық туралы мәлімдеме</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Параметрлерді тексеру кезінде келесі қателер табылды:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Параметрлерді стандартты JSON мәтін өңдегішінде ашыңыз. Егер мәтін өңдегіш реттелмеген болса, параметрлер блокнотта ашылады. Қолжетімді параметрлерді мына жерден қараңыз: https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Параметрлерді ашу</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Параметрлерді жүктеу кезінде күтпеген қате орын алды. Параметрлер пәрменін орындау арқылы параметрлерді тексеріңіз.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>`%1` аргументі үшін берілген мән жарамсыз</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Бас тартылды</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Сыртқы</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Осы импортта табылған бумалардың келесі тәуелділіктері бар:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Бұл бума келесі тәуелділіктерді қажет етеді:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Бумалар</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Бумада енді қажет болмауы мүмкін тәуелділіктер бар:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Манифестте тексерілмеген келесі тәуелділіктер бар; олардың жарамды екеніне көз жеткізіңіз:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows мүмкіндіктері</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows кітапханалары</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store шарттары</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Бумаларға арналған барлық лицензиялық шарттарды қабылдау</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Экспортталған буманы орнату үшін лицензиялық келісім қажет:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Жариялаушы орнатпас бұрын жоғарыда көрсетілген ақпаратты қарап шығып, келісімдерді қабылдауыңызды талап етеді.
+Сіз шарттармен келісесіз бе?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Бума келiсiмдері қабылданбады. Әрекет тоқтатылды.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Келісімдер:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Автор:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Сипаттама:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Орнатушы:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Тілі:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store өнімінің идентификаторы:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Түрі:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url мекенжайын жүктеу:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Лицензия</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Лицензияның URL мекенжайы:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Моникер:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Басты бет:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Жариялаушы:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Нұсқа:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Жоқ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Иә</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Қосылған дереккөзді ашу сәтсіз болды.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Дереккөз әрекеттері кезінде барлық дереккөз келісімдерін қабылдау</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>"%1" дереккөзін пайдаланбастан бұрын, келесі келісімдерді қарап шығу қажет.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Сіз бастапқы келісімдердің барлық шарттарымен келісесіз бе?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Бір немесе бірнеше дереккөз келісімдері қабылданбады. Әрекет тоқтатылды. Бастапқы дереккөз келісімін қабылдаңыз немесе сәйкес дереккөздерді жойыңыз.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Дереккөздің дұрыс жұмыс жасауы үшін компьютердің ағымдағы географиялық аймағын жіберуіңіз қажет.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Сәтті орнатылды. Жаңартуды аяқтау үшін бағдарламаны қайта іске қосыңыз.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Windows бума реттеушісі REST дереккөзінің міндетті емес HTTP тақырыбы</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Бұл дереккөзге қолданылмайтын міндетті емес тақырыбы еленбейді.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Егер дереккөз көрсетілмесе, қосымша тақырып қолданылмайды</value>
   </data>
 </root>

@@ -141,6 +141,9 @@
     <value>The following sub-commands are available:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>upgrades available.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use the specified channel; default is general audience</value>
   </data>
@@ -419,9 +422,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>The position of the cursor within the command line</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Preview</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privacy Statement</value>
   </data>
@@ -464,12 +464,6 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>The following failures were found validating the settings:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Open settings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
@@ -920,5 +914,134 @@ Configuration is disabled due to Group Policy.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>The value provided for the `%1` argument is invalid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>The packages found in this import have the following dependencies:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>This package requires the following dependencies:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Packages</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>This package had dependencies that may not be needed any more:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifest has the following dependencies that were not validated; ensure that they are valid:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Features</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Libraries</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Terms</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accept all licence agreements for packages</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Exported package requires licence agreement to install:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>The publisher requires that you view the above information and accept the agreements before installing.
+Do you agree to the terms?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Package agreements were not agreed to. Operation cancelled.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Agreements:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installer:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Locale:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store Product Id:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licence:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licence Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Publisher:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Failed to open the added source.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accept all source agreements during source operations</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>The `%1` source requires that you view the following agreements before using.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Do you agree to all the source agreements terms?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>One or more of the source agreements were not agreed to. Operation cancelled. Please accept the source agreements or remove the corresponding sources.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>The source requires current machine's geographic region to be sent to function properly.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Successfully installed. Restart the application to complete the upgrade.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optional Windows-Package-Manager REST source HTTP header</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignoring the optional header as it is not applicable for this source.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>The optional header is not applicable without specifying a source</value>
   </data>
 </root>

@@ -141,6 +141,9 @@
     <value>Están dispoñibles os subcomandos seguintes:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>actualizacións dispoñibles.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Usa a canle especificada. A canle predefinida é o público xeral</value>
   </data>
@@ -419,9 +422,6 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>A posición do cursor na liña de comandos</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Previsualización</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Declaración de privacidade</value>
   </data>
@@ -464,12 +464,6 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Atopáronse os seguintes erros na validación da configuración:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Abre a configuración do editor de texto json predefinido. Se non hai ningún editor configurado, a configuración abrirase no caderno de notas. Para consultar a configuración dispoñible, visita https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Abrir configuración</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erro inesperado mentres se carga a configuración. Executa o comando de configuración para verificar a configuración.</value>
@@ -920,5 +914,134 @@ A configuración está desactivada debido á Política de Grupo.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>O valor fornecido para o argumento `%1` non é válido</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Os paquetes atopados nesta importación teñen as seguintes dependencias:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Este paquete require as seguintes dependencias:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paquetes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Este paquete tiña dependencias que quizais xa non sexan necesarias:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>O manifesto ten as seguintes dependencias que non se validaron; asegúrate de que se validan:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Funcionalidades de Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotecas de Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Condicións de uso de Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceptar todos os acordos de licenza dos paquetes</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>O paquete exportado require un acordo de licenza para instalar:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>O editor require que vexas a información anterior e aceptes os acordos antes de instalala. 
+Estás de acordo cos termos?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Non se aceptaron os acordos de paquetes. Operación cancelada.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acordos:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descrición:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalador:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Configuración rexional:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID do produto de Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Descargar Url:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licenza:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL da licenza:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Páxina de inicio:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versión:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Si</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Erro ao abrir a orixe engadida.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceptar todos os acordos de orixe durante as operacións de orixe</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>A fonte `%1` require que vexa os seguintes acordos antes de usalos.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Aceptas todos os termos e condicións dos acordos de orixe?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Non se aceptaron un ou varios dos acordos de orixe. Operación cancelada. Acepta os acordos de orixe ou elimina as fontes correspondentes.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>A fonte require que se envíe a rexión xeográfica actual da máquina para que funcione correctamente.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Instalouse correctamente. Reinicia a aplicación para completar a actualización.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Cabeceira HTTP de orixe REST opcional de Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorando a cabeceira opcional xa que non é aplicable a esta fonte.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>A cabeceira opcional non se pode aplicar sen especificar unha fonte</value>
   </data>
 </root>

@@ -57,7 +57,7 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            AICLI_LOG(Core, Info, << "Found policy '" << valueName << "', Value: " << *intValue);
+            AICLI_LOG(Core, Verbose, << "Found policy '" << valueName << "', Value: " << *intValue);
             return (bool)*intValue;
         }
 

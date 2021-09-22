@@ -43,6 +43,9 @@ namespace AppInstaller::Repository
         // Adds an available source to be aggregated.
         void AddAvailableSource(std::shared_ptr<ISource> source);
 
+        // Checks if any available sources are present
+        bool HasAvailableSource() const { return !m_availableSources.empty(); }
+
         // Sets the installed source to be composited.
         void SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 

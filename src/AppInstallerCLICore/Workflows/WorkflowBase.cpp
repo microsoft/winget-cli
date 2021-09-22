@@ -44,6 +44,7 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
             std::shared_ptr<Repository::ISource> source;
+
             try
             {
                 OpenSourceResult result;
@@ -63,10 +64,25 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 source = result.Source;
+
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : result.SourcesWithUpdateFailure)
                 {
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
+                }
+            }
+            catch (const wil::ResultException& re)
+            {
+                context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
+                if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES)
+                {
+                    // Since we know there must have been multiple errors here, just fail the context rather
+                    // than trying to get one of the exceptions back out.
+                    AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, {});
+                }
+                else
+                {
+                    throw;
                 }
             }
             catch (...)
@@ -158,7 +174,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!agreement.Label.empty())
                 {
-                    context.Reporter.Info() << Execution::SourceInfoEmphasis << Utility::LocIndString{ agreement.Label } << " ";
+                    context.Reporter.Info() << Execution::SourceInfoEmphasis << Utility::LocIndString{ agreement.Label } << ": "_liv;
                 }
 
                 if (!agreement.Text.empty())
@@ -222,6 +238,63 @@ namespace AppInstaller::CLI::Workflow
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isFunc);
         m_func(context);
+    }
+
+    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
+    {
+        try
+        {
+            std::rethrow_exception(exception);
+        }
+        // Exceptions that may occur in the process of executing an arbitrary command
+        catch (const wil::ResultException& re)
+        {
+            // Even though they are logged at their source, log again here for completeness.
+            Logging::Telemetry().LogException("wil::ResultException", re.what());
+            context.Reporter.Error() <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                GetUserPresentableMessage(re) << std::endl;
+            return re.GetErrorCode();
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            std::string message = GetUserPresentableMessage(hre);
+            Logging::Telemetry().LogException("winrt::hresult_error", message);
+            context.Reporter.Error() <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                message << std::endl;
+            return hre.code();
+        }
+        catch (const Settings::GroupPolicyException& e)
+        {
+            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
+            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+        }
+        catch (const Resource::ResourceOpenException& e)
+        {
+            Logging::Telemetry().LogException("ResourceOpenException", e.what());
+            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
+            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
+        }
+        catch (const std::exception& e)
+        {
+            Logging::Telemetry().LogException("std::exception", e.what());
+            context.Reporter.Error() <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                GetUserPresentableMessage(e) << std::endl;
+            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+        }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION();
+            Logging::Telemetry().LogException("unknown", {});
+            context.Reporter.Error() <<
+                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+        }
+
+        return E_UNEXPECTED;
     }
 
     void OpenSource(Execution::Context& context)
@@ -454,6 +527,54 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void HandleSearchResultFailures(Execution::Context& context)
+    {
+        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        if (!searchResult.Failures.empty())
+        {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
+            {
+                auto warn = context.Reporter.Warn();
+                for (const auto& failure : searchResult.Failures)
+                {
+                    warn << Resource::String::SearchFailureWarning << ' ' << failure.Source->GetDetails().Name << std::endl;
+                }
+            }
+            else
+            {
+                HRESULT overallHR = S_OK;
+                auto error = context.Reporter.Error();
+                for (const auto& failure : searchResult.Failures)
+                {
+                    error << Resource::String::SearchFailureError << ' ' << failure.Source->GetDetails().Name << std::endl;
+                    HRESULT failureHR = HandleException(context, failure.Exception);
+
+                    // Just take first failure for now
+                    if (overallHR == S_OK)
+                    {
+                        overallHR = failureHR;
+                    }
+                }
+
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::ShowSearchResultsOnPartialFailure))
+                {
+                    if (searchResult.Matches.empty())
+                    {
+                        context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorNoMatches << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
+                        context << ReportMultiplePackageFoundResultWithSource;
+                    }
+                }
+
+                AICLI_TERMINATE_CONTEXT(overallHR);
+            }
+        }
+    }
+
     void ReportMultiplePackageFoundResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
@@ -552,11 +673,16 @@ namespace AppInstaller::CLI::Workflow
                 {
                     Utility::LocIndString availableVersion, sourceName;
 
-                    if (updateAvailable)
+                    if (latestVersion)
                     {
-                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                        if (updateAvailable)
+                        {
+                            availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                            availableUpgradesCount++;
+                        }
+
+                        // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
-                        availableUpgradesCount++;
                     }
 
                     table.OutputLine({
@@ -575,14 +701,20 @@ namespace AppInstaller::CLI::Workflow
         if (table.IsEmpty())
         {
             context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-        } else if (m_onlyShowUpgrades) {
-            context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+        }
+        else
+        {
+            if (searchResult.Truncated)
+            {
+                context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+            }
+
+            if (m_onlyShowUpgrades)
+            {
+                context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+            }
         }
 
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
-        }
     }
 
     void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
@@ -766,6 +898,7 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 OpenSource <<
                 SearchSourceForSingle <<
+                HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(false) <<
                 GetManifestFromPackage;
         }

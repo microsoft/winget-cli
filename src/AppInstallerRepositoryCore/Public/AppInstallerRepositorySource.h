@@ -95,14 +95,14 @@ namespace AppInstaller::Repository
         // The trust level of the source
         SourceTrustLevel TrustLevel = SourceTrustLevel::None;
 
-        // Whether the source behavior has restrictions
-        bool Restricted = false;
-
         // Custom header for Rest sources
         std::optional<std::string> CustomHeader;
 
         // Source information containing source agreements, required/unsupported match fields.
         SourceInformation Information;
+
+        // Support correlation against this source if true.
+        bool SupportInstalledSearchCorrelation = true;
     };
 
     // Fields that require user agreements.

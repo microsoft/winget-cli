@@ -10,6 +10,10 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include "Microsoft/ConfigurableTestSourceFactory.h"
+#endif
+
 #include <winget/GroupPolicy.h>
 
 namespace AppInstaller::Repository
@@ -38,12 +42,7 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-
-    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "msstore"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
 
@@ -94,7 +93,7 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_MSStoreDefault_Arg;
                 details.Identifier = s_Source_MSStoreDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
-                details.Restricted = true;
+                details.SupportInstalledSearchCorrelation = false;
                 return details;
             }
             case WellKnownSource::DesktopFrameworks:
@@ -149,14 +148,9 @@ namespace AppInstaller::Repository
             return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
         }
 
-        bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
-        {
-            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
-        }
-
         bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
-            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -217,11 +211,6 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::DefaultSource;
                 }
 
-                if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
-                {
-                    return TogglePolicy::Policy::MSStoreSource;
-                }
-
                 if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
                 {
                     return TogglePolicy::Policy::MSStoreSource;
@@ -242,12 +231,6 @@ namespace AppInstaller::Repository
                 return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
             }
 
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg) &&
-                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
-            {
-                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
-            }
-
             if (Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg) &&
                 Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
             {
@@ -261,12 +244,6 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
                 return TogglePolicy::Policy::DefaultSource;
-            }
-
-            if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
-            {
-                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
-                return TogglePolicy::Policy::MSStoreSource;
             }
 
             if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
@@ -322,7 +299,7 @@ namespace AppInstaller::Repository
                 }
 
                 if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
-                    source.Identifier == s_Source_WingetMSStoreDefault_Identifier)
+                    source.Identifier == s_Source_MSStoreDefault_Identifier)
                 {
                     throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
                 }
@@ -488,26 +465,14 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                if (IsWingetCommunityDefaultSourceEnabled())
-                {
-                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
-                }
-
-                if (IsWingetMSStoreDefaultSourceEnabled())
-                {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetMSStoreDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetMSStoreDefault_Arg;
-                    details.Data = s_Source_WingetMSStoreDefault_Data;
-                    details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
-                }
-
                 if (IsMSStoreDefaultSourceEnabled())
                 {
                     result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
+                }
+
+                if (IsWingetCommunityDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
                 }
 
                 // Since we are using the tombstone trick, this is added just to have the source in the internal
@@ -660,6 +625,11 @@ namespace AppInstaller::Repository
             if (itr != s_Sources_TestHook_SourceFactories.end())
             {
                 return itr->second();
+            }
+
+            if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+            {
+                return Microsoft::ConfigurableTestSourceFactory::Create();
             }
 #endif
 
@@ -987,6 +957,28 @@ namespace AppInstaller::Repository
             }
             return result;
         }
+
+        // Carries the exception from an OpenSource call and presents it back at search time.
+        struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
+        {
+            OpenExceptionProxy(const SourceDetails& details, std::exception_ptr exception) :
+                m_details(details), m_exception(std::move(exception)) {}
+
+            const SourceDetails& GetDetails() const override { return m_details; }
+
+            const std::string& GetIdentifier() const override { return m_details.Identifier; }
+
+            SearchResult Search(const SearchRequest&) const override
+            {
+                SearchResult result;
+                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
+                return result;
+            }
+
+        private:
+            SourceDetails m_details;
+            std::exception_ptr m_exception;
+        };
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -1099,34 +1091,19 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                // Restricted sources may not support the full set of functionality
-                if (currentSources[0].get().Restricted)
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
-                    return {};
-                }
-                else
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, progress);
-                }
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                return OpenSource(currentSources[0].get().Name, progress);
             }
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
                 OpenSourceResult result;
+                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
-                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
-                    if (source.get().Restricted)
-                    {
-                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
-                        continue;
-                    }
-
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -1139,17 +1116,43 @@ namespace AppInstaller::Repository
                         }
                         catch (...)
                         {
+                            LOG_CAUGHT_EXCEPTION();
                             AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
 
-                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
+                    std::shared_ptr<ISource> openedSource;
+
+                    try
+                    {
+                        openedSource = CreateSourceFromDetails(source, progress);
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
+                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source, std::current_exception()));
+                    }
+
+                    if (openedSource)
+                    {
+                        aggregatedSource->AddAvailableSource(std::move(openedSource));
+                    }
                 }
 
                 if (sourceUpdated)
                 {
                     sourceList.SaveMetadata();
+                }
+
+                // If all sources failed to open, then throw an exception that is specific to this case.
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
+
+                // Place all of the proxies into the source to be searched later
+                for (auto& proxy : openExceptionProxies)
+                {
+                    aggregatedSource->AddAvailableSource(std::move(proxy));
                 }
 
                 result.Source = aggregatedSource;
@@ -1199,8 +1202,7 @@ namespace AppInstaller::Repository
         // if the details came from the same instance of the list that's being saved.
         // Some sources that do not need updating like the Installed source, do not have Name values.
         // Restricted sources don't have full functionality
-        if (!details.Name.empty() &&
-            !details.Restricted)
+        if (!details.Name.empty())
         {
             SourceListInternal sourceList;
             auto source = sourceList.GetSource(details.Name);
@@ -1393,6 +1395,13 @@ namespace AppInstaller::Repository
 
     bool SupportsCustomHeader(const SourceDetails& sourceDetails)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), sourceDetails.Type))
+        {
+            return true;
+        }
+#endif
+
         return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
     }
 

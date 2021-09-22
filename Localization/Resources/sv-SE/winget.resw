@@ -141,6 +141,9 @@
     <value>Följande underkommandon är tillgängliga:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>tillgängliga uppgraderingar.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
@@ -419,9 +422,6 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Placeringen av markören i kommandoraden</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Förhandsversion</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Sekretesspolicy</value>
   </data>
@@ -464,12 +464,6 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Följande fel hittades vid validering av inställningarna:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Öppna inställningar i JSON-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnas inställningarna i anteckningar. För tillgängliga inställningar se https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Öppna inställningar</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Oväntat fel vid inläsning av inställningar. Verifiera inställningarna genom att köra kommandot för inställningar.</value>
@@ -920,5 +914,134 @@ Konfigurationen har inaktiverats på grund av en grup princip.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Det angivna värdet för argumentet%1är ogiltigt</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Avbröts</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Paketen i den här importen har följande beroenden:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Det här paketet kräver följande beroenden:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paket</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Det här paketet har beroenden som kanske inte behövs längre:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestet har följande beroenden som inte har verifierats. Se till att de är giltiga:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-funktioner</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-bibliotek</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Terms</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptera alla licensavtal för paket</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Det krävs ett licensavtal för att installera det exporterade paketet:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Utgivaren kräver att du visar ovanstående information och accepterar avtalen innan du installerar.
+Godkänner du villkoren?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketavtal har inte godkänts. Åtgärden avbröts.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Avta:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Författare:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beskrivning:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installationsprogram:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Språkversion:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-produkt ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL för nedladdning:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licens:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL till licensen: </value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startsida:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Utgivare:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nej</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Det gick inte att öppna den tillagda källan.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptera alla källavtal under källåtgärder</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Källan '%1' kräver att du visar följande avtal innan du använder.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Godkänner du alla villkor för källavtal?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Ett eller flera av källavtalen har inte godkänts. Åtgärden avbröts. Acceptera källavtalen eller ta bort motsvarande källor.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Källan kräver att den aktuella datorns geografiska region skickas för att fungera korrekt.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installationen är klar. Starta om programmet för att slutföra uppgraderingen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valfritt HTTP-huvud för Windows-Package-Manager REST-källa</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorerar den valfria rubriken eftersom det inte är tillämpligt för den här källan.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Den valfria rubriken är inte tillämpligt utan att ange en källa</value>
   </data>
 </root>

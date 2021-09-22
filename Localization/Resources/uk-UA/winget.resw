@@ -141,6 +141,9 @@
     <value>Доступні наведені нижче підкоманди.</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>доступні оновлення.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Використати вказаний канал; стандартна аудиторія за замовчуванням</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Розташування курсору в командному рядку</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Попередній перегляд</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Декларація про конфіденційність</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Під час перевірки настройок виявлено такі помилки:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Відкрийте параметри в стандартному текстовому редакторі JSON. Якщо його не налаштовано, параметри відкриються в Блокноті. Доступні параметри див. на сторінці https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Відкрити настройки</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Сталася неочікувана помилка під час завантаження настройок. Перевірте настройки, запустивши команду "Параметри".</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Неприпустиме значення аргументу ''%1''</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Скасовано</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Зовнішні</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Пакети, знайдені в цьому імпорті, мають такі залежності:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Для цього пакета потрібні такі залежності:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Пакети</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Цей пакет містить залежності, які, можливо, більше не потрібні:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Маніфест містить такі залежності, які не було перевірено на справжність; переконайтеся, що вони дійсні:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Функції Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Бібліотеки Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Умови Windows Microsoft Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Прийняти всі ліцензійні угоди для пакетів</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Для інсталяції експортованого пакета потрібна ліцензійна угода:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Видавець вимагає, щоб перед інсталяцією ви переглянули наведену вище інформацію та прийняли угоди.
+Ви погоджуєтеся з умовами?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Угоди про пакет не узгоджено. Операцію скасовано.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Угоди:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Автор:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Опис:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Інсталятор програм:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Регіональні параметри:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Ідентифікатор продукту зі Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Тип:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL-адреса завантаження:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Ліцензія:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL-адреса ліцензії:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Монікер:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Домашня сторінка:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Видавець:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Версія:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ні</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Так</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Не вдалося відкрити додане джерело.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Приймати всі вихідні угоди під час вихідних операцій</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Перш ніж використовувати джерело "%1", потрібно переглянути наведені нижче угоди.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Ви погоджуєтеся з усіма умовами вихідних угод?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Одну або кілька вихідних угод не було узгоджено. Операцію скасовано. Прийміть вихідні угоди або вилучіть відповідні джерела.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Для джерела потрібно, щоб географічний регіон поточного комп’ютера було надіслано на належну роботу.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Успішно інстальовано. Перезапустіть програму, щоб завершити оновлення.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Необов’язковий заголовок HTTP джерела REST диспетчера Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Необов’язковий заголовок ігнорується, оскільки він не застосовується до цього джерела.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Необов’язковий заголовок не застосовується, якщо не вказати джерело</value>
   </data>
 </root>

@@ -26,6 +26,8 @@ namespace AppInstaller::Manifest
         Description,
         Tags,
         Agreements,
+        ReleaseNotes,
+        ReleaseNotesUrl,
         Max
     };
 

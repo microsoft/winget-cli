@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "winget/ManifestValidation.h"
 #include "winget/Locale.h"
 
@@ -72,6 +73,10 @@ namespace AppInstaller::Manifest
 
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
+                AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.InstallerType) <<
+                    "] Architecture[" << Utility::ToString(installer.Arch) << "] Locale[" << installer.Locale <<
+                    "] Scope[" << ScopeToString(installer.Scope) << "]");
+
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
                 duplicateInstallerFound = true;
             }
@@ -100,6 +105,11 @@ namespace AppInstaller::Manifest
             if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.InstallerType))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.InstallerType));
+            }
+
+            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            {
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
             if (installer.InstallerType == InstallerTypeEnum::MSStore)
@@ -151,6 +161,25 @@ namespace AppInstaller::Manifest
             if (!installer.Locale.empty() && !Locale::IsWellFormedBcp47Tag(installer.Locale))
             {
                 resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "InstallerLocale", installer.Locale);
+            }
+
+            if (!installer.Markets.AllowedMarkets.empty() && !installer.Markets.ExcludedMarkets.empty())
+            {
+                resultErrors.emplace_back(ManifestError::BothAllowedAndExcludedMarketsDefined);
+            }
+
+            // Check expected return codes for duplicates between successful and expected error codes
+            std::set<DWORD> returnCodeSet;
+            returnCodeSet.insert(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end());
+            for (const auto& code : installer.ExpectedReturnCodes)
+            {
+                if (!returnCodeSet.insert(code.first).second)
+                {
+                    resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
+
+                    // Stop checking to avoid repeated errors
+                    break;
+                }
             }
         }
 

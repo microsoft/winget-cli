@@ -39,8 +39,8 @@ encounter:
 | <img width=180/> | <img width=500/> |
 | **Azure-Pipeline-Passed** | The manifest has completed the test pass. It is waiting for approval. If no issues are encountered during the test pass it will automatically be approved. If a test fails, it may be flagged for manual review.|
 | **Blocking-Issue** | This label indicates that the **Pull Request** cannot be approved because there is a blocking issue. You can often tell what the blocking issue is by the included error label as well. |
-| **Needs: Attention** | This label indicates that the **Pull Request** needs to be investigated by the Windows Package Manager development team. This is either due to a test failure that needs manual review, or a comment added to the **Pull Request** by the community. |
-| **Needs: author feedback** | Indicates there is a failure with the submission. We will reassign **Pull Request** back to you. If you do not address the issue within 10 days, the bot will close the **pull request**. **Needs: author feedback** labels are typically added when there was a failure with the Pull Request that should be updated, or if the person reviewing the Pull Request has a question. |
+| **Needs-Attention** | This label indicates that the **Pull Request** needs to be investigated by the Windows Package Manager development team. This is either due to a test failure that needs manual review, or a comment added to the **Pull Request** by the community. |
+| **Needs-Author-Feedback** | Indicates there is a failure with the submission. We will reassign **Pull Request** back to you. If you do not address the issue within 10 days, the bot will close the **pull request**. **Needs-Author-Feedback** labels are typically added when there was a failure with the Pull Request that should be updated, or if the person reviewing the Pull Request has a question. |
 | **Validation-Completed** | Indicates that the test pass has been completed successfully and your **Pull Request** will be merged.|
 
 ### Error Labels

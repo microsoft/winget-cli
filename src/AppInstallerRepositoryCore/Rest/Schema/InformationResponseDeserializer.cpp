@@ -110,7 +110,10 @@ namespace AppInstaller::Repository::Rest::Schema
                             agreementEntry.Url = std::move(url.value());
                         }
 
-                        info.SourceAgreements.emplace_back(std::move(agreementEntry));
+                        if (!agreementEntry.Label.empty() || !agreementEntry.Text.empty() || !agreementEntry.Url.empty())
+                        {
+                            info.SourceAgreements.emplace_back(std::move(agreementEntry));
+                        }
                     }
                 }
             }

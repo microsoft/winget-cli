@@ -141,6 +141,9 @@
     <value>Οι ακόλουθες υπο-εντολές είναι διαθέσιμες:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>διαθέσιμες αναβαθμίσεις.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Χρήση συγκεκριμένου καναλιού, το προεπιλεγμένο είναι για το γενικό ακροατήριο</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Η θέση του δρομέα μέσα στη γραμμή εντολών</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Προεπισκόπηση</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Δήλωση προστασίας προσωπικών δεδομένων</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Εντοπίστηκαν οι παρακάτω αποτυχίες κατά την επικύρωση των ρυθμίσεων:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Ανοίγει τις ρυθμίσεις στο προεπιλεγμένο πρόγραμμα επεξεργασίας κειμένου json. Εάν δεν έχει ρυθμιστεί κανένα πρόγραμμα επεξεργασίας, οι ρυθμίσεις ανοίγουν στο Σημειωματάριο. Για τις διαθέσιμες ρυθμίσεις, ανατρέξτε στην τοποθεσία https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Άνοιγμα ρυθμίσεων</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Μη αναμενόμενο σφάλμα κατά τη φόρτωση των ρυθμίσεων. Επαληθεύστε τις ρυθμίσεις σας εκτελώντας την εντολή "Ρυθμίσεις".</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Η τιμή που δόθηκε για το όρισμα '%1' δεν είναι έγκυρη</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Ακυρώθηκε</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Εξωτερική</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Τα πακέτα που βρέθηκαν σε αυτήν την εισαγωγή έχουν τις ακόλουθες εξαρτήσεις:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Αυτό το πακέτο απαιτεί τις ακόλουθες εξαρτήσεις:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Πακέτα</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Αυτό το πακέτο είχε εξαρτήσεις που μπορεί να μην είναι πλέον απαραίτητες:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Η διακήρυξη έχει τις ακόλουθες εξαρτήσεις που δεν επικυρώθηκαν. Βεβαιωθείτε ότι είναι έγκυρες:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Δυνατότητες των Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Βιβλιοθήκες Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Όροι του Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Αποδοχή όλων των συμβάσεων άδειας χρήσης για πακέτα</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Το εξαγόμενο πακέτο απαιτεί σύμβαση άδειας χρήσης για την εγκατάσταση:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Ο εκδότης απαιτεί να προβάλετε τις παραπάνω πληροφορίες και να αποδεχτείτε τις συμβάσεις πριν από την εγκατάσταση του.
+Συμφωνείτε με τους όρους;</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Οι συμβάσεις πακέτου δεν συμφωνήθηκαν. Η λειτουργία ακυρώθηκε.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Συμφωνίες:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Συντάκτης:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Περιγραφή:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Πρόγραμμα εγκατάστασης:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Τοπικές ρυθμίσεις:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Αναγνωριστικό προϊόντος Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Τύπος: </value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Διεύθυνση URL λήψης:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Άδεια χρήσης:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Διεύθυνση URL άδειας χρήσης:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Διαδρομή σύνδεσης:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Αρχική σελίδα:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Εκδότης:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Έκδοση:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Το άνοιγμα της προέλευσης που προστέθηκε απέτυχε.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Αποδοχή όλων των συμβάσεων προέλευσης κατά τις λειτουργίες προέλευσης</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Η προέλευση '%1' απαιτεί να προβάλετε τις ακόλουθες συμβάσεις πριν να τις χρησιμοποιήσετε.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Συμφωνείτε με όλους τους όρους των συμβάσεων προέλευσης;</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Μία ή περισσότερες από τις συμβάσεις προέλευσης δεν έχουν συμφωνήσει. Η λειτουργία ακυρώθηκε. Αποδεχτείτε τις συμβάσεις προέλευσης ή καταργήστε τις αντίστοιχες προελεύσεις.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Η προέλευση απαιτεί την αποστολή της γεωγραφικής περιοχής του τρέχοντος υπολογιστή για να λειτουργήσει σωστά.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Εγκαταστάθηκε με επιτυχία. Επανεκκινήστε την εφαρμογή για να ολοκληρωθεί η αναβάθμιση.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Προαιρετική κεφαλίδα HTTP προέλευσης REST του Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Παράβλεψη της προαιρετικής κεφαλίδας, επειδή δεν ισχύει για αυτήν την προέλευση.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Η προαιρετική κεφαλίδα δεν ισχύει χωρίς να καθοριστεί προέλευση</value>
   </data>
 </root>

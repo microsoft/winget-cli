@@ -70,10 +70,13 @@ namespace AppInstaller::CLI
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         context <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
+            Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(true) <<
             Workflow::ReportListResult();
     }

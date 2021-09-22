@@ -230,6 +230,26 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
+    {
+        ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "elevationRequired"))
+        {
+            result = ElevationRequirementEnum::ElevationRequired;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevationProhibited"))
+        {
+            result = ElevationRequirementEnum::ElevationProhibited;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "elevatesSelf"))
+        {
+            result = ElevationRequirementEnum::ElevatesSelf;
+        }
+
+        return result;
+    }
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in)
     {
         if (in == "singleton")
@@ -260,6 +280,75 @@ namespace AppInstaller::Manifest
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %hs", in.c_str());
         }
+    }
+
+    ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        ExpectedReturnCodeEnum result = ExpectedReturnCodeEnum::Unknown;
+
+        if (inStrLower == "packageinuse")
+        {
+            result = ExpectedReturnCodeEnum::PackageInUse;
+        }
+        else if (inStrLower == "installinprogress")
+        {
+            result = ExpectedReturnCodeEnum::InstallInProgress;
+        }
+        else if (inStrLower == "fileinuse")
+        {
+            result = ExpectedReturnCodeEnum::FileInUse;
+        }
+        else if (inStrLower == "missingdependency")
+        {
+            result = ExpectedReturnCodeEnum::MissingDependency;
+        }
+        else if (inStrLower == "diskfull")
+        {
+            result = ExpectedReturnCodeEnum::DiskFull;
+        }
+        else if (inStrLower == "insufficientmemory")
+        {
+            result = ExpectedReturnCodeEnum::InsufficientMemory;
+        }
+        else if (inStrLower == "nonetwork")
+        {
+            result = ExpectedReturnCodeEnum::NoNetwork;
+        }
+        else if (inStrLower == "contactsupport")
+        {
+            result = ExpectedReturnCodeEnum::ContactSupport;
+        }
+        else if (inStrLower == "rebootrequiredtofinish")
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredToFinish;
+        }
+        else if (inStrLower == "rebootrequiredforinstall")
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredForInstall;
+        }
+        else if (inStrLower == "rebootinitiated")
+        {
+            result = ExpectedReturnCodeEnum::RebootInitiated;
+        }
+        else if (inStrLower == "cancelledbyuser")
+        {
+            result = ExpectedReturnCodeEnum::CancelledByUser;
+        }
+        else if (inStrLower == "alreadyinstalled")
+        {
+            result = ExpectedReturnCodeEnum::AlreadyInstalled;
+        }
+        else if (inStrLower == "downgrade")
+        {
+            result = ExpectedReturnCodeEnum::Downgrade;
+        }
+        else if (inStrLower == "blockedbypolicy")
+        {
+            result = ExpectedReturnCodeEnum::BlockedByPolicy;
+        }
+
+        return result;
     }
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType)
@@ -308,6 +397,18 @@ namespace AppInstaller::Manifest
     }
 
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Exe ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Wix ||
+            installerType == InstallerTypeEnum::Burn
+            );
+    }
+
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType)
     {
         return (
             installerType == InstallerTypeEnum::Exe ||
@@ -373,6 +474,50 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
+        default:
+            return {};
+        }
+    }
+
+    std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Msi:
+            // See https://docs.microsoft.com/windows/win32/msi/error-codes
+            return
+            {
+                { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
+                { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
+                { ERROR_INSTALL_SERVICE_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
+                { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
+                { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+            };
+        case InstallerTypeEnum::Inno:
+            // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
+            return
+            {
+                { 2, ExpectedReturnCodeEnum::CancelledByUser },
+                { 5, ExpectedReturnCodeEnum::CancelledByUser },
+                { 8, ExpectedReturnCodeEnum::RebootRequiredForInstall },
+            };
+        case InstallerTypeEnum::Msix:
+            // See https://docs.microsoft.com/en-us/windows/win32/appxpkg/troubleshooting
+            return
+            {
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_PREREQUISITE_FAILED), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_RESOLVE_DEPENDENCY_FAILED), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_OPTIONAL_PACKAGE_REQUIRES_MAIN_PACKAGE), ExpectedReturnCodeEnum::MissingDependency },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_OUT_OF_DISK_SPACE), ExpectedReturnCodeEnum::DiskFull },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_CANCEL), ExpectedReturnCodeEnum::CancelledByUser },
+                { HRESULT_FROM_WIN32(ERROR_PACKAGE_ALREADY_EXISTS), ExpectedReturnCodeEnum::AlreadyInstalled },
+                { HRESULT_FROM_WIN32(ERROR_INSTALL_PACKAGE_DOWNGRADE), ExpectedReturnCodeEnum::Downgrade },
             };
         default:
             return {};

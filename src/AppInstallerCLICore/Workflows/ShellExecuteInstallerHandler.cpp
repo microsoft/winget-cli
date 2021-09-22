@@ -188,7 +188,6 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
-        const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
 
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecute,
@@ -198,26 +197,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << "Installation abandoned" << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-        else if (installResult.value() != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult.value()) == additionalSuccessCodes.end()))
-        {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
-
-            context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
-            // Show installer log path if exists
-            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
-            {
-                context.Reporter.Info() << "Installer log is available at: " << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
         }
         else
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            context.Add<Execution::Data::InstallerReturnCode>(installResult.value());
         }
     }
 

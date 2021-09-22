@@ -141,6 +141,9 @@
     <value>Доступны следующие подкоманды:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>доступных обновлений.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Использовать указанный канал; по умолчанию предназначено для широкой аудитории</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Положение курсора в командной строке</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Ознакомительная версия</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Заявление о конфиденциальности</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Обнаружены следующие ошибки при проверке параметров:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Откройте параметры в стандартном текстовом редакторе JSON. Если редактор не настроен, параметры откроются в Блокноте. Доступные параметры см. на странице https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Открыть параметры</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду "Параметры".</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Для аргумента "%1" задано недопустимое значение</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Отменено</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Внешние</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>У пакетов, обнаруженных в этом импорте, следующие зависимости:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Для этого пакета требуются следующие зависимости:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Пакеты</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>У этого пакета есть зависимости, которые могут больше не требоваться:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Манифест содержит следующие непроверенные зависимости; убедитесь, что они действительны:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Компоненты Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Библиотеки Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Условия Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Принять все лицензионные соглашения для пакетов</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Для установки экспортированного пакета требуется лицензионное соглашение:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Издатель требует, чтобы вы просмотрели указанную выше информацию и приняли соглашения перед установкой.
+Вы согласны с условиями?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Соглашения для пакетов не приняты. Операция отменена.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Соглашения:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Автор:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Описание:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Установщик:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Языковой стандарт:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Идентификатор продукта в Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Тип:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL-адрес для скачивания:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Лицензия:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL-адрес лицензии:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Моникер:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Домашняя страница:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Издатель:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Версия:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Не удалось открыть добавленный источник.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Принимать все соглашения источников во время операций с источниками</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Перед использованием источника "%1" необходимо просмотреть следующие соглашения.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Вы согласны со всеми условиями исходных соглашений?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Соглашения для одного или нескольких источников не приняты. Операция отменена. Примите соглашения источников или удалите эти источники.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Для правильной работы источника необходимо отправить текущий географический регион компьютера.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Успешно установлено. Перезапустите приложение, чтобы завершить обновление.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Необязательный HTTP-заголовок источника REST Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Необязательный заголовок игнорируется, поскольку он неприменим для этого источника.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Необязательный заголовок неприменим, если не указан источник</value>
   </data>
 </root>

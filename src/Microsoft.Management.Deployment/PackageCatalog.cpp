@@ -139,6 +139,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             searchRequest.MaximumResults = options.ResultLimit();
             auto searchResult = m_source->Search(searchRequest);
 
+            // Handle failures by just rethrowing the first one for now.
+            // TODO: Look into updating the COM interface to enable the single source
+            //       failures to flow out.
+            if (!searchResult.Failures.empty())
+            {
+                std::rethrow_exception(searchResult.Failures[0].Exception);
+            }
+
             // Build the result object from the searchResult
             for (size_t i = 0; i < searchResult.Matches.size(); ++i)
             {

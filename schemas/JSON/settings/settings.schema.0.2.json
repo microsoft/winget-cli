@@ -114,8 +114,8 @@
           "type": "boolean",
           "default": false
         },
-        "experimentalMSStore": {
-          "description": "Experimental support for Microsoft Store source",
+        "dependencies": {
+          "description": "Support for package dependencies",
           "type": "boolean",
           "default": false
         },

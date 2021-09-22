@@ -1,6 +1,6 @@
 # WinGet CLI Settings
 
-You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is sensible option if you have no other preference.
+You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is a sensible option if you have no other preference.
 
 ## File Location
 
@@ -124,16 +124,6 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    "experimentalFeatures": {
        "experimentalCmd": true,
        "experimentalArg": false
-   },
-```
-
-### experimentalMSStore
-
-Microsoft Store App support in WinGet is currently implemented as an experimental feature. It supports a curated list of utility apps from Microsoft Store. You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "experimentalMSStore": true
    },
 ```
 
