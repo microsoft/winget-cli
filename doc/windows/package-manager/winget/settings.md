@@ -6,15 +6,12 @@ ms.topic: article
 ms.localizationpriority: medium
 ---
 
-# help command (winget)
-
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
+# settings command (winget)
 
 The **settings** command of the [winget](index.md) tool allows you to customize your Windows Package Manager client experience.  You can change defaults and try out experimental features that are enabled in your client.
-The **settings** command will launch your default MD editor.  Windows by default will launch Notepad as an option.  We recommend using a tool like [Visual Studio code](https://code.visualstudio.com/).  
+The **settings** command will launch your default JSON editor. Windows by default will launch Notepad as an option. We recommend using a tool like [Visual Studio code](https://code.visualstudio.com/).  
 
->[!NOTE]
->You can easily install Visual Studio Code, by typing `winget install Microsoft.VisualStudioCode`
+> You can easily install Visual Studio Code, by typing `winget install Microsoft.VisualStudioCode`
 
 ## Usage
 
@@ -109,7 +106,7 @@ See [details on telemetry](https://github.com/microsoft/winget-cli/blob/master/R
 
 #### disable
 
-```
+```json
     "telemetry": {
         "disable": true
     },

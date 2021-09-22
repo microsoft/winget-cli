@@ -121,12 +121,12 @@ namespace AppInstaller::Settings
                     // Add it to the map
                     settings[S].emplace<details::SettingIndex(S)>(
                         std::forward<typename details::SettingMapping<S>::value_t>(validatedValue.value()));
-                    AICLI_LOG(Core, Info, << "Valid setting from Group Policy. Field: " << path << " Value: " << GetValueString(policyValue.value()));
+                    AICLI_LOG(Core, Verbose, << "Valid setting from Group Policy. Field: " << path << " Value: " << GetValueString(policyValue.value()));
                 }
                 else
                 {
                     auto valueAsString = GetValueString(policyValue.value());
-                    AICLI_LOG(Core, Info, << "Invalid setting from Group Policy. Field: " << path << " Value: " << valueAsString);
+                    AICLI_LOG(Core, Error, << "Invalid setting from Group Policy. Field: " << path << " Value: " << valueAsString);
                     warnings.emplace_back(StringResource::String::SettingsWarningInvalidValueFromPolicy, path, valueAsString);
                 }
 
@@ -148,7 +148,7 @@ namespace AppInstaller::Settings
                         // Finally add it to the map
                         settings[S].emplace<details::SettingIndex(S)>(
                             std::forward<typename details::SettingMapping<S>::value_t>(validatedValue.value()));
-                        AICLI_LOG(Core, Info, << "Valid setting. Field: " << path << " Value: " << GetValueString(jsonValue.value()));
+                        AICLI_LOG(Core, Verbose, << "Valid setting. Field: " << path << " Value: " << GetValueString(jsonValue.value()));
                     }
                     else
                     {
@@ -165,7 +165,7 @@ namespace AppInstaller::Settings
             }
             else
             {
-                AICLI_LOG(Core, Info, << "Setting " << path << " not found. Using default");
+                AICLI_LOG(Core, Verbose, << "Setting " << path << " not found. Using default");
             }
         }
 
@@ -224,7 +224,6 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
-        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalMSStore)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)

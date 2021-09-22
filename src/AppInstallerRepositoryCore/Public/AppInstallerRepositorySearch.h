@@ -259,11 +259,21 @@ namespace AppInstaller::Repository
     // Search result data.
     struct SearchResult
     {
+        // Contains a failure from the Search.
+        struct Failure
+        {
+            std::shared_ptr<const ISource> Source;
+            std::exception_ptr Exception;
+        };
+
         // The full set of results from the search.
         std::vector<ResultMatch> Matches;
 
         // If true, the results were truncated by the given SearchRequest::MaximumResults.
         bool Truncated = false;
+
+        // Present if the Search was against a composite source and one failed, but not limited to that scenario.
+        std::vector<Failure> Failures;
     };
 
     struct UnsupportedRequestException : public wil::ResultException

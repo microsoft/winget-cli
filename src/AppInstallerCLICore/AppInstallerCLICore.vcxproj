@@ -226,6 +226,16 @@
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
@@ -268,6 +278,7 @@
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
+    <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
@@ -316,6 +327,7 @@
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />

@@ -141,6 +141,9 @@
     <value>Estan disponibles les subordres següents:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>actualitzacions disponibles.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utilitza el canal especificat; el valor per defecte és el públic general</value>
   </data>
@@ -419,9 +422,6 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Posició del cursor dins de la línia d'ordres</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Visualització prèvia</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Declaració de privadesa</value>
   </data>
@@ -464,12 +464,6 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>S'han trobat els errors següents validant la configuració:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Obre la configuració a l'editor de text JSON per defecte. Si no hi ha cap editor configurat, obre la configuració al Notepad. Per a la configuració disponible, consulta https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Obre la configuració</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Error inesperat en carregar la configuració. Verifica la configuració executant l'ordre Settings (configuració).</value>
@@ -920,5 +914,134 @@ La configuració està inhabilitada a causa de la norma de grup.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>El valor proporcionat per a l'argument "%1" no és vàlid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>S'ha cancel·lat</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externes</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Els paquets que s’han trobat en aquesta importació tenen les dependències següents:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Aquest paquet requereix les dependències següents:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paquets</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Aquest paquet tenia dependències que ja no es poden necessitar:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>El manifest té les dependències següents que no s'han validat. Assegureu-vos que siguin vàlids:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Característiques del Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Biblioteques del Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Condicions de la Botiga de Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepteu tots els acords de llicència per a paquets</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>El paquet exportat requereix d’un acord de llicència per poder instal·lar-ho:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>El desenvolupador requereix que reviseu la informació anterior i que accepteu els acords abans de la instal·lació.
+Accepteu les condicions?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>No s'han acceptat els acords del paquet. S’ha cancel·lat l’operació.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acords:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descripció:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instal·lador:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Configuració regional:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id del producte de l'Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipus:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Descarrega el URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Llicència:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL de la llicència:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Pàgina d’inici:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versió:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>S’ha produït un error en obrir l'origen afegit.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepteu tots els acords d'origen durant les operacions d'origen</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>L'origen "%1" requereix que visualitzeu els següents acords abans d'utilitzar.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Accepteu les condicions de tots els acords d’origen?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Un o més dels acords d'origen no s'han acceptat. Operació cancel·lada. Accepteu els acords d'origen o Traieu les fonts corresponents.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>L'origen necessita que la regió geogràfica de l'ordinador actual s'enviï correctament.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>S'ha instal·lat correctament. Reinicieu l'aplicació per completar l'actualització.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Capçalera HTTP d’origen REST del Windows-package-Manager opcional</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignora la capçalera opcional perquè no és aplicable per a aquest origen.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>No es pot aplicar la capçalera opcional sense especificar un origen</value>
   </data>
 </root>

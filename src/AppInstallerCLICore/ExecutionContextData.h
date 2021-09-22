@@ -34,6 +34,7 @@ namespace AppInstaller::CLI::Execution
         InstallerPath,
         LogPath,
         InstallerArgs,
+        InstallerReturnCode,
         CompletionData,
         InstalledPackageVersion,
         UninstallString,
@@ -150,6 +151,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::InstallerArgs>
         {
             using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::InstallerReturnCode>
+        {
+            using value_t = DWORD;
         };
 
         template <>

@@ -141,6 +141,9 @@
     <value>Eftirfarandi undirskipanir eru tiltækar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>uppfærslur í boði.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Nota tilgreinda rás; sjálfgefið er almennur notendahópur</value>
   </data>
@@ -419,9 +422,6 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Staða bendilsins innan skipanalínunnar</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Forskoðun</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Yfirlýsing um persónuvernd</value>
   </data>
@@ -464,12 +464,6 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Eftirfarandi villur fundust við að villuleita stillingarnar:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Opnaðu stillingar í sjálfgefnum JSON-textaritli. Ef enginn ritill er skilgreindur opnast stillingar í Notepad. Fyrir tiltækar stillingar sjá https://aka.ms/winget-settings</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Opna stillingar</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Óvænt villa við hleðslu stillinga. Staðfestu stillingarnar með því að keyra stillingaskipunina.</value>
@@ -920,5 +914,134 @@ Grunnstilling er óvirk vegna hópreglu.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Gildið sem var sett upp fyrir `%1` frumbreytuna er ógilt</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Hætt við</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ytri</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Pakkarnir sem fundust í þessum innflutningi hafa eftirfarandi hæði:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Þessi pakki krefst eftirfarandi hæðis:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakkar</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Þessi pakki var með hæði sem hugsanlega er ekki lengur þörf á:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Í skrá eru eftirfarandi hæði sem voru ekki staðfest; gættu þess að þau séu gild:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Eiginleikar Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-söfn</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Skilmálar Windows-netverslun</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Samþykkja alla leyfissamninga fyrir pakka</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Útfluttur pakki krefst leyfissamnings til þess að geta sett upp:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Útgefandinn krefst þess að þú skoðir ofangreindar upplýsingar og samþykkir samningana áður en þú setur upp.
+Samþykkirðu skilmálana?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Pakkasamningar voru ekki samþykktir. Hætt var við aðgerðina.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Samningar:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Höfundur:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Lýsing:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Uppsetningarforrit:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Landsstaðall:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Vörukenni úr verslun:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Gerð:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Hlaða niður veffangi:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Leyfi:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Veffang leyfis:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Viðurnefni:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Upphafssíða:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Útgefandi:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Útgáfa:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nei</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Já</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Ekki tókst að opna upprunanum sem bætt var við.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Samþykkja alla upprunasamninga meðan á upprunaaðgerðum stendur</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Uppruninn '%1' krefst þess að þú skoðir eftirfarandi samninga fyrir notkun.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Samþykkir þú alla skilmála upprunasamninganna?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Einn eða fleiri upprunasamningar voru ekki samþykktir. Hætt var við aðgerðina. Samþykktu upprunasamningana eða fjarlægðu samsvarandi uppruna.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Uppruninn krefst þess að landfræðilegt svæði núverandi vélar sé sent til að virka rétt.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Uppsetning tókst. Endurræstu forritið til að ljúka uppfærslunni.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valfrjáls HTTP-haus fyrir REST-uppruna Windows-pakkastjóra</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Hunsar valfrjálsan síðuhaus þar sem hann á ekki við um þennan uppruna.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Valfrjálsi hausinn á ekki við án þess að uppruninn sé tilgreindur</value>
   </data>
 </root>

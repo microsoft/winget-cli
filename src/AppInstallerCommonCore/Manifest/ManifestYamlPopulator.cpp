@@ -276,6 +276,7 @@ namespace AppInstaller::Manifest
                     { "ElevationRequirement", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ElevationRequirement = ConvertToElevationRequirementEnum(value.as<std::string>()); return {}; } },
                     { "Markets", [this](const YAML::Node& value)->ValidationErrors { return ProcessMarketsNode(value); } },
                     { "AppsAndFeaturesEntries", [this](const YAML::Node& value)->ValidationErrors { return ProcessAppsAndFeaturesEntriesNode(value); } },
+                    { "ExpectedReturnCodes", [this](const YAML::Node& value)->ValidationErrors { return ProcessExpectedReturnCodesNode(value); } },
                 };
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
@@ -308,6 +309,19 @@ namespace AppInstaller::Manifest
         else if (manifestVersion.Major() == 1)
         {
             result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetExpectedReturnCodesFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            result.emplace_back("InstallerReturnCode", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->InstallerReturnCode = static_cast<int>(value.as<int>()); return {}; });
+            result.emplace_back("ReturnResponse", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>()); return {}; });
         }
 
         return result;
@@ -571,7 +585,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    std::vector<ValidationError> ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
+    ValidationErrors ManifestYamlPopulator::ProcessAgreementsNode(const YAML::Node& agreementsNode)
     {
         THROW_HR_IF(E_INVALIDARG, !agreementsNode.IsSequence());
 
@@ -625,6 +639,31 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    ValidationErrors ManifestYamlPopulator::ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !returnCodesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::map<DWORD, ExpectedReturnCodeEnum> returnCodes;
+
+        for (auto const& entry : returnCodesNode.Sequence())
+        {
+            ExpectedReturnCode returnCode;
+            m_p_expectedReturnCode = &returnCode;
+            auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second)
+            {
+                resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
+            }
+        }
+
+        m_p_installer->ExpectedReturnCodes = returnCodes;
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
     {
         m_fullValidation = fullValidation;
@@ -637,6 +676,7 @@ namespace AppInstaller::Manifest
         RootFieldInfos = GetRootFieldProcessInfo(manifestVersion);
         InstallerFieldInfos = GetInstallerFieldProcessInfo(manifestVersion);
         SwitchesFieldInfos = GetSwitchesFieldProcessInfo(manifestVersion);
+        ExpectedReturnCodesFieldInfos = GetExpectedReturnCodesFieldProcessInfo(manifestVersion);
         DependenciesFieldInfos = GetDependenciesFieldProcessInfo(manifestVersion);
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
@@ -700,6 +740,16 @@ namespace AppInstaller::Manifest
                 if (installer.Switches.find(defaultSwitch.first) == installer.Switches.end())
                 {
                     installer.Switches[defaultSwitch.first] = defaultSwitch.second;
+                }
+            }
+
+            // Populate installer default return codes if not present
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            for (auto const& defaultReturnCode : defaultReturnCodes)
+            {
+                if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end())
+                {
+                    installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
                 }
             }
 

@@ -141,6 +141,9 @@
     <value>次のサブコマンドを使用できます。</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>アップグレードを利用できます。</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>指定されたチャンネルを使用します。既定値は一般向けです</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>コマンド ライン内のカーソルの位置</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>プライバシーに関する声明</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>次のエラーが検出されたため、設定を検証しています:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>既定の json テキスト エディターで設定を開きます。エディターが構成されていない場合は、メモ帳で設定を開きます。利用可能な設定については、https://aka.ms/winget-settings を参照してください</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>設定を開く</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>設定の読み込み中に予期しないエラーが発生しました。Settings コマンドを実行して、設定を確認してください。</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>'%1' 引数に指定された値が無効です</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>取り消し済み</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>このインポートで見つかったパッケージには、次の依存関係があります:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>このパッケージには次の依存関係が必要です:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>パッケージ</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>このパッケージには、不要になる可能性のある依存関係があります:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>マニフェストには、検証されていない次の依存関係があります。有効であることを確認してください:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows の機能</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows ライブラリ</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows ストアの使用条件</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>パッケージのすべての使用許諾契約に同意する</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>エクスポートされたパッケージをインストールするには、使用許諾契約が必要です:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>発行元は、お客様がインストール前に上記の情報を表示し、契約に同意することを必要としています。
+使用条件に同意しますか?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>パッケージ契約に同意しませんでした。操作が取り消されました。</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>契約:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>作成者:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>説明:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>インストーラー:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>ロケール:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ストア製品 ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>種類:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>ダウンロード URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>ライセンス:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>ライセンス URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>モニカー:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>ホーム ページ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>公開元:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>バージョン:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>追加されたソースを開けませんでした。</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>ソース操作中にすべてのソース契約に同意する</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1' ソースを使用するには、使用する前に次の契約を表示する必要があります。</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>すべてのソース契約条件に同意しますか?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>1 つ以上のソース契約が同意されませんでした。操作が取り消されました。ソース契約に同意するか、対応するソースを削除してください。</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ソースが正しく機能するには、現在のマシンの地域を送信する必要があります。</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>正常にインストールされました。アップグレードを完了するには、アプリケーションを再起動してください。</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>オプションの Windows-Package-Manager REST ソース HTTP ヘッダー</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>省略可能なヘッダーは、このソースには適用できないため無視されます。</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>省略可能なヘッダーは、ソースを指定せずに適用することはできません</value>
   </data>
 </root>

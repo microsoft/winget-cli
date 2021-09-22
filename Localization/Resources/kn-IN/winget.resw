@@ -141,6 +141,9 @@
     <value>ಈ ಕೆಳಗಿನ ಉಪ-ಕಮಾಂಡ್‌ಗಳು ಲಭ್ಯವಿದೆ:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>ನವೀಕರಣಗಳು ಲಭ್ಯವಿವೆ.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ನಿರ್ದಿಷ್ಟ ಚಾನಲ್ ಬಳಸಿ; ಸಾಮಾನ್ಯ ಪ್ರೇಕ್ಷಕವು ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತದೆ</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>ಆದೇಶ ಸಾಲಿನೊಳಗಿನ ಕರ್ಸರ್ ಸ್ಥಾನ</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>ಮುನ್ನೋಟ</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>ಗೌಪ್ಯತೆ ಹೇಳಿಕೆ</value>
   </data>
@@ -464,12 +464,6 @@
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಮೌಲ್ಯೀಕರಿಸುವಾಗ ಈ ಕೆಳಗಿನ ವೈಫಲ್ಯಗಳು ಕಂಡುಬಂದಿವೆ:</value>
-  </data>
-  <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>ಪೂರ್ವನಿಯೋಜಿತ json ಪಠ್ಯ ಸಂಪಾದಕದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯಿರಿ. ಯಾವುದೇ ಸಂಪಾದಕವನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡದಿದ್ದರೆ, ನೋಟ್‍ಪ್ಯಾಡ್‍ನಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯುತ್ತದೆ. ಲಭ್ಯವಿರುವ ಸೆಟ್ಟಿಂಗ್‍ಗಳಿಗಾಗಿ https://aka.ms/winget-settings ನೋಡಿ</value>
-  </data>
-  <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯಿರಿ</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ. ಸೆಟ್ಟಿಂಗ್‍ಗಳ ಆದೇಶವನ್ನು ಚಲಾಯಿಸುವ ಮೂಲಕ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.</value>
@@ -920,5 +914,134 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>'%1' ತರ್ಕಕ್ಕೆ ಒದಗಿಸಿದ ಮೌಲ್ಯವು ಅಮಾನ್ಯವಾಗಿದೆ</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>ಬಾಹ್ಯ</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>ಈ ಆಮದುಗಳಲ್ಲಿ ಕಂಡುಬಂದ ಪ್ಯಾಕೇಜ್‌ಗಳು ಈ ಮುಂದಿನ ಅವಲಂಬನೆಗಳನ್ನು ಹೊಂದಿವೆ:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>ಈ ಪ್ಯಾಕೇಜ್‌ಗೆ ಈ ಕೆಳಗಿನ ಅವಲಂಬನೆಗಳು ಅಗತ್ಯವಿವೆ:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್‌ಗಳು</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>ಇನ್ನು ಮುಂದೆ ಅಗತ್ಯವಿಲ್ಲದೇ ಇರಬಹುದಾದ ಅವಲಂಬನೆಗಳನ್ನು ಈ ಪ್ಯಾಕೇಜ್ ಹೊಂದಿತ್ತು:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>ಮಾನ್ಯವಲ್ಲದ ಈ ಕೆಳಗಿನ ಅವಲಂಬನೆಗಳನ್ನು ಮ್ಯಾನಿಫೆಸ್ಟ್ ಹೊಂದಿದೆ; ಅವುಗಳು ಮಾನ್ಯವಾಗಿವೆ ಎಂಬುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows ವೈಶಿಷ್ಟ್ಯಗಳು</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows ಲೈಬ್ರರಿಗಳು</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store ನಿಯಮಗಳು</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್‌ಗಳಿಗೆ ಎಲ್ಲಾ ಪರವಾನಗಿ ಒಪ್ಪಂದಗಳನ್ನು ಸಮ್ಮತಿಸಿ</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ರಫ್ತುಗೊಳಿಸಲಾದ ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪನೆಗೊಳಿಸಲು ಪರವಾನಗಿ ಒಪ್ಪಂದದ ಅಗತ್ಯವಿದೆ:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆಗೊಳಿಸುವ ಮುನ್ನ ನೀವು ಈ ಮೇಲಿನ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ ನಂತರ ಒಪ್ಪಂದಗಳನ್ನು ಒಪ್ಪಿಕೊಳ್ಳುವುದು ಪ್ರಕಾಶಕರಿಗೆ ಅಗತ್ಯವಾಗಿದೆ.
+ನೀವು ನಿಬಂಧನೆಗಳಿಗೆ ಒಪ್ಪುತ್ತೀರಾ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಒಪ್ಪಂದಗಳಿಗೆ ಸಮ್ಮತಿಸಲಾಗಿಲ್ಲ. ಕಾರ್ಯಾಚರಣೆಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>ಒಪ್ಪಂದಗಳು:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>ಲೇಖಕ:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>ವಿವರಣೆ:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>ಸ್ಥಳ:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store ಉತ್ಪನ್ನ ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>ಪ್ರಕಾರ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಿ:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>ಪರವಾನಗಿ:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>ಪರವಾನಗಿ Url:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>ಮೋನಿಕರ್:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>ಮುಖಪುಟ:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>ಪ್ರಕಾಶಕ:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>ಆವೃತ್ತಿ:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>ಇಲ್ಲ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>ಹೌದು</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>ಸೇರಿಸಿದ ಮೂಲವನ್ನು ತೆರೆಯಲು ವಿಫಲವಾಗಿದೆ.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>ಮೂಲ ಕಾರ್ಯಾಚರಣೆಗಳ ಸಮಯದಲ್ಲಿ ಎಲ್ಲಾ ಮೂಲ ಒಪ್ಪಂದಗಳಿಗೆ ಸಮ್ಮತಿಸಿ</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>ಬಳಸುವ ಮೊದಲು ನೀವು ಈ ಒಪ್ಪಂದಗಳನ್ನು ವೀಕ್ಷಿಸುವುದು '%1' ಮೂಲಕ್ಕೆ ಅಗತ್ಯವಿದೆ.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಮೂಲ ಒಪ್ಪಂದಗಳ ನಿಬಂಧನೆಗಳಿಗೆ ನೀವು ಒಪ್ಪುತ್ತೀರಾ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಮೂಲ ಒಪ್ಪಂದಗಳಿಗೆ ಸಮ್ಮತಿಸಲಾಗಿಲ್ಲ. ಕಾರ್ಯಾಚರಣೆಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ಮೂಲ ಒಪ್ಪಂದಗಳಿಗೆ ಸಮ್ಮತಿಸಿ ಅಥವಾ ಸಂಬಂಧಿತ ಮೂಲಗಳನ್ನು ತೆಗೆದುಹಾಕಿ.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ಸರಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸಲು ಪ್ರಸ್ತುತ ಯಂತ್ರದ ಭೌಗೋಳಿಕ ಪ್ರದೇಶವು ಮೂಲಕ್ಕೆ ಅಗತ್ಯವಿದೆ.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>ಯಶಸ್ವಿಯಾಗಿ ಸ್ಥಾಪನೆಗೊಳಿಸಲಾಗಿದೆ. ನವೀಕರಣವನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>ಐಚ್ಛಿಕ Windows-ಪ್ಯಾಕೇಜ್-ಮ್ಯಾನೇಜರ್ REST ಮೂಲ HTTP ಶಿರೋಲೇಖ</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>ಐಚ್ಛಿಕ ಶಿರೋಲೇಖವು ಈ ಮೂಲಕ್ಕೆ ಅನ್ವಯಿಸದೇ ಇರುವುದರಿಂದ ಅದನ್ನು ನಿರ್ಲಕ್ಷಿಸಲಾಗುತ್ತಿದೆ.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>ಒಂದು ಮೂಲವನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸದ ಹೊರತು ಐಚ್ಛಿಕ ಶಿರೋಲೇಖ ಅನ್ವಯವಾಗುವುದಿಲ್ಲ</value>
   </data>
 </root>

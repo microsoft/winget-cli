@@ -52,6 +52,18 @@ namespace AppInstaller::Repository::Rest::Schema
         return value.as_integer();
     }
 
+    std::optional<int> JsonHelper::GetRawIntValueFromJsonNode(const web::json::value& node, const utility::string_t& keyName)
+    {
+        std::optional<std::reference_wrapper<const web::json::value>> jsonValue = GetJsonValueFromNode(node, keyName);
+
+        if (jsonValue)
+        {
+            return GetRawIntValueFromJsonValue(jsonValue.value().get());
+        }
+
+        return {};
+    }
+
     std::optional<bool> JsonHelper::GetRawBoolValueFromJsonValue(const web::json::value& value)
     {
         if (value.is_null() || !value.is_boolean())

@@ -47,6 +47,8 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition PrimaryUserSettings{ Type::UserFile, "settings.json"sv };
         // The backup user settings file.
         constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
+        // The admin settings.
+        constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
     };
 
     // Gets a stream containing the named setting's value, if present.

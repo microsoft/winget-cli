@@ -29,8 +29,6 @@ authz
 autocomplete
 auxdata
 azureedge
-bcp
-bcp47
 bcrypt
 binver
 Bitmask
@@ -50,6 +48,8 @@ cin
 cla
 CLSCTX
 cmake
+cmdlet
+cmdlets
 cmp
 CNG
 cnt
@@ -333,6 +333,7 @@ pdb
 PEVENT
 pfp
 PGP
+php
 PII
 pipssource
 placeholders
@@ -369,7 +370,8 @@ realloc
 REALTIME
 REBOOTPROMPT
 Redistributable
-Refactor
+refactor
+refactored
 refactoring
 REFCLSID
 regex
@@ -383,6 +385,7 @@ RESOLVESOURCE
 RESTSOURCE
 resw
 resx
+rethrowing
 roadmap
 robuffer
 rowcount
@@ -407,6 +410,7 @@ SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
 setschemaversion
+setupexitcodes
 setvariable
 setw
 shcore
@@ -462,6 +466,7 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+strtoll
 subcontext
 SUBLANG
 subresource
@@ -535,6 +540,7 @@ URegular
 uri
 url
 urlmon
+USEREXIT
 userguide
 USERPROFILE
 usersources

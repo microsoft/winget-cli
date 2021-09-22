@@ -39,6 +39,9 @@ namespace AppInstaller::Repository::Rest
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
 
+                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
+                details.Identifier = restClient.GetSourceIdentifier();
+
                 return true;
             }
 

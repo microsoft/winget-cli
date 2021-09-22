@@ -125,6 +125,19 @@ namespace AppInstaller::Logging
         }
     }
 
+    void DiagnosticLogger::WriteDirect(Channel channel, Level level, std::string_view message)
+    {
+        THROW_HR_IF_MSG(E_INVALIDARG, channel == Channel::All, "Cannot write to all channels");
+
+        if (IsEnabled(channel, level))
+        {
+            for (auto& logger : m_loggers)
+            {
+                logger->WriteDirect(message);
+            }
+        }
+    }
+
     DiagnosticLogger& Log()
     {
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();

@@ -43,7 +43,7 @@ namespace AppInstaller::JsonSchema
         std::string errorMsg;
         if (!jsonReader->parse(schemaStr.c_str(), schemaStr.c_str() + schemaLength, &schemaJson, &errorMsg))
         {
-            THROW_HR_MSG(E_UNEXPECTED, "Jsoncpp parser failed to parse the schema doc. Reason: %s", errorMsg.c_str());
+            THROW_HR_MSG(E_UNEXPECTED, "Jsoncpp parser failed to parse the schema doc. Reason: %hs", errorMsg.c_str());
         }
 
         return schemaJson;
