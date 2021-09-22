@@ -181,6 +181,61 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
+
+        // Complicated rename algorithm due to somewhat arbitrary failures.
+        // 1. First, try to rename.
+        // 2. Then, create an empty file for the target, and attempt to rename.
+        // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+        // 4. Finally, attempt to use a hard link if available or copy if not.
+        void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to)
+        {
+            // 1. First, try to rename.
+            try
+            {
+                // std::filesystem::rename() handles motw correctly if applicable.
+                std::filesystem::rename(from, to);
+                return;
+            }
+            CATCH_LOG();
+
+            // 2. Then, create an empty file for the target, and attempt to rename.
+            //    This seems to fix things in certain cases, so we do it.
+            try
+            {
+                std::ofstream targetFile{ to };
+                std::filesystem::rename(from, to);
+                return;
+            }
+            CATCH_LOG();
+
+            // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+            for (int i = 0; i < 5; ++i)
+            {
+                try
+                {
+                    std::this_thread::sleep_for(100ms);
+                    std::filesystem::rename(from, to);
+                    return;
+                }
+                CATCH_LOG();
+            }
+
+            // 4. Finally, attempt to use a hard link if available or copy if not.
+            if (Runtime::SupportsHardlinks(from))
+            {
+                // Create a hard link to the file; the installer will be left in the temp directory afterward
+                // but it is better to succeed the operation and leave a file around than to fail.
+                // First we have to remove the target file as the function will not overwrite.
+                std::filesystem::remove(to);
+                std::filesystem::create_hard_link(from, to);
+            }
+            else
+            {
+                // Create a copy of the file; the installer will be left in the temp directory afterward
+                // but it is better to succeed the operation and leave a file around than to fail.
+                std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+            }
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -242,40 +297,7 @@ namespace AppInstaller::CLI::Workflow
             break;
         }
 
-        // If rename fails, don't give up quite yet.
-        bool renamedFilePresent = false;
-
-        for (int i = 0; i < 6 && !renamedFilePresent; ++i)
-        {
-            if (i)
-            {
-                std::this_thread::sleep_for(100ms);
-            }
-
-            try
-            {
-                // std::filesystem::rename() handles motw correctly if applicable.
-                std::filesystem::rename(installerPath, renamedDownloadedInstaller);
-                renamedFilePresent = true;
-            }
-            CATCH_LOG();
-        }
-
-        if (!renamedFilePresent)
-        {
-            if (Runtime::IsNTFS(installerPath))
-            {
-                // Create a hard link to the file; the installer will be left in the temp directory afterward
-                // but it is better to succeed the operation and leave a file around than to fail.
-                std::filesystem::copy_file(installerPath, renamedDownloadedInstaller,
-                    std::filesystem::copy_options::create_hard_links | std::filesystem::copy_options::overwrite_existing);
-            }
-            else
-            {
-                // Just try rename one more time and let it throw
-                std::filesystem::rename(installerPath, renamedDownloadedInstaller);
-            }
-        }
+        RenameFile(installerPath, renamedDownloadedInstaller);
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);

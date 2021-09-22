@@ -60,4 +60,7 @@ namespace AppInstaller::Runtime
 
     // Checks if the file system is NTFS
     bool IsNTFS(const std::filesystem::path& filePath);
+
+    // Checks if the file system at path supports hardlinks
+    bool SupportsHardlinks(const std::filesystem::path& path);
 }
