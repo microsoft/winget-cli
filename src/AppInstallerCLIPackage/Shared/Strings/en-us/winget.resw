@@ -1017,6 +1017,21 @@ Do you agree to the terms?</value>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Version:</value>
   </data>
+  <data name="ShowLabelDependencies" xml:space="preserve">
+    <value>Dependencies:</value>
+  </data>
+  <data name="ShowLabelWindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Features:</value>
+  </data>
+  <data name="ShowLabelWindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Libraries:</value>
+  </data>
+  <data name="ShowLabelPackageDependencies" xml:space="preserve">
+    <value>Package Dependencies:</value>
+  </data>
+  <data name="ShowLabelExternalDependencies" xml:space="preserve">
+    <value>External Dependencies:</value>
+  </data>
   <data name="PromptOptionNo" xml:space="preserve">
     <value>No</value>
   </data>

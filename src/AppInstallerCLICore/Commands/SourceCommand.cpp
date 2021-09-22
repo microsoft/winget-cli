@@ -84,17 +84,19 @@ namespace AppInstaller::CLI
             Workflow::AddSource <<
             Workflow::OpenSourceForSourceAdd;
 
-        if (context.IsTerminated() &&
-            (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED ||
-             context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED))
+        if (context.IsTerminated())
         {
-            auto contextForRemovePtr = context.Clone();
-            Context& contextForRemove = *contextForRemovePtr;
-            contextForRemove.Args.AddArg(Args::Type::SourceName, context.Args.GetArg(Args::Type::SourceName));
+            if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED ||
+                context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED)
+            {
+                auto contextForRemovePtr = context.Clone();
+                Context& contextForRemove = *contextForRemovePtr;
+                contextForRemove.Args.AddArg(Args::Type::SourceName, context.Args.GetArg(Args::Type::SourceName));
 
-            contextForRemove <<
-                Workflow::GetSourceListWithFilter <<
-                Workflow::RemoveSources;
+                contextForRemove <<
+                    Workflow::GetSourceListWithFilter <<
+                    Workflow::RemoveSources;
+            }
         }
         else
         {
