@@ -322,6 +322,7 @@ namespace AppInstaller::Settings
         return InstanceInternal();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     void GroupPolicy::OverrideInstance(GroupPolicy* overridePolicy)
     {
         InstanceInternal(overridePolicy);
@@ -331,4 +332,5 @@ namespace AppInstaller::Settings
     {
         InstanceInternal(nullptr);
     }
+#endif
 }
