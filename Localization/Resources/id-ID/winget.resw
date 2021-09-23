@@ -465,6 +465,12 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Kegagalan berikut ditemukan saat memvalidasi pengaturan:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Buka pengaturan di editor teks json default. Jika tidak ada editor yang dikonfigurasi, buka pengaturan di notepad. Untuk pengaturan yang tersedia, lihat https://aka.ms/winget-settings Perintah ini juga dapat digunakan untuk mengatur pengaturan administrator dengan menyediakan argumen 'aktifkan' atau 'nonaktifkan'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Buka pengaturan atau atur pengaturan administrator</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Kesalahan tak terduga saat memuat pengaturan. Silakan verifikasi pengaturan Anda dengan menjalankan perintah pengaturan.</value>
   </data>
@@ -538,6 +544,10 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Nama</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Pengidentifikasi</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Tidak menemukan sumber yang bernama:</value>
   </data>
@@ -564,7 +574,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Nama sumber</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Gagal membuka sumber; coba perintah 'source reset' jika masalah berlanjut.</value>
+    <value>Gagal saat membuka sumber; coba perintah 'source reset' jika masalah berlanjut.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Apakah Anda menyetujui ketentuan?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Header opsional tidak berlaku tanpa menentukan sumber</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Tanggal Rilis:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url Penerbit:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url Dukungan Penerbit:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url Privasi:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Hak cipta:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url Hak cipta:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Catatan Rilis:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url Catatan Rilis:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Gagal saat mencari sumber; hasil tidak akan disertakan:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Gagal saat mencari sumber:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Fitur ini perlu diaktifkan oleh administrator. Untuk mengaktifkannya, jalankan 'winget settings --enable %1' sebagai administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Mengaktifkan pengaturan administrator tertentu</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Menonaktifkan pengaturan administrator tertentu</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Terlalu banyak argumen pengaturan admin yang disediakan</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Pengaturan admin diaktifkan.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Pengaturan admin dinonaktifkan.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikasi sedang berjalan. Keluar dari aplikasi lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Penginstalan lain sedang berlangsung. Coba lagi nanti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Satu atau beberapa file sedang digunakan. Keluar dari aplikasi lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Paket ini memiliki dependensi yang hilang dari sistem Anda.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Tidak ada ruang di PC Anda. Kosongkan ruang, lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Memori yang tersedia tidak cukup untuk menginstal. Tutup aplikasi lain, lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Aplikasi ini memerlukan konektivitas internet. Sambungkan ke jaringan, lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Aplikasi ini mengalami kesalahan selama penginstalan. Hubungi dukungan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Hidupkan ulang PC Anda untuk menyelesaikan penginstalan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC Anda akan dihidupkan ulang untuk menyelesaikan penginstalan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Penginstalan gagal. Hidupkan ulang PC, lalu coba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Anda membatalkan penginstalan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Versi lain dari aplikasi ini sudah terinstal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Versi yang lebih tinggi dari aplikasi ini telah terinstal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Kebijakan organisasi mencegah penginstalan. Hubungi admin Anda.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Penginstalan diabaikan</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Penginstal gagal dengan kode keluar:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Log penginstal tersedia di:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Paket berikut ditemukan di antara sumber yang sedang bekerja.
+Tentukan salah satu dari mereka menggunakan opsi '--source' untuk melanjutkan.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Tidak ada paket yang ditemukan di antara sumber yang berfungsi.</value>
   </data>
 </root>

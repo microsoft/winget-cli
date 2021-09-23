@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>सेटिंग्स को सत्यापित करते समय निम्नलिखित विफलताएँ मिलीं:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>डिफ़ॉल्ट json पाठ संपादक में सेटिंग्स खोलें. अगर कोई संपादक कॉन्फ़िगर नहीं किया गया है, तो नोटपैड में सेटिंग्स खोलें. उपलब्ध सेटिंग्स के लिए https://aka.ms/winget-settings देखें, इस आदेश का उपयोग 'सक्षम' या 'अक्षम' तर्क प्रदान करके व्यवस्थापक सेटिंग्स को सेट करने के लिए भी किया जा सकता है</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>सेटिंग्स खोलें या व्यवस्थापक सेटिंग्स को सेट करें</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>सेटिंग्स लोड करने के दौरान अनपेक्षित त्रुटि. कृपया सेटिंग्स आदेश चलाकर अपनी सेटिंग्स सत्यापित करें.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>नाम</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>पहचानकर्ता</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>इस नाम वाला कोई स्रोत नहीं मिला:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>स्रोत का नाम</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>स्रोत को खोलने में विफल रहा; यदि समस्या बनी रहती है, तो 'source reset ' आदेश का प्रयास करें.</value>
+    <value>स्रोत को खोलने में विफल रहा; यदि समस्या बनी रहती है, तो 'source reset ' आदेश का आज़माएँ.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>वैकल्पिक शीर्षलेख किसी स्रोत को निर्दिष्ट किए बिना लागू नहीं होता है</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>रिलीज़ की तारीख:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>प्रकाशक का Url:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>प्रकाशक सहायता Url:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>गोपनीयता Url:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>कॉपीराइट:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>कॉपीराइट Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>रिलीज़ नोट्स:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>रिलीज़ नोट्स Url:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>स्रोत खोजते समय विफल रहा; परिणाम शामिल नहीं किए जाएँगे:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>स्रोत खोजते समय विफल रहा:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>इस सुविधा को व्यवस्थापकों की ओर से सक्षम करने की आवश्यकता है. इसे सक्षम करने के लिए, 'winget settings --enable %1' को व्यवस्थापक के रूप में चलाएँ.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>खास व्यवस्थापक सेटिंग सक्षम करता है</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>खास व्यवस्थापक सेटिंग अक्षम करता है</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>बहुत ज़्यादा एडमिन सेटिंग तर्क प्रदान किए गए</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>एडमिन सेटिंग सक्षम की गई.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>व्यवस्थापक सेटिंग अक्षम की गई.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>अनुप्रयोग वर्तमान में चल रहा है. अनुप्रयोग से बाहर निकलें फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>अन्य स्थापना पहले से ही प्रगति पर है. बाद में पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>एक या अधिक फ़ाइलों का उपयोग किया जा रहा है. अनुप्रयोग से बाहर निकलें फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>इस पैकेज में आपके सिस्टम से निर्भरता गुम है.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>आपके PC पर और स्थान नहीं है. स्थान बनाएँ, फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>इंस्टॉल करने के लिए पर्याप्त स्मृति उपलब्ध नहीं है. अन्य अनुप्रयोग बंद करें फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>इस अनुप्रयोग को इंटरनेट कनेक्टिविटी की आवश्यकता है. किसी नेटवर्क से कनेक्ट करें फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>स्थापना के दौरान इस अनुप्रयोग का सामना किसी त्रुटि से हुआ. सहायता से संपर्क करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>इस सुविधा का इंस्टॉल समाप्त करने के लिए अपना PC पुनरारंभ करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>इंस्टॉलेशन समाप्त करने के लिए आपका PC पुनरारंभ होगा.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>स्थापना विफल. अपना PC पुनरारंभ करें फिर पुनः प्रयास करें.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>आपने इंस्टॉलेशन रद्द कर दिया है.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>इस अनुप्रयोग का अन्य संस्करण पहले से स्थापित है.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>इस अनुप्रयोग का एक उच्च संस्करण पहले से स्थापित है.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>संगठन नीतियाँ स्थापना को रोक रही हैं. अपने व्यवस्थापक से संपर्क करें.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>इंस्टॉलेशन छोड़ा गया</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>निकास कोड के साथ इंस्टॉल करना विफल रहा:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>इंस्टॉलर लॉग यहाँ उपलब्ध है:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>कार्यशील स्रोतों में निम्न पैकेज मिले.
+कृपया आगे बढ़ने के लिए '--source' विकल्प का उपयोग करके उनमें से एक निर्दिष्ट करें.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>कार्य स्रोतों में कोई पैकेज नहीं मिले.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>यह Windows Package Manager की एक स्थायी रिलीज़ है. यदि आप प्रयोगात्मक सुविधाओं को आज़माना चाहते हैं, तो कृपया पूर्व-रिलीज़ बिल्ड स्थापित करें. GitHub पर https://github.com/microsoft/winget-cli पर निर्देश उपलब्ध हैं.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

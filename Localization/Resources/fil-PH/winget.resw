@@ -465,6 +465,12 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Natagpuan ang mga sumusunod na pagkabigo na pinapatnayan ang mga setting:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Buksan ang mga setting sa default na text editor ng json. Kung walang nakakompigurang editor, bubuksan ang mga setting sa notepad. Para sa mga available na setting, tingnan ang https://aka.ms/winget-settings Maaari ring gamitin ang command na ito para itakda ang mga setting ng administrator sa pamamagitan ng pagbibigay ng argumentong 'paganahin' o 'huwag paganahin'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Buksan ang mga setting o magtakda ng mga setting ng administrator</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>May hindi inaasahang error habang naglo-load ng mga seting. Pakitiyak ang iyong mga seting sa pamamagitan ng pagpapatakbo sa utos ng mga setting.</value>
   </data>
@@ -538,6 +544,10 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Pangalan</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifier</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Walang nakitang source na may pangalang:</value>
   </data>
@@ -564,7 +574,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Pangalan ng pinagmulan</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Nabigong buksan ang pinagmulan; subukan ang 'source reset' na command kung magpapatuloy ang problema.</value>
+    <value>Pumalya noong nagbubukas ng source; subukan ang utos na 'source reset' kung magpapatuloy ang problema.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Sumasang-ayon ka ba sa mga tuntunin?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Hindi naaangkop ang opsyonal na header nang hindi tumutukoy ng isang pinagmulan</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Petsa ng Bersiyon:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url ng Publisher:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url ng Suporta ng Publisher:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url ng Pagiging Pribado:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Karapatang-ari:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Mga Tala sa Bersiyon:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url ng mga Tala sa Bersiyon:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Pumalya noong naghahanap ng source; hindi isasama ang mga resulta:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Pumalya noong naghahanap ng source:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Kailangang paganahin ng mga administrator ang tampok na ito. Para paganahin ito, patakbuhin ang winget settings --enable %1' bilang administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Pinapagana ang partikular na setting ng administrator</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Hindi pinapagana ang partikular na setting ng administrator</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Masyadong maraming argumento ng setting ng admin ang ibinigay</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Pinagana ang setting ng admin.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Hindi pinagana ang setting ng admin.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Kasalukuyang gumagana ang aplikasyon. Lumabas sa aplikasyon pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Isinasagawa ang isa pang pag-install. Subukang muli sa ibang pagkakataon.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Ginagamit ang isa o higit pang file. Lumabas sa application pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Ang package na ito ay may nawawalang dependency mula sa iyong system.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Wala nang espasyo sa iyong PC. Magbakante ng espasyo, pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Walang sapat na memory na available para ma-install. Isara ang iba pang mga aplikasyon pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Nangangailangan ang application na ito ng pagkakakonekta sa internet. Kumonekta sa isang network pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Nakaranas ng error habang nag-iinstall ng application na ito. Makipag-ugnayan sa suporta.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>I-restart ang iyong PC para tapusin ang pag-install.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Magre-restart ang iyong PC para tapusin ang pag-install.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Hindi na-install. I-restart ang iyong PC pagkatapos ay subukang muli.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Kinansela mo ang pag-install.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Naka-install na ang isa pang bersyon ng application na ito.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Naka-install na ang mas mataas na bersyon ng application na ito.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Pinipigilan ng mga patakaran ng organisasyon ang pag-install. Makipag-ugnayan sa iyong admin.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Inabandona ang pag-install</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Pumalya ang pag-install na may exit code na:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Available ang log ng installer sa:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Ang mga sumusunod na package ay natahanap sa mga gumaganang source.
+Pakitukoy ang isa sa mga ito gamit ang opsyong '--source' para magpatuloy.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Walang nakitang package sa mga gumaganang source.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Isa itong stable release ng Windows Package Manager. Kung gusto mong subukan ang mga pang-eksperimentong tampok, mag-install ng paunang release na build. Available ang mga tagubilin sa GitHub sa https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

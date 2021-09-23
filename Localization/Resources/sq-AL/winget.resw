@@ -465,6 +465,12 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Gjatë vërtetimit të parametrave u gjetën dështimet në vijim:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Hap parametrat në redaktorin e parazgjedhur të tekstit JSON. Nëse nuk konfigurohet asnjë redaktor, hapen parametrat në Notepad. Për parametrat në dispozicion, shih https://aka.ms/winget-settings. Kjo komandë mund të përdoret gjithashtu për të vendosur parametrat e administratorit, duke dhënë argumentin "aktivizo" ose "çaktivizo".</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Hap parametrat ose vendos parametrat e administratorit</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Gabim i papritur gjatë ngarkimit të parametrave. Verifiko parametrat e tu duke ekzekutuar komandën e parametrave.</value>
   </data>
@@ -538,6 +544,10 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Emri</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikuesi</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nuk e gjeti asnjë burim me emrin:</value>
   </data>
@@ -564,7 +574,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Emri i burimit</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Hapja e burimit dështoi; provo komandën 'source reset' nëse problemi vazhdon.</value>
+    <value>Hapja e burimit(eve) dështoi; provo komandën "source reset" nëse problemi vazhdon.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ A pajtohesh me kushtet?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Koka opsionale nuk vlen pa specifikuar një burim</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Data e lëshimit:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL-ja e publikuesit:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL-ja e mbështetjes nga publikuesi:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url e privatësisë:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>E drejta e autorit:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url e të drejtës së autorit:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Shënimet e versionit:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url e shënimeve të versionit:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Gabim gjatë kërkimit të burimit; rezultatet nuk do të përfshihen:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Gabim gjatë kërkimit të burimit:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Ky tipar duhet të aktivizohet nga administratorët. Për ta aktivizuar, ekzekuto "winget settings --enable %1" si administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktivizon parametrin e veçantë të administratorit</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Çaktivizon parametrin e veçantë të administratorit</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Janë dhënë shumë argumente për parametrin e administratorit</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Parametri i administratorit është aktivizuar.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Parametri i administratorit është çaktivizuar.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikacioni është duke u ekzekutuar. Dil nga aplikacioni, pastaj provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Një tjetër instalim është tashmë në progres. Provo sërish më vonë.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Një ose më shumë skedarë janë duke u përdorur. Dil nga aplikacioni dhe provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Kjo paketë ka një varësi që mungon nga sistemi yt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Nuk ke më hapësirë në kompjuter. Liro hapësirë, pastaj provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Nuk ka memorie të mjaftueshme për të instaluar. Mbyll aplikacionet e tjera, pastaj provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ky aplikacion kërkon lidhshmëri me internetin. Lidhu me një rrjet, pastaj provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Ky aplikacion ndeshi një gabim gjatë instalimit. Kontakto me mbështetjen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Rinis kompjuterin për të përfunduar instalimin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Kompjuteri do të riniset për të përfunduar instalimin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Instalimi dështoi. Rinis kompjuterin dhe provo sërish.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ti e anulove instalimin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Një version tjetër i këtij aplikacioni është instaluar tashmë.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Një version më i ri i këtij aplikacioni është instaluar tashmë.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Politikat e organizatës po pengojnë instalimin. Kontakto me administratorin.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalimi u braktis</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Instaluesi dështoi me kodin e daljes:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Evidenca e instaluesit është në dispozicion në:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Midis burimeve të punës u gjetën paketat në vijim.
+Specifiko një prej tyre duke përdorur opsionin "--source" për të vazhduar.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Nuk u gjetën paketa midis burimeve të punës.</value>
   </data>
 </root>

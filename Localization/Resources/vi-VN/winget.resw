@@ -465,6 +465,12 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Các lỗi sau đây đã được tìm thấy xác thực thiết đặt:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Mở cài đặt trong trình soạn thảo văn bản json mặc định. Nếu không có trình soạn thảo nào được đặt cấu hình, hãy mở cài đặt trong notepad. Để biết các cài đặt có sẵn, hãy xem https://aka.ms/winget-settings. Lệnh này cũng có thể được sử dụng để đặt cài đặt người quản trị bằng cách cung cấp đối số “enable” hoặc “disable”</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Mở cài đặt hoặc đặt cài đặt người quản trị</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Lỗi bất ngờ trong khi tải cài đặt. Vui lòng xác minh cài đặt của bạn bằng cách chạy lệnh cài đặt.</value>
   </data>
@@ -538,6 +544,10 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Tên</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Mã định danh</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Không tìm thấy nguồn có tên là:</value>
   </data>
@@ -564,7 +574,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Tên nguồn dữ liệu</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Không mở được mã nguồn; hãy thử lệnh 'source reset' nếu sự cố vẫn tiếp diễn.</value>
+    <value>Không mở được (các) mã nguồn; hãy thử lệnh 'source reset' nếu sự cố vẫn tiếp diễn.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Bạn có đồng ý với các điều khoản không?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Không thể áp dụng tiêu đề tùy chọn mà không chỉ định nguồn</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Ngày Phát hành:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url Nhà xuất bản:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url Hỗ trợ Nhà xuất bản:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url quyền riêng tư:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Bản quyền:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url Bản quyền:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Ghi chú của đặc bản:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url Ghi chú của đặc bản:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Không thành công khi Tìm kiếm nguồn; kết quả sẽ không được bao gồm:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Không thành công khi Tìm kiếm nguồn:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Người quản trị cần bật tính năng này. Để bật tính năng này, hãy chạy 'winget settings --enable %1' người quản trị.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Bật cài đặt người quản trị cụ thể</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Tắt cài đặt người quản trị cụ thể</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Có quá nhiều đối số cài đặt người quản trị được cung cấp</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Đã bật cài đặt người quản trị.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Đã tắt cài đặt người quản trị.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Ứng dụng hiện đang chạy. Thoát khỏi ứng dụng rồi thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Một cài đặt khác đang được tiến hành. Thử lại sau.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Một hoặc nhiều tệp đang được sử dụng. Thoát khỏi ứng dụng rồi thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Gói này thiếu phần phụ thuộc trong hệ thống của bạn.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Không còn dung lượng trên PC của bạn. Tạo không gian, sau đó thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Không có đủ bộ nhớ để Cài đặt. Đóng các ứng dụng khác rồi thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ứng dụng này yêu cầu kết nối internet. Kết nối mạng rồi thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Ứng dụng này đã gặp lỗi trong khi cài đặt. Liên hệ với bộ phận hỗ trợ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Khởi động lại PC của bạn để hoàn tất cài đặt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC của bạn sẽ Khởi động lại để hoàn tất cài đặt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Cài đặt không thành công. Khởi động lại PC của bạn rồi thử lại.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Bạn đã Hủy bỏ cài đặt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Một phiên bản khác của Ứng dụng này đã được cài đặt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Phiên bản cao hơn của ứng dụng này đã được cài đặt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Chính sách của tổ chức đang ngăn chặn việc cài đặt. Liên hệ với Người quản trị của bạn.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Cài đặt đã hủy bỏ</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Trình cài đặt không thành công với mã thoát:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Nhật ký Trình cài đặt có sẵn tại:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Các gói sau đây đã được tìm thấy trong số các nguồn đang hoạt động.
+Vui lòng chỉ định một trong số chúng bằng tùy chọn '--source' để tiếp tục.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Không tìm thấy gói nào trong số các nguồn làm việc.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Đây là bản phát hành ổn định của Windows Package Manager. Nếu bạn muốn thử các tính năng thử nghiệm, vui lòng cài đặt bản dựng tiền phát hành. Hướng dẫn có sẵn trên GitHub tại https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

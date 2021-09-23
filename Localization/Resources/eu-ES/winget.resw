@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Ezarpenak baliozkotzean akats hauek aurkitu dira:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Ireki ezarpenak json testu-editore lehenetsian. Ez badago editorerik konfiguratuta, ireki ezarpenak ohar-blokan. Erabilgarri dauden ezarpenak ikusteko, joan https://aka.ms/winget-settings helbidera. Administratzailearen ezarpenak ezartzeko ere balio du agindu honek, “enable” (gaitu) eta “disable” (desgaitu) argumentuak erabilita.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Ireki ezarpenak edo ezarri administratzailearen ezarpenak</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ustekabeko errorea gertatu da ezarpenak kargatzean. Egiaztatu zure ezarpenak ezarpen-komandoa exekutatuz.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Izena</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikatzailea</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Ez dugu aurkitu izen hau duen iturbururik:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Iturburuaren izena</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Ezin izan da ireki iturburua; arazoak bere horretan badirau, probatu “source reset” komandoa.</value>
+    <value>Ezin izan d(ir)a ireki iturburua(k); arazoak bere horretan badirau, probatu “source reset” komandoa.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Baldintzak onartzen dituzu?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Hautazko goiburua ezin da aplikatu iturri bat zehaztu gabe</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Kaleratze-data:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Argitaratzailearen URLa:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Argitaratzailearen laguntza-zerbitzurako URLa:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Pribatutasun URLa:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright-a:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright-aren URLa:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Kaleratzearen oharrak:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Kaleratzearen oharren URLa:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Ezin izan da bilatu iturburua; emaitzak ez dira kontuan izango:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Ezin izan da bilatu iturburua:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Administratzaileek gaitu behar dute eginbide hau. Eginbidea gaitzeko, exekutatu “winget settings --enable %1” agindua administratzaile gisa.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Administratzailearen ezarpen zehatz hori gaitzen du</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Administratzailearen ezarpen zehatz hori desgaitzen du</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Administratzailearen ezarpenen argumentu gehiegi eman dira</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Gaitu da administratzailearen ezarpena.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Desgaitu da administratzailearen ezarpena.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikazioa abian da. Irten aplikaziotik eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Beste instalazio bat abian da dagoeneko. Saiatu berriro geroago.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Fitxategi bat ego gehiago erabiltzen ari dira. Irten aplikaziotik eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Pakete honi zure sistemako mendekotasun bat falta zaio.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Ez dago leku gehiago zure PCan. Libratu tokia eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Ez dago memoria nahikorik instalatzeko. Itxi beste aplikazioak eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Aplikazio honek internet konexioa egotea eskatzen du. Konektatu sarera eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Aplikazioak errore bat aurkitu du instalazioan. Jarri harremanetan laguntza-zerbitzuarekin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Berrabiarazi ordenagailua instalatzen amaitzeko.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Zure ordenagailua berrabiaraziko da instalatzen amaitzeko.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Ezin izan da instalatu. Berrabiarazia PCa eta saiatu berriro.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Instalazioa utzi duzu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Aplikazio honen beste bertsio bat instalatuta dago jada.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Aplikazio honen bertsio berriago bat instalatuta dago jada.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Erakundearen gidalerroak instalazioa saihesten ari dira. Jarri harremanetan zure administratzailearekin.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalazioa bertan behera utzi da</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Instalatzaileak huts egin du irteera-kode honekin:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Instalatzailearen erregistroa eskuragarri dago hemen:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Hurrengo paketeak aurkitu dira abian dauden iturburuen artean.
+Zehaztu horietako bat “--source” aukera erabiliz.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Ez da paketerik aurkitu lanean dauden iturburuen artean.</value>
   </data>
 </root>

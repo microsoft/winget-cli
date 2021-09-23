@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>驗證設定時發現下列失誤：</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings 此命令透過提供‘啟用’或‘停用’引數，可用於設定系統管理員設定。</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>開啟設定或設定系統管理員設定</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>載入設定時發生意外的錯誤。請執行 [設定] 命令以驗證您的設定。</value>
   </data>
@@ -538,6 +544,10 @@
     <value>名稱</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>識別碼</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>找不到具有此名稱的來源：</value>
   </data>
@@ -564,7 +574,7 @@
     <value>來源的名稱</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>無法開啟來源；如果此問題持續發生，請嘗試使用 [source reset] 命令。</value>
+    <value>無法開啟來源；如果此問題持續發生，請嘗試使用‘source reset’命令。</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>選擇性標頭不適用於未指定來源</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>發行日期:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>發行者 URL：</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>發行者支援 URL：</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>隱私權 Url：</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>著作權:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>著作權 Url：</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>版本資訊：</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>版本資訊 Url：</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>搜尋來源時失敗; 將不會包含結果:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>搜尋來源時失敗：</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>系統管理員必須啟用此功能。若要啟用此功能，請以系統管理員的身分執行‘winget settings --enable %1’。</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>啟用特定系統管理員設定</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>停用特定系統管理員設定</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>提供過多的系統管理員設定引數</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>已啟用系統管理員設定。</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>已停用系統管理員設定。</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>應用程式目前正在執行。結束應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>另一個安裝已在進行中。請稍後再試。</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>一或多個檔案正在使用中。結束應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>您的系統遺漏此套件的相依性。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>您的電腦上已經沒有空間。請釋出空間，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>記憶體不足，無法安裝。請關閉其他應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>此應用程式需要網際網路連線。請連線到網路，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>此應用程式在安裝期間發生錯誤。連絡客戶支援。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>重新啟動您的電腦以完成安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>將重新開機您的電腦以完成安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>安裝失敗。請重新開機您的電腦，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>您取消了安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>已安裝此應用程式的另一個版本。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>已安裝此應用程式的較新版本。</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>組織原則導致無法安裝。請連絡您的系統管理員。</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>已放棄安裝</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>安裝程式失敗，結束代碼為:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>安裝程式記錄檔可在下列位置使用:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>在工作來源中找到下列套件。
+請使用 '--source' 選項指定其中一個以繼續。</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>在工作來源中找不到任何套件。</value>
   </data>
 </root>

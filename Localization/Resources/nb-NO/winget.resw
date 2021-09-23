@@ -465,6 +465,12 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Følgende feil ble funnet under validering av innstillingene:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Åpne innstillinger i standard redigeringsprogram for json-tekst. Hvis ingen redigeringsprogram er konfigurert, åpnes innstillingene i notisblokken. For tilgjengelige innstillinger kan du se https://aka.ms/winget-settings Denne kommandoen kan også brukes til å angi administratorinnstillinger ved å angi «aktiver» eller «deaktiver»-argument</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Åpne innstillinger eller angi administratorinnstillinger</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Uventet feil under innlasting av innstillinger. Kontroller innstillingene ved å kjøre kommandoen innstillinger.</value>
   </data>
@@ -538,6 +544,10 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Navn</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Fant ingen kilde med navnet:</value>
   </data>
@@ -564,7 +574,7 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Navn på kilden</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kunne ikke åpne kilden; prøv kommandoen 'source reset' hvis problemet vedvarer.</value>
+    <value>Mislyktes ved åpning av kilde(er). Prøv kommandoen source reset hvis problemet vedvarer.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Godtar du vilkårene?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Det valgfrie hodet er ikke aktuelt uten å angi en kilde</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Utgivelsesdato:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url-adresse for utgiver:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url-adresse for utgiverstøtte:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Nettadresse for personvern:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Opphavsrett:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Nettadresse for opphavsrett:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Utgivelsesmerknader:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Nettadresse for utgivelsesmerknader:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Mislyktes ved søk etter kilde. Resultatene vil ikke bli inkludert:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Mislyktes under søk etter kilde:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Denne funksjonen må aktiveres av administratorer. Kjør 'winget settings --enable %1' som administrator for å aktivere den.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiverer den spesifikke administratorinnstillingen</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deaktiverer den spesifikke administratorinnstillingen</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>For mange argumenter for administratorinnstilling er angitt</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratorinnstilling aktivert.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratorinnstillingen er deaktivert.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Programmet kjører for øyeblikket. Avslutt programmet og prøv på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>En annen installasjon pågår allerede. Prøv på nytt senere.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Én eller flere filer brukes. Avslutt programmet og prøv på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Denne pakken har en avhengighet som mangler i systemet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Det er ikke mer plass på PC-en. Frigjør plass, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Ikke nok minne til å installere. Lukk andre programmer, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Dette programmet krever Internett-tilkobling. Koble til et nettverk, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Det oppstod en feil i dette programmet under installasjonen. Kontakt kundestøtte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Start PC-en på nytt for å fullføre installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC-en starter på nytt for å fullføre installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installasjonen mislyktes. Start PCen på nytt, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Du avbrøt installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>En annen versjon av dette programmet er allerede installert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>En høyere versjon av dette programmet er allerede installert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisasjonspolicyer hindrer installasjon. Kontakt systemansvarlig.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installasjonen ble avbrutt</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installasjonsprogrammet mislyktes med avslutningskode:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installasjonslogg er tilgjengelig på:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Følgende pakker ble funnet blant arbeidskildene.
+Angi én av dem ved hjelp av alternativet --source for å fortsette.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Fant ingen pakker blant de arbeidende kildene.</value>
   </data>
 </root>

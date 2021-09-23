@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>พบความล้มเหลวต่อไปนี้ขณะตรวจสอบความถูกต้องของการตั้งค่า:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>เปิดการตั้งค่าในตัวแก้ไขข้อความ json เริ่มต้น ถ้าไม่มีการกําหนดค่าตัวแก้ไข ให้เปิดการตั้งค่าในแผ่นจดบันทึก สําหรับการตั้งค่าที่พร้อมใช้งาน ให้ดู https://aka.ms/winget-settings คําสั่งนี้ยังสามารถใช้เพื่อตั้งค่าสำหรับการตั้งค่าผู้ดูแลระบบโดยระบุอาร์กิวเมนต์ 'enable' หรือ 'disable'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>เปิดการตั้งค่าหรือตั้งค่าสำหรับการตั้งค่าผู้ดูแลระบบ</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>เกิดข้อผิดพลาดที่ไม่คาดคิดขณะโหลดการตั้งค่า โปรดตรวจสอบการตั้งค่าของคุณโดยเรียกใช้คำสั่งการตั้งค่า</value>
   </data>
@@ -538,6 +544,10 @@
     <value>ชื่อ</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ตัวระบุ</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>ไม่พบแหล่งข้อมูลที่มีการตั้งชื่อ:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>ชื่อของแหล่งที่มา</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ไม่สามารถเปิดแหล่งข้อมูลได้ ลองใช้คำสั่ง 'source reset' ถ้าปัญหายังคงมีอยู่</value>
+    <value>ล้มเหลวเมื่อเปิดแหล่งข้อมูล ให้ลองใช้คําสั่ง 'source reset' ถ้าปัญหายังคงมีอยู่</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>ส่วนหัวที่เลือกได้ไม่สามารถใช้งานได้หากไม่มีการระบุแหล่งที่มา</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>วันที่เผยแพร่:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL ของผู้เผยแพร่:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL การสนับสนุนของผู้เผยแพร่:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL ความเป็นส่วนตัว:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>ลิขสิทธิ์:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL ลิขสิทธิ์:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>บันทึกย่อประจํารุ่น:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL บันทึกย่อประจํารุ่น:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>ล้มเหลวเมื่อค้นหาแหล่งข้อมูล; ผลลัพธ์จะไม่ถูกรวมไว้:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>ล้มเหลวเมื่อค้นหาแหล่งข้อมูล:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ฟีเจอร์นี้จําเป็นต้องเปิดใช้งานโดยผู้ดูแลระบบ เมื่อต้องการเปิดใช้งาน ให้เรียกใช้ 'winget settings --enable %1' ในฐานะผู้ดูแลระบบ</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>เปิดใช้งานการตั้งค่าผู้ดูแลระบบที่ระบุ</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>ปิดใช้งานการตั้งค่าผู้ดูแลระบบที่ระบุ</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>มีอาร์กิวเมนต์การตั้งค่าผู้ดูแลระบบที่ให้ไว้มากเกินไป</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>เปิดใช้งานการตั้งค่าผู้ดูแลระบบแล้ว</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>ปิดใช้งานการตั้งค่าผู้ดูแลระบบแล้ว</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>โปรแกรมประยุกต์กําลังทํางานอยู่ในขณะนี้ ให้ออกจากโปรแกรมประยุกต์ แล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>กําลังดําเนินการติดตั้งอื่นอยู่ ลองอีกครั้งในภายหลัง</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>แฟ้มอย่างน้อยหนึ่งแฟ้มกําลังถูกใช้งานอยู่ ให้ออกจากโปรแกรมประยุกต์ แล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>แพคเกจนี้มีการขึ้นต่อกันที่ขาดหายไปจากระบบของคุณ</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>ไม่มีเนื้อที่ว่างบนพีซีของคุณแล้ว เพิ่มเนื้อที่ แล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>มีหน่วยความจําไม่เพียงพอที่จะติดตั้ง ให้ปิดแอปพลิเคชันอื่นๆ แล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>แอปพลิเคชันนี้ต้องการการเชื่อมต่ออินเทอร์เน็ต เชื่อมต่อเครือข่ายแล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>แอปพลิเคชันนี้พบข้อผิดพลาดในระหว่างการติดตั้ง ติดต่อฝ่ายสนับสนุน</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>รีสตาร์ตพีซีของคุณเพื่อเสร็จสิ้นการติดตั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>พีซีของคุณจะรีสตาร์ตเพื่อเสร็จสิ้นการติดตั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>การติดตั้งล้มเหลว รีสตาร์ตพีซีของคุณ แล้วลองอีกครั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>คุณได้ยกเลิกการติดตั้ง</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>โปรแกรมประยุกต์นี้รุ่นอื่นถูกติดตั้งไว้แล้ว</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>โปรแกรมประยุกต์นี้รุ่นที่สูงกว่าถูกติดตั้งไว้แล้ว</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>นโยบายองค์กรป้องกันการติดตั้งอยู่ ติดต่อผู้ดูแลระบบของคุณ</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>การติดตั้งถูกละทิ้ง</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>โปรแกรมติดตั้งล้มเหลวด้วยโค้ดสั่งให้ออกจากการทำงาน: </value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>รายการบันทึกของโปรแกรมติดตั้งพร้อมใช้งานที่:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>พบแพคเกจต่อไปนี้ในแหล่งการทํางาน
+โปรดระบุรายการใดรายการหนึ่งโดยใช้ตัวเลือก '--source' เพื่อดําเนินการต่อ</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>ไม่พบแพคเกจในแหล่งข้อมูลที่ใช้การได้</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>นี่คือรีลีสที่เสถียรของ Windows Package Manager ถ้าคุณต้องการลองใช้ฟีเจอร์แบบทดลอง โปรดติดตั้งรุ่นก่อนวางจําหน่าย มีคําแนะนําใน GitHub ที่ https://github.com/microsoft/winget-cli</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

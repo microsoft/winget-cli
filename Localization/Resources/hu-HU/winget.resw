@@ -465,6 +465,12 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>A Beállítások ellenőrzése során a következő hibák merültek fel:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Nyissa meg a beállításokat az alapértelmezett JSON-szövegszerkesztőben. Ha a szerkesztő nincs konfigurálva, nyissa meg a beállításokat a Jegyzettömbben. Az elérhető beállításokért tekintse meg a következőt: https://aka.ms/winget-settings. Ez a parancs az adminisztrátori beállítások megadására is használható az „engedélyezés” vagy „letiltás” argumentum megadásával</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Beállítások megnyitása vagy adminisztrátori beállítások megadása</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Váratlan hiba történt a beállítások betöltése közben. Kérjük, ellenőrizze a beállításokat a beállítások parancs futtatásával.</value>
   </data>
@@ -538,6 +544,10 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Név</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Azonosító</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nem található ilyen nevű forrás:</value>
   </data>
@@ -564,7 +574,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>A forrás neve</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Nem sikerült megnyitni a forrást; próbálja meg a 'source reset' parancsot, ha a probléma továbbra is fennáll.</value>
+    <value>Nem sikerült megnyitni a forrás(oka)t; próbálja meg a ‚source reset‘ parancsot, ha a probléma továbbra is fennáll.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Elfogadja a feltételeket?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>A nem kötelező fejléc nem alkalmazható forrás megadása nélkül</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Kiadás dátuma:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Közzétevő URL-címe:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>A közzétevő támogatási URL-címe:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Adatvédelmi szabályzat URL-címe:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Szerzői jog:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Szerzői jog URL-címe:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Verzióinformációk:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Verzióinformációk URL-címe:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Hiba a forrás keresésekor; az eredmények nem lesznek belefoglalva:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Hiba a forrás keresésekor:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Ezt a funkciót az adminisztrátornak engedélyeznie kell. Az engedélyezéshez futtassa rendszergazdaként a winget settings --enable %1 parancsot.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Engedélyezi az adott adminisztrátori beállítást</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Letiltja az adott adminisztrátori beállítást</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Túl sok rendszergazdai beállítási argumentum van megadva</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Adminisztrátori beállítás engedélyezve.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Az adminisztrátori beállítás le van tiltva.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Az alkalmazás jelenleg fut. Lépjen ki az alkalmazásból, és próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Egy másik telepítés már folyamatban van. Próbálkozzon újra később.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Egy vagy több fájl használatban van. Lépjen ki az alkalmazásból, és próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>A csomag egyik függősége hiányzik a rendszerből.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Nincs több hely a számítógépen. Szabadítson fel helyet, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Nincs elég memória a telepítéshez. Zárja be a többi alkalmazást, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ehhez az alkalmazáshoz internetkapcsolat szükséges. Csatlakozzon egy hálózathoz, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Az alkalmazás hibát észlelt a telepítés során. Forduljon az ügyfélszolgálathoz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>A telepítés befejezéséhez indítsa újra a számítógépet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>A számítógép újraindul a telepítés befejezéséhez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>A telepítés nem sikerült. Indítsa újra a számítógépet, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ön megszakította a telepítést.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Az alkalmazás egy másik verziója már telepítve van.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Az alkalmazás egy újabb verziója már telepítve van.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>A szervezeti házirendek megakadályozzák a telepítést. Forduljon a rendszergazdához.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>A telepítés félbeszakadt</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>A telepítő sikertelen a következő kilépési kóddal:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>A telepítőnapló a következő helyen érhető el:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>A következő csomagok találhatók a munkaforrások között.
+A folytatáshoz adja meg az egyiket a '--source' kapcsolóval.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Nem találhatók csomagok a munkaforrások között.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Ez a Windows Package Manager stabil kiadása. Ha kísérleti funkciókat szeretne kipróbálni, kérjük, telepítsen egy kiadás előtti buildet. Útmutató a GitHubon érhető el a https://github.com/microsoft/winget-cli címen.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

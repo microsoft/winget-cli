@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Следните неуспеси ги потврдуваат параметрите:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Отворете ги параметрите во стандардниот json уредувач на текст. Доколку нема конфигурирано уредувач, параметрите се отвораат во notepad. За достапни параметри видете https://aka.ms/winget-settings Оваа наредба, исто така, може да се користи и за поставување на параметрите за администраторот со спроведување на аргумент „овозможи“ или „оневозможи“</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Отворете ги параметрите или поставете ги администраторските параметри</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Неочекувана грешка при вчитување на параметри. Проверете ги параметрите со извршување на наредбата за параметри.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Име</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Идентификатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Не е најден извор со име:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Име на изворот</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Изворот не може да се отвори; обидете се со наредбата „source reset“ ако проблемот опстои.</value>
+    <value>Неуспешно отворање на изворот/-ите; доколку проблемот продолжи, обидете се со наредбата „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Изборното заглавие не е применливо без да се наведе извор</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Датум на издавање:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Веб-адреса на издавачот:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Помошна веб-адреса на издавачот:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Веб-адреса за приватност:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторски права:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Веб-адреса за авторските права:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Напомени за изданието:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Веб-адреса за напомените за изданието:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Неуспешно пребарување на изворот; резулатите нема да бидат вклучени:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Неуспешно пребарување на изворот:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Оваа карактеристика ја овозможуваат администраторите. За да ја овозможите, извршете 'winget settings --enable %1' како администратор.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Го овозможува одредениот администраторски параметар</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Го оневозможува одредениот администраторски параметар</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Спроведени се премногу аргументи за администраторскиот параметар</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Администраторскиот параметар е овозможен.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Администраторскиот параметар е оневозможен.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Апликацијата се извршува во моментов. Излезете од апликацијата и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Во тек е друга инсталација. Обидете се повторно подоцна.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Се користат една или повеќе датотеки. Излезете од апликацијата и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>На пакетот му фали зависност од вашиот систем.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Нема простор на вашиот компјутер. Ослободете простор и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Нема доволно достапна меморија за инсталирање. Затворете ги другите апликации и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Апликацијата бара интернет-поврзливост. Поврзете се на мрежа и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Апликацијата се соочи со проблем за време на инсталацијата. Контактирајте со поддршката.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Престартирајте го компјутерот за да ја завршите инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Компјутерот ќе се престартира за да ја заврши инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Неуспешна инсталација. Престартирајте го компјутерот и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ја откажавте инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Веќе е инсталирана друга верзија на апликацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Веќе е инсталирана понова верзија на апликацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Организациските политики ја спречуваат инсталацијата. Контактирајте го администраторот.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Инсталацијата е напуштена</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Инсталаторот не успеа со излезниот код:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Дневникот на инсталаторот е достапен на:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Пронајдени се следниве пакети помеѓу работните извори.
+За да продолжите, наведете еден од нив со помош на опцијата „--source“.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Не се пронајдени пакети помеѓу работните извори.</value>
   </data>
 </root>

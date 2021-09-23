@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ພົບຂໍ້ຜິດພາດຕໍ່ໄປນີ້ໃນການກວດສອບການຕັ້ງຄ່າ:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>ເປີດການຕັ້ງຄ່າໃນຕົວແກ້ໄຂຂໍ້ຄວາມ json ມາດຕະຖານ. ຖ້າບໍ່ມີການກຳນົດຄ່າຕົວແກ້ໄຂ, ເປີດການຕັ້ງຄ່າໃນແຜ່ນບັນທຶກ. ສຳລັບການຕັ້ງຄ່າທີ່ມີຢູ່ ໃຫ້ເບິ່ງ https://aka.ms/winget-settings ນອກຈາກນີ້ ຄຳສັ່ງນີ້ຍັງສາມາດຖືກໃຊ້ເພື່ອຕັ້ງການຕັ້ງຄ່າຜູ້ຄວບຄຸມໂດຍການໃຫ້ເຫດຜົນ 'ເປີດໃຊ້ງານ' ຫຼື 'ປິດໃຊ້ງານ'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>ເປີດການຕັ້ງຄ່າ ຫຼື ຕັ້ງການຕັ້ງຄ່າຜູ້ຄວບຄຸມ</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ເກີດຄວາມຜິດພາດທີ່ບໍ່ຄາດຄິດຂຶ້ນໃນລະຫວ່າງການໂຫຼດການຕັ້ງຄ່າ. ກະລຸນາຢັ້ງຢືນການຕັ້ງຄ່າຂອງທ່ານໂດຍການໃຊ້ຄຳສັ່ງການຕັ້ງຄ່າ.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>ຊື່</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ຕົວ​ລະ​ບຸ</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>ບໍ່ເຫັນແຫຼ່ງທີ່ມາທີ່ຊື່:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>ຊື່ແຫຼ່ງທີ່ມາ</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ລົ້ມເຫລວໃນການເປີດແຫລ່ງຂໍ້ມູນ; ລອງໃຊ້ຄຳສັ່ງ 'source reset' ຖ້າມີປັນຫາ.</value>
+    <value>ລົ້ມເຫຼວເມື່ອເປີດແຫຼ່ງຂໍ້ມູນ; ລອງໃຊ້ຄຳສັ່ງ 'source reset' ຖ້າມີປັນຫາ.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>ຫົວຂໍ້ທາງເລືອກໃຊ້ບໍ່ໄດ້ໂດຍບໍ່ໄດ້ລະບຸແຫຼ່ງ</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>ວັນທີເຜີຍແຜ່:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url ຂອງຜູ້ຈັດພິມ:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url ການສະໜັບສະໜູນຜູ້ເຜີຍແຜ່:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url ຄວາມເປັນສ່ວນຕົວ:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>ລິຂະສິດ:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url ລິຂະສິດ:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>ປ່ອຍບັນທຶກອອກ:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>ປ່ອຍ Url ຂອງບັນທຶກອອກ:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>ລົ້ມເຫຼວເມື່ອຄົ້ນຫາແຫຼ່ງທີ່ມາ; ຜົນໄດ້ຮັບຈະບໍ່ຖືກລວມ:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>ລົ້ມເຫຼວເມື່ອຄົ້ນຫາແຫຼ່ງຂໍ້ມູນ:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ຈຳເປັນຕ້ອງໄດ້ເປີດໃຊ້ງານຄຸນສົມບັດນີ້ໂດຍຜູ້ຄວບຄຸມ. ເພື່ອເປີດໃຊ້ງານມັນ, ເປີດໃຊ້ 'winget settings --enable %1' ໃນຖານະເປັນຜູ້ຄວບຄຸມ.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານການຕັ້ງຄ່າຜູ້ຄວບຄຸມສະເພາະ</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>ປິດໃຊ້ງານການຕັ້ງຄ່າຜູ້ຄວບຄຸມສະເພາະ</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>ສະໜອງເຫດຜົນການຕັ້ງຄ່າຜູ້ຄວບຄຸມຫຼາຍເກີນໄປແລ້ວ</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານການຕັ້ງຄ່າຜູ້ຄວບຄຸມແລ້ວ.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>ປິດໃຊ້ງານການຕັ້ງຄ່າຜູ້ຄວບຄຸມແລ້ວ.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>ປະຈຸບັນແອັບພລິເຄຊັນກຳລັງເຮັດວຽກຢູ່. ອອກຈາກແອັບພລິເຄຊັນແລ້ວລອງອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>ການຕິດຕັ້ງອື່ນກຳລັງດຳເນີນຢູ່ແລ້ວ. ລອງໃໝ່ໃນພາຍຫຼັງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ມີການໃຊ້ໄຟລ໌ຫນຶ່ງຫຼືຫຼາຍໄຟລ໌. ອອກຈາກແອັບພລິເຄຊັນ ແລ້ວລອງໃໝ່ອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>ແພັກເກັດນີ້ມີການການຂຶ້ນຕໍ່ກັນທີ່ຂາດຫາຍໄປຈາກລະບົບຂອງທ່ານ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>ບໍ່ມີພື້ນທີ່ວ່າງໃນ PC ຂອງທ່ານອີກຕໍ່ໄປ. ສ້າງພື້ນທີ່ວ່າງ, ແລ້ວລອງອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>ບໍ່ມີໜ່ວຍຄວາມຈໍາພຽງພໍໃຫ້ຕິດຕັ້ງ. ປິດແອັບພລິເຄຊັນອື່ນຈາກນັ້ນລອງອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ແອັບພລິເຄຊັນນີ້ຕ້ອງການການເຊື່ອມຕໍ່ອິນເຕີເນັດ. ເຊື່ອມຕໍ່ໄປຍັງເຄືອຂ່າຍແລ້ວລອງອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>ແອັບພລິເຄຊັນນີ້ພົບຂໍ້ຜິດພາດໃນລະຫວ່າງການຕິດຕັ້ງ. ຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>ເລີ່ມຄືນໃໝ່ PC ຂອງທ່ານເພື່ອສຳເລັດການຕິດຕັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC ຂອງທ່ານຈະຣີສະຕາດເພື່ອສໍາເລັດການຕິດຕັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>ການຕິດຕັ້ງລົ້ມເຫຼວ. ຣີສະຕາດ PC ຂອງທ່ານແລ້ວລອງອີກຄັ້ງ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>ທ່ານຍົກເລີກການຕິດຕັ້ງແລ້ວ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>ມີການຕິດຕັ້ງແອັບພລິເຄນີ້ຊັນເວີຊັນອື່ນແລ້ວ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>ມີການຕິດຕັ້ງເວີຊັນທີ່ສູງກວ່າຂອງແອັບພລິເຄຊັນນີ້ແລ້ວ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>ນະໂຍບາຍຂອງອົງການປ້ອງກັນການຕິດຕັ້ງ. ຕິດຕໍ່ຜູ້ເບິ່ງແຍງຂອງທ່ານ.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>ການຕິດຕັ້ງຖືກປ່ອຍຖີ້ມແລ້ວ</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>ຕົວຕິດຕັ້ງລົ້ມເຫຼວດ້ວຍລະຫັດອອກ:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>ບັນທຶກຕົວຕິດຕັ້ງແມ່ນມີຢູ່ທີ່:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>ແພັກເກດຕໍ່ໄປນີ້ໄດ້ຖືກພົບຢູ່ໃນບັນດາແຫຼ່ງທີ່ເຮັດວຽກ.
+ ກະລຸນາລະບຸອັນໃດນຶ່ງໃນນັ້ນໂດຍໃຊ້ຕົວເລືອກ `--source` ເພື່ອດໍາເນີນການຕໍ່ໄປ.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>ບໍ່ພົບແພັກເກັດໃນບັນດາແຫຼ່ງເຮັດວຽກ.</value>
   </data>
 </root>

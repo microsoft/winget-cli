@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>സജ്ജീകരണങ്ങൾ സാധൂകരിക്കുന്നതിൽ ഇനിപ്പറയുന്ന പരാജയങ്ങൾ കണ്ടെത്തി:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>ഡിഫോൾട്ട് JSON ടെക്സ്റ്റ് എഡിറ്ററിൽ ക്രമീകരണങ്ങൾ തുറക്കുക. എഡിറ്റർ കോൺഫിഗർ ചെയ്തിട്ടില്ലെങ്കിൽ, നോട്ട്പാഡിൽ ക്രമീകരണങ്ങൾ തുറക്കുന്നു. ലഭ്യമായ ക്രമീകരണങ്ങൾ ക്കായി https://aka.ms/winget-settings കാണുക. 'പ്രാപ്തമാക്കുക' അല്ലെങ്കിൽ 'അപ്രാപ്തമാക്കുക' എന്ന ആർഗ്യുമെന്‍റ് നൽകിക്കൊണ്ട് അഡ്മിനിസ്ട്രേറ്റർ ക്രമീകരണങ്ങൾ സജ്ജീകരിക്കാനും ഈ കമാൻഡ് ഉപയോഗിക്കാം</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>ക്രമീകരണങ്ങൾ തുറക്കുക അല്ലെങ്കിൽ അഡ്മിനിസ്ട്രേറ്റർ ക്രമീകരണങ്ങൾ സജ്ജീകരിക്കുക</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>സജ്ജീകരണങ്ങൾ ലോഡ് ചെയ്യുമ്പോഴുള്ള അപ്രതീക്ഷിത പിശക്. സജ്ജീകരണ കമാൻഡ് പ്രവർത്തിപ്പിച്ച് ദയവായി നിങ്ങളുടെ സജ്ജീകരണങ്ങൾ പരിശോധിക്കുക.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>നാമം</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ഐഡന്‍റിഫയർ</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>പേരുള്ള ഒരു ഉറവിടം കണ്ടെത്തിയില്ല:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>ഉറവിടത്തിന്റെ പേര്</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ഉറവിടം തുറക്കുന്നതിൽ പരാജയപ്പെട്ടു; പ്രശ്നം തുടരുന്നുവെങ്കിൽ 'source reset' കമാൻഡ് പരീക്ഷിക്കുക.</value>
+    <value>വിഭവം തുറക്കുമ്പോൾ പരാജയപ്പെട്ടു; പ്രശ്നം നിലനിൽക്കുന്നുവെങ്കിൽ 'source reset' കമാൻഡ് പരീക്ഷിക്കുക.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>ഒരു ഉറവിടം വ്യക്തമാക്കാതെ ഐച്ഛികപരമായ ശീർഷകം ബാധകമാകില്ല</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>റിലീസ് തീയതി:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>പ്രസാധക URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>പ്രസാധക പിന്തുണ URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>സ്വകാര്യതാ Url:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>പകര്‍പ്പവകാശം:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>പകര്‍പ്പവകാശ Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>പ്രകാശന കുറിപ്പുകള്‍:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>പ്രകാശന കുറിപ്പുകളുടെ Url:‍</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>വിഭവം തിരയുമ്പോൾ പരാജയപ്പെട്ടു; ഫലങ്ങൾ ഉൾപ്പെടുത്തില്ല:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>വിഭവം തിരയുമ്പോൾ പരാജയപ്പെട്ടു:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ഈ സവിശേഷത അഡ്മിനിസ്ട്രേറ്റർമാർ പ്രാപ്തമാക്കേണ്ടതുണ്ട്. അത് പ്രാപ്തമാക്കുന്നതിന്, അഡ്മിനിസ്ട്രേറ്റർ എന്ന നിലയിൽ 'winget settings --enable %1' റണ്‍ ചെയ്യുക.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>നിർദ്ദിഷ്ട അഡ്മിനിസ്ട്രേറ്റർ ക്രമീകരണം പ്രാപ്തമാക്കുന്നു</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>നിർദ്ദിഷ്ട അഡ്മിനിസ്ട്രേറ്റർ ക്രമീകരണം അപ്രാപ്തമാക്കുന്നു.</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>വളരെയധികം അഡ്‌മിൻ ക്രമീകരണ ആർഗ്യുമെന്റുകൾ നൽകിയിരിക്കുന്നു</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>അഡ്‌മിൻ ക്രമീകരണം പ്രാപ്തമാക്കി.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>അഡ്‌മിൻ ക്രമീകരണം അപ്രാപ്തമാക്കി.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>അപ്ലിക്കേഷൻ നിലവിൽ പ്രവർത്തിക്കുന്നു. അപ്ലിക്കേഷനിൽ നിന്ന് പുറത്തുകടക്കുക തുടർന്ന് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>മറ്റൊരു ഇൻസ്റ്റാളേഷൻ ഇതിനകം പുരോഗതിയിലാണ്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ഒന്നോ അതിലധികമോ ഫയലുകൾ ഉപയോഗിക്കുന്നു. അപ്ലിക്കേഷനിൽ നിന്ന് പുറത്തുകടക്കുക തുടർന്ന് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>നിങ്ങളുടെ സിസ്റ്റത്തിൽ നിന്ന് ഈ പാക്കേജിന് ഒരു ഡിപൻഡൻസി കാണുന്നില്ല.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>നിങ്ങളുടെ PC-യിൽ കൂടുതൽ ഇടമില്ല. ഇടം ഉണ്ടാക്കുക, തുടർന്ന് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യാൻ ആവശ്യമായ മെമ്മറി ലഭ്യമല്ല. മറ്റ് അപ്ലിക്കേഷനുകൾ അടയ്ക്കുക തുടർന്ന് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ഈ അപ്ലിക്കേഷന് ഇന്റർനെറ്റ് കണക്റ്റിവിറ്റി ആവശ്യമാണ്. ഒരു നെറ്റ്‌വർക്കിലേക്ക് കണക്റ്റ് ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യുന്ന സമയത്ത് ഈ അപ്ലിക്കേഷന് ഒരു പിശക് നേരിട്ടു. പിന്തുണയുമായി ബന്ധപ്പെടുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യുന്നത് പൂർത്തിയാക്കുന്നതിന് നിങ്ങളുടെ PC പുനഃരാരംഭിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യൽ പൂർത്തിയാക്കാൻ നിങ്ങളുടെ PC പുനരാരംഭിക്കും.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യൽ പരാജയപ്പെട്ടു. നിങ്ങളുടെ PC പുനരാരംഭിക്കുക തുടർന്ന് വീണ്ടും ശ്രമിക്കുക.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>നിങ്ങൾ ഇൻസ്റ്റാൾ ചെയ്യൽ റദ്ദാക്കി.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>ഈ അപ്ലിക്കേഷന്റെ മറ്റൊരു പതിപ്പ് ഇതിനകം ഇൻസ്റ്റാൾ ചെയ്തു.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>ഈ അപ്ലിക്കേഷന്റെ ഉയർന്ന പതിപ്പ് ഇതിനകം ഇൻസ്റ്റാൾ ചെയ്തു.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>ഓർഗനൈസേഷൻ നയങ്ങൾ ഇൻസ്റ്റാൾ ചെയ്യുന്നതിനെ തടയുന്നു. നിങ്ങളുടെ അഡ്മിനെ ബന്ധപ്പെടുക.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യൽ ഉപേക്ഷിച്ചു</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>പുറത്തുകടക്കൽ കോഡ് ഉപയോഗിച്ച് ഇൻസ്റ്റാളർ പരാജയപ്പെട്ടു:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>ഇൻസ്റ്റാളർ ലോഗ് ലഭ്യമായത്:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>ഇനിപ്പറയുന്ന പാക്കേജുകൾ പ്രവർത്തന വിഭവങ്ങളിൽ കണ്ടെത്തി.
+തുടരുന്നതിന് `--source` ഐച്ഛികം ഉപയോഗിച്ച് അവയിലൊന്ന് വ്യക്തമാക്കുക.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>പ്രവർത്തന വിഭവങ്ങൾക്കിടയിൽ പാക്കേജുകളൊന്നും കണ്ടെത്തിയില്ല.</value>
   </data>
 </root>

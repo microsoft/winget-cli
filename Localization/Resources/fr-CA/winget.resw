@@ -465,6 +465,12 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Les échecs suivants ont été constatés lors de la validation des paramètres :</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Ouvrez les paramètres dans l’éditeur de texte JSON par défaut. Si aucun éditeur n’est configuré, ouvre les paramètres dans le bloc-notes. Pour les paramètres disponibles, consultez https://aka.ms/winget-settings Cette commande peut également être utilisée pour définir les paramètres de l’administrateur en fournissant un argument 'enable' ou 'disable'.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Ouvrir les paramètres ou définir les paramètres d’administrateur</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erreur inattendue lors du chargement des paramètres. Veuillez vérifier vos paramètres en exécutant la commande settings.</value>
   </data>
@@ -538,6 +544,10 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
     <value>Nom</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identificateur</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Impossible de trouver une source portant le nom de:</value>
   </data>
@@ -564,7 +574,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
     <value>Nom de la source</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Impossible d’ouvrir la source; essayez la commande 'source reset' si le problème persiste.</value>
+    <value>Échec lors de l’ouverture de la ou des sources ; essayez la commande « source reset» si le problème persiste.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ La configuration est désactivée en raison de la Politique de groupe.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>L’en-tête facultatif n’est pas applicable sans spécifier une source</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Date de version :</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>ID de l’Editeur</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL de support de l’éditeur :</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL de confidentialité :</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright :</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL de droit d’auteur :</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Notes de publication :</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL des notes de publication :</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Échec lors de la recherche de la source ; les résultats ne seront pas inclus :</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Échec lors de la recherche de la source :</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Cette fonctionnalité doit être activée par les administrateurs. Pour l’activer, exécutez 'winget settings --enable %1' en tant qu’administrateur.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Active le paramètre d’administrateur spécifique</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Désactive le paramètre d’administrateur spécifique.</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Trop d’arguments de paramètre d’administration fournis</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Paramètre d’administration activé</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Paramètre d’administration désactivé</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>L'application est en cours d'exécution. Quittez l'application puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Une autre installation est déjà en cours. Veuillez réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Un ou plusieurs fichiers sont utilisés. Quittez l'application puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Ce paquet a une dépendance manquante sur votre système.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Votre PC n’a plus d’espace disponible. Libérez de l’espace, puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Mémoire disponible insuffisante pour l’installation. Fermez les autres applications, puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Cette application nécessite une connexion Internet. Connectez-vous à un réseau, puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Cette application a rencontré une erreur lors de l'installation. Contactez le support.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Redémarrez votre PC pour terminer l’installation.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Votre PC redémarrera pour terminer l’installation.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>L'installation a échoué. Redémarrez votre ordinateur personnel puis réessayez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>L’installation a été annulée par l’utilisateur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Une autre version de cette application est déjà installée.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Une version supérieure de cette application est déjà installée.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Les stratégies d’organisation empêchent l’installation. Contactez votre administrateur.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>L’installation a été abandonnée</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Nous n’avons pas pu effectuer la désinstallation avec le code de sortie :</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Le journal du programme d’installation est disponible à l’adresse suivante :</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Les paquets suivants ont été trouvés parmi les sources de travail.
+ Veuillez spécifier l'un d'entre eux en utilisant l'option `--source` pour continuer.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Aucun paquet n'a été trouvé parmi les sources de travail.</value>
   </data>
 </root>
