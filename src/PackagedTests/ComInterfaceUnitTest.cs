@@ -35,7 +35,7 @@ namespace PackagedUnitTests
         {
             PackageManager packageManager = new PackageManager();
             PackageCatalogReference catalogRef = packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsTrue(catalogRef.Info.Name.Equals("storepreview"));
+            Assert.IsTrue(catalogRef.Info.Name.Equals("msstore"));
         }
     }
 }
