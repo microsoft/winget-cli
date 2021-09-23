@@ -553,6 +553,16 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
         REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
         REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(localization1.Get<Localization::ReleaseNotes>() == "Release notes");
+            REQUIRE(localization1.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net");
+            REQUIRE(localization1.Get<Localization::Agreements>().size() == 1);
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+        }
     }
 }
 
