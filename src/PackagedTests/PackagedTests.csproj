@@ -87,6 +87,10 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="$(SolutionDir)$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment.Server.Test\Microsoft.Management.Deployment.Server.Test.dll">
+      <Link>%(RecursiveDir)Microsoft.Management.Deployment.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
@@ -106,6 +110,7 @@
     <ProjectReference Include="..\Microsoft.Management.Deployment.Client\Microsoft.Management.Deployment.Client.vcxproj">
       <Project>{4bc1f40b-36c2-4bbb-8306-76e490b13bbd}</Project>
       <Name>Microsoft.Management.Deployment.Client</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
