@@ -38,9 +38,12 @@ namespace AppInstaller::Manifest
             }
 
             // If there's better locale than default And is compatible with target locale, merge and return;
-            if (bestLocalization != nullptr && bestScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+            if (bestScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
             {
-                CurrentLocalization.ReplaceOrMergeWith(*bestLocalization);
+                if (bestLocalization != nullptr)
+                {
+                    CurrentLocalization.ReplaceOrMergeWith(*bestLocalization);
+                }
                 break;
             }
         }

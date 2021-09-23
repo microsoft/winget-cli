@@ -8,6 +8,6 @@ namespace AppInstaller::CLI::Workflow
     // Ensures that there is an applicable installer.
     // Required Args: None
     // Inputs: InstallerArgs, Installer, InstallerPath, Manifest
-    // Outputs: None
+    // Outputs: InstallerReturnCode
     void DirectMSIInstallImpl(Execution::Context& context);
 }

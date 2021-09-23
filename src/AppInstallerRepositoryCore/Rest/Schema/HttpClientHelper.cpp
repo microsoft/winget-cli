@@ -86,7 +86,9 @@ namespace AppInstaller::Repository::Rest::Schema
     std::optional<web::json::value> HttpClientHelper::ValidateAndExtractResponse(const web::http::http_response& response) const
     {
         AICLI_LOG(Repo, Info, << "Response status: " << response.status_code());
-        AICLI_LOG(Repo, Verbose, << "Response details: " << utility::conversions::to_utf8string(response.to_string()));
+        // Ensure that we wait for the content to be ready before we log it; otherwise it will be truncated.
+        AICLI_LOG_LARGE_STRING(Repo, Verbose, << "Response details:",
+            response.content_ready().then([&](const web::http::http_response&) { return utility::conversions::to_utf8string(response.to_string()); }).get());
 
         std::optional<web::json::value> result;
         switch (response.status_code())

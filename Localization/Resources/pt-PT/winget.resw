@@ -141,6 +141,9 @@
     <value>Estão disponíveis os seguintes subcomandos:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>atualizações disponíveis.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utilizar o canal especificado; a predefinição é a audiência geral</value>
   </data>
@@ -419,9 +422,6 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>A posição do cursor dentro da linha de comandos</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Pré-visualização</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Declaração de Privacidade</value>
   </data>
@@ -466,10 +466,10 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>As seguintes falhas foram encontradas ao validar as configurações:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Abre as definições no editor de texto json predefinido. Se nenhum editor estiver configurado, abre as configurações no bloco de notas. Para definições disponíveis, consulte https://aka.ms/winget-settings</value>
+    <value>Abra as definições no editor de texto JSON predefinido. Se nenhum editor estiver configurado, abra as definições no bloco de notas. Para as definições disponíveis, consulte https://aka.ms/winget-settings Este comando também pode ser utilizado para especificar definições de administrador ao fornecer o argumento "ativar" ou "desativar"</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Abrir definições</value>
+    <value>Abrir definições ou especificar as definições de administrador</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erro inesperado ao carregar as definições. Verifique as suas definições executando o comando definições.</value>
@@ -544,6 +544,10 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Nome</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identificador</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Não encontrou uma fonte nomeada:</value>
   </data>
@@ -570,7 +574,7 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Nome da origem</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Falha em abrir a fonte; tente o comando 'source reset' se o problema persistir.</value>
+    <value>Falha ao abrir a origem/origens. Experimente o comando "source reset" se o problema persistir.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@ A configuração está desativada devido à política de grupo.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>O valor fornecido para o argumento '%1' é inválido</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Os pacotes encontrados nesta importação têm as seguintes dependências:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Este pacote requer as seguintes dependências:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pacotes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Este pacote tinha dependências que podem já não ser necessárias:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>O manifesto tem as seguintes dependências que não foram validadas; certifique-se de que as mesmas são válidas:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Funcionalidades do Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotecas do Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Termos da Loja Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceitar todos os contratos de licença para pacotes</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>O pacote exportado requer o contrato de licença para instalar:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>O publicador requer que veja as informações acima e aceite os contratos antes de instalar.
+Concorda com os termos?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Os contratos de pacote não foram acordados. Operação cancelada.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acordos:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descrição:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalador:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Região:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ID do Produto da Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Transferir URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licença:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL da Licença:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Homepage:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versão:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Falha ao abrir a origem adicionada.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aceitar todos os contratos de origem durante as operações de origem</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>O código '%1' requer que veja os seguintes contratos antes de utilizar.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Concorda com todos os termos dos contratos de origem?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Um ou mais dos contratos de origem não foram concordou. Operação cancelada. Aceite os contratos de origem ou remova as origens correspondentes.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>A origem necessita da região geográfica da máquina atual para ser enviada para funcionar corretamente.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Instalado com êxito. Reinicie a aplicação para concluir a atualização.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Cabeçalho opcional HTTP de origem REST do Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>A ignorar o cabeçalho opcional, uma vez que não é aplicável a esta origem.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>O cabeçalho opcional não é aplicável sem especificar uma origem</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Data de Lançamento:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url do Publicador:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url do Suporte do Publicador:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL de Privacidade:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL do Copyright:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Notas de Lançamento:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL das Notas de Versão:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Falha ao procurar origem; os resultados não serão incluídos:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Falha ao procurar origem:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Esta funcionalidade tem de ser ativada pelos administradores. Para a ativar, execute "winget settings --enable %1" como administrador.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Ativa a definição específica de administrador</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Desativa a definição específica de administrador</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Foram fornecidos demasiados argumentos de definição de administrador</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Definição de administrador ativada.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Definição de administrador desativada.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>A aplicação está atualmente em execução. Saia da aplicação e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Já existe outra instalação em curso. Tente novamente mais tarde.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Estão a ser utilizados um ou mais ficheiros. Saia da aplicação e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Este pacote tem uma dependência em falta no sistema.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Não existe mais espaço no PC. Liberte espaço e, em seguida, tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Não existe memória suficiente disponível para instalar. Feche outras aplicações e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Esta aplicação necessita de conectividade Internet. Ligue-se a uma rede e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Esta aplicação encontrou um erro durante a instalação. Contacte o suporte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Reinicie o seu PC para concluir a instalação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>O PC será reiniciado para concluir a instalação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Falha na instalação. Reinicie o PC e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>A instalação foi cancelada por si.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Já está instalada outra versão desta aplicação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Já está instalada uma versão superior desta aplicação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>As políticas da organização estão a impedir a instalação. Contacte o seu administrador.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalação abandonada</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>O instalador falhou, com o código de saída:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>O registo do instalador está disponível em:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Foram encontrados os seguintes pacotes entre as origens de trabalho.
+Especifique um deles utilizando a opção '--source' para continuar.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Não foram encontrados pacotes entre as origens de trabalho.</value>
   </data>
 </root>

@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Workflow
     // Install is done through invoking ShellExecute on downloaded installer.
     // Required Args: None
     // Inputs: Manifest?, InstallerPath, InstallerArgs
-    // Outputs: None
+    // Outputs: InstallerReturnCode
     void ShellExecuteInstallImpl(Execution::Context& context);
 
     // Uninstall is done through invoking ShellExecute on uninstall string.

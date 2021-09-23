@@ -16,6 +16,7 @@ appmodel
 apps
 appx
 appxbundle
+appxbundles
 appxmanifest
 appxrecipe
 appxsdk
@@ -31,8 +32,6 @@ authz
 autocomplete
 auxdata
 azureedge
-bcp
-bcp47
 bcrypt
 binver
 Bitmask
@@ -52,6 +51,8 @@ cin
 cla
 CLSCTX
 cmake
+cmdlet
+cmdlets
 cmp
 CNG
 cnt
@@ -86,6 +87,7 @@ cwctype
 datatelemetry
 dbconn
 DBId
+debugbreak
 declspec
 decltype
 declval
@@ -166,6 +168,7 @@ gdi
 getline
 github
 githubusercontent
+globals
 hfile
 HGLOBAL
 HIDECANCEL
@@ -204,6 +207,7 @@ ILogger
 impl
 Inet
 inno
+INotify
 INPROC
 Inq
 installertype
@@ -215,6 +219,7 @@ INSTALLPATH
 INSTALLUILEVEL
 interop
 INVALIDARG
+IObservable
 iomanip
 iostream
 IOutput
@@ -312,9 +317,11 @@ nunit
 nupkg
 nuspec
 OAuth
+ODR
 ofstream
 opencode
 opensource
+openxmlformats
 ostream
 ostringstream
 OSVERSIONINFOEXW
@@ -337,6 +344,7 @@ pdbonly
 PEVENT
 pfp
 PGP
+php
 PII
 pipssource
 placeholders
@@ -373,7 +381,8 @@ realloc
 REALTIME
 REBOOTPROMPT
 Redistributable
-Refactor
+refactor
+refactored
 refactoring
 REFCLSID
 regex
@@ -387,6 +396,7 @@ RESOLVESOURCE
 RESTSOURCE
 resw
 resx
+rethrowing
 roadmap
 robuffer
 rowcount
@@ -411,6 +421,7 @@ SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
 setschemaversion
+setupexitcodes
 setvariable
 setw
 shcore
@@ -466,6 +477,7 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+strtoll
 subcontext
 SUBLANG
 subresource
@@ -542,6 +554,7 @@ URegular
 uri
 url
 urlmon
+USEREXIT
 userguide
 USERPROFILE
 usersources

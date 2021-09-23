@@ -55,6 +55,10 @@ namespace AppInstaller::CLI::Execution
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
         AgreementsAcceptedByCaller = 0x8,
+        // Allows a failure in a single source to generate a warning rather than an error.
+        // TODO: Remove when the source interface is refactored.
+        TreatSourceFailuresAsWarning = 0x10,
+        ShowSearchResultsOnPartialFailure = 0x20,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -128,8 +132,14 @@ namespace AppInstaller::CLI::Execution
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
-        virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
+        bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
+
+    protected:
+        // Neither virtual functions nor member fields can be inside AICLI_DISABLE_TEST_HOOKS
+        // or we could have ODR violations that lead to nasty bugs. So we will simply never
+        // use this if AICLI_DISABLE_TEST_HOOKS is defined.
+        std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
     private:
         DestructionToken m_disableCtrlHandlerOnExit = false;

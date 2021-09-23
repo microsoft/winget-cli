@@ -141,6 +141,9 @@
     <value>Die volgende subbevele is beskikbaar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>opgraderings beskikbaar.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Gebruik die gespesifiseerde kanaal; verstek is algemene gehoor</value>
   </data>
@@ -419,9 +422,6 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Die posisie van die wyser binne die bevelreël</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Voorskou</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privaatheidstelling</value>
   </data>
@@ -466,10 +466,10 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Die volgende falings is gevind met die validering van die instellings:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Maak instellings in die verstek-json-redigeerder oop. As geen redigeerder gekonfigureer is nie, maak instellings in notaboek oop. Vir beskikbare instellings, sien https://aka.ms/winget-settings</value>
+    <value>Maak instellings in die verstek-json-teksredigeerder oop. As geen redigeerder gekonfigureer is nie, maak instellings in notaboek oop. Vir beskikbare instellings, sien https://aka.ms/winget-settings Hierdie bevel kan ook gebruik word om administrateurinstellings te stel deur 'aktiveer' of 'deaktiveer'-argument te verskaf</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Maak instellings oop</value>
+    <value>Maak instellings oop of stel administrateurinstellings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Onverwagse fout tydens laai van instellings. Verifieer asseblief jou instellings deur die instellingsbevel te laat loop.</value>
@@ -544,6 +544,10 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Naam</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifiseerder</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Het nie ’n bron met hierdie naam gevind nie:</value>
   </data>
@@ -570,7 +574,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Naam van die bron</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kon nie die bron oopmaak nie; probeer die bevel 'source reset' as die probleem voortduur.</value>
+    <value>Kon nie die bron(ne) oopmaak nie; probeer die bevel 'source reset' as die probleem voortduur.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ Konfigurasie is gedeaktiveer as gevolg van Groepsbeleid.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Die waarde vir die argument `%1` is ongeldig</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Gekanselleer</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ekstern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Die pakkette wat in hierdie invoer gevind word, het die volgende afhanklikhede:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Hierdie pakket vereis die volgende afhanklikhede:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakkette</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Hierdie pakket het afhanklikhede gehad wat dalk nie meer benodig word nie:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifes het die volgende afhanklikhede wat nie valideer is nie; verseker dat hulle geldig is:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-kenmerke</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-biblioteke</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store-bepalings</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aanvaar alle lisensie-ooreenkomste vir pakkette</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Uitgevoerde pakket vereis lisensie-ooreenkoms om te installeer:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Die uitgewer vereis dat jy die bogenoemde inligting bekyk en die ooreenkomste aanvaar voordat jy dit installeer.
+Stem jy in tot die bepalings?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Pakketooreenkomste is nie tot ingestem nie. Bewerking is gekanselleer.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Ooreenkomste:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Outeur:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beskrywing:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installeerder:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Lokaliteit:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Winkelproduk-ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipe:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Aflaai-URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisensie:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lisensie-URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Bynaam:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Tuisblad:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Uitgewer:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Weergawe:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nee</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Kon nie die bygevoegde bron oopmaak nie.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Aanvaar alle bronooreenkomste gedurende bronbewerkings</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Die '%1'-bron vereis dat jy die volgende ooreenkomste bekyk voordat jy dit gebruik.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Stem jy in tot al die bronooreenkomste se bepalings?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Een of meer van die bronooreenkomste is nie tot ingestem nie. Bewerking is gekanselleer. Aanvaar asseblief die bronooreenkomste of verwyder die ooreenstemmende bronne.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Die bron vereis dat huidige masjien se geografiese streek gestuur word om behoorlik te funksioneer.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Suksesvol geïnstalleer. Herbegin die toepassing om die opgradering te voltooi.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Opsionele Windows-Package-Manager REST-bron HTTP-loopkop</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignoreer tans die opsionele loopkop, want dit is nie van toepassing vir hierdie bron nie.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Die opsionele opskrif is nie van toepassing sonder om 'n bron te spesifiseer nie</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Vrystellingsdatum:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Uitgewer-URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Uitgewersondersteuning-URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Privaatheid-URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Kopiereg:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Kopiereg-URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Vrystellingsnotas:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Vrystellingsnotas-URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Kon nie bron deursoek nie; resultate sal nie ingesluit word nie:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Kon nie bron deursoek nie:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Hierdie kenmerk moet deur administrateurs geaktiveer word. Om dit te aktiveer, laat loop 'winget settings --enable %1' as administrateur.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiveer die spesifieke administrateurinstelling</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deaktiveer die spesifieke administrateurinstelling</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Te veel admininstellingsargumente verskaf</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Admininstelling geaktiveer.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Admininstelling gedeaktiveer.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Toepassing loop tans. Verlaat die toepassing en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>’n Ander installering is reeds aan die gang. Probeer later weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Een of meer lêers word tans gebruik. Verlaat die toepassing en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Hierdie pakket het ’n afhanklikheid wat van jou stelsel ontbreek.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Daar is nie meer spasie op jou rekenaar nie. Maak spasie en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Daar is nie genoeg geheue beskikbaar om te installeer nie. Sluit ander toepassings en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Hierdie toepassing vereis internetkonnektiwiteit. Koppel aan ’n netwerk en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Hierdie toepassing het ’n fout tydens installering teëgekom. Kontak bystand.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Herbegin jou rekenaar om installering te voltooi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Jou rekenaar sal herbegin om installering te voltooi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installering het misluk. Herbegin jou rekenaar en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Jy het die installering gekanselleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>’n Ander weergawe van hierdie toepassing is reeds geïnstalleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>’n Hoër weergawe van hierdie toepassing is reeds geïnstalleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisasiebeleide verhoed tans installering. Kontak jou administrateur.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installering is gestaak</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installeerder het misluk met verlaatkode:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installeerderlog is beskikbaar by:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Die volgende pakkette is onder die werksbronne gevind.
+Spesifiseer asseblief een van hulle deur die '--source'-opsie te gebruik om voort te gaan.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Geen pakkette is onder die werksbronne gevind nie.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Dit is ’n stabiele vrystelling van die Windows Package Manager. As jy eksperimentele kenmerke wil probeer, installeer asseblief ’n vooraf vrygestelde bouweergawe. Instruksies is op GitHub beskikbaar by https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

@@ -66,8 +66,12 @@ namespace AppInstaller::Utility
     // Apply Mark of the web if the target file is on NTFS, otherwise does nothing.
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath, URLZONE zone);
 
+    // Remove Mark of the web if the target file is on NTFS, otherwise does nothing.
+    void RemoveMotwIfApplicable(const std::filesystem::path& filePath);
+
     // Apply Mark of the web using IAttachmentExecute::Save if the target file is on NTFS, otherwise does nothing.
     // This method only does a best effort since Attachment Execution Service may be disabled.
     // If IAttachmentExecute::Save is successfully invoked and the scan failed, the failure HRESULT is returned.
-    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source);
+    // zoneIfScanFailure: URLZONE to apply if IAttachmentExecute::Save scan failed.
+    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure);
 }

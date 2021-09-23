@@ -68,9 +68,12 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ExecuteInternal(Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         context <<
             Workflow::OpenSource <<
             Workflow::SearchSourceForMany <<
+            Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(false) <<
             Workflow::ReportSearchResult;
     }

@@ -141,6 +141,9 @@
     <value>பின்வரும் துணைக்கட்டளைகள் உள்ளன:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>மேம்படுத்தல்கள் கிடைக்கின்றன.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>குறிப்பிடப்பட்ட சேனலைப் பயன்படுத்தவும்; இயல்புநிலையில் பொதுவான பார்வையாளர்கள்</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>கட்டளை வரியினுள்ளான கர்சரின் நிலை</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>முன்னோட்டம்</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>தனியுரிமை அறிக்கை</value>
   </data>
@@ -466,10 +466,10 @@
     <value>அமைப்புகளை சரிபார்க்க பின்வரும் தோல்விகள் கண்டறியப்பட்டன:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>இயல்புநிலை json உரை திருத்தியில் அமைப்புகளைத் திறக்கவும். எந்த எடிட்டரும் உள்ளமைக்கப்படவில்லை என்றால், நோட்பேடில் அமைப்புகளைத் திறக்கும். கிடைக்கக்கூடிய அமைப்புகளுக்கு https://aka.ms/winget-settings ஐப் பார்க்கவும்</value>
+    <value>இயல்புநிலை json உரை எடிட்டரில் அமைப்புகளைத் திறக்கவும். எடிட்டர் எதுவும் கட்டமைக்கப்படவில்லை என்றால், நோட்பேடில் அமைப்புகளைத் திறக்கும். கிடைக்கக்கூடிய அமைப்புகளுக்கு, https://aka.ms/winget-settings என்ற இணைப்பைப் பார்க்கவும். இந்தக் கட்டளையானது 'இயக்கு' அல்லது 'முடக்கு' வாதத்தை வழங்குவதன் மூலம் நிர்வாகி அமைப்புகளை அமைக்கப் பயன்படும்</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>அமைப்புகளைத் திற</value>
+    <value>அமைப்புகளைத் திறக்கவும் அல்லது நிர்வாகி அமைப்புகளை அமைக்கவும்</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>அமைப்புகளை ஏற்றும்போது எதிர்பாராத பிழை ஏற்பட்டது. அமைப்புகள் கட்டளையை இயக்குவதன் மூலம் உங்கள் அமைப்புகளை சரிபார்க்கவும்.</value>
@@ -544,6 +544,10 @@
     <value>பெயர்</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>அடையாளங்காட்டி</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>இந்தப் பெயரிடப்பட்ட மூலத்தைக் கண்டறியவில்லை:</value>
   </data>
@@ -570,7 +574,7 @@
     <value>மூலத்தின் பெயர்</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>மூலத்தைத் திறக்கமுடியவில்லை; சிக்கல் தொடர்ந்தால் ‘source reset’ கட்டளையைப் பயன்படுத்திப் பார்க்கவும்.</value>
+    <value>மூலத்தை(களைத்) திறக்கும்போது தோல்வியுற்றது; சிக்கல் தொடர்ந்தால் 'source reset' என்ற கட்டளையை முயலவும்.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -921,5 +925,249 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>`%1` வாதத்திற்கு வழங்கப்பட்ட மதிப்பு தவறானது</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ரத்துசெய்யப்பட்டது</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>வெளிப்புறம்</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>இந்த இறக்குமதியில் காணப்படும் தொகுப்புகள் பின்வரும் சார்புகளைக் கொண்டுள்ளன:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>இந்த தொகுப்புக்குப் பின்வரும் சார்புகள் தேவை:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>தொகுப்புகள்</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>இந்தத் தொகுப்பு இனி தேவைப்படாத சார்புகளைக் கொண்டிருந்தது:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>பயன்பாட்டுத் தோற்றம் சரிபார்க்கப்படாத பின்வரும் சார்புகளைக் கொண்டு உள்ளது; அவை செல்லுபடியாகும் என்பதை உறுதிப்படுத்தவும்:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows அம்சங்கள்</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows நூலகங்கள்</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Microsoft Store விதிமுறைகள்</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>தொகுப்புகளுக்கான அனைத்து உரிம ஒப்பந்தங்களையும் ஏற்றுக்கொள்ளுங்கள்</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ஏற்றுமதி செய்யப்பட்ட தொகுப்பை நிறுவ உரிமம் ஒப்பந்தம் தேவைப்படுகிறது:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>நீங்கள் மேலே உள்ள தகவலைப் பார்க்க வேண்டும் மற்றும் நிறுவுவதற்கு முன் ஒப்பந்தங்களை ஏற்க வேண்டும் என்பது வெளியீட்டாளருக்குத் தேவை.
+நீங்கள் விதிமுறைகளை ஏற்றுக்கொள்கிறீர்களா?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>தொகுப்பு உடன்படிக்கைகள் உடன்படவில்லை. இயக்கம் ரத்துசெய்யப்பட்டது.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>உடன்படிக்கைகள்:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>எழுத்தாளர்:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>விளக்கம்:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>நிறுவி:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>உள்ளிடம்:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store தயாரிப்பு ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>வகை:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL-ஐப் பதிவிறக்கு:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>உரிமம்:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>உரிம URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>இணைப்புப் பாதை:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>முகப்புப்பக்கம்:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>வெளியீட்டாளர்:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>பதிப்பு:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>இல்லை</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>ஆம்</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>சேர்க்கப்பட்ட மூலத்தைத் திறப்பதில் தோல்வி அடைந்தது.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>மூல நடவடிக்கைகளின் போது அனைத்து மூல ஒப்பந்தங்களையும் ஏற்றுக்கொள்ளுங்கள்</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>பயன்படுத்துவதற்கு முன் பின்வரும் ஒப்பந்தங்களை நீங்கள் பார்க்க வேண்டும் என்று '%1' ஆதாரம் கோருகிறது.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>அனைத்து மூல ஒப்பந்த விதிமுறைகளையும் நீங்கள் ஏற்றுக்கொள்கிறீர்களா?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>ஒன்று அல்லது அதற்கு மேற்பட்ட மூல ஒப்பந்தங்கள் ஒப்புக் கொள்ளப்படவில்லை. இயக்கம் ரத்துசெய்யப்பட்டது. மூல ஒப்பந்தங்களை ஏற்றுக்கொள்ளுங்கள் அல்லது தொடர்புடைய ஆதாரங்களை அகற்றவும்.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ஆதாரத்திற்கு தற்போதைய இயந்திரத்தின் புவியியல் வட்டாரம் சரியாக செயல்பட அனுப்பப்பட வேண்டும் என்று கோருகிறது.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>வெற்றிகரமாக நிறுவப்பட்டது. மேம்படுத்தலை நிறைவேற்ற பயன்பாட்டை மறுதொடக்கம் செய்யவும்.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>விருப்ப Windows-தொகுப்பு-மேலாளர் ஓய்வு மூல HTTP தலைப்பு</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>இந்த மூலத்திற்கு இது பொருந்தாது என்பதால் விருப்பத் தலைப்பைப் புறக்கணித்தல்.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>ஒரு மூலத்தைக் குறிப்பிடாமல் விருப்பத்தலைப்பு பொருந்தாது</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>வெளியீட்டுத் தேதி:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>வெளியீட்டாளர் URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>வெளியீட்டாளர் ஆதரவு URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>தனியுரிமை URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>பதிப்புரிமை:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>பதிப்புரிமை URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>வெளியீட்டுக் குறிப்புகள்:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>வெளியீட்டுக் குறிப்புகள் URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>மூலத்தைத் தேடும்போது தோல்வியுற்றது; முடிவுகள் சேர்க்கப்படாது:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>மூலத்தைத் தேடும்போது தோல்வியுற்றது:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>இந்த அம்சத்தை நிர்வாகிகளாகச் செயல்படுத்த வேண்டும். அதை இயக்க, 'winget settings --enable %1' என்பதை நிர்வாகியாக இயக்கவும்.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>குறிப்பிட்ட நிர்வாகி அமைப்பை இயக்குகிறது</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>குறிப்பிட்ட நிர்வாகி அமைப்பை முடக்குகிறது</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>பல நிர்வாக அமைப்புகளின் வாதங்கள் வழங்கப்பட்டன</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>நிர்வாக அமைப்பு செயல்படுத்தப்பட்டது.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>நிர்வாகி அமைப்பு முடக்கப்பட்டது.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>பயன்பாடு தற்போது இயங்குகிறது. பயன்பாட்டை விட்டு வெளியேறவும், பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>மற்றொரு நிறுவல் ஏற்கனவே செயல்பாட்டில் உள்ளது. பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ஒன்று அல்லது அதற்கு மேற்பட்ட கோப்புகள் பயன்படுத்தப்படுகின்றன. பயன்பாட்டை விட்டு வெளியேறவும், பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>இந்தத் தொகுப்பு உங்கள் கணினியில் இருந்து ஒரு சார்பைக் காணவில்லை.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>உங்கள் கணினியில் இனி இடம் இல்லை. இடத்தை உருவாக்குங்கள், பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>நிறுவலுக்குப் போதுமான சேமிப்பகம் இல்லை. மற்ற பயன்பாடுகளை மூடிவிட்டு பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>இந்தப் பயன்பாட்டிற்கு இணைய இணைப்பு தேவைப்படுகிறது. பிணையத்துடன் இணைத்து, பின்னர் மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>இந்தப் பயன்பாடு நிறுவலின்போது ஒரு பிழை ஏற்பட்டது. ஆதரவைத் தொடர்பு கொள்ளவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>நிறுவலை முடிக்க உங்கள் கணினியை மீண்டும் தொடங்கவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>நிறுவலை முடிக்க உங்கள் கணினி மீண்டும் தொடங்கும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>நிறுவல் தோல்வியுற்றது. உங்கள் கணினியை மறுதொடக்கம் செய்து மீண்டும் முயலவும்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>நிறுவலை ரத்து செய்தீர்கள்.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>இந்தப் பயன்பாட்டின் மற்றொரு பதிப்பு ஏற்கனவே நிறுவப்பட்டுள்ளது.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>இந்தப் பயன்பாட்டின் உயர் பதிப்பு ஏற்கனவே நிறுவப்பட்டுள்ளது.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>நிறுவனக் கொள்கைகள் நிறுவலைத் தடுக்கின்றன. உங்கள் நிர்வாகியைத் தொடர்பு கொள்ளவும்.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>நிறுவல் கைவிடப்பட்டது</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>வெளியேறு குறியீட்டுடன் நிறுவல் தோல்வியடைந்தது:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>நிறுவுனர் பதிவு கிடைக்கமிடம்:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>பின்வரும் தொகுப்புகள் வேலை மூலங்களில் கண்டுபிடிக்கப்பட்டன. 
+தொடர, '--source' என்ற விருப்பத்தைப் பயன்படுத்தி அவற்றில் ஒன்றைக் குறிப்பிடவும்.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>வேலை செய்யும் ஆதாரங்களில் எந்தத் தொகுப்புகளும் கண்டுபிடிக்கப்படவில்லை.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>இது Windows Package Manager-ன் நிலையான வெளியீடு. நீங்கள் சோதனை அம்சங்களை முயற்சிக்க விரும்பினால், தயவுசெய்து வெளியீட்டுக்கு முந்தைய கட்டத்தை நிறுவவும். GitHub இல் https://github.com/microsoft/winget-cli இல் வழிமுறைகள் கிடைக்கின்றன.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

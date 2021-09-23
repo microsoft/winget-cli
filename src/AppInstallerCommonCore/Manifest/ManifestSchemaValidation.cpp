@@ -18,13 +18,18 @@ namespace AppInstaller::Manifest::YamlParser
         enum class YamlScalarType
         {
             String,
-            Int
+            Int,
+            Bool
         };
 
         // List of fields that use non string scalar types
         const std::map<std::string_view, YamlScalarType> ManifestFieldTypes=
         {
-            { "InstallerSuccessCodes"sv, YamlScalarType::Int }
+            { "InstallerSuccessCodes"sv, YamlScalarType::Int },
+            { "InstallerAbortsTerminal"sv, YamlScalarType::Bool },
+            { "InstallLocationRequired"sv, YamlScalarType::Bool },
+            { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
+            { "InstallerReturnCode"sv, YamlScalarType::Int },
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)
@@ -43,6 +48,10 @@ namespace AppInstaller::Manifest::YamlParser
             if (scalarType == YamlScalarType::Int)
             {
                 return Json::Value(scalarNode.as<int>());
+            }
+            else if (scalarType == YamlScalarType::Bool)
+            {
+                return Json::Value(scalarNode.as<bool>());
             }
             else
             {

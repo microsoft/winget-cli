@@ -24,6 +24,19 @@ namespace AppInstaller::Logging
         // Just eat any exceptions here; better to lose logs than functionality
     }
 
+    void TraceLogger::WriteDirect(std::string_view message) noexcept try
+    {
+        TraceLoggingWriteActivity(g_hTraceProvider,
+            "Diagnostics",
+            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
+            nullptr,
+            TraceLoggingCountedUtf8String(message.data(), static_cast<ULONG>(message.size()), "LogMessage"));
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better to lose logs than functionality
+    }
+
     std::string TraceLogger::GetName() const
     {
         return "Trace";
