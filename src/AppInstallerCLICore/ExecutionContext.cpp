@@ -211,4 +211,10 @@ namespace AppInstaller::CLI::Execution
         return m_threadGlobals;
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool Context::ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task)
+    {
+        return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
+    }
+#endif
 }
