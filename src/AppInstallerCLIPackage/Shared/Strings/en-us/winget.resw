@@ -1182,6 +1182,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>This is a stable release of the Windows Package Manager. If you would like to try experimental features, please install a pre-release build. Instructions are available on GitHub at https://github.com/microsoft/winget-cli.</value>
-    <comment>{Locked="Windows Package Manager","GitHub","https://github.com/microsoft/winget-cli"}</comment>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Windows Package Manager</value>
   </data>
 </root>
