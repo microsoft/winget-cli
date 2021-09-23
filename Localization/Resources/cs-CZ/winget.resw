@@ -465,6 +465,12 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Byly nalezeny následující chyby ověření nastavení:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Otevře nastavení ve výchozím textovém editoru JSON. Pokud není nakonfigurovaný žádný editor, otevře nastavení v poznámkovém bloku. Dostupná nastavení najdete https://aka.ms/winget-settings Tento příkaz se dá použít i k nastavení správce zadáním argumentu 'enable' nebo 'disable'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Otevřít nastavení nebo nastavit nastavení správce</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Při načítání nastavení došlo k neočekávané chybě. Zkontrolujte nastavení spuštěním příkazu nastavení.</value>
   </data>
@@ -538,6 +544,10 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Název</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikátor</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nenašel se zdroj s názvem:</value>
   </data>
@@ -564,7 +574,7 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Název zdroje</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Nepovedlo se otevřít zdroj. Pokud potíže přetrvávají, zkuste příkaz „source reset“.</value>
+    <value>Při otevírání zdrojů došlo k selhání. Pokud potíže přetrvávají, zkuste příkaz „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Souhlasíte s podmínkami?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Volitelná hlavička se nedá použít bez zadání zdroje.</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Datum vydání:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL vydavatele:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Adresa URL podpory vydavatele:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Adresa URL informací o ochraně osobních údajů:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Autorská práva:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Adresa URL autorských práv:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Poznámky k verzi:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Adresa URL poznámek k verzi:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Při prohledávání zdroje došlo k selhání a výsledky nebudou zahrnuty:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Při prohledávání zdroje došlo k selhání:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Tuto funkci musí povolit správci. Pokud ho chcete povolit, spusťte 'winget settings --enable %1' jako správce.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Povolí konkrétní nastavení správce</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Zakáže konkrétní nastavení správce</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Bylo zadáno příliš mnoho argumentů nastavení správce</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Nastavení správce je povolené.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Nastavení správce je zakázané.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikace je aktuálně spuštěna. Ukončete aplikaci a zkuste to znovu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Už probíhá jiná instalace. Zkuste to prosím znovu později.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Je používán jeden nebo více souborů. Ukončete aplikaci a zkuste to znovu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Tento balíček má závislost, která ve vašem systému chybí.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Na vašem počítači už není žádné další místo. Uvolněte místo a zkuste to znovu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Není k dispozici dostatek paměti aby bylo možné provést instalaci. Ukončete ostatní aplikace a akci opakujte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Tato aplikace vyžaduje připojení k internetu. Připojte se k síti a zkuste to znovu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Tato aplikace zjistila chybu během instalace. Obraťte se na podporu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Instalaci dokončíte restartováním počítače.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Počítač se restartuje, aby se dokončila instalace.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Instalace se nezdařila. Restartujte počítač a zkuste to znovu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Zrušili jste instalaci.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Už je nainstalovaná jiná verze této aplikace.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Už je nainstalovaná vyšší verze této aplikace.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Zásady organizace brání instalaci. Obraťte se na správce.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Odinstalace byla opuštěna</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Odinstalace selhala s ukončovacím kódem:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Protokol instalačního programu je k dispozici na adrese:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Mezi pracovními zdroji byly nalezeny následující balíčky.
+Pokud chcete pokračovat, zadejte prosím jeden z nich pomocí možnosti „--source“.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Mezi pracovními zdroji se nenašly žádné balíčky.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Toto je stabilní verze Windows Package Manager. Pokud chcete vyzkoušet experimentální funkce, nainstalujte si prosím předběžný build. Pokyny jsou k dispozici na GitHub na https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

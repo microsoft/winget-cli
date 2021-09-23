@@ -465,6 +465,12 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>As seguintes falhas foram encontradas ao validar as configurações:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Abra as configurações no editor de texto json padrão. Se nenhum editor estiver configurado, abra as configurações no bloco de notas. Para configurações disponíveis, consulte https://aka.ms/winget-settings Este comando também pode ser usado para definir as configurações do administrador, fornecendo o argumento 'habilitar' ou 'desabilitar'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Abra as configurações ou defina as configurações do administrador</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erro inesperado ao carregar as configurações. Verifique suas configurações executando o comando configurações.</value>
   </data>
@@ -538,6 +544,10 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Nome</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identificador</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Não foi encontrada uma fonte chamada:</value>
   </data>
@@ -564,7 +574,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Nome da fonte</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Falha ao abrir a fonte; Tente usar o comando 'source reset' se o problema persistir.</value>
+    <value>Falha ao abrir a origem(s); tentar o comando 'source reset' se o problema persistir.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Você concorda com os termos?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>O cabeçalho opcional não é aplicável sem especificar uma fonte</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Data do Lançamento:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL do Fornecedor:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL de Suporte do Fornecedor:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL de Privacidade:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Notas de Versão</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL de Notas de Versão:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Falha ao pesquisar origem; os resultados não serão incluídos:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Falha na pesquisa da origem:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Este recurso precisa ser habilitado pelos administradores. Para habilita-lo, execute 'winget settings --enable %1' como administrador.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Habilitar a configuração específica do administrador</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Desabilitar a configuração específica do administrador</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Muitos argumentos de configuração do administrador fornecidos</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Configuração do administrador habilitada.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Configuração do administrador desabilitada.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>O aplicativo está em execução no momento. Saia do aplicativo e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Outra instalação já está em andamento. Tente novamente mais tarde.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Um ou mais arquivos estão sendo usados. Saia do aplicativo e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Este pacote tem uma dependência ausente do sistema.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Não há mais espaço no computador. Libere espaço e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Não há memória suficiente disponível para instalar. Fechar outros aplicativos e depois tentar novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Este aplicativo requer conectividade com a Internet. Conecte-se a uma rede e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Este aplicativo encontrou um erro durante a instalação. Entre em contato com o suporte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Reiniciar seu PC para terminar a instalação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Seu PC será reiniciado para terminar a instalação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Falha na instalação. Reinicie o computador e tente novamente.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Você cancelou a instalação.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Outra versão deste aplicativo já está instalada.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Uma versão superior deste aplicativo já está instalada.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>As políticas da organização estão impedindo a instalação. Entre em contato com o administrador.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalação abandonada</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>O instalador falhou com o código de saída:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>O registro do instalador está disponível em:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Os seguintes pacotes foram encontrados entre as fontes de trabalho.
+Especifique um deles usando a opção '--source' para continuar.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Nenhum pacote foi encontrado entre as fontes de trabalho.</value>
   </data>
 </root>

@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>설정의 유효성을 확인하는 동안 다음 오류가 발견되었습니다.</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>기본 json 텍스트 편집기에서 설정을 엽니다. 편집기를 구성하지 않은 경우 메모장에서 설정을 엽니다. 사용 가능한 설정은 https://aka.ms/winget-settings를 참조하세요. 이 명령은 '사용' 또는 '사용 안 함' 인수를 제공하여 관리자 설정을 설정하는 데도 사용할 수 있습니다.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>설정 열기 또는 관리자 설정 설정</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>설정을 로드하는 동안 예기치 않은 오류가 발생했습니다. 설정 명령을 실행하여 설정을 확인하십시오.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>이름</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>식별자</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>다음 이름의 원본을 찾지 못했습니다.</value>
   </data>
@@ -564,7 +574,7 @@
     <value>원본의 이름</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>원본을 열지 못했습니다. 문제가 계속되면 'source reset' 명령을 시도하십시오.</value>
+    <value>소스를 열 때 실패했습니다. 문제가 계속되면 'source reset' 명령을 사용해 보십시오.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>원본을 지정하지 않으면 선택적 헤더를 적용할 수 없습니다.</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>릴리스 날짜:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>게시자 URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>게시자 지원 URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>개인 정보 URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>저작권:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>저작권 URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>릴리스 정보:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>릴리스 정보 URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>원본을 검색하는 동안 실패했습니다. 결과가 포함되지 않습니다.</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>원본을 검색하는 동안 실패함:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>관리자가 이 기능을 사용하도록 설정해야 합니다. 사용하도록 설정하려면 관리자 권한으로 'winget settings --enable %1' 실행하세요.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>특정 관리자 설정을 사용하도록 설정합니다.</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>특정 관리자 설정을 사용하지 않도록 설정합니다.</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>제공된 관리자 설정 인수가 너무 많습니다.</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>관리자 설정을 사용하도록 설정했습니다.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>관리자 설정을 사용할 수 없습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>응용 프로그램이 현재 실행 중입니다. 애플리케이션을 종료한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>다른 설치가 이미 진행 중입니다. 나중에 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>하나 이상의 파일을 사용하고 있습니다. 애플리케이션을 종료한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>이 패키지에 시스템에 종속성이 없습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>PC에 더 이상 공간이 없습니다. 공간을 확보한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>설치할 수 있는 메모리가 부족합니다. 다른 애플리케이션을 닫은 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>이 응용 프로그램을 사용하려면 인터넷에 연결해야 합니다. 네트워크에 연결한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>설치하는 동안 이 응용 프로그램에 오류가 발생했습니다. 고객 지원에 문의하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>PC를 다시 시작하여 설치를 완료합니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>설치를 마치기 위해 PC가 다시 시작됩니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>설치하지 못했습니다. PC를 다시 시작한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>설치를 취소했습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>이 응용 프로그램의 다른 버전이 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>이 응용 프로그램의 상위 버전이 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>조직 정책으로 인해 설치할 수 없습니다. 관리자에게 문의하세요.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>설치 중단됨</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>설치 관리자가 종료 코드로 인해 실패했습니다.</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>설치 관리자 로그는 다음 위치에서 사용할 수 있습니다.</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>다음 패키지가 작업 원본에서 발견되었습니다.
+계속하려면 '--source' 옵션을 사용하여 둘 중 하나를 지정하세요.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>작업 원본 중 패키지를 찾을 수 없습니다.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>이 릴리스는 안정적인 Windows Package Manager 릴리스입니다. 실험적 기능을 사용해 보려면 시험판 빌드를 설치하세요. 지침은 GitHub(https://github.com/microsoft/winget-cli)에서 확인할 수 있습니다.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

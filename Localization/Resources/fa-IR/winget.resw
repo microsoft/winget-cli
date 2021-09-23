@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>عیب‌های زیر هنگام تأیید اعتبار تنظیمات یافت شد:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>تنظیمات را در ویرایشگر متن پیش‌فرض json باز کنید. اگر هیچ ویرایشگری پیکربندی نشده است، تنظیمات را در Notepad باز می‌کند. برای تنظیمات موجود به https://aka.ms/winget-settings مراجعه کنید، این دستور همچنین می‌تواند برای ارائه تنظیمات سرپرست با ارائه آرگومان «فعال» یا «غیر فعال» استفاده شود.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>تنظیمات را باز کنید یا تنظیمات سرپرست را تنظیم کنید</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>هنگام بارگیری تنظیمات، خطای غیرمنتظره‌ای رخ داد. لطفاً تنظیمات خود را با اجرای فرمان تنظیمات تأیید کنید.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>نام</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>شناساگر</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>منبعی به این نام را پیدا نکرد:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>نام منبع است</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>منبع باز نشد؛ در صورت ادامه مشکل، دستور 'source reset' را امتحان کنید.</value>
+    <value>هنگام باز کردن منبع/منابع موفقیت‌آمیز نبود؛ در صورت ادامه مشکل، فرمان «source reset» را امتحان کنید.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>سرصفحه اختیاری بدون تعیین منبع قابل اجرا نیست</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>تاریخ انتشار:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>آدرس وب ناشر:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>آدرس وب پشتیبانی ناشر:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>نشانی اینترنتی حریم خصوصی:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>حق نسخه‌برداری:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>نشانی اینترنتی حق تکثیر:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>یادداشت‌های انتشار:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>نشانی اینترنتی یادداشت‌های انتشار:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>هنگام جستجوی منبع موفقیت‌آمیز نبود؛ نتایج لحاظ نمی‌شوند:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>هنگام جستجوی منبع موفقیت‌آمیز نبود:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>این ویژگی باید توسط سرپرست‌ها فعال شود. برای فعال کردن آن، «winget settings --enable %1» را به عنوان سرپرست اجرا کنید.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>تنظیمات سرپرست خاص را فعال می‌کند</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>تنظیمات سرپرست خاص را غیرفعال می‌کند</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>تعداد زیادی آرگومان تنظیم سرپرست ارائه شده است</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>تنظیمات سرپرست فعال شد.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>تنظیمات سرپرست غیرفعال شد.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>برنامه در حال حاضر اجرا نمی‌شود. از برنامه خارج شوید و دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>فرآیند نصب دیگری از قبل در حال انجام است. بعداً دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>یک یا چند فایل در حال استفاده است. از برنامه خارج شوید سپس دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>این بسته دارای یک وابستگی است در سیستم شما وجود ندارد.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>فضای خالی در رایانه شما وجود ندارد. فضا آزاد کنید، سپس دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>حافظه کافی برای نصب وجود ندارد. برنامه‌های دیگر را ببندید و دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>این برنامه نیاز به اتصال به اینترنت دارد. به یک شبکه متصل شوید، سپس دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>این برنامه در حین نصب با خطایی مواجه شد. با مرکز پشتیبانی تماس بگیرید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>برای پایان فرآیند نصب، باید رایانه را مجدداً راه‌اندازی کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>رایانه شما برای پایان نصب مجدداً راه‌اندازی خواهد شد.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>نصب انجام نشد. پس از راه‌اندازی مجدد رایانه خود، دوباره امتحان کنید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>شما فرآیند نصب را لغو کردید.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>نسخه دیگری از این برنامه قبلاً نصب شده است.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>نسخه بالاتری از این برنامه قبلاً نصب شده است.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>خط مشی‌های سازمان مانع از نصب می‌شود. با سرپرستتان تماس بگیرید.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>فرآیند نصب ترک شد</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>نصب‌کننده با کد خروج انجام نشد:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>گزارش وقایع نصب‌کننده اینجا در دسترس است:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>بسته‌های زیر در میان منابع کاری یافت شد.
+برای ادامه، لطفاً یکی از آنها را با استفاده از گزینه «--source» مشخص کنید.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>هیچ بسته‌ای در میان منابع کاری یافت نشد.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>این نسخه‌ای پایدار از Windows Package Manager است. اگر می‌خواهید ویژگی‌های آزمایشی را امتحان کنید، لطفاً یک نسخه پیش از انتشار را نصب کنید. دستورالعمل‌ها در GitHub در نشانی https://github.com/microsoft/winget-cli موجود است.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

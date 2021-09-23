@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Обнаружены следующие ошибки при проверке параметров:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Открытие параметров в текстовом редакторе JSON по умолчанию. Если редактор не настроен, параметры будут открыты в Блокноте. Доступные параметры см. по адресу https://aka.ms/winget-settings С помощью этой команды также можно настраивать параметры администратора, указав аргумент "enable" или "disable"</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Открыть параметры или настроить параметры администратора</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду "Параметры".</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Имя</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Идентификатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Не найден источник с именем:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Имя источника</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Не удалось открыть источник; Попробуйте 'source reset' команду, если проблема повторится.</value>
+    <value>Сбой при открытии источников; выполните команду ''source reset'', если проблема повторится.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Необязательный заголовок неприменим, если не указан источник</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Дата выпуска:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL-адрес издателя:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL-адрес службы поддержки издателя:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL-адрес заявления о конфиденциальности:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторское право:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL-адрес заявления об авторских правах:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Заметки о выпуске:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL-адрес заметок о выпуске:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Сбой при поиске в источнике; результаты не будут включены:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Сбой при поиске в источнике:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Эту функцию должен включить администратор. Чтобы включить ее, выполните команду "winget settings --enable %1" от имени администратора.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Включает определенный параметр администратора</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Отключает определенный параметр администратора</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Для параметра администратора указано слишком много аргументов</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Параметр администратора включен.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Параметр администратора отключен.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Приложение сейчас запущено. Выйдите из приложения и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Уже выполняется другая установка. Повторите попытку позже.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Используется один или несколько файлов. Выйдите из приложения и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>У этого пакета отсутствует зависимость в вашей системе.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>На вашем компьютере больше нет места. Освободите место и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Недостаточно памяти для установки. Закройте другие приложения и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Для этого приложения требуется подключение к Интернету. Подключитесь к сети и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Приложение обнаружило ошибку во время установки. Обратитесь в службу поддержки.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Перезапустите компьютер, чтобы завершить установку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Ваш компьютер будет перезагружен, чтобы завершить установку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Сбой установки. Перезагрузите компьютер и повторите попытку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Вы отменили установку.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Уже установлена другая версия этого приложения.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Уже установлена более поздняя версия этого приложения.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Установка запрещена политиками организации. Обратитесь к администратору.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Установка прервана</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Сбой установки с кодом выхода:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Журнал установщика доступен в:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Среди рабочих источников найдены следующие пакеты.
+Чтобы продолжить, укажите один из них, используя параметр "--source".</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Пакеты не найдены среди рабочих источников.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Это стабильный выпуск Windows Package Manager. Чтобы попробовать экспериментальные функции, установите предварительную сборку. Инструкции доступны в GitHub по ссылке https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

@@ -465,6 +465,12 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Parametrləri təsdiq edərkən aşağıdakı xətalar tapıldı:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Parametrləri standart json mətn redaktorunda açın. Heç bir redaktor konfiqurasiya edilməyibsə, parametrləri bloknotda açır. Əlçatan parametrlər üçün https://aka.ms/winget-settings səhifəsinə baxın. Bu əmr “aktiv” və ya “qeyri-aktiv” arqumentini təmin etməklə inzibatçı parametrlərini təyin etmək üçün də istifadə edilə bilər</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Parametrləri açın və ya inzibatçı parametrlərini təyin edin</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Parametrlər yüklənərkən gözlənilməz səhv baş verdi. Parametrlər əmrini icra etməklə parametrlərinizi təsdiq edin.</value>
   </data>
@@ -538,6 +544,10 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Ad</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>İdentifikator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Bu adlı mənbə tapılmadı:</value>
   </data>
@@ -564,7 +574,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Mənbənin adı</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Mənbəni açmaq alınmadı; problem davam edərsə, 'source reset' əmrini sınaqdan keçirin.</value>
+    <value>Mənbəni açmaq alınmadı; problem davam edərsə, “source reset” əmrini sınaqdan keçirin.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Bu şərtlərə razısınız?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>İxtiyari başlıq mənbə göstərilmədən tətbiq oluna bilməz</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Buraxılış Tarixi:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Naşirin Veb-ünvanı:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Naşirin Dəstək Veb-ünvanı:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Məxfilik veb-ünvanı:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Müəlliflik hüququ:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Müəlliflik hüququ veb-ünvanı:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Buraxılış Qeydləri:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Buraxılış Qeydləri veb-ünvanı:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Mənbə axtaran zaman alınmadı; nəticələr daxil edilməyəcək:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Mənbə axtaran zaman alınmadı:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Bu xüsusiyyət inzibatçılar tərəfindən aktivləşdirilməlidir. Bunu aktiv etmək üçün inzibatçı kimi 'winget settings --enable %1' əmrini icra edin.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Xüsusi iznibatçı parametrlərini aktiv edir</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Xüsusi iznibatçı parametrlərini qeyri-aktiv edir</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Həddindən çox inzibatçı arqumenti təmin edildi</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>İnzibatçı parametri aktiv edildi.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>İnzibatçı parametri qeyri-aktiv edildi.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Proqram hazırda icra olunur. Proqramdan çıxın, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Artıq başqa quraşdırma icra olunur. Daha sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Bir və ya daha çox fayl istifadə olunur. Proqramdan çıxın, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Bu paketin sisteminizdə olmayan asılılığı var.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Kompüterinizdə artıq yer yoxdur. Yer açın, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Quraşdırmaq üçün kifayət qədər yaddaş yoxdur. Digər proqramları bağlayın, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Bu proqram internet bağlantısı tələb edir. Şəbəkəyə qoşulun, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Bu proqram quraşdırma zamanı xəta ilə qarşılaşdı. Dəstəklə əlaqə saxlayın.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Quraşdırmanı bitirmək üçün kompüterinizi yenidən başladın.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Kompüteriniz quraşdırmanı bitirmək üçün yenidən başlayacaq.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Quraşdırma alınmadı. Kompüterinizi yenidən başladın, sonra yenidən cəhd edin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Quraşdırmadan imtina etdiniz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Bu proqramın başqa versiyası artıq quraşdırılıb.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Bu proqramın daha yüksək versiyası artıq quraşdırılıb.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Təşkilat siyasəti quraşdırmanın qarşısını alır. İnzibatçınızla əlaqə saxlayın.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Quraşdırma tərk edildi</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Çıxış kodu ilə quraşdırıcı alınmadı:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Quraşdırıcı qeydiyyatı əlçatandır:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Aşağıdakı paketlər iş mənbələri arasından tapıldı.
+Emal etmək üçün “--source” seçimindən istifadə edərək onlardan birini göstərin.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>İş mənbələri arasında heç bir paket tapılmadı.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Bu, Windows Package Manager-in stabil versiyasıdır. Eksperimental xüsusiyyətləri sınamaq istəyirsinizsə, buraxılışdan əvvəlki versiyanı quraşdırın. Təlimatlar https://github.com/microsoft/winget-cli saytındakı GitHub ünvanında əlçatandır.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

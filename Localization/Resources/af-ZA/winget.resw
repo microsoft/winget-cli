@@ -465,6 +465,12 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Die volgende falings is gevind met die validering van die instellings:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Maak instellings in die verstek-json-teksredigeerder oop. As geen redigeerder gekonfigureer is nie, maak instellings in notaboek oop. Vir beskikbare instellings, sien https://aka.ms/winget-settings Hierdie bevel kan ook gebruik word om administrateurinstellings te stel deur 'aktiveer' of 'deaktiveer'-argument te verskaf</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Maak instellings oop of stel administrateurinstellings</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Onverwagse fout tydens laai van instellings. Verifieer asseblief jou instellings deur die instellingsbevel te laat loop.</value>
   </data>
@@ -538,6 +544,10 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Naam</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifiseerder</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Het nie ’n bron met hierdie naam gevind nie:</value>
   </data>
@@ -564,7 +574,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Naam van die bron</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kon nie die bron oopmaak nie; probeer die bevel 'source reset' as die probleem voortduur.</value>
+    <value>Kon nie die bron(ne) oopmaak nie; probeer die bevel 'source reset' as die probleem voortduur.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Stem jy in tot die bepalings?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Die opsionele opskrif is nie van toepassing sonder om 'n bron te spesifiseer nie</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Vrystellingsdatum:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Uitgewer-URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Uitgewersondersteuning-URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Privaatheid-URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Kopiereg:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Kopiereg-URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Vrystellingsnotas:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Vrystellingsnotas-URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Kon nie bron deursoek nie; resultate sal nie ingesluit word nie:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Kon nie bron deursoek nie:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Hierdie kenmerk moet deur administrateurs geaktiveer word. Om dit te aktiveer, laat loop 'winget settings --enable %1' as administrateur.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiveer die spesifieke administrateurinstelling</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deaktiveer die spesifieke administrateurinstelling</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Te veel admininstellingsargumente verskaf</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Admininstelling geaktiveer.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Admininstelling gedeaktiveer.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Toepassing loop tans. Verlaat die toepassing en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>’n Ander installering is reeds aan die gang. Probeer later weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Een of meer lêers word tans gebruik. Verlaat die toepassing en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Hierdie pakket het ’n afhanklikheid wat van jou stelsel ontbreek.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Daar is nie meer spasie op jou rekenaar nie. Maak spasie en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Daar is nie genoeg geheue beskikbaar om te installeer nie. Sluit ander toepassings en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Hierdie toepassing vereis internetkonnektiwiteit. Koppel aan ’n netwerk en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Hierdie toepassing het ’n fout tydens installering teëgekom. Kontak bystand.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Herbegin jou rekenaar om installering te voltooi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Jou rekenaar sal herbegin om installering te voltooi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installering het misluk. Herbegin jou rekenaar en probeer dan weer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Jy het die installering gekanselleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>’n Ander weergawe van hierdie toepassing is reeds geïnstalleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>’n Hoër weergawe van hierdie toepassing is reeds geïnstalleer.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisasiebeleide verhoed tans installering. Kontak jou administrateur.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installering is gestaak</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installeerder het misluk met verlaatkode:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installeerderlog is beskikbaar by:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Die volgende pakkette is onder die werksbronne gevind.
+Spesifiseer asseblief een van hulle deur die '--source'-opsie te gebruik om voort te gaan.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Geen pakkette is onder die werksbronne gevind nie.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Dit is ’n stabiele vrystelling van die Windows Package Manager. As jy eksperimentele kenmerke wil probeer, installeer asseblief ’n vooraf vrygestelde bouweergawe. Instruksies is op GitHub beskikbaar by https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>הכשלים הבאים נמצאו בעת אימות ההגדרות:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>פתח הגדרות בעורך הטקסט של json המהווה ברירת מחדל. אם לא הוגדר עורך, פותח הגדרות ב'פנקס רשימות'. לקבלת הגדרות זמינות, ראה https://aka.ms/winget-settings ניתן להשתמש בפקודה זו גם כדי להגדיר הגדרות מנהל מערכת על-ידי מתן ארגומנט 'enable' או 'disable'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>פתח הגדרות או הגדר הגדרות מנהל מערכת</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>שגיאה לא צפויה בעת טעינת הגדרות. אמת את ההגדרות שלך על-ידי הפעלת הפקודה ' הגדרות '.</value>
   </data>
@@ -537,6 +543,10 @@
   <data name="SourceListName" xml:space="preserve">
     <value>שם</value>
     <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>מזהה</value>
+    <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>לא נמצא מקור בשם:</value>
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>הכותרת האופציונלית אינה ישימה מבלי לציין מקור</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>תאריך הפצה:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>כתובת URL של מפרסם:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>כתובת URL של התמיכה של המפרסם:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>כתובת URL של פרטיות:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>זכויות יוצרים:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>כתובת URL של זכויות יוצרים:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>הערות השקה:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>כתובת URL של הערות השקה:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>נכשל בעת חיפוש מקור; התוצאות לא ייכללו:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>נכשל בעת חיפוש מקור:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>מנהל מערכת צריך להפוך תכונה זו לזמינה. כדי להפוך אותו לזמין, 'winget settings --enable %1' כמנהל מערכת.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>הפיכת הגדרת מנהל המערכת הספציפית לזמינה</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>הפיכת הגדרת מנהל המערכת הספציפית ללא זמינה</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>סופקו ארגומנטים רבים מדי של הגדרת מנהל מערכת</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>הגדרת מנהל מערכת זמינה.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>הגדרת מנהל מערכת אינה זמינה.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>היישום פועל כעת. צא מהאפליקציה ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>התקנה אחרת כבר מתבצעת. נסה שוב מאוחר יותר.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>קובץ אחד או יותר נמצא בשימוש. צא מהאפליקציה ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>חסרה תלות בחבילה זו במערכת שלך.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>אין עוד מקום במחשב שלך. פנה מקום ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>אין די זיכרון זמין להתקנה. סגור יישומים אחרים ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ליישום זה דרושה קישוריות לאינטרנט. התחבר לרשת ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>יישום זה נתקל בשגיאה במהלך ההתקנה. פנה לתמיכה.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>הפעל מחדש את המחשב שלך כדי לסיים את ההתקנה.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>המחשב שלך יופעל מחדש כדי לסיים את ההתקנה.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>ההתקנה נכשלה. הפעל מחדש את המחשב ולאחר מכן נסה שוב.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>ביטלת את ההתקנה.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>גירסה אחרת של יישום זה כבר מותקנת.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>גירסה מתקדמת יותר של יישום זה כבר מותקנת.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>פריטי מדיניות ארגוניים מונעים התקנה. פנה למנהל המערכת.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>ההתקנה ננטשה</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>המתקין נכשל עם קוד יציאה:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>יומן הרישום של תוכנית ההתקנה זמין ב:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>החבילות הבאות נמצאו בין מקורות העבודה.
+ציין אחד מהם באמצעות האפשרות '--source' כדי להמשיך.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>לא נמצאו חבילות בין מקורות העבודה.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>זוהי מהדורה יציבה של Windows Package Manager. אם ברצונך לנסות תכונות ניסיוניות, התקן גירסת Build של קדם-הפצה. ההוראות זמינות ב-GitHub‏ בכתובת https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

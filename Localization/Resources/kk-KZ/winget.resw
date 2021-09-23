@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Параметрлерді тексеру кезінде келесі қателер табылды:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Параметрлерді стандартты JSON мәтін өңдегішінде ашыңыз. Егер мәтін өңдегіш реттелмеген болса, параметрлер блокнотта ашылады. Қолжетімді параметрлерді мына жерден қараңыз: https://aka.ms/winget-settings Бұл пәрменді "қосу" немесе "ажырату" аргументін көрсету арқылы әкімші параметрлерін орнату үшін пайдалануға болады</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Параметрлерді ашу немесе әкімші параметрлерін орнату</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Параметрлерді жүктеу кезінде күтпеген қате орын алды. Параметрлер пәрменін орындау арқылы параметрлерді тексеріңіз.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Аты</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Идентификатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Деп аталатын көзі табылмады:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Дерек көзінің аты</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Дерек көзін ашу мүмкін болмады; мәселе қайталанса, 'source reset' пәрменін байқап көріңіз.</value>
+    <value>Дереккөз(дер) ашылмады; мәселе қайталанса, "source reset" пәрменін байқап көріңіз.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Егер дереккөз көрсетілмесе, қосымша тақырып қолданылмайды</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Шығарылған күні:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Жариялаушының URL мекенжайы:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Жариялаушының қолдау көрсету қызметінің URL мекенжайы:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Құпиялылық туралы мәлімдеменің URL мекенжайы:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторлық құқықтар:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Авторлық құқықтар туралы мәлімдеменің URL мекенжайы:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Шығарылым туралы жазбалар:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Шығарылым туралы жазбалардың URL мекенжайы:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Дереккөзді іздеу сәтсіз аяқталды; нәтижелері қосылмайды:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Дереккөзді іздеу сәтсіз аяқталды:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Бұл мүмкіндікті әкімшілер қосуы қажет. Оны қосу үшін әкімші ретінде "winget settings --enable %1" пәрменін іске қосыңыз.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Арнайы әкімші параметрін іске қосады</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Арнайы әкімші параметрін өшіреді</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Әкімші параметрі үшін аргументтер тым көп берілген</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Әкімші параметрі қосылған.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Әкімші параметрі өшірілген.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Қазіргі уақытта бағдарлама жұмыс істеп тұр. Бағдарламадан шығып, әрекетті қайталаңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Басқа орнату жұмыстары жүріп жатыр Кейінірек қайталап көріңіз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Бір немесе бірнеше файлдар пайдаланылуда. Бағдарламадан шығып, әрекетті қайталап көріңіз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Бұл буманың жүйеңізге тәуелділігі жоқ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Компьютерде бос орын жоқ. Орын босатып, әрекетті қайталаңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Орнату үшін жад жеткіліксіз. Басқа бағдарламаларды жауып, әрекетті қайталаңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Бұл бағдарлама интернетке қосылуды талап етеді. Желіге қосылып, әрекетті қайталаңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Бұл бағдарламаны орнату кезінде қате орын алды. Қолдау көрсету қызметіне хабарласыңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Орнатуды аяқтау үшін компьютерді қайта іске қосыңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Компьютеріңіз орнатуды аяқтау үшін қайта іске қосылады.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Орнату сәтсіз аяқталды. Компьютерді қайта іске қосып, әрекетті қайталаңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Орнатудан бас тарттыңыз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Бұл бағдарламаның басқа нұсқасы әлдеқашан орнатылған.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Бұл бағдарламаның соңғы нұсқасы әлдеқашан орнатылған.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Ұйым саясаты орнатуға кедергі келтіріп отыр. Әкімшіге хабарласыңыз.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Орнату тоқтатылды</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Шығу коды бар орнатушы қатесі:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Орнатушы журналы мына жерде қолжетімді:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Жұмыс дереккөздерінің арасынан келесі бумалар табылды.
+Жалғастыру үшін "--source" параметрін пайдаланып біреуін көрсетіңіз.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Жұмыс дереккөздерінің арасынан бумалар табылмады.</value>
   </data>
 </root>

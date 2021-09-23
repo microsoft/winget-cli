@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಮೌಲ್ಯೀಕರಿಸುವಾಗ ಈ ಕೆಳಗಿನ ವೈಫಲ್ಯಗಳು ಕಂಡುಬಂದಿವೆ:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>ಡೀಫಾಲ್ಟ್ json ಪಠ್ಯ ಸಂಪಾದಕದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ. ಯಾವುದೇ ಸಂಪಾದಕ ಕಾನ್ಫಿಗರ್ ಆಗಿರದಿದ್ದರೆ, ನೋಟ್‌ಪ್ಯಾಡ್‌ನಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯುತ್ತದೆ. ಲಭ್ಯವಿರುವ ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಗೆ https://aka.ms/winget-settings ಅನ್ನು ನೋಡಿ. ಈ ಆದೇಶವನ್ನು ' ಸಕ್ರಿಯಗೊಳಿಸು ' ಅಥವಾ ' ನಿಷ್ಕ್ರಿಯಗೊಳಿಸು ' ವಾದವನ್ನು ಒದಗಿಸುವ ಮೂಲಕ ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಹೊಂದಿಸಲು ಸಹ ಬಳಸಬಹುದು.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ ಅಥವಾ ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಹೊಂದಿಸಿ</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ. ಸೆಟ್ಟಿಂಗ್‍ಗಳ ಆದೇಶವನ್ನು ಚಲಾಯಿಸುವ ಮೂಲಕ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>ಹೆಸರು</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ಗುರುತು ಸೂಚಕ</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>ಹೆಸರಿಸಲಾದ ಮೂಲವನ್ನು ಹುಡುಕಲಾಗಿಲ್ಲ:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>ಮೂಲದ ಹೆಸರು</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ಮೂಲವನ್ನು ತೆರೆಯಲು ವಿಫಲವಾಗಿದೆ; ಸಮಸ್ಯೆ ಯು ಉಳಿದರೆ 'source reset' ಆದೇಶವನ್ನು ಪ್ರಯತ್ನಿಸಿ.</value>
+    <value>ಮೂಲ(ಗಳು) ಅನ್ನು ತೆರೆಯುವಾಗ ವಿಫಲವಾಗಿದೆ; ಸಮಸ್ಯೆ ಮುಂದುವರಿದರೆ 'source reset' ಆದೇಶವನ್ನು ಪ್ರಯತ್ನಿಸಿ.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>ಒಂದು ಮೂಲವನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸದ ಹೊರತು ಐಚ್ಛಿಕ ಶಿರೋಲೇಖ ಅನ್ವಯವಾಗುವುದಿಲ್ಲ</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>ಬಿಡುಗಡೆ ದಿನಾಂಕ:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>ಪ್ರಕಾಶಕರ Url:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>ಪ್ರಕಾಶಕರ ಬೆಂಬಲ Url:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>ಗೌಪ್ಯತೆ Url:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>ಕೃತಿಸ್ವಾಮ್ಯ:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>ಬಿಡುಗಡೆ ಟಿಪ್ಪಣಿಗಳು:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>ಬಿಡುಗಡೆ ಟಿಪ್ಪಣಿಗಳುUrl:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>ಮೂಲ ಶೋಧಿಸುವಾಗ ವಿಫಲವಾಗಿದೆ; ಫಲಿತಾಂಶಗಳನ್ನು ಸೇರಿಸಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>ಮೂಲ ಶೋಧಿಸುವಾಗ ವಿಫಲವಾಗಿದೆ:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ಈ ವೈಶಿಷ್ಟ್ಯ ನಿರ್ವಾಹಕರಿಂದ ಸಕ್ರಿಯಗೊಳ್ಳಬೇಕಿದೆ. ಅದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು, ನಿರ್ವಾಹಕರಾಗಿ 'winget settings --enable %1' ಚಲಾಯಿಸಿ.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟ ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟ ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>ತೀರಾ ಹೆಚ್ಚು ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್ ವಾದಗಳನ್ನು ಒದಗಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>ನಿರ್ವಾಹಕರ ಸೆಟ್ಟಿಂಗ್ ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>ನಿರ್ವಾಹಕ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಸ್ತುತ ಚಾಲನೆಯಲ್ಲಿದೆ. ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ನಿರ್ಗಮಿಸಿ ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>ಮತ್ತೊಂದು ಸ್ಥಾಪನಾ ಕಾರ್ಯ ಈಗಾಗಲೇ ಪ್ರಗತಿಯಲ್ಲಿದೆ. ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಫೈಲ್‌ಗಳನ್ನು ಬಳಸಲಾಗುತ್ತಿದೆ. ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ನಿರ್ಗಮಿಸಿ ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>ನಿಮ್ಮ ಸಿಸ್ಟಂನಿಂದ ಕಾಣೆಯಾಗಿರುವ ಒಂದು ಅವಲಂಬನೆಯನ್ನು ಈ ಪ್ಯಾಕೇಜ್ ಹೊಂದಿದೆ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>ನಿಮ್ಮ PC ಯಲ್ಲಿ ಇನ್ನು ಯಾವುದೇ ಸ್ಥಳಾವಕಾಶವಿಲ್ಲ. ಸ್ಥಳಾವಕಾಶ ಮಾಡಿ, ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆಗೊಳಿಸಲು ಬೇಕಾದಷ್ಟು ಸ್ಮರಣೆ ಲಭ್ಯವಿಲ್ಲ. ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಮುಚ್ಚಿರಿ ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕದ ಅಗತ್ಯವಿದೆ. ಒಂದು ನೆಟ್‌ವರ್ಕ್‌ಗೆ ಸಂಪರ್ಕಪಡಿಸಿ ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>ಈ ಅಪ್ಲಿಕೇಶನ್ ಸ್ಥಾಪನೆಗೊಳಿಸುವ ಸಂದರ್ಭದಲ್ಲಿ ದೋಷವನ್ನು ಎದುರಿಸಿದೆ. ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆಗೊಳಿಸುವುದನ್ನು ಮುಗಿಸಲು ನಿಮ್ಮ PC ಅನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>ಸ್ಥಾಪನಾ ಕಾರ್ಯ ಮುಗಿಸಲು ನಿಮ್ಮ PC ಮರುಪ್ರಾರಂಭಿಸುತ್ತದೆ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>ಸ್ಥಾಪನಾ ಕಾರ್ಯ ವಿಫಲವಾಗಿದೆ. ನಿಮ್ಮ PC ಅನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>ನೀವು ಸ್ಥಾಪನಾ ಕಾರ್ಯವನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದೀರಿ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>ಈ ಅಪ್ಲಿಕೇಶನ್‌ನ ಇನ್ನೊಂದು ಆವೃತ್ತಿಯನ್ನು ಈಗಾಗಲೇ ಸ್ಥಾಪನೆಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>ಈ ಅಪ್ಲಿಕೇಶನ್‌ನ ಒಂದು ಉನ್ನತ ಆವೃತ್ತಿಯನ್ನು ಈಗಾಗಲೇ ಸ್ಥಾಪನೆಗೊಳಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>ಸಂಸ್ಥೆಯ ನೀತಿಗಳು ಸ್ಥಾಪನಾ ಕಾರ್ಯವನ್ನು ತಡೆಯುತ್ತಿವೆ. ನಿಮ್ಮ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>ಸ್ಥಾಪನಾ ಕಾರ್ಯವನ್ನು ಕೈಬಿಡಲಾಗಿದೆ</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>ಎಕ್ಸಿಟ್ ಕೋಡ್‌ನೊಂದಿಗೆ ಇನ್‌ಸ್ಟಾಲರ್ ವಿಫಲವಾಗಿದೆ:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>ಇನ್‌ಸ್ಟಾಲರ್ ಲಾಗ್ ಇಲ್ಲಿ ಲಭ್ಯವಿದೆ:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>ಈ ಮುಂದಿನ ಪ್ಯಾಕೇಜ್‌ಗಳು ಕಾರ್ಯನಿರತ ಮೂಲಗಳಲ್ಲಿ ಕಂಡುಬಂದಿವೆ.
+ಮುಂದುವರಿಯಲು ದಯವಿಟ್ಟು `--source` ಆಯ್ಕೆಯನ್ನು ಬಳಸಿಕೊಂಡು ಅವುಗಳಲ್ಲಿ ಒಂದನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸಿ.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>ಕಾರ್ಯನಿರತ ಮೂಲಗಳಲ್ಲಿ ಯಾವುದೇ ಪ್ಯಾಕೇಜ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>ಇದೊಂದು Windows Package Manager ನ ಸ್ಥಿರ ಬಿಡುಗಡೆ ಆಗಿದೆ. ನೀವು ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಪ್ರಯತ್ನಿಸಲು ಬಯಸಿದಲ್ಲಿ, ದಯವಿಟ್ಟು ಒಂದು ಬಿಡುಗಡೆ-ಪೂರ್ವ ಬಿಲ್ಡ್ ಅನ್ನು ಸ್ಥಾಪನೆಗೊಳಿಸಿ. GitHub https://github.com/microsoft/winget-cli ನಲ್ಲಿ ಸೂಚನೆಗಳು ಲಭ್ಯವಿವೆ.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

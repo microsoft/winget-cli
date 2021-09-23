@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>次のエラーが検出されたため、設定を検証しています:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>既定の json テキスト エディターで設定を開きます。エディターが構成されていない場合は、メモ帳で設定を開きます。使用可能な設定については、https://aka.ms/winget-settings を参照してください。このコマンドを使用して、'enable' または 'disable' 引数を指定して管理者設定を設定することもできます。</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>設定を開くか、管理者設定を設定する</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>設定の読み込み中に予期しないエラーが発生しました。Settings コマンドを実行して、設定を確認してください。</value>
   </data>
@@ -538,6 +544,10 @@
     <value>名前</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ID</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>次の名前のソースが見つかりませんでした:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>ソース名</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ソースを開くことができませんでした。問題が解決しない場合は、'source reset' コマンドを実行してください。</value>
+    <value>ソースを開くときに失敗しました;問題が解決しない場合は、'source reset' コマンドを試してください。</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>省略可能なヘッダーは、ソースを指定せずに適用することはできません</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>リリース日:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>発行元 URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>発行元のサポート URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>プライバシー URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>著作権:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>著作権 URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>リリース ノート:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>リリース ノート URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>ソースの検索中に失敗しました;結果は含まれません:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>ソースの検索中に失敗しました:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>この機能は管理者が有効にする必要があります。有効にするには、'winget settings --enable %1'を管理者として実行します。</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>特定の管理者設定を有効にします</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>特定の管理者設定を無効にします</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>指定された管理者設定引数が多すぎます</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>管理者設定が有効になりました。</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>管理者設定が無効になっています。</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>アプリケーションは現在実行中です。アプリケーションを終了してから、もう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>別のインストールが既に進行中です。後でもう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>1 つ以上のファイルが使用されています。アプリケーションを終了してから、もう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>このパッケージには、システムに依存関係がありません。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>PC にこれ以上空き領域がありません。空き領域を確保してから、もう一度やり直してください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>インストールできるメモリが不足しています。他のアプリケーションを閉じてから、もう一度やり直してください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>このアプリケーションにはインターネット接続が必要です。ネットワークに接続してから、もう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>このアプリケーションのインストール中にエラーが発生しました。サポートにお問い合わせください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>PC を再起動してインストールを完了します。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC が再起動してインストールが完了します。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>インストールに失敗しました。PC を再起動してから、もう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>ユーザーがインストールを取り消しました。</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>このアプリケーションの別のバージョンが既にインストールされています。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>このアプリケーションの上位バージョンは既にインストールされています。</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>組織のポリシーが原因でインストールできません。管理者にお問い合わせください。</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>インストールが破棄されました</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>終了コードでインストーラーが失敗しました:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>インストーラー ログは次の時点で利用できます:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>作業ソースの中以下のパッケージが見つかりました。
+続行するには、'--source' オプションを使用していずれかのパッケージを指定してください。</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>作業ソースの中にパッケージが見つかりませんでした。</value>
   </data>
 </root>

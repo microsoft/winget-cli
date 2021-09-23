@@ -465,6 +465,12 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Pronađene su sljedeće pogreške provjere valjanosti postavki:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Otvorite postavke u zadanom uređivaču teksta json. Ako uređivač nije konfiguriran, otvara postavke u bloku za pisanje. Za dostupne postavke pogledajte https://aka.ms/winget-settings Ova naredba može se koristiti i za postavljanje administratorskih postavki tako da navede argument „omogući“ ili „onemogući“</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Otvorite postavke ili postavite administratorske postavke</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Prilikom učitavanja postavki došlo je do neočekivane pogreške. Provjerite postavke na koje se izvode naredba.</value>
   </data>
@@ -538,6 +544,10 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
     <value>Naziv</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nije pronađen izvor naziva:</value>
   </data>
@@ -564,7 +574,7 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
     <value>Naziv izvora</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Otvaranje izvora nije uspjelo; pokušajte „source reset“ naredbu ako se problem nastavi pojavljivati.</value>
+    <value>Nije uspjelo prilikom otvaranja izvora; ako se problem nastavi pojavljivati, isprobajte naredbu „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Prihvaćate li uvjete?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Neobavezno zaglavlje nije primjenjivo bez navođenja izvora</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Datum izdavanja:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL izdavača:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL podrške izdavača:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL zaštite privatnosti:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Autorska prava:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL autorskih prava:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Napomene uz izdanje:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL napomena uz izdanje:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Nije uspjelo pretraživanje izvora; rezultati neće biti obuhvaćeni:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Nije uspjelo prilikom pretraživanja izvora:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Administratori moraju omogućiti tu značajku. Da biste je omogućili, pokrenite 'winget settings --enable %1' kao administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Omogućuje određenu administratorsku postavku</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Onemogućuje određenu administratorsku postavku</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Navedeno je previše argumenata administratorske postavke</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Omogućena je administratora postavka.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratorska je postavka onemogućena.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikacija je trenutno pokrenuta. Zatvorite aplikaciju, a zatim pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Druga instalacija već je u tijeku. Pokušajte ponovno kasnije.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Koristi se jedna datoteka ili više njih. Zatvorite aplikaciju, a zatim pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Ovom paketu nedostaje ovisnost iz vašeg sustava.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Na PC-ju više nema prostora. Oslobodite prostor pa pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Nema dovoljno dostupne memorije za instalaciju. Zatvorite druge aplikacije, a zatim pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Za ovu je aplikaciju potrebna internetska veza. Povežite se s mrežom pa pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Aplikacija je naišla na pogrešku tijekom instalacije. Obratite se službi za podršku.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Ponovno pokrenite PC da biste dovršili instalaciju.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC će se ponovno pokrenuti da bi se dovršila instalacija.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Instalacija nije uspjela. Ponovno pokrenite PC pa pokušajte ponovno.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Otkazali ste instalaciju.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Već je instalirana druga verzija ove aplikacije.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Novija verzija ove aplikacije već je instalirana.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Pravilnici tvrtke ili ustanove sprječavaju instalaciju. Obratite se administratoru.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalacija je prekinuta</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Instalacijski program nije uspio uz izlazni kôd:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Zapisnik instalacijskog programa dostupan je na:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Među radnim izvorima pronađeni su sljedeći paketi.
+Da biste nastavili, navedite jedan od njih pomoću mogućnosti „--source“.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Među radnim izvorima nije pronađen nijedan paket.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Ovo je stabilno izdanje upravitelja Windows Package Manager. Ako želite isprobati eksperimentalne značajke, instalirajte međuverziju predizdanja. Upute su dostupne na servisu GitHub na https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

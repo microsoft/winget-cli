@@ -465,6 +465,12 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Sätete valideerimisel leiti järgmised tõrked:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Sätted avatakse JSON-i vaiketekstiredaktoris. Kui ühtegi redaktorit pole konfigureeritud, avatakse sätted Notepadis. Saadaolevate sätete kohta leiate teavet lehelt https://aka.ms/winget-settings. Seda käsku saab kasutada ka administraatorisätete määramiseks, lisades argumendi „enable“ (luba) või „disable“ (keela).</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Sätete avamine või administraatorisätete määramine</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Sätete laadimisel ilmnes ootamatu tõrge. Palun kinnitage oma sätted sätete käsu käitamine.</value>
   </data>
@@ -538,6 +544,10 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
     <value>Nimi</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikaator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Järgmise nimega allikat ei leitud:</value>
   </data>
@@ -564,7 +574,7 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
     <value>Allika nimi</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Allika avamine nurjus; kui probleem ei lahene, proovige valikut „source reset“.</value>
+    <value>Allika(te) avamisel nurjus; kui probleem ei lahene, proovige käsku „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Kas nõustute tingimustega?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Valikulist päist ei saa rakendada ilma allikat määramata</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Väljalaskekuupäev:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Väljaandja URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Väljaandja toe URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Privaatsusteabe URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Autoriõigus:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Autoriõiguse URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Väljalaskemärkmed:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Väljalaskemärkmete URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Allika otsimisel nurjus; tulemeid ei kaasata:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Allikast otsimine nurjus:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Selle funktsiooni peavad lubama administraatorid. Selle lubamiseks käivitage 'winget settings --enable %1' administraatorina.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Lubab konkreetse administraatorisätte</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Keelab konkreetse administraatorisätte</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Lisatud on liiga palju administraatorisätte argumente</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administraatorisäte on lubatud.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administraatorisäte on keelatud.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Rakendus töötab praegu. Väljuge rakendusest ja proovige siis uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Teine installimine on juba pooleli. Proovige hiljem uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Ühte või mitut faili kasutatakse. Väljuge rakendusest ja proovige siis uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Sellel paketil on teie süsteemist puuduv sõltuvus.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Teie arvutis pole rohkem ruumi. Tehke ruumi ja proovige siis uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Installimiseks pole piisavalt mälu. Sulgege muud rakendused ja proovige uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>See rakendus nõuab Interneti-ühendust. Looge võrguühendus ja proovige siis uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Selle rakenduse installimisel ilmnes tõrge. Pöörduge klienditoe poole.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Installimise lõpuleviimiseks taaskäivitage arvuti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Installimise lõpuleviimiseks arvuti taaskäivitatakse.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installimine nurjus. Taaskäivitage arvuti ja proovige uuesti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Olete installimise tühistanud.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Mõni muu selle rakenduse versioon on juba installitud.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Selle rakenduse uuem versioon on juba installitud.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisatsiooni poliitikad takistavad installimist. Pöörduge oma administraatori poole.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installimine on hüljatud</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installimine nurjus, väljumiskood:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installeri logi on saadaval aadressil:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Tööallikatest leiti järgmised paketid.
+Jätkamiseks määrake üks neist suvandi „--source“ abil.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Tööallikatest ei leitud pakette.</value>
   </data>
 </root>

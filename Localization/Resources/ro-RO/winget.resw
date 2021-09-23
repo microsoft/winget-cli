@@ -465,6 +465,12 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>S-au găsit următoarele erori la validarea setărilor:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Deschideți setările în editorul de text json implicit. Dacă nu este configurat niciun editor, deschide setările în notepad. Pentru setările disponibile, consultați https://aka.ms/winget-settings Această comandă poate fi utilizată și pentru a seta setările de administrator, furnizând argumentul „activare” sau „dezactivare”</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Deschideți setările sau setați setările de administrator</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Eroare neașteptată la încărcarea setărilor. Verificați setările rulând comanda de setări.</value>
   </data>
@@ -538,6 +544,10 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Nume</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identificator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nu s-a găsit nicio sursă denumită:</value>
   </data>
@@ -564,7 +574,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Numele sursei</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Deschiderea sursei nu a reușit; încercați comanda 'source reset' dacă problema persistă.</value>
+    <value>Nereușită la deschiderea unei surse; încercați comanda „source reset” dacă problema persistă.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Sunteți de acord cu termenii?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Antetul opțional nu se aplică fără a specifica o sursă</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Data lansării:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL editor:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL asistență editor:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL confidențialitate:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Drept de autor:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL drepturi de autor:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Note privind versiunea:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL note privind versiunea:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Nereușită la căutarea sursei; rezultatele nu vor fi incluse:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Nereușită la căutarea sursei:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Această caracteristică trebuie să fie activată de administratori. Pentru a-l activa, rulați 'winget settings --enable %1' ca administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Activează setarea de administrator specifică</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Dezactivează setarea de administrator specifică</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>S-au furnizat prea multe argumente pentru setarea de administrator</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Setarea de administrator este activată.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Setare administrator dezactivată.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplicația rulează în prezent. Ieșiți din aplicație, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>O altă instalare este deja în curs. Încercați din nou mai târziu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Unul sau mai multe fișiere sunt în curs de utilizare. Ieșiți din aplicație, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Acest pachet are o dependență care lipsește din sistem.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Nu mai există spațiu pe PC-ul dvs. Creați spațiu, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Memorie insuficientă pentru instalare. Închideți celelalte aplicații, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Această aplicație necesită conectivitate internet. Conectați-vă la o rețea, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Această aplicație a întâlnit o eroare în timpul instalării. Contactați asistența.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Reporniți PC-ul pentru a finaliza instalarea.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC-ul va reporni pentru a finaliza instalarea.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Instalarea nu a reușit. Reporniți PC-ul, apoi încercați din nou.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ați anulat instalarea.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>O altă versiune a acestei aplicații este deja instalată.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>O versiune superioară a acestei aplicații este deja instalată.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Politicile organizației împiedică instalarea. Contactați administratorul.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalarea a fost abandonată</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Programul de instalare nu a reușit, cu codul de ieșire:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Jurnalul programului de instalare este disponibil la:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>S-au găsit următoarele pachete printre sursele de lucru.
+Specificați una dintre acestea utilizând opțiunea "--source" pentru a continua.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Nu s-au găsit pachete printre sursele de lucru.</value>
   </data>
 </root>

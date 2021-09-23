@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Εντοπίστηκαν οι παρακάτω αποτυχίες κατά την επικύρωση των ρυθμίσεων:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Ανοίξτε τις ρυθμίσεις στο προεπιλεγμένο πρόγραμμα επεξεργασίας κειμένου json. Εάν δεν έχει ρυθμιστεί πρόγραμμα επεξεργασίας, ανοίγει τις ρυθμίσεις στο σημειωματάριο. Για διαθέσιμες ρυθμίσεις, ανατρέξτε στο θέμα https://aka.ms/winget-settings Αυτή η εντολή μπορεί επίσης να χρησιμοποιηθεί για τον ορισμό ρυθμίσεων διαχειριστή παρέχοντας ορισμό "ενεργοποίηση" ή "απενεργοποίηση"</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Άνοιγμα ρυθμίσεων ή ορισμός ρυθμίσεων διαχειριστή</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Μη αναμενόμενο σφάλμα κατά τη φόρτωση των ρυθμίσεων. Επαληθεύστε τις ρυθμίσεις σας εκτελώντας την εντολή "Ρυθμίσεις".</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Όνομα</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Αναγνωριστικό</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Δεν βρέθηκε προέλευση με όνομα:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Όνομα της προέλευσης</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Το άνοιγμα της προέλευσης απέτυχε. Δοκιμάστε την εντολή "επαναφορά προέλευσης" (source reset) αν το πρόβλημα δεν επιλυθεί.</value>
+    <value>Αποτυχία κατά το άνοιγμα προελεύσεων. Δοκιμάστε την εντολή "source reset", εάν το πρόβλημα παραμένει.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Η προαιρετική κεφαλίδα δεν ισχύει χωρίς να καθοριστεί προέλευση</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Ημερομηνία κυκλοφορίας:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Διεύθυνση URL εκδότη:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Διεύθυνση URL υποστήριξης εκδότη:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Διεύθυνση URL προστασίας προσωπικών δεδομένων:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Πνευματικά δικαιώματα:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Διεύθυνση URL πνευματικών δικαιωμάτων:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Σημειώσεις έκδοσης:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Διεύθυνση URL σημειώσεων έκδοσης:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Αποτυχία κατά την αναζήτηση προέλευσης. Τα αποτελέσματα δεν θα συμπεριληφθούν:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Αποτυχία κατά την αναζήτηση προέλευσης:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Αυτή η δυνατότητα πρέπει να ενεργοποιηθεί από τους διαχειριστές. Για να την ενεργοποιήσετε, εκτελέστε 'winget settings --enable %1' ως διαχειριστής.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Ενεργοποιεί την συγκεκριμένη ρύθμιση διαχειριστή</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Απενεργοποιεί την συγκεκριμένη ρύθμιση διαχειριστή</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Καταχωρήθηκε υπερβολικός αριθμός ορισμάτων ρύθμισης διαχειριστή</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Η ρύθμιση διαχείρισης ενεργοποιήθηκε.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Η ρύθμιση διαχειριστή απενεργοποιήθηκε.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Η εφαρμογή εκτελείται αυτήν τη στιγμή. Κλείστε την εφαρμογή και προσπαθήστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Μια άλλη εγκατάσταση βρίσκεται ήδη σε εξέλιξη. Δοκιμάστε ξανά αργότερα.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Χρησιμοποιούνται ένα ή περισσότερα αρχεία. Κλείστε την εφαρμογή και προσπαθήστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Αυτό το πακέτο έχει μια εξάρτηση που λείπει από το σύστημά σας.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Δεν υπάρχει περισσότερος χώρος στον υπολογιστή σας. Αποκαταστήστε χώρο και, στη συνέχεια, προσπαθήστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Δεν υπάρχει αρκετή διαθέσιμη μνήμη για εγκατάσταση. Κλείστε κάποιες εφαρμογές και προσπαθήστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Αυτή η εφαρμογή απαιτεί συνδεσιμότητα στο Internet. Συνδεθείτε σε ένα δίκτυο και προσπαθήστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Αυτή η εφαρμογή αντιμετώπισε σφάλμα κατά την εγκατάσταση. Επικοινωνήστε με την υποστήριξη.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Επανεκκινήστε τον υπολογιστή σας για να ολοκληρώσετε την εγκατάσταση.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Ο υπολογιστής σας θα επανεκκινηθεί για να ολοκληρωθεί η εγκατάσταση.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Η εγκατάσταση απέτυχε. Επανεκκινήστε τον υπολογιστή σας και, στη συνέχεια, δοκιμάστε ξανά.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ακυρώσατε την εγκατάσταση.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Μια άλλη έκδοση αυτής της εφαρμογής είναι ήδη εγκατεστημένη.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Μια νεότερη έκδοση αυτής της εφαρμογής είναι ήδη εγκατεστημένη.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Οι πολιτικές του οργανισμού εμποδίζουν την εγκατάσταση. Επικοινωνήστε με τον διαχειριστή σας.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Η εγκατάσταση εγκαταλείφθηκε</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Η εγκατάσταση απέτυχε με κωδικό εξόδου:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Το αρχείο καταγραφής του προγράμματος εγκατάστασης είναι διαθέσιμο στη θέση:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Βρέθηκαν τα ακόλουθα πακέτα μεταξύ των προελεύσεων εργασίας.
+Καθορίστε ένα από αυτά χρησιμοποιώντας την επιλογή '--source' για να συνεχίσετε.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν πακέτα μεταξύ των προελεύσεων εργασίας.</value>
   </data>
 </root>

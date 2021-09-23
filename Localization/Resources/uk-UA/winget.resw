@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Під час перевірки настройок виявлено такі помилки:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Відкрийте параметри за замовчуванням в текстовому редакторі JSON. Якщо редактор не настроєний, відкриваються параметри в блокноті. Для доступних параметрів див. https://aka.ms/winget-settings. Ця команда також може використовуватися для налаштування параметрів адміністратора, указавши аргумент 'ввімкнути' або  'вимкнути'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Відкрийте настройки або групові настройки адміністратора</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Сталася неочікувана помилка під час завантаження настройок. Перевірте настройки, запустивши команду "Параметри".</value>
   </data>
@@ -538,6 +544,10 @@
     <value>Ім’я</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Ідентифікатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Не вдалося знайти джерело з іменем:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>Ім’я джерела</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Не вдалося відкрити джерело. Якщо проблема не зникне, спробуйте виконати команду "source reset".</value>
+    <value>Не вдалося відкрити джерела. Якщо проблема не зникне, спробуйте виконати команду "source reset".</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Необов’язковий заголовок не застосовується, якщо не вказати джерело</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Дата випуску:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Веб-адреса видавця:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Веб-адреса підтримки видавця:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL-адреса політики конфіденційності:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторські права:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL-адреса авторських прав:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Нотатки про випуск:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL-адреса нотаток про випуск:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Помилка під час пошуку джерела. Результати не буде включено:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Під час пошуку джерела виникла помилка:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Адміністратори повинні ввімкнути цю функцію. Щоб її увімкнути, запустіть 'winget settings --enable %1' як адміністратор.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Вмикається особлива настройка адміністратора</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Вимикається особлива настройка адміністратора</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Надано забагато аргументів настройки адміністратора</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Настройку адміністратора ввімкнуто.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Настройку адміністратора вимкнуто.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Наразі програму запущено. Закрийте програму та повторіть спробу.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Уже виконується інша інсталяція. Спробуйте ще раз пізніше.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Використовується один або кілька файлів. Закрийте програму та повторіть спробу.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>У системі бракує залежності для цього пакета.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>На ПК більше немає вільного місця. Звільніть місце й повторіть спробу.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Недостатньо пам’яті для інсталяції. Закрийте інші програми й повторіть спробу.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ця програма потребує підключення до Інтернету. Підключіться до мережі та спробуйте ще раз.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Під час інсталяції програми сталася помилка. Зверніться до служби підтримки.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Перезавантажте ПК, щоб завершити інсталяцію.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Комп’ютер перезавантажиться, щоб завершити інсталяцію.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Помилка інсталяції. Перезавантажте ПК та повторіть спробу.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Інсталяцію скасовано.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Уже інстальовано іншу версію цієї програми.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Уже інстальовано новішу версію цієї програми.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Політики організації перешкоджають інсталяції. Зверніться до адміністратора.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Інсталяцію припинено</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Помилка інсталятора з кодом завершення:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Журнал інсталятора доступний тут:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Серед робочих джерел знайдено такі пакети.
+Укажіть один із них за допомогою параметра "--source", щоб продовжити.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Серед робочих джерел не знайдено жодного пакета.</value>
   </data>
 </root>

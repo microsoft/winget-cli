@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>تم العثور على حالات الفشل التالية أثناء التحقق من صحة الإعدادات:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>فتح الإعدادات في محرر نص json الافتراضي. وفي حالة عدم تكوين أي محرر، يفتح الإعدادات في المفكرة. وبالنسبة للإعدادات المتوفرة راجع https://aka.ms/winget-settings يمكن أيضًا استخدام هذا الأمر لتعيين إعدادات المسؤول عن طريق توفير وسيطة «تمكين» أو «تعطيل».</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>فتح الإعدادات أو تعيين إعدادات المسؤول</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>خطأ غير متوقع أثناء تحميل الإعدادات. الرجاء التحقق من الإعدادات من خلال تشغيل أمر الإعدادات.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>الاسم</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>المعرّف</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>لم يتم العثور على مصدر مسمى:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>اسم المصدر</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>فشل فتح المصدر؛ جرب الأمر 'source reset' إذا استمرت المشكلة.</value>
+    <value>فشل عند فتح المصدر (المصادر)؛ جرب الأمر 'source reset' إذا استمرت المشكلة.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>الرأس الاختياري غير قابل للتطبيق بدون تحديد مصدر</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>تاريخ الإصدار:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>عنوان Url الخاص بالناشر:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>عنوان Url لدعم الناشر:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>عنوان Url للخصوصية:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>حقوق النشر:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>عنوان Url لحقوق النشر:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>ملاحظات حول الإصدار:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>عنوان Url للملاحظات حول الإصدار:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>فشل عند البحث عن المصدر؛ لن يتم تضمين النتائج:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>فشل عند البحث عن المصدر:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>يجب تمكين هذه الميزة من قبل المسؤولين. ولتمكينها، قم بتشغيل «winget settings --enable %1» كمسؤول.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>لتمكين إعداد المسؤول المحدد</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>تعطيل إعداد المسؤول المحدد</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>تم توفير عدد كبير جدًا من وسيطات إعداد المسؤول</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>تم تمكين إعداد المسؤول.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>تم تعطيل إعداد المسؤول.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>التطبيق قيد التشغيل حاليا. قم بإنهاء التطبيق ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>يوجد تثبيت آخر قيد التقدم بالفعل. حاول مرة أخرى لاحقا.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>يتم استخدام ملف واحد أو أكثر. قم بإنهاء التطبيق ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>تحتوي هذه الحزمة على تبعية مفقودة من النظام.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>لا توجد مساحة إضافية على جهاز الكمبيوتر الخاص بك. قم بإنشاء مساحة، ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>لا تتوفر ذاكرة كافية للتثبيت. أغلق التطبيقات الأخرى ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>يتطلب هذا التطبيق الاتصال بالإنترنت. اتصل بشبكة ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>صادف هذا التطبيق خطأ أثناء التثبيت. اتصل بالدعم.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>أعد تشغيل الكمبيوتر لإنهاء التثبيت.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>ستتم إعادة تشغيل الكمبيوتر لإنهاء التثبيت.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>فشل التثبيت. أعد تشغيل الكمبيوتر، ثم حاول مرة أخرى.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>لقد ألغيت التثبيت.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>تم تثبيت إصدار آخر من هذا التطبيق بالفعل.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>تم تثبيت إصدار أعلى من هذا التطبيق بالفعل.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>تمنع نهج المؤسسة التثبيت. اتصل بالمسؤول.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>تم التخلي عن التثبيت</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>فشل المثبت برمز الإنهاء:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>يتوفر سجل المثبت في:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>تم العثور على الحزم التالية بين مصادر العمل.
+الرجاء تحديد أحدهما باستخدام الخيار '--source' للمتابعة.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>لم يتم العثور على أي حزم بين مصادر العمل.</value>
   </data>
 </root>

@@ -465,6 +465,12 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Följande fel hittades vid validering av inställningarna:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Öppna inställningar i json-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnar du inställningarna i anteckningar. Tillgängliga inställningar finns i https://aka.ms/winget-settings. Det här kommandot kan också användas för att ange administratörsinställningar genom att ange argumentet "aktivera" eller "inaktivera"</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Öppna inställningar eller ange administratörsinställningar</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Oväntat fel vid inläsning av inställningar. Verifiera inställningarna genom att köra kommandot för inställningar.</value>
   </data>
@@ -538,6 +544,10 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Namn</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifierare</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Det gick inte att hitta en källa med namnet:</value>
   </data>
@@ -564,7 +574,7 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Källnamn</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Det gick inte att öppna källan; prova kommandot 'source reset' om problemet kvarstår.</value>
+    <value>Det gick inte att öppna källa(r); prova kommandot 'source reset' om problemet kvarstår.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Godkänner du villkoren?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Den valfria rubriken är inte tillämpligt utan att ange en källa</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Utgivningsdatum:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Utgivarens URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Utgivarens support-URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Sekretess-URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL för copyright:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Viktig information:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL för viktig information:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Det gick inte att söka efter källan; resultaten kommer inte att inkluderas:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Det gick inte att söka efter källan:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Den här funktionen måste aktiveras av administratörer. Om du vill aktivera det kör du winget settings --enable %1 som administratör.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiverar den specifika administratörsinställningen</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Inaktiverar den specifika administratörsinställningen</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>För många administratörsinställningsargument har angetts</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratörsinställning är aktiverad.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratörsinställningen har inaktiverats.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Programmet körs för närvarande. Avsluta programmet och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>En annan installation pågår redan. Försök igen senare.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>En eller flera filer används. Avsluta programmet och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Det här paketet saknar ett beroende i systemet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Det finns inget mer utrymme på datorn. Frigör utrymme och försök sedan igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Det finns inte tillräckligt med minne tillgänglig för att installera. Stäng andra program och försök sedan igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Det här programmet kräver Internetanslutning. Anslut till ett nätverk och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Det här programmet påträffade ett fel under installationen. Kontakta supporten.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Starta om datorn för att slutföra installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Din dator startas om för att slutföra installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installationen misslyckades. Starta om datorn och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Du avbröt installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>En annan version av det här programmet är redan installerad.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>En högre version av det här programmet är redan installerad.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisationsprinciper förhindrar installation. Kontakta administratören.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installationen avbröts</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Avinstallationen misslyckades med slutkod:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installationsloggen är tillgänglig på:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Följande paket hittades bland arbetskällorna.
+Ange en av dem med alternativet `--source` för att fortsätta.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Inga paket hittades bland arbetskällorna.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Det här är en stabil version av Windows Package Manager. Om du vill prova experimentella funktioner installerar du en förhandsversion. Instruktioner finns på GitHub på https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

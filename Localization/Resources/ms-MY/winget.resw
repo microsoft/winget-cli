@@ -465,6 +465,12 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Kegagalan berikut ditemui mengesahkan seting:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Buka seting dalam editor teks json lalai. Jika tiada editor dikonfigurasikan, buka seting dalam notepad. Untuk seting yang tersedia, lihat https://aka.ms/winget-settings. Perintah ini juga boleh digunakan untuk mengeset seting pentadbir dengan memberikan argumen 'dayakan' atau 'nyahdaya'</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Buka seting atau tetapkan seting pentadbir</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ralat tidak dijangka semasa memuatkan seting. Sila tentu sahkan seting anda dengan menjalankan perintah seting.</value>
   </data>
@@ -538,6 +544,10 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Nama</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Pengecam</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Tidak menemui sumber bernama:</value>
   </data>
@@ -564,7 +574,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Nama sumber</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Gagal membuka sumber; cuba perintah 'source reset' Jika masalah berlanjutan.</value>
+    <value>Gagal semasa membuka sumber; cuba arahan 'source reset' jika masalah itu berterusan.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Adakah anda bersetuju dengan terma tersebut?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Pengepala pilihan tidak boleh digunakan tanpa menentukan sumber</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Tarikh Keluaran:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url Penerbit:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url Sokongan Penerbit:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url Privasi:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Hak cipta:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url Hak Cipta:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Nota Keluaran:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url Nota Keluaran:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Gagal semasa mencari sumber; hasil tidak akan dimasukkan:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Gagal semasa mencari sumber:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Ciri ini perlu didayakan oleh pentadbir. Bagi mendayakannya, jalankan 'winget settings --enable %1' sebagai pentadbir.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Mendayakan seting pentadbir khusus</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Menyahdayakan seting pentadbir khusus</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Terlalu banyak argumen seting pentadbir disediakan</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Seting pentadbir didayakan.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Seting pentadbir dinyahdayakan.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Aplikasi sedang berjalan. Keluar daripada aplikasi kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Pemasangan lain sedang berjalan. Cuba lagi kemudian.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Satu atau lebih fail sedang digunakan. Keluar daripada aplikasi kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Pakej ini tidak mempunyai kebergantungan pada sistem anda.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Tiada ruang lagi pada PC anda. Buat ruang, kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Tidak cukup memori untuk dipasang. Tutup aplikasi lain kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Aplikasi ini memerlukan kesambungan internet. Sambung ke rangkaian kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Aplikasi ini menghadapi ralat semasa pemasangan. Hubungi sokongan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Mula semula PC anda untuk menyelesaikan pemasangan ciri ini.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC anda akan dimulakan semula untuk menyelesaikan pemasangan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Pemasangan gagal. Mula semula PC anda kemudian cuba lagi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Anda telah membatalkan pemasangan.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Versi aplikasi ini yang lebih tinggi sudah dipasang.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Versi aplikasi ini yang lebih tinggi sudah dipasang.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Dasar organisasi menghalang pemasangan. Hubungi pentadbir anda.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Pemasangan tergendala</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Pemasang gagal dengan kod keluar:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Log pemasang tersedia di:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Pakej berikut dijumpai di antara sumber kerja.
+Sila nyatakan salah satunya menggunakan pilihan `--source` untuk meneruskan.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Tiada pakej ditemui antara sumber kerja.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Ini ialah keluaran stabil Windows Package Manager. Jika anda ingin mencuba ciri-ciri eksperimen, sila pasang binaan prakeluaran. Arahan tersedia pada GitHub di https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

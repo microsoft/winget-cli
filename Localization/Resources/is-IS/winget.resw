@@ -465,6 +465,12 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Eftirfarandi villur fundust við að villuleita stillingarnar:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Opnaðu stillingar í sjálfgefnum JSON-textaritli. Ef enginn ritill er grunnstilltur opnast stillingar í Skrifblokk. Fyrir tiltækar stillingar, sjá https://aka.ms/winget-settings Einnig er hægt að nota þessa skipun til að stilla stjórnandastillingar með því að gefa upp „Kveikja“ eða „Slökkva“ færibreytu</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Opna stillingar eða stilla stjórnandastillingar</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Óvænt villa við hleðslu stillinga. Staðfestu stillingarnar með því að keyra stillingaskipunina.</value>
   </data>
@@ -538,6 +544,10 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Heiti</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Auðkenni</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Uppruni finnst ekki með heitinu:</value>
   </data>
@@ -564,7 +574,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Heiti upprunans</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Ekki tókst að opna uppruna; reyndu 'source reset' skipunina ef vandamálið leysist ekki.</value>
+    <value>Mistókst þegar verið var að opna uppruna; prófaðu skipunina „source reset“ ef vandamálið er viðvarandi.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Samþykkirðu skilmálana?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Valfrjálsi hausinn á ekki við án þess að uppruninn sé tilgreindur</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Útgáfudagur:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Vefslóð útgefanda:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Veffang fyrir notendaþjónustu útgefanda:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Veffang persónuverndarstefnu:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Höfundarréttur:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Veffang höfundarréttar:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Um útgáfu:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Veffang „Um útgáfu“:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Mistókst þegar leitað var í uppruna; niðurstöður verða ekki teknar með:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Mistókst þegar leitað var í uppruna:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Stjórnendur þurfa að virkja þennan eiginleika. Sem stjórnandi skaltu virkja hann með því að keyra „winget settings --enable %1“.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Kveikir á tiltekinni stjórnandastillingu</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Slekkur á tiltekinni stjórnandastillingu</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Of margar frumbreytur stjórnandastillingar gefnar upp</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Stjórnandastilling virk.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Slökkt á stillingu stjórnanda.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Forrit er í gangi. Lokaðu forritinu og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Önnur uppsetning er þegar í gangi. Reyndu aftur síðar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Ein eða fleiri skrár eru í notkun. Lokaðu forritinu og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Þennan pakka vantar hæði úr kerfinu þínu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Ekki er meira pláss á tölvunni. Búðu til pláss og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Ekki er nægilegt minni tiltækt til uppsetningar. Lokaðu öðrum forritum og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Nettenging er nauðsynleg fyrir þetta forrit. Tengstu neti og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Villa kom upp í þessu forriti við uppsetningu. Hafðu samband við notendaþjónustu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Endurræstu tölvuna til að ljúka uppsetningu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Tölvan mun endurræsa sig til að ljúka uppsetningu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Uppsetning mistókst. Endurræstu tölvuna og reyndu svo aftur.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Þú hættir við uppsetninguna.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Nýrri útgáfa af þessu forriti hefur þegar verið sett upp.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Hærri útgáfa af þessu forriti hefur þegar verið sett upp.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Reglur stofnunar/fyrirtækis koma í veg fyrir uppsetningu. Hafðu samband við stjórnanda.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Hætt við uppsetningu</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Uppsetningarforriti mistókst með lokunarkóða:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Skrá uppsetningarforrits er tiltæk á:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Eftirfarandi pakkar fundust meðal vinnuuppruna.
+Tilgreindu einn þeirra með því að nota valkostinn „--source“ til að halda áfram.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Engir pakkar fundust meðal vinnuuppruna.</value>
   </data>
 </root>

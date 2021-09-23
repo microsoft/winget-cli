@@ -465,6 +465,12 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Ayarlar doğrulanırken aşağıdaki hatalar bulundu:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Ayarları varsayılan JSON metin düzenleyicisinde açın. Düzenleyici yapılandırılmamışsa, ayarları not defteri'nde açar. Kullanılabilir ayarlar için bkz. https://aka.ms/winget-settings Bu komut, 'enable' veya 'disable' bağımsız değişkeni sağlayarak yönetici ayarlarını ayarlamak için de kullanılabilir</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Ayarları açın veya yönetici ayarlarını ayarlayın</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ayarlar yüklenirken beklenmeyen bir hata oluştu. Lütfen ayarlar komutunu çalıştırarak ayarlarınızı doğrulayın.</value>
   </data>
@@ -538,6 +544,10 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Ad</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Tanımlayıcı</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Şu ada sahip bir kaynak bulunamadı:</value>
   </data>
@@ -564,7 +574,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Kaynak adı</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kaynak açılamadı; sorun devam ederse ‘source reset’ komutunu deneyin.</value>
+    <value>Kaynak(lar) açılırken başarısız oldu; sorun devam ederse 'source reset' komutunu deneyin.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,120 @@ Koşulları kabul ediyor musunuz?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>İsteğe bağlı üst bilgi, kaynak belirtilmeden uygulanamaz</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Sürüm Tarihi:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Yayımcı URL'si:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Yayımcı Destek URL'si:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Gizlilik URL’si:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Telif Hakkı:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Telif Hakkı URL’si:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Sürüm Notları:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Sürüm Notları URL’si:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Kaynak aranırken başarısız oldu; sonuçlar dahil edilmez:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Kaynak ararken başarısız olundu:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Bu özelliğin yöneticiler tarafından etkinleştirilmesi gerekir. Etkinleştirmek için yönetici 'winget settings --enable %1' çalıştırın.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Belirli bir yönetici ayarını etkinleştirir</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Belirli bir yönetici ayarını devre dışı bırakır</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Çok fazla yönetici ayarı bağımsız değişkeni sağlandı</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Yönetici ayarı etkinleştirildi.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Yönetici ayarı devre dışı bırakıldı.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Uygulama şu anda çalışıyor. Uygulamadan çıkıp yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Başka bir yükleme zaten devam ediyor. Daha sonra yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Bir veya daha fazla dosya kullanılıyor. Uygulamadan çıkıp yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Bu paketin sisteminiz içinde eksik bir bağımlılığı vardır.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Bilgisayarınızda başka alan yok. Yer açın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Yüklemek için yeterli bellek yok. Diğer uygulamaları kapatın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Bu uygulama İnternet bağlantısı gerektiriyor. Bir ağa bağlanın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Bu uygulama yükleme sırasında bir hatayla karşılaştı. Desteğe başvurun.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Güncelleştirmeleri yüklemeyi bitirmek için bilgisayarınızı yeniden başlatın.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Yükleme işlemini tamamlamak için bilgisayarınız yeniden başlatılacak.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Yükleme başarısız oldu. Bilgisayarınızı yeniden başlatın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Yükleme işlemini iptal ettiniz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Bu uygulamanın başka bir sürümü zaten yüklü.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Bu uygulamanın daha yüksek bir sürümü zaten yüklü.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Kuruluş ilkeleri yüklemeyi önleniyor. Yöneticinize başvurun.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Yükleme yarıda bırakıldı</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Kaldırma çıkış koduyla başarısız oldu:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Yükleyici günlüğünün kullanılabilir olduğu yer:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Çalışma kaynakları arasında aşağıdaki paketler bulundu.
+Devam etmek için lütfen '--source' seçeneğini kullanarak belirtin.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Çalışma kaynakları arasında paket bulunamadı.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Bu, uygulamanın kararlı bir Windows Package Manager yayını. Deneysel özellikleri denemek istiyorsanız lütfen yayın öncesi bir derleme yükleyin. Yönergeler GitHub'da https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

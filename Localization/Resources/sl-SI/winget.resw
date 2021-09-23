@@ -465,6 +465,12 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Pri preverjanju nastavitev smo zaznali naslednje napake:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Odprite nastavitve v privzetem urejevalniku besedil json. Če urejevalnik ni konfiguriran, odpre nastavitve v beležnici. Za razpoložljive nastavitve glejte https://aka.ms/winget-settings Ta ukaz lahko uporabite tudi za nastavitev skrbniških nastavitev z navedbo argumenta »omogoči« ali »onemogoči«</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Odprite nastavitve ali nastavite skrbniške nastavitve</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Med nalaganjem nastavitev je prišlo do nepričakovane napake. Preverite nastavitve tako, da zaženete ukaz z nastavitvami.</value>
   </data>
@@ -538,6 +544,10 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
     <value>Ime</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Ni našel vira, ki se imenuje:</value>
   </data>
@@ -564,7 +574,7 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
     <value>Ime vira</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Ni bilo mogoče odpreti vira; Če težave ne morete odpraviti, uporabite ukaz 'source reset'.</value>
+    <value>Odpiranje virov ni uspelo; poskusite uporabiti »source reset«, če težave ne morete odpraviti.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@ Ali se strinjate s pogoji?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>Izbirna glava ni veljavna, če prej ni naveden vir</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Datum izdaje:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL izdajatelja:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL podpore izdajatelja:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL zasebnosti:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Avtorske pravice:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL avtorskih pravic:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Opombe ob izdaji:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL opomb ob izdaji:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Ni uspelo pri iskanju vira; rezultati ne bodo vključeni:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Iskanje po viru ni uspelo:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>To funkcijo morajo omogočiti skrbniki. Če jo želite omogočiti, zaženite 'winget settings --enable %1' kot skrbnik.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Omogoči določeno skrbniško nastavitev</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Onemogoči določeno skrbniško nastavitev</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Vnesenih je bilo preveč argumentov skrbniške nastavitve</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Skrbniška nastavitev je omogočena.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Skrbniška nastavitev je onemogočena.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Program se trenutno izvaja. Zaprite program in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Izvaja se že druga namestitev. Poskusite znova pozneje.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Ena ali več datotek je v uporabi. Zaprite program in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>V tem paketu manjka odvisnost iz sistema.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>V vašem računalniku ni več prostora. Naredite prostor in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Za namestitev ni na voljo dovolj pomnilnika. Zaprite druge programe in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ta program zahteva internetno povezljivost. Vzpostavite povezavo z omrežjem in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Program je med namestitvijo naletel na napako. Obrnite se na podporo.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Če želite dokončati namestitev, znova zaženite računalnik.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Za dokončanje namestitve se bo računalnik znova zagnal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Namestitev ni uspela. Znova zaženite računalnik in poskusite znova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Preklicali ste namestitev.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Druga različica tega programa je že nameščena.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Novejša različica tega programa je že nameščena.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Pravilniki organizacije preprečujejo namestitev. Obrnite se na skrbnika.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Namestitev je bila opuščena</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Namestitveni program ni uspel s kodo izhoda:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Dnevnik namestitvenega programa je na voljo na:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Med delovnimi viri so bili najdeni ti paketi.
+Če želite nadaljevati, izberite eno od možnosti »--source«.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Med delovnimi viri ni bilo mogoče najti nobenega paketa.</value>
   </data>
 </root>

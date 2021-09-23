@@ -465,6 +465,12 @@
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>సెట్టింగులను ధృవీకరించే సమయంలో క్రింది వైఫల్యాలు కనుగొనబడ్డాయి:</value>
   </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>డిఫాల్ట్ json టెక్స్ట్ ఎడిటర్‌లో సెట్టింగ్‌లను తెరవండి. ఏ ఎడిటర్ నిర్మితీకరించబడకపోతే, నోట్‌ప్యాడ్‌లో సెట్టింగ్‌లను తెరుస్తుంది. అందుబాటులో ఉన్న సెట్టింగ్‌ల కోసం https://aka.ms/winget-settings చూడండి, ఈ ఆదేశాన్ని 'ఎనేబుల్' లేదా 'డిసేబుల్' వాదన అందించడం ద్వారా నిర్వాహక సెట్టింగ్‌లను సెట్ చేయడానికి కూడా ఉపయోగించవచ్చు</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>సెట్టింగ్‌లను తెరవండి లేదా నిర్వాహక సెట్టింగ్‌లను సెట్ చేయండి</value>
+  </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>సెట్టింగులను లోడ్ చేస్తున్నప్పుడు ఊహించని లోపం. సెట్టింగుల ఆదేశాన్ని అమలు చేయడం ద్వారా దయచేసి మీ సెట్టింగులను ధృవీకరించండి.</value>
   </data>
@@ -538,6 +544,10 @@
     <value>పేరు</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>ఐడెంటిఫైయర్</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>ఈ పేరు గల మూలాన్ని కనుగొనలేకపోయింది:</value>
   </data>
@@ -564,7 +574,7 @@
     <value>మూలం పేరు</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>మూలాన్ని తెరవడంలో విఫలమైంది; సమస్య కొనసాగితే 'source reset' ఆదేశాన్ని ప్రయత్నించండి.</value>
+    <value>మూలా(లు)ని తెరిచేటప్పుడు విఫలమైంది; సమస్య కొనసాగితే 'source reset' ఆదేశాన్ని ప్రయత్నించండి.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -1043,5 +1053,116 @@
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>మూలాన్ని పేర్కొనకుండా ఐచ్ఛిక శీర్షిక వర్తించదు</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>విడుదల తేదీ:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>ప్రచురణకర్త Url:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>ప్రచురణకర్త మద్దతు Url:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>గోప్యతా Url:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>కాపీరైట్:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>కాపీరైట్ Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>విడుదల గమనికలు:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>విడుదల గమనికలు Url:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>మూలాన్ని శోధిస్తున్నప్పుడు విఫలమైంది; ఫలితాలు చేర్చబడవు:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>మూలాన్ని శోధిస్తున్నప్పుడు విఫలమైంది:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ఈ ఫీచర్‌ని నిర్వాహకుల ద్వారా ప్రారంభించాల్సి ఉంటుంది. దీనిని ప్రారంభించడానికి, ‘winget settings --enable %1’ని నిర్వాహకులు మాదిరి అమలు చేయండి.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>నిర్ధిష్ట నిర్వాహక సెట్టింగ్‌ని ప్రారంభిస్తుంది</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>నిర్ధిష్ట నిర్వాహక సెట్టింగ్‌ని నిలిపివేస్తుంది</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>చాలా నిర్వాహక సెట్టింగ్ వాదనలు అందించబడ్డాయి</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>నిర్వాహక సెట్టింగ్ ప్రారంభించబడింది.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>నిర్వాహక సెట్టింగ్ నిలిపివేయబడింది.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>అప్లికేషన్ ప్రస్తుతం అమలులో ఉంది. అప్లికేషన్ నుండి నిష్క్రమించి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>మరొక వ్యవస్థాపన ఇప్పటికే ప్రోగ్రెస్‌లో ఉంది. తరువాత మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ఒకటి లేదా అంతకంటే ఎక్కువ ఫైల్‌లు ఉపయోగించబడుతున్నాయి. అప్లికేషన్ నుంచి నిష్క్రమించండి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>ఈ ప్యాకేజీలో మీ సిస్టమ్ నుండి డిపెండెన్సీ లోపించింది.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>మీ PCలో ఖాళీ స్థలం లేదు. ఖాళీ స్థలాన్ని సృష్టించి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>ఇన్‌స్టాల్ చేయడానికి తగినంత మెమరీ అందుబాటులో లేదు. ఇతర అప్లికేషన్‌లను మూసివేసి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ఈ అప్లికేషన్‌కి ఇంటర్నెట్ కనెక్టివిటీ అవసరం అవుతుంది. నెట్‌వర్క్‌కు కనెక్ట్ చేసి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>వ్యవస్థాపన సమయంలో ఈ అప్లికేషన్‌లో దోషం ఏర్పడింది. మద్దతుని సంప్రదించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>వ్యవస్థాపనను పూర్తి చేయడానికి మీ PCని పునః ప్రారంభించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>వ్యవస్థాపన పూర్తి కావడానికి మీ PC పునః ప్రారంభం అవుతుంది.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>వ్యవస్థాపన విఫలమైంది. మీ PCని పునః ప్రారంభించి, ఆపై మళ్లీ ప్రయత్నించండి.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>మీరు వ్యవస్థాపనను రద్దు చేసారు.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>ఈ అప్లికేషన్‌ యొక్క మరొక వెర్షన్ ఇప్పటికే ఇన్‌స్టాల్ చేయబడింది.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>ఈ అప్లికేషన్‌కి సంబంధించిన అధిక వెర్షన్ ఇప్పటికే ఇన్‌స్టాల్ చేయబడింది.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>సంస్థ విధానాలు వ్యవస్థాపనను నిరోధిస్తున్నాయి. మీ నిర్వాహకులను సంప్రదించండి.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>వ్యవస్థాపన రద్దు చేయబడింది</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>నిష్క్రమణ కోడ్‌తో వ్యవస్థాపన చేయడం విఫలమైంది:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>ఇన్‌స్టాలర్ లాగ్ ఇక్కడ అందుబాటులో ఉంటుంది:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>పని మూలాల మధ్య ఈ దిగువ ప్యాకేజీలు కనుగొనబడ్డాయి.
+కొనసాగించడానికి `--source` ఎంపికను ఉపయోగించి వాటిలో ఒకదానిని దయచేసి పేర్కొనండి.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>పని మూలాల మధ్య ప్యాకేజీలు ఏవీ కనుగొనబడలేదు.</value>
   </data>
 </root>
