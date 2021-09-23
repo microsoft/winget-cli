@@ -306,7 +306,24 @@ namespace
 
         // For clone
         TestContext(std::ostream& out, std::istream& in, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
-            m_out(out), m_in(in), m_overrides(overrides), m_isClone(true), Context(out, in) {}
+            m_out(out), m_in(in), m_overrides(overrides), m_isClone(true), Context(out, in)
+        {
+            m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
+            {
+                auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
+
+                if (itr == m_overrides->end())
+                {
+                    return true;
+                }
+                else
+                {
+                    itr->Used = true;
+                    itr->Override(*this);
+                    return false;
+                }
+            };
+        }
 
         ~TestContext()
         {
@@ -319,22 +336,6 @@ namespace
                         FAIL_CHECK("Unused override " + wto.Target.GetName());
                     }
                 }
-            }
-        }
-
-        bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task) override
-        {
-            auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
-
-            if (itr == m_overrides->end())
-            {
-                return true;
-            }
-            else
-            {
-                itr->Used = true;
-                itr->Override(*this);
-                return false;
             }
         }
 
