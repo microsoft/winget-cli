@@ -9,6 +9,7 @@ alloc
 altform
 anonymize
 api
+APIENTRY
 appdata
 appinst
 appinstaller
@@ -107,6 +108,7 @@ DIRECTONLY
 distro
 dll
 dllexport
+dllmain
 docx
 dotnet
 downlevel
@@ -188,6 +190,7 @@ html
 http
 https
 Hyperlink
+IActivation
 IApplication
 IAppx
 IAsync

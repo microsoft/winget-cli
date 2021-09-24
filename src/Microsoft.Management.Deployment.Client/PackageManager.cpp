@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)

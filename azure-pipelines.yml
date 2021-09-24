@@ -320,14 +320,6 @@ jobs:
     condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
-    displayName: Publish Com Trace from Interface tests
-    inputs:
-      PathtoPublish: 'tools\wpr\traces'
-      ArtifactName: 'ComTraceFromInterfaceTest'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
-
-  - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'

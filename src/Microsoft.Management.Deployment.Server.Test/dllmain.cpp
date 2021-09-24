@@ -1,4 +1,5 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 #include "winrt/base.h"
 #include <windows.h>
@@ -37,13 +38,9 @@ int32_t __stdcall WINRT_GetActivationFactory(void* classId, void** factory) noex
     if (*factory)
     {
         return 0;
-}
+    }
 
-#ifdef _WRL_MODULE_H_
-    return ::Microsoft::WRL::Module<::Microsoft::WRL::InProc>::GetModule().GetActivationFactory(static_cast<HSTRING>(classId), reinterpret_cast<::IActivationFactory**>(factory));
-#else
     return winrt::hresult_class_not_available(name).to_abi();
-#endif
 }
 catch (...) { return winrt::to_hresult(); }
 
@@ -54,12 +51,5 @@ bool __stdcall winrt_can_unload_now() noexcept
 
 int32_t __stdcall WINRT_CanUnloadNow() noexcept
 {
-#ifdef _WRL_MODULE_H_
-    if (!::Microsoft::WRL::Module<::Microsoft::WRL::InProc>::GetModule().Terminate())
-    {
-        return 1;
-    }
-#endif
-
     return winrt_can_unload_now() ? 0 : 1;
 }
