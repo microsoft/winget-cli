@@ -86,7 +86,7 @@ namespace AppInstaller::Manifest::YamlParser
         // - Validate manifest type correctness
         //   - Allowed file type in multi file manifest: version, installer, defaultLocale, locale
         //   - Allowed file type in single file manifest: preview manifest, merged and singleton
-        ManifestVer ValidateInput(std::vector<YamlManifestInfo>& input, bool fullValidation, bool schemaValidationOnly)
+        ManifestVer ValidateInput(std::vector<YamlManifestInfo>& input, ManifestValidateOption validateOption)
         {
             std::vector<ValidationError> errors;
 
@@ -253,7 +253,7 @@ namespace AppInstaller::Manifest::YamlParser
                         errors.emplace_back(ManifestError::InconsistentMultiFileManifestDefaultLocale);
                     }
 
-                    if (!schemaValidationOnly && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
+                    if (!validateOption.SchemaValidationOnly && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
                     {
                         errors.emplace_back(ManifestError::IncompleteMultiFileManifest);
                     }
@@ -264,12 +264,12 @@ namespace AppInstaller::Manifest::YamlParser
                     ManifestTypeEnum manifestType = ConvertToManifestTypeEnum(manifestTypeStr);
                     firstYamlManifest.ManifestType = manifestType;
 
-                    if (fullValidation && manifestType == ManifestTypeEnum::Merged)
+                    if (validateOption.FullValidation && manifestType == ManifestTypeEnum::Merged)
                     {
                         errors.emplace_back(ValidationError::MessageFieldValueWithFile(ManifestError::FieldValueNotSupported, "ManifestType", manifestTypeStr, firstYamlManifest.FileName));
                     }
 
-                    if (!schemaValidationOnly && manifestType != ManifestTypeEnum::Merged && manifestType != ManifestTypeEnum::Singleton)
+                    if (!validateOption.SchemaValidationOnly && manifestType != ManifestTypeEnum::Merged && manifestType != ManifestTypeEnum::Singleton)
                     {
                         errors.emplace_back(ValidationError::MessageWithFile(ManifestError::IncompleteMultiFileManifest, firstYamlManifest.FileName));
                     }
@@ -406,24 +406,22 @@ namespace AppInstaller::Manifest::YamlParser
             std::vector<YamlManifestInfo>& input,
             Manifest& manifest,
             const std::filesystem::path& mergedManifestPath,
-            bool fullValidation,
-            bool schemaValidationOnly,
-            bool errorOnVerifiedPublisherFields)
+            ManifestValidateOption validateOption)
         {
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 0, "No manifest file found");
-            THROW_HR_IF_MSG(E_INVALIDARG, schemaValidationOnly && !mergedManifestPath.empty(), "Manifest cannot be merged if only schema validation is performed");
+            THROW_HR_IF_MSG(E_INVALIDARG, validateOption.SchemaValidationOnly && !mergedManifestPath.empty(), "Manifest cannot be merged if only schema validation is performed");
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 1 && !mergedManifestPath.empty(), "Manifest cannot be merged from a single manifest");
 
-            auto manifestVersion = ValidateInput(input, fullValidation, schemaValidationOnly);
+            auto manifestVersion = ValidateInput(input, validateOption);
 
             std::vector<ValidationError> resultErrors;
 
-            if (fullValidation || schemaValidationOnly)
+            if (validateOption.FullValidation || validateOption.SchemaValidationOnly)
             {
                 resultErrors = ValidateAgainstSchema(input, manifestVersion);
             }
 
-            if (schemaValidationOnly)
+            if (validateOption.SchemaValidationOnly)
             {
                 return resultErrors;
             }
@@ -431,11 +429,11 @@ namespace AppInstaller::Manifest::YamlParser
             // Merge manifests in multi file manifest case
             const YAML::Node& manifestDoc = (input.size() > 1) ? MergeMultiFileManifest(input) : input[0].Root;
 
-            auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation, errorOnVerifiedPublisherFields);
+            auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, validateOption);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Extra semantic validations after basic validation and field population
-            if (fullValidation)
+            if (validateOption.FullValidation)
             {
                 errors = ValidateManifest(manifest);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
@@ -520,17 +518,12 @@ namespace AppInstaller::Manifest::YamlParser
         ManifestValidateOption validateOption,
         const std::filesystem::path& mergedManifestPath)
     {
-        bool fullValidation = WI_IsFlagSet(validateOption, ManifestValidateOption::FullValidation);
-        bool throwOnWarning = WI_IsFlagSet(validateOption, ManifestValidateOption::ThrowOnWarning);
-        bool schemaValidationOnly = WI_IsFlagSet(validateOption, ManifestValidateOption::SchemaValidationOnly);
-        bool errorOnVerifiedPublisherFields = WI_IsFlagSet(validateOption, ManifestValidateOption::ErrorOnVerifiedPublisherFields);
-
         Manifest manifest;
         std::vector<ValidationError> errors;
 
         try
         {
-            errors = ParseManifestImpl(input, manifest, mergedManifestPath, fullValidation, schemaValidationOnly, errorOnVerifiedPublisherFields);
+            errors = ParseManifestImpl(input, manifest, mergedManifestPath, validateOption);
         }
         catch (const ManifestException&)
         {
@@ -546,7 +539,7 @@ namespace AppInstaller::Manifest::YamlParser
         {
             ManifestException ex{ std::move(errors) };
 
-            if (throwOnWarning || !ex.IsWarningOnly())
+            if (validateOption.ThrowOnWarning || !ex.IsWarningOnly())
             {
                 THROW_EXCEPTION(ex);
             }

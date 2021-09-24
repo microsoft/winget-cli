@@ -13,14 +13,12 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             Manifest& manifest,
             const ManifestVer& manifestVersion,
-            bool fullValidation,
-            bool errorOnVerifiedPublisherFields);
+            ManifestValidateOption validateOption);
 
     private:
 
-        bool m_fullValidation = false;
-        bool m_errorOnVerifiedPublisherFields = false;
         bool m_isMergedManifest = false;
+        ManifestValidateOption m_validateOption;
 
         // Struct mapping a manifest field to its population logic
         struct FieldProcessInfo
@@ -90,7 +88,6 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             Manifest& manifest,
             const ManifestVer& manifestVersion,
-            bool fullValidation,
-            bool errorOnVerifiedPublisherFields);
+            ManifestValidateOption validateOption);
     };
 }

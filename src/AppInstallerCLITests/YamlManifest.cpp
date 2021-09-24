@@ -168,16 +168,25 @@ private:
     bool m_expectedWarningOnly;
 };
 
+ManifestValidateOption GetTestManifestValidateOption(
+    bool schemaValidationOnly = false,
+    bool errorOnVerifiedPublisher = false)
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.ThrowOnWarning = true;
+    validateOption.SchemaValidationOnly = schemaValidationOnly;
+    validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
+    return validateOption;
+}
+
 void TestManifest(
     const std::filesystem::path& manifestPath,
     const std::string& expectedMessage = {},
     bool expectedWarningOnly = false,
-    YamlParser::ManifestValidateOption additionalValidateOption = YamlParser::ManifestValidateOption::Default)
+    ManifestValidateOption validateOption = GetTestManifestValidateOption())
 {
     INFO(manifestPath.u8string());
-
-    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning;
-    WI_SetAllFlags(validateOption, additionalValidateOption);
 
     if (expectedMessage.empty())
     {
@@ -194,7 +203,7 @@ struct ManifestTestCase
     std::string TestFile;
     std::string ExpectedMessage = {};
     bool IsWarningOnly = false;
-    YamlParser::ManifestValidateOption AdditionalValidateOption = YamlParser::ManifestValidateOption::Default;
+    ManifestValidateOption ValidateOption = GetTestManifestValidateOption();
 };
 
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
@@ -267,12 +276,12 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
-        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, YamlParser::ManifestValidateOption::ErrorOnVerifiedPublisherFields },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
     };
 
     for (auto const& testCase : TestCases)
     {
-        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly, testCase.AdditionalValidateOption);
+        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly, testCase.ValidateOption);
     }
 }
 
@@ -289,12 +298,10 @@ TEST_CASE("ManifestEncoding", "[ManifestValidation]")
         { "Manifest-Encoding-UTF16LE-BOM.yaml" },
     };
 
-    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation | YamlParser::ManifestValidateOption::ThrowOnWarning;
-
     for (auto const& testCase : TestCases)
     {
         INFO(testCase.TestFile);
-        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), validateOption);
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), GetTestManifestValidateOption());
         REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == u8"MSIX SDK\xA9");
     }
 }
@@ -568,7 +575,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
 
 TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation;
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
@@ -592,7 +600,8 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 
 TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    YamlParser::ManifestValidateOption validateOption = YamlParser::ManifestValidateOption::FullValidation;
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);

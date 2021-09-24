@@ -547,7 +547,7 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::FieldRequireVerifiedPublisher, fieldInfo.Name, "",
                         m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column,
-                        m_errorOnVerifiedPublisherFields ? ValidationError::Level::Error : ValidationError::Level::Warning);
+                        m_validateOption.ErrorOnVerifiedPublisherFields ? ValidationError::Level::Error : ValidationError::Level::Warning);
                 }
 
                 if (!valueNode.IsNull())
@@ -566,7 +566,7 @@ namespace AppInstaller::Manifest
             else
             {
                 // For full validation, also reports unrecognized fields as warning
-                if (m_fullValidation)
+                if (m_validateOption.FullValidation)
                 {
                     resultErrors.emplace_back(ManifestError::FieldUnknown, key, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column, ValidationError::Level::Warning);
                 }
@@ -675,11 +675,9 @@ namespace AppInstaller::Manifest
         const YAML::Node& rootNode,
         Manifest& manifest,
         const ManifestVer& manifestVersion,
-        bool fullValidation,
-        bool errorOnVerifiedPublisherFields)
+        ManifestValidateOption validateOption)
     {
-        m_fullValidation = fullValidation;
-        m_errorOnVerifiedPublisherFields = errorOnVerifiedPublisherFields;
+        m_validateOption = validateOption;
         m_isMergedManifest = !rootNode["ManifestType"sv].IsNull() && rootNode["ManifestType"sv].as<std::string>() == "merged";
 
         ValidationErrors resultErrors;
@@ -789,10 +787,9 @@ namespace AppInstaller::Manifest
         const YAML::Node& rootNode,
         Manifest& manifest,
         const ManifestVer& manifestVersion,
-        bool fullValidation,
-        bool errorOnVerifiedPublisherFields)
+        ManifestValidateOption validateOption)
     {
         ManifestYamlPopulator manifestPopulator;
-        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, fullValidation, errorOnVerifiedPublisherFields);
+        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, validateOption);
     }
 }

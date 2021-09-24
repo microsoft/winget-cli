@@ -17,7 +17,6 @@ extern "C"
 
 #define WINGET_SQLITE_INDEX_VERSION_LATEST ((UINT32)-1)
 
-    // Values must match ones defined in ManifestValidateOption in ManifestYamlParser
     enum WinGetValidateManifestOption
     {
         Default = 0,
