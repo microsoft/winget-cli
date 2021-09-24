@@ -187,11 +187,15 @@ namespace AppInstaller::Logging
     {
         SubExecutionTelemetryScope();
 
+        SubExecutionTelemetryScope(uint32_t sessionId);
+
         SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
         SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
 
         SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
         SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
+
+        uint32_t GetCurrentSubExecutionId();
 
         ~SubExecutionTelemetryScope();
 

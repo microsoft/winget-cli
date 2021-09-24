@@ -320,12 +320,15 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.emplace_back(
+                Execution::PackageToInstall package{
                     std::move(searchContext.Get<Execution::Data::PackageVersion>()),
                     std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
                     std::move(searchContext.Get<Execution::Data::Manifest>()),
                     std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope);
+                    packageRequest.Scope,
+                    subExecution.GetCurrentSubExecutionId()};
+
+                packagesToInstall.emplace_back(std::move(package));
             }
         }
 

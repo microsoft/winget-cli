@@ -62,7 +62,7 @@ namespace AppInstaller::Logging
     {
         std::ignore = CoCreateGuid(&m_activityId);
     }
-    
+
     const GUID* TelemetryTraceLogger::GetActivityId() const
     {
         return &m_activityId;
@@ -588,6 +588,18 @@ namespace AppInstaller::Logging
         auto expected = s_RootExecutionId;
         THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, ++m_sessionId),
             "Cannot create a sub execution telemetry session when a previous session exists.");
+    }
+
+    SubExecutionTelemetryScope::SubExecutionTelemetryScope(uint32_t sessionId)
+    {
+        auto expected = s_RootExecutionId;
+        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, sessionId),
+            "Cannot create a sub execution telemetry session when a previous session exists.");
+    }
+
+    uint32_t SubExecutionTelemetryScope::GetCurrentSubExecutionId()
+    {
+        return (uint32_t)s_subExecutionId;
     }
 
     SubExecutionTelemetryScope::~SubExecutionTelemetryScope()

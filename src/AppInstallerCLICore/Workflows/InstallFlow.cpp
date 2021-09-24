@@ -659,7 +659,7 @@ namespace AppInstaller::CLI::Workflow
         bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
-            Logging::SubExecutionTelemetryScope subExecution;
+            Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
 
             // We want to do best effort to install all packages regardless of previous failures
             auto installContextPtr = context.Clone();

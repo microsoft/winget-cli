@@ -63,8 +63,9 @@ namespace AppInstaller::CLI::Execution
             std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
             Manifest::Manifest&& manifest,
             Manifest::ManifestInstaller&& installer,
-            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown)
-            : PackageVersion(std::move(packageVersion)), InstalledPackageVersion(std::move(installedPackageVersion)), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope) { }
+            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown,
+            uint32_t packageSubExecutionId = 0)
+            : PackageVersion(std::move(packageVersion)), InstalledPackageVersion(std::move(installedPackageVersion)), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope), PackageSubExecutionId(packageSubExecutionId) { }
 
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
 
@@ -77,6 +78,10 @@ namespace AppInstaller::CLI::Execution
 
         Manifest::ManifestInstaller Installer;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
+
+        // Use this subexecution id when installing this package so that 
+        // install telemetry is captured with the same sub execution id as other events in Search phase.
+        uint32_t PackageSubExecutionId;
     };
 
     namespace details
