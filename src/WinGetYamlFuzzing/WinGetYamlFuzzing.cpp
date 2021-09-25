@@ -10,7 +10,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t * data, size_t size)
 
     try
     {
-        AppInstaller::Manifest::Manifest manifest = AppInstaller::Manifest::YamlParser::Create(input, false);
+        AppInstaller::Manifest::Manifest manifest = AppInstaller::Manifest::YamlParser::Create(input);
     }
     catch (...) {}
 
