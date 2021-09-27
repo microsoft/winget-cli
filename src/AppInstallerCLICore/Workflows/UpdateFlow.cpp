@@ -112,11 +112,14 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            packagesToInstall.emplace_back(
+            Execution::PackageToInstall package{
                 std::move(updateContext.Get<Execution::Data::PackageVersion>()),
                 std::move(updateContext.Get<Execution::Data::InstalledPackageVersion>()),
                 std::move(updateContext.Get<Execution::Data::Manifest>()),
-                std::move(updateContext.Get<Execution::Data::Installer>().value()));
+                std::move(updateContext.Get<Execution::Data::Installer>().value()) };
+            package.PackageSubExecutionId = subExecution.GetCurrentSubExecutionId();
+
+            packagesToInstall.emplace_back(std::move(package));
         }
 
         if (!updateAllFoundUpdate)
