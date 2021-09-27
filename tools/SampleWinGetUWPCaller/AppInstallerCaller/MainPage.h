@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
 
 #include "InstallingPackageView.h"
 #include <winrt\Microsoft.Management.Deployment.h>
