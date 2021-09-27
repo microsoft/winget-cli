@@ -48,13 +48,14 @@ namespace AppInstaller::CLI
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
-        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::Log().SetLevel(Logging::Level::Info);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
+        Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
         // Initiate the background cleanup of the log file location.
@@ -99,9 +100,9 @@ namespace AppInstaller::CLI
             command->ParseArguments(invocation, context.Args);
 
             // Change logging level to Info if Verbose not requested
-            if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
+            if (context.Args.Contains(Execution::Args::Type::VerboseLogs))
             {
-                Logging::Log().SetLevel(Logging::Level::Info);
+                Logging::Log().SetLevel(Logging::Level::Verbose);
             }
 
             context.UpdateForArgs();

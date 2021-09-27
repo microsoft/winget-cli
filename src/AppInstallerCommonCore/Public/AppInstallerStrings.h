@@ -136,4 +136,7 @@ namespace AppInstaller::Utility
 
     // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
+
+    // Replace message predefined token
+    std::string FindAndReplaceMessageToken(std::string_view message, std::string_view value);
 }

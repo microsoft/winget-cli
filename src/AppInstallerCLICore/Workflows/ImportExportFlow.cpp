@@ -119,6 +119,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info,
                 << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceDetails.Identifier << "]");
 
+            if (!availablePackageVersion->GetManifest().DefaultLocalization.Get<Manifest::Localization::Agreements>().empty())
+            {
+                // Report that the package requires accepting license terms
+                AICLI_LOG(CLI, Warning, << "Package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] requires license agreement to install");
+                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+            }
+
             // Find the exported source for this package
             auto sourceItr = FindSource(exportedSources, sourceDetails);
             if (sourceItr == exportedSources.end())
@@ -264,18 +271,24 @@ namespace AppInstaller::CLI::Workflow
 
                 // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
 
+                // TODO: In the future, it would be better to not have to convert back and forth from a string
+                searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+
                 // Find the single version we want is available
                 searchContext <<
+                    Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion;
+                    Workflow::GetInstalledPackageVersion <<
+                    Workflow::SelectInstaller <<
+                    Workflow::EnsureApplicableInstaller;
 
                 if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
                 {
@@ -284,7 +297,13 @@ namespace AppInstaller::CLI::Workflow
 
                 if (searchContext.IsTerminated())
                 {
-                    if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+                    if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                    {
+                        // This means that the subcontext being terminated is due to an overall abort
+                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                        return;
+                    }
+                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
                     {
                         AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
                         context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
@@ -301,7 +320,12 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.push_back({ std::move(searchContext.Get<Execution::Data::PackageVersion>()), packageRequest });
+                packagesToInstall.emplace_back(
+                    std::move(searchContext.Get<Execution::Data::PackageVersion>()),
+                    std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
+                    std::move(searchContext.Get<Execution::Data::Manifest>()),
+                    std::move(searchContext.Get<Execution::Data::Installer>().value()),
+                    packageRequest.Scope);
             }
         }
 
@@ -319,5 +343,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+    }
+
+    void InstallImportedPackages(Execution::Context& context)
+    {
+        context << Workflow::InstallMultiplePackages(Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+
+        if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+        }
     }
 }

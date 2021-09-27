@@ -25,7 +25,7 @@ namespace AppInstaller::Settings
 
         void LogSettingAction(std::string_view action, const StreamDefinition& def)
         {
-            AICLI_LOG(Core, Info, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Path);
+            AICLI_LOG(Core, Verbose, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Path);
         }
 
         // A settings container.

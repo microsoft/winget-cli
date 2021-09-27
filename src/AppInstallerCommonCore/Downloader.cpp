@@ -7,6 +7,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
 #include "DODownloader.h"
 
@@ -167,18 +168,40 @@ namespace AppInstaller::Utility
             if (setting == InstallerDownloader::Default ||
                 setting == InstallerDownloader::DeliveryOptimization)
             {
-                auto result = DODownload(url, dest, progress, computeHash, info);
-                // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
-                // Only do so if the file exists, because cancellation will not throw here.
+                try
+                {
+                    auto result = DODownload(url, dest, progress, computeHash, info);
+                    // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
+                    // Only do so if the file exists, because cancellation will not throw here.
+                    if (std::filesystem::exists(dest))
+                    {
+                        ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
+                    }
+                    return result;
+                }
+                catch (const wil::ResultException& re)
+                {
+                    // Fall back to WinINet below unless the specific error is not one that should be ignored.
+                    // We need to be careful not to bypass metered networks or other reasons that might
+                    // intentionally cause the download to be blocked.
+                    HRESULT hr = re.GetErrorCode();
+                    if (IsDOErrorFatal(hr))
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        // Send telemetry so that we can understand the reasons for DO failing
+                        Logging::Telemetry().LogNonFatalDOError(url, hr);
+                    }
+                }
+
+                // If we reach this point, we are intending to fall through to WinINet.
+                // Remove any file that may have been placed in the target location.
                 if (std::filesystem::exists(dest))
                 {
-                    ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
+                    std::filesystem::remove(dest);
                 }
-                return result;
-
-                // If DO becomes an issue, we may choose to catch exceptions and fall back to WinINet below.
-                // We would need to be careful not to bypass metered networks or other reasons that might
-                // intentionally cause the download to be blocked.
             }
         }
 
@@ -240,7 +263,28 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Finished applying motw");
     }
 
-    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
+    void RemoveMotwIfApplicable(const std::filesystem::path& filePath)
+    {
+        AICLI_LOG(Core, Info, << "Started removing motw to " << filePath);
+
+        if (!IsNTFS(filePath))
+        {
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped removing motw");
+            return;
+        }
+
+        Microsoft::WRL::ComPtr<IZoneIdentifier> zoneIdentifier;
+        THROW_IF_FAILED(CoCreateInstance(CLSID_PersistentZoneIdentifier, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&zoneIdentifier)));
+        THROW_IF_FAILED(zoneIdentifier->Remove());
+
+        Microsoft::WRL::ComPtr<IPersistFile> persistFile;
+        THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
+        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
+
+        AICLI_LOG(Core, Info, << "Finished removing motw");
+    }
+
+    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure)
     {
         AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
 
@@ -258,7 +302,19 @@ namespace AppInstaller::Utility
             RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
             RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
             RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+
+            // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
+            RemoveMotwIfApplicable(filePath);
+
             aesSaveResult = attachmentExecute->Save();
+
+            // Reapply desired zone upon scan failure.
+            // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+            if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
+            {
+                ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
+            }
+
             RETURN_IF_FAILED(aesSaveResult);
             return S_OK;
         };

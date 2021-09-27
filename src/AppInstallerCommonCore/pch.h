@@ -11,6 +11,7 @@
 #include <Shlwapi.h>
 #include <wow64apiset.h>
 #include <icu.h>
+#include <msi.h>
 
 #include "TraceLogging.h"
 
@@ -75,6 +76,7 @@
 #include <winrt/Windows.Web.Http.h>
 #include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/Windows.Web.Http.Filters.h>
+#include <winrt/Windows.Globalization.h>
 
 #endif
 

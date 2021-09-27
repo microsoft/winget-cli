@@ -141,6 +141,9 @@
     <value>Şu alt komutlar kullanılabilir:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>yükseltmeler mevcut.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Belirtilen kanalı kullanın; varsayılan, genel hedef kitledir</value>
   </data>
@@ -419,9 +422,6 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>İmlecin komut satırı içindeki konumu</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Önizleme</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Gizlilik Bildirimi</value>
   </data>
@@ -466,10 +466,10 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Ayarlar doğrulanırken aşağıdaki hatalar bulundu:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Ayarları varsayılan JSON metin düzenleyicisinde açın. Düzenleyici yapılandırılmadıysa, ayarlar not defterinde açılır. Kullanılabilir ayarlar için bkz. https://aka.ms/winget-settings</value>
+    <value>Ayarları varsayılan JSON metin düzenleyicisinde açın. Düzenleyici yapılandırılmamışsa, ayarları not defteri'nde açar. Kullanılabilir ayarlar için bkz. https://aka.ms/winget-settings Bu komut, 'enable' veya 'disable' bağımsız değişkeni sağlayarak yönetici ayarlarını ayarlamak için de kullanılabilir</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Ayarları aç</value>
+    <value>Ayarları açın veya yönetici ayarlarını ayarlayın</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ayarlar yüklenirken beklenmeyen bir hata oluştu. Lütfen ayarlar komutunu çalıştırarak ayarlarınızı doğrulayın.</value>
@@ -544,6 +544,10 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Ad</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Tanımlayıcı</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Şu ada sahip bir kaynak bulunamadı:</value>
   </data>
@@ -570,7 +574,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Kaynak adı</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kaynak açılamadı; sorun devam ederse ‘source reset’ komutunu deneyin.</value>
+    <value>Kaynak(lar) açılırken başarısız oldu; sorun devam ederse 'source reset' komutunu deneyin.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ Grup Ilkesi nedeniyle yapılandırma devre dışı bırakıldı.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>'%1' bağımsız değişkeni için sağlanan değer geçersiz</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>İptal Edildi</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Dış</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Bu içeri aktarmada bulunan paketler aşağıdaki bağımlılıklara sahip:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Bu paket aşağıdaki bağımlılıkları gerektirir:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketler</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Bu paket artık gerekemeyecek bağımlılıklara sahip:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Bildirim, doğrulanmayan aşağıdaki bağımlılıklara sahip; geçerli olduğundan emin olun:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Özellikleri</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Kitaplıkları</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Mağazası Koşulları</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Paketler için tüm lisans anlaşmalarını kabul et</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Dışarı aktarılan paketin yüklenilmesi için lisans sözleşmesi gerekiyor:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Yayımcı, yukarıdaki bilgileri görüntülemenizi ve yüklemeden önce sözleşmeleri kabul etmenizi gerektirir.
+Koşulları kabul ediyor musunuz?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paket sözleşmeleri kabul edildi. İşlem iptal edildi.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Sözleşmeler:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Yazar:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Açıklama:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Yükleyici:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Yerel Ayar:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Mağaza Ürün Kimliği:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tür:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>İndirme URL'si:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisans:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lisans URL'si:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Bilinen Ad:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Giriş sayfası:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Yayıncı:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Sürüm:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Hayır</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Evet</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Eklenen kaynak açılamadı.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Kaynak işlemleri sırasında tüm kaynak anlaşmalarını kabul edin</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1' kaynağı, kullanmadan önce aşağıdaki sözleşmeleri görüntülemenizi gerektirir.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Tüm kaynak sözleşmeleri koşullarını kabul ediyor musunuz?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Bir veya daha fazla kaynak anlaşması kabul edildi. İşlem iptal edildi. Lütfen kaynak sözleşmelerini kabul edin veya karşılık gelen kaynakları kaldırın.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Kaynak, geçerli makinenin coğrafi bölgesi düzgün çalışması için gönderilmesini gerektiriyor.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Başarıyla yüklendi. Yükseltmeyi tamamlamak için uygulamayı yeniden başlatın.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>İsteğe Bağlı Windows-Package-Manager REST kaynağı HTTP üst bilgisi</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Bu kaynak için geçerli olmadığından isteğe bağlı üst bilgi yoksayılıyor.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>İsteğe bağlı üst bilgi, kaynak belirtilmeden uygulanamaz</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Sürüm Tarihi:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Yayımcı URL'si:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Yayımcı Destek URL'si:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Gizlilik URL’si:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Telif Hakkı:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Telif Hakkı URL’si:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Sürüm Notları:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Sürüm Notları URL’si:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Kaynak aranırken başarısız oldu; sonuçlar dahil edilmez:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Kaynak ararken başarısız olundu:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Bu özelliğin yöneticiler tarafından etkinleştirilmesi gerekir. Etkinleştirmek için yönetici 'winget settings --enable %1' çalıştırın.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Belirli bir yönetici ayarını etkinleştirir</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Belirli bir yönetici ayarını devre dışı bırakır</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Çok fazla yönetici ayarı bağımsız değişkeni sağlandı</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Yönetici ayarı etkinleştirildi.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Yönetici ayarı devre dışı bırakıldı.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Uygulama şu anda çalışıyor. Uygulamadan çıkıp yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Başka bir yükleme zaten devam ediyor. Daha sonra yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Bir veya daha fazla dosya kullanılıyor. Uygulamadan çıkıp yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Bu paketin sisteminiz içinde eksik bir bağımlılığı vardır.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Bilgisayarınızda başka alan yok. Yer açın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Yüklemek için yeterli bellek yok. Diğer uygulamaları kapatın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Bu uygulama İnternet bağlantısı gerektiriyor. Bir ağa bağlanın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Bu uygulama yükleme sırasında bir hatayla karşılaştı. Desteğe başvurun.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Güncelleştirmeleri yüklemeyi bitirmek için bilgisayarınızı yeniden başlatın.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Yükleme işlemini tamamlamak için bilgisayarınız yeniden başlatılacak.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Yükleme başarısız oldu. Bilgisayarınızı yeniden başlatın ve yeniden deneyin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Yükleme işlemini iptal ettiniz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Bu uygulamanın başka bir sürümü zaten yüklü.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Bu uygulamanın daha yüksek bir sürümü zaten yüklü.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Kuruluş ilkeleri yüklemeyi önleniyor. Yöneticinize başvurun.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Yükleme yarıda bırakıldı</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Kaldırma çıkış koduyla başarısız oldu:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Yükleyici günlüğünün kullanılabilir olduğu yer:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Çalışma kaynakları arasında aşağıdaki paketler bulundu.
+Devam etmek için lütfen '--source' seçeneğini kullanarak belirtin.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Çalışma kaynakları arasında paket bulunamadı.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Bu, uygulamanın kararlı bir Windows Package Manager yayını. Deneysel özellikleri denemek istiyorsanız lütfen yayın öncesi bir derleme yükleyin. Yönergeler GitHub'da https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

@@ -1,7 +1,9 @@
+# See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
+
 WinGetDevCLI_8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 microsoft\.com/[^])">]*
-Sha256: [0-9A-Fa-f]{64}
+S[Hh][Aa]256: [0-9A-Fa-f]{64}
 SHA256::ConvertToBytes\("[0-9A-Fa-f]{64}"
 # data urls
 data:[a-zA-Z=;,/0-9+-]+
@@ -38,10 +40,13 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 "pattern": .*$
 
 # doc/ManifestSpecv1.0.md
-^ShortDescription: "Le nouveau.*"$
+^ShortDescription: Le nouveau.*$
 
 # Ignore test patterns
 REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
 
 # URL escaped characters
 \%[0-9A-F]{2}
+
+# Sample store product id for App Installer
+9nblggh4nns1

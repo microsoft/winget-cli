@@ -138,6 +138,7 @@ namespace AppInstaller::CLI::Workflow
 
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
                 path /= Logging::FileLogger::DefaultPrefix();
+                path += '-';
                 path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
                 path += '-';
                 path += Utility::GetCurrentTimeForFilename();
@@ -180,6 +181,68 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
+
+        // Complicated rename algorithm due to somewhat arbitrary failures.
+        // 1. First, try to rename.
+        // 2. Then, create an empty file for the target, and attempt to rename.
+        // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+        // 4. Attempt to use a hard link if available.
+        // 5. Copy the file if nothing else has worked so far.
+        void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to)
+        {
+            // 1. First, try to rename.
+            try
+            {
+                // std::filesystem::rename() handles motw correctly if applicable.
+                std::filesystem::rename(from, to);
+                return;
+            }
+            CATCH_LOG();
+
+            // 2. Then, create an empty file for the target, and attempt to rename.
+            //    This seems to fix things in certain cases, so we do it.
+            try
+            {
+                {
+                    std::ofstream targetFile{ to };
+                }
+                std::filesystem::rename(from, to);
+                return;
+            }
+            CATCH_LOG();
+
+            // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+            for (int i = 0; i < 5; ++i)
+            {
+                try
+                {
+                    std::this_thread::sleep_for(100ms);
+                    std::filesystem::rename(from, to);
+                    return;
+                }
+                CATCH_LOG();
+            }
+
+            // 4. Attempt to use a hard link if available.
+            if (Runtime::SupportsHardLinks(from))
+            {
+                try
+                {
+                    // Create a hard link to the file; the installer will be left in the temp directory afterward
+                    // but it is better to succeed the operation and leave a file around than to fail.
+                    // First we have to remove the target file as the function will not overwrite.
+                    std::filesystem::remove(to);
+                    std::filesystem::create_hard_link(from, to);
+                    return;
+                }
+                CATCH_LOG();
+            }
+
+            // 5. Copy the file if nothing else has worked so far.
+            // Create a copy of the file; the installer will be left in the temp directory afterward
+            // but it is better to succeed the operation and leave a file around than to fail.
+            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -187,7 +250,6 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
-        const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
 
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecute,
@@ -197,26 +259,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << "Installation abandoned" << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-        else if (installResult.value() != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult.value()) == additionalSuccessCodes.end()))
-        {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
-
-            context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
-            // Show installer log path if exists
-            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
-            {
-                context.Reporter.Info() << "Installer log is available at: " << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
         }
         else
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            context.Add<Execution::Data::InstallerReturnCode>(installResult.value());
         }
     }
 
@@ -256,8 +304,7 @@ namespace AppInstaller::CLI::Workflow
             break;
         }
 
-        // std::filesystem::rename() handles motw correctly if applicable.
-        std::filesystem::rename(installerPath, renamedDownloadedInstaller);
+        RenameFile(installerPath, renamedDownloadedInstaller);
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);

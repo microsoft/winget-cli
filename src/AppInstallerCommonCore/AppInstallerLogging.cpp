@@ -4,9 +4,11 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerFileLogger.h"
+#include "Public/winget/TraceLogger.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/AppInstallerRuntime.h"
+#include "Public/winget/ThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -47,12 +49,6 @@ namespace AppInstaller::Logging
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
-
-    DiagnosticLogger& DiagnosticLogger::GetInstance()
-    {
-        static DiagnosticLogger instance;
-        return instance;
-    }
 
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
@@ -129,9 +125,51 @@ namespace AppInstaller::Logging
         }
     }
 
+    void DiagnosticLogger::WriteDirect(Channel channel, Level level, std::string_view message)
+    {
+        THROW_HR_IF_MSG(E_INVALIDARG, channel == Channel::All, "Cannot write to all channels");
+
+        if (IsEnabled(channel, level))
+        {
+            for (auto& logger : m_loggers)
+            {
+                logger->WriteDirect(message);
+            }
+        }
+    }
+
+    DiagnosticLogger& Log()
+    {
+        ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        if (pThreadGlobals)
+        {
+            return pThreadGlobals->GetDiagnosticLogger();
+        }
+        else
+        {
+            static DiagnosticLogger processGlobalLogger;
+            return processGlobalLogger;
+        }
+    }
+
+    void AddFileLogger()
+    {
+        Log().AddLogger(std::make_unique<FileLogger>());
+    }
+
     void AddFileLogger(const std::filesystem::path& filePath)
     {
         Log().AddLogger(std::make_unique<FileLogger>(filePath));
+    }
+
+    void AddFileLogger(std::string_view fileNamePrefix)
+    {
+        Log().AddLogger(std::make_unique<FileLogger>(fileNamePrefix));
+    }
+
+    void AddTraceLogger()
+    {
+        Log().AddLogger(std::make_unique<TraceLogger>());
     }
 
     void BeginLogFileCleanup()

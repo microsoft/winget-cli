@@ -13,22 +13,24 @@ namespace AppInstaller::Logging
     using namespace std::string_view_literals;
     using namespace std::chrono_literals;
 
-    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet-"sv;
+    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
+
+    FileLogger::FileLogger() : FileLogger(s_fileLoggerDefaultFilePrefix) {}
 
     FileLogger::FileLogger(const std::filesystem::path& filePath)
     {
-        if (filePath.empty())
-        {
-            m_name = "file";
-            m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-            m_filePath /= s_fileLoggerDefaultFilePrefix.data() + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data();
-        }
-        else
-        {
-            m_name = GetNameForPath(filePath);
-            m_filePath = filePath;
-        }
+        m_name = GetNameForPath(filePath);
+        m_filePath = filePath;
+
+        m_stream.open(m_filePath);
+    }
+
+    FileLogger::FileLogger(const std::string_view fileNamePrefix)
+    {
+        m_name = "file";
+        m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
+        m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
 
         m_stream.open(m_filePath);
     }
@@ -71,6 +73,15 @@ namespace AppInstaller::Logging
         // Just eat any exceptions here; better than losing logs
     }
 
+    void FileLogger::WriteDirect(std::string_view message) noexcept try
+    {
+        m_stream << message << std::endl;
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better than losing logs
+    }
+
     void FileLogger::BeginCleanup(const std::filesystem::path& filePath)
     {
         std::thread([filePath]()
@@ -83,8 +94,7 @@ namespace AppInstaller::Logging
                     for (auto& file : std::filesystem::directory_iterator{ filePath })
                     {
                         if (file.is_regular_file() &&
-                            now - file.last_write_time() > (7 * 24h) &&
-                            Utility::CaseInsensitiveStartsWith(file.path().filename().string(), s_fileLoggerDefaultFilePrefix))
+                            now - file.last_write_time() > (7 * 24h))
                         {
                             std::filesystem::remove(file.path());
                         }

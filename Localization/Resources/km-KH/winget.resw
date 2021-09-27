@@ -141,6 +141,9 @@
     <value>មានពាក្យបញ្ជារងដូចខាងក្រោម៖</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>អាចអាប់ក្រេតបាន។</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ប្រើ​ប៉ុស្តិ៍​ដែល​បាន​​បញ្ជាក់ លំនាំដើម​គឺ​ទស្សនិកជន​ទូទៅ</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>ទីតាំង​របស់​ទស្ស​ន៍ទ្រនិច​នៅក្នុង​បន្ទាត់​ពាក្យ​បញ្ជា</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>មើលជាមុន</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>ព័សេចក្ដី​ថ្លែងការណ៍​ឯកជនភាព</value>
   </data>
@@ -466,10 +466,10 @@
     <value>ភាព​មិន​ជោគជ័យ​ដូច​ខាងក្រោម​បានរកឃើញ​ក្នុង​កា​រផ្ទៀងផ្ទាត់​ការ​កំណត់៖</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>បើក​ការ​កំណត់​នៅ​ក្នុង​កម្មវិធី​កែ​សម្រួល​អត្ថបទ json លំនាំដើម។ ប្រសិនបើ​គ្មាន​កម្មវិធី​កែសម្រួល​ត្រូវ​បានកំណត់​រចនាសម្ព័ន្ធ​ទេ សូម​បើក​ការកំណត់​នៅ​ក្នុង notepad។ សម្រាប់​ការ​កំណត់​ដែល​អាច​ប្រើ​បាន សូម​មើល https://aka.ms/winget-settings</value>
+    <value>បើក​ការ​កំណត់​នៅក្នុង​កម្មវិធីកែសម្រួលអត្ថបទ json លំនាំដើម។ ប្រសិនបើ​មិនបាន​កំណត់រចនាសម្ព័ន្ធ​កម្មវិធីកែសម្រួលទេ ចូរបើក​ការ​កំណត់​នៅក្នុង​ណូតផេត។ សម្រាប់​ការកំណត់​ដែល​អាចប្រើបាន សូមមើល https://aka.ms/winget-settings។ ឃ្លាបញ្ជានេះ​ក៏​អាចត្រូវបានប្រើ ដើម្បីកំណត់ការ​កំណត់អ្នកគ្រប់គ្រង ដោយផ្ដល់វិចារ 'enable' ឬ 'disable'</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>បើកការកំណត់</value>
+    <value>បើក​ការ​កំណត់ ឬកំណត់​ការ​កំណត់អ្នកគ្រប់គ្រង</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>មាន​កំហុស​ដែល​មិន​រំពឹង​ទុក​​​ខណៈពេល​ផ្ទុក​ការកំណត់។ សូម​ផ្ទៀងផ្ទាត់​ការ​កំណត់​របស់​អ្នក​ដោយ​ដំណើរការ​ពាក្យ​បញ្ជា​ការ​កំណត់។</value>
@@ -544,6 +544,10 @@
     <value>ឈ្មោះ</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>អង្គសម្គាល់</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>រកមិនឃើញប្រភពដែលមានឈ្មោះថា៖</value>
   </data>
@@ -570,7 +574,7 @@
     <value>ឈ្មោះ​ប្រភព</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>បរាជ័យក្នុងការបើកប្រភព; សាកល្បងពាក្យបញ្ជា ‘source reset’ ប្រសិនបើនៅតែមានបញ្ហា។</value>
+    <value>បានបរាជ័យ នៅពេលបើកប្រភព សូមសាកល្បងប្រើពាក្យបញ្ជា 'source reset' ប្រសិនបើបញ្ហានៅតែបន្តកើតមាន។</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>តម្លៃដែលបានផ្តល់សម្រាប់អាគុយម៉ង់ '%1' មិនត្រឹមត្រូវទ</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>បានបោះបង់</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>ខាងក្រៅ</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>កញ្ចប់ដែលបានរកឃើញនៅក្នុងការនាំចេញនេះមានភាពអាស្រ័យដូចខាងក្រោម៖</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>កញ្ចប់នេះតម្រូវឱ្យមានភាពអាស្រ័យដូចខាងក្រោម៖</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>កញ្ចប់</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>កញ្ចប់នេះមានភាពអាស្រ័យដែលអាចមិនត្រូវការទៀតទេ៖</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>មេនីហ្វេសថ៍មានភាពអាស្រ័យដូចខាងក្រោមដែលមិនអាចផ្ទៀងផ្ទាត់បាន ធានាថាពួកវាត្រឹមត្រូវ៖</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>មុខងារ Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>បណ្ណាល័យ Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>លក្ខខណ្ឌ Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ទទួលយកកិច្ចព្រមព្រៀងអាជ្ញាបណ្ណទាំងអស់សម្រាប់កញ្ចប់</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>កញ្ចប់ដែលបាននាំចេញតម្រូវឱ្យមានកិច្ចព្រមព្រៀងអាជ្ញាបណ្ណ ដើម្បីដំឡើង៖</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>អ្នកបោះពុម្ពផ្សាយតម្រូវឱ្យអ្នកមើលព័ត៌មានខាងលើ និងទទួលយកកិច្ចព្រមព្រៀង មុនពេលដំឡើង។
+តើអ្នកយល់ព្រមនឹងលក្ខខណ្ឌទាំងនោះដែរទេ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>មិនបានយល់ព្រមតាមកិច្ចព្រមព្រៀងកញ្ចប់។ បានបោះបង់ប្រតិបត្តិការ។</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>កិច្ចព្រមព្រៀង៖</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>អ្នកនិពន្ធ៖</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>ការពណ៌នា៖</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>កម្មវិធីដំឡើង៖</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>ក្នុងតំបន់៖</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id ផលិតផលហាង៖</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256៖</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>ប្រភេទ៖</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Url ទាញយក៖</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>អាជ្ញាបណ្ណ៖</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Url អាជ្ញាបណ្ណ៖</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>ឈ្មោះ៖</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>ទំព័រដើម៖</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>អ្នកបោះពុម្ពផ្សាយ៖</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>កំណែ៖</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>ទេ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>បាទ/ចាស</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>មិនអាចបើកប្រភពដែលបានបញ្ចូលបានទេ។</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>ទទួលយកកិច្ចព្រមព្រៀងប្រភពទាំងអស់ ក្នុងអំឡុងពេលធ្វើប្រតិបត្តិការប្រភព</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>ប្រភព `%1` តម្រូវឱ្យអ្នកមើលកិច្ចព្រមព្រៀងខាងក្រោម មុនពេលប្រើ។</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>តើអ្នកយល់ព្រមនឹងលក្ខខណ្ឌក្នុងព្រមព្រៀងប្រភពទាំងអស់ដែរទេ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>មិនបានយល់ព្រមតាមកិច្ចព្រមព្រៀងប្រភពមួយ ឬច្រើននៃកិច្ចព្រមព្រៀងប្រភព។ បានបោះបង់ប្រតិបត្តិការ។ សូមទទួលយកកិច្ចព្រមព្រៀងប្រភព ឬលុបប្រភពដែលពាក់ព័ន្ធ។</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ប្រភពនេះតម្រូវឱ្យមានតំបន់ភូមិសាស្ត្ររបស់ម៉ាស៊ីនបច្ចុប្បន្ន ដើម្បីបញ្ជូនមុខងារតាមប្រក្រតី។</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>បានដំឡើងដោយជោគជ័យ។ សូមចាប់ផ្ដើមកម្មវិធីឡើងវិញ ដើម្បីបញ្ចប់ការអាប់ក្រេត។</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>ប្រភព Windows-Package-Manager REST ជាជម្រើសនៃចំណងជើង HTTP</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>កំពុងមិនអើពើនឹងចំណងជើងជាជម្រើស ដោយសារវាមិនអាចអនុវត្តបានសម្រាប់ប្រភពនេះ។</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>ចំណងជើងជាជម្រើសមិនអាចអនុវត្តបានដោយគ្មានការបញ្ជាក់ពីប្រភពទេ</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>កាលបរិច្ឆេទចេញផ្សាយ៖</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url អ្នកបោះពុម្ពផ្សាយ៖</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url ជំនួយអ្នកបោះពុម្ពផ្សាយ៖</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Url ឯកជនភាព៖</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>ការរក្សាសិទ្ធិ៖</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Url ការរក្សាសិទ្ធិ៖</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>កំណត់ចំណាំការចេញផ្សាយ៖</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Url កំណត់ចំណាំការចេញផ្សាយ៖</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>បានបរាជ័យ នៅពេលស្វែងរកប្រភព លទ្ធផលនឹងមិនត្រូវបានបញ្ចូលទេ៖</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>បានបរាជ័យ នៅពេលស្វែងរកប្រភព៖</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>មុខងារនេះ​ចាំបាច់ត្រូវបើកដោយ​អ្នកគ្រប់គ្រង។ ដើម្បីបើកវា ចូរដំណើរការ 'winget settings --enable %1' ក្នុងនាមជាអ្នកគ្រប់គ្រង។</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>បើក​ការកំណត់អ្នកគ្រប់គ្រងជាក់លាក់</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>បិទ​ការកំណត់អ្នកគ្រប់គ្រងជាក់លាក់</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>បានផ្ដល់​វិចារការកំណត់អ្នកគ្រប់គ្រង​ច្រើនពេក</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>បានបើក​ការកំណត់អ្នកគ្រប់គ្រង។</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>បានបិទ​ការកំណត់អ្នកគ្រប់គ្រង។</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>បច្ចុប្បន្ន កម្មវិធីកំពុងដំណើរការ។ សូមចេញពីកម្មវិធី រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>ការដំឡើងមួយផ្សេងទៀតកំពុងដំណើរការរួចហើយ។ សូមព្យាយាមម្ដងទៀតនៅពេលក្រោយ។</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>ឯកសារមួយ ឬច្រើន​កំពុងត្រូវបានប្រើ។ សូមចេញពីកម្មវិធី រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>កញ្ចប់នេះបានបាត់ភាពពឹងផ្អែកពីប្រព័ន្ធរបស់អ្នក។</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>មិនមានទំហំផ្ទុកទំនេរនៅលើ PC របស់អ្នកទៀតទេ។ សូមបង្កើនទំហំផ្ទុក រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>មិនមានអង្គចងចាំគ្រប់គ្រាន់ ដើម្បីដំឡើងទេ។ សូមបិទកម្មវិធីផ្សេងទៀត រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>កម្មវិធីនេះតម្រូវឱ្យមានការតភ្ជាប់អ៊ីនធឺណិត។ សូមភ្ជាប់ទៅបណ្ដាញ រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>កម្មវិធីនេះបានជួបបញ្ហា ក្នុងអំឡុងពេលដំឡើង។ សូមទាក់ទងទៅផ្នែកជំនួយ។</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>ចាប់ផ្តើម PC របស់អ្នកឡើងវិញ ដើម្បីបញ្ចប់ការដំឡើង។</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC របស់អ្នកនឹងចាប់ផ្តើមឡើងវិញ ដើម្បីបញ្ចប់ការដំឡើង។</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>ការដំឡើងបានបរាជ័យ។ សូមចាប់ផ្ដើម PC របស់អ្នកឡើងវិញ រួចព្យាយាមម្ដងទៀត។</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>អ្នកបានបោះបង់ការដំឡើង។</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>កម្មវិធីមួយផ្សេងទៀតនៃកម្មវិធីនេះត្រូវបានដំឡើងរួចហើយ។</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>កំណែខ្ពស់ជាងនេះនៃកម្មវិធីនេះត្រូវបានដំឡើងរួចហើយ។</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>គោលការណ៍អង្គភាពកំពុងរារាំងការដំឡើង។ សូមទាក់ទងទៅអ្នកគ្រប់គ្រងរបស់អ្នក។</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>បានបោះបង់​ការដំឡើង</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>កម្មវិធីដំឡើងបានបរាជ័យ ហើយកូដចេញគឺ៖</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>កំណត់ហេតុកម្មវិធីដំឡើងមាននៅ៖</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>បានរកឃើញកញ្ចប់ខាងក្រោមក្នុងចំណោមប្រភពដែលកំពុងដំណើរការ។
+សូមបញ្ជាក់កញ្ចប់មួយក្នុងចំណោមកញ្ចប់ទាំងនោះដោយប្រើជម្រើស `--source` ដើម្បីដំណើរការ។</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>រកមិនឃើញកញ្ចប់ក្នុងចំណោម​ប្រភពដែលកំពុងដំណើរការទេ។</value>
   </data>
 </root>

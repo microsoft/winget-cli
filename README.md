@@ -2,7 +2,7 @@
 
 This repository contains the source code for the Windows Package Manager Client (aka winget.exe).
 
-![winget install Microsoft.WindowsTerminal](.github/images/WingetInstallTerminal.gif)
+![winget install wingetcreate](.github/images/WingetInstall.gif)
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
@@ -14,7 +14,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
@@ -27,16 +27,20 @@ Once you have received the updated App Installer you should be able to execute `
 
 The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store.
 
-> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
+> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
-## Administrator considerations
+### Troubleshooting
+
+Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
+
+## Administrator Considerations
 
 Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
 
-* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control). If you choose not to elevate, the application will fail to install.  
+* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.  
 
-* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](/windows/security/identity-protection/user-account-control/how-user-account-control-works) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
+* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
 
 ### Build your own
 
@@ -46,8 +50,8 @@ You can also [build the client yourself](#building-the-client). While the client
 
 [![Build Status](https://dev.azure.com/ms/winget-cli/_apis/build/status/microsoft.winget-cli?branchName=master)](https://dev.azure.com/ms/winget-cli/_build/latest?definitionId=344&branchName=master)
 
-## Windows Package Manager 1.0 Roadmap
-The plan for delivering Windows Package Manager v1.0 [is described here](doc/windows-package-manager-v1-roadmap.md), and will be updated as the project proceeds.
+## Windows Package Manager Release Roadmap
+The plan for delivering next Windows Package Manager release [is described here](doc/windows-package-manager-release-roadmap.md), and will be updated as the project proceeds.
 
 ## Overview of the  Windows Package Manager
 The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those tools that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite tool: 
@@ -76,7 +80,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 ### Prerequisites
 
 * Windows 10 1809 (17763) or later
-* [Developer Mode enabled](https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development)
+* [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
@@ -116,7 +120,7 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/en-us/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy).
+The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy).
 
 In short to opt-out, go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Basic`. 
 

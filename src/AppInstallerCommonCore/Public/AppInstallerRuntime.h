@@ -23,6 +23,9 @@ namespace AppInstaller::Runtime
     // Gets a string representation of the OS version for debugging purposes.
     Utility::LocIndString GetOSVersion();
 
+    // Gets the OS region.
+    std::string GetOSRegion();
+
     // A path to be retrieved based on the runtime.
     enum class PathName
     {
@@ -57,4 +60,7 @@ namespace AppInstaller::Runtime
 
     // Checks if the file system is NTFS
     bool IsNTFS(const std::filesystem::path& filePath);
+
+    // Checks if the file system at path supports hard links
+    bool SupportsHardLinks(const std::filesystem::path& path);
 }

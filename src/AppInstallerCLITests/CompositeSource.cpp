@@ -646,3 +646,129 @@ TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
 
     REQUIRE(result1.Matches[0].Package->IsSame(result2.Matches[0].Package.get()));
 }
+
+TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
+{
+    HRESULT expectedHR = E_BLUETOOTH_ATT_ATTRIBUTE_NOT_FOUND;
+    std::string pfn = "sortof_apfn";
+
+    std::shared_ptr<ComponentTestSource> AvailableSucceeds = std::make_shared<ComponentTestSource>();
+    AvailableSucceeds->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable().WithPFN(pfn), Criteria());
+        return result;
+    };
+
+    std::shared_ptr<ComponentTestSource> AvailableFails = std::make_shared<ComponentTestSource>();
+    AvailableFails->SearchFunction = [&](const SearchRequest&) -> SearchResult { THROW_HR(expectedHR); };
+    AvailableFails->Details.Name = "The one that fails";
+
+    CompositeSource Composite("*CompositeSource_AvailableSearchFailure");
+    Composite.AddAvailableSource(AvailableSucceeds);
+    Composite.AddAvailableSource(AvailableFails);
+
+    SearchResult result = Composite.Search({});
+
+    REQUIRE(result.Matches.size() == 1);
+
+    auto pfns = result.Matches[0].Package->GetLatestAvailableVersion()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+    REQUIRE(pfns.size() == 1);
+    REQUIRE(pfns[0] == pfn);
+
+    REQUIRE(result.Failures.size() == 1);
+    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+
+    HRESULT searchFailure = S_OK;
+    try
+    {
+        std::rethrow_exception(result.Failures[0].Exception);
+    }
+    catch (const wil::ResultException& re)
+    {
+        searchFailure = re.GetErrorCode();
+    }
+    catch (...) {}
+
+    REQUIRE(searchFailure == expectedHR);
+}
+
+TEST_CASE("CompositeSource_InstalledToAvailableCorrelationSearchFailure", "[CompositeSource]")
+{
+    HRESULT expectedHR = E_BLUETOOTH_ATT_ATTRIBUTE_NOT_LONG;
+    std::string pfn = "sortof_apfn";
+
+    CompositeTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPFN(pfn), Criteria());
+    setup.Available->Everything.Matches.emplace_back(MakeAvailable().WithPFN(pfn), Criteria());
+
+    std::shared_ptr<ComponentTestSource> AvailableFails = std::make_shared<ComponentTestSource>();
+    AvailableFails->SearchFunction = [&](const SearchRequest&) -> SearchResult { THROW_HR(expectedHR); };
+    AvailableFails->Details.Name = "The one that fails";
+
+    setup.Composite.AddAvailableSource(AvailableFails);
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+
+    REQUIRE(result.Failures.size() == 1);
+    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+
+    HRESULT searchFailure = S_OK;
+    try
+    {
+        std::rethrow_exception(result.Failures[0].Exception);
+    }
+    catch (const wil::ResultException& re)
+    {
+        searchFailure = re.GetErrorCode();
+    }
+    catch (...) {}
+
+    REQUIRE(searchFailure == expectedHR);
+}
+
+TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]")
+{
+    HRESULT expectedHR = E_BLUETOOTH_ATT_ATTRIBUTE_NOT_LONG;
+    std::string pfn = "sortof_apfn";
+
+    CompositeTestSetup setup;
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable().WithPFN(pfn), Criteria());
+        return result;
+    };
+
+    std::shared_ptr<ComponentTestSource> AvailableFails = std::make_shared<ComponentTestSource>();
+    AvailableFails->SearchFunction = [&](const SearchRequest&) -> SearchResult { THROW_HR(expectedHR); };
+    AvailableFails->Details.Name = "The one that fails";
+
+    setup.Composite.AddAvailableSource(AvailableFails);
+
+    setup.Composite.SetInstalledSource(setup.Installed, CompositeSearchBehavior::AvailablePackages);
+
+    SearchRequest request;
+    request.Query = RequestMatch{ MatchType::Exact, "whatever" };
+    SearchResult result = setup.Composite.Search(request);
+
+    REQUIRE(result.Matches.size() == 1);
+
+    REQUIRE(result.Failures.size() == 1);
+    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+
+    HRESULT searchFailure = S_OK;
+    try
+    {
+        std::rethrow_exception(result.Failures[0].Exception);
+    }
+    catch (const wil::ResultException& re)
+    {
+        searchFailure = re.GetErrorCode();
+    }
+    catch (...) {}
+
+    REQUIRE(searchFailure == expectedHR);
+}

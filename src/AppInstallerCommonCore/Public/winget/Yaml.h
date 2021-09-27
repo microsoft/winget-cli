@@ -194,6 +194,7 @@ namespace AppInstaller::YAML
         Emitter& operator<<(EmitterEvent event);
         Emitter& operator<<(std::string_view value);
         Emitter& operator<<(int64_t value);
+        Emitter& operator<<(int value);
         Emitter& operator<<(bool value);
 
         // Gets the result of the emitter; can only be retrieved once.

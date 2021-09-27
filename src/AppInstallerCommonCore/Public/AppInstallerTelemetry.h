@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -15,7 +16,9 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        virtual ~TelemetryTraceLogger();
+        TelemetryTraceLogger();
+
+        ~TelemetryTraceLogger() = default;
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
@@ -23,18 +26,27 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
-
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
         void EnableRuntime();
+
+        // Return address of m_activityId
+        const GUID* GetActivityId() const;
+
+        // Capture if UserSettings is enabled and set user profile path
+        void Initialize();
+
+        // Store the passed in name of the Caller for COM calls
+        void SetCaller(const std::string& caller);
+
+        // Store the passed in Telemetry Correlation Json for COM calls
+        void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup() const noexcept;
+        void LogStartup(bool isCOMCall = false) const noexcept;
 
         // Logs the invoked command.
         void LogCommand(std::string_view commandName) const noexcept;
@@ -46,7 +58,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept;
+        void LogException(std::string_view type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;
@@ -114,9 +126,9 @@ namespace AppInstaller::Logging
             std::string_view arpPublisher,
             std::string_view arpLanguage) const noexcept;
 
-    protected:
-        TelemetryTraceLogger();
+        void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
+    protected:
         bool IsTelemetryEnabled() const noexcept;
 
         // Used to anonymize a string to the best of our ability.
@@ -127,8 +139,19 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
 
+        GUID m_activityId = GUID_NULL;
+        std::wstring m_telemetryCorrelationJsonW = L"{}";
+        std::string m_caller;
+
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
+    };
+
+    struct GlobalTelemetryTraceLogger : TelemetryTraceLogger
+    {
+        GlobalTelemetryTraceLogger() { Initialize(); }
+
+        ~GlobalTelemetryTraceLogger() = default;
     };
 
     // Helper to make the call sites look clean.

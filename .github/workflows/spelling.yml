@@ -1,19 +1,16 @@
-name: Spell checking
+# spelling.yml is disabled per https://github.com/check-spelling/check-spelling/security/advisories/GHSA-g86g-chm8-7r2p
+name: Workflow should not run!
 on:
-  pull_request_target:
   push:
-    branches:
-      - "**"
-    tags-ignore:
-      - "**"
+    branches: ''
 
 jobs:
-  build:
-    name: Spell checking
+  placeholder:
+    name: Should be disabled
     runs-on: ubuntu-latest
+    if: false
     steps:
-    - uses: actions/checkout@v2.0.0
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        fetch-depth: 5
-    - uses: check-spelling/check-spelling@0.0.17-alpha
+    - name: Task
+      run: |
+        echo 'Running this task would be bad'
+        exit 1
