@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
 #include <windows.h>
 #include <unknwn.h>
 #include <hstring.h>
