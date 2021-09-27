@@ -597,7 +597,7 @@ namespace AppInstaller::Logging
             "Cannot create a sub execution telemetry session when a previous session exists.");
     }
 
-    uint32_t SubExecutionTelemetryScope::GetCurrentSubExecutionId()
+    uint32_t SubExecutionTelemetryScope::GetCurrentSubExecutionId() const
     {
         return (uint32_t)s_subExecutionId;
     }

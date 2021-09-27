@@ -79,9 +79,9 @@ namespace AppInstaller::CLI::Execution
         Manifest::ManifestInstaller Installer;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
 
-        // Use this subexecution id when installing this package so that 
+        // Use this sub execution id when installing this package so that 
         // install telemetry is captured with the same sub execution id as other events in Search phase.
-        uint32_t PackageSubExecutionId;
+        uint32_t PackageSubExecutionId = 0;
     };
 
     namespace details

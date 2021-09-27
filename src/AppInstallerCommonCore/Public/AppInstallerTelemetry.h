@@ -195,7 +195,7 @@ namespace AppInstaller::Logging
         SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
         SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
 
-        uint32_t GetCurrentSubExecutionId();
+        uint32_t GetCurrentSubExecutionId() const;
 
         ~SubExecutionTelemetryScope();
 
