@@ -71,7 +71,7 @@ namespace AppInstaller::Settings
 
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<UserSettings::Warning>& warnings)
         {
-            auto stream = Stream{ setting, false }.Get();
+            auto stream = Stream{ setting }.Get();
             if (stream)
             {
                 Json::Value root;
@@ -86,8 +86,8 @@ namespace AppInstaller::Settings
                     return root;
                 }
 
-                AICLI_LOG(Core, Error, << "Error parsing " << setting.Path << ": " << error);
-                warnings.emplace_back(StringResource::String::SettingsWarningParseError, setting.Path, error, false);
+                AICLI_LOG(Core, Error, << "Error parsing " << setting.Name << ": " << error);
+                warnings.emplace_back(StringResource::String::SettingsWarningParseError, setting.Name, error, false);
             }
 
             return {};
@@ -338,7 +338,7 @@ namespace AppInstaller::Settings
         auto settingsJson = ParseFile(Stream::PrimaryUserSettings, m_warnings);
         if (settingsJson.has_value())
         {
-            AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::PrimaryUserSettings.Path);
+            AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::PrimaryUserSettings.Name);
             m_type = UserSettingsType::Standard;
             settingsRoot = settingsJson.value();
         }
@@ -349,7 +349,7 @@ namespace AppInstaller::Settings
             auto settingsBackupJson = ParseFile(Stream::BackupUserSettings, m_warnings);
             if (settingsBackupJson.has_value())
             {
-                AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::BackupUserSettings.Path);
+                AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::BackupUserSettings.Name);
                 m_warnings.emplace_back(StringResource::String::SettingsWarningLoadedBackupSettings);
                 m_type = UserSettingsType::Backup;
                 settingsRoot = settingsBackupJson.value();
@@ -377,7 +377,7 @@ namespace AppInstaller::Settings
             // Create settings file if it doesn't exist.
             if (!std::filesystem::exists(primarySettings.GetPath()))
             {
-                primarySettings.Set(s_SettingEmpty);
+                std::ignore = primarySettings.Set(s_SettingEmpty);
                 AICLI_LOG(Core, Info, << "Created new settings file");
             }
         }

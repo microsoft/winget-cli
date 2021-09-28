@@ -2,20 +2,19 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SourcePolicy.h"
-#include "SourceList.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include <winget/GroupPolicy.h>
+#include "Rest/RestSourceFactory.h"
+
+using namespace AppInstaller::Settings;
 
 
 namespace AppInstaller::Repository
 {
-    using namespace Settings;
-
     namespace
     {
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
-        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, bool onlyExplicit, TogglePolicy::Policy policy)
+        bool IsDefaultSourceEnabled(WellKnownSource sourceToLog, ExperimentalFeature::Feature feature, bool onlyExplicit, TogglePolicy::Policy policy)
         {
             if (!ExperimentalFeature::IsEnabled(feature))
             {
@@ -31,21 +30,11 @@ namespace AppInstaller::Repository
 
             if (!GroupPolicies().IsEnabled(policy))
             {
-                AICLI_LOG(Repo, Info, << "The default source " << sourceToLog << " is disabled due to Group Policy");
+                AICLI_LOG(Repo, Info, << "The default source " << GetWellKnownSourceName(sourceToLog) << " is disabled due to Group Policy");
                 return false;
             }
 
             return true;
-        }
-
-        bool IsWingetCommunityDefaultSourceEnabled(bool onlyExplicit = false)
-        {
-            return IsDefaultSourceEnabled(WingetCommunityDefaultSourceName(), ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
-        }
-
-        bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
-        {
-            return IsDefaultSourceEnabled(WingetMSStoreDefaultSourceName(), ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -81,6 +70,10 @@ namespace AppInstaller::Repository
         }
     }
 
+    // Checks whether the Group Policy allows this user source.
+    // If it does it returns None, otherwise it returns which policy is blocking it.
+    // Note that this applies to user sources that are being added as well as user sources
+    // that already existed when the Group Policy came into effect.
     TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
     {
         // Reasons for not allowing:
@@ -98,12 +91,12 @@ namespace AppInstaller::Repository
         // The source is a tombstone and we need the policy to be explicitly enabled.
         if (isTombstone)
         {
-            if (name == WingetCommunityDefaultSourceName() && IsWingetCommunityDefaultSourceEnabled(true))
+            if (name == GetWellKnownSourceName(WellKnownSource::WinGet) && IsWellKnownSourceEnabled(WellKnownSource::WinGet, true))
             {
                 return TogglePolicy::Policy::DefaultSource;
             }
 
-            if (name == WingetMSStoreDefaultSourceName() && IsWingetMSStoreDefaultSourceEnabled(true))
+            if (name == GetWellKnownSourceName(WellKnownSource::MicrosoftStore) && IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore, true))
             {
                 return TogglePolicy::Policy::MSStoreSource;
             }
@@ -117,30 +110,30 @@ namespace AppInstaller::Repository
         //  - Check only against the source argument and type as the user source may have a different name.
         //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
         //    and we don't need case sensitivity for the rest as we control the domain.
-        if (Utility::CaseInsensitiveEquals(arg, WingetCommunityDefaultSourceArg()) &&
+        if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGet)) &&
             Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
         {
-            return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
+            return IsWellKnownSourceEnabled(WellKnownSource::WinGet) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
         }
 
-        if (Utility::CaseInsensitiveEquals(arg, WingetMSStoreDefaultSourceArg()) &&
-            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+        if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::MicrosoftStore)) &&
+            Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
         {
-            return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
+            return IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
         }
 
         // Case 3:
         // If the source has the same name as a default source, it is shadowing with a different argument
         // (as it didn't match above). We only care if Group Policy requires the default source.
-        if (name == WingetCommunityDefaultSourceName() && IsWingetCommunityDefaultSourceEnabled(true))
+        if (name == GetWellKnownSourceName(WellKnownSource::WinGet) && IsWellKnownSourceEnabled(WellKnownSource::WinGet, true))
         {
             AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
             return TogglePolicy::Policy::DefaultSource;
         }
 
-        if (name == WingetMSStoreDefaultSourceName() && IsWingetMSStoreDefaultSourceEnabled(true))
+        if (name == GetWellKnownSourceName(WellKnownSource::MicrosoftStore) && IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
             return TogglePolicy::Policy::MSStoreSource;
         }
 
@@ -165,5 +158,49 @@ namespace AppInstaller::Repository
         }
 
         return TogglePolicy::Policy::None;
+    }
+
+    bool IsUserSourceAllowedByPolicy(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
+    {
+        return GetPolicyBlockingUserSource(name, type, arg, isTombstone) == TogglePolicy::Policy::None;
+    }
+
+    bool IsWellKnownSourceEnabled(WellKnownSource source, bool onlyExplicit)
+    {
+        switch (source)
+        {
+        case AppInstaller::Repository::WellKnownSource::WinGet:
+            return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
+        case AppInstaller::Repository::WellKnownSource::MicrosoftStore:
+            return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        }
+
+        return false;
+    }
+
+    void EnsureSourceIsRemovable(const SourceDetailsInternal& source)
+    {
+        // Block removing sources added by Group Policy
+        if (source.Origin == SourceOrigin::GroupPolicy)
+        {
+            AICLI_LOG(Repo, Error, << "Cannot remove source added by Group Policy");
+            throw GroupPolicyException(TogglePolicy::Policy::AdditionalSources);
+        }
+
+        // Block removing default sources required by Group Policy.
+        if (source.Origin == SourceOrigin::Default)
+        {
+            if (GroupPolicies().GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::Enabled &&
+                source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::WinGet))
+            {
+                throw GroupPolicyException(TogglePolicy::Policy::DefaultSource);
+            }
+
+            if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
+                source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::MicrosoftStore))
+            {
+                throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
+            }
+        }
     }
 }

@@ -29,10 +29,13 @@ namespace AppInstaller::Settings
     // The well known values in Streams should be used by product code, while tests may directly create them.
     struct StreamDefinition
     {
-        constexpr StreamDefinition(Type type, std::string_view path) : Type(type), Path(path) {}
+        constexpr StreamDefinition(Type type, std::string_view name) : Type(type), Name(name) {}
 
+        // The type of stream.
         Type Type;
-        std::string_view Path;
+
+        // The name is used as a file name in some situations.
+        std::string_view Name;
     };
 
     // A setting stream; provides access to functionality on the stream.
@@ -53,22 +56,25 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
 
         // Gets a Stream for the StreamDefinition.
-        // If the setting stream does not exist, returns an empty value (see operator bool).
         // If the stream is synchronized, attempts to Set the value can fail due to another writer
         // having changed the underlying stream.
-        Stream(const StreamDefinition& streamDefinition, bool synchronize = true);
+        Stream(const StreamDefinition& streamDefinition);
 
         const StreamDefinition& Definition() const { return m_streamDefinition; }
 
-        // Gets the actual stream if present; throws if not.
+        // Gets the stream if present.
+        // If the setting stream does not exist, returns an empty value (see operator bool).
         std::unique_ptr<std::istream> Get();
 
         // Sets the stream to the given value.
         // Returns true if successful; false if the underlying stream has changed.
-        bool Set(std::string_view value);
+        [[nodiscard]] bool Set(std::string_view value);
 
         // Deletes the setting stream.
         void Remove();
+
+        // Gets the name of the stream.
+        std::string_view GetName() const;
 
         // Gets the path to the stream.
         std::filesystem::path GetPath() const;

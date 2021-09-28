@@ -25,7 +25,7 @@ namespace AppInstaller::Settings
 
         void LogSettingAction(std::string_view action, const StreamDefinition& def)
         {
-            AICLI_LOG(Core, Verbose, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Path);
+            AICLI_LOG(Core, Verbose, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Name);
         }
 
         // A settings container.
@@ -347,26 +347,26 @@ namespace AppInstaller::Settings
     std::unique_ptr<std::istream> GetSettingStream(const StreamDefinition& def)
     {
         LogSettingAction("Get", def);
-        ValidateSettingNamePath(def.Path);
-        return GetSettingsContainer(def.Type)->Get(def.Path);
+        ValidateSettingNamePath(def.Name);
+        return GetSettingsContainer(def.Type)->Get(def.Name);
     }
 
     void SetSetting(const StreamDefinition& def, std::string_view value)
     {
         LogSettingAction("Set", def);
-        ValidateSettingNamePath(def.Path);
-        GetSettingsContainer(def.Type)->Set(def.Path, value);
+        ValidateSettingNamePath(def.Name);
+        GetSettingsContainer(def.Type)->Set(def.Name, value);
     }
 
     void RemoveSetting(const StreamDefinition& def)
     {
         LogSettingAction("Remove", def);
-        ValidateSettingNamePath(def.Path);
-        GetSettingsContainer(def.Type)->Remove(def.Path);
+        ValidateSettingNamePath(def.Name);
+        GetSettingsContainer(def.Type)->Remove(def.Name);
     }
 
     std::filesystem::path GetPathTo(const StreamDefinition& def)
     {
-        return GetSettingsContainer(def.Type)->PathTo(def.Path);
+        return GetSettingsContainer(def.Type)->PathTo(def.Name);
     }
 }
