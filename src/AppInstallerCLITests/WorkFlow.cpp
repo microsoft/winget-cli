@@ -119,6 +119,10 @@ namespace
             {
                 input = request.Inclusions[0].Value;
             }
+            else if (!request.Filters.empty())
+            {
+                input = request.Filters[0].Value;
+            }
 
             // Empty query should return all exe, msix and msstore installer
             if (input.empty() || input == "AppInstallerCliTest.TestExeInstaller")
