@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
-        void Close(bool withDefaultVTSequence);
+        void Close();
 
     private:
         template <typename T>
@@ -70,7 +70,8 @@ namespace AppInstaller::CLI::Execution
         };
 
         std::ostream& m_out;
-        bool m_enabled;
+        std::atomic_bool m_enabled;
+        bool m_VTUpdated;
         bool m_VTEnabled;
     };
 

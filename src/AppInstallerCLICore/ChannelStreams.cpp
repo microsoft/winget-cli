@@ -26,6 +26,7 @@ namespace AppInstaller::CLI::Execution
         if (m_enabled && m_VTEnabled)
         {
             m_out << sequence;
+            m_VTUpdated = true;
         }
         return *this;
     }
@@ -35,14 +36,15 @@ namespace AppInstaller::CLI::Execution
         if (m_enabled && m_VTEnabled)
         {
             m_out << sequence;
+            m_VTUpdated = true;
         }
         return *this;
     }
 
-    void BaseStream::Close(bool withDefaultVTSequence)
+    void BaseStream::Close()
     {
         m_enabled = false;
-        if (withDefaultVTSequence)
+        if (m_VTUpdated)
         {
             Write(TextFormat::Default, true);
         }
