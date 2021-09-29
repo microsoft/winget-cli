@@ -9,7 +9,6 @@ namespace AppInstaller::CLI
     struct COMDownloadCommand final : public Command
     {
         COMDownloadCommand(std::string_view parent) : Command("download", parent) {}
-        bool IsCommandAllowedToRunNow(std::map<std::string, UINT32>& runningCommands, UINT32 runningCommandsOfCurrentType) const;
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
@@ -19,7 +18,6 @@ namespace AppInstaller::CLI
     struct COMInstallCommand final : public Command
     {
         COMInstallCommand(std::string_view parent) : Command("install", parent) {}
-        bool IsCommandAllowedToRunNow(std::map<std::string, UINT32>& runningCommands, UINT32 runningCommandsOfCurrentType) const;
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;

@@ -255,12 +255,34 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
+        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+
+        // Check if file was already downloaded.
+        // This may happen after a failed installation or if the download was done
+        // separately before, e.g. on COM scenarios.
+        // TODO: The installer gets renamed before executing it. This check could be extended
+        //       to consider the renamed file.
+        if (std::filesystem::exists(tempInstallerPath))
+        {
+            AICLI_LOG(CLI, Info, << "Installer already downloaded. Verifying hash.");
+            std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
+            auto existingFileHash = SHA256::ComputeHash(inStream);
+
+            if (std::equal(installer.Sha256.begin(), installer.Sha256.end(), existingFileHash.begin()))
+            {
+                AICLI_LOG(CLI, Info, << "Hash matches. Will use existing installer.");
+                context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
+                context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
+                return;
+            }
+
+            AICLI_LOG(CLI, Info, << "Hash mismatch. Will download installer.");
+        }
+
         Utility::DownloadInfo downloadInfo{};
         downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
         // Use the SHA256 hash of the installer as the identifier for the download
         downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
-
-        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
 
@@ -607,20 +629,11 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowInstallationDisclaimer;
     }
 
-    void DownloadPackageVersion(Execution::Context& context)
-    {
-        context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
-            Workflow::GetDependenciesFromInstaller << 
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller;
-    }
-
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
@@ -633,7 +646,10 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::DownloadPackageVersion <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::InstallPackageInstaller;
     }
 

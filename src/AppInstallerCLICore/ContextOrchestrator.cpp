@@ -83,31 +83,21 @@ namespace AppInstaller::CLI::Execution
             return {};
         }
 
-        for (auto itr = m_queueItems.cbegin(); itr != m_queueItems.cend(); ++itr) 
+        std::shared_ptr<OrchestratorQueueItem> item = m_queueItems.front();
+
+        // Check if item can be dequeued.
+        // Since only one item can be installed at a time currently the logic is very simple,
+        // and can just check if the first item is ready to run. This logic will need to become
+        // more complicated if multiple operation types (e.g. Download & Install) are added that can
+        // run simultaneously.
+        if (item->GetState() != OrchestratorQueueItemState::Queued)
         {
-            UINT32 runningCommandsOfNextType = 0;
-            auto foundVal = m_runningCommandCountMap.find((*itr)->GetNextCommand().NameAsString());
-            if (foundVal != m_runningCommandCountMap.cend())
-            {
-                runningCommandsOfNextType = foundVal->second;
-            }
-            if ((*itr)->GetNextCommand().IsCommandAllowedToRunNow(m_runningCommandCountMap, runningCommandsOfNextType))
-            {
-                if (foundVal != m_runningCommandCountMap.cend())
-                {
-                    foundVal->second = runningCommandsOfNextType + 1;
-                }
-                else
-                {
-                    m_runningCommandCountMap.insert(std::pair<std::string, UINT32>((*itr)->GetNextCommand().NameAsString(), 1));
-                }
-                // Running state must be set inside the queueLock so that multiple threads don't try to run the same item.
-                (*itr)->SetState(OrchestratorQueueItemState::Running);
-                return *itr;
-            }
+            return {};
         }
 
-        return {};
+        // Running state must be set inside the queueLock so that multiple threads don't try to run the same item.
+        item->SetState(OrchestratorQueueItemState::Running);
+        return item;
     }
 
     void ContextOrchestrator::RunItems()
@@ -138,6 +128,8 @@ namespace AppInstaller::CLI::Execution
                 // has the result of the operation no matter how it failed.
                 item->GetContext().SetTerminationHR(terminationHR);
             }
+
+            item->GetContext().EnableCtrlHandler(false);
 
             if (FAILED(terminationHR) || item->IsComplete())
             {

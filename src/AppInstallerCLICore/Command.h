@@ -78,7 +78,6 @@ namespace AppInstaller::CLI
         constexpr static char ParentSplitChar = ':';
 
         std::string_view Name() const { return m_name; }
-        const std::string& NameAsString() const { return m_name; }
         const std::string& FullName() const { return m_fullName; }
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
@@ -105,14 +104,12 @@ namespace AppInstaller::CLI
 
         virtual void Execute(Execution::Context& context) const;
 
-        virtual bool IsCommandAllowedToRunNow(std::map<std::string, UINT32>& runningCommands, UINT32 runningCommandsOfCurrentType) const;
-
     protected:
         virtual void ValidateArgumentsInternal(Execution::Args& execArgs) const;
         virtual void ExecuteInternal(Execution::Context& context) const;
 
     private:
-        std::string m_name;
+        std::string_view m_name;
         std::string m_fullName;
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;

@@ -797,11 +797,6 @@ namespace AppInstaller::CLI
         }
     }
 
-    bool Command::IsCommandAllowedToRunNow(std::map<std::string, UINT32>&, UINT32) const
-    {
-        return false;
-    }
-
     void Command::ValidateArgumentsInternal(Execution::Args&) const
     {
         // Do nothing by default.

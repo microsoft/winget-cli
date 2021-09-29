@@ -67,6 +67,7 @@ namespace AppInstaller::CLI::Workflow
     void DownloadInstaller(Execution::Context& context);
 
     // Downloads the file referenced by the Installer.
+    // Do nothing if the file has already been downloaded.
     // Required Args: None
     // Inputs: Installer
     // Outputs: HashPair, InstallerPath
@@ -147,12 +148,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
 
-    // Downloads a specific package installer.
-    // Required Args: None
-    // Inputs: Manifest, Installer
-    // Outputs: None
-    void DownloadPackageVersion(Execution::Context& context);
-    
     // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
     // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "COMInstallCommand.h"
+#include "Workflows/DependenciesFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
@@ -15,11 +16,17 @@ namespace AppInstaller::CLI
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
     void COMDownloadCommand::ExecuteInternal(Context& context) const
     {
+        // TODO: Remove duplication with InstallFlow
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::DownloadPackageVersion;
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller;
     }
 
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
@@ -27,15 +34,5 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::InstallPackageInstaller;
-    }
-
-    bool COMDownloadCommand::IsCommandAllowedToRunNow(std::map<std::string, UINT32>&, UINT32 runningCommandsOfCurrentType) const
-    {
-        return (runningCommandsOfCurrentType < 5);
-    }
-    
-    bool COMInstallCommand::IsCommandAllowedToRunNow(std::map<std::string, UINT32>&, UINT32 runningCommandsOfCurrentType) const
-    {
-        return (runningCommandsOfCurrentType == 0);
     }
 }
