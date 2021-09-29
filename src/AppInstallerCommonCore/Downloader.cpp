@@ -275,11 +275,20 @@ namespace AppInstaller::Utility
 
         Microsoft::WRL::ComPtr<IZoneIdentifier> zoneIdentifier;
         THROW_IF_FAILED(CoCreateInstance(CLSID_PersistentZoneIdentifier, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&zoneIdentifier)));
-        THROW_IF_FAILED(zoneIdentifier->Remove());
 
         Microsoft::WRL::ComPtr<IPersistFile> persistFile;
         THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
-        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
+
+        auto hr = persistFile->Load(filePath.c_str(), STGM_READ);
+        if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        {
+            AICLI_LOG(Core, Info, << "File does not contain motw. Skipped removing motw");
+            return;
+        }
+
+        THROW_IF_FAILED(hr);
+        THROW_IF_FAILED(zoneIdentifier->Remove());
+        THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
 
         AICLI_LOG(Core, Info, << "Finished removing motw");
     }
