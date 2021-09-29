@@ -29,7 +29,7 @@ namespace AppInstaller::CLI
             Workflow::DownloadInstaller;
     }
 
-    // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
+    // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<

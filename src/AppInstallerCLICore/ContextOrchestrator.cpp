@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Execution
     }
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
-    { 
+    {
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
         ::AppInstaller::CLI::RootCommand rootCommand;
         item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(rootCommand.Name()));
