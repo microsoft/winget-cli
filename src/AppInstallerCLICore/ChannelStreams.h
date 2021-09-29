@@ -49,10 +49,7 @@ namespace AppInstaller::CLI::Execution
         template <typename T>
         BaseStream& operator<<(const T& t)
         {
-            if (m_enabled)
-            {
-                m_out << t;
-            }
+            Write<T>(t, false);
             return *this;
         }
 
@@ -60,7 +57,18 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void Close(bool withDefaultVTSequence);
+
     private:
+        template <typename T>
+        void Write(const T& t, bool bypass)
+        {
+            if (bypass || m_enabled)
+            {
+                m_out << t;
+            }
+        };
+
         std::ostream& m_out;
         bool m_enabled;
         bool m_VTEnabled;
@@ -110,26 +118,5 @@ namespace AppInstaller::CLI::Execution
         bool m_VTEnabled;
         size_t m_applyFormatAtOne = 1;
         VirtualTerminal::ConstructedSequence m_format;
-    };
-
-    // Does not allow VT at all.
-    struct NoVTStream
-    {
-        NoVTStream(BaseStream& out, bool enabled);
-
-        template <typename T>
-        NoVTStream& operator<<(const T& t)
-        {
-            m_out << t;
-            return *this;
-        }
-
-        NoVTStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        NoVTStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
-        NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
-
-    private:
-        bool m_enabled;
-        BaseStream& m_out;
     };
 }

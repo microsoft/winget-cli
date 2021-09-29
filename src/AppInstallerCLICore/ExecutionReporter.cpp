@@ -35,9 +35,7 @@ namespace AppInstaller::CLI::Execution
 
     Reporter::~Reporter()
     {
-        // The goal of this is to return output to its previous state.
-        // For now, we assume this means "default".
-        GetBasicOutputStream() << TextFormat::Default;
+        this->CloseOutputStream();
     }
 
     Reporter::Reporter(const Reporter& other, clone_t) :
@@ -218,5 +216,10 @@ namespace AppInstaller::CLI::Execution
     bool Reporter::IsVTEnabled() const
     {
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
+    }
+
+    void Reporter::CloseOutputStream()
+    {
+        m_out->Close(m_channel == Channel::Output);
     }
 }

@@ -81,7 +81,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream Error() { return GetOutputStream(Level::Error); }
 
         // Get a stream for outputting completion words.
-        NoVTStream Completion() { return NoVTStream(*m_out, m_channel == Channel::Completion); }
+        OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
 
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
@@ -130,6 +130,8 @@ namespace AppInstaller::CLI::Execution
 
         // Cancels the in progress task.
         void CancelInProgressTask(bool force);
+
+        void CloseOutputStream();
 
         void SetProgressSink(IProgressSink* sink)
         {
