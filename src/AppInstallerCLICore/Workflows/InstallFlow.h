@@ -66,10 +66,17 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void DownloadInstaller(Execution::Context& context);
 
+    // Computes the download path for the installer file.
+    // Does nothing if already determined.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: InstallerPath
+    void GetInstallerDownloadPath(Execution::Context& context);
+
     // Downloads the file referenced by the Installer.
     // Do nothing if the file has already been downloaded.
     // Required Args: None
-    // Inputs: Installer
+    // Inputs: Installer, Manifest
     // Outputs: HashPair, InstallerPath
     void DownloadInstallerFile(Execution::Context& context);
 

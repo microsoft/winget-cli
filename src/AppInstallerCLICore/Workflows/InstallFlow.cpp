@@ -247,32 +247,46 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void GetInstallerDownloadPath(Execution::Context& context)
+    {
+        if (!context.Contains(Execution::Data::InstallerPath))
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+            std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
+            tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+
+            AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+            context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
+        }
+    }
+
     void DownloadInstallerFile(Execution::Context& context)
     {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        context << GetInstallerDownloadPath;
+        if (context.IsTerminated())
+        {
+            return;
+        }
+
         const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-        std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-        tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-
-        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+        const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
 
         // Check if file was already downloaded.
         // This may happen after a failed installation or if the download was done
         // separately before, e.g. on COM scenarios.
         // TODO: The installer gets renamed before executing it. This check could be extended
         //       to consider the renamed file.
-        if (std::filesystem::exists(tempInstallerPath))
+        if (std::filesystem::exists(installerPath))
         {
             AICLI_LOG(CLI, Info, << "Installer already downloaded. Verifying hash.");
-            std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
+            std::ifstream inStream{ installerPath, std::ifstream::binary };
             auto existingFileHash = SHA256::ComputeHash(inStream);
 
             if (std::equal(installer.Sha256.begin(), installer.Sha256.end(), existingFileHash.begin()))
             {
                 AICLI_LOG(CLI, Info, << "Hash matches. Will use existing installer.");
                 context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
-                context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
                 return;
             }
 
@@ -296,7 +310,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
-                    tempInstallerPath,
+                    installerPath,
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
                     true,
@@ -330,7 +344,6 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, hash.value()));
-        context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
     }
 
     void GetMsixSignatureHash(Execution::Context& context)
