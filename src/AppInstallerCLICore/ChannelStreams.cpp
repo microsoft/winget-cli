@@ -39,8 +39,11 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    OutputStream::OutputStream(std::ostream& out, bool enabled, bool VTEnabled) :
-        m_out(out, enabled, VTEnabled) {}
+    OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :
+        m_out(out),
+        m_enabled(enabled),
+        m_VTEnabled(VTEnabled)
+    {}
 
     void OutputStream::AddFormat(const Sequence& sequence)
     {
@@ -92,8 +95,10 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    NoVTStream::NoVTStream(std::ostream& out, bool enabled) :
-        m_out(out, enabled, false) {}
+    NoVTStream::NoVTStream(BaseStream& out, bool enabled) :
+        m_out(out),
+        m_enabled(enabled)
+    {}
 
     NoVTStream& NoVTStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {

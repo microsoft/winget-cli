@@ -19,10 +19,16 @@ namespace AppInstaller::CLI::Execution
     const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
+        Reporter(std::make_shared<BaseStream>(outStream, true, IsVTEnabled()), inStream)
+    {
+        SetProgressSink(this);
+    }
+
+    Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_progressBar(std::in_place, outStream, IsVTEnabled()),
-        m_spinner(std::in_place, outStream, IsVTEnabled())
+        m_progressBar(std::in_place, *m_out, IsVTEnabled()),
+        m_spinner(std::in_place, *m_out, IsVTEnabled())
     {
         SetProgressSink(this);
     }
@@ -70,7 +76,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
-        return { m_out, m_channel == Channel::Output, IsVTEnabled() };
+        return {*m_out, m_channel == Channel::Output, IsVTEnabled() };
     }
 
     void Reporter::SetChannel(Channel channel)

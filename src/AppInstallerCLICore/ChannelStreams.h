@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionProgress.h"
 #include "Resources.h"
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
@@ -70,7 +69,7 @@ namespace AppInstaller::CLI::Execution
     // Holds output formatting information.
     struct OutputStream
     {
-        OutputStream(std::ostream& out, bool enabled, bool VTEnabled);
+        OutputStream(BaseStream& out, bool enabled, bool VTEnabled);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);
@@ -106,7 +105,9 @@ namespace AppInstaller::CLI::Execution
         // Applies the format for the stream.
         void ApplyFormat();
 
-        BaseStream m_out;
+        BaseStream& m_out;
+        bool m_enabled;
+        bool m_VTEnabled;
         size_t m_applyFormatAtOne = 1;
         VirtualTerminal::ConstructedSequence m_format;
     };
@@ -114,7 +115,7 @@ namespace AppInstaller::CLI::Execution
     // Does not allow VT at all.
     struct NoVTStream
     {
-        NoVTStream(std::ostream& out, bool enabled);
+        NoVTStream(BaseStream& out, bool enabled);
 
         template <typename T>
         NoVTStream& operator<<(const T& t)
@@ -128,6 +129,7 @@ namespace AppInstaller::CLI::Execution
         NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
 
     private:
-        BaseStream m_out;
+        bool m_enabled;
+        BaseStream& m_out;
     };
 }

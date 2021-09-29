@@ -81,7 +81,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream Error() { return GetOutputStream(Level::Error); }
 
         // Get a stream for outputting completion words.
-        NoVTStream Completion() { return NoVTStream(m_out, m_channel == Channel::Completion); }
+        NoVTStream Completion() { return NoVTStream(*m_out, m_channel == Channel::Completion); }
 
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
@@ -137,6 +137,7 @@ namespace AppInstaller::CLI::Execution
         }
 
     private:
+        Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
         // Gets whether VT is enabled for this reporter.
         bool IsVTEnabled() const;
 
@@ -144,7 +145,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
-        std::ostream& m_out;
+        std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         bool m_isVTEnabled = true;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
