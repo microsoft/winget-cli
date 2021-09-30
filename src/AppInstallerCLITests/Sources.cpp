@@ -211,7 +211,7 @@ namespace
 
 TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
 {
-    RemoveSetting(Streams::UserSources);
+    RemoveSetting(Stream::UserSources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == c_DefaultSourceCount);
@@ -220,7 +220,7 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == c_DefaultSourceCount);
@@ -229,7 +229,7 @@ TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
 
 TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_DefaultSourcesTombstoned);
+    SetSetting(Stream::UserSources, s_DefaultSourcesTombstoned);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.empty());
@@ -237,8 +237,8 @@ TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
 
 TEST_CASE("RepoSources_SingleSource", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_SingleSource);
-    RemoveSetting(Streams::SourcesMetadata);
+    SetSetting(Stream::UserSources, s_SingleSource);
+    RemoveSetting(Stream::SourcesMetadata);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == c_DefaultSourceCount + 1);
@@ -255,8 +255,8 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
 
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_ThreeSources);
-    SetSetting(Streams::SourcesMetadata, s_ThreeSourcesMetadata);
+    SetSetting(Stream::UserSources, s_ThreeSources);
+    SetSetting(Stream::SourcesMetadata, s_ThreeSourcesMetadata);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -277,21 +277,21 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
 
 TEST_CASE("RepoSources_InvalidYAML", "[sources]")
 {
-    SetSetting(Streams::UserSources, "Name: Value : BAD");
+    SetSetting(Stream::UserSources, "Name: Value : BAD");
 
     REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
 }
 
 TEST_CASE("RepoSources_MissingField", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_SingleSource_MissingArg);
+    SetSetting(Stream::UserSources, s_SingleSource_MissingArg);
 
     REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
 }
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -325,7 +325,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
 
 TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
 
     SourceDetails details;
     details.Name = "thisIsTheName";
@@ -386,7 +386,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -440,7 +440,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -476,7 +476,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 
 TEST_CASE("RepoSources_RemoveSource", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -506,7 +506,7 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
 
 TEST_CASE("RepoSources_RemoveDefaultSource", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::vector<SourceDetails> sources = GetSources();
@@ -544,7 +544,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    SetSetting(Streams::UserSources, s_SingleSource);
+    SetSetting(Stream::UserSources, s_SingleSource);
 
     ProgressCallback progress;
     auto source = OpenSource(name, progress).Source;
@@ -563,8 +563,8 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
 
 TEST_CASE("RepoSources_DropSourceByName", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_ThreeSources);
-    SetSetting(Streams::SourcesMetadata, s_ThreeSourcesMetadata);
+    SetSetting(Stream::UserSources, s_ThreeSources);
+    SetSetting(Stream::SourcesMetadata, s_ThreeSourcesMetadata);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -590,7 +590,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
 
 TEST_CASE("RepoSources_DropAllSources", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_ThreeSources);
+    SetSetting(Stream::UserSources, s_ThreeSources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -608,7 +608,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     TestSourceFactory factory{ SourcesTestSource::Create };
     TestHook_SetSourceFactoryOverride("testType", factory);
 
-    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+    SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
     auto source = OpenSource("", progress).Source;
@@ -646,7 +646,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Get source")
         {
             // Listing the sources should not return the default.
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == c_DefaultSourceCount - 1);
@@ -654,7 +654,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Add default source")
         {
             // We should not be able to add the default source manually.
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             ProgressCallback progress;
             SourceDetails details;
@@ -668,7 +668,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Ignore default source from user")
         {
             // We should ignore any existing user source that is the same as the default.
-            SetSetting(Streams::UserSources, s_DefaultSourceAsUserSource);
+            SetSetting(Stream::UserSources, s_DefaultSourceAsUserSource);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == c_DefaultSourceCount - 1);
@@ -677,7 +677,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         {
             // We should allow adding sources with the same name as the default but
             // pointing somewhere else.
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
             TestHook_ClearSourceFactoryOverrides();
 
             SourceDetails details;
@@ -710,7 +710,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             // We should respect existing user sources with the same name.
             // We should allow adding sources with the same name as the default but
             // pointing somewhere else.
-            SetSetting(Streams::UserSources, s_UserSourceNamedLikeDefault);
+            SetSetting(Stream::UserSources, s_UserSourceNamedLikeDefault);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == c_DefaultSourceCount);
@@ -731,7 +731,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Remove source is blocked")
         {
             // We should not be able to remove the default source.
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             ProgressCallback progress;
             REQUIRE_POLICY_EXCEPTION(
@@ -741,7 +741,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Tombstone is overridden")
         {
             // We should ignore if the default source was already deleted.
-            SetSetting(Streams::UserSources, s_DefaultSourcesTombstoned);
+            SetSetting(Stream::UserSources, s_DefaultSourcesTombstoned);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == 1);
@@ -751,7 +751,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Same name source is overridden")
         {
             // We should ignore existing user sources with the same name as the default.
-            SetSetting(Streams::UserSources, s_UserSourceNamedLikeDefault);
+            SetSetting(Stream::UserSources, s_UserSourceNamedLikeDefault);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == c_DefaultSourceCount);
@@ -787,7 +787,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             }
 
             policies.SetValue<ValuePolicy::AdditionalSources>(policySources);
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             auto sources = GetSources();
 
@@ -816,7 +816,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             policySource.Identifier = "notTestId";
 
             policies.SetValue<ValuePolicy::AdditionalSources>({ policySource });
-            SetSetting(Streams::UserSources, s_SingleSource);
+            SetSetting(Stream::UserSources, s_SingleSource);
 
             auto sources = GetSources();
 
@@ -842,7 +842,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             policySource.Identifier = "id";
 
             policies.SetValue<ValuePolicy::AdditionalSources>({ policySource });
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             ProgressCallback progress;
             REQUIRE_POLICY_EXCEPTION(
@@ -860,7 +860,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             policySource.Identifier = "notDefaultId";
 
             policies.SetValue<ValuePolicy::AdditionalSources>({ policySource });
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             auto sources = GetSources();
 
@@ -893,7 +893,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             policySource.Identifier = "testId";
 
             policies.SetValue<ValuePolicy::AllowedSources>({ policySource });
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
             TestHook_ClearSourceFactoryOverrides();
 
             bool addCalledOnFactory = false;
@@ -938,7 +938,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             policySource.Identifier = "testId";
 
             policies.SetValue<ValuePolicy::AllowedSources>({ policySource });
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             bool addCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
@@ -963,7 +963,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
 
         SECTION("Cannot add any source")
         {
-            SetSetting(Streams::UserSources, s_EmptySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
 
             bool addCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
@@ -985,7 +985,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
         }
         SECTION("Existing sources are ignored")
         {
-            SetSetting(Streams::UserSources, s_SingleSource);
+            SetSetting(Stream::UserSources, s_SingleSource);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == c_DefaultSourceCount);
@@ -1000,7 +1000,7 @@ TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailWinget };
     TestHook_SetSourceFactoryOverride("testType", factory);
 
-    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+    SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
     auto result = OpenSource("", progress);
@@ -1032,7 +1032,7 @@ TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
     TestHook_SetSourceFactoryOverride("testType", factory);
 
-    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+    SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
     REQUIRE_THROWS_HR(OpenSource("", progress), APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES);

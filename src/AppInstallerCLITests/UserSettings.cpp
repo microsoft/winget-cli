@@ -50,60 +50,60 @@ TEST_CASE("UserSettingsType", "[settings]")
     }
     SECTION("No setting.json Bad setting.json.backup")
     {
-        SetSetting(Streams::BackupUserSettings, s_badJson);
+        SetSetting(Stream::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("No setting.json Good setting.json.backup")
     {
-        SetSetting(Streams::BackupUserSettings, s_goodJson);
+        SetSetting(Stream::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Bad setting.json No setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_badJson);
+        SetSetting(Stream::PrimaryUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Bad setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_badJson);
-        SetSetting(Streams::BackupUserSettings, s_badJson);
+        SetSetting(Stream::PrimaryUserSettings, s_badJson);
+        SetSetting(Stream::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Good setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_badJson);
-        SetSetting(Streams::BackupUserSettings, s_goodJson);
+        SetSetting(Stream::PrimaryUserSettings, s_badJson);
+        SetSetting(Stream::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Good setting.json No setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
+        SetSetting(Stream::PrimaryUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Bad setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
-        SetSetting(Streams::BackupUserSettings, s_badJson);
+        SetSetting(Stream::PrimaryUserSettings, s_goodJson);
+        SetSetting(Stream::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Good setting.json.backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
-        SetSetting(Streams::BackupUserSettings, s_goodJson);
+        SetSetting(Stream::PrimaryUserSettings, s_goodJson);
+        SetSetting(Stream::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
@@ -115,7 +115,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     DeleteUserSettingsFiles();
 
     auto settingsPath = UserSettings::SettingsFilePath();
-    auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
+    auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
 
     SECTION("No settings.json create new")
     {
@@ -131,7 +131,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     }
     SECTION("Good settings.json create new backup")
     {
-        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
+        SetSetting(Stream::PrimaryUserSettings, s_goodJson);
         REQUIRE(std::filesystem::exists(settingsPath));
         REQUIRE(!std::filesystem::exists(settingsBackupPath));
 
@@ -158,7 +158,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Accent")
     {
         std::string_view json = R"({ "visual": { "progressBar": "accent" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -167,7 +167,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Rainbow")
     {
         std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Rainbow);
@@ -176,7 +176,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("retro")
     {
         std::string_view json = R"({ "visual": { "progressBar": "retro" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Retro);
@@ -185,7 +185,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Bad value")
     {
         std::string_view json = R"({ "visual": { "progressBar": "fake" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -194,7 +194,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Bad value type")
     {
         std::string_view json = R"({ "visual": { "progressBar": 5 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -220,7 +220,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Valid value")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 0 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cero);
@@ -229,7 +229,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Valid value 0")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 300 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == threehundred);
@@ -238,7 +238,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Invalid type negative integer")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": -20 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
@@ -247,7 +247,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Invalid type string")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": "not a number" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
@@ -260,7 +260,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         GroupPolicyTestOverride policies{ policiesKey.get() };
 
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == threehundred);
@@ -273,7 +273,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         GroupPolicyTestOverride policies{ policiesKey.get() };
 
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
@@ -295,7 +295,7 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
     SECTION("Feature on")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::EFExperimentalCmd>());
@@ -304,7 +304,7 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
     SECTION("Feature off")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": false } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
@@ -313,7 +313,7 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
     SECTION("Invalid value")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": "string" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
@@ -326,7 +326,7 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
         GroupPolicyTestOverride policies{ policiesKey.get() };
 
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         // Experimental features group policy is applied at the ExperimentalFeature level,

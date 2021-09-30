@@ -22,7 +22,7 @@ namespace AppInstaller::Settings
             virtual std::unique_ptr<std::istream> Get() = 0;
 
             // Sets the setting to the given value.
-            virtual void Set(std::string_view value) = 0;
+            virtual bool Set(std::string_view value) = 0;
 
             // Deletes the setting.
             virtual void Remove() = 0;

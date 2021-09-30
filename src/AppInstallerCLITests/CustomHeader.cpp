@@ -86,7 +86,7 @@ TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";
@@ -110,7 +110,7 @@ TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";
@@ -137,7 +137,7 @@ TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";
