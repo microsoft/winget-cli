@@ -119,6 +119,10 @@ namespace
             {
                 input = request.Inclusions[0].Value;
             }
+            else if (!request.Filters.empty())
+            {
+                input = request.Filters[0].Value;
+            }
 
             // Empty query should return all exe, msix and msstore installer
             if (input.empty() || input == "AppInstallerCliTest.TestExeInstaller")
@@ -288,10 +292,8 @@ namespace
     // Enables overriding the behavior of specific workflow tasks.
     struct TestContext : public Context
     {
-        TestContext(std::ostream& out, std::istream& in) : m_out(out), m_in(in), Context(out, in)
+        TestContext(std::ostream& out, std::istream& in) : TestContext(out, in, false, std::make_shared<std::vector<WorkflowTaskOverride>>())
         {
-            m_overrides = std::make_shared<std::vector<WorkflowTaskOverride>>();
-
             WorkflowTaskOverride wto
             { RemoveInstaller, [](TestContext&)
                 {
@@ -304,9 +306,8 @@ namespace
             Override(wto);
         }
 
-        // For clone
-        TestContext(std::ostream& out, std::istream& in, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
-            m_out(out), m_in(in), m_overrides(overrides), m_isClone(true), Context(out, in)
+        TestContext(std::ostream& out, std::istream& in, bool isClone, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
+            m_out(out), m_in(in), m_overrides(overrides), m_isClone(isClone), Context(out, in)
         {
             m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
             {
@@ -346,7 +347,7 @@ namespace
 
         std::unique_ptr<Context> Clone() override
         {
-            auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
+            auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
             clone->SetFlags(this->GetFlags());
             return clone;
         }
