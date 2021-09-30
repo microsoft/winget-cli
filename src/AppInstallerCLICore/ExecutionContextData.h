@@ -34,6 +34,7 @@ namespace AppInstaller::CLI::Execution
         InstallerPath,
         LogPath,
         InstallerArgs,
+        InstallerReturnCode,
         CompletionData,
         InstalledPackageVersion,
         UninstallString,
@@ -42,7 +43,7 @@ namespace AppInstaller::CLI::Execution
         // On export: A collection of packages to be exported to a file
         // On import: A collection of packages read from a file
         PackageCollection,
-        // On import: A collection of specific package versions to install
+        // On import and upgrade all: A collection of specific package versions to install
         PackagesToInstall,
         InstallersToInstall,
         // On import: Sources for the imported packages
@@ -50,13 +51,39 @@ namespace AppInstaller::CLI::Execution
         ARPSnapshot,
         Dependencies,
         DependencySource,
+        AllowedArchitectures,
         Max
     };
 
+    // Contains all the information needed to install a package.
+    // This is used when installing multiple packages to pass all the
+    // data to a sub-context.
     struct PackageToInstall
     {
+        PackageToInstall(
+            std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
+            std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
+            Manifest::Manifest&& manifest,
+            Manifest::ManifestInstaller&& installer,
+            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown,
+            uint32_t packageSubExecutionId = 0)
+            : PackageVersion(std::move(packageVersion)), InstalledPackageVersion(std::move(installedPackageVersion)), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope), PackageSubExecutionId(packageSubExecutionId) { }
+
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
-        PackageCollection::Package PackageRequest;
+
+        // Used to uninstall the old version if needed.
+        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
+
+        // Use this instead of the PackageVersion->GetManifest() as the locale was
+        // applied when selecting the installer.
+        Manifest::Manifest Manifest;
+
+        Manifest::ManifestInstaller Installer;
+        Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
+
+        // Use this sub execution id when installing this package so that 
+        // install telemetry is captured with the same sub execution id as other events in Search phase.
+        uint32_t PackageSubExecutionId = 0;
     };
 
     struct InstallerToInstall
@@ -141,6 +168,12 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
+        struct DataMapping<Data::InstallerReturnCode>
+        {
+            using value_t = DWORD;
+        };
+
+        template <>
         struct DataMapping<Data::CompletionData>
         {
             using value_t = CLI::CompletionData;
@@ -211,6 +244,11 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::DependencySource>
         {
             using value_t = std::shared_ptr<Repository::ISource>;
+        };
+        
+        struct DataMapping<Data::AllowedArchitectures>
+        {
+            using value_t = std::vector<Utility::Architecture>;
         };
     }
 }

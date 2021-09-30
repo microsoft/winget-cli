@@ -36,6 +36,38 @@ namespace AppInstaller::Repository
 
     std::string_view ToString(SourceOrigin origin);
 
+    // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
+    struct SourceAgreement
+    {
+        std::string Label;
+        std::string Text;
+        std::string Url;
+
+        SourceAgreement(std::string label, std::string text, std::string url) :
+            Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
+    };
+
+    struct SourceInformation
+    {
+        // Identifier of the source agreements. This is used to identify if source agreements have changed.
+        std::string SourceAgreementsIdentifier;
+
+        // List of source agreements that require user to accept.
+        std::vector<SourceAgreement> SourceAgreements;
+
+        // Unsupported match fields in search request. If this field is in the filters, the request may fail.
+        std::vector<std::string> UnsupportedPackageMatchFields;
+
+        // Required match fields in search request. If this field is not found in the filters, the request may fail(except Market).
+        std::vector<std::string> RequiredPackageMatchFields;
+
+        // Unsupported query parameters in get manifest request.
+        std::vector<std::string> UnsupportedQueryParameters;
+
+        // Required query parameters in get manifest request.
+        std::vector<std::string> RequiredQueryParameters;
+    };
+
     // Interface for retrieving information about a source without acting on it.
     struct SourceDetails
     {
@@ -63,9 +95,26 @@ namespace AppInstaller::Repository
         // The trust level of the source
         SourceTrustLevel TrustLevel = SourceTrustLevel::None;
 
-        // Whether the source behavior has restrictions
-        bool Restricted = false; 
+        // Custom header for Rest sources
+        std::optional<std::string> CustomHeader;
+
+        // Source information containing source agreements, required/unsupported match fields.
+        SourceInformation Information;
+
+        // Support correlation against this source if true.
+        bool SupportInstalledSearchCorrelation = true;
     };
+
+    // Fields that require user agreements.
+    enum class ImplicitAgreementFieldEnum : int
+    {
+        None = 0x0,
+        Market = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementFieldEnum);
+
+    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info);
 
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
@@ -85,17 +134,23 @@ namespace AppInstaller::Repository
         // and thus the packages may come from disparate sources as well.
         virtual bool IsComposite() const { return false; }
 
+        // Gets the available sources if the source is composite.
+        virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
+
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
-    // Interface extension to ISource for locally installed packages.
-    struct IInstalledPackageSource : public ISource
+    // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages
+    struct IMutablePackageSource
     {
-        virtual ~IInstalledPackageSource() = default;
+        virtual ~IMutablePackageSource() = default;
 
-        // Adds an installed package version to the source.
-        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        // Adds a package version to the source.
+        virtual void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+
+        // Removes a package version from the source.
+        virtual void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
     // Gets the details for all sources.
@@ -105,7 +160,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress);
 
     struct OpenSourceResult
     {
@@ -130,6 +185,7 @@ namespace AppInstaller::Repository
         Installed,
         ARP,
         MSIX,
+        Installing,
     };
 
     // A well known source.
@@ -138,6 +194,7 @@ namespace AppInstaller::Repository
     {
         WinGet,
         MicrosoftStore,
+        DesktopFrameworks,
     };
 
     SourceDetails GetPredefinedSourceDetails(PredefinedSource source);
@@ -186,4 +243,13 @@ namespace AppInstaller::Repository
     // Return value indicates whether the named source was found.
     // Passing an empty string drops all sources.
     bool DropSource(std::string_view name);
+
+    // Checks if a source supports passing custom header.
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails);
+
+    // Checks the source agreements and returns if agreements are satisfied.
+    bool CheckSourceAgreements(const SourceDetails& source);
+
+    // Saves the accepted source agreements in metadata.
+    void SaveAcceptedSourceAgreements(const SourceDetails& source);
 }

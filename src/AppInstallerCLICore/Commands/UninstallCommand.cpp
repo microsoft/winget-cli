@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
 {
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
-        // TODO: determine exact arguments needed
         return
         {
             Argument::ForType(Args::Type::Query),
@@ -31,6 +30,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -79,7 +80,6 @@ namespace AppInstaller::CLI
 
     std::string UninstallCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-uninstall";
     }
 
@@ -101,6 +101,8 @@ namespace AppInstaller::CLI
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         // open the sources where to search for the package
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
@@ -122,6 +124,7 @@ namespace AppInstaller::CLI
             // search for a single package to uninstall
             context <<
                 Workflow::SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(true) <<
                 Workflow::ReportPackageIdentity;
         }

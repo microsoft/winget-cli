@@ -17,6 +17,8 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::InstallPackageVersion;
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::InstallSinglePackage;
     }
 }

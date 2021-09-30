@@ -168,16 +168,33 @@ private:
     bool m_expectedWarningOnly;
 };
 
-void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedMessage = {}, bool expectedWarningOnly = false)
+ManifestValidateOption GetTestManifestValidateOption(
+    bool schemaValidationOnly = false,
+    bool errorOnVerifiedPublisher = false)
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.ThrowOnWarning = true;
+    validateOption.SchemaValidationOnly = schemaValidationOnly;
+    validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
+    return validateOption;
+}
+
+void TestManifest(
+    const std::filesystem::path& manifestPath,
+    const std::string& expectedMessage = {},
+    bool expectedWarningOnly = false,
+    ManifestValidateOption validateOption = GetTestManifestValidateOption())
 {
     INFO(manifestPath.u8string());
+
     if (expectedMessage.empty())
     {
-        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true));
+        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption));
     }
     else
     {
-        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
+        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
     }
 }
 
@@ -186,6 +203,7 @@ struct ManifestTestCase
     std::string TestFile;
     std::string ExpectedMessage = {};
     bool IsWarningOnly = false;
+    ManifestValidateOption ValidateOption = GetTestManifestValidateOption();
 };
 
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
@@ -196,8 +214,8 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-InstallerTypeExeRoot-SilentRoot.yaml" },
         { "Manifest-Good-InstallerTypeExe-Silent.yaml" },
         { "Manifest-Good-InstallerTypeExe-SilentRoot.yaml" },
-        { "Manifest-Good-Installeruniqueness-DefaultLang.yaml" },
-        { "Manifest-Good-Installeruniqueness-DiffLangs.yaml" },
+        { "Manifest-Good-InstallerUniqueness-DefaultLang.yaml" },
+        { "Manifest-Good-InstallerUniqueness-DiffLangs.yaml" },
         { "Manifest-Good-InstallerUniqueness-DiffScope.yaml" },
         { "Manifest-Good-Minimum.yaml" },
         { "Manifest-Good-Minimum-InstallerType.yaml" },
@@ -223,6 +241,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-DuplicateKey.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateReturnCode-ExpectedCodes.yaml", "Duplicate installer return code found." },
+        { "Manifest-Bad-DuplicateReturnCode-SuccessCodes.yaml", "Duplicate installer return code found." },
         { "Manifest-Bad-IdInvalid.yaml", "Failed to validate against schema associated with property name 'Id'" },
         { "Manifest-Bad-IdMissing.yaml", "Missing required property 'Id'" },
         { "Manifest-Bad-InstallersMissing.yaml", "Missing required property 'Installers'" },
@@ -240,12 +260,12 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-NameMissing.yaml", "Missing required property 'Name'" },
         { "Manifest-Bad-PublisherMissing.yaml", "Missing required property 'Publisher'" },
         { "Manifest-Bad-Sha256Invalid.yaml", "Failed to validate against schema associated with property name 'Sha256'" },
-        { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. Field: Sha256" },
+        { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. Field: InstallerSha256" },
         { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. Field: NotASwitch", true },
         { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. Field: Fake", true },
         { "Manifest-Bad-UnsupportedVersion.yaml", "Unsupported ManifestVersion" },
-        { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. Field: Url" },
-        { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: Url" },
+        { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. Field: InstallerUrl" },
+        { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: InstallerUrl" },
         { "Manifest-Bad-VersionInvalid.yaml", "Failed to validate against schema associated with property name 'Version'" },
         { "Manifest-Bad-VersionMissing.yaml", "Missing required property 'Version'" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Failed to validate against schema associated with property name 'ManifestVersion'" },
@@ -254,11 +274,14 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
+        { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
     };
 
     for (auto const& testCase : TestCases)
     {
-        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly);
+        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly, testCase.ValidateOption);
     }
 }
 
@@ -278,7 +301,7 @@ TEST_CASE("ManifestEncoding", "[ManifestValidation]")
     for (auto const& testCase : TestCases)
     {
         INFO(testCase.TestFile);
-        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), true, true);
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), GetTestManifestValidateOption());
         REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == u8"MSIX SDK\xA9");
     }
 }
@@ -339,7 +362,7 @@ void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, co
     }
 }
 
-void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
+void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 })
 {
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
@@ -359,6 +382,17 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
     REQUIRE(manifest.Moniker == "msixsdk");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
+
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+    {
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotes>() == "Default release notes");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://DefaultReleaseNotes.net");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().size() == 1);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).Label == "DefaultLabel");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
+    }
+
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -392,6 +426,28 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
     REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
+
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+    {
+        REQUIRE(manifest.DefaultInstallerInfo.ReleaseDate == "2021-01-01");
+        REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
+        REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
+        REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
+        REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
+        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+    }
 
     if (isSingleton)
     {
@@ -439,6 +495,22 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(installer1.RestrictedCapabilities == MultiValue{ "runFullTrustPreview" });
     REQUIRE(installer1.PackageFamilyName == "Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe");
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+    {
+        REQUIRE(installer1.ReleaseDate == "2021-02-02");
+        REQUIRE_FALSE(installer1.InstallerAbortsTerminal);
+        REQUIRE_FALSE(installer1.InstallLocationRequired);
+        REQUIRE_FALSE(installer1.RequireExplicitUpgrade);
+        REQUIRE(installer1.ElevationRequirement == ElevationRequirementEnum::ElevationRequired);
+        REQUIRE(installer1.UnsupportedOSArchitectures.size() == 1);
+        REQUIRE(installer1.UnsupportedOSArchitectures.at(0) == Architecture::Arm64);
+        REQUIRE(installer1.AppsAndFeaturesEntries.size() == 0);
+        REQUIRE(installer1.Markets.AllowedMarkets.size() == 0);
+        REQUIRE(installer1.Markets.ExcludedMarkets.size() == 1);
+        REQUIRE(installer1.Markets.ExcludedMarkets.at(0) == "US");
+        REQUIRE(installer1.ExpectedReturnCodes.at(2) == ExpectedReturnCodeEnum::ContactSupport);
+    }
+
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
@@ -447,6 +519,28 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
         REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
         REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
         REQUIRE(installer2.ProductCode == "{Bar}");
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(installer2.ReleaseDate == "2021-01-01");
+            REQUIRE(installer2.InstallerAbortsTerminal);
+            REQUIRE(installer2.InstallLocationRequired);
+            REQUIRE(installer2.RequireExplicitUpgrade);
+            REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+            REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
+            REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+            REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+            REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
+            REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
+            REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
+            REQUIRE(installer2.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+        }
 
         // Localization
         REQUIRE(manifest.Localizations.size() == 1);
@@ -466,14 +560,26 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
         REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
         REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
         REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(localization1.Get<Localization::ReleaseNotes>() == "Release notes");
+            REQUIRE(localization1.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net");
+            REQUIRE(localization1.Get<Localization::Agreements>().size() == 1);
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
+            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+        }
     }
 }
 
 TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1-Singleton.yaml" }, singletonDirectory);
-    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, true, true);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
     VerifyV1ManifestContent(singletonManifest, true);
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
@@ -484,12 +590,37 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
         "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, mergedManifestFile);
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
     VerifyV1ManifestContent(multiFileManifest, false);
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false);
+}
+
+TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{s_ManifestVersionV1_1});
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_1-MultiFile-Version.yaml",
+        "ManifestV1_1-MultiFile-Installer.yaml",
+        "ManifestV1_1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_1 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_1 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

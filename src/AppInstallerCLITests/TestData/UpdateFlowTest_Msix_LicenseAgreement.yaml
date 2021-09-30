@@ -1,0 +1,20 @@
+# Similar content to UpdateFlowTest_Msix.yaml but with Agreements
+PackageIdentifier: AppInstallerCliTest.TestMsixInstaller
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test MSIX Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestExe
+License: Test
+Agreements:
+  - AgreementLabel: Agreement for MSIX
+    Agreement: This is the agreement for the MSIX installer.
+Installers:
+  - Architecture: X64
+    InstallerUrl: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
+    InstallerType: msix
+    InstallerSha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+    SignatureSha256: 138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07
+    PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
+ManifestType: singleton
+ManifestVersion: 1.1.0

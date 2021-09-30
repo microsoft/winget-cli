@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
-        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::Log().SetLevel(Logging::Level::Info);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
 
@@ -100,9 +100,9 @@ namespace AppInstaller::CLI
             command->ParseArguments(invocation, context.Args);
 
             // Change logging level to Info if Verbose not requested
-            if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
+            if (context.Args.Contains(Execution::Args::Type::VerboseLogs))
             {
-                Logging::Log().SetLevel(Logging::Level::Info);
+                Logging::Log().SetLevel(Logging::Level::Verbose);
             }
 
             context.UpdateForArgs();

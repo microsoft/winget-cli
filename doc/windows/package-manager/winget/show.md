@@ -8,15 +8,13 @@ ms.localizationpriority: medium
 
 # show command (winget)
 
-[!INCLUDE [preview-note](../../includes/package-manager-preview.md)]
-
 The **show** command of the [winget](index.md) tool displays details for the specified application, including details on the source of the application as well as the metadata associated with the application.
 
 The **show** command only shows metadata that was submitted with the application. If the submitted application excludes some metadata, then the data will not be displayed.
 
 ## Usage
 
-`winget show [[-q] \<query>] [\<options>]`
+`winget show [[-q] <query>] [<options>]`
 
 ![show command](images/show.png)
 
@@ -56,31 +54,21 @@ If a single application is detected, the following data will be displayed.
 
 | Value  | Description |
 |--------------|-------------|
-| **Id**   | Id of the application. |
-| **Name**  | Name of the application. |
-| **Publisher** | Publisher of the application. |
 | **Version** | Version of the application. |
-| **Author**  | Author of the application. |
-| **AppMoniker** | AppMoniker of the application. |
+| **Publisher** | Publisher of the application. |
+| **Moniker** | AppMoniker of the application. |
 | **Description** | Description of the application. |
+| **Homepage**  | Homepage of the application. |
 | **License**  | License of the application. |
 | **LicenseUrl** | The URL to the license file of the application. |
-| **Homepage**  | Homepage of the application. |
-| **Tags** | The tags provided to assist in searching.  |
-| **Command** | The commands supported by the application. |
-| **Channel**  | The details on whether the application is preview or release.  |
-| **Minimum OS Version** | The minimum OS version supported by the application. |
 
 ### Installer details
 
 | Value  | Description |
 |--------------|-------------|
-| **Arch**   | The architecture of the installer. |
-| **Language**  | The language of the installer. |
-| **Installer Type**  | The type of installer. |
+| **Type**  | The type of installer. |
 | **Download Url** | The Url of the installer. |
-| **Hash** | The Sha-256 of the installer.  |
-| **Scope** | Displays whether the installer is per machine or per user. |
+| **SHA256** | The Sha-256 of the installer.  |
 
 ## Related topics
 

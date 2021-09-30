@@ -42,6 +42,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
         };
     }
@@ -75,9 +78,9 @@ namespace AppInstaller::CLI
         {
         case Execution::Args::Type::Query:
             context <<
-                Workflow::RequireCompletionWordNonEmpty <<
-                Workflow::SearchSourceForManyCompletion <<
-                Workflow::CompleteWithMatchedField;
+                RequireCompletionWordNonEmpty <<
+                SearchSourceForManyCompletion <<
+                CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
@@ -86,14 +89,13 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
             context <<
-                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
+                CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }
     }
 
     std::string UpgradeCommand::HelpLink() const
     {
-        // TODO: point to correct location
         return "https://aka.ms/winget-command-upgrade";
     }
 
@@ -118,6 +120,13 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
 
+        // Only allow for source failures when doing a list of available upgrades.
+        // We have to set it now to allow for source open failures to also just warn.
+        if (ShouldListUpgrade(context))
+        {
+            context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+        }
+
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
@@ -127,15 +136,17 @@ namespace AppInstaller::CLI
         {
             // Upgrade with no args list packages with updates available
             context <<
-                Workflow::SearchSourceForMany <<
-                Workflow::EnsureMatchesFromSearchResult(true) <<
-                Workflow::ReportListResult(true);
+                SearchSourceForMany <<
+                HandleSearchResultFailures <<
+                EnsureMatchesFromSearchResult(true) <<
+                ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
         {
             // --all switch updates all packages found
             context <<
                 SearchSourceForMany <<
+                HandleSearchResultFailures <<
                 EnsureMatchesFromSearchResult(true) <<
                 UpdateAllApplicable;
         }
@@ -150,17 +161,14 @@ namespace AppInstaller::CLI
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
-                ReportIdentityAndInstallationDisclaimer <<
-                GetDependenciesFromInstaller <<
-                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-                ManagePackageDependencies <<
-                InstallPackageInstaller;
+                InstallSinglePackage;
         }
         else
         {
             // The remaining case: search for single installed package to update
             context <<
                 SearchSourceForSingle <<
+                HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion;
 
@@ -180,12 +188,7 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << 
-                ReportIdentityAndInstallationDisclaimer <<
-                GetDependenciesFromInstaller << 
-                ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-                ManagePackageDependencies <<
-                InstallPackageInstaller;
+            context << InstallSinglePackage;
         }
     }
 }

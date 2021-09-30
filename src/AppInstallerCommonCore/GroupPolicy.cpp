@@ -57,7 +57,7 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            AICLI_LOG(Core, Info, << "Found policy '" << valueName << "', Value: " << *intValue);
+            AICLI_LOG(Core, Verbose, << "Found policy '" << valueName << "', Value: " << *intValue);
             return (bool)*intValue;
         }
 
@@ -322,6 +322,7 @@ namespace AppInstaller::Settings
         return InstanceInternal();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     void GroupPolicy::OverrideInstance(GroupPolicy* overridePolicy)
     {
         InstanceInternal(overridePolicy);
@@ -331,4 +332,5 @@ namespace AppInstaller::Settings
     {
         InstanceInternal(nullptr);
     }
+#endif
 }

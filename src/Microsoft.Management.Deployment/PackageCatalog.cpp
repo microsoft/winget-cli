@@ -12,7 +12,7 @@
 #include "MatchResult.h"
 #include "CatalogPackage.h"
 #include "Commands/RootCommand.h"
-#include "Helpers.h"
+#include "ExecutionContext.h"
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)
 // 6388 Allow CreateInstance.
@@ -139,6 +139,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             searchRequest.MaximumResults = options.ResultLimit();
             auto searchResult = m_source->Search(searchRequest);
 
+            // Handle failures by just rethrowing the first one for now.
+            // TODO: Look into updating the COM interface to enable the single source
+            //       failures to flow out.
+            if (!searchResult.Failures.empty())
+            {
+                std::rethrow_exception(searchResult.Failures[0].Exception);
+            }
+
             // Build the result object from the searchResult
             for (size_t i = 0; i < searchResult.Matches.size(); ++i)
             {
@@ -159,7 +167,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             isTruncated = searchResult.Truncated;
         }
-        WINGET_CATCH_STORE(hr);
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         return GetFindPackagesResult(hr, isTruncated, matches);
     }

@@ -40,6 +40,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::DependencySource),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -120,9 +123,13 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
-            Workflow::InstallPackageVersion;
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::InstallSinglePackage;
     }
 }

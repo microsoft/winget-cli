@@ -141,6 +141,9 @@
     <value>A következő alparancsok használhatók:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>frissítés elérhető.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>A megadott csatorna használata; az alapértelmezett érték az általános célközönség.</value>
   </data>
@@ -419,9 +422,6 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>A kurzor pozíciója a parancssoron belül</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Előzetes verzió</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Adatvédelmi nyilatkozat</value>
   </data>
@@ -466,10 +466,10 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>A Beállítások ellenőrzése során a következő hibák merültek fel:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Megnyitja a beállításokat az alapértelmezett JSON-szövegszerkesztőben. Ha nem konfiguráltak szerkesztőt, a Jegyzettömbben nyitja meg a beállításokat. A rendelkezésre álló beállítások listája a https://aka.ms/winget-settings lapon található.</value>
+    <value>Nyissa meg a beállításokat az alapértelmezett JSON-szövegszerkesztőben. Ha a szerkesztő nincs konfigurálva, nyissa meg a beállításokat a Jegyzettömbben. Az elérhető beállításokért tekintse meg a következőt: https://aka.ms/winget-settings. Ez a parancs az adminisztrátori beállítások megadására is használható az „engedélyezés” vagy „letiltás” argumentum megadásával</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Beállítások megnyitása</value>
+    <value>Beállítások megnyitása vagy adminisztrátori beállítások megadása</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Váratlan hiba történt a beállítások betöltése közben. Kérjük, ellenőrizze a beállításokat a beállítások parancs futtatásával.</value>
@@ -544,6 +544,10 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Név</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Azonosító</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nem található ilyen nevű forrás:</value>
   </data>
@@ -570,7 +574,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>A forrás neve</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Nem sikerült megnyitni a forrást; próbálja meg a 'source reset' parancsot, ha a probléma továbbra is fennáll.</value>
+    <value>Nem sikerült megnyitni a forrás(oka)t; próbálja meg a ‚source reset‘ parancsot, ha a probléma továbbra is fennáll.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ A konfiguráció a csoportházirend miatt le van tiltva.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Érvénytelen a (z) "%1" argumentum megadott értéke.</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Visszavonva</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Külső elem</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Az importálásban talált csomagok függőségei a következők:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Ehhez a csomaghoz a következő függőségek szükségesek:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Csomagok</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Ez a csomag olyan függőségekkel rendelkezik, amelyekre már nincs szükség:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>A jegyzékfájl a következő nem érvényesített függőségekkel rendelkezik; győződjön meg arról, hogy ezek érvényesek:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-szolgáltatások</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-könyvtárak</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>A Windows Store feltételei</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>A csomagok összes licencszerződésének elfogadása</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Az exportált csomag telepítéséhez licencszerződés szükséges:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>A közzétevő megköveteli, hogy Ön a telepítés előtt megtekinti és elfogadja a szerződéseket.
+Elfogadja a feltételeket?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>A csomagszerződések nem egyeztek meg. A művelet megszakítva.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Szerződések:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Szerző:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Leírás:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Telepítő:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Területi:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-beli termékazonosító:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Típus:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Letöltési URL-cím:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licenc:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licenc URL-címe:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Kezdőlap:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Kiadó:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Verzió:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nem</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Igen</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Nem sikerült megnyitni a hozzáadott forrást.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Az összes forrásszerződés elfogadása a forrásműveletek során</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>A(z) „%1“ forrás használata előtt meg kell tekintenie a következő szerződéseket.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Elfogadja a forrásszerződések összes feltételét?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Egy vagy több forrásszerződés nem lett elfogadva. A művelet megszakítva. Fogadja el a forrásszerződéseket, vagy távolítsa el a megfelelő forrásokat.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>A forrás megfelelő működéséhez az aktuális gép földrajzi régiójának elküldése szükséges.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>A telepítés sikerült. A frissítés befejezéséhez indítsa újra az alkalmazást.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Opcionális Windows-Package-Manager REST-forrás HTTP-fejléc</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>A rendszer figyelmen kívül hagyja a nem kötelező fejlécet, mert nem alkalmazható ehhez a forráshoz.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>A nem kötelező fejléc nem alkalmazható forrás megadása nélkül</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Kiadás dátuma:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Közzétevő URL-címe:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>A közzétevő támogatási URL-címe:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Adatvédelmi szabályzat URL-címe:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Szerzői jog:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Szerzői jog URL-címe:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Verzióinformációk:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Verzióinformációk URL-címe:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Hiba a forrás keresésekor; az eredmények nem lesznek belefoglalva:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Hiba a forrás keresésekor:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Ezt a funkciót az adminisztrátornak engedélyeznie kell. Az engedélyezéshez futtassa rendszergazdaként a winget settings --enable %1 parancsot.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Engedélyezi az adott adminisztrátori beállítást</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Letiltja az adott adminisztrátori beállítást</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Túl sok rendszergazdai beállítási argumentum van megadva</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Adminisztrátori beállítás engedélyezve.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Az adminisztrátori beállítás le van tiltva.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Az alkalmazás jelenleg fut. Lépjen ki az alkalmazásból, és próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Egy másik telepítés már folyamatban van. Próbálkozzon újra később.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Egy vagy több fájl használatban van. Lépjen ki az alkalmazásból, és próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>A csomag egyik függősége hiányzik a rendszerből.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Nincs több hely a számítógépen. Szabadítson fel helyet, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Nincs elég memória a telepítéshez. Zárja be a többi alkalmazást, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Ehhez az alkalmazáshoz internetkapcsolat szükséges. Csatlakozzon egy hálózathoz, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Az alkalmazás hibát észlelt a telepítés során. Forduljon az ügyfélszolgálathoz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>A telepítés befejezéséhez indítsa újra a számítógépet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>A számítógép újraindul a telepítés befejezéséhez.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>A telepítés nem sikerült. Indítsa újra a számítógépet, majd próbálkozzon újra.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ön megszakította a telepítést.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Az alkalmazás egy másik verziója már telepítve van.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Az alkalmazás egy újabb verziója már telepítve van.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>A szervezeti házirendek megakadályozzák a telepítést. Forduljon a rendszergazdához.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>A telepítés félbeszakadt</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>A telepítő sikertelen a következő kilépési kóddal:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>A telepítőnapló a következő helyen érhető el:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>A következő csomagok találhatók a munkaforrások között.
+A folytatáshoz adja meg az egyiket a '--source' kapcsolóval.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Nem találhatók csomagok a munkaforrások között.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Ez a Windows Package Manager stabil kiadása. Ha kísérleti funkciókat szeretne kipróbálni, kérjük, telepítsen egy kiadás előtti buildet. Útmutató a GitHubon érhető el a https://github.com/microsoft/winget-cli címen.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

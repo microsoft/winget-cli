@@ -141,6 +141,9 @@
     <value>Seuraavat alikomennot ovat saatavilla:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>saatavilla olevia päivityksiä.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Käytä määritettyä kanavaa. Oletusarvona on sallittu kaikille.</value>
   </data>
@@ -419,9 +422,6 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Kohdistimen sijainti komentorivillä</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Esikatselu</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Tietosuojatiedot</value>
   </data>
@@ -466,10 +466,10 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Seuraavat virheet löydettiin vahvistettaessa asetuksia:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Avaa asetukset oletusarvoisessa json-tekstieditorissa. Jos editoria ei ole määritetty, avaa asetukset Muistiossa. Näet saatavilla olevat asetukset osoitteesta https://aka.ms/winget-settings</value>
+    <value>Avaa asetukset json-oletustekstieditorissa. Jos editoria ei ole määritetty, avaa asetukset muistiossa. Katso käytettävissä olevat asetukset artikkelista https://aka.ms/winget-settings Tätä komentoa voidaan käyttää myös järjestelmänvalvojan asetusten määrittämiseen antamalla enable- tai disable-argumentti</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Avaa asetukset</value>
+    <value>Avaa asetukset tai määritä järjestelmänvalvojan asetukset</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Odottamaton virhe ladattaessa asetuksia. Tarkista asetukset suorittamalla asetukset-komento.</value>
@@ -544,6 +544,10 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Nimi</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Tunniste</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Ei löytynyt lähdettä nimeltä:</value>
   </data>
@@ -570,7 +574,7 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Lähteen nimi</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Lähteen avaaminen epäonnistui; Yritä source reset -komentoa, jos ongelma ei poistu.</value>
+    <value>Virhe avattaessa lähteiden avaamista; yritä 'source reset' komentoa, jos ongelma jatkuu.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ Määritys on poistettu käytöstä ryhmä käytännön vuoksi.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>%1-argumentin annettu arvo on virheellinen</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Peruutettu</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ulkoinen</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Tästä tuonnista löydetyillä paketeilla on seuraavat riippuvuudet:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Tämä paketti edellyttää seuraavia riippuvuussuhteita:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketit</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Tällä paketilla oli riippuvuussuhteita, joita ei ehkä enää tarvita:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Luettelo sisältää seuraavat riippuvuudet, joita ei vahvistettu; varmista, että ne ovat kelvollisia:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-ominaisuudet</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windowsin kirjastot</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Storen käyttöehdot</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Hyväksy kaikki pakettien käyttöoikeussopimukset</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Viety paketti edellyttää käyttöoikeussopimuksen asentamista:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Julkaisija edellyttää, että tarkastelet yllä olevia tietoja ja hyväksyt sopimukset ennen asentamista.
+Hyväksytkö ehdot?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Pakettisopimuksia ei hyväksytty. Toiminto peruutettiin.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Sopimukset:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Tekijä:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Kuvaus:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Asennusohjelma:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Maa-asetus:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Storen tuotetunnus:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tyyppi:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Lataus-URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Käyttöoikeus:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Käyttöoikeuden URL-osoite:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Monikeri:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Aloitussivu:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Julkaisija:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versio:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ei</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Kyllä</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Lisätyn lähteen avaaminen epäonnistui.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Hyväksy kaikki lähdesopimukset lähdetoimintojen aikana</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Lähde%1edellyttää, että tarkastelet seuraavia sopimuksia ennen käyttämistä.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Hyväksytkö kaikki lähdesopimuksen ehdot?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Vähintään yhtä lähdesopimusta ei hyväksytty. Toiminto peruutettiin. Hyväksy lähdesopimukset tai poista vastaavat lähteet.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Lähde edellyttää nykyisen koneen maantieteellisen alueen lähettämisen, jotta se toimisi oikein.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Asennus onnistui. Viimeistele päivitys käynnistämällä sovellus uudelleen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valinnainen Windows-Package-Manager REST -lähteen HTTP-otsikko</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Valinnainen otsikko ohitetaan, koska se ei sovellu tälle lähteelle.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Valinnaista otsikkoa ei voi käyttää määrittämättä lähdettä</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Julkaisupäivä:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Julkaisijan URL-osoite:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Julkaisijan tuen URL-osoite:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Tietosuojan URL-osoite:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Tekijänoikeus:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Tekijänoikeuden URL-osoite:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Julkaisutiedot:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Julkaisutietojen URL-osoite:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Lähdehaku epäonnistui; tuloksia ei sisällytetä:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Virhe haettaessa lähdettä:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Järjestelmänvalvojien on otettava tämä ominaisuus käyttöön. Ota se käyttöön suorittamalla 'winget settings --enable %1' järjestelmänvalvojana.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Ottaa käyttöön tietyn järjestelmänvalvojan asetuksen</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Poistaa käytöstä tietyn järjestelmänvalvojan asetuksen</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Annettuja järjestelmänvalvojan asetusargumentteja on liikaa</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Järjestelmänvalvojan asetus on käytössä.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Järjestelmänvalvojan asetus on poistettu käytöstä.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Sovellus on parhaillaan käynnissä. Lopeta sovellus ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Toinen asennus on jo käynnissä. Yritä myöhemmin uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Vähintään yksi tiedosto on käytössä. Lopeta sovellus ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Tästä paketista puuttuu riippuvuus järjestelmästä.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Tietokoneessa ei ole enää tilaa. Tee tilaa ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Muisti ei riitä asennukseen. Sulje muut sovellukset ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Tämä sovellus edellyttää Internet-yhteyttä. Muodosta yhteys verkkoon ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Tämä sovellus kohtasi virheen asennuksen aikana. Ota yhteyttä tukeen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Viimeistele asennus käynnistämällä tietokone uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Tietokone käynnistyy uudelleen asennuksen viimeistelemiseksi.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Asennus epäonnistui. Käynnistä tietokone uudelleen ja yritä sitten uudelleen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Peruutit asennuksen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Tämän sovelluksen toinen versio on jo asennettu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Tämän sovelluksen uudempi versio on jo asennettu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisaation käytännöt estävät asennuksen. Ota yhteyttä järjestelmänvalvojaan.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Asennus hylätty</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Asennusohjelma epäonnistui, lopetuskoodilla:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Asennusohjelman loki on käytettävissä osoitteessa:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Seuraavat paketit löytyivät työskentelylähteistä.
+Määritä yksi niistä käyttämällä --source-vaihtoehtoa jatkaaksesi.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Työskentelylähteistä ei löytynyt paketteja.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Tämä on Windows Package Manager vakaa versio. Jos haluat kokeilla kokeellisia ominaisuuksia, asenna esiversio. Ohjeet ovat saatavilla GitHub:issa https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

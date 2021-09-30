@@ -24,6 +24,8 @@ using namespace AppInstaller::Utility;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
+constexpr size_t c_DefaultSourceCount = 2;
+
 constexpr std::string_view s_SourcesYaml_Sources = "Sources"sv;
 constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
 constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
@@ -35,9 +37,14 @@ constexpr std::string_view s_EmptySources = R"(
 Sources:
 )"sv;
 
-constexpr std::string_view s_DefaultSourceTombstoned = R"(
+constexpr std::string_view s_DefaultSourcesTombstoned = R"(
 Sources:
   - Name: winget
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: msstore
     Type: ""
     Arg: ""
     Data: ""
@@ -71,6 +78,11 @@ Sources:
     Data: testData3
     IsTombstone: false
   - Name: winget
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: msstore
     Type: ""
     Arg: ""
     Data: ""
@@ -156,6 +168,44 @@ namespace
             return result;
         }
     };
+
+    // Failing source for use with s_TwoSource_AggregateSourceTest
+    struct FailingSourcesTestSource : public TestSource
+    {
+        static constexpr HRESULT FailingHR = 0xBADDAD0D;
+
+        FailingSourcesTestSource() = default;
+        FailingSourcesTestSource(const SourceDetails& details)
+        {
+            Details = details;
+        }
+
+        static std::shared_ptr<ISource> CreateFailWinget(const SourceDetails& details)
+        {
+            if (details.Name == "winget")
+            {
+                THROW_HR(FailingHR);
+            }
+
+            return std::shared_ptr<ISource>(new FailingSourcesTestSource(details));
+        }
+
+        static std::shared_ptr<ISource> CreateFailAll(const SourceDetails&)
+        {
+            THROW_HR(FailingHR);
+        }
+    };
+
+    void RequireDefaultSourcesAt(const std::vector<SourceDetails>& sources, size_t index)
+    {
+        REQUIRE(sources.size() >= index + c_DefaultSourceCount);
+
+        for (size_t i = index; i < sources.size(); ++i)
+        {
+            INFO(i);
+            REQUIRE(sources[i].Origin == SourceOrigin::Default);
+        }
+    }
 }
 
 
@@ -164,8 +214,8 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
     RemoveSetting(Streams::UserSources);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 1);
-    REQUIRE(sources[0].Origin == SourceOrigin::Default);
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+    RequireDefaultSourcesAt(sources, 0);
 }
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
@@ -173,13 +223,13 @@ TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 1);
-    REQUIRE(sources[0].Origin == SourceOrigin::Default);
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+    RequireDefaultSourcesAt(sources, 0);
 }
 
-TEST_CASE("RepoSources_DefaultSourceTombstoned", "[sources]")
+TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
 {
-    SetSetting(Streams::UserSources, s_DefaultSourceTombstoned);
+    SetSetting(Streams::UserSources, s_DefaultSourcesTombstoned);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.empty());
@@ -188,9 +238,10 @@ TEST_CASE("RepoSources_DefaultSourceTombstoned", "[sources]")
 TEST_CASE("RepoSources_SingleSource", "[sources]")
 {
     SetSetting(Streams::UserSources, s_SingleSource);
+    RemoveSetting(Streams::SourcesMetadata);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
     REQUIRE(sources[0].Name == "testName");
     REQUIRE(sources[0].Type == "testType");
@@ -199,7 +250,7 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     REQUIRE(sources[0].Origin == SourceOrigin::User);
     REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 
-    REQUIRE(sources[1].Origin == SourceOrigin::Default);
+    RequireDefaultSourcesAt(sources, 1);
 }
 
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
@@ -243,85 +294,92 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     REQUIRE(addCalledOnFactory);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
-    REQUIRE(sources[1].Origin == SourceOrigin::Default);
+    RequireDefaultSourcesAt(sources, 1);
 }
 
 TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 {
     SetSetting(Streams::UserSources, s_EmptySources);
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     const char* suffix[2] = { "", "2" };
 
     TestSourceFactory factory1{ SourcesTestSource::Create };
-    factory1.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory1);
+    factory1.OnAdd = [&](SourceDetails& sd) { sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory1);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
-    REQUIRE(sources[1].Origin == SourceOrigin::Default);
+    RequireDefaultSourcesAt(sources, 1);
 
+    SourceDetails details2;
+    details2.Name = details.Name + suffix[1];
+    details2.Type = details.Type + suffix[1];
+    details2.Arg = details.Arg + suffix[1];
+    details2.Data = details.Data + suffix[1];
     TestSourceFactory factory2{ SourcesTestSource::Create };
-    factory2.OnAdd = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
-    TestHook_SetSourceFactoryOverride(type + suffix[1], factory2);
+    factory2.OnAdd = [&](SourceDetails& sd) { sd.Data = details2.Data; };
+    TestHook_SetSourceFactoryOverride(details2.Type, factory2);
 
-    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1], progress);
+    AddSource(details2, progress);
 
     sources = GetSources();
-    REQUIRE(sources.size() == 3);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 2);
 
     for (size_t i = 0; i < 2; ++i)
     {
         INFO("Source #" << i);
-        REQUIRE(sources[i].Name == name + suffix[i]);
-        REQUIRE(sources[i].Type == type + suffix[i]);
-        REQUIRE(sources[i].Arg == arg + suffix[i]);
-        REQUIRE(sources[i].Data == data + suffix[i]);
+        REQUIRE(sources[i].Name == details.Name + suffix[i]);
+        REQUIRE(sources[i].Type == details.Type + suffix[i]);
+        REQUIRE(sources[i].Arg == details.Arg + suffix[i]);
+        REQUIRE(sources[i].Data == details.Data + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
         REQUIRE(sources[i].Origin == SourceOrigin::User);
     }
 
-    REQUIRE(sources[2].Origin == SourceOrigin::Default);
+    RequireDefaultSourcesAt(sources, 2);
 }
 
 TEST_CASE("RepoSources_UpdateSource", "[sources]")
@@ -331,49 +389,50 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     REQUIRE(addCalledOnFactory);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
 
-    REQUIRE(sources[1].Origin == SourceOrigin::Default);
+    RequireDefaultSourcesAt(sources, 1);
 
     // Reset for a call to update
     bool updateCalledOnFactory = false;
     auto now = std::chrono::system_clock::now();
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
 
-    UpdateSource(name, progress);
+    UpdateSource(details.Name, progress);
 
     REQUIRE(updateCalledOnFactory);
 
     sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
-    REQUIRE(sources[0].Name == name);
-    REQUIRE(sources[0].Type == type);
-    REQUIRE(sources[0].Arg == arg);
-    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].Name == details.Name);
+    REQUIRE(sources[0].Type == details.Type);
+    REQUIRE(sources[0].Arg == details.Arg);
+    REQUIRE(sources[0].Data == details.Data);
     REQUIRE((now - sources[0].LastUpdateTime) < 1s);
 }
 
@@ -384,17 +443,18 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    factory.OnAdd = [&](SourceDetails& sd) { sd.Data = details.Data; };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     // Reset for a call to update
     bool updateShouldThrow = false;
@@ -409,7 +469,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
         updateCalledOnFactoryAgain = true;
     };
 
-    UpdateSource(name, progress);
+    UpdateSource(details.Name, progress);
 
     REQUIRE(updateCalledOnFactoryAgain);
 }
@@ -419,28 +479,29 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
     SetSetting(Streams::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
-    std::string name = "thisIsTheName";
-    std::string type = "thisIsTheType";
-    std::string arg = "thisIsTheArg";
-    std::string data = "thisIsTheData";
+    SourceDetails details;
+    details.Name = "thisIsTheName";
+    details.Type = "thisIsTheType";
+    details.Arg = "thisIsTheArg";
+    details.Data = "thisIsTheData";
 
     bool removeCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
-    TestHook_SetSourceFactoryOverride(type, factory);
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     ProgressCallback progress;
-    AddSource(name, type, arg, progress);
+    AddSource(details, progress);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
-    RemoveSource(name, progress);
+    RemoveSource(details.Name, progress);
 
     REQUIRE(removeCalledOnFactory);
 
     sources = GetSources();
-    REQUIRE(sources.size() == 1);
+    REQUIRE(sources.size() == c_DefaultSourceCount);
 }
 
 TEST_CASE("RepoSources_RemoveDefaultSource", "[sources]")
@@ -449,7 +510,7 @@ TEST_CASE("RepoSources_RemoveDefaultSource", "[sources]")
     TestHook_ClearSourceFactoryOverrides();
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 1);
+    REQUIRE(sources.size() == c_DefaultSourceCount);
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
 
     bool removeCalledOnFactory = false;
@@ -464,7 +525,7 @@ TEST_CASE("RepoSources_RemoveDefaultSource", "[sources]")
     REQUIRE(removeCalledOnFactory);
 
     sources = GetSources();
-    REQUIRE(sources.empty());
+    REQUIRE(sources.size() == c_DefaultSourceCount - 1);
 }
 
 TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
@@ -491,7 +552,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     REQUIRE(updateCalledOnFactory);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 2);
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
     REQUIRE(sources[0].Name == name);
     REQUIRE(sources[0].Type == type);
@@ -537,7 +598,7 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
     DropSource({});
 
     sources = GetSources();
-    REQUIRE(sources.size() == 1);
+    REQUIRE(sources.size() == c_DefaultSourceCount);
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
 }
 
@@ -588,7 +649,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
 
             auto sources = GetSources();
-            REQUIRE(sources.empty());
+            REQUIRE(sources.size() == c_DefaultSourceCount - 1);
         }
         SECTION("Add default source")
         {
@@ -596,8 +657,12 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "winget";
+            details.Type = "Microsoft.PreIndexed.Package";
+            details.Arg = "https://winget.azureedge.net/cache";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("winget", "Microsoft.PreIndexed.Package", "https://winget.azureedge.net/cache", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::DefaultSource);
         }
         SECTION("Ignore default source from user")
@@ -606,7 +671,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_DefaultSourceAsUserSource);
 
             auto sources = GetSources();
-            REQUIRE(sources.empty());
+            REQUIRE(sources.size() == c_DefaultSourceCount - 1);
         }
         SECTION("Add same-name source from user")
         {
@@ -615,28 +680,29 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_EmptySources);
             TestHook_ClearSourceFactoryOverrides();
 
-            std::string name = "winget";
-            std::string type = "someType";
-            std::string arg = "notWingetRealArg";
-            std::string data = "someData";
+            SourceDetails details;
+            details.Name = "winget";
+            details.Type = "someType";
+            details.Arg = "notWingetRealArg";
+            details.Data = "someData";
 
             bool addCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
-            factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
-            TestHook_SetSourceFactoryOverride(type, factory);
+            factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
+            TestHook_SetSourceFactoryOverride(details.Type, factory);
 
             ProgressCallback progress;
-            AddSource(name, type, arg, progress);
+            AddSource(details, progress);
 
             REQUIRE(addCalledOnFactory);
 
             auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
 
-            REQUIRE(sources[0].Name == name);
-            REQUIRE(sources[0].Type == type);
-            REQUIRE(sources[0].Arg == arg);
-            REQUIRE(sources[0].Data == data);
+            REQUIRE(sources[0].Name == details.Name);
+            REQUIRE(sources[0].Type == details.Type);
+            REQUIRE(sources[0].Arg == details.Arg);
+            REQUIRE(sources[0].Data == details.Data);
             REQUIRE(sources[0].Origin == SourceOrigin::User);
         }
         SECTION("Allow same name source from user")
@@ -647,7 +713,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_UserSourceNamedLikeDefault);
 
             auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
 
             REQUIRE(sources[0].Name == "winget");
             REQUIRE(sources[0].Type == "testType");
@@ -675,7 +741,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         SECTION("Tombstone is overridden")
         {
             // We should ignore if the default source was already deleted.
-            SetSetting(Streams::UserSources, s_DefaultSourceTombstoned);
+            SetSetting(Streams::UserSources, s_DefaultSourcesTombstoned);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == 1);
@@ -688,11 +754,11 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_UserSourceNamedLikeDefault);
 
             auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
 
-            REQUIRE(sources[0].Name == "winget");
-            REQUIRE(sources[0].Arg == "https://winget.azureedge.net/cache");
-            REQUIRE(sources[0].Origin == SourceOrigin::Default);
+            REQUIRE(sources[1].Name == "winget");
+            REQUIRE(sources[1].Arg == "https://winget.azureedge.net/cache");
+            REQUIRE(sources[1].Origin == SourceOrigin::Default);
         }
     }
 }
@@ -726,7 +792,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             auto sources = GetSources();
 
             // The source list includes the default source
-            REQUIRE(sources.size() == policySources.size() + 1);
+            REQUIRE(sources.size() == policySources.size() + c_DefaultSourceCount);
             REQUIRE(sources.back().Origin == SourceOrigin::Default);
 
             for (size_t i = 0; i < policySources.size(); ++i)
@@ -755,7 +821,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             auto sources = GetSources();
 
             // The source list includes the default source
-            REQUIRE(sources.size() == 2);
+            REQUIRE(sources.size() == c_DefaultSourceCount + 1);
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
@@ -798,7 +864,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 
             auto sources = GetSources();
 
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
             REQUIRE(sources[0].Name == policySource.Name);
             REQUIRE(sources[0].Type == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
@@ -841,13 +907,17 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             TestHook_SetSourceFactoryOverride(policySource.Type, factory);
 
             ProgressCallback progress;
-            AddSource(policySource.Name, policySource.Type, policySource.Arg, progress);
+            SourceDetails details;
+            details.Name = policySource.Name;
+            details.Type = policySource.Type;
+            details.Arg = policySource.Arg;
+            AddSource(details, progress);
 
             REQUIRE(addCalledOnFactory);
 
             // The source list includes the default source
             auto sources = GetSources();
-            REQUIRE(sources.size() == 2);
+            REQUIRE(sources.size() == c_DefaultSourceCount + 1);
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
@@ -875,8 +945,12 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "notAllowed";
+            details.Type = "type";
+            details.Arg = "arg";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("notAllowed", "type", "arg", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
         }
@@ -896,13 +970,17 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
 
             ProgressCallback progress;
+            SourceDetails details;
+            details.Name = "name";
+            details.Type = "type";
+            details.Arg = "arg";
             REQUIRE_POLICY_EXCEPTION(
-                AddSource("name", "type", "arg", progress),
+                AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
 
             auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
             REQUIRE(sources[0].Origin == SourceOrigin::Default);
         }
         SECTION("Existing sources are ignored")
@@ -910,8 +988,52 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             SetSetting(Streams::UserSources, s_SingleSource);
 
             auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
+            REQUIRE(sources.size() == c_DefaultSourceCount);
             REQUIRE(sources[0].Origin == SourceOrigin::Default);
         }
     }
+}
+
+TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailWinget };
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    auto result = OpenSource("", progress);
+
+    REQUIRE(result.Source);
+    REQUIRE(result.SourcesWithUpdateFailure.empty());
+
+    SearchResult searchResult = result.Source->Search({});
+
+    REQUIRE(searchResult.Failures.size() == 1);
+
+    HRESULT openFailure = S_OK;
+    try
+    {
+        std::rethrow_exception(searchResult.Failures[0].Exception);
+    }
+    catch (const wil::ResultException& re)
+    {
+        openFailure = re.GetErrorCode();
+    }
+    catch (...) {}
+
+    REQUIRE(openFailure == FailingSourcesTestSource::FailingHR);
+}
+
+TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    REQUIRE_THROWS_HR(OpenSource("", progress), APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES);
 }

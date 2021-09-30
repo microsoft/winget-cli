@@ -12,26 +12,12 @@ using namespace AppInstaller::Settings;
 namespace AppInstaller::CLI
 {
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
-    constexpr std::string_view s_CommandException_ReplacementToken = "%1"sv;
 
     const Utility::LocIndString CommandException::Message() const
     {
         if (m_replace)
         {
-            std::string result;
-
-            // Find the %1 in the message
-            std::string_view message = m_message.get();
-            size_t index = message.find(s_CommandException_ReplacementToken);
-
-            if (index != std::string::npos)
-            {
-                result = message.substr(0, index);
-                result += m_replace.value();
-                result += message.substr(index + s_CommandException_ReplacementToken.length());
-
-                return Utility::LocIndString{ std::move(result) };
-            }
+            return Utility::LocIndString{ Utility::FindAndReplaceMessageToken(m_message, m_replace.value()) };
         }
 
         // Fall back to just using the message.
@@ -62,7 +48,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            Resource::FixedString::ProductName << " v"_liv << Runtime::GetClientVersion() << std::endl <<
+            Resource::String::WindowsPackageManager << " v"_liv << Runtime::GetClientVersion() << std::endl <<
             Resource::String::MainCopyrightNotice << std::endl;
     }
 
@@ -646,18 +632,25 @@ namespace AppInstaller::CLI
 
         for (const auto& arg : GetArguments())
         {
-            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
-            {
-                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
-            }
-
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
                 auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
                 throw GroupPolicyException(arg.GroupPolicy());
+            }
+
+            if (arg.AdminSetting() != AdminSetting::Unknown && !Settings::IsAdminSettingEnabled(arg.AdminSetting()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto setting = Settings::AdminSettingToString(arg.AdminSetting());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
+                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage, Utility::LocIndView{ setting }, {});
+            }
+
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
@@ -674,6 +667,12 @@ namespace AppInstaller::CLI
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
             throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
+           !execArgs.Contains(Execution::Args::Type::SourceName))
+        {
+            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name());
         }
 
         ValidateArgumentsInternal(execArgs);
@@ -862,46 +861,9 @@ namespace AppInstaller::CLI
 
             command->Execute(context);
         }
-        // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const wil::ResultException& re)
-        {
-            // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
-            return re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
-            return hre.code();
-        }
-        catch (const Settings::GroupPolicyException& e)
-        {
-            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
-            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
-        catch (const std::exception& e)
-        {
-            Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
         catch (...)
         {
-            LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException(command->FullName(), "unknown", {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
         }
 
         if (SUCCEEDED(context.GetTerminationHR()))

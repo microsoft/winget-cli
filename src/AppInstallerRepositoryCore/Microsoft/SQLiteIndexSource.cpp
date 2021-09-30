@@ -391,4 +391,19 @@ namespace AppInstaller::Repository::Microsoft
     {
         return (other && GetIdentifier() == other->GetIdentifier());
     }
+
+    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
+        SQLiteIndexSource(details, identifier, std::move(index), std::move(lock), isInstalledSource)
+    {
+    }
+
+    void SQLiteIndexWriteableSource::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+        m_index.AddManifest(manifest, relativePath);
+    }
+    
+    void SQLiteIndexWriteableSource::RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+        m_index.RemoveManifest(manifest, relativePath);
+    }
 }

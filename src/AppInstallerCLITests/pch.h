@@ -7,6 +7,7 @@
 #include <shellapi.h>
 #include <objbase.h>
 #include <urlmon.h>
+#include <Msi.h>
 
 #include <catch.hpp>
 
@@ -24,6 +25,7 @@
 #include <future>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <sstream>
 #include <string>
 #include <string_view>

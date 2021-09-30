@@ -6,8 +6,13 @@
 #include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include "Microsoft/ConfigurableTestSourceFactory.h"
+#endif
 
 #include <winget/GroupPolicy.h>
 
@@ -29,20 +34,22 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
     constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
     constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
+    constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-
-    constexpr std::string_view s_Source_MSStoreDefault_Name = "storepreview"sv;
+    constexpr std::string_view s_Source_MSStoreDefault_Name = "msstore"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
     constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+
+    constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/platform"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
 
     namespace
     {
@@ -52,10 +59,64 @@ namespace AppInstaller::Repository
             // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
             bool IsTombstone = false;
 
+            std::string AcceptedAgreementsIdentifier;
+
+            int AcceptedAgreementFields = 0;
+
             SourceDetailsInternal() = default;
 
             SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {};
         };
+
+        SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
+        {
+            switch (source)
+            {
+            case WellKnownSource::WinGet:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_WingetCommunityDefault_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_WingetCommunityDefault_Arg;
+                details.Data = s_Source_WingetCommunityDefault_Data;
+                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                return details;
+            }
+            case WellKnownSource::MicrosoftStore:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_MSStoreDefault_Name;
+                details.Type = Rest::RestSourceFactory::Type();
+                details.Arg = s_Source_MSStoreDefault_Arg;
+                details.Identifier = s_Source_MSStoreDefault_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted;
+                details.SupportInstalledSearchCorrelation = false;
+                return details;
+            }
+            case WellKnownSource::DesktopFrameworks:
+            {
+                SourceDetailsInternal details;
+                details.Origin = SourceOrigin::Default;
+                details.Name = s_Source_DesktopFrameworks_Name;
+                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                details.Arg = s_Source_DesktopFrameworks_Arg;
+                details.Data = s_Source_DesktopFrameworks_Data;
+                details.Identifier = s_Source_DesktopFrameworks_Identifier;
+                details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
+                // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
+                // of this file, while still allowing it to properly save metadata.  There might be problems
+                // if someone chooses the exact same name as this, which is why its name is very long.
+                // TODO: When refactoring the source interface, handle this with Visibility or similar.
+                details.IsTombstone = true;
+                return details;
+            }
+            }
+
+            THROW_HR(E_UNEXPECTED);
+        }
 
         // Checks whether a default source is enabled with the current settings.
         // onlyExplicit determines whether we consider the not-configured state to be enabled or not.
@@ -87,14 +148,9 @@ namespace AppInstaller::Repository
             return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
         }
 
-        bool IsWingetMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
-        {
-            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
-        }
-
         bool IsMSStoreDefaultSourceEnabled(bool onlyExplicit = false)
         {
-            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+            return IsDefaultSourceEnabled(s_Source_MSStoreDefault_Name, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         }
 
         template<ValuePolicy P>
@@ -155,7 +211,7 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::DefaultSource;
                 }
 
-                if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
+                if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
                 {
                     return TogglePolicy::Policy::MSStoreSource;
                 }
@@ -175,10 +231,10 @@ namespace AppInstaller::Repository
                 return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
             }
 
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg) &&
-                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
             {
-                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
+                return IsMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
             }
 
             // Case 3:
@@ -190,9 +246,9 @@ namespace AppInstaller::Repository
                 return TogglePolicy::Policy::DefaultSource;
             }
 
-            if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
+            if (name == s_Source_MSStoreDefault_Name && IsMSStoreDefaultSourceEnabled(true))
             {
-                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
                 return TogglePolicy::Policy::MSStoreSource;
             }
 
@@ -243,7 +299,7 @@ namespace AppInstaller::Repository
                 }
 
                 if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
-                    source.Identifier == s_Source_WingetMSStoreDefault_Identifier)
+                    source.Identifier == s_Source_MSStoreDefault_Identifier)
                 {
                     throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
                 }
@@ -376,6 +432,8 @@ namespace AppInstaller::Repository
                     int64_t lastUpdateInEpoch{};
                     if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                     details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
+                    TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                     return true;
                 });
         }
@@ -407,27 +465,19 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                if (IsWingetCommunityDefaultSourceEnabled())
-                {
-                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::WinGet));
-                }
-
-                if (IsWingetMSStoreDefaultSourceEnabled())
-                {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetMSStoreDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetMSStoreDefault_Arg;
-                    details.Data = s_Source_WingetMSStoreDefault_Data;
-                    details.Identifier = s_Source_WingetMSStoreDefault_Identifier;
-                    details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-                    result.emplace_back(std::move(details));
-                }
-
                 if (IsMSStoreDefaultSourceEnabled())
                 {
-                    result.emplace_back(GetWellKnownSourceDetails(WellKnownSource::MicrosoftStore));
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
                 }
+
+                if (IsWingetCommunityDefaultSourceEnabled())
+                {
+                    result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
+                }
+
+                // Since we are using the tombstone trick, this is added just to have the source in the internal
+                // list for tracking updates.  Thus there is no need to check a policy.
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
             }
             break;
             case SourceOrigin::User:
@@ -443,7 +493,7 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
+                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                         return true;
                     });
 
@@ -537,6 +587,8 @@ namespace AppInstaller::Repository
                 out << YAML::BeginMap;
                 out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
                 out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
+                out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
                 out << YAML::EndMap;
             }
 
@@ -574,6 +626,11 @@ namespace AppInstaller::Repository
             {
                 return itr->second();
             }
+
+            if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+            {
+                return Microsoft::ConfigurableTestSourceFactory::Create();
+            }
 #endif
 
             // For now, enable an empty type to represent the only one we have.
@@ -586,6 +643,11 @@ namespace AppInstaller::Repository
             else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
+            }
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedWriteableSourceFactory::Create();
             }
             else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
             {
@@ -695,10 +757,13 @@ namespace AppInstaller::Repository
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
-            void UpdateSourceLastUpdateTime(const SourceDetails& source);
-
             // Save source metadata. Currently only LastTimeUpdated is used.
             void SaveMetadata() const;
+
+            bool CheckSourceAgreements(const SourceDetails& details);
+
+            // SaveMetadata() should be called after all accepted source agreements are updated.
+            void SaveAcceptedSourceAgreements(const SourceDetails& details);
 
         private:
             std::vector<SourceDetailsInternal> m_sourceList;
@@ -736,6 +801,8 @@ namespace AppInstaller::Repository
                 if (source)
                 {
                     source->LastUpdateTime = metaSource.LastUpdateTime;
+                    source->AcceptedAgreementFields = metaSource.AcceptedAgreementFields;
+                    source->AcceptedAgreementsIdentifier = metaSource.AcceptedAgreementsIdentifier;
                 }
             }
         }
@@ -827,6 +894,91 @@ namespace AppInstaller::Repository
         {
             SetMetadata(m_sourceList);
         }
+
+        bool SourceListInternal::CheckSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return true;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            if (!detailsInternal)
+            {
+                // Source not found.
+                return false;
+            }
+
+            return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
+                details.Information.SourceAgreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+        }
+
+        void SourceListInternal::SaveAcceptedSourceAgreements(const SourceDetails& details)
+        {
+            auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
+
+            if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+            {
+                // No agreements to be accepted.
+                return;
+            }
+
+            auto detailsInternal = GetCurrentSource(details.Name);
+            if (!detailsInternal)
+            {
+                // No source to update.
+                return;
+            }
+
+            detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
+            detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementsIdentifier;
+
+            SaveMetadata();
+        }
+
+        std::string GetStringVectorMessage(const std::vector<std::string>& input)
+        {
+            std::string result;
+            bool first = true;
+            for (auto const& field : input)
+            {
+                if (first)
+                {
+                    result += field;
+                    first = false;
+                }
+                else
+                {
+                    result += ", " + field;
+                }
+            }
+            return result;
+        }
+
+        // Carries the exception from an OpenSource call and presents it back at search time.
+        struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
+        {
+            OpenExceptionProxy(const SourceDetails& details, std::exception_ptr exception) :
+                m_details(details), m_exception(std::move(exception)) {}
+
+            const SourceDetails& GetDetails() const override { return m_details; }
+
+            const std::string& GetIdentifier() const override { return m_details.Identifier; }
+
+            SearchResult Search(const SearchRequest&) const override
+            {
+                SearchResult result;
+                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
+                return result;
+            }
+
+        private:
+            SourceDetails m_details;
+            std::exception_ptr m_exception;
+        };
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -842,6 +994,19 @@ namespace AppInstaller::Repository
         default:
             THROW_HR(E_UNEXPECTED);
         }
+    }
+
+    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
+    {
+        ImplicitAgreementFieldEnum result = ImplicitAgreementFieldEnum::None;
+
+        if (info.RequiredPackageMatchFields.end() != std::find_if(info.RequiredPackageMatchFields.begin(), info.RequiredPackageMatchFields.end(), [&](const auto& field) { return Utility::CaseInsensitiveEquals(field, "market"); }) ||
+            info.RequiredQueryParameters.end() != std::find_if(info.RequiredQueryParameters.begin(), info.RequiredQueryParameters.end(), [&](const auto& param) { return Utility::CaseInsensitiveEquals(param, "market"); }))
+        {
+            WI_SetFlag(result, ImplicitAgreementFieldEnum::Market);
+        }
+
+        return result;
     }
 
     std::vector<SourceDetails> GetSources()
@@ -873,39 +1038,40 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
+    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress)
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
+        THROW_HR_IF(E_INVALIDARG, sourceDetails.Name.empty());
 
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << name << "], Type[" << type << "], Arg[" << arg << "]");
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        auto source = sourceList.GetCurrentSource(name);
+        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
+        // Check for a non-user tombstone; hidden source data that we don't want to collide.
+        // TODO: Refactor the source interface so that we don't do this
+        auto tombstoneSource = sourceList.GetSource(sourceDetails.Name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, tombstoneSource && tombstoneSource->Origin != SourceOrigin::User);
+
         // Check sources allowed by group policy
-        auto blockingPolicy = GetPolicyBlockingUserSource(name, type, arg, false);
+        auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);
         if (blockingPolicy != TogglePolicy::Policy::None)
         {
             throw GroupPolicyException(blockingPolicy);
         }
 
-        SourceDetailsInternal details;
-        details.Name = name;
-        details.Type = type;
-        details.Arg = arg;
-        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
-        details.Origin = SourceOrigin::User;
+        sourceDetails.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
+        sourceDetails.Origin = SourceOrigin::User;
 
-        bool result = AddSourceFromDetails(details, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress);
         if (result)
         {
-            AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
-            AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
+            AICLI_LOG(Repo, Info, << "Source created with identifier: " << sourceDetails.Identifier);
 
-            sourceList.AddSource(details);
+            sourceList.AddSource(sourceDetails);
         }
 
         return result;
@@ -925,34 +1091,19 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                // Restricted sources may not support the full set of functionality
-                if (currentSources[0].get().Restricted)
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available but not using it as it is restricted: " << currentSources[0].get().Name);
-                    return {};
-                }
-                else
-                {
-                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                    return OpenSource(currentSources[0].get().Name, progress);
-                }
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                return OpenSource(currentSources[0].get().Name, progress);
             }
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
                 OpenSourceResult result;
+                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
                 {
-                    // Restricted sources may not support the full set of functionality so they shouldn't be included in the default aggregated source.
-                    if (source.get().Restricted)
-                    {
-                        AICLI_LOG(Repo, Info, << "Skipping adding to aggregated source as the current source is restricted: " << source.get().Name);
-                        continue;
-                    }
-
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
                     if (ShouldUpdateBeforeOpen(source))
@@ -965,17 +1116,43 @@ namespace AppInstaller::Repository
                         }
                         catch (...)
                         {
+                            LOG_CAUGHT_EXCEPTION();
                             AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
                             result.SourcesWithUpdateFailure.emplace_back(source);
                         }
                     }
 
-                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
+                    std::shared_ptr<ISource> openedSource;
+
+                    try
+                    {
+                        openedSource = CreateSourceFromDetails(source, progress);
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
+                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source, std::current_exception()));
+                    }
+
+                    if (openedSource)
+                    {
+                        aggregatedSource->AddAvailableSource(std::move(openedSource));
+                    }
                 }
 
                 if (sourceUpdated)
                 {
                     sourceList.SaveMetadata();
+                }
+
+                // If all sources failed to open, then throw an exception that is specific to this case.
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
+
+                // Place all of the proxies into the source to be searched later
+                for (auto& proxy : openExceptionProxies)
+                {
+                    aggregatedSource->AddAvailableSource(std::move(proxy));
                 }
 
                 result.Source = aggregatedSource;
@@ -993,7 +1170,6 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
                 OpenSourceResult result;
 
                 if (ShouldUpdateBeforeOpen(*source))
@@ -1026,8 +1202,7 @@ namespace AppInstaller::Repository
         // if the details came from the same instance of the list that's being saved.
         // Some sources that do not need updating like the Installed source, do not have Name values.
         // Restricted sources don't have full functionality
-        if (!details.Name.empty() &&
-            !details.Restricted)
+        if (!details.Name.empty())
         {
             SourceListInternal sourceList;
             auto source = sourceList.GetSource(details.Name);
@@ -1083,6 +1258,12 @@ namespace AppInstaller::Repository
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
             return details;
+        case PredefinedSource::Installing:
+            details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+            // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
+            // so this is used here for consistency with other predefined sources.
+            details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
+            return details;
         }
 
         THROW_HR(E_UNEXPECTED);
@@ -1090,35 +1271,7 @@ namespace AppInstaller::Repository
 
     SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
     {
-        switch (source)
-        {
-        case WellKnownSource::WinGet:
-        {
-            SourceDetailsInternal details;
-            details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_WingetCommunityDefault_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-            details.Arg = s_Source_WingetCommunityDefault_Arg;
-            details.Data = s_Source_WingetCommunityDefault_Data;
-            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-            return details;
-        }
-        case WellKnownSource::MicrosoftStore:
-        {
-            SourceDetailsInternal details;
-            details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_MSStoreDefault_Name;
-            details.Type = Rest::RestSourceFactory::Type();
-            details.Arg = s_Source_MSStoreDefault_Arg;
-            details.Identifier = s_Source_MSStoreDefault_Identifier;
-            details.TrustLevel = SourceTrustLevel::Trusted;
-            details.Restricted = true;
-            return details;
-        }
-        }
-
-        THROW_HR(E_UNEXPECTED);
+        return GetWellKnownSourceDetailsInternal(source);
     }
 
     std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
@@ -1240,6 +1393,30 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool SupportsCustomHeader(const SourceDetails& sourceDetails)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), sourceDetails.Type))
+        {
+            return true;
+        }
+#endif
+
+        return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
+    }
+
+    bool CheckSourceAgreements(const SourceDetails& source)
+    {
+        SourceListInternal sourceList;
+        return sourceList.CheckSourceAgreements(source);
+    }
+
+    void SaveAcceptedSourceAgreements(const SourceDetails& source)
+    {
+        SourceListInternal sourceList;
+        sourceList.SaveAcceptedSourceAgreements(source);
+    }
+
     bool SearchRequest::IsForEverything() const
     {
         return (!Query.has_value() && Inclusions.empty() && Filters.empty());
@@ -1295,6 +1472,130 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
         default: return "Unknown"sv;
         }
+    }
+
+    const char* UnsupportedRequestException::what() const noexcept
+    {
+        if (m_whatMessage.empty())
+        {
+            m_whatMessage = "The request is not supported.";
+
+            if (!UnsupportedPackageMatchFields.empty())
+            {
+                m_whatMessage += "Unsupported Package Match Fields: " + GetStringVectorMessage(UnsupportedPackageMatchFields);
+            }
+            if (!RequiredPackageMatchFields.empty())
+            {
+                m_whatMessage += "Required Package Match Fields: " + GetStringVectorMessage(RequiredPackageMatchFields);
+            }
+            if (!UnsupportedQueryParameters.empty())
+            {
+                m_whatMessage += "Unsupported Query Parameters: " + GetStringVectorMessage(UnsupportedQueryParameters);
+            }
+            if (!RequiredQueryParameters.empty())
+            {
+                m_whatMessage += "Required Query Parameters: " + GetStringVectorMessage(RequiredQueryParameters);
+            }
+        }
+        return m_whatMessage.c_str();
+    }
+
+    std::string_view MatchTypeToString(MatchType type)
+    {
+        using namespace std::string_view_literals;
+
+        switch (type)
+        {
+        case MatchType::Exact:
+            return "Exact"sv;
+        case MatchType::CaseInsensitive:
+            return "CaseInsensitive"sv;
+        case MatchType::StartsWith:
+            return "StartsWith"sv;
+        case MatchType::Substring:
+            return "Substring"sv;
+        case MatchType::Wildcard:
+            return "Wildcard"sv;
+        case MatchType::Fuzzy:
+            return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
+        }
+
+        return "UnknownMatchType"sv;
+    }
+
+    std::string_view PackageMatchFieldToString(PackageMatchField matchField)
+    {
+        using namespace std::string_view_literals;
+
+        switch (matchField)
+        {
+        case PackageMatchField::Command:
+            return "Command"sv;
+        case PackageMatchField::Id:
+            return "Id"sv;
+        case PackageMatchField::Moniker:
+            return "Moniker"sv;
+        case PackageMatchField::Name:
+            return "Name"sv;
+        case PackageMatchField::Tag:
+            return "Tag"sv;
+        case PackageMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case PackageMatchField::ProductCode:
+            return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedNameAndPublisher"sv;
+        case PackageMatchField::Market:
+            return "Market"sv;
+        }
+
+        return "UnknownMatchField"sv;
+    }
+
+    PackageMatchField StringToPackageMatchField(std::string_view field)
+    {
+        std::string toLower = Utility::ToLower(field);
+
+        if (toLower == "command")
+        {
+            return PackageMatchField::Command;
+        }
+        else if (toLower == "id")
+        {
+            return PackageMatchField::Id;
+        }
+        else if (toLower == "moniker")
+        {
+            return PackageMatchField::Moniker;
+        }
+        else if (toLower == "name")
+        {
+            return PackageMatchField::Name;
+        }
+        else if (toLower == "tag")
+        {
+            return PackageMatchField::Tag;
+        }
+        else if (toLower == "packagefamilyname")
+        {
+            return PackageMatchField::PackageFamilyName;
+        }
+        else if (toLower == "productcode")
+        {
+            return PackageMatchField::ProductCode;
+        }
+        else if (toLower == "normalizednameandpublisher")
+        {
+            return PackageMatchField::NormalizedNameAndPublisher;
+        }
+        else if (toLower == "market")
+        {
+            return PackageMatchField::Market;
+        }
+
+        return PackageMatchField::Unknown;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

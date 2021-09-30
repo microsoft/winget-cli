@@ -11,16 +11,11 @@
 
 using namespace winrt::Microsoft::Management::Deployment;
 
-CoCreatableClassWrlCreatorMapInclude(PackageManager1);
-CoCreatableClassWrlCreatorMapInclude(PackageManager2);
-CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions1);
-CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions2);
-CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions1);
-CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions2);
-CoCreatableClassWrlCreatorMapInclude(InstallOptions1);
-CoCreatableClassWrlCreatorMapInclude(InstallOptions2);
-CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter1);
-CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter2);
+CoCreatableClassWrlCreatorMapInclude(PackageManager);
+CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
+CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
+CoCreatableClassWrlCreatorMapInclude(InstallOptions);
+CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 
 // Holds the wwinmain open until COM tells us there are no more server connections
 wil::unique_event _comServerExitEvent;
@@ -35,13 +30,6 @@ static void _releaseNotifier() noexcept
 // Check whether the packaged api is enabled and the overarching winget group policy is enabled.
 bool IsServerEnabled()
 {
-    ::AppInstaller::Utility::Version version("10.0.22000.0");
-
-    if (!::AppInstaller::Runtime::IsCurrentOSVersionGreaterThanOrEqual(version) &&
-        !::AppInstaller::Settings::ExperimentalFeature::IsEnabled(::AppInstaller::Settings::ExperimentalFeature::Feature::PackagedAPI))
-    {
-        return false;
-    }
     if (!::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet))
     {
         return false;
@@ -61,7 +49,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int
         winrt::check_hresult(globalOptions->Set(COMGLB_RO_SETTINGS, COMGLB_FAST_RUNDOWN));
     }
 
-    AppInstaller::COMContext::SetLoggers();
+    AppInstaller::CLI::Execution::COMContext::SetLoggers();
 
     _comServerExitEvent.create();
     auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);

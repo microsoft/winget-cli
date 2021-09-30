@@ -5,6 +5,11 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+#if USE_PROD_CLSIDS 
+    [uuid("572DED96-9C60-4526-8F92-EE7D91D38C1A")]
+#else
+    [uuid("1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96")]
+#endif
     struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions>
     {
         FindPackagesOptions() = default;

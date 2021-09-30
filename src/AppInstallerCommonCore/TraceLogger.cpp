@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/TraceLogger.h"
 #include "Public/AppInstallerTelemetry.h"
+#include "Public/winget/ThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -14,9 +15,22 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            AppInstaller::Logging::GetActivityId(false),
+            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better to lose logs than functionality
+    }
+
+    void TraceLogger::WriteDirect(std::string_view message) noexcept try
+    {
+        TraceLoggingWriteActivity(g_hTraceProvider,
+            "Diagnostics",
+            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
+            nullptr,
+            TraceLoggingCountedUtf8String(message.data(), static_cast<ULONG>(message.size()), "LogMessage"));
     }
     catch (...)
     {

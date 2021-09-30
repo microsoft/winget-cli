@@ -141,6 +141,9 @@
     <value>Estan disponibles les subordres següents:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>actualitzacions disponibles.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utilitza el canal especificat; el valor per defecte és el públic general</value>
   </data>
@@ -419,9 +422,6 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Posició del cursor dins de la línia d'ordres</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Visualització prèvia</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Declaració de privadesa</value>
   </data>
@@ -466,10 +466,10 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>S'han trobat els errors següents validant la configuració:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Obre la configuració a l'editor de text JSON per defecte. Si no hi ha cap editor configurat, obre la configuració al Notepad. Per a la configuració disponible, consulta https://aka.ms/winget-settings</value>
+    <value>Obriu la configuració a l'editor de text JSON per defecte. Si no hi ha cap editor configurat, obriu la configuració a l'aplicació Llibreta. Per a la configuració disponible, consulteu https://aka.ms/winget-settings Aquesta ordre també es pot utilitzar per definir la configuració de l'administrador, mitjançant l'argument "habilita" o "deshabilita"</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Obre la configuració</value>
+    <value>Obriu la configuració o definiu la configuració de l'administrador</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Error inesperat en carregar la configuració. Verifica la configuració executant l'ordre Settings (configuració).</value>
@@ -544,6 +544,10 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>Nom</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identificador</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>No s'ha trobat cap origen amb el nom:</value>
   </data>
@@ -570,7 +574,7 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>Nom de l'origen</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>No s'ha pogut obrir l'origen. Proveu l'ordre 'source reset' si el problema continua.</value>
+    <value>S'ha produït un error en obrir l'origen. Proveu l'ordre "source reset" si el problema continua.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ La configuració està inhabilitada a causa de la norma de grup.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>El valor proporcionat per a l'argument "%1" no és vàlid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>S'ha cancel·lat</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Externes</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Els paquets que s’han trobat en aquesta importació tenen les dependències següents:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Aquest paquet requereix les dependències següents:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paquets</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Aquest paquet tenia dependències que ja no es poden necessitar:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>El manifest té les dependències següents que no s'han validat. Assegureu-vos que siguin vàlids:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Característiques del Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Biblioteques del Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Condicions de la Botiga de Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepteu tots els acords de llicència per a paquets</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>El paquet exportat requereix d’un acord de llicència per poder instal·lar-ho:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>El desenvolupador requereix que reviseu la informació anterior i que accepteu els acords abans de la instal·lació.
+Accepteu les condicions?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>No s'han acceptat els acords del paquet. S’ha cancel·lat l’operació.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Acords:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Descripció:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instal·lador:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Configuració regional:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Id del producte de l'Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipus:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Descarrega el URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Llicència:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL de la llicència:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Pàgina d’inici:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versió:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>S’ha produït un error en obrir l'origen afegit.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accepteu tots els acords d'origen durant les operacions d'origen</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>L'origen "%1" requereix que visualitzeu els següents acords abans d'utilitzar.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Accepteu les condicions de tots els acords d’origen?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Un o més dels acords d'origen no s'han acceptat. Operació cancel·lada. Accepteu els acords d'origen o Traieu les fonts corresponents.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>L'origen necessita que la regió geogràfica de l'ordinador actual s'enviï correctament.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>S'ha instal·lat correctament. Reinicieu l'aplicació per completar l'actualització.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Capçalera HTTP d’origen REST del Windows-package-Manager opcional</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignora la capçalera opcional perquè no és aplicable per a aquest origen.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>No es pot aplicar la capçalera opcional sense especificar un origen</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Data de llançament:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL de l'editor:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL d'assistència de l'editor:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL de privadesa:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL de copyright:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Notes de la versió:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL de notes de la versió:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Ha fallat en cercar l' origen; No s'inclouran els resultats:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>S'ha produït un error en cercar l'origen:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Els administradors han d'habilitar aquesta característica. Per habilitar-la, executeu "winget settings --enable %1" com a administrador.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Habilita la configuració de l'administrador específica</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deshabilita la configuració de l'administrador específica</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>S'han proporcionat massa arguments de configuració de l'administrador</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>S'ha habilitat la configuració de l'administrador.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>S'ha inhabilitat la configuració de l'administrador.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>L'aplicació s'està executant actualment. Sortiu de l'aplicació i torneu-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Ja hi ha una altra instal·lació en curs. Torneu-ho a provar més tard.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>S'estan utilitzant un o més fitxers. Sortiu de l'aplicació i torneu-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Aquest paquet té una dependència que falta al sistema.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>No hi ha més espai al teu PC. Fes espai i torna-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>No hi ha prou memòria disponible per instal·lar-la. Tanqueu altres aplicacions i torneu-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Aquesta aplicació requereix connectivitat a Internet. Connecta't a una xarxa i torna-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Aquesta aplicació ha trobat un error durant la instal·lació. Servei d'atenció al contacte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>S'està reiniciant l'ordinador per acabar la instal·lació.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>L'ordinador es reiniciarà per acabar la instal·lació.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>No s'ha pogut instal·lació. Reinicieu l'ordinador i torneu-ho a provar.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Heu cancel·lat la instal·lació.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Una altra versió d'aquesta aplicació ja està instal·lada.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Ja s'ha instal·lat una versió més recent d'aquesta aplicació.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Les normes de l'organització impedeixen la instal·lació. Poseu-vos en contacte amb el vostre administrador.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>S'ha abandonat la instal·lació</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>S'ha produït un error amb l'instal·lador amb el codi de sortida:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>El registre de l'instal·lador està disponible a:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Entre les fonts de treball s'han trobat els següents paquets.
+Especifiqueu- ne un mitjançant l' opció "--sourceper continuar.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>No s'han trobat paquets entre les fonts de treball.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Es tracta d'una versió estable del Windows Package Manager. Si vols provar funcions experimentals, instal·la la compilació d'una versió preliminar. Les instruccions estan disponibles a GitHub a: https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

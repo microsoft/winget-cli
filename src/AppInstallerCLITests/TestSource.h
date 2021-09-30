@@ -84,6 +84,9 @@ namespace TestCommon
         AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
         std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
         bool Composite = false;
+
+        TestSource() = default;
+        TestSource(const AppInstaller::Repository::SourceDetails& details) : Details(details) {}
     };
 
     // An ISourceFactory implementation for use across the test code.
