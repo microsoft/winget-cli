@@ -13,7 +13,11 @@ std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
         pplx::task<web::http::http_response>
         {
             web::http::http_response response;
-            if (!sampleResponseString.empty())
+            if (sampleResponseString.empty())
+            {
+                response.set_body(utf16string{});
+            }
+            else
             {
                 response.set_body(web::json::value::parse(sampleResponseString));
             }

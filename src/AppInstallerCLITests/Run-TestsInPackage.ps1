@@ -46,8 +46,9 @@ function Wait-ForFileClose([string]$Path)
 {
     $Local:FileInfo = [System.IO.FileInfo]::new($Path)
     $Local:SleepCount = 0
+    $Local:SleepCountMax = 600
 
-    while ($Local:SleepCount -lt 300)
+    while ($Local:SleepCount -lt $Local:SleepCountMax)
     {
         try
         {
@@ -60,6 +61,11 @@ function Wait-ForFileClose([string]$Path)
             Start-Sleep 1
             $Local:SleepCount = $Local:SleepCount + 1
         }
+    }
+
+    if ($Local:SleepCount -ge $Local:SleepCountMax)
+    {
+        throw "Timed out waiting for file close: $Path"
     }
 }
 
@@ -133,19 +139,24 @@ Invoke-CommandInDesktopPackage -PackageFamilyName WinGetDevCLI_8wekyb3d8bbwe -Ap
 
 if ($ScriptWait)
 {
-    Write-Host "Waiting for output files to be closed..."
-    Start-Sleep 5
-    if (![String]::IsNullOrEmpty($LogTarget))
+    try
     {
-        Wait-ForFileClose $LogTarget
-    }
+        Write-Host "Waiting for output files to be closed..."
+        Start-Sleep 5
+        if (![String]::IsNullOrEmpty($LogTarget))
+        {
+            Wait-ForFileClose $LogTarget
+        }
 
-    if (![String]::IsNullOrEmpty($TestResultsTarget))
+        if (![String]::IsNullOrEmpty($TestResultsTarget))
+        {
+            Wait-ForFileClose $TestResultsTarget
+        }
+        Write-Host "Done"
+    }
+    finally
     {
-        Wait-ForFileClose $TestResultsTarget
+        Write-Host "Remove registered package"
+        Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
     }
-    Write-Host "Done"
-
-    Write-Host "Remove registered package"
-    Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
 }
