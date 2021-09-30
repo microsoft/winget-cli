@@ -131,8 +131,8 @@ namespace winrt::AppInstallerCaller::implementation
     }
 
     IAsyncAction UpdateUIProgress(
-        InstallProgress progress, 
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        InstallProgress progress,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         co_await winrt::resume_foreground(progressBar.Dispatcher());
@@ -166,10 +166,10 @@ namespace winrt::AppInstallerCaller::implementation
 
     // This method is called from a background thread.
     IAsyncAction UpdateUIForInstall(
-        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation, 
+        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation,
         winrt::Windows::UI::Xaml::Controls::Button installButton,
         winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         installPackageOperation.Progress([=](
@@ -177,8 +177,7 @@ namespace winrt::AppInstallerCaller::implementation
             InstallProgress const& progress)
             {
                 UpdateUIProgress(progress, progressBar, statusText).get();
-            }); 
-
+            });
 
         winrt::hresult installOperationHr = S_OK;
         std::wstring errorMessage{ L"Unknown Error" };
@@ -242,19 +241,21 @@ namespace winrt::AppInstallerCaller::implementation
 
         PackageManager packageManager = CreatePackageManager();
         auto catalogs{ packageManager.GetPackageCatalogs() };
-        auto catalog{ packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::MicrosoftStore) };
+        auto storeCatalog{ packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::MicrosoftStore) };
+
         co_await winrt::resume_foreground(button.Dispatcher());
+
         m_packageCatalogs.Clear();
-        for (uint32_t i = 0; i < catalogs.Size(); i++)
+        for (auto const catalog : catalogs)
         {
-            m_packageCatalogs.Append(catalogs.GetAt(i));
+            m_packageCatalogs.Append(catalog);
         }
-        m_packageCatalogs.Append(catalog);
+        m_packageCatalogs.Append(storeCatalog);
 
         co_return;
-    } 
-    
-    IAsyncAction MainPage::GetInstalledPackages(winrt::Windows::UI::Xaml::Controls::Button button)
+    }
+
+    IAsyncAction MainPage::GetInstalledPackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         int32_t selectedIndex = catalogsListBox().SelectedIndex();
         co_await winrt::resume_background();
@@ -282,6 +283,8 @@ namespace winrt::AppInstallerCaller::implementation
         if (!installedCatalog)
         {
             // Connect Error.
+            co_await winrt::resume_foreground(statusText.Dispatcher());
+            statusText.Text(L"Failed to connect to catalog.");
             co_return;
         }
 
@@ -290,21 +293,22 @@ namespace winrt::AppInstallerCaller::implementation
         FindPackagesResult findResult{ TryFindPackageInCatalogAsync(installedCatalog, m_installAppId).get() };
         auto matches = findResult.Matches();
 
-        co_await winrt::resume_foreground(button.Dispatcher());
+        co_await winrt::resume_foreground(statusText.Dispatcher());
         m_installedPackages.Clear();
-        for (uint32_t i = 0; i < matches.Size(); ++i)
+        for (auto const match : matches)
         {
             // Filter to only packages that match the selectedCatalogRef
-            auto version = matches.GetAt(i).CatalogPackage().DefaultInstallVersion();
+            auto version = match.CatalogPackage().DefaultInstallVersion();
             if (selectedIndex < 0 || (version && version.PackageCatalog().Info().Id() == m_packageCatalogs.GetAt(selectedIndex).Info().Id()))
             {
-                m_installedPackages.Append(matches.GetAt(i).CatalogPackage());
+                m_installedPackages.Append(match.CatalogPackage());
             }
         }
 
+        statusText.Text(L"");
         co_return;
     }
-    IAsyncAction MainPage::GetInstallingPackages(winrt::Windows::UI::Xaml::Controls::Button button)
+    IAsyncAction MainPage::GetInstallingPackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         int32_t selectedIndex = catalogsListBox().SelectedIndex();
         co_await winrt::resume_background();
@@ -316,6 +320,8 @@ namespace winrt::AppInstallerCaller::implementation
         if (selectedIndex < 0)
         {
             // Installing package querying is only really useful if you know what Catalog you're interested in.
+            co_await winrt::resume_foreground(statusText.Dispatcher());
+            statusText.Text(L"No catalog selected.");
             co_return;
         }
 
@@ -326,6 +332,8 @@ namespace winrt::AppInstallerCaller::implementation
         PackageCatalog selectedRemoteCatalog = remoteConnectResult.PackageCatalog();
         if (!selectedRemoteCatalog)
         {
+            co_await winrt::resume_foreground(statusText.Dispatcher());
+            statusText.Text(L"Failed to connect to catalog.");
             co_return;
         }
 
@@ -333,6 +341,8 @@ namespace winrt::AppInstallerCaller::implementation
         PackageCatalog installingCatalog = connectResult.PackageCatalog();
         if (!installingCatalog)
         {
+            co_await winrt::resume_foreground(statusText.Dispatcher());
+            statusText.Text(L"Failed to connect to catalog.");
             co_return;
         }
 
@@ -341,22 +351,23 @@ namespace winrt::AppInstallerCaller::implementation
         FindPackagesResult findResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
         auto matches = findResult.Matches();
 
-        co_await winrt::resume_foreground(button.Dispatcher());
-       
+        co_await winrt::resume_foreground(statusText.Dispatcher());
+
         m_installingPackageViews.Clear();
-        for (uint32_t i = 0; i < matches.Size(); ++i)
+        for (auto const match : matches)
         {
             winrt::AppInstallerCaller::InstallingPackageView installingView;
-            installingView.Package(matches.GetAt(i).CatalogPackage());
+            installingView.Package(match.CatalogPackage());
             auto installOperation = packageManager.GetInstallProgress(installingView.Package(), selectedRemoteCatalog.Info());
             if (installOperation)
             {
-                installingView.Dispatcher(button.Dispatcher());
+                installingView.Dispatcher(statusText.Dispatcher());
                 installingView.AsyncOperation(installOperation);
                 m_installingPackageViews.Append(installingView);
             }
         }
 
+        statusText.Text(L"");
         co_return;
     }
 
@@ -400,15 +411,15 @@ namespace winrt::AppInstallerCaller::implementation
     }
 
     IAsyncAction MainPage::FindPackage(
-        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::Button installButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         int32_t selectedIndex = catalogsListBox().SelectedIndex();
         if (selectedIndex < 0)
         {
-            co_await winrt::resume_foreground(button.Dispatcher());
-            button.IsEnabled(false);
+            co_await winrt::resume_foreground(installButton.Dispatcher());
+            installButton.IsEnabled(false);
             statusText.Text(L"No catalog selected to search.");
             co_return;
         }
@@ -426,55 +437,41 @@ namespace winrt::AppInstallerCaller::implementation
         PackageCatalog compositeCatalog = connectResult.PackageCatalog();
         if (!compositeCatalog)
         {
-            co_await winrt::resume_foreground(button.Dispatcher());
-            button.IsEnabled(false);
-            statusText.Text(L"Failed to Connect to Catalog.");
+            co_await winrt::resume_foreground(installButton.Dispatcher());
+            installButton.IsEnabled(false);
+            statusText.Text(L"Failed to connect to catalog.");
             co_return;
         }
+
         // Do the search.
         FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(compositeCatalog, m_installAppId).get() };
 
         winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
         if (matches.Size() > 0)
         {
-            auto version = matches.GetAt(0).CatalogPackage().InstalledVersion();
-            if (version != nullptr)
+            auto installedVersion = matches.GetAt(0).CatalogPackage().InstalledVersion();
+            if (installedVersion != nullptr)
             {
-                co_await winrt::resume_foreground(button.Dispatcher());
-                button.IsEnabled(false);
-                statusText.Text(version.ProductCodes().GetAt(0));
+                co_await winrt::resume_foreground(installButton.Dispatcher());
+                installButton.IsEnabled(false);
+                statusText.Text(L"Already installed. Product code: " + installedVersion.ProductCodes().GetAt(0));
             }
             else
             {
-                co_await winrt::resume_foreground(button.Dispatcher());
-                button.IsEnabled(true);
+                co_await winrt::resume_foreground(installButton.Dispatcher());
+                installButton.IsEnabled(true);
                 statusText.Text(L"Found the package to install.");
             }
         }
         else
         {
-            co_await winrt::resume_foreground(button.Dispatcher());
-            button.IsEnabled(false);
-            statusText.Text(L"Did not find package");
+            co_await winrt::resume_foreground(installButton.Dispatcher());
+            installButton.IsEnabled(false);
+            statusText.Text(L"Did not find package.");
         }
         co_return;
     }
 
-    IAsyncOperation<CatalogPackage> MainPage::FindPackageAsync()
-    {
-        co_await winrt::resume_background();
-
-        PackageManager packageManager = CreatePackageManager();
-        PackageCatalogReference catalogRef{ packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
-        PackageCatalog catalog = catalogRef.ConnectAsync().get().PackageCatalog();
-        if (!catalog)
-        {
-            //Connect error.
-            co_return nullptr;
-        }
-        co_return FindPackageInCatalogAsync(catalog, m_installAppId).get();
-    }
-    
     void MainPage::SearchButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         m_installAppId = catalogIdTextBox().Text();
@@ -498,37 +495,26 @@ namespace winrt::AppInstallerCaller::implementation
             m_installPackageOperation.Cancel();
         }
     }
-    void MainPage::RefreshButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    void MainPage::RefreshInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        GetInstalledPackages(installButton());
+        GetInstalledPackages(installedStatusText());
     }
     void MainPage::ClearInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         m_installedPackages.Clear();
     }
-    void MainPage::InstallingRefreshButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    void MainPage::RefreshInstallingButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        GetInstallingPackages(installButton());
+        GetInstallingPackages(installingStatusText());
     }
     void MainPage::ClearInstallingButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         m_installingPackageViews.Clear();
     }
-    IAsyncAction MainPage::StartServer()
+
+    void MainPage::ToggleDevSwitchToggled(IInspectable const&, winrt::Windows::UI::Xaml::RoutedEventArgs const&)
     {
-        co_await winrt::resume_background();
-        PackageManager packageManager = CreatePackageManager();
-    }
-    void MainPage::StartServerButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        StartServer();
-    }
-    void MainPage::ToggleDevButtonClicked(IInspectable const&, RoutedEventArgs const&)
-    {
-        if (toggleDevButton().IsChecked())
-        {
-            m_useDev = toggleDevButton().IsChecked().Value();
-        }
+        m_useDev = toggleDevSwitch().IsOn();
     }
     void MainPage::FindSourcesButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
