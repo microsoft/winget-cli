@@ -10,6 +10,28 @@ namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
 
+    namespace details
+    {
+        // A settings container.
+        struct ISettingsContainer
+        {
+            virtual ~ISettingsContainer() = default;
+
+            // Gets a stream containing the setting's value, if present.
+            // If the setting does not exist, returns an empty value.
+            virtual std::unique_ptr<std::istream> Get() = 0;
+
+            // Sets the setting to the given value.
+            virtual void Set(std::string_view value) = 0;
+
+            // Deletes the setting.
+            virtual void Remove() = 0;
+
+            // Gets the path to the setting, if reasonable.
+            virtual std::filesystem::path PathTo() = 0;
+        };
+    }
+
     // Allows settings to be classified and treated differently base on any number of factors.
     // Names should still be unique, as there is no guarantee made about types mapping to unique roots.
     enum class Type
@@ -80,7 +102,7 @@ namespace AppInstaller::Settings
         std::filesystem::path GetPath() const;
 
     private:
-        const StreamDefinition& m_streamDefinition;
-        bool m_synchronize;
+        const StreamDefinition m_streamDefinition;
+        std::unique_ptr<details::ISettingsContainer> m_container;
     };
 }

@@ -28,25 +28,6 @@ namespace AppInstaller::Settings
             AICLI_LOG(Core, Verbose, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Name);
         }
 
-        // A settings container.
-        struct ISettingsContainer
-        {
-            virtual ~ISettingsContainer() = default;
-
-            // Gets a stream containing the named setting's value, if present.
-            // If the setting does not exist, returns an empty value.
-            virtual std::unique_ptr<std::istream> Get(const std::filesystem::path& name) = 0;
-
-            // Sets the named setting to the given value.
-            virtual void Set(const std::filesystem::path& name, std::string_view value) = 0;
-
-            // Deletes the given setting.
-            virtual void Remove(const std::filesystem::path& name) = 0;
-
-            // Gets the path to the named setting, if reasonable.
-            virtual std::filesystem::path PathTo(const std::filesystem::path& name) = 0;
-        };
-
 #ifndef WINGET_DISABLE_FOR_FUZZING
         // A settings container backed by the ApplicationDataContainer functionality.
         struct ApplicationDataSettingsContainer : public ISettingsContainer
@@ -291,17 +272,19 @@ namespace AppInstaller::Settings
             FileSettingsContainer m_secure;
         };
 
-        std::unique_ptr<ISettingsContainer> GetSettingsContainer(Type type)
+        std::unique_ptr<details::ISettingsContainer> GetSettingsContainer(const StreamDefinition& streamDefinition)
         {
-            if (type == Type::Secure)
+            if (streamDefinition.Type == Type::Secure)
             {
-                return std::make_unique<SecureSettingsContainer>(GetSettingsContainer(Type::Standard));
+                StreamDefinition standardDefinition = streamDefinition;
+                standardDefinition.Type = Type::Standard;
+                return std::make_unique<SecureSettingsContainer>(GetSettingsContainer(standardDefinition));
             }
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
             if (IsRunningInPackagedContext())
             {
-                switch (type)
+                switch (streamDefinition.Type)
                 {
                 case Type::Standard:
                     return std::make_unique<ApplicationDataSettingsContainer>(
@@ -369,4 +352,26 @@ namespace AppInstaller::Settings
     {
         return GetSettingsContainer(def.Type)->PathTo(def.Name);
     }
+
+    Stream::Stream(const StreamDefinition& streamDefinition) :
+        m_streamDefinition(streamDefinition), m_container(GetSettingsContainer(streamDefinition))
+    {
+    }
+
+    // Gets the stream if present.
+    // If the setting stream does not exist, returns an empty value (see operator bool).
+    std::unique_ptr<std::istream> Get();
+
+    // Sets the stream to the given value.
+    // Returns true if successful; false if the underlying stream has changed.
+    [[nodiscard]] bool Set(std::string_view value);
+
+    // Deletes the setting stream.
+    void Remove();
+
+    // Gets the name of the stream.
+    std::string_view GetName() const;
+
+    // Gets the path to the stream.
+    std::filesystem::path GetPath() const;
 }
