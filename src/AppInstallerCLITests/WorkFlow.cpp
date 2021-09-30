@@ -306,9 +306,6 @@ namespace
             Override(wto);
         }
 
-        // For clone
-        TestContext(std::ostream& out, std::istream& in, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) : TestContext(out, in, true, overrides) {}
-
         ~TestContext()
         {
             if (!m_isClone)
@@ -330,7 +327,7 @@ namespace
 
         std::unique_ptr<Context> Clone() override
         {
-            auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
+            auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
             clone->SetFlags(this->GetFlags());
             return clone;
         }
