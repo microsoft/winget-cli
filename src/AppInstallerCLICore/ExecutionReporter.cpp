@@ -220,6 +220,6 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::CloseOutputStream()
     {
-        m_out->Close(m_channel == Channel::Output);
+        m_out->Close();
     }
 }
