@@ -306,6 +306,26 @@ namespace
             Override(wto);
         }
 
+        TestContext(std::ostream& out, std::istream& in, bool isClone, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
+            m_out(out), m_in(in), m_overrides(overrides), m_isClone(isClone), Context(out, in)
+        {
+            m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
+            {
+                auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
+
+                if (itr == m_overrides->end())
+                {
+                    return true;
+                }
+                else
+                {
+                    itr->Used = true;
+                    itr->Override(*this);
+                    return false;
+                }
+            };
+        }
+
         ~TestContext()
         {
             if (!m_isClone)
@@ -333,26 +353,6 @@ namespace
         }
 
     private:
-        TestContext(std::ostream& out, std::istream& in, bool isClone, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
-            m_out(out), m_in(in), m_overrides(overrides), m_isClone(isClone), Context(out, in)
-        {
-            m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
-            {
-                auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
-
-                if (itr == m_overrides->end())
-                {
-                    return true;
-                }
-                else
-                {
-                    itr->Used = true;
-                    itr->Override(*this);
-                    return false;
-                }
-            };
-        }
-
         std::shared_ptr<std::vector<WorkflowTaskOverride>> m_overrides;
         std::ostream& m_out;
         std::istream& m_in;
