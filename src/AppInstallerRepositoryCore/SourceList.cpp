@@ -190,6 +190,11 @@ namespace AppInstaller::Repository
                 left.Identifier == right.Identifier &&
                 Utility::CaseInsensitiveEquals(left.Type, right.Type);
         }
+
+        bool ShouldBeHidden(const SourceDetailsInternal& details)
+        {
+            return details.IsTombstone || details.Origin == SourceOrigin::Metadata;
+        }
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -299,13 +304,13 @@ namespace AppInstaller::Repository
 
         for (auto& s : m_sourceList)
         {
-            if (!s.IsTombstone)
+            if (!ShouldBeHidden(s))
             {
                 result.emplace_back(std::ref(s));
             }
             else
             {
-                AICLI_LOG(Repo, Info, << "GetCurrentSourceRefs: Source named '" << s.Name << "' from origin " << ToString(s.Origin) << " is a tombstone and is dropped.");
+                AICLI_LOG(Repo, Info, << "GetCurrentSourceRefs: Source named '" << s.Name << "' from origin " << ToString(s.Origin) << " is hidden and is dropped.");
             }
         }
 
@@ -318,7 +323,7 @@ namespace AppInstaller::Repository
             [name, includeHidden](const SourceDetailsInternal& sd)
             {
                 return Utility::ICUCaseInsensitiveEquals(sd.Name, name) &&
-                    (includeHidden || (!sd.IsTombstone && sd.Origin != SourceOrigin::Metadata));
+                    (includeHidden || !ShouldBeHidden(sd));
             });
     }
 
