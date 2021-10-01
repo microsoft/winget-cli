@@ -89,6 +89,8 @@ namespace AppInstaller::CLI::Execution
     struct InstallerToInstall
     {
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
+        uint32_t PackageSubExecutionId = 0;
         Manifest::ManifestInstaller Installer;
         bool IsUpdate = false;
     };
@@ -246,6 +248,7 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::shared_ptr<Repository::ISource>;
         };
         
+        template <>
         struct DataMapping<Data::AllowedArchitectures>
         {
             using value_t = std::vector<Utility::Architecture>;

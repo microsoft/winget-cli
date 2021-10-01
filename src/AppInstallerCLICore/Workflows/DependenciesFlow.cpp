@@ -141,7 +141,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         const auto& source = context.Get<Execution::Data::DependencySource>();
-        std::map<string_t, Execution::InstallerToInstall> idToInstallerMap;
+        std::map<string_t, Execution::PackageToInstall> idToPackageMap;
 
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
@@ -167,13 +167,13 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        const auto& latestVersion = package->GetLatestAvailableVersion();
+                        std::shared_ptr<IPackageVersion> latestVersion = package->GetLatestAvailableVersion();
                         if (!latestVersion) {
                             info << "No package version found"; //TODO localize all errors
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
                         }
 
-                        const auto& manifest = latestVersion->GetManifest();
+                        auto manifest = latestVersion->GetManifest();
                         if (manifest.Installers.empty()) {
                             info << "No installers found"; //TODO localize all errors 
                             return DependencyList(); //return empty dependency list, TODO change this to actually manage errors
@@ -186,10 +186,11 @@ namespace AppInstaller::CLI::Workflow
                         }
 
                         std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
+                        auto installedVersion = package->GetInstalledVersion();
                         bool isUpdate = false;
-                        if (package->GetInstalledVersion())
+                        if (installedVersion)
                         {
-                            installer = SelectInstallerFromMetadata(context.Args, manifest, package->GetInstalledVersion()->GetMetadata());
+                            installer = SelectInstallerFromMetadata(context.Args, manifest, installedVersion->GetMetadata());
                             isUpdate = true;
                         }
                         else
@@ -198,8 +199,15 @@ namespace AppInstaller::CLI::Workflow
                         }
 
                         auto& nodeDependencies = installer->Dependencies;
-                        
-                        idToInstallerMap[node.Id] = {latestVersion, installer.value(), isUpdate};
+
+                        Execution::PackageToInstall packageToInstall{
+                            std::move(latestVersion),
+                            std::move(installedVersion),
+                            std::move(manifest),
+                            std::move(installer.value()) };
+
+                            idToPackageMap.emplace(node.Id, packageToInstall);
+
                         return nodeDependencies;
                     }
                 }
@@ -223,17 +231,17 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installationOrder = dependencyGraph.GetInstallationOrder();
 
-        std::vector<Execution::InstallerToInstall> installers;
+        std::vector<Execution::PackageToInstall> installers;
 
         info << "order: "; //-- only for debugging
         for (auto const& node : installationOrder)
         {
             info << node.Id << ", "; //-- only for debugging
             
-            auto itr = idToInstallerMap.find(node.Id);
+            auto itr = idToPackageMap.find(node.Id);
             // if the package was already installed (with a useful version) or is the root
             // then there will be no installer for it on the map.
-            if (itr != idToInstallerMap.end())
+            if (itr != idToPackageMap.end())
             {
                 installers.push_back(itr->second);
             }
@@ -241,8 +249,8 @@ namespace AppInstaller::CLI::Workflow
         info << std::endl; //-- only for debugging
         
         // Install dependencies in the correct order
-        context.Add<Execution::Data::InstallersToInstall>(installers);
-        context << InstallMultiple;
+        context.Add<Execution::Data::PackagesToInstall>(installers);
+        context << Workflow::InstallMultiplePackages(Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
 
         // Install the root (continue)
     }

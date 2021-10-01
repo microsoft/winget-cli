@@ -358,7 +358,7 @@ bool HasExtension(std::string_view extension) const;
                 return;
             }
 
-            for (int i = 0; i < toCheck.size(); ++i)
+            for (unsigned int i = 0; i < toCheck.size(); ++i)
             {
                 auto node = toCheck.at(i);
 

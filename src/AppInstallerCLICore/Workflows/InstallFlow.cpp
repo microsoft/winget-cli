@@ -653,11 +653,7 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::Dependencies>(allDependencies);
             context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
-        context << InstallMultiple;
-    }
 
-    void InstallMultiple(Execution::Context& context)
-    {
         bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {

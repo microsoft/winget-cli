@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Rest
         // The IPackage implementation for Available packages from RestSource.
         struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
         {
-            AvailablePackage(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
+            AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                 SortVersionsInternal();
