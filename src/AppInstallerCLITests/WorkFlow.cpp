@@ -2597,7 +2597,7 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
     context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
-    OpenSource(context);
+    AppInstaller::CLI::Workflow::OpenSource()(context);
     auto source = context.Get<Execution::Data::Source>();
     REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
 }
