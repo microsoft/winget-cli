@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Contains(Execution::Data::PackageVersion))
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
+            context.Add<Execution::Data::DependencySource>(std::const_pointer_cast<Repository::ISource>(packageVersion->GetSource()));
             context <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
         }
@@ -187,18 +187,17 @@ namespace AppInstaller::CLI::Workflow
 
                         std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
                         auto installedVersion = package->GetInstalledVersion();
-                        bool isUpdate = false;
+
+                        IPackageVersion::Metadata installationMetadata;
                         if (installedVersion)
                         {
-                            installer = SelectInstallerFromMetadata(context.Args, manifest, installedVersion->GetMetadata());
-                            isUpdate = true;
-                        }
-                        else
-                        {
-                            installer = SelectInstallerFromMetadata(context.Args, manifest, {});
+                            installationMetadata = installedVersion->GetMetadata();
                         }
 
-                        auto& nodeDependencies = installer->Dependencies;
+                        ManifestComparator manifestComparator(context, installationMetadata);
+                        installer = manifestComparator.GetPreferredInstaller(manifest);
+
+                        auto nodeDependencies = installer.value().Dependencies;
 
                         Execution::PackageToInstall packageToInstall{
                             std::move(latestVersion),
@@ -206,7 +205,7 @@ namespace AppInstaller::CLI::Workflow
                             std::move(manifest),
                             std::move(installer.value()) };
 
-                            idToPackageMap.emplace(node.Id, packageToInstall);
+                         idToPackageMap.emplace(node.Id, packageToInstall);
 
                         return nodeDependencies;
                     }

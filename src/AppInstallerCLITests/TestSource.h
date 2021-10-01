@@ -18,8 +18,8 @@ namespace TestCommon
         using LocIndString = AppInstaller::Utility::LocIndString;
         using MetadataMap = AppInstaller::Repository::IPackageVersion::Metadata;
 
-        TestPackageVersion(const Manifest& manifest, std::weak_ptr<ISource> source = {});
-        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<ISource> source = {});
+        TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source = {});
+        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
@@ -30,12 +30,12 @@ namespace TestCommon
         LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
         std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
         Manifest GetManifest() override;
-        std::shared_ptr<ISource> GetSource() const override;
+        std::shared_ptr<const ISource> GetSource() const override;
         MetadataMap GetMetadata() const override;
 
         Manifest VersionManifest;
         MetadataMap Metadata;
-        std::weak_ptr<ISource> Source;
+        std::weak_ptr<const ISource> Source;
 
     protected:
         static void AddFoldedIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target);
@@ -50,10 +50,10 @@ namespace TestCommon
         using MetadataMap = TestPackageVersion::MetadataMap;
 
         // Create a package with only available versions using these manifests.
-        TestPackage(const std::vector<Manifest>& available, std::weak_ptr<ISource> source = {});
+        TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {});
 
         // Create a package with an installed version, metadata, and optionally available versions.
-        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<ISource> source = {});
+        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackage> Make(Args&&... args)

@@ -183,7 +183,7 @@ namespace AppInstaller::Repository
         virtual Manifest::Manifest GetManifest() = 0;
 
         // Gets the source where this package version is from.
-        virtual std::shared_ptr<ISource> GetSource() const = 0;
+        virtual std::shared_ptr<const ISource> GetSource() const = 0;
 
         // Gets any metadata associated with this package version.
         // Primarily stores data on installed packages.

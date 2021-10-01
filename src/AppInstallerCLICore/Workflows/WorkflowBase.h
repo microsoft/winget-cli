@@ -313,7 +313,6 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest
     // Outputs: Installer
     void SelectInstaller(Execution::Context& context);
-    std::optional<AppInstaller::Manifest::ManifestInstaller> SelectInstallerFromMetadata(Execution::Args args, AppInstaller::Manifest::Manifest manifest, AppInstaller::Repository::IPackageVersion::Metadata metadata);
 
     // Ensures that the process is running as admin.
     // Required Args: None

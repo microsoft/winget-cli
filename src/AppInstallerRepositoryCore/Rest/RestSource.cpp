@@ -286,7 +286,7 @@ namespace AppInstaller::Repository::Rest
                 return m_versionInfo.Manifest.value();
             }
 
-            std::shared_ptr<ISource> GetSource() const override
+            std::shared_ptr<const ISource> GetSource() const override
             {
                 return GetReferenceSource();
             }

@@ -82,7 +82,7 @@ namespace AppInstaller::Repository::Microsoft
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
             }
 
-            std::shared_ptr<ISource> GetSource() const override
+            std::shared_ptr<const ISource> GetSource() const override
             {
                 return GetReferenceSource();
             }

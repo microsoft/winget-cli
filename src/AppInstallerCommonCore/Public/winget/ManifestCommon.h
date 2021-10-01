@@ -420,6 +420,7 @@ bool HasExtension(std::string_view extension) const;
             bool loop = false;
 
             visited.insert(node);
+            auto lAdjacents = adjacents.at(node);
             for (const auto& adjacent : adjacents.at(node))
             {
                 auto search = visited.find(adjacent);
