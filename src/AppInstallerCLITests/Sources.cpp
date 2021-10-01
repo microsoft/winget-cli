@@ -60,6 +60,40 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSourceMetadata = R"(
+Sources:
+  - Name: testName
+    LastUpdate: 100
+)"sv;
+
+constexpr std::string_view s_SingleSourceMetadataUpdate = R"(
+Sources:
+  - Name: testName
+    LastUpdate: 101
+)"sv;
+
+constexpr std::string_view s_DoubleSource = R"(
+Sources:
+  - Name: testName
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+  - Name: testName2
+    Type: testType
+    Arg: testArg2
+    Data: testData2
+    IsTombstone: false
+)"sv;
+
+constexpr std::string_view s_DoubleSourceMetadata = R"(
+Sources:
+  - Name: testName
+    LastUpdate: 100
+  - Name: testName2
+    LastUpdate: 200
+)"sv;
+
 constexpr std::string_view s_ThreeSources = R"(
 Sources:
   - Name: testName
@@ -1036,4 +1070,149 @@ TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")
 
     ProgressCallback progress;
     REQUIRE_THROWS_HR(OpenSource("", progress), APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES);
+}
+
+TEST_CASE("RepoSources_UpdateSettingsDuringAction_SourcesUpdate", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSource);
+    SetSetting(Stream::SourcesMetadata, s_SingleSourceMetadata);
+
+    std::string userSourcesUpdate{ s_DoubleSource };
+    std::string sourcesMetadataUpdate{ s_DoubleSourceMetadata };
+
+    std::string singleSourceName = "testName";
+    std::string doubleSourceName = "testName2";
+
+    std::string unusedSourceName = "unusedName";
+    std::string unusedSourceArg = "unusedArg";
+    std::string testSourceType = "testType";
+
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
+    auto settingsUpdate = [&](const AppInstaller::Repository::SourceDetails&) 
+    {
+        SetSetting(Stream::UserSources, userSourcesUpdate);
+        SetSetting(Stream::SourcesMetadata, sourcesMetadataUpdate);
+    };
+    factory.OnAdd = settingsUpdate;
+    factory.OnUpdate = settingsUpdate;
+    factory.OnRemove = settingsUpdate;
+    TestHook_SetSourceFactoryOverride(testSourceType, factory);
+
+    ProgressCallback progress;
+
+    SECTION("Add")
+    {
+        SourceDetails addedSource;
+        addedSource.Name = unusedSourceName;
+        addedSource.Type = testSourceType;
+        addedSource.Arg = unusedSourceArg;
+        AddSource(addedSource, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == 3 + c_DefaultSourceCount);
+
+        REQUIRE(sources[0].Name == singleSourceName);
+        REQUIRE(sources[1].Name == doubleSourceName);
+        REQUIRE(sources[2].Name == addedSource.Name);
+    }
+    SECTION("Add conflicting")
+    {
+        SourceDetails addedSource;
+        addedSource.Name = doubleSourceName;
+        addedSource.Type = testSourceType;
+        addedSource.Arg = unusedSourceArg;
+        REQUIRE_THROWS_HR(AddSource(addedSource, progress), APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
+    }
+    SECTION("Update")
+    {
+        UpdateSource(singleSourceName, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == 2 + c_DefaultSourceCount);
+
+        REQUIRE(sources[0].Name == singleSourceName);
+        REQUIRE(sources[1].Name == doubleSourceName);
+    }
+    SECTION("Remove")
+    {
+        RemoveSource(singleSourceName, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == 1 + c_DefaultSourceCount);
+
+        REQUIRE(sources[0].Name == doubleSourceName);
+    }
+    SECTION("Remove already removed")
+    {
+        userSourcesUpdate = s_EmptySources;
+        sourcesMetadataUpdate = s_EmptySources;
+
+        RemoveSource(singleSourceName, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == c_DefaultSourceCount);
+    }
+}
+
+TEST_CASE("RepoSources_UpdateSettingsDuringAction_MetadataUpdate", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSource);
+    SetSetting(Stream::SourcesMetadata, s_SingleSourceMetadata);
+
+    std::string sourcesMetadataUpdate{ s_SingleSourceMetadataUpdate };
+    int64_t updateTime = 101;
+
+    std::string singleSourceName = "testName";
+    std::string doubleSourceName = "testName2";
+
+    std::string unusedSourceName = "unusedName";
+    std::string unusedSourceArg = "unusedArg";
+    std::string testSourceType = "testType";
+
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
+    auto settingsUpdate = [&](const AppInstaller::Repository::SourceDetails&)
+    {
+        SetSetting(Stream::SourcesMetadata, sourcesMetadataUpdate);
+    };
+    factory.OnAdd = settingsUpdate;
+    factory.OnUpdate = settingsUpdate;
+    factory.OnRemove = settingsUpdate;
+    TestHook_SetSourceFactoryOverride(testSourceType, factory);
+
+    ProgressCallback progress;
+
+    SECTION("Add")
+    {
+        SourceDetails addedSource;
+        addedSource.Name = unusedSourceName;
+        addedSource.Type = testSourceType;
+        addedSource.Arg = unusedSourceArg;
+        AddSource(addedSource, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == 2 + c_DefaultSourceCount);
+
+        REQUIRE(sources[0].Name == singleSourceName);
+        REQUIRE(ConvertSystemClockToUnixEpoch(sources[0].LastUpdateTime) == updateTime);
+        REQUIRE(sources[1].Name == addedSource.Name);
+    }
+    SECTION("Update")
+    {
+        UpdateSource(singleSourceName, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == 1 + c_DefaultSourceCount);
+
+        REQUIRE(sources[0].Name == singleSourceName);
+        REQUIRE(ConvertSystemClockToUnixEpoch(sources[0].LastUpdateTime) > updateTime);
+    }
+    SECTION("Remove")
+    {
+        RemoveSource(singleSourceName, progress);
+
+        auto sources = GetSources();
+        REQUIRE(sources.size() == c_DefaultSourceCount);
+    }
 }

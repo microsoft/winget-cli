@@ -197,6 +197,13 @@ namespace AppInstaller::Repository
         }
     }
 
+    void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
+    {
+        target.LastUpdateTime = LastUpdateTime;
+        target.AcceptedAgreementFields = AcceptedAgreementFields;
+        target.AcceptedAgreementsIdentifier = AcceptedAgreementsIdentifier;
+    }
+
     std::string_view GetWellKnownSourceName(WellKnownSource source)
     {
         switch (source)
@@ -376,8 +383,11 @@ namespace AppInstaller::Repository
         SaveMetadataInternal(details);
     }
 
-    void SourceList::RemoveSource(const SourceDetailsInternal& details)
+    void SourceList::RemoveSource(const SourceDetailsInternal& detailsRef)
     {
+        // Copy the incoming details because we might destroy the referenced structure
+        // when reloading the source details from settings.
+        SourceDetailsInternal details = detailsRef;
         bool sourcesSet = false;
 
         for (size_t i = 0; !sourcesSet && i < 10; ++i)
@@ -524,9 +534,7 @@ namespace AppInstaller::Repository
             auto source = GetSource(metaSource.Name);
             if (source)
             {
-                source->LastUpdateTime = metaSource.LastUpdateTime;
-                source->AcceptedAgreementFields = metaSource.AcceptedAgreementFields;
-                source->AcceptedAgreementsIdentifier = metaSource.AcceptedAgreementsIdentifier;
+                metaSource.CopyMetadataFieldsTo(*source);
             }
             else
             {
@@ -677,8 +685,11 @@ namespace AppInstaller::Repository
         return m_metadataStream.Set(out.str());
     }
 
-    void SourceList::SaveMetadataInternal(const SourceDetailsInternal& details, bool remove)
+    void SourceList::SaveMetadataInternal(const SourceDetailsInternal& detailsRef, bool remove)
     {
+        // Copy the incoming details because we might overwrite the metadata
+        // when reloading the source details from settings.
+        SourceDetailsInternal details = detailsRef;
         bool metadataSet = false;
 
         for (size_t i = 0; !metadataSet && i < 10; ++i)
@@ -689,18 +700,23 @@ namespace AppInstaller::Repository
             {
                 OverwriteMetadata();
 
-                // The remove will have removed the source but not the metadata.
-                // Remove it again here.
+                auto target = FindSource(details.Name, true);
+                if (target == m_sourceList.end())
+                {
+                    // Didn't find the metadata, so we consider this a success
+                    return;
+                }
+
                 if (remove)
                 {
-                    auto target = FindSource(details.Name, true);
-                    if (target == m_sourceList.end())
-                    {
-                        // Didn't find the metadata, so we consider this a success
-                        return;
-                    }
-
+                    // The remove will have removed the source but not the metadata.
+                    // Remove it again here.
                     m_sourceList.erase(target);
+                }
+                else
+                {
+                    // Update the freshly read metadata with the update that was requested.
+                    details.CopyMetadataFieldsTo(*target);
                 }
             }
         }

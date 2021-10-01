@@ -151,7 +151,7 @@ namespace AppInstaller::Settings
 
             std::unique_ptr<std::istream> Get() override
             {
-                return GetInternal();
+                return GetInternal(m_hash);
             }
 
             bool Set(std::string_view value) override
@@ -160,14 +160,13 @@ namespace AppInstaller::Settings
 
                 // If Set is called without ever reading the value, then we can assume that caller wants
                 // to overwrite it regardless. Also, we don't have any previous value to compare against
-                // anyway so the only other option would be to always reject it, but then we would need
-                // to distinguish the state where the value has never existed.
+                // anyway so the only other option would be to always reject it.
                 if (m_hash)
                 {
-                    SHA256::HashBuffer previousHash = m_hash.value();
-                    std::ignore = GetInternal();
+                    std::optional<SHA256::HashBuffer> currentHash;
+                    std::ignore = GetInternal(currentHash);
 
-                    if (m_hash && !AreHashesEqual(previousHash, m_hash.value()))
+                    if (currentHash && !AreHashesEqual(m_hash.value(), currentHash.value()))
                     {
                         AICLI_LOG(Core, Verbose, << "Setting value for '" << m_name << "' has changed since last read; rejecting Set");
                         return false;
@@ -198,34 +197,36 @@ namespace AppInstaller::Settings
             }
 
         protected:
-            std::unique_ptr<std::istream> GetInternal()
-            {
-                std::unique_ptr<std::istream> stream = m_container->Get();
-
-                if (!stream)
-                {
-                    // If no stream exists, then no hashing needs to be done.
-                    return stream;
-                }
-
-                std::string streamContents = Utility::ReadEntireStream(*stream);
-                THROW_HR_IF(E_UNEXPECTED, streamContents.size() > std::numeric_limits<uint32_t>::max());
-
-                m_hash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
-
-                // Return a stream over the contents that we read in and hashed, to prevent a race.
-                return std::make_unique<std::istringstream>(streamContents);
-            }
-
             static bool AreHashesEqual(const SHA256::HashBuffer& a, const SHA256::HashBuffer& b)
             {
-                return std::equal(a.begin(), a.end(), b.begin());
+                return (a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin()));
             }
 
             std::string_view m_name;
             std::optional<SHA256::HashBuffer> m_hash;
 
         private:
+            std::unique_ptr<std::istream> GetInternal(std::optional<SHA256::HashBuffer>& hashStorage)
+            {
+                std::unique_ptr<std::istream> stream = m_container->Get();
+
+                if (!stream)
+                {
+                    // If no stream exists, then no hashing needs to be done.
+                    // Return an empty hash vector to indicate the attempted read but no result.
+                    hashStorage.emplace();
+                    return stream;
+                }
+
+                std::string streamContents = Utility::ReadEntireStream(*stream);
+                THROW_HR_IF(E_UNEXPECTED, streamContents.size() > std::numeric_limits<uint32_t>::max());
+
+                hashStorage = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
+
+                // Return a stream over the contents that we read in and hashed, to prevent a race.
+                return std::make_unique<std::istringstream>(streamContents);
+            }
+
             std::unique_ptr<ISettingsContainer> m_container;
         };
 
@@ -298,7 +299,7 @@ namespace AppInstaller::Settings
         public:
             std::unique_ptr<std::istream> Get() override
             {
-                std::unique_ptr<std::istream> stream = GetInternal();
+                std::unique_ptr<std::istream> stream = ExchangeSettingsContainer::Get();
 
                 if (!stream)
                 {
