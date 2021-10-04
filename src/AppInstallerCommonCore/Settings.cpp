@@ -166,7 +166,7 @@ namespace AppInstaller::Settings
                     std::optional<SHA256::HashBuffer> currentHash;
                     std::ignore = GetInternal(currentHash);
 
-                    if (currentHash && !AreHashesEqual(m_hash.value(), currentHash.value()))
+                    if (currentHash && !SHA256::AreEqual(m_hash.value(), currentHash.value()))
                     {
                         AICLI_LOG(Core, Verbose, << "Setting value for '" << m_name << "' has changed since last read; rejecting Set");
                         return false;
@@ -197,11 +197,6 @@ namespace AppInstaller::Settings
             }
 
         protected:
-            static bool AreHashesEqual(const SHA256::HashBuffer& a, const SHA256::HashBuffer& b)
-            {
-                return (a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin()));
-            }
-
             std::string_view m_name;
             std::optional<SHA256::HashBuffer> m_hash;
 
@@ -313,7 +308,7 @@ namespace AppInstaller::Settings
                 // Plus the text for this one is fairly on point for what has happened.
                 THROW_HR_IF(SPAPI_E_FILE_HASH_NOT_IN_CATALOG, !verData.Found);
 
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_DATA_CHECKSUM_ERROR), !AreHashesEqual(m_hash.value(), verData.Hash));
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_DATA_CHECKSUM_ERROR), !SHA256::AreEqual(m_hash.value(), verData.Hash));
 
                 // ExchangeSettingsContainer already produces an in memory stream that we can use.
                 return stream;
