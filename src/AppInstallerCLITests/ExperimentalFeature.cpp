@@ -39,7 +39,7 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
     SECTION("Feature on")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::ExperimentalCmd, userSettingTest));
@@ -47,7 +47,7 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
     SECTION("Feature off")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": false } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE_FALSE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::ExperimentalCmd, userSettingTest));
@@ -55,7 +55,7 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
     SECTION("Invalid value")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": "string" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE_FALSE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::ExperimentalCmd, userSettingTest));
@@ -67,7 +67,7 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
         GroupPolicyTestOverride policies{ policiesKey.get() };
 
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE_FALSE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::ExperimentalCmd, userSettingTest));
