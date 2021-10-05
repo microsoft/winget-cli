@@ -25,8 +25,8 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
-            m_out << sequence;
             m_VTUpdated = true;
+            m_out << sequence;
         }
         return *this;
     }
@@ -35,8 +35,8 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
-            m_out << sequence;
             m_VTUpdated = true;
+            m_out << sequence;
         }
         return *this;
     }
