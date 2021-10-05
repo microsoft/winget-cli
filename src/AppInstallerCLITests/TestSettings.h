@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winget/Settings.h>
 #include <winget/UserSettings.h>
 #include <wil/resource.h>
 #include <string>
@@ -22,6 +23,10 @@ namespace TestCommon
 
     const std::wstring AdditionalSourcesPolicyKeyName = L"AdditionalSources";
     const std::wstring AllowedSourcesPolicyKeyName = L"AllowedSources";
+
+    void SetSetting(const AppInstaller::Settings::StreamDefinition& stream, std::string_view value);
+    void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream);
+    std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream);
 
     void DeleteUserSettingsFiles();
 

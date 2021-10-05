@@ -136,6 +136,7 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "integer",
+        "format": "long",
         "not": {
           "enum": [ 0 ]
         },

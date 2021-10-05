@@ -2164,7 +2164,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
 
 TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, R"(Sources:)"sv);
+    SetSetting(Stream::UserSources, R"(Sources:)"sv);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -2197,7 +2197,7 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 
 TEST_CASE("AdminSetting_LocalManifestFiles", "[LocalManifests][workflow]")
 {
-    RemoveSetting(Streams::AdminSettings);
+    RemoveSetting(Stream::AdminSettings);
 
     // If there's no admin setting, using local manifest should fail.
     Execution::Args args;
