@@ -121,7 +121,10 @@ namespace AppInstaller::CLI::Workflow
     struct ReportInstallerResult : public WorkflowTask
     {
         ReportInstallerResult(std::string_view installerType, HRESULT hr, bool isHResult = false) :
-            WorkflowTask("ReportInstallerResult"), m_installerType(installerType), m_hr(hr), m_isHResult(isHResult) {}
+            WorkflowTask("ReportInstallerResult"),
+            m_installerType(installerType),
+            m_hr(hr),
+            m_isHResult(isHResult) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -166,11 +169,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InstallMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(StringResource::StringId dependenciesReportMessage, HRESULT resultOnFailure, std::vector<HRESULT>&& ignorableInstallResults = {}) :
+        InstallMultiplePackages(
+            StringResource::StringId dependenciesReportMessage,
+            HRESULT resultOnFailure,
+            std::vector<HRESULT>&& ignorableInstallResults = {},
+            bool ensurePackageAgreements = true,
+            bool ignoreDependencies = false) :
             WorkflowTask("InstallMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
-            m_ignorableInstallResults(std::move(ignorableInstallResults)) {}
+            m_ignorableInstallResults(std::move(ignorableInstallResults)),
+            m_ignorePackageDependencies(ignoreDependencies),
+            m_ensurePackageAgreements(ensurePackageAgreements) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -178,6 +188,8 @@ namespace AppInstaller::CLI::Workflow
         HRESULT m_resultOnFailure;
         std::vector<HRESULT> m_ignorableInstallResults;
         StringResource::StringId m_dependenciesReportMessage;
+        bool m_ignorePackageDependencies;
+        bool m_ensurePackageAgreements;
     };
 
     // Stores the existing set of packages in ARP.

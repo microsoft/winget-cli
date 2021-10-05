@@ -43,7 +43,16 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: DependencySource
     // Outputs: Dependencies
-    void ManagePackageDependencies(Execution::Context& context);
+    struct ManagePackageDependencies : public WorkflowTask
+    {
+        ManagePackageDependencies(AppInstaller::StringResource::StringId dependencyReportMessage) :
+            WorkflowTask("ReportDependencies"), m_dependencyReportMessage(dependencyReportMessage) {}
+
+        void operator()(Execution::Context& context) const override;
+
+        private:
+            AppInstaller::StringResource::StringId m_dependencyReportMessage;
+    };
 
     // Sets up the source used to get the dependencies.
     // Required Args: None

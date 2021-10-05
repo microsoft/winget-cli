@@ -43,6 +43,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowPackageVersionNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoInstallerFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowContainsLoop);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);

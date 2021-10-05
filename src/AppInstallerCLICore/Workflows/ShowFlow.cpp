@@ -173,7 +173,7 @@ namespace AppInstaller::CLI::Workflow
                             {
                                 info << "        "_liv << dependency.Id;
                                 if (dependency.MinVersion) 
-                                    info << " [>= " << dependency.MinVersion.value().ToString() << "]";
+                                   info << " [>= " << dependency.MinVersion.value().ToString() << "]";
                                 info << std::endl;
                             });
                     }

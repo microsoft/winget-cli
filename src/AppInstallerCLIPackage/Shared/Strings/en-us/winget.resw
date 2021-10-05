@@ -939,6 +939,46 @@ Configuration is disabled due to Group Policy.</value>
     <value>This package requires the following dependencies:</value>
     <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
+  <data name="DependenciesFlowInstall" xml:space="preserve">
+    <value>Installing dependencies:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
+    <value>Dependency source not found</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
+    <value>Too many matches</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
+    <value>No package version found</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
+    <value>No installers found</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
+    <value>Minimum required version not available</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowNoMatches" xml:space="preserve">
+    <value>No matches</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesFlowContainsLoop" xml:space="preserve">
+    <value>Has loop</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesManagementError" xml:space="preserve">
+    <value>Error processing package depencies, do you wish to continue installation?</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="DependenciesManagementExitMessage" xml:space="preserve">
+    <value>Error processing package dependencies, exiting...</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>Packages</value>
   </data>

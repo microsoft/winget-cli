@@ -615,6 +615,8 @@ void OverrideForShellExecute(TestContext& context, std::vector<Dependency>& inst
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
     {
     } });
+
+    OverrideForUpdateInstallerMotw(context);
 }
 
 void OverrideForDirectMsi(TestContext& context)
@@ -2118,6 +2120,290 @@ TEST_CASE("InstallFlowMultiLocale_RequirementNotSatisfied", "[InstallFlow][workf
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
 
+TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
+{
+    std::ostringstream validateOutput;
+    TestContext context{ validateOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    ValidateCommand validate({});
+    validate.Execute(context);
+    INFO(validateOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(validateOutput.str().find(Resource::LocString(Resource::String::ValidateCommandReportDependencies).get()) != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
+    REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
+    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
+    REQUIRE(validateOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
+    REQUIRE(validateOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
+    REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
+}
+
+TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    OverrideDependencySource(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify installer dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    // and root dependencies are not
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") == std::string::npos);
+}
+
+TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    OverrideDependencySource(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify root dependencies are shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "NeedsToInstallBFirst"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "NeedsToInstallBFirst");
+}
+
+TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesInstalled"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+    REQUIRE(installationOrder.size() == 1);
+    REQUIRE(installationOrder.at(0).Id == "DependenciesInstalled");
+    // dependencies of an installed package will not be checked nor added to the graph
+    REQUIRE(installOutput.str().find("installed1Dep") == std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "EasyToSeeLoop"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    OverrideDependencySource(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all types of dependencies are printed
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesValidMinVersions"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+    REQUIRE(installationOrder.size() == 2);
+    REQUIRE(installationOrder.at(0).Id == "minVersion");
+    // minVersion 1.5 is available but this requires 1.0 so that version is installed
+    REQUIRE(installationOrder.at(0).MinVersion.value().ToString() == "1.0");
+    REQUIRE(installationOrder.at(1).Id == "DependenciesValidMinVersions");
+}
+
+TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "PathBetweenBranchesButNoLoop"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 5);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "G");
+    REQUIRE(installationOrder.at(3).Id == "H");
+    REQUIRE(installationOrder.at(4).Id == "PathBetweenBranchesButNoLoop");
+}
+
+TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "DependencyAlreadyInStackButNoLoop"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 4);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "F");
+    REQUIRE(installationOrder.at(3).Id == "DependencyAlreadyInStackButNoLoop");
+}
+
+TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "B");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "StackOrderIsOk");
+}
+
 TEST_CASE("InstallFlowMultiLocale_RequirementSatisfied", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -2189,298 +2475,6 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
-}
-
-TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideForShellExecute(context);
-    OverrideDependencySource(context);
-
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    // Verify all types of dependencies are printed
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
-}
-
-TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "EasyToSeeLoop"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") != std::string::npos);
-}
-
-TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "DependencyAlreadyInStackButNoLoop"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    REQUIRE(installOutput.str().find("order: B, C, F, DependencyAlreadyInStackButNoLoop,") != std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installationOrder.size() == 4);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "F");
-    REQUIRE(installationOrder.at(3).Id == "DependencyAlreadyInStackButNoLoop");
-}
-
-TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "PathBetweenBranchesButNoLoop"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    REQUIRE(installOutput.str().find("order: B, C, G, H, PathBetweenBranchesButNoLoop,") != std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installationOrder.size() == 5);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "G");
-    REQUIRE(installationOrder.at(3).Id == "H");
-    REQUIRE(installationOrder.at(4).Id == "PathBetweenBranchesButNoLoop");
-}
-
-TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    REQUIRE(installOutput.str().find("order: B, C, StackOrderIsOk,") != std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "StackOrderIsOk");
-}
-
-TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "NeedsToInstallBFirst"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    REQUIRE(installOutput.str().find("order: B, C, NeedsToInstallBFirst,") != std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "NeedsToInstallBFirst");
-}
-
-TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesInstalled"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    // dependencies installed will show on the graph order but the installer will not be called
-    REQUIRE(installOutput.str().find("order: installed1, DependenciesInstalled,") != std::string::npos);
-    REQUIRE(installationOrder.size() == 1);
-    REQUIRE(installationOrder.at(0).Id == "DependenciesInstalled");
-    // dependencies of an installed package will not be checked nor added to the graph
-    REQUIRE(installOutput.str().find("installed1Dep") == std::string::npos);
-}
-
-TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    std::vector<Dependency> installationOrder;
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context, installationOrder);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "DependenciesValidMinVersions"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find("has loop") == std::string::npos);
-    // dependencies installed will show on the order but the installer will not be called
-    REQUIRE(installOutput.str().find("order: minVersion, DependenciesValidMinVersions,") != std::string::npos);
-    REQUIRE(installationOrder.size() == 2);
-    REQUIRE(installationOrder.at(0).Id == "minVersion");
-    // minVersion 1.5 is available but this requires 1.0 so that version is installed
-    REQUIRE(installationOrder.at(0).MinVersion.value().ToString() == "1.0");
-    REQUIRE(installationOrder.at(1).Id == "DependenciesValidMinVersions");
-}
-
-TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
-{
-    std::ostringstream validateOutput;
-    TestContext context{ validateOutput, std::cin };
-    context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    ValidateCommand validate({});
-    validate.Execute(context);
-    INFO(validateOutput.str());
-
-    // Verify all types of dependencies are printed
-    REQUIRE(validateOutput.str().find(Resource::LocString(Resource::String::ValidateCommandReportDependencies).get()) != std::string::npos);
-    REQUIRE(validateOutput.str().find("WindowsFeaturesDep") != std::string::npos);
-    REQUIRE(validateOutput.str().find("WindowsLibrariesDep") != std::string::npos);
-    // PackageDep1 has minimum version (1.0), PackageDep2 doesn't (shouldn't show [>=...])
-    REQUIRE(validateOutput.str().find("Package.Dep1-x64 [>= 1.0]") != std::string::npos);
-    REQUIRE(validateOutput.str().find("Package.Dep2-x64") != std::string::npos);
-    REQUIRE(validateOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
-    REQUIRE(validateOutput.str().find("ExternalDep") != std::string::npos);
-}
-
-TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideForShellExecute(context);
-    OverrideDependencySource(context);
-
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    // Verify installer dependencies are shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
-    // and root dependencies are not
-    REQUIRE(installOutput.str().find("PreviewIISOnRoot") == std::string::npos);
-}
-
-TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideForShellExecute(context);
-    OverrideDependencySource(context); 
-
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    // Verify root dependencies are shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
 
 // TODO 
