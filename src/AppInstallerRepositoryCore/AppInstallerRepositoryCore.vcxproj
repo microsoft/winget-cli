@@ -284,6 +284,8 @@
     <ClInclude Include="Rest\Schema\JsonHelper.h" />
     <ClInclude Include="Rest\Schema\RestHelper.h" />
     <ClInclude Include="SourceFactory.h" />
+    <ClInclude Include="SourceList.h" />
+    <ClInclude Include="SourcePolicy.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
     <ClInclude Include="Public\AppInstallerRepositorySource.h" />
@@ -341,6 +343,8 @@
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />
     <ClCompile Include="Rest\Schema\JsonHelper.cpp" />
     <ClCompile Include="Rest\Schema\RestHelper.cpp" />
+    <ClCompile Include="SourceList.cpp" />
+    <ClCompile Include="SourcePolicy.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteTempTable.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />

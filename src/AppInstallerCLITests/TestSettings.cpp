@@ -9,6 +9,21 @@ using namespace AppInstaller::Settings;
 
 namespace TestCommon
 {
+    void SetSetting(const AppInstaller::Settings::StreamDefinition& stream, std::string_view value)
+    {
+        REQUIRE(Stream{ stream }.Set(value));
+    }
+
+    void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream)
+    {
+        Stream{ stream }.Remove();
+    }
+
+    std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream)
+    {
+        return Stream{ stream }.GetPath();
+    }
+
     void DeleteUserSettingsFiles()
     {
         auto settingsPath = UserSettings::SettingsFilePath();
@@ -17,7 +32,7 @@ namespace TestCommon
             std::filesystem::remove(settingsPath);
         }
 
-        auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
+        auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
         if (std::filesystem::exists(settingsBackupPath))
         {
             std::filesystem::remove(settingsBackupPath);

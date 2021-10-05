@@ -1231,4 +1231,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="WindowsPackageManager" xml:space="preserve">
     <value>Windows Package Manager</value>
   </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignore package versions in import file</value>
+  </data>
 </root>

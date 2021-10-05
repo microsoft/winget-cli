@@ -53,6 +53,9 @@ namespace AppInstaller::Utility {
 
         static HashBuffer ConvertToBytes(const std::string& hashStr);
 
+        // Returns a value indicating whether the two hashes are equal.
+        static bool AreEqual(const HashBuffer& first, const HashBuffer& second);
+
     private:
         void EnsureNotFinished() const;
 

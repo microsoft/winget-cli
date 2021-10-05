@@ -48,28 +48,40 @@ namespace AppInstaller::Settings
 
         private:
             void LoadAdminSettings();
-            void SaveAdminSettings() const;
+            [[nodiscard]] bool SaveAdminSettings();
 
+            Stream m_settingStream;
             AdminSettingValues m_settingValues;
         };
 
-        AdminSettingsInternal::AdminSettingsInternal()
+        AdminSettingsInternal::AdminSettingsInternal() : m_settingStream(Stream::AdminSettings)
         {
             LoadAdminSettings();
         }
 
         void AdminSettingsInternal::SetAdminSetting(AdminSetting setting, bool enabled)
         {
-            switch (setting)
+            for (size_t i = 0; i < 10; ++i)
             {
-            case AdminSetting::LocalManifestFiles:
-                m_settingValues.LocalManifestFiles = enabled;
-                break;
-            default:
-                return;
+                switch (setting)
+                {
+                case AdminSetting::LocalManifestFiles:
+                    m_settingValues.LocalManifestFiles = enabled;
+                    break;
+                default:
+                    return;
+                }
+
+                if (SaveAdminSettings())
+                {
+                    return;
+                }
+
+                // We need to reload the settings as they have changed
+                LoadAdminSettings();
             }
 
-            SaveAdminSettings();
+            THROW_HR_MSG(E_UNEXPECTED, "Too many attempts at SaveAdminSettings");
         }
 
         bool AdminSettingsInternal::GetAdminSettingBoolValue(AdminSetting setting) const
@@ -85,7 +97,7 @@ namespace AppInstaller::Settings
 
         void AdminSettingsInternal::LoadAdminSettings()
         {
-            auto stream = Settings::GetSettingStream(Settings::Streams::AdminSettings);
+            auto stream = m_settingStream.Get();
             if (!stream)
             {
                 AICLI_LOG(Core, Verbose, << "Admin settings was not found");
@@ -120,14 +132,14 @@ namespace AppInstaller::Settings
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalManifestFiles, m_settingValues.LocalManifestFiles);
         }
 
-        void AdminSettingsInternal::SaveAdminSettings() const
+        bool AdminSettingsInternal::SaveAdminSettings()
         {
             YAML::Emitter out;
             out << YAML::BeginMap;
             out << YAML::Key << s_AdminSettingsYaml_LocalManifestFiles << YAML::Value << m_settingValues.LocalManifestFiles;
             out << YAML::EndMap;
 
-            Settings::SetSetting(Settings::Streams::AdminSettings, out.str());
+            return m_settingStream.Set(out.str());
         }
     }
 

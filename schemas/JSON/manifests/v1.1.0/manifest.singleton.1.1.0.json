@@ -167,6 +167,7 @@
     },
     "InstallerReturnCode": {
       "type": "integer",
+      "format": "long",
       "not": {
         "enum": [ 0 ]
       },
