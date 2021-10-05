@@ -43,6 +43,7 @@ bkup
 blargle
 blockedbypolicy
 blogs
+bluetooth
 bomgar
 BOMs
 brk
