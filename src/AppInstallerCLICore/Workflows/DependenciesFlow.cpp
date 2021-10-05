@@ -255,7 +255,7 @@ namespace AppInstaller::CLI::Workflow
         
         if (foundError)
         {
-            // PM ask.
+            // ask PM what to do here.
             bool continueExec = context.Reporter.PromptForBoolResponse(Resource::String::DependenciesManagementError);
             if (!continueExec)
             {

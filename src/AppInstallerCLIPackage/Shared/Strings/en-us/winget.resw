@@ -941,43 +941,38 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
     <value>Installing dependencies:</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
     <value>Dependency source not found</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
     <value>Too many matches</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>When node package id search yield too many matches d</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
     <value>No package version found</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>When no suitagle version found for the specific package.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
     <value>No installers found</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
     <value>Minimum required version not available</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>No matches</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>When package search yields no matches</comment>
   </data>
   <data name="DependenciesFlowContainsLoop" xml:space="preserve">
     <value>Has loop</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
-    <value>Error processing package depencies, do you wish to continue installation?</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <value>Error processing package dependencies, do you wish to continue installation?</value>
+    <comment>Prompt message shown when dependencies processing yields errors.</comment>
   </data>
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
     <value>Error processing package dependencies, exiting...</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>Packages</value>

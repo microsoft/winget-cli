@@ -45,7 +45,6 @@ namespace AppInstaller::CLI::Execution
         PackageCollection,
         // On import and upgrade all: A collection of specific package versions to install
         PackagesToInstall,
-        InstallersToInstall,
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
@@ -84,15 +83,6 @@ namespace AppInstaller::CLI::Execution
         // Use this sub execution id when installing this package so that 
         // install telemetry is captured with the same sub execution id as other events in Search phase.
         uint32_t PackageSubExecutionId = 0;
-    };
-
-    struct InstallerToInstall
-    {
-        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
-        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
-        uint32_t PackageSubExecutionId = 0;
-        Manifest::ManifestInstaller Installer;
-        bool IsUpdate = false;
     };
 
     namespace details
@@ -215,12 +205,6 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PackagesToInstall>
         {
             using value_t = std::vector<PackageToInstall>;
-        };
-        
-        template <>
-        struct DataMapping<Data::InstallersToInstall>
-        {
-            using value_t = std::vector<InstallerToInstall>;
         };
 
         template <>

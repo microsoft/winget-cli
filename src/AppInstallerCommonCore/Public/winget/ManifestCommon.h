@@ -327,11 +327,11 @@ bool HasExtension(std::string_view extension) const;
         DependencyGraph(const Dependency& root, const DependencyList& rootDependencies,
             std::function<const DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
-            adjacents[m_root] = std::vector<Dependency>();
-            toCheck = std::vector<Dependency>();
+            m_adjacents[m_root] = std::set<Dependency>();
+            m_toCheck = std::vector<Dependency>();
             rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
-                    toCheck.push_back(dependency);
+                    m_toCheck.push_back(dependency);
                     AddNode(dependency);
                     AddAdjacent(root, dependency);
                 });
@@ -339,13 +339,13 @@ bool HasExtension(std::string_view extension) const;
 
         DependencyGraph(const Dependency& root, std::function<const DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
         {
-            adjacents[m_root] = std::vector<Dependency>();
-            toCheck = std::vector<Dependency>();
+            m_adjacents[m_root] = std::set<Dependency>();
+            m_toCheck = std::vector<Dependency>();
 
             const DependencyList& rootDependencies = getDependencies(root);
             rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                 {
-                    toCheck.push_back(dependency);
+                    m_toCheck.push_back(dependency);
                     AddNode(dependency);
                     AddAdjacent(root, dependency);
                 });
@@ -353,23 +353,21 @@ bool HasExtension(std::string_view extension) const;
 
         void BuildGraph()
         {
-            if (toCheck.empty())
+            if (m_toCheck.empty())
             {
                 return;
             }
 
-            for (unsigned int i = 0; i < toCheck.size(); ++i)
+            for (unsigned int i = 0; i < m_toCheck.size(); ++i)
             {
-                auto node = toCheck.at(i);
+                auto node = m_toCheck.at(i);
 
-                const auto& nodeDependencies = getDependencies(node); 
-                //TODO add error stream so we can report back
-
+                const auto& nodeDependencies = getDependencies(node);
                 nodeDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
                     {
                         if (!HasNode(dependency))
                         {
-                            toCheck.push_back(dependency);
+                            m_toCheck.push_back(dependency);
                             AddNode(dependency);
                         }
 
@@ -382,18 +380,18 @@ bool HasExtension(std::string_view extension) const;
 
         void AddNode(const Dependency& node)
         {
-            adjacents[node] = std::vector<Dependency>();
+            m_adjacents[node] = std::set<Dependency>();
         }
 
         void AddAdjacent(const Dependency& node,const Dependency& adjacent)
         {
-            adjacents[node].push_back(adjacent);
+            m_adjacents[node].emplace(adjacent);
         }
 
         bool HasNode(const Dependency& dependency)
         {
-            auto search = adjacents.find(dependency);
-            return search != adjacents.end();
+            auto search = m_adjacents.find(dependency);
+            return search != m_adjacents.end();
         }
 
         bool HasLoop()
@@ -403,14 +401,14 @@ bool HasExtension(std::string_view extension) const;
 
         void CheckForLoopsAndGetOrder()
         {
-            installationOrder = std::vector<Dependency>();
+            m_installationOrder = std::vector<Dependency>();
             std::set<Dependency> visited;
             hasLoop = HasLoopDFS(visited, m_root);
         }
 
         std::vector<Dependency> GetInstallationOrder()
         {
-            return installationOrder;
+            return m_installationOrder;
         }
 
     private:
@@ -420,8 +418,8 @@ bool HasExtension(std::string_view extension) const;
             bool loop = false;
 
             visited.insert(node);
-            auto lAdjacents = adjacents.at(node);
-            for (const auto& adjacent : adjacents.at(node))
+            auto lAdjacents = m_adjacents.at(node);
+            for (const auto& adjacent : m_adjacents.at(node))
             {
                 auto search = visited.find(adjacent);
                 if (search == visited.end()) // if not found
@@ -440,23 +438,22 @@ bool HasExtension(std::string_view extension) const;
             }
 
             // Adding to have an order even if a loop is present
-            if (std::find(installationOrder.begin(), installationOrder.end(), node) == installationOrder.end())
+            if (std::find(m_installationOrder.begin(), m_installationOrder.end(), node) == m_installationOrder.end())
             {
-                installationOrder.push_back(node);
+                m_installationOrder.push_back(node);
             }
 
             return loop;
         }
 
         const Dependency& m_root;
-        std::map<Dependency, std::vector<Dependency>> adjacents; //(?) value should be a set instead of a vector?
+        std::map<Dependency, std::set<Dependency>> m_adjacents;
         std::function<const DependencyList(const Dependency&)> getDependencies;
 
         bool hasLoop;
-        std::vector<Dependency> installationOrder;
+        std::vector<Dependency> m_installationOrder;
 
-        std::vector<Dependency> toCheck;
-        std::map<string_t, string_t> failedPackages;
+        std::vector<Dependency> m_toCheck;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
