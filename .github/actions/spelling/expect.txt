@@ -21,6 +21,7 @@ argumentlist
 ARMNT
 arp
 arphelper
+ASAN
 ashpatil
 Ashwini
 asm
@@ -42,7 +43,6 @@ bkup
 blargle
 blockedbypolicy
 blogs
-Bluetooth
 bomgar
 BOMs
 brk
@@ -72,11 +72,8 @@ COMGLB
 commandline
 Concat
 contactsupport
-contosa
-contosainstaller
 contoso
 contractversion
-convertto
 count'th
 countof
 countryregion
@@ -94,8 +91,6 @@ dirs
 diskfull
 dnld
 Dobbeleer
-doctordns
-DSL
 dustojnikhummer
 dvinns
 dw
@@ -108,7 +103,6 @@ EQU
 ERANGE
 errno
 ESRB
-etail
 etest
 execustom
 EXEHASH
@@ -124,6 +118,7 @@ flexera
 foldc
 foldcase
 FOLDERID
+FSharp
 ftp
 FULLMUTEX
 FULLWIDTH
@@ -135,7 +130,6 @@ GES
 GESMBH
 GHS
 gity
-globals
 Google
 helplib
 helplibrary
@@ -154,7 +148,6 @@ IGlobal
 IHelp
 IHost
 IID
-IInstalled
 IISOn
 img
 IMutable
@@ -164,6 +157,7 @@ inor
 installinprogress
 installshield
 insufficientmemory
+Intelli
 IPackage
 IPersist
 IService
@@ -176,9 +170,7 @@ itr
 IVector
 IWeb
 IZone
-Jaifroid
 jdk
-JDKs
 jfearn
 JObject
 jp
@@ -216,7 +208,6 @@ megamorf
 memcpy
 middleware
 midl
-mikefrobbins
 minexample
 minschema
 missingdependency
@@ -238,10 +229,8 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
 netlify
 Newtonsoft
-Nieto
 NOEXPAND
 nonetwork
 normer
@@ -269,7 +258,6 @@ pkgmgr
 pkindex
 PMS
 positionals
-powershellexplained
 powertoys
 pri
 processthreads
@@ -290,6 +278,7 @@ rebootinitiated
 rebootrequiredforinstall
 rebootrequiredtofinish
 redirector
+Redist
 regexes
 REGSAM
 restsource
@@ -335,6 +324,7 @@ SYD
 SYG
 sysrefcomp
 Tagit
+Templating
 temppath
 testexampleinstaller
 thiscouldbeapc
@@ -394,7 +384,6 @@ wsv
 wto
 wwinmain
 WZDNCRFJ
-xbox
 XPLATSTR
 xsi
 yamlcreateps
