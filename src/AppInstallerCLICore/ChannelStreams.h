@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionProgress.h"
 #include "Resources.h"
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
@@ -50,10 +49,7 @@ namespace AppInstaller::CLI::Execution
         template <typename T>
         BaseStream& operator<<(const T& t)
         {
-            if (m_enabled)
-            {
-                m_out << t;
-            }
+            Write<T>(t, false);
             return *this;
         }
 
@@ -61,16 +57,28 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void Close();
+
     private:
+        template <typename T>
+        void Write(const T& t, bool bypass)
+        {
+            if (bypass || m_enabled)
+            {
+                m_out << t;
+            }
+        };
+
         std::ostream& m_out;
-        bool m_enabled;
+        std::atomic_bool m_enabled;
+        std::atomic_bool m_VTUpdated;
         bool m_VTEnabled;
     };
 
     // Holds output formatting information.
     struct OutputStream
     {
-        OutputStream(std::ostream& out, bool enabled, bool VTEnabled);
+        OutputStream(BaseStream& out, bool enabled, bool VTEnabled);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);
@@ -92,7 +100,10 @@ namespace AppInstaller::CLI::Execution
             //      informs the output that there is no localized version to use.
             // TODO: Convert the rest of the code base and uncomment to enforce localization.
             //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
-            ApplyFormat();
+            if (m_VTEnabled)
+            {
+                ApplyFormat();
+            }
             m_out << t;
             return *this;
         }
@@ -106,28 +117,10 @@ namespace AppInstaller::CLI::Execution
         // Applies the format for the stream.
         void ApplyFormat();
 
-        BaseStream m_out;
+        BaseStream& m_out;
+        bool m_enabled;
+        bool m_VTEnabled;
         size_t m_applyFormatAtOne = 1;
         VirtualTerminal::ConstructedSequence m_format;
-    };
-
-    // Does not allow VT at all.
-    struct NoVTStream
-    {
-        NoVTStream(std::ostream& out, bool enabled);
-
-        template <typename T>
-        NoVTStream& operator<<(const T& t)
-        {
-            m_out << t;
-            return *this;
-        }
-
-        NoVTStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        NoVTStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
-        NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
-
-    private:
-        BaseStream m_out;
     };
 }
