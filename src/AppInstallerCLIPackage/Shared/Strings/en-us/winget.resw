@@ -167,7 +167,7 @@
     <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Show no more than specified number of results</value>
+    <value>Show no more than specified number of results (between 1 and 1000)</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done</value>
@@ -1189,5 +1189,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions in import file</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>The requested number of results must be between 1 and 1000.</value>
   </data>
 </root>
