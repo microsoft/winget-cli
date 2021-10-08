@@ -637,7 +637,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Tilkynningar þriðju aðila</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>Winget-skipanalínubúnaðurinn gerir það kleift að setja upp forrit of aðra pakka úr skipanalínunni.</value>
+    <value>Winget-skipanalínubúnaðurinn gerir það kleift að setja upp forrit og aðra pakka frá skipanalínunni.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Sýna almennar upplýsingar um verkfærið</value>
