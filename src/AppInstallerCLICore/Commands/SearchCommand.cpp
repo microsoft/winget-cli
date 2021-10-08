@@ -66,25 +66,6 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-search";
     }
 
-    void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const
-    {
-        if (execArgs.Contains(Execution::Args::Type::Count))
-        {
-            try
-            {
-                int countRequested = std::stoi(std::string(execArgs.GetArg(Execution::Args::Type::Count)));
-                if (countRequested < 1 || countRequested > 1000)
-                {
-                    throw CommandException(Resource::String::CountOutOfBoundsError);
-                }
-            }
-            catch (const std::out_of_range&)
-            {
-                throw CommandException(Resource::String::CountOutOfBoundsError);
-            }
-        }
-    }
-
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
