@@ -325,7 +325,8 @@ namespace AppInstaller::CLI::Workflow
                     std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
                     std::move(searchContext.Get<Execution::Data::Manifest>()),
                     std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope);
+                    packageRequest.Scope,
+                    subExecution.GetCurrentSubExecutionId());
             }
         }
 

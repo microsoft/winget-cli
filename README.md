@@ -2,7 +2,7 @@
 
 This repository contains the source code for the Windows Package Manager Client (aka winget.exe).
 
-![winget install Microsoft.WindowsTerminal](.github/images/WingetInstallTerminal.gif)
+![winget install wingetcreate](.github/images/WingetInstall.gif)
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
@@ -14,7 +14,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
@@ -82,7 +82,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
-   * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
+   * Or use winget to install it ;)
 * The following workloads:
    * .NET Desktop Development
    * Desktop Development with C++
@@ -90,6 +90,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * The following extensions:
    * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects)
 
+(Upon opening the repo in Visual Studio, it will prompt you to install any missing workloads and features.)
 ### Building
 
 We currently only build using the solution; command line methods of building a VS solution should work as well.

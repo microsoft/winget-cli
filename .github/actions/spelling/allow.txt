@@ -482,6 +482,7 @@ stringstream
 strstr
 strtoll
 subcontext
+subheader
 SUBLANG
 subresource
 subselect
