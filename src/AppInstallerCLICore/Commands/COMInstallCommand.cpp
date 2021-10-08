@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
     void COMDownloadCommand::ExecuteInternal(Context& context) const
     {
-        // TODO: Remove duplication with InstallFlow
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<

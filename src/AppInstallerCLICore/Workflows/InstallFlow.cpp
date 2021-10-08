@@ -427,7 +427,6 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
             installContext.Add<Execution::Data::Installer>(package.Installer);
 
-            // TODO: We could move 
             installContext <<
                 Workflow::ReportIdentityAndInstallationDisclaimer <<
                 Workflow::DownloadInstaller <<
