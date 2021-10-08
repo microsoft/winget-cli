@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "COMInstallCommand.h"
-#include "Workflows/DependenciesFlow.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
@@ -21,18 +21,15 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
-            Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller;
+            Workflow::DownloadSinglePackage;
     }
 
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
+            Workflow::GetInstallerHash <<
+            Workflow::VerifyInstallerHash <<
             Workflow::InstallPackageInstaller;
     }
 }

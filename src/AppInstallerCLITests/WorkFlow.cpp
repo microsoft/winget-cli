@@ -10,6 +10,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/ImportExportFlow.h>
+#include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
 #include <Workflows/UninstallFlow.h>
@@ -407,10 +408,6 @@ void OverrideForShellExecute(TestContext& context)
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     } });
 
-    context.Override({ RenameDownloadedInstaller, [](TestContext&)
-    {
-    } });
-
     OverrideForUpdateInstallerMotw(context);
 }
 
@@ -421,10 +418,6 @@ void OverrideForDirectMsi(TestContext& context)
         context.Add<Data::HashPair>({ {}, {} });
         // We don't have an msi installer for tests, but we won't execute it anyway
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-    } });
-
-    context.Override({ RenameDownloadedInstaller, [](TestContext&)
-    {
     } });
 
     OverrideForUpdateInstallerMotw(context);

@@ -286,7 +286,6 @@ namespace AppInstaller::Utility
             return;
         }
 
-        THROW_IF_FAILED(hr);
         THROW_IF_FAILED(zoneIdentifier->Remove());
         THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
 
