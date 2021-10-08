@@ -167,7 +167,7 @@
     <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Show no more than specified number of results (between 1 and 1000).</value>
+    <value>Show no more than specified number of results (between 1 and 1000)</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done</value>
