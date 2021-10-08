@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
@@ -56,8 +57,8 @@ std::string GetContents(const fs::path& file)
 
 void CleanSources()
 {
-    RemoveSetting(Streams::UserSources);
-    RemoveSetting(Streams::SourcesMetadata);
+    RemoveSetting(Stream::UserSources);
+    RemoveSetting(Stream::SourcesMetadata);
     fs::remove_all(GetPathToFileDir());
 }
 

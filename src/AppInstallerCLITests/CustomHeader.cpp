@@ -50,6 +50,7 @@ namespace
                 if (!headers.has(customHeader.first) ||
                     (utility::conversions::to_utf8string(customHeader.second).compare(utility::conversions::to_utf8string(headers[customHeader.first]))) != 0)
                 {
+                    response.set_body(utf16string{ L"Bad Request" });
                     response.set_status_code(web::http::status_codes::BadRequest);
                     return pplx::task_from_result(response);
                 }
@@ -86,7 +87,7 @@ TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";
@@ -110,7 +111,7 @@ TEST_CASE("AddSource_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";
@@ -137,7 +138,7 @@ TEST_CASE("CreateSource_CustomHeader", "[RestSource][CustomHeader]")
 
 TEST_CASE("CreateSource_CustomHeaderNotApplicable", "[RestSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, s_EmptySources);
+    SetSetting(Stream::UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string customHeader = "Testing custom header with open source";

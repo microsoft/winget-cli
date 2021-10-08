@@ -423,7 +423,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Extract the data needed for installing
             installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+            installContext.Add<Execution::Data::Manifest>(package.Manifest);
             installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
             installContext.Add<Execution::Data::Installer>(package.Installer);
 
