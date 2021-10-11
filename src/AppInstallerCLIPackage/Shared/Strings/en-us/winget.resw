@@ -951,7 +951,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
     <value>No package version found</value>
-    <comment>When no suitagle version found for the specific package.</comment>
+    <comment>When no suitable version found for the specific package.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
     <value>No installers found</value>
