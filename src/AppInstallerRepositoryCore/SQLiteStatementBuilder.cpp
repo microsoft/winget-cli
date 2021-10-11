@@ -267,8 +267,8 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::Select(details::rowcount_t)
     {
-        m_stream << "SELECT COUNT(*)";
-        return *this;
+m_stream << "SELECT COUNT(*)";
+return *this;
     }
 
     StatementBuilder& StatementBuilder::From()
@@ -360,6 +360,19 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::In()
     {
         m_stream << " IN";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::In(size_t count)
+    {
+        m_stream << " IN (";
+        for (size_t i = 0; i < count; ++i)
+        {
+            m_stream << (i == 0 ? "?" : ", ?");
+        }
+        m_stream << ')';
+
+        m_bindIndex += static_cast<int>(count);
         return *this;
     }
 

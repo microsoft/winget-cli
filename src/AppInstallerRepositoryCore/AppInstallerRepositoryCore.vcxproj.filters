@@ -213,9 +213,6 @@
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClInclude>
-    <ClInclude Include="DependenciesTable.h">
-      <Filter>Microsoft\Schema\1_3</Filter>
-    </ClInclude>
     <ClInclude Include="SourceList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -242,6 +239,9 @@
     </ClInclude>
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h">
       <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_3\DependenciesTable.h">
+      <Filter>Microsoft\Schema\1_3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -376,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp">
       <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_3\DependenciesTable.cpp">
+      <Filter>Microsoft\Schema\1_3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

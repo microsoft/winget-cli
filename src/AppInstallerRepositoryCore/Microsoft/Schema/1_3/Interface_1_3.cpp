@@ -13,17 +13,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
-    std::vector<AppInstaller::Manifest::string_t, std::allocator<AppInstaller::Manifest::string_t>> GetDependencies(const Manifest::Manifest& manifest)
-    {
-        std::vector<AppInstaller::Manifest::string_t, std::allocator<AppInstaller::Manifest::string_t>> manifestDependencies;
-
-        manifest.DefaultInstallerInfo.Dependencies.ApplyToAll([&](AppInstaller::Manifest::Dependency dependency)
-            {
-                manifestDependencies.push_back(dependency.Id);
-            });
-        return manifestDependencies;
-    }
-
     Interface::Interface(Utility::NormalizationVersion normVersion) : V1_2::Interface(normVersion)
     {
     }
@@ -59,7 +48,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
         }
 
-        DependenciesTable::EnsureExistsAndInsert(connection, GetDependencies(manifest), manifestId);
+        DependenciesTable::AddDependencies(connection, manifest, manifestId);
 
         savepoint.Commit();
 
@@ -87,9 +76,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             }
         }
 
+        indexModified = indexModified || DependenciesTable::UpdateDependencies(connection, manifest, manifestId);
+
         savepoint.Commit();
 
         return { indexModified, manifestId };
+    }
+
+    SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_3");
+
+        SQLite::rowid_t manifestId = V1_1::Interface::RemoveManifest(connection, manifest, relativePath);
+
+        DependenciesTable::RemoveDependencies(connection, manifestId);
+
+        savepoint.Commit();
+
+        return manifestId;
     }
 
     std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const

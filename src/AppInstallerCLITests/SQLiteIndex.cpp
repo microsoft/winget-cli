@@ -70,20 +70,34 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
     return index.GetVersion();
 }
 
-SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath, std::optional<Schema::Version> version = {})
+std::string GetPathFromManfiest(Manifest& manifest)
 {
-    SQLiteIndex index = CreateTestIndex(filePath, version);
+    auto publisher = manifest.Id;
+    AppInstaller::Utility::FindAndReplace(publisher, ".", "/");
+    
+    return AppInstaller::Utility::ToLower(publisher).append("/").append(manifest.Version);
+}
 
+void CreateFakeManifest(Manifest& manifest, string_t publisher)
+{
     manifest.Installers.push_back({});
-    manifest.Id = "Test.Id";
-    manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest.Id = publisher.append(".").append("Id");
+    manifest.DefaultLocalization.Add<Localization::PackageName>(publisher.append(" Name"));
     manifest.Moniker = "testmoniker";
     manifest.Version = "1.0.0";
     manifest.Channel = "test";
     manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
     manifest.Installers[0].Commands = { "test1", "test2" };
+}
 
-    relativePath = "test/id/1.0.0.yaml";
+SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::optional<Schema::Version> version = {})
+{
+    SQLiteIndex index = CreateTestIndex(filePath, version);
+
+    string_t publisher = "Test";
+    CreateFakeManifest(manifest, publisher);
+
+    auto relativePath = GetPathFromManfiest(manifest);
 
     index.AddManifest(manifest, relativePath);
 
@@ -320,9 +334,9 @@ TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
+    std::string relativePath = "test/id/1.0.0.yaml";
 
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, Schema::Version::Latest());
 }
 
 TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
@@ -344,9 +358,9 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
 
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
+    auto relativePath = GetPathFromManfiest(manifest);
 
     // Attempting to add the same manifest at a different path should fail.
     REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yaml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
@@ -358,6 +372,27 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     // Attempting to add a different manifest at the same path should fail.
     manifest.Id += "-new";
     REQUIRE_THROWS_HR(index.AddManifest(manifest, relativePath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+}
+
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_3]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    std::string relativePath = "test/id/1.0.0.yaml";
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManfiest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
+
+    index.AddManifest(manifest, GetPathFromManfiest(manifest));
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
@@ -442,6 +477,29 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    std::string relativePath = "test/id/1.0.0.yaml";
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManfiest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id));
+
+    index.AddManifest(manifest, GetPathFromManfiest(manifest));
+
+    index.RemoveManifest(manifest, GetPathFromManfiest(manifest));
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
@@ -633,6 +691,36 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
+TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_3]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest, updateManifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManfiest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    const std::string dependencyPath3 = "test3/id/1.0.0.yaml";
+
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
+
+    index.AddManifest(manifest, dependencyPath3);
+
+    auto& publisher4 = "Test4";
+    CreateFakeManifest(updateManifest, publisher4);
+    const std::string dependencyPath4 = "test4/id/1.0.0.yaml";
+    index.AddManifest(updateManifest, dependencyPath4);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, updateManifest.Id, "1.0.0"));
+
+    REQUIRE(index.UpdateManifest(manifest, dependencyPath3));
 }
 
 TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
@@ -969,8 +1057,8 @@ TEST_CASE("SQLiteIndex_Search_IdExactMatch", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    std::string relativePath = "test/id/1.0.0.yaml";
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     TestPrepareForRead(index);
 
@@ -990,8 +1078,8 @@ TEST_CASE("SQLiteIndex_Search_MultipleMatch", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    std::string relativePath = "test/id/1.0.0.yaml";
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     manifest.Version = "2.0.0";
     index.AddManifest(manifest, relativePath + "2");
@@ -1014,8 +1102,7 @@ TEST_CASE("SQLiteIndex_Search_NoMatch", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     TestPrepareForRead(index);
 
@@ -1032,8 +1119,7 @@ TEST_CASE("SQLiteIndex_IdString", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     TestPrepareForRead(index);
 
@@ -1053,8 +1139,7 @@ TEST_CASE("SQLiteIndex_NameString", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     TestPrepareForRead(index);
 
@@ -1074,8 +1159,8 @@ TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
+    auto relativePath = GetPathFromManfiest(manifest);
 
     TestPrepareForRead(index);
 
@@ -1098,8 +1183,8 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
-    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+    std::string relativePath = "test/id/1.0.0.yaml";
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
 
     TestPrepareForRead(index);
 
@@ -1254,9 +1339,8 @@ TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest manifest;
-    std::string relativePath;
     {
-        (void)SimpleTestSetup(tempFile, manifest, relativePath, Schema::Version{ 1, 0 });
+        (void)SimpleTestSetup(tempFile, manifest, Schema::Version{ 1, 0 });
     }
 
     Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);

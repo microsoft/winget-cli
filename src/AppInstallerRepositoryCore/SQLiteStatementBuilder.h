@@ -246,6 +246,9 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         StatementBuilder& Not();
         StatementBuilder& In();
+        
+        //Appends a set of value binders for the In clause.
+        StatementBuilder& In(size_t count);
 
         // IsNull(true) means the value is null; IsNull(false) means the value is not null.
         StatementBuilder& IsNull(bool isNull = true);
