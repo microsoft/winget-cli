@@ -10,21 +10,24 @@
 #include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
+#include <winget/PackageTrackingCatalog.h>
 
 #include <AppInstallerDeployment.h>
 #include <AppInstallerMsixInfo.h>
 
+using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Foundation::Collections;
+using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
+
+
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
-    using namespace winrt::Windows::Foundation;
-    using namespace winrt::Windows::Foundation::Collections;
-    using namespace winrt::Windows::Management::Deployment;
-    using namespace AppInstaller::Utility;
-    using namespace AppInstaller::Manifest;
-    using namespace AppInstaller::Repository;
-    using namespace AppInstaller::Settings;
-
     namespace
     {
         bool MightWriteToARP(InstallerTypeEnum type)
@@ -610,15 +613,16 @@ namespace AppInstaller::CLI::Workflow
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
-            Workflow::SnapshotARPEntries <<
-            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-            Workflow::ExecuteInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-            Workflow::ReportARPChanges <<
-            Workflow::RemoveInstaller;
+            ReportExecutionStage(ExecutionStage::Download) <<
+            DownloadInstaller <<
+            ReportExecutionStage(ExecutionStage::PreExecution) <<
+            SnapshotARPEntries <<
+            ReportExecutionStage(ExecutionStage::Execution) <<
+            ExecuteInstaller <<
+            ReportExecutionStage(ExecutionStage::PostExecution) <<
+            ReportARPChanges <<
+            RecordInstall <<
+            RemoveInstaller;
     }
 
     void InstallSinglePackage(Execution::Context& context)
@@ -910,5 +914,23 @@ namespace AppInstaller::CLI::Workflow
             );
         }
     }
-    CATCH_LOG()
+    CATCH_LOG();
+
+    void RecordInstall(Context& context)
+    {
+        // Local manifest installs won't have a package version, and tracking them doesn't provide much
+        // value currently. If we ever do use our own database as a primary source of packages that we
+        // maintain, this decision will probably have to be reconsidered.
+        if (!context.Contains(Data::PackageVersion))
+        {
+            return;
+        }
+
+        auto trackingCatalog = PackageTrackingCatalog::CreateForSource(context.Get<Data::PackageVersion>()->GetSource());
+
+        trackingCatalog.RecordInstall(
+            context.Get<Data::Manifest>(),
+            context.Get<Data::Installer>().value(),
+            WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+    }
 }

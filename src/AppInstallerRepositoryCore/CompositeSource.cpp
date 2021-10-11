@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CompositeSource.h"
+#include "winget/PackageTrackingCatalog.h"
 
 namespace AppInstaller::Repository
 {
@@ -470,7 +471,6 @@ namespace AppInstaller::Repository
                 auto compositePackage = std::make_shared<CompositePackage>(std::move(match.Package));
 
                 // Create a search request to run against all available sources
-                // TODO: Determine if we should create a single search or one for each installed package.
                 SearchRequest systemReferenceSearch;
 
                 auto installedVersion = compositePackage->GetInstalledVersion();

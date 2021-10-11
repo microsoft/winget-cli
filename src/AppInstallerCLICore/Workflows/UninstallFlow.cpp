@@ -7,13 +7,58 @@
 #include "AppInstallerMsixInfo.h"
 
 #include <AppInstallerDeployment.h>
+#include <winget/PackageTrackingCatalog.h>
 
+using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Msix;
 using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
+    namespace
+    {
+        // Helper for RecordUninstall
+        struct UninstallCorrelatedSources
+        {
+            struct Item
+            {
+                Utility::LocIndString Identifier;
+                std::shared_ptr<const ISource> Source;
+                std::string SourceIdentifier;
+            };
+
+            void AddIfRemoteAndNotPresent(const std::shared_ptr<IPackageVersion>& packageVersion)
+            {
+                auto source = packageVersion->GetSource();
+                const auto& details = source->GetDetails();
+                if (!IsSourceRemote(details))
+                {
+                    return;
+                }
+
+                for (const auto& item : Items)
+                {
+                    if (item.SourceIdentifier == details.Identifier)
+                    {
+                        return;
+                    }
+                }
+
+                Items.emplace_back(Item{ packageVersion->GetProperty(PackageVersionProperty::Id), std::move(source), details.Identifier });
+            }
+
+            std::vector<Item> Items;
+
+        private:
+            bool IsSourceRemote(const SourceDetails& details)
+            {
+                auto origin = details.Origin;
+                return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
+            }
+        };
+    }
+
     void GetUninstallInfo(Execution::Context& context)
     {
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -123,5 +168,28 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
+    }
+
+    void RecordUninstall(Context& context)
+    {
+        // In order to report an uninstall to every correlated tracking catalog, we first need to find them all.
+        auto package = context.Get<Data::Package>();
+        UninstallCorrelatedSources correlatedSources;
+
+        // Start with the installed version
+        correlatedSources.AddIfRemoteAndNotPresent(package->GetInstalledVersion());
+
+        // Then look through all available versions
+        for (const auto& versionKey : package->GetAvailableVersionKeys())
+        {
+            correlatedSources.AddIfRemoteAndNotPresent(package->GetAvailableVersion(versionKey));
+        }
+
+        // Finally record the uninstall for each found value
+        for (const auto& item : correlatedSources.Items)
+        {
+            auto trackingCatalog = PackageTrackingCatalog::CreateForSource(item.Source);
+            trackingCatalog.RecordUninstall(item.Identifier);
+        }
     }
 }
