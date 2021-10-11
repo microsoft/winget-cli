@@ -467,6 +467,10 @@ void OverrideForExeUninstall(TestContext& context)
 
 void OverrideForMSIX(TestContext& context)
 {
+    context.Override({ CheckForExistingInstaller, [](TestContext&)
+    {
+    } });
+
     context.Override({ MsixInstall, [](TestContext& context)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
