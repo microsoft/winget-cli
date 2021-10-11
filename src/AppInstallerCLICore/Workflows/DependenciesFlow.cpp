@@ -50,7 +50,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (dependencies.HasAnyOf(DependencyType::External))
             {
-                info << "  - " << Resource::String::ExternalDependencies << std::endl;
+                context.Reporter.Warn() << "  - " << Resource::String::ExternalDependencies << std::endl;
                 dependencies.ApplyToType(DependencyType::External, [&info](Dependency dependency) {info << "      " << dependency.Id << std::endl; });
             }
         }
@@ -255,13 +255,8 @@ namespace AppInstaller::CLI::Workflow
         
         if (foundError)
         {
-            // ask PM what to do here.
-            bool continueExec = context.Reporter.PromptForBoolResponse(Resource::String::DependenciesManagementError);
-            if (!continueExec)
-            {
-                error << Resource::String::DependenciesManagementExitMessage << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
-            }
+            error << Resource::String::DependenciesManagementExitMessage << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
         }
 
         // Install dependencies in the correct order

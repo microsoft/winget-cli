@@ -348,7 +348,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallImportedPackages(Execution::Context& context)
     {
-        context << Workflow::InstallMultiplePackages(Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+        context << Workflow::InstallMultiplePackages(
+            Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
 
         if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
         {
