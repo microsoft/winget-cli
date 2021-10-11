@@ -8,8 +8,6 @@
 
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
 
-#include "Microsoft/Schema/1_3/DependenciesTable.h"
-
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
@@ -41,8 +39,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
         V1_0::ManifestTable::AddColumn(connection, { HashVirtualTable::ValueName(), HashVirtualTable::SQLiteType() });
 
-        DependenciesTable::Create(connection);
-
         savepoint.Commit();
     }
 
@@ -58,8 +54,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             THROW_HR_IF(E_INVALIDARG, manifest.StreamSha256.size() != Utility::SHA256::HashBufferSizeInBytes);
             V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
         }
-
-        DependenciesTable::EnsureExistsAndInsert(connection, GetDependencies(manifest), manifestId);
 
         savepoint.Commit();
 
