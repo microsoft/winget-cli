@@ -17,7 +17,7 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query", 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles };
+            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
         case Args::Type::Id:
             return Argument{ "id", NoAlias, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
@@ -78,10 +78,12 @@ namespace AppInstaller::CLI
             return Argument{ "retro", NoAlias, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
             return Argument{ "verbose-logs", NoAlias, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
-        case Args::Type::ExperimentalArg:
-            return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         case Args::Type::CustomHeader:
             return Argument{ "header", NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+        case Args::Type::AcceptSourceAgreements:
+            return Argument{ "accept-source-agreements", NoAlias, Args::Type::AcceptSourceAgreements, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::ExperimentalArg:
+            return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         default:
             THROW_HR(E_UNEXPECTED);
         }

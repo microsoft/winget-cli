@@ -141,6 +141,9 @@
     <value>以下是可用的子命令:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>有可用的升級。</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>使用指定的頻道; 預設為一般觀眾</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>游標在命令列內的位置</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>預覽</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>隱私權聲明</value>
   </data>
@@ -466,10 +466,10 @@
     <value>驗證設定時發現下列失誤：</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings</value>
+    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings 此命令透過提供‘啟用’或‘停用’引數，可用於設定系統管理員設定。</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>開啟設定</value>
+    <value>開啟設定或設定系統管理員設定</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>載入設定時發生意外的錯誤。請執行 [設定] 命令以驗證您的設定。</value>
@@ -544,6 +544,10 @@
     <value>名稱</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>識別碼</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>找不到具有此名稱的來源：</value>
   </data>
@@ -570,7 +574,7 @@
     <value>來源的名稱</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>無法開啟來源；如果此問題持續發生，請嘗試使用 [source reset] 命令。</value>
+    <value>無法開啟來源；如果此問題持續發生，請嘗試使用‘source reset’命令。</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>提供給 '%1' 引數的值無效</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>在此匯入中找到的套件具有下列相依性：</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>此套件需要下列相依性：</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>套件</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>此套件具有可能不再需要的相依性：</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>資訊清單具有下列未驗證的相依性;請確認它們有效：</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows 功能</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows 媒體櫃</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows 市集條款</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>接受套件的所有授權合約</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>匯出的套件需要授權合約才能安裝：</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>發行者要求您檢視上述資訊並接受合約，然後再安裝。
+是否同意這些條款？</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>未同意套件合約。作業已取消。</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>合約：</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>作者:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>描述：</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>安裝程式:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>地區設定:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store 產品識別碼：</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>類型:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>下載 URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>授權:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>授權 URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>綽號:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>首頁：</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>發行者:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>版本:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>無法開啟新增的來源。</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>在來源作業期間接受所有來源合約</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1' 來源要求您必須先檢視下列合約，再使用。</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>是否同意所有來源合約條款？</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>一或多個來源合約未同意。作業已取消。請接受來源合約或移除對應的來源。</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>來源要求目前的電腦地理區域必須傳送才能正常運作。</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>已成功安裝。重新開機應用程式以完成升級。</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>選用的 Windows-Package-Manager REST 來源 HTTP 標頭</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>略過選用標頭，因為它不適用於此來源。</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>選擇性標頭不適用於未指定來源</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>發行日期:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>發行者 URL：</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>發行者支援 URL：</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>隱私權 Url：</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>著作權:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>著作權 Url：</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>版本資訊：</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>版本資訊 Url：</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>搜尋來源時失敗; 將不會包含結果:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>搜尋來源時失敗：</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>系統管理員必須啟用此功能。若要啟用此功能，請以系統管理員的身分執行‘winget settings --enable %1’。</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>啟用特定系統管理員設定</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>停用特定系統管理員設定</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>提供過多的系統管理員設定引數</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>已啟用系統管理員設定。</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>已停用系統管理員設定。</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>應用程式目前正在執行。結束應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>另一個安裝已在進行中。請稍後再試。</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>一或多個檔案正在使用中。結束應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>您的系統遺漏此套件的相依性。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>您的電腦上已經沒有空間。請釋出空間，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>記憶體不足，無法安裝。請關閉其他應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>此應用程式需要網際網路連線。請連線到網路，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>此應用程式在安裝期間發生錯誤。連絡客戶支援。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>重新啟動您的電腦以完成安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>將重新開機您的電腦以完成安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>安裝失敗。請重新開機您的電腦，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>您取消了安裝。</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>已安裝此應用程式的另一個版本。</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>已安裝此應用程式的較新版本。</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>組織原則導致無法安裝。請連絡您的系統管理員。</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>已放棄安裝</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>安裝程式失敗，結束代碼為:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>安裝程式記錄檔可在下列位置使用:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>在工作來源中找到下列套件。
+請使用 '--source' 選項指定其中一個以繼續。</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>在工作來源中找不到任何套件。</value>
   </data>
 </root>

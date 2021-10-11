@@ -27,9 +27,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    struct ShowLicenseAgreements : public WorkflowTask
+    struct ShowPackageAgreements : public WorkflowTask
     {
-        ShowLicenseAgreements(bool ensureAcceptance) : WorkflowTask("ShowLicenseAgreements"), m_ensureAcceptance(ensureAcceptance) {}
+        ShowPackageAgreements(bool ensureAcceptance) : WorkflowTask("ShowPackageAgreements"), m_ensureAcceptance(ensureAcceptance) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -42,9 +42,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct EnsureLicenseAcceptance : public WorkflowTask
+    struct EnsurePackageAgreementsAcceptance : public WorkflowTask
     {
-        EnsureLicenseAcceptance(bool showPrompt) : WorkflowTask("EnsureLicenseAcceptance"), m_showPrompt(showPrompt) {}
+        EnsurePackageAgreementsAcceptance(bool showPrompt) : WorkflowTask("EnsurePackageAgreementsAcceptance"), m_showPrompt(showPrompt) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: PackagesToInstall
     // Outputs: None
-    void EnsureLicenseAcceptanceForMultipleInstallers(Execution::Context& context);
+    void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context);
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
@@ -113,6 +113,27 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest?, Installer || InstallerPath
     // Outputs: None
     void MsixInstall(Execution::Context& context);
+
+    // Reports the return code returned by the installer.
+    // Required Args: None
+    // Inputs: Manifest, Installer, InstallerResult
+    // Outputs: None
+    struct ReportInstallerResult : public WorkflowTask
+    {
+        ReportInstallerResult(std::string_view installerType, HRESULT hr, bool isHResult = false) :
+            WorkflowTask("ReportInstallerResult"), m_installerType(installerType), m_hr(hr), m_isHResult(isHResult) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        // Installer type used when reporting failures.
+        std::string_view m_installerType;
+        // Result to return if the installer failed.
+        HRESULT m_hr;
+        // Whether the installer result is an HRESULT. This guides how we show it.
+        bool m_isHResult;
+    };
+
 
     // Deletes the installer file.
     // Required Args: None

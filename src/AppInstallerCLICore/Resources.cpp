@@ -5,7 +5,6 @@
 
 using namespace AppInstaller::Utility::literals;
 
-
 namespace AppInstaller::CLI::Resource
 {
     LocString::LocString(StringId id) : Utility::LocIndString(Loader::Instance().ResolveString(id)) {}
@@ -16,9 +15,25 @@ namespace AppInstaller::CLI::Resource
         return instance;
     }
 
-    Loader::Loader()
+    Loader::Loader() : m_wingetLoader(nullptr)
     {
-        m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
+        try
+        {
+            // The default constructor of ResourceLoader throws a winrt::hresult_error exception
+            // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
+            // a winrt::hresult_error but for reasons unknown it only gets catch when running on the
+            // debugger. Running without a debugger will result in a crash that not even adding a
+            // catch all fix. To provide a good error message we call the default constructor
+            // before calling GetForViewIndependentUse.
+            m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
+            m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            // This message cannot be localized.
+            AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
+            throw ResourceOpenException(hre);
+        }
     }
 
     std::string Loader::ResolveString(
@@ -35,5 +50,10 @@ namespace AppInstaller::CLI::Resource
         }
 
         THROW_HR(E_UNEXPECTED);
+    }
+
+    ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
+    {
+        m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
     }
 }

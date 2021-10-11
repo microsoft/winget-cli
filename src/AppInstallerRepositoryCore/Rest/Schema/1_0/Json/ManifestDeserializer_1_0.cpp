@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/HttpClientHelper.h"
+#include "Rest/Schema/HttpClientHelper.h"
 #include "ManifestDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
-#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+#include "Rest/Schema/CommonRestConstants.h"
 
 using namespace AppInstaller::Manifest;
 
@@ -83,15 +83,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view Capabilities = "Capabilities"sv;
         constexpr std::string_view RestrictedCapabilities = "RestrictedCapabilities"sv;
 
-        std::vector<Manifest::string_t> ConvertToManifestStringArray(const std::vector<std::string>& values)
+        void TryParseInstallerSwitchField(
+            std::map<InstallerSwitchType, Utility::NormalizedString>& installerSwitches,
+            InstallerSwitchType switchType,
+            const web::json::value& switchesJsonObject,
+            std::string_view switchJsonFieldName)
         {
-            std::vector<Manifest::string_t> result;
-            for (const auto& value : values)
-            {
-                result.emplace_back(value);
-            }
+            auto value = JsonHelper::GetRawStringValueFromJsonNode(switchesJsonObject, JsonHelper::GetUtilityString(switchJsonFieldName));
 
-            return result;
+            if (JsonHelper::IsValidNonEmptyStringValue(value))
+            {
+                installerSwitches[switchType] = value.value();
+            }
         }
     }
 
@@ -172,6 +175,15 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                         AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
                         return {};
                     }
+
+                    if (!defaultLocaleObject.value().Contains(Manifest::Localization::PackageName) ||
+                        !defaultLocaleObject.value().Contains(Manifest::Localization::Publisher) ||
+                        !defaultLocaleObject.value().Contains(Manifest::Localization::ShortDescription))
+                    {
+                        AICLI_LOG(Repo, Error, << "Missing PackageName, Publisher or ShortDescription in default locale: " << manifest.Id);
+                        return {};
+                    }
+
                     manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
 
                     // Moniker is in Default locale
@@ -248,41 +260,25 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
         locale.Locale = std::move(packageLocale.value());
 
-        std::optional<std::string> packageName = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PackageName));
-        if (!JsonHelper::IsValidNonEmptyStringValue(packageName))
-        {
-            AICLI_LOG(Repo, Error, << "Missing package name.");
-            return {};
-        }
-        locale.Add<AppInstaller::Manifest::Localization::PackageName>(std::move(packageName.value()));
+        TryParseStringLocaleField<Manifest::Localization::PackageName>(locale, localeJsonObject, PackageName);
+        TryParseStringLocaleField<Manifest::Localization::Publisher>(locale, localeJsonObject, Publisher);
+        TryParseStringLocaleField<Manifest::Localization::ShortDescription>(locale, localeJsonObject, ShortDescription);
+        TryParseStringLocaleField<Manifest::Localization::PublisherUrl>(locale, localeJsonObject, PublisherUrl);
+        TryParseStringLocaleField<Manifest::Localization::PublisherSupportUrl>(locale, localeJsonObject, PublisherSupportUrl);
+        TryParseStringLocaleField<Manifest::Localization::PrivacyUrl>(locale, localeJsonObject, PrivacyUrl);
+        TryParseStringLocaleField<Manifest::Localization::Author>(locale, localeJsonObject, Author);
+        TryParseStringLocaleField<Manifest::Localization::PackageUrl>(locale, localeJsonObject, PackageUrl);
+        TryParseStringLocaleField<Manifest::Localization::License>(locale, localeJsonObject, License);
+        TryParseStringLocaleField<Manifest::Localization::LicenseUrl>(locale, localeJsonObject, LicenseUrl);
+        TryParseStringLocaleField<Manifest::Localization::Copyright>(locale, localeJsonObject, Copyright);
+        TryParseStringLocaleField<Manifest::Localization::CopyrightUrl>(locale, localeJsonObject, CopyrightUrl);
+        TryParseStringLocaleField<Manifest::Localization::Description>(locale, localeJsonObject, Description);
 
-        std::optional<std::string> publisher = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Publisher));
-        if (!JsonHelper::IsValidNonEmptyStringValue(publisher))
+        auto tags = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Tags)));
+        if (!tags.empty())
         {
-            AICLI_LOG(Repo, Error, << "Missing publisher.");
-            return {};
+            locale.Add<AppInstaller::Manifest::Localization::Tags>(tags);
         }
-        locale.Add<AppInstaller::Manifest::Localization::Publisher>(std::move(publisher.value()));
-
-        std::optional<std::string> shortDescription = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(ShortDescription));
-        if (!JsonHelper::IsValidNonEmptyStringValue(shortDescription))
-        {
-            AICLI_LOG(Repo, Error, << "Missing short description.");
-            return {};
-        }
-        locale.Add<AppInstaller::Manifest::Localization::ShortDescription>(std::move(shortDescription.value()));
-
-        locale.Add<AppInstaller::Manifest::Localization::PublisherUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PublisherUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::PublisherSupportUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PublisherSupportUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::PrivacyUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PrivacyUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::Author>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Author)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::PackageUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PackageUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::License>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(License)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::LicenseUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(LicenseUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::Copyright>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Copyright)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::CopyrightUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(CopyrightUrl)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::Description>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Description)).value_or(""));
-        locale.Add<AppInstaller::Manifest::Localization::Tags>(ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Tags))));
 
         return locale;
     }
@@ -295,21 +291,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         Manifest::ManifestInstaller installer;
-        std::optional<std::string> url = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerUrl));
-        if (!JsonHelper::IsValidNonEmptyStringValue(url))
-        {
-            AICLI_LOG(Repo, Error, << "Missing installer url.");
-            return {};
-        }
-        installer.Url = std::move(url.value());
+
+        installer.Url = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerUrl)).value_or("");
 
         std::optional<std::string> sha256 = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSha256));
-        if (!JsonHelper::IsValidNonEmptyStringValue(sha256))
+        if (JsonHelper::IsValidNonEmptyStringValue(sha256))
         {
-            AICLI_LOG(Repo, Error, << "Missing installer SHA256.");
-            return {};
+            installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
         }
-        installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
 
         std::optional<std::string> arch = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Architecture));
         if (!JsonHelper::IsValidNonEmptyStringValue(arch))
@@ -325,7 +314,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             AICLI_LOG(Repo, Error, << "Missing installer type.");
             return {};
         }
-        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(installerType.value());
+        installer.InstallerType = ConvertToInstallerType(installerType.value());
         installer.Locale = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
@@ -370,18 +359,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         // Installer Switches
+        installer.Switches = Manifest::GetDefaultKnownSwitches(installer.InstallerType);
         std::optional<std::reference_wrapper<const web::json::value>> switches =
             JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSwitches));
         if (switches)
         {
-            auto& installerSwitches = switches.value().get();
-            installer.Switches[InstallerSwitchType::Silent] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Silent)).value_or("");
-            installer.Switches[InstallerSwitchType::SilentWithProgress] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(SilentWithProgress)).value_or("");
-            installer.Switches[InstallerSwitchType::Interactive] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Interactive)).value_or("");
-            installer.Switches[InstallerSwitchType::InstallLocation] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(InstallLocation)).value_or("");
-            installer.Switches[InstallerSwitchType::Log] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Log)).value_or("");
-            installer.Switches[InstallerSwitchType::Update] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Upgrade)).value_or("");
-            installer.Switches[InstallerSwitchType::Custom] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Custom)).value_or("");
+            const auto& installerSwitches = switches.value().get();
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::Silent, installerSwitches, Silent);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::SilentWithProgress, installerSwitches, SilentWithProgress);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::Interactive, installerSwitches, Interactive);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::InstallLocation, installerSwitches, InstallLocation);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::Log, installerSwitches, Log);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::Update, installerSwitches, Upgrade);
+            TryParseInstallerSwitchField(installer.Switches, InstallerSwitchType::Custom, installerSwitches, Custom);
         }
 
         // Installer SuccessCodes
@@ -471,5 +461,56 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         return dependencyList;
+    }
+
+    Manifest::InstallerTypeEnum ManifestDeserializer::ConvertToInstallerType(std::string_view in) const
+    {
+        std::string inStrLower = Utility::ToLower(in);
+
+        if (inStrLower == "inno")
+        {
+            return InstallerTypeEnum::Inno;
+        }
+        else if (inStrLower == "wix")
+        {
+            return InstallerTypeEnum::Wix;
+        }
+        else if (inStrLower == "msi")
+        {
+            return InstallerTypeEnum::Msi;
+        }
+        else if (inStrLower == "nullsoft")
+        {
+            return InstallerTypeEnum::Nullsoft;
+        }
+        else if (inStrLower == "zip")
+        {
+            return InstallerTypeEnum::Zip;
+        }
+        else if (inStrLower == "appx" || inStrLower == "msix")
+        {
+            return InstallerTypeEnum::Msix;
+        }
+        else if (inStrLower == "exe")
+        {
+            return InstallerTypeEnum::Exe;
+        }
+        else if (inStrLower == "burn")
+        {
+            return InstallerTypeEnum::Burn;
+        }
+
+        return InstallerTypeEnum::Unknown;
+    }
+
+    std::vector<Manifest::string_t> ManifestDeserializer::ConvertToManifestStringArray(const std::vector<std::string>& values) const
+    {
+        std::vector<Manifest::string_t> result;
+        for (const auto& value : values)
+        {
+            result.emplace_back(value);
+        }
+
+        return result;
     }
 }

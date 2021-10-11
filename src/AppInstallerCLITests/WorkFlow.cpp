@@ -16,6 +16,7 @@
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
 #include <Workflows/ShowFlow.h>
+#include <Workflows/SourceFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/WorkflowBase.h>
 #include <Public/AppInstallerRepositorySource.h>
@@ -24,9 +25,11 @@
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/SettingsCommand.h>
 #include <Commands/SearchCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
+#include <Commands/SourceCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
@@ -115,6 +118,10 @@ namespace
             else if (!request.Inclusions.empty())
             {
                 input = request.Inclusions[0].Value;
+            }
+            else if (!request.Filters.empty())
+            {
+                input = request.Filters[0].Value;
             }
 
             // Empty query should return all exe, msix and msstore installer
@@ -285,10 +292,8 @@ namespace
     // Enables overriding the behavior of specific workflow tasks.
     struct TestContext : public Context
     {
-        TestContext(std::ostream& out, std::istream& in) : m_out(out), m_in(in), Context(out, in)
+        TestContext(std::ostream& out, std::istream& in) : TestContext(out, in, false, std::make_shared<std::vector<WorkflowTaskOverride>>())
         {
-            m_overrides = std::make_shared<std::vector<WorkflowTaskOverride>>();
-
             WorkflowTaskOverride wto
             { RemoveInstaller, [](TestContext&)
                 {
@@ -301,9 +306,25 @@ namespace
             Override(wto);
         }
 
-        // For clone
-        TestContext(std::ostream& out, std::istream& in, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
-            m_out(out), m_in(in), m_overrides(overrides), m_isClone(true), Context(out, in) {}
+        TestContext(std::ostream& out, std::istream& in, bool isClone, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
+            m_out(out), m_in(in), m_overrides(overrides), m_isClone(isClone), Context(out, in)
+        {
+            m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
+            {
+                auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
+
+                if (itr == m_overrides->end())
+                {
+                    return true;
+                }
+                else
+                {
+                    itr->Used = true;
+                    itr->Override(*this);
+                    return false;
+                }
+            };
+        }
 
         ~TestContext()
         {
@@ -319,22 +340,6 @@ namespace
             }
         }
 
-        bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task) override
-        {
-            auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
-
-            if (itr == m_overrides->end())
-            {
-                return true;
-            }
-            else
-            {
-                itr->Used = true;
-                itr->Override(*this);
-                return false;
-            }
-        }
-
         void Override(const WorkflowTaskOverride& wto)
         {
             m_overrides->emplace_back(wto);
@@ -342,7 +347,7 @@ namespace
 
         std::unique_ptr<Context> Clone() override
         {
-            auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
+            auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
             clone->SetFlags(this->GetFlags());
             return clone;
         }
@@ -433,6 +438,8 @@ void OverrideForDirectMsi(TestContext& context)
         std::ofstream file(temp, std::ofstream::out);
         file << context.Get<Execution::Data::InstallerArgs>();
         file.close();
+
+        context.Add<Execution::Data::InstallerReturnCode>(0);
     } });
 }
 
@@ -512,12 +519,29 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
         } });
     }
 
-    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
+    context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
+    {
+    } });
+}
+
+void OverrideForSourceAddWithAgreements(TestContext& context)
+{
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&)
     {
     } });
 
-    context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
+    context.Override({ AddSource, [](TestContext&)
     {
+    } });
+
+    context.Override({ OpenSourceForSourceAdd, [](TestContext& context)
+    {
+        auto testSource = std::make_shared<TestSource>();
+        testSource->Details.Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
+        testSource->Details.Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
+        testSource->Details.Information.RequiredPackageMatchFields.emplace_back("Market");
+        testSource->Details.Information.RequiredQueryParameters.emplace_back("Market");
+        context << Workflow::HandleSourceAgreements(testSource);
     } });
 }
 
@@ -566,6 +590,26 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/ExitCode 0x80070005") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Override, "/ExitCode 8"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify install failed with the right message
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallFlowReturnCodeContactSupport).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
@@ -899,7 +943,7 @@ TEST_CASE("InstallFlow_LicenseAgreement_Prompt", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify prompt was shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LicenseAgreementPrompt).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsPrompt).get()) != std::string::npos);
 
     // Verify agreements are shown
     REQUIRE(installOutput.str().find("Agreement with text") != std::string::npos);
@@ -933,9 +977,9 @@ TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find("https://TestAgreementUrl") != std::string::npos);
 
     // Verify installation failed
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LicenseNotAgreedTo).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsNotAgreedTo).get()) != std::string::npos);
 }
 
 TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
@@ -1321,9 +1365,9 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
     REQUIRE(updateOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Verify Installer is not called.
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::LicenseNotAgreedTo).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsNotAgreedTo).get()) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
@@ -1382,7 +1426,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     REQUIRE(updateOutput.str().find("This is the agreement for the MSIX") != std::string::npos);
 
     // Verify installers are not called.
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
@@ -1801,7 +1845,7 @@ TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
     REQUIRE(importOutput.str().find("This is the agreement for the EXE") != std::string::npos);
 
     // Command should have failed
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSE_NOT_ACCEPTED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
@@ -2037,9 +2081,90 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
 
+TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
+{
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, std::cin };
+    OverrideForSourceAddWithAgreements(context);
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+    context.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+}
+
+TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
+{
+    // Accept the agreements by saying "Yes" at the prompt
+    std::istringstream sourceAddInput{ "y" };
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, sourceAddInput };
+    OverrideForSourceAddWithAgreements(context);
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+}
+
+TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
+{
+    // Accept the agreements by saying "No" at the prompt
+    std::istringstream sourceAddInput{ "n" };
+    std::ostringstream sourceAddOutput;
+    TestContext context{ sourceAddOutput, sourceAddInput };
+    OverrideForSourceAddWithAgreements(context);
+    // This tests RemoveSource is called after agreement is not accepted. If they are not called, the test fails with unused override.
+    context.Override({ GetSourceListWithFilter, [](TestContext&)
+    {
+    } });
+    context.Override({ RemoveSources, [](TestContext&)
+    {
+    } });
+    context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
+
+    SourceAddCommand sourceAdd({});
+    sourceAdd.Execute(context);
+    INFO(sourceAddOutput.str());
+
+    // Verify agreements are shown
+    REQUIRE(sourceAddOutput.str().find("Agreement Label") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("Agreement Text") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
+    REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
+}
+
 TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 {
-    SetSetting(Streams::UserSources, R"(Sources:)"sv);
+    SetSetting(Stream::UserSources, R"(Sources:)"sv);
     TestHook_ClearSourceFactoryOverrides();
 
     SourceDetails details;
@@ -2068,4 +2193,45 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     OpenSource(context);
     auto source = context.Get<Execution::Data::Source>();
     REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
+}
+
+TEST_CASE("AdminSetting_LocalManifestFiles", "[LocalManifests][workflow]")
+{
+    RemoveSetting(Stream::AdminSettings);
+
+    // If there's no admin setting, using local manifest should fail.
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand({});
+    REQUIRE_THROWS(installCommand.ValidateArguments(args));
+
+    // Using settings command to enable local manifests
+    std::ostringstream settingsOutput;
+    TestContext context{ settingsOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&){} });
+    SettingsCommand settings({});
+    settings.Execute(context);
+    INFO(settingsOutput.str());
+
+    // Now using local manifests should succeed
+    Execution::Args args2;
+    args2.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand2({});
+    REQUIRE_NOTHROW(installCommand2.ValidateArguments(args2));
+
+    // Using settings command to disable local manifests
+    std::ostringstream settingsOutput2;
+    TestContext context2{ settingsOutput2, std::cin };
+    context2.Args.AddArg(Execution::Args::Type::AdminSettingDisable, "LocalManifestFiles"sv);
+    context2.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+    SettingsCommand settings2({});
+    settings2.Execute(context2);
+    INFO(settingsOutput2.str());
+
+    // Now using local manifests should fail
+    Execution::Args args3;
+    args3.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    InstallCommand installCommand3({});
+    REQUIRE_THROWS(installCommand3.ValidateArguments(args3));
 }

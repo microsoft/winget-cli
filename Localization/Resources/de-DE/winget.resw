@@ -141,6 +141,9 @@
     <value>Folgende Unterbefehle sind verfügbar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>Aktualisierungen verfügbar.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Verwendet den angegebenen Kanal. Der Standard ist die allgemeine Benutzergruppe</value>
   </data>
@@ -194,7 +197,7 @@
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
-    <value>Zeigt den Status der experimentelle Features an</value>
+    <value>Zeigt den Status von experimentellen Features an</value>
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Deaktiviert</value>
@@ -419,9 +422,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Die Position des Cursors innerhalb der Befehlszeile</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Vorschau</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Datenschutzerklärung</value>
   </data>
@@ -466,10 +466,10 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Die folgenden Fehler wurden beim Überprüfen der Einstellungen gefunden:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Öffnen Sie die Einstellungen im standardmäßigen JSON-Text-Editor. Wenn kein Editor konfiguriert ist, werden die Einstellungen in Editor geöffnet. Die verfügbaren Einstellungen finden Sie unter https://aka.ms/winget-settings.</value>
+    <value>Öffnen Sie Einstellungen im standardmäßigen JSON-Text-Editor. Wenn kein Editor konfiguriert ist, werden die Einstellungen im Editor geöffnet. Verfügbare Einstellungen finden Sie unter „https://aka.ms/winget-settings“. Dieser Befehl kann auch zum Festlegen von Administratoreinstellungen verwendet werden, indem das Argument „enable“ oder „disable“ angegeben wird.</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Einstellungen öffnen</value>
+    <value>Einstellungen öffnen oder Administratoreinstellungen festlegen</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unerwarteter Fehler beim Laden von Einstellungen. Über prüfen Sie die Einstellungen, indem Sie den Befehl "Einstellungen" ausführen.</value>
@@ -544,6 +544,10 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Name</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Bezeichner</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Es wurde keine Quelle mit dem folgenden Namen gefunden:</value>
   </data>
@@ -570,7 +574,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Name der Quelle</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Fehler beim Öffnen der Quelle; Versuchen Sie den 'source reset'-Befehl, falls das Problem weiterhin besteht.</value>
+    <value>Fehler beim Öffnen der Quelle(n): Probieren Sie den Befehl "source reset" aus, wenn das Problem weiterhin besteht.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@ Die Konfiguration ist aufgrund der Gruppen Richtlinie deaktiviert.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Der für das Argument „%1“ angegebene Wert ist ungültig</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Abgebrochen</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Die Pakete die in diesem Import gefunden wurden, weisen die folgenden Abhängigkeiten auf:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Dieses Paket erfordert folgende Abhängigkeiten:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakete</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Dieses Paket hat Abhängigkeiten die möglicherweise nicht mehr benötigt werden:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Das Manifest weist folgende Abhängigkeiten auf, die nicht überprüft wurden; stellen Sie sicher, dass sie gültig sind:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-Features</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-Bibliotheken</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Nutzungsbedingungen</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akzeptieren aller Lizenzvereinbarungen für Pakete</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Die exportierten Pakete erfordern eine Lizenzvereinbarung um diese zu installieren:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Der Herausgeber verlangt, dass Sie die oben genannten Informationen anzeigen und den Vereinbarungen vor der Installation zustimmen.
+Stimmen Sie den Bedingungen zu?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketvereinbarungen wurden nicht akzeptiert. Der Vorgang wurde abgebrochen.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Vereinbarungen:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autor:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beschreibung:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installationsprogramm:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Gebietsschema:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-Produkt-ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Download-URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lizenz:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Lizenz-URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startseite:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Herausgeber:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Fehler beim Öffnen der hinzugefügten Quelle.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Alle Quellvereinbarungen während Quellvorgängen akzeptieren</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Die Quelle "%1" erfordert, dass Sie die folgenden Verträge vor der Verwendung anzeigen.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Stimmen Sie allen Nutzungsbedingungen der Quelle zu?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Mindestens einer der Quellvereinbarungen wurde nicht zugestimmt. Vorgang abgebrochen. Akzeptieren Sie bitte die Quellvereinbarungen, oder entfernen Sie die entsprechenden Quellen.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Die Quelle erfordert, dass die geografische Region des aktuellen Computers gesendet wird, damit sie ordnungsgemäß funktioniert.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Die Installation war erfolgreich. Starten Sie die Anwendung neu, um das Upgrade abzuschließen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Optionaler Windows-Package-Manager REST-Quelle HTTP-Kopfzeile</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Die optionale Kopfzeile wird ignoriert, da sie für diese Quelle nicht anwendbar ist.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Die optionale Kopfziele ist nicht anwendbar, ohne eine Quelle anzugeben.</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Freigabedatum:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Herausgeber-URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Herausgeber-Support-URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Datenschutz-URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright-URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Versionshinweise:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL der Versionshinweise:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Fehler beim Durchsuchen der Quelle. Ergebnisse werden nicht einbezogen:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Fehler beim Durchsuchen der Quelle:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Dieses Feature muss von Administratoren aktiviert werden. Führen Sie als Administrator zum Aktivieren „winget settings --enable %1“ aus.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiviert die spezifische Administratoreinstellung.</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deaktiviert die spezifische Administratoreinstellung.</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Es wurden zu viele Administratoreinstellungsargumente bereitgestellt.</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratoreinstellung aktiviert.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Die Administratoreinstellung ist deaktiviert.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Die Anwendung wird zurzeit ausgeführt. Beenden Sie die Anwendung, und versuchen Sie es noch mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Es wird bereits eine andere Installation ausgeführt. Versuchen Sie es später noch mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Mindestens eine Datei wird verwendet. Beenden Sie die Anwendung, und versuchen Sie es noch mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Für dieses Paket fehlt eine Abhängigkeit im System.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Auf Ihrem PC ist kein Speicherplatz mehr vorhanden. Geben Sie Speicherplatz frei und versuchen Sie es noch mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Es ist nicht genügend Arbeitsspeicher für die Installation verfügbar. Schließen Sie andere Anwendungen, und wiederholen Sie dann den Vorgang.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Diese Anwendung erfordert Internetkonnektivität. Stellen Sie eine Netzwerkverbindung her, und versuchen Sie es noch mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Bei dieser Anwendung ist während der Installation ein Fehler aufgetreten. Wenden Sie sich an den Support.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Starten Sie den PC neu, um die Installation abzuschließen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Ihr PC wird neu gestartet, um die Installation abzuschließen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Fehler bei der Installation. Starten Sie Ihren PC neu und versuchen Sie es anschließend ein weiteres Mal.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Sie haben die Installation abgebrochen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Eine andere Version dieser Anwendung ist bereits installiert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Eine höhere Version dieser Anwendung ist bereits installiert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Die Installation wird durch Organisationsrichtlinien verhindert. Wenden Sie sich an Ihren Administrator.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Deinstallation abgebrochen</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installieren fehlgeschlagen mit Exitcode:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Das Installationsprotokoll ist verfügbar unter:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Die folgenden Pakete wurden in den Arbeitsquellen gefunden.
+Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Unter den Arbeitsquellen wurden keine Pakete gefunden.</value>
   </data>
 </root>

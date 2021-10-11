@@ -25,6 +25,7 @@
 #include <future>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <sstream>
 #include <string>
 #include <string_view>

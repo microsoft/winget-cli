@@ -17,13 +17,10 @@ namespace AppInstaller::Settings
                 return true;
             }
 
-            // Even if all experimental features are disabled, if the store policy is enabled then override it.
-            if (feature == ExperimentalFeature::Feature::ExperimentalMSStore &&
-                GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
-            {
-                // Force enable the feature
-                return true;
-            }
+#ifdef WINGET_DISABLE_EXPERIMENTAL_FEATURES
+            UNREFERENCED_PARAMETER(userSettings);
+            return false;
+#else
 
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
@@ -41,10 +38,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalArg:
                 return userSettings.Get<Setting::EFExperimentalArg>();
-            case ExperimentalFeature::Feature::ExperimentalMSStore:
-                return userSettings.Get<Setting::EFExperimentalMSStore>();
-            case ExperimentalFeature::Feature::PackagedAPI:
-                return userSettings.Get<Setting::EFPackagedAPI>();
             case ExperimentalFeature::Feature::Dependencies:
                 return userSettings.Get<Setting::EFDependencies>();
             case ExperimentalFeature::Feature::DirectMSI:
@@ -52,6 +45,7 @@ namespace AppInstaller::Settings
             default:
                 THROW_HR(E_UNEXPECTED);
             }
+#endif
         }
     }
 
@@ -75,10 +69,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Command Sample", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
         case Feature::ExperimentalArg:
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
-        case Feature::ExperimentalMSStore:
-            return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
-        case Feature::PackagedAPI:
-            return ExperimentalFeature{ "Packaged API Support", "packagedAPI", "https://aka.ms/winget-settings", Feature::PackagedAPI };
         case Feature::Dependencies:
             return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         case Feature::DirectMSI:

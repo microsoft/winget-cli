@@ -31,6 +31,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -100,6 +101,8 @@ namespace AppInstaller::CLI
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         // open the sources where to search for the package
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
@@ -121,6 +124,7 @@ namespace AppInstaller::CLI
             // search for a single package to uninstall
             context <<
                 Workflow::SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(true) <<
                 Workflow::ReportPackageIdentity;
         }

@@ -23,6 +23,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -69,10 +70,13 @@ namespace AppInstaller::CLI
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         context <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
+            Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(true) <<
             Workflow::ReportListResult();
     }

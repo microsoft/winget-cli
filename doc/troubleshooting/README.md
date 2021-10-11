@@ -22,7 +22,7 @@ Customers may install the [latest stable release](https://github.com/microsoft/w
 
 ### Developer Releases (Pre-Release)
 
->Note: There is a known problem restoring the client to the latest stable App Installer release. We will be distributing the latest stable builds and providing instructions once they are made available. 
+>Note: There is a known problem restoring the client to the latest stable App Installer release. We will be distributing the latest stable builds and providing instructions once they are made available.
 
 During the initial Windows Package Manager Preview period, releases were distributed to all Windows Insider channels. Customers who [sign up](http://aka.ms/winget-InsiderProgram) to become members of the Windows Package Manager Insider program also receive pre-release builds. The final process for inclusion into the program requires manual steps, so the App Installer update may not be available for a few days **after** receiving their e-mail notification.
 
@@ -36,9 +36,27 @@ Only the Windows Insider DEV channel will continue receiving pre-release builds 
 
 ### Executing `winget` doesn't display help
 
-The following error is displayed when executed in CMD. `The system cannot execute the specified program.`
+The following errors are displayed when executed in CMD.
+ `The system cannot execute the specified program.`
+ or
 
-The following error is displayed when executed in PowerShell.
+```
+'winget' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+The following errors are displayed when executed in PowerShell.
+
+```
+winget : The term 'winget' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ winget
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (winget:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+or
 
 ```
 Program 'winget.exe' failed to run: The file cannot be accessed by the systemAt line:1 char:1
@@ -51,13 +69,28 @@ At line:1 char:1
     + FullyQualifiedErrorId : NativeCommandFailed
 ```
 
-These errors most commonly occur for one of three reasons.
+The following error is displayed when executed in Windows Terminal's Powershell profile.
+
+```
+winget : The term 'winget' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ winget
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (winget:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+
+These errors most commonly occur for one of following reasons. Please try out the following troubleshooting steps.
 1. The App Installer does not contain the Windows Package Manager. You should check to ensure the version of App Installer is greater than 1.11.11451. You can check by executing the following command in PowerShell: 
 
     >`Get-AppxPackage microsoft.desktopappinstaller`
 
-2. The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Aias for the Windows Package Manager
+2. The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to `App execution aliases` option in `Apps & features Settings` to enable it.
 3. The App Installer did not automatically add the PATH environment variable. You should add the path environment variable. The value to add is "%userprofile%\AppData\Local\Microsoft\WindowsApps".
+4. Apps deployed on the machine are registered per user by default. If App Installer was installed on a different user account than the one you are trying to run it on, you will have to reinstall it again on this account and try again.
+
+If the above guidelines do not resolve the problem, please open an issue with details of the Windows version and App Installer version you are using.
 
 ## Common Errors
 
@@ -73,3 +106,14 @@ This error is related to Delivery Optimization (DO). You may configure the Windo
 This error is related to Delivery Optimization (DO). You may configure the Windows Package Manager settings to use the standard `WININET` library. Add the following network setting:
 
 >`"network": {"downloader": "wininet"}`
+
+#### Error 0x80070490
+
+The following error is displayed when trying to install some appxbundles.
+
+```
+Install failed: error 0x80070490: Opening the package from location appxbundle_Name.appxbundle failed.
+0x80070490 : Element not found.
+```
+
+A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/en-us/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.

@@ -167,6 +167,9 @@
     <ClInclude Include="Workflows\MsiInstallFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\SettingsFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -299,6 +302,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\MsiInstallFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\SettingsFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

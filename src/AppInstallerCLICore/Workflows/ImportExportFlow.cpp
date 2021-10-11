@@ -271,7 +271,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;
@@ -283,6 +283,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Find the single version we want is available
                 searchContext <<
+                    Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
                     Workflow::GetInstalledPackageVersion <<
@@ -324,7 +325,8 @@ namespace AppInstaller::CLI::Workflow
                     std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
                     std::move(searchContext.Get<Execution::Data::Manifest>()),
                     std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope);
+                    packageRequest.Scope,
+                    subExecution.GetCurrentSubExecutionId());
             }
         }
 

@@ -141,6 +141,9 @@
     <value>Достапни се следниве поднаредби:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>достапни надградби</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Користете го наведениот канал. Стандардна вредност е општата публика</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Положбата на покажувачот во командната линија</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Преглед</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Изјава за заштита на личните податоци</value>
   </data>
@@ -466,10 +466,10 @@
     <value>Следните неуспеси ги потврдуваат параметрите:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Отворајте ги параметрите во стандардниот json-уредувач на текст. Ако не е конфигуриран уредувачот, ги отвора параметрите во notepad. Достапните параметри видете ги на https://aka.ms/winget-settings</value>
+    <value>Отворете ги параметрите во стандардниот json уредувач на текст. Доколку нема конфигурирано уредувач, параметрите се отвораат во notepad. За достапни параметри видете https://aka.ms/winget-settings Оваа наредба, исто така, може да се користи и за поставување на параметрите за администраторот со спроведување на аргумент „овозможи“ или „оневозможи“</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Отвори ги параметрите</value>
+    <value>Отворете ги параметрите или поставете ги администраторските параметри</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Неочекувана грешка при вчитување на параметри. Проверете ги параметрите со извршување на наредбата за параметри.</value>
@@ -544,6 +544,10 @@
     <value>Име</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Идентификатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Не е најден извор со име:</value>
   </data>
@@ -570,7 +574,7 @@
     <value>Име на изворот</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Изворот не може да се отвори; обидете се со наредбата „source reset“ ако проблемот опстои.</value>
+    <value>Неуспешно отворање на изворот/-ите; доколку проблемот продолжи, обидете се со наредбата „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Вредноста наведена за аргументот „%1“ е неважечка</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Откажано</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Надворешен</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Пронајдениот пакет во овој увоз ги содржи следниве зависности:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Овој пакет ги бара следниве зависности:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Пакети</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Пакетот има зависности коишто веќе можеби не се потребни:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Манифестот ги содржи следниве зависност коишто не се валидирани, проверете дали се важечки:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Можности на Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows библиотеки</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Одредби и услови на Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Прифати ги сите договори за лиценца за пакети</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Извезениот пакет бара договор за лиценца за да инсталира:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Издавачот бара да ги видите горенаведените информации и да ги прифатите договорите пред да ги инсталирате.
+Дали се согласувате со условите?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Договорите за пакетот не се прифатени. Операцијата е откажана.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Договори:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Автор:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Опис:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Инсталатор:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Локални стандарди:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ИД на производ од Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Тип:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Преземи УРЛ:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Лиценца:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>УРЛ-адреса на лиценцата:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Прекар:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Почетна страница:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Издавач:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Верзија:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Не</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Отворањето на додадениот извор е неуспешно.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Прифатете ги сите договори за изворот за време на операциите на изворот</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Изворот `%1` бара да ги прикажете следниве договори пред негово користење.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Дали се согласувате со сите услови на изворните договори?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Еден или повеќе договори за изворот не се прифатени. Операцијата е откажана. Прифатете ги договорите или отстранете ги истите.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Изворот бара да се испрати тековниот географски регион на машината за нормално функционирање.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Успешна инсталација. Престартирајте ја апликацијата за да го завршите наградувањето.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Изборно REST заглавие на HTTP на Управник на пакети на Windows</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Изборното заглавие се игнорира бидејќи не е применливо за овој извор.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Изборното заглавие не е применливо без да се наведе извор</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Датум на издавање:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Веб-адреса на издавачот:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Помошна веб-адреса на издавачот:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Веб-адреса за приватност:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторски права:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Веб-адреса за авторските права:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Напомени за изданието:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Веб-адреса за напомените за изданието:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Неуспешно пребарување на изворот; резулатите нема да бидат вклучени:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Неуспешно пребарување на изворот:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Оваа карактеристика ја овозможуваат администраторите. За да ја овозможите, извршете 'winget settings --enable %1' како администратор.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Го овозможува одредениот администраторски параметар</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Го оневозможува одредениот администраторски параметар</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Спроведени се премногу аргументи за администраторскиот параметар</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Администраторскиот параметар е овозможен.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Администраторскиот параметар е оневозможен.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Апликацијата се извршува во моментов. Излезете од апликацијата и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Во тек е друга инсталација. Обидете се повторно подоцна.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Се користат една или повеќе датотеки. Излезете од апликацијата и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>На пакетот му фали зависност од вашиот систем.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Нема простор на вашиот компјутер. Ослободете простор и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Нема доволно достапна меморија за инсталирање. Затворете ги другите апликации и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Апликацијата бара интернет-поврзливост. Поврзете се на мрежа и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Апликацијата се соочи со проблем за време на инсталацијата. Контактирајте со поддршката.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Престартирајте го компјутерот за да ја завршите инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Компјутерот ќе се престартира за да ја заврши инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Неуспешна инсталација. Престартирајте го компјутерот и обидете се повторно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Ја откажавте инсталацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Веќе е инсталирана друга верзија на апликацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Веќе е инсталирана понова верзија на апликацијата.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Организациските политики ја спречуваат инсталацијата. Контактирајте го администраторот.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Инсталацијата е напуштена</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Инсталаторот не успеа со излезниот код:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Дневникот на инсталаторот е достапен на:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Пронајдени се следниве пакети помеѓу работните извори.
+За да продолжите, наведете еден од нив со помош на опцијата „--source“.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Не се пронајдени пакети помеѓу работните извори.</value>
   </data>
 </root>

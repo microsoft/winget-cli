@@ -123,13 +123,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         manifest.ApplyLocale(targetLocale);
 
-        ::AppInstaller::Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
+        context->GetThreadGlobals().GetTelemetryLogger().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<::AppInstaller::Manifest::Localization::PackageName>(), manifest.Version);
 
         context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
         context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
+        if (!options)
+        {
+            // Can't make a composite source if the options aren't specified.
+            throw hresult_invalid_argument();
+        }
+
         for (uint32_t i = 0; i < options.Catalogs().Size(); ++i)
         {
             auto catalog = options.Catalogs().GetAt(i);
@@ -265,7 +271,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
-        context->SetLoggerContext(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
+        context->SetContextLoggers(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
 
         // Convert the options to arguments for the installer.
         if (options)
@@ -421,7 +427,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
             wil::unique_event progressEvent{ wil::EventOptions::None };
-            wil::unique_event cancelWaitEvent{ wil::EventOptions::None };
 
             std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
             queueItem->GetContext().AddProgressCallbackFunction([&installProgress, &progressEvent](
@@ -442,7 +447,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             );
 
             std::weak_ptr<Execution::OrchestratorQueueItem> weakQueueItem(queueItem);
-            cancellationToken.callback([weakQueueItem, &canCancelQueueItem, &cancelWaitEvent]
+            cancellationToken.callback([weakQueueItem, &canCancelQueueItem]
                 {
                     if (canCancelQueueItem)
                     {
@@ -452,21 +457,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                             Execution::ContextOrchestrator::Instance().CancelQueueItem(*strongQueueItem);
                         }
                     }
-                    else
-                    {
-                        cancelWaitEvent.SetEvent();
-                    }
                 });
 
             // Wait for completion or progress events.
             // Waiting for both on the same thread ensures that progress is never reported after the async operation itself has completed.
             bool completionEventFired = false;
-            bool cancelWaitEventFired = false;
-            HANDLE operationEvents[3];
+            HANDLE operationEvents[2];
             operationEvents[0] = progressEvent.get();
             operationEvents[1] = queueItem->GetCompletedEvent().get();
-            operationEvents[2] = cancelWaitEvent.get();
-            while (!completionEventFired && !cancelWaitEventFired)
+            while (!completionEventFired)
             {
                 DWORD dwEvent = WaitForMultipleObjects(
                     _countof(operationEvents) /* number of events */,
@@ -489,11 +488,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     // operationEvents[1] was signaled, operation completed
                 case WAIT_OBJECT_0 + 1:
                     completionEventFired = true;
-                    break;
-
-                    // operationEvents[2] was signaled, operation is cancelled
-                case WAIT_OBJECT_0 + 2:
-                    cancelWaitEventFired = true;
                     break;
 
                     // Return value is invalid.

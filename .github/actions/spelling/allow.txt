@@ -15,6 +15,7 @@ appmodel
 apps
 appx
 appxbundle
+appxbundles
 appxmanifest
 appxsdk
 APSTUDIO
@@ -29,8 +30,6 @@ authz
 autocomplete
 auxdata
 azureedge
-bcp
-bcp47
 bcrypt
 binver
 Bitmask
@@ -44,6 +43,7 @@ bytearray
 cdecl
 cer
 certutil
+cguid
 chrono
 cin
 cla
@@ -80,10 +80,12 @@ cref
 csproj
 CStr
 CURSORPOSITON
+CUSTOMHEADER
 cwctype
 datatelemetry
 dbconn
 DBId
+debugbreak
 declspec
 decltype
 declval
@@ -163,6 +165,7 @@ gdi
 getline
 github
 githubusercontent
+globals
 hfile
 HGLOBAL
 HIDECANCEL
@@ -201,6 +204,7 @@ ILogger
 impl
 Inet
 inno
+INotify
 INPROC
 Inq
 installertype
@@ -212,6 +216,7 @@ INSTALLPATH
 INSTALLUILEVEL
 interop
 INVALIDARG
+IObservable
 iomanip
 iostream
 IOutput
@@ -251,7 +256,9 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+MAXLENGTH
 MBs
+MContext
 mday
 memset
 metadata
@@ -293,6 +300,7 @@ NONAME
 nonexistentsetting
 NONINFRINGEMENT
 norestart
+normalizednameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -306,9 +314,11 @@ nunit
 nupkg
 nuspec
 OAuth
+ODR
 ofstream
 opencode
 opensource
+openxmlformats
 ostream
 ostringstream
 OSVERSIONINFOEXW
@@ -316,6 +326,7 @@ outfile
 OUTOFDISKSPACE
 OUTOFMEMORY
 OWC
+packagefamilyname
 PACKAGESSCHEMA
 Params
 params
@@ -329,6 +340,7 @@ pdb
 PEVENT
 pfp
 PGP
+php
 PII
 pipssource
 placeholders
@@ -365,7 +377,8 @@ realloc
 REALTIME
 REBOOTPROMPT
 Redistributable
-Refactor
+refactor
+refactored
 refactoring
 REFCLSID
 regex
@@ -379,6 +392,7 @@ RESOLVESOURCE
 RESTSOURCE
 resw
 resx
+rethrowing
 roadmap
 robuffer
 rowcount
@@ -403,6 +417,7 @@ SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
 setschemaversion
+setupexitcodes
 setvariable
 setw
 shcore
@@ -458,7 +473,9 @@ STRINGIFY
 STRINGIZE
 stringstream
 strstr
+strtoll
 subcontext
+subheader
 SUBLANG
 subresource
 subselect
@@ -531,6 +548,7 @@ URegular
 uri
 url
 urlmon
+USEREXIT
 userguide
 USERPROFILE
 usersources

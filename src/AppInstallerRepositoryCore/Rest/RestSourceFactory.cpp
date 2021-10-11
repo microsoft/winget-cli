@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Rest
     namespace
     {
         // The base class for data that comes from a rest based source.
-        struct RestSourceFactoryBase : public ISourceFactory
+        struct RestSourceFactoryImpl : public ISourceFactory
         {
             std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
             {
@@ -39,6 +39,9 @@ namespace AppInstaller::Repository::Rest
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
 
+                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
+                details.Identifier = restClient.GetSourceIdentifier();
+
                 return true;
             }
 
@@ -58,6 +61,6 @@ namespace AppInstaller::Repository::Rest
 
     std::unique_ptr<ISourceFactory> RestSourceFactory::Create()
     {
-        return std::make_unique<RestSourceFactoryBase>();
+        return std::make_unique<RestSourceFactoryImpl>();
     }
 }

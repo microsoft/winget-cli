@@ -141,6 +141,9 @@
     <value>Ir pieejamas šādas apakškomandas:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>pieejamie jauninājumi.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Izmantot norādīto kanālu; noklusējums ir vispārēja auditorija</value>
   </data>
@@ -419,9 +422,6 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Kursora pozīcija komandrindā</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Priekšskatījums</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Paziņojums par konfidencialitāti</value>
   </data>
@@ -466,10 +466,10 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Iestatījumu validēšanai tika konstatētas šādas kļūmes:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Atver iestatījumus noklusējuma JSON teksta redaktorā. Ja nav konfigurēts neviens redaktors, iestatījumi tiek atvērti programmā Piezīmjbloks. Pieejamos iestatījumus skatiet https://aka.ms/winget-settings</value>
+    <value>Atveriet iestatījumus noklusējuma json teksta redaktorā. Ja redaktors nav konfigurēts, atveriet iestatījumus programmā Piezīmjbloks. Lai skatītu pieejamos iestatījumus, skatiet https://aka.ms/winget-settings. Šo komandu var izmantot, lai iestatītu administratora iestatījumus, norādot “iespējot” vai “atspējot” argumentu.</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Atver iestatījumus</value>
+    <value>Atvērt iestatījumus vai iestatīt administratora iestatījumus</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ielādējot iestatījumus, radās neparedzēta kļūda. Lūdzu, pārbaudiet savus iestatījumus, izpildot komandu iestatījumi.</value>
@@ -544,6 +544,10 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Nosaukums</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikators</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Neatradām avotu ar nosaukumu:</value>
   </data>
@@ -570,7 +574,7 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Avota nosaukums</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Neizdevās atvērt avotu; Ja problēma joprojām pastāv, mēģiniet komandu 'source reset'.</value>
+    <value>Neizdevās, atverot avotu(s); ja problēma joprojām pastāv, 'source reset' komandu.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ Konfigurācija ir atspējota grupas politikas dēļ.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Argumenta '%1' norādītā vērtība nav derīga</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Atcelts</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ārējais</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Šajā importā atrasto pakotņu atkarības ir:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Šai pakotnei nepieciešamas šādas atkarības:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakotnes</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Šai pakotnei bija atkarības, kas, iespējams, vairs nav vajadzīgas:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestā ir šādas nevalidētas atkarības; pārliecinieties, vai tās ir derīgas:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows līdzekļi</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows bibliotēkas</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Teams</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akceptēt visus pakotņu licences līgumus</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Lai instalētu eksportēto pakotni, ir nepieciešams licences līgums:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Izdevējs pieprasa, lai pirms instalēšanas skatītu iepriekš minēto informāciju un piekristu līgumiem.
+Vai piekrītat nosacījumiem?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Netika piekrists pakotnes līgumiem. Operācija atcelta.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Līgumi:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autors:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Apraksts:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Instalētājs:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Darbības vieta:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store produkta ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tips:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Lejupielādes vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licence:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licences vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Pavārds:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Sākumlapa:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Izdevējs:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versija:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nē</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Jā</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Neizdevās atvērt pievienoto avotu.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Akceptēt visus avota līgumus avota operāciju laikā</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Avotam “%1” ir nepieciešams, lai pirms lietošanas skatītu tālāk norādītos līgumus.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Vai piekrītat visiem avota līgumu nosacījumiem?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Viens vai vairāki avota līgumi netika vienoti. Operācija atcelta. Lūdzu, akceptējiet avota līgumus vai noņemiet atbilstošos avotus.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Lai avots darbotos pareizi, ir nepieciešams, lai pašreizējā datora ģeogrāfiskais reģions darbotos pareizi.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Sekmīgi instalēts. Lai pabeigtu jaunināšanu, restartējiet lietojumprogrammu.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Papildu Windows-Package-Manager REST avota HTTP galvene</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Neobligātā galvene tiek ignorēta, jo tā nav lietojama šim avotam.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Neobligātā galvene nav lietojama, nenorādot avotu</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Laidiena datums:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Izdevēja URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Izdevēja atbalsta URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Konfidencialitātes vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Autortiesības:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Autortiesību vietrādis URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Informācija par laidienu:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Informācijas par laidienu vietrādis URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Meklējot avotā, radās kļūme. rezultāti netiks iekļauti:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Meklējot avotā, neizdevās:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Šis līdzeklis ir jāiespējo administratoriem. Lai to iespējotu, palaidiet 'winget settings --enable %1' kā administrators.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Iespējo konkrētu administratora iestatījumu</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Atspējo konkrētu administratora iestatījumu</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Norādīts pārāk daudz administratora iestatījumu</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratora iestatījums iespējots.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratora iestatījums ir atspējots.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Lietojumprogramma pašlaik darbojas. Izejiet no lietojumprogrammas un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Jau notiek cita instalēšana. Vēlāk mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Tiek izmantots viens vai vairāki faili. Izejiet no lietojumprogrammas un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Šai pakotnei sistēmā trūkst atkarības.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Jūsu datorā vairs nav vietas. Atbrīvojiet vietu un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Nepietiek atmiņas, lai instalētu. Aizveriet citas lietojumprogrammas un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Šai lietojumprogrammai ir nepieciešama interneta savienojamība. Izveidojiet savienojumu ar tīklu un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Šīs lietojumprogrammas instalēšanas laikā radās kļūda. Sazinieties ar atbalsta dienestu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Restartējiet personālo datoru, lai pabeigtu instalēšanu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Jūsu dators tiks restartēts, lai pabeigtu instalēšanu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Instalēšana neizdevās. Restartējiet datoru un pēc tam mēģiniet vēlreiz.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Jūs atcēlāt instalēšanu.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Jau ir instalēta cita šīs lietojumprogrammas versija.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Jau ir instalēta jaunāka šīs lietojumprogrammas versija.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organizācijas politikas neļauj veikt instalēšanu. Sazinieties ar administratoru.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Instalēšana pārtraukta</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Instalētājam neizdevās ar izejas kodu:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Instalētāja žurnāls ir pieejams šeit:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Darba avotos tika atrastas šādas pakotnes.
+Lūdzu, norādiet vienu no tiem, izmantojot opciju '--source', lai turpinātu.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Darba avotos netika atrasta neviena pakete.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Šis ir stabils Windows Package Manager laidiens. Ja vēlaties izmēģināt eksperimentālus līdzekļus, instalējiet pirmsizlaides būvējumu. Norādījumi ir pieejami pakalpojumā GitHub vietnē https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

@@ -68,6 +68,10 @@ namespace AppInstaller::CLI::Execution
             IgnoreUnavailable,
             IgnoreVersions,
 
+            // Setting Command
+            AdminSettingEnable,
+            AdminSettingDisable,
+
             // Other
             All, // Used in Update command to update all installed packages to latest
             ListVersions, // Used in Show command to list all available versions of an app
@@ -78,6 +82,7 @@ namespace AppInstaller::CLI::Execution
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
             CustomHeader, // Optional Rest source header
+            AcceptSourceAgreements, // Accept all source agreements
 
             // Used for demonstration purposes
             ExperimentalArg,

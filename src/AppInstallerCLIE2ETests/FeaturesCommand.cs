@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft Store Support"));
+            Assert.True(result.StdOut.Contains("Direct MSI Installation"));
             Assert.False(result.StdOut.Contains("Enabled"));
         }
 
@@ -37,8 +37,7 @@ namespace AppInstallerCLIE2ETests
         {
             ConfigureFeature("experimentalArg", true);
             ConfigureFeature("experimentalCmd", true);
-            ConfigureFeature("experimentalMSStore", true);
-            ConfigureFeature("packagedAPI", true);
+            ConfigureFeature("directMSI", true);
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.True(result.StdOut.Contains("Enabled"));
         }

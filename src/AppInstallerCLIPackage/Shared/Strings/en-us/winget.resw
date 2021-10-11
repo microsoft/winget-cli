@@ -167,7 +167,7 @@
     <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Show no more than specified number of results</value>
+    <value>Show no more than specified number of results (between 1 and 1000)</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done</value>
@@ -466,10 +466,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The following failures were found validating the settings:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings</value>
+    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings This command can also be used to set administrator settings by providing 'enable' or 'disable' argument</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Open settings</value>
+    <value>Open settings or set administrator settings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
@@ -544,6 +544,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Name</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifier</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Did not find a source named:</value>
   </data>
@@ -570,7 +574,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Name of the source</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Failed to open the source; try the 'source reset' command if the problem persists.</value>
+    <value>Failed when opening source(s); try the 'source reset' command if the problem persists.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -961,12 +965,12 @@ Configuration is disabled due to Group Policy.</value>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
     <value>Exported package requires license agreement to install:</value>
   </data>
-  <data name="LicenseAgreementPrompt" xml:space="preserve">
-    <value>The publisher requires that you view the following information and accept the EULA before installing.
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>The publisher requires that you view the above information and accept the agreements before installing.
 Do you agree to the terms?</value>
   </data>
-  <data name="LicenseNotAgreedTo" xml:space="preserve">
-    <value>License not agreed to. Installation cancelled.</value>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Package agreements were not agreed to. Operation cancelled.</value>
   </data>
   <data name="ShowLabelAgreements" xml:space="preserve">
     <value>Agreements:</value>
@@ -1013,11 +1017,45 @@ Do you agree to the terms?</value>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Version:</value>
   </data>
+  <data name="ShowLabelDependencies" xml:space="preserve">
+    <value>Dependencies:</value>
+  </data>
+  <data name="ShowLabelWindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows Features:</value>
+  </data>
+  <data name="ShowLabelWindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows Libraries:</value>
+  </data>
+  <data name="ShowLabelPackageDependencies" xml:space="preserve">
+    <value>Package Dependencies:</value>
+  </data>
+  <data name="ShowLabelExternalDependencies" xml:space="preserve">
+    <value>External Dependencies:</value>
+  </data>
   <data name="PromptOptionNo" xml:space="preserve">
     <value>No</value>
   </data>
   <data name="PromptOptionYes" xml:space="preserve">
     <value>Yes</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Failed to open the added source.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Accept all source agreements during source operations</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>The `%1` source requires that you view the following agreements before using.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Do you agree to all the source agreements terms?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>One or more of the source agreements were not agreed to. Operation cancelled. Please accept the source agreements or remove the corresponding sources.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>The source requires current machine's geographic region to be sent to function properly.</value>
   </data>
   <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
     <value>Successfully installed. Restart the application to complete the upgrade.</value>
@@ -1029,6 +1067,130 @@ Do you agree to the terms?</value>
     <value>Ignoring the optional header as it is not applicable for this source.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>The optional header is not applicable without specifying a Rest source</value>
+    <value>The optional header is not applicable without specifying a source</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Release Date:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Publisher Url:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Publisher Support Url:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Privacy Url:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Copyright Url:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Release Notes:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Release Notes Url:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Failed when searching source; results will not be included:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Failed when searching source:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable %1' as administrator.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Enables the specific administrator setting</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Disables the specific administrator setting</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Too many admin setting arguments provided</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Admin setting enabled.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Admin setting disabled.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Application is currently running. Exit the application then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Another installation is already in progress. Try again later.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>One or more files are being used. Exit the application then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>This package has a dependency missing from your system.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>There's no more space on your PC. Make space, then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>There's not enough memory available to install. Close other applications then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>This application requires internet connectivity. Connect to a network then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>This application encountered an error during installation. Contact support.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Restart your PC to finish installation.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Your PC will restart to finish installation.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installation failed. Restart your PC then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>You cancelled the installation.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Another version of this application is already installed.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>A higher version of this application is already installed.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organization policies are preventing installation. Contact your admin.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installation abandoned</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installer failed with exit code:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installer log is available at:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>The following packages were found among the working sources.
+Please specify one of them using the `--source` option to proceed.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>No packages were found among the working sources.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>This is a stable release of the Windows Package Manager. If you would like to try experimental features, please install a pre-release build. Instructions are available on GitHub at https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Windows Package Manager</value>
+  </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignore package versions in import file</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>The requested number of results must be between 1 and 1000.</value>
   </data>
 </root>

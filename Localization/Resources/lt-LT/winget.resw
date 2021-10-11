@@ -141,6 +141,9 @@
     <value>Galimos šios antrinės komandos:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>yra plėtočių.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Naudoti nurodytą kanalą; Numatytoji reikšmė yra bendroji auditorija</value>
   </data>
@@ -419,9 +422,6 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Žymiklio padėtis komandų eilutėje</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Peržiūra</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privatumo nuostatos</value>
   </data>
@@ -466,10 +466,10 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Patvirtinant parametrus buvo rastos šios triktys:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Atidarykite parametrus numatytoje teksto rengyklė. Jei redaktorius nesukonfigūruotas, parametrai atidaromi užrašinėje. Galimi parametrai pateikti https://aka.ms/winget-settings</value>
+    <value>Atidarykite parametrus numatytoje teksto rengyklė. Jei redaktorius nesukonfigūruotas, parametrai atidaromi užrašinėje. Galimi parametrai pateikti https://aka.ms/winget-settings Šią komandą taip pat galima naudoti administratoriaus parametrams nustatyti pateikiant argumentą „įgalinti“ arba „išjungti“</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Atidaryti parametrus</value>
+    <value>Atidaryti parametrus arba nustatyti administratoriaus parametrus</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Įkeliant parametrus įvyko netikėta klaida. Patikrinkite parametrus vykdydami komandą Parametrai.</value>
@@ -544,6 +544,10 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Pavadinimas</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikatorius</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Nepavyko rasti šaltinio, kurio pavadinimas:</value>
   </data>
@@ -570,7 +574,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Šaltinio pavadinimas</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Nepavyko atidaryti šaltinio; jei problema kartojasi, bandykite naudoti komandą „source reset“.</value>
+    <value>Atidarant šaltinį (-ius) nepavyko; jei problema kartojasi, išbandykite komandą „source reset“.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@ Konfigūracija išjungta dėl grupės strategijos.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Pateikta "%1" argumento reikšmė yra neleistina</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Atšaukta</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Išorinis</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Šiame importavime rasti paketai turi šias priklausomybes:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Šiam paketui reikia šių priklausomybių:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paketai</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Šis paketas turėjo priklausomybių, kurių gali nebereikėti:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Deklaracijoje yra šios priklausomybės, kurios nebuvo patvirtintos; įsitikinkite, kad jos yra tinkamos:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>„Windows“ funkcijos</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>„Windows“ bibliotekos</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>„Windows Store“ sąlygos</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Priimti visas paketų licencijos sutartis</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Eksportuotas paketas reikalauja licencijos sutarties, kad būtų galima įdiegti:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Leidėjas reikalauja, kad prieš diegdami peržiūrėtumėte pirmiau pateiktą informaciją ir sutiktumėte su sutartimis.
+Ar sutinkate su jų sąlygomis?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Su paketo sutartimis nesutikta. Operacija atšaukta.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Susitarimai:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Autorius:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Aprašas:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Diegimo programa:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Lokalė:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>„Store“ produkto ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipas:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Atsisiuntimo URL:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licencija:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>Licencijos URL:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Iškvietimo komponentas:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Pagrindinis puslapis:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Leidėjas:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versija:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Ne</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Taip</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Nepavyko atidaryti įtrauktą šaltinį.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Priimti visas šaltinio sutartis atliekant šaltinio operacijas</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Šaltiniui "%1" reikia, kad prieš naudodami peržiūrėtumėte šias sutartis.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Ar sutinkate su visomis šaltinio sutarčių sąlygomis?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Nesutikta su viena ar keliomis šaltinio sutartimis. Operacija atšaukta. Sutikite su šaltinio sutartimis arba pašalinkite atitinkamus šaltinius.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Šaltiniui reikia, kad tinkamai veiktų įrenginio geografinis regionas.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Sėkmingai įdiegta. Iš naujo paleiskite programą, kad baigtumėte plėtotę.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Pasirenkama „Windows“ paketų tvarkytuvo REST šaltinio HTTP antraštė</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Nepaisoma pasirinktinės antraštės, nes ji netaikoma šiam šaltiniui.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Pasirinktinė antraštė netaikoma nenurodant šaltinio</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Išleidimo data:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Leidėjo URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Leidėjo palaikymo URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Privatumo URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Autorių teisės:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Autoriaus teisių URL:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Leidimo pastabos:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Leidimo pastabų URL:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Nepavyko ieškant šaltinio; rezultatai nebus įtraukti:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Nepavyko ieškant šaltinio:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Šią funkciją turi įjungti administratoriai. Norėdami įjungti, paleiskite 'winget settings --enable %1' administratoriaus teisėmis.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Įgalina konkretų administratoriaus parametrą</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Išjungia konkretų administratoriaus parametrą</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Pateikta per daug administratoriaus parametrų argumentų</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratoriaus parametras įjungtas.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratoriaus parametras išjungtas.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Programa šiuo metu veikia. Išeikite iš programos ir bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Jau diegiama kita versija. Bandykite dar kartą vėliau.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Naudojamas vienas ar daugiau failų. Išeikite iš programos ir bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Šio paketo priklausomybės nėra jūsų sistemoje.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Kompiuteryje nebėra vietos. Atlaisvinkite vietos, tada bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Įdiegti nepakanka atminties. Uždarykite kitas programas ir bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Šiai programai reikia interneto ryšio. Prisijunkite prie tinklo ir bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Diegiant įvyko šios taikomosios programos klaida. Kreipkitės į palaikymo tarnybą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Paleiskite kompiuterį iš naujo, kad baigtumėte diegti.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Jūsų kompiuteris bus paleistas iš naujo, kad būtų baigtas diegimas.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Įdiegti nepavyko. Paleiskite kompiuterį iš naujo, tada bandykite dar kartą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Atšaukėte diegimą.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Jau įdiegta kita šios programos versija.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Jau įdiegta naujesnė šios taikomosios programos versija.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organizacijos strategijos neleidžia diegti. Kreipkitės į administratorių.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Diegimas nutrauktas</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Diegimo programa nepavyko, išėjimo kodas:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Diegimo programos žurnalas pasiekiamas:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Tarp darbinių šaltinių rasti šie paketai.
+Norėdami tęsti, nurodykite vieną iš jų naudodami parinktį „--source“.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Tarp darbinių šaltinių paketų nerasta.</value>
   </data>
 </root>

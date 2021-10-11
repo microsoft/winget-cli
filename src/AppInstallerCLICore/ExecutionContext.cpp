@@ -169,6 +169,7 @@ namespace AppInstaller::CLI::Execution
             // Unless we want to spin a separate thread for all work, we have to just exit here.
             if (m_CtrlSignalCount >= 2)
             {
+                Reporter.CloseOutputStream();
                 Logging::Telemetry().LogCommandTermination(hr, file, line);
                 std::exit(hr);
             }
@@ -205,4 +206,16 @@ namespace AppInstaller::CLI::Execution
         m_executionStage = stage;
         Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
+
+    AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobals()
+    {
+        return m_threadGlobals;
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool Context::ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task)
+    {
+        return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
+    }
+#endif
 }

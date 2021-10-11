@@ -27,6 +27,16 @@ namespace AppInstaller::Manifest
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
+    struct ManifestValidateOption
+    {
+        bool SchemaValidationOnly = false;
+        bool ErrorOnVerifiedPublisherFields = false;
+
+        // Options not exposed in winget util
+        bool FullValidation = false;
+        bool ThrowOnWarning = false;
+    };
+
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
     // ManifestVer is used to specify the version of app manifest itself.
     // ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
@@ -97,11 +107,45 @@ namespace AppInstaller::Manifest
         SilentWithProgress,
     };
 
+    enum class ExpectedReturnCodeEnum
+    {
+        Unknown,
+        PackageInUse,
+        InstallInProgress,
+        FileInUse,
+        MissingDependency,
+        DiskFull,
+        InsufficientMemory,
+        NoNetwork,
+        ContactSupport,
+        RebootRequiredToFinish,
+        RebootRequiredForInstall,
+        RebootInitiated,
+        CancelledByUser,
+        AlreadyInstalled,
+        Downgrade,
+        BlockedByPolicy,
+    };
+
+    struct ExpectedReturnCode
+    {
+        DWORD InstallerReturnCode;
+        ExpectedReturnCodeEnum ReturnResponse;
+    };
+
     enum class PlatformEnum
     {
         Unknown,
         Universal,
         Desktop,
+    };
+
+    enum class ElevationRequirementEnum
+    {
+        Unknown,
+        ElevationRequired,
+        ElevationProhibited,
+        ElevatesSelf,
     };
 
     enum class ManifestTypeEnum
@@ -132,6 +176,22 @@ namespace AppInstaller::Manifest
         Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
         Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
+    };
+
+    struct AppsAndFeaturesEntry
+    {
+        string_t DisplayName;
+        string_t Publisher;
+        string_t DisplayVersion;
+        string_t ProductCode;
+        string_t UpgradeCode;
+        InstallerTypeEnum InstallerType = InstallerTypeEnum::Unknown;
+    };
+
+    struct MarketsInfo
+    {
+        std::vector<string_t> AllowedMarkets;
+        std::vector<string_t> ExcludedMarkets;
     };
 
     struct DependencyList
@@ -245,7 +305,11 @@ namespace AppInstaller::Manifest
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
 
+    ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
+
+    ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in);
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
@@ -257,9 +321,15 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer type uses the ProductCode system reference.
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given installer type writes ARP entry.
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType);
+
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
 
     // Get a list of default switches for known installer types
     std::map<InstallerSwitchType, Utility::NormalizedString> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
+
+    // Get a list of default return codes for known installer types
+    std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType);
 }
