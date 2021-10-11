@@ -82,7 +82,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
-   * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
+   * Or use winget to install it ;)
 * The following workloads:
    * .NET Desktop Development
    * Desktop Development with C++
@@ -90,6 +90,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * The following extensions:
    * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects)
 
+(Upon opening the repo in Visual Studio, it will prompt you to install any missing workloads and features.)
 ### Building
 
 We currently only build using the solution; command line methods of building a VS solution should work as well.
