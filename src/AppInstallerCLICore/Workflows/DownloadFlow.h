@@ -11,16 +11,19 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void DownloadInstaller(Execution::Context& context);
 
-    // Computes the download path for the installer file. Does nothing if already determined.
-    // This adds appropriate extension to the installer path, as ShellExecute uses file extension
-    // to launch the installer appropriately.
+    // Check if the desired installer has already been downloaded.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: HashPair, InstallerPath (only if found)
+    void CheckForExistingInstaller(Execution::Context& context);
+
+    // Computes the download path for the installer file. Does nothing if already determined
     // Required Args: None
     // Inputs: Installer, Manifest
     // Outputs: InstallerPath
     void GetInstallerDownloadPath(Execution::Context& context);
 
     // Downloads the file referenced by the Installer.
-    // Do nothing if the file has already been downloaded.
     // Required Args: None
     // Inputs: Installer, Manifest
     // Outputs: HashPair, InstallerPath
@@ -50,6 +53,14 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: HashPair, InstallerPath?, SourceId?
     // Outputs: None
     void UpdateInstallerFileMotwIfApplicable(Execution::Context& context);
+
+    // This method appends appropriate extension to the downloaded installer.
+    // ShellExecute uses file extension to launch the installer appropriately.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Modifies: InstallerPath
+    // Outputs: None
+    void RenameDownloadedInstaller(Execution::Context& context);
 
     // Deletes the installer file.
     // Required Args: None

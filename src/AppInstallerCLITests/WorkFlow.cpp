@@ -403,10 +403,18 @@ void OverrideForUpdateInstallerMotw(TestContext& context)
 
 void OverrideForShellExecute(TestContext& context)
 {
+    context.Override({ CheckForExistingInstaller, [](TestContext&)
+    {
+    } });
+
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
     } });
 
     OverrideForUpdateInstallerMotw(context);
@@ -414,11 +422,19 @@ void OverrideForShellExecute(TestContext& context)
 
 void OverrideForDirectMsi(TestContext& context)
 {
+    context.Override({ CheckForExistingInstaller, [](TestContext&)
+    {
+    } });
+
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
         // We don't have an msi installer for tests, but we won't execute it anyway
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
     } });
 
     OverrideForUpdateInstallerMotw(context);

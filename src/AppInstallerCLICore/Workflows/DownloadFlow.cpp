@@ -10,9 +10,88 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
     using namespace AppInstaller::Utility;
+    using namespace std::string_view_literals;
 
     namespace
     {
+        // Get the base download path for the installer path.
+        // This path does not include the file extension, which will be added
+        // after verifying the file hash to prevent it from being ShellExecute-d
+        std::filesystem::path GetInstallerBaseDownloadPath(Execution::Context& context)
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
+            tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+            return tempInstallerPath;
+        }
+
+        // Get the file extension to be used for the installer file.
+        std::wstring_view GetInstallerFileExtension(Execution::Context& context)
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            switch (installer->InstallerType)
+            {
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Nullsoft:
+                return L".exe"sv;
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Wix:
+                return L".msi"sv;
+            case InstallerTypeEnum::Msix:
+            {
+                Msix::MsixInfo msixInfo(installer->Url);
+                return msixInfo.GetIsBundle() ? L".msixbundle"sv : L".msix"sv;
+                break;
+            }
+            case InstallerTypeEnum::Zip:
+                return L".zip"sv;
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+
+        // Try to remove the installer file, ignoring any errors.
+        void RemoveInstallerFile(const std::filesystem::path& path)
+        {
+            try
+            {
+                std::filesystem::remove(path);
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file. Reason: " << e.what());
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file. Reason unknown.");
+            }
+
+        }
+
+        // Checks the file hash for an existing installer file.
+        // Returns true if the file exists and its hash matches, false otherwise.
+        // If the hash does not match, deletes the file.
+        bool ExistingInstallerFileHasHashMatch(const SHA256::HashBuffer& expectedHash, const std::filesystem::path& filePath, SHA256::HashBuffer& fileHash)
+        {
+            if (std::filesystem::exists(filePath))
+            {
+                AICLI_LOG(CLI, Info, << "Found existing installer file at '" << filePath << "'. Verifying file hash.");
+                std::ifstream inStream{ filePath, std::ifstream::binary };
+                fileHash = SHA256::ComputeHash(inStream);
+
+                if (std::equal(expectedHash.begin(), expectedHash.end(), fileHash.begin()))
+                {
+                    return true;
+                }
+
+                AICLI_LOG(CLI, Info, << "Hash does not match. Removing existing installer file " << filePath);
+                RemoveInstallerFile(filePath);
+            }
+
+            return false;
+        }
 
         // Complicated rename algorithm due to somewhat arbitrary failures.
         // 1. First, try to rename.
@@ -79,76 +158,88 @@ namespace AppInstaller::CLI::Workflow
 
     void DownloadInstaller(Execution::Context& context)
     {
-        context << ReportExecutionStage(ExecutionStage::Download);
+        // Check if file was already downloaded.
+        // This may happen after a failed installation or if the download was done
+        // separately before, e.g. on COM scenarios.
+        context <<
+            ReportExecutionStage(ExecutionStage::Download) <<
+            CheckForExistingInstaller;
         if (context.IsTerminated())
         {
             return;
         }
 
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-        switch (installer.InstallerType)
+        // CheckForExistingInstaller will set the InstallerPath if found
+        if (!context.Contains(Execution::Data::InstallerPath))
         {
-        case InstallerTypeEnum::Exe:
-        case InstallerTypeEnum::Burn:
-        case InstallerTypeEnum::Inno:
-        case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::Nullsoft:
-        case InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-            break;
-        case InstallerTypeEnum::Msix:
-            if (installer.SignatureSha256.empty())
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            switch (installer.InstallerType)
             {
-                context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Wix:
+                context << DownloadInstallerFile;
+                break;
+            case InstallerTypeEnum::Msix:
+                if (installer.SignatureSha256.empty())
+                {
+                    context << DownloadInstallerFile;
+                }
+                else
+                {
+                    // Signature hash provided. No download needed. Just verify signature hash.
+                    context << GetMsixSignatureHash;
+                }
+                break;
+            case InstallerTypeEnum::MSStore:
+                // Nothing to do here
+                return;
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
-            else
-            {
-                // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-            }
-            break;
-        case InstallerTypeEnum::MSStore:
-            // Nothing to do here
-            break;
-        default:
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+
+        context <<
+            VerifyInstallerHash <<
+            UpdateInstallerFileMotwIfApplicable <<
+            RenameDownloadedInstaller;
+    }
+
+    void CheckForExistingInstaller(Execution::Context& context)
+    {
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
+        if (installer.InstallerType == InstallerTypeEnum::MSStore)
+        {
+            // No installer is downloaded in this case
+            return;
+        }
+
+        // Try looking for the file with and without extension.
+        auto installerPath = GetInstallerBaseDownloadPath(context);
+        SHA256::HashBuffer fileHash;
+        if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath, fileHash))
+        {
+            installerPath += GetInstallerFileExtension(context);
+            if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath, fileHash))
+            {
+                // No match
+                return;
+            }
+        }
+
+        AICLI_LOG(CLI, Info, << "Existing installer file hash matches. Will use existing installer.");
+        context.Add<Execution::Data::InstallerPath>(installerPath);
+        context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, fileHash));
     }
 
     void GetInstallerDownloadPath(Execution::Context& context)
     {
         if (!context.Contains(Execution::Data::InstallerPath))
         {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            const auto& installer = context.Get<Execution::Data::Installer>();
-
-            std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-            tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-
-            switch (installer->InstallerType)
-            {
-            case InstallerTypeEnum::Burn:
-            case InstallerTypeEnum::Exe:
-            case InstallerTypeEnum::Inno:
-            case InstallerTypeEnum::Nullsoft:
-                tempInstallerPath += L".exe";
-                break;
-            case InstallerTypeEnum::Msi:
-            case InstallerTypeEnum::Wix:
-                tempInstallerPath += L".msi";
-                break;
-            case InstallerTypeEnum::Msix:
-            {
-                Msix::MsixInfo msixInfo(installer->Url);
-                tempInstallerPath += msixInfo.GetIsBundle() ? L".msixbundle" : L".msix";
-                break;
-            }
-            case InstallerTypeEnum::Zip:
-                tempInstallerPath += L".zip";
-                break;
-            }
-
+            auto tempInstallerPath = GetInstallerBaseDownloadPath(context);
             AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
             context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
         }
@@ -164,30 +255,6 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-
-        // Check if file was already downloaded.
-        // This may happen after a failed installation or if the download was done
-        // separately before, e.g. on COM scenarios.
-        if (std::filesystem::exists(installerPath))
-        {
-            AICLI_LOG(CLI, Info, << "Installer already downloaded. Verifying hash.");
-            std::ifstream inStream{ installerPath, std::ifstream::binary };
-            auto existingFileHash = SHA256::ComputeHash(inStream);
-
-            if (std::equal(installer.Sha256.begin(), installer.Sha256.end(), existingFileHash.begin()))
-            {
-                AICLI_LOG(CLI, Info, << "Hash matches. Will use existing installer.");
-                context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
-                return;
-            }
-
-            AICLI_LOG(CLI, Info, << "Hash mismatch. Will download installer again. Removing existing installer file.");
-            context << RemoveInstaller;
-            if (context.IsTerminated())
-            {
-                return;
-            }
-        }
 
         Utility::DownloadInfo downloadInfo{};
         downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
@@ -394,6 +461,31 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void RenameDownloadedInstaller(Execution::Context& context)
+    {
+        if (!context.Contains(Execution::Data::InstallerPath))
+        {
+            // No installer downloaded, no need to rename anything.
+            return;
+        }
+
+        auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+        auto installerExtension = GetInstallerFileExtension(context);
+        if (installerPath.extension() == installerExtension)
+        {
+            // Installer file already has expected extension.
+            return;
+        }
+
+        std::filesystem::path renamedDownloadedInstaller(installerPath);
+        renamedDownloadedInstaller += installerExtension;
+
+        RenameFile(installerPath, renamedDownloadedInstaller);
+
+        installerPath.assign(renamedDownloadedInstaller);
+        AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
+    }
+
     void RemoveInstaller(Execution::Context& context)
     {
         // Path may not be present if installed from a URL for MSIX
@@ -401,20 +493,7 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& path = context.Get<Execution::Data::InstallerPath>();
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-
-            try
-            {
-                // best effort
-                std::filesystem::remove(path);
-            }
-            catch (const std::exception& e)
-            {
-                AICLI_LOG(CLI, Warning, << "Failed to remove installer file. Reason: " << e.what());
-            }
-            catch (...)
-            {
-                AICLI_LOG(CLI, Warning, << "Failed to remove installer file. Reason unknown.");
-            }
+            RemoveInstallerFile(path);
         }
     }
 }
