@@ -114,8 +114,15 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream& OutputStream::operator<<(const std::filesystem::path& path)
     {
-        ApplyFormat();
-        m_out << path.u8string();
+        if (m_enabled)
+        {
+            if (m_VTEnabled)
+            {
+                ApplyFormat();
+            }
+            m_out << path.u8string();
+        }
         return *this;
+        
     }
 }

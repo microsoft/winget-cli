@@ -100,11 +100,14 @@ namespace AppInstaller::CLI::Execution
             //      informs the output that there is no localized version to use.
             // TODO: Convert the rest of the code base and uncomment to enforce localization.
             //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
-            if (m_VTEnabled)
+            if (m_enabled)
             {
-                ApplyFormat();
+                if (m_VTEnabled)
+                {
+                    ApplyFormat();
+                }
+                m_out << t;
             }
-            m_out << t;
             return *this;
         }
 
