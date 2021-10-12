@@ -113,30 +113,37 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 			return false;
 		}
 
-		auto toRemoveDependencies = GetDependenciesByManifestRowId(connection, manifestRowId);
+		auto existingDependencies = GetDependenciesByManifestRowId(connection, manifestRowId);
 		
-		std:for_each(
-		toRemoveDependencies.begin(),
-		toRemoveDependencies.end(),
-		[&](AppInstaller::Manifest::Dependency& dep)
-			{
-				if (toAddSet.find(dep) != toAddSet.end())
-				{
-					toAddSet.erase(dep);
-					toRemoveDependencies.erase(dep);
-				}
+		// Get dependencies to add.
+		std::vector<Manifest::Dependency> toAddDependencies;
+		std::copy_if(
+			dependencies.begin(),
+			dependencies.end(),
+			std::back_inserter(toAddDependencies),
+			[&](Manifest::Dependency dep) 
+			{ 
+				return existingDependencies.find(dep) == existingDependencies.end(); 
 			}
 		);
-		const auto toAddDependencies(
 
-		InsertDependencies(connection, manifestRowId, )
+		// Get dependencies to remove.
+		std::vector<SQLite::rowid_t> toRemoveDependencies;
+		std::for_each(
+			existingDependencies.begin(),
+			existingDependencies.end(),
+			[&](std::pair<Manifest::Dependency, SQLite::rowid_t> row)
+			{ 
+				if (dependenciesSet.find(row.first) == dependenciesSet.end())
+					toRemoveDependencies.emplace_back(row.second);  
+			}
+		);
 		
-
-
-		
-
+		InsertDependencies(connection, manifestRowId, toAddDependencies);
+		RemoveDependencies(connection, toRemoveDependencies);
 		savepoint.Commit();
-		return false;
+
+		return true;
 	}
 
 
@@ -161,7 +168,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 	void DependenciesTable::RemoveDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
 	{
-		GetDependenciesByManifestRowId(connection, manifestRowId);
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_manifest");
+		SQLite::Builder::StatementBuilder builder;
+		builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(s_DependenciesTable_Manifest_Column_Name).Equals(manifestRowId);
+
+		builder.Prepare(connection).Execute(true);
+		savepoint.Commit();
 	}
 
 	std::map<Manifest::Dependency, SQLite::rowid_t> DependenciesTable::GetDependenciesByManifestRowId(SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
@@ -173,13 +185,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 		SQLite::Builder::StatementBuilder builder;
 
 		constexpr std::string_view depTableAlias = "dep";
-		constexpr std::string_view minVersionAlias = "mV";
+		constexpr std::string_view minVersionAlias = "minV";
 		constexpr std::string_view packageIdAlias = "pId";
 
 		std::map<Manifest::Dependency, SQLite::rowid_t> resultSet;
 
-		// SELECT [dep].[rowid], [mV].[version], [pId].[id] FROM [dependencies] AS [dep] 
-		// JOIN [versions] AS [mV] ON [mV].[rowid] = [dep].[min_version] 
+		// SELECT [dep].[rowid], [minV].[version], [pId].[id] FROM [dependencies] AS [dep] 
+		// JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version] 
 		// JOIN [ids] AS [pId] ON [pId].[rowid] = [dep].[package_id] 
 		// WHERE [dep].[manifest] = ?
 		builder.Select().
@@ -205,6 +217,30 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		return resultSet;
 
+	}
+
+	void DependenciesTable::RemoveDependencies(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowId)
+	{
+		using namespace SQLite::Builder;
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_rowid");
+		
+		if (dependencyRowId.size() > 0)
+		{
+			SQLite::Builder::StatementBuilder builder;
+			builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(SQLite::RowIDName).In(dependencyRowId.size());
+
+			SQLite::Statement deleteStmt = builder.Prepare(connection);
+			int bindIndex = 1;
+			for (SQLite::rowid_t rowId : dependencyRowId)
+			{
+				deleteStmt.Bind(bindIndex, rowId);
+				bindIndex++;
+			}
+
+			deleteStmt.Execute(true);
+		}
+
+		savepoint.Commit();
 	}
 
 	void DependenciesTable::FindMissing(
@@ -240,7 +276,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 			[&](AppInstaller::Manifest::Dependency dep) { packageIds.emplace_back(dep.Id); }
 		);
 
-		manifestRowId = ManifestTable::ExistsById(connection, manifestRowId);
+		ManifestTable::ExistsById(connection, manifestRowId);
 
 		// SELECT FROM versions where id IN ("1.0.0", "1.1.0" )
 		auto versionsResultSet = SelectIdsByValues(connection, VersionTable::TableName(), VersionTable::ValueName(), minVersions);
@@ -266,7 +302,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 			insert.Bind(2, versionsResultSet[dep.MinVersion.value().ToString()]);
 			insert.Bind(3, idResultSet[dep.Id]);
 
-			insert.Execute();
+			insert.Execute(true);
 		}
 	}
 }

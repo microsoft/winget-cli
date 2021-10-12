@@ -25,6 +25,7 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
+            m_VTUpdated = true;
             m_out << sequence;
         }
         return *this;
@@ -34,13 +35,26 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
+            m_VTUpdated = true;
             m_out << sequence;
         }
         return *this;
     }
 
-    OutputStream::OutputStream(std::ostream& out, bool enabled, bool VTEnabled) :
-        m_out(out, enabled, VTEnabled) {}
+    void BaseStream::Close()
+    {
+        m_enabled = false;
+        if (m_VTUpdated)
+        {
+            Write(TextFormat::Default, true);
+        }
+    }
+
+    OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :
+        m_out(out),
+        m_enabled(enabled),
+        m_VTEnabled(VTEnabled)
+    {}
 
     void OutputStream::AddFormat(const Sequence& sequence)
     {
@@ -61,27 +75,40 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream& OutputStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
     {
-        m_out << f;
+        if (m_enabled)
+        {
+            m_out << f;
+        }
+        
         return *this;
     }
 
     OutputStream& OutputStream::operator<<(const Sequence& sequence)
     {
-        m_out << sequence;
-        // An incoming sequence will be valid for 1 "standard" output after this one.
-        // We set this to 2 to make that happen, because when it is 1, we will output
-        // the format for the current OutputStream.
-        m_applyFormatAtOne = 2;
+        if (m_enabled && m_VTEnabled)
+        {
+            m_out << sequence;
+
+            // An incoming sequence will be valid for 1 "standard" output after this one.
+            // We set this to 2 to make that happen, because when it is 1, we will output
+            // the format for the current OutputStream.
+            m_applyFormatAtOne = 2;
+        }
+        
         return *this;
     }
 
     OutputStream& OutputStream::operator<<(const ConstructedSequence& sequence)
     {
-        m_out << sequence;
-        // An incoming sequence will be valid for 1 "standard" output after this one.
-        // We set this to 2 to make that happen, because when it is 1, we will output
-        // the format for the current OutputStream.
-        m_applyFormatAtOne = 2;
+        if (m_enabled && m_VTEnabled)
+        {
+            m_out << sequence;
+            // An incoming sequence will be valid for 1 "standard" output after this one.
+            // We set this to 2 to make that happen, because when it is 1, we will output
+            // the format for the current OutputStream.
+            m_applyFormatAtOne = 2;
+        }
+        
         return *this;
     }
 
@@ -89,15 +116,6 @@ namespace AppInstaller::CLI::Execution
     {
         ApplyFormat();
         m_out << path.u8string();
-        return *this;
-    }
-
-    NoVTStream::NoVTStream(std::ostream& out, bool enabled) :
-        m_out(out, enabled, false) {}
-
-    NoVTStream& NoVTStream::operator<<(std::ostream& (__cdecl* f)(std::ostream&))
-    {
-        m_out << f;
         return *this;
     }
 }

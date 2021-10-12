@@ -167,7 +167,7 @@
     <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Show no more than specified number of results</value>
+    <value>Show no more than specified number of results (between 1 and 1000)</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done</value>
@@ -951,7 +951,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
     <value>No package version found</value>
-    <comment>When no suitagle version found for the specific package.</comment>
+    <comment>When no suitable version found for the specific package.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
     <value>No installers found</value>
@@ -1228,5 +1228,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions in import file</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>The requested number of results must be between 1 and 1000.</value>
   </data>
 </root>

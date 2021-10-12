@@ -494,8 +494,8 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
 
     auto& publisher3 = "Test3";
     CreateFakeManifest(manifest, publisher3);
-    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id));
-    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
 
     index.AddManifest(manifest, GetPathFromManfiest(manifest));
 
@@ -529,7 +529,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
     manifest2.DefaultLocalization.Add<Localization::Tags>({});
     manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
 
-    SQLiteIndex index = CreateTestIndex(tempFile);
+    SQLiteIndex index = CreateTestIndex(tempFile, Schema::Version::Latest());
 
     index.AddManifest(manifest1, manifest1Path);
     index.AddManifest(manifest2, manifest2Path);
