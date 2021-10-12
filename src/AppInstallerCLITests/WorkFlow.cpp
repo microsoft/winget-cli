@@ -401,11 +401,16 @@ void OverrideForUpdateInstallerMotw(TestContext& context)
     } });
 }
 
-void OverrideForShellExecute(TestContext& context)
+void OverrideForCheckExistingInstaller(TestContext& context)
 {
     context.Override({ CheckForExistingInstaller, [](TestContext&)
     {
     } });
+}
+
+void OverrideForShellExecute(TestContext& context)
+{
+    OverrideForCheckExistingInstaller(context);
 
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
@@ -422,9 +427,7 @@ void OverrideForShellExecute(TestContext& context)
 
 void OverrideForDirectMsi(TestContext& context)
 {
-    context.Override({ CheckForExistingInstaller, [](TestContext&)
-    {
-    } });
+    OverrideForCheckExistingInstaller(context);
 
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
@@ -467,10 +470,6 @@ void OverrideForExeUninstall(TestContext& context)
 
 void OverrideForMSIX(TestContext& context)
 {
-    context.Override({ CheckForExistingInstaller, [](TestContext&)
-    {
-    } });
-
     context.Override({ MsixInstall, [](TestContext& context)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -697,6 +696,7 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForMSIX(context);
+    OverrideForCheckExistingInstaller(context);
     // Todo: point to files from our repo when the repo goes public
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml").GetPath().u8string());
 
