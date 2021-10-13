@@ -34,6 +34,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Version 1.2
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
 
+        // Validate the dependencies of the given manifest.
+        bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const override;
     protected:
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;

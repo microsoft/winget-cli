@@ -7,6 +7,7 @@
 #include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
+#include "Microsoft/Schema/1_0/Interface.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
@@ -217,6 +218,102 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		return resultSet;
 
+	}
+
+	bool DependenciesTable::ValidateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest)
+	{
+		using namespace Manifest;
+		Dependency rootId(DependencyType::Package, manifest.Id, manifest.Version);
+
+		bool foundErrors = false;
+		
+		DependencyGraph graph(rootId, [&](const Dependency& node) {
+
+			DependencyList depList;
+			if (node.Id == rootId.Id)
+			{
+				const auto dependencies = GetDependencies(manifest, DependencyType::Package);
+				if (!dependencies.size())
+				{
+					return depList;
+				}
+
+				std::for_each(dependencies.begin(), dependencies.end(), [&](Dependency dep) { depList.Add(dep);  });
+				return depList;
+			}
+
+			SQLite::rowid_t packageLatestManifestRowId = GetPackageLatestVersion(connection, node.Id);
+			if (packageLatestManifestRowId < 0)
+			{
+				foundErrors = true;
+				return depList;
+			}
+			
+			auto packagLatestDependencies = GetDependenciesByManifestRowId(connection, packageLatestManifestRowId);
+			std::for_each(
+				packagLatestDependencies.begin(),
+				packagLatestDependencies.end(),
+				[&](std::pair<Dependency, SQLite::rowid_t> row)
+				{
+					depList.Add(row.first);
+				});
+			
+			return depList;
+		});
+
+		graph.BuildGraph();
+
+		if (foundErrors)
+		{
+			// report errors.
+		}
+
+		if (graph.HasLoop())
+		{
+			// report loop errors.
+		}
+		return true;
+	}
+
+	SQLite::rowid_t DependenciesTable::GetPackageLatestVersion(SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId)
+	{
+		using QCol = SQLite::Builder::QualifiedColumn;
+		using namespace SQLite::Builder;
+		using namespace Schema::V1_0;
+
+		SQLite::Builder::StatementBuilder builder;
+
+		constexpr std::string_view manifestTableAlias = "m";
+		constexpr std::string_view versionAlias = "v";
+		constexpr std::string_view packageIdAlias = "pId";
+
+		builder.Select().
+			Column(QCol(manifestTableAlias, SQLite::RowIDName))
+			.Column(QCol(versionAlias, VersionTable::ValueName()))
+			.From({ ManifestTable::TableName() }).As(manifestTableAlias)
+			.Join({ VersionTable::TableName() }).As(versionAlias)
+			.On(QCol(manifestTableAlias, VersionTable::ValueName()), QCol(versionAlias, SQLite::RowIDName))
+			.Join({ IdTable::TableName() }).As(packageIdAlias)
+			.On(QCol(packageIdAlias, SQLite::RowIDName), QCol(manifestTableAlias, IdTable::ValueName()))
+			.Where(QCol(packageIdAlias, IdTable::ValueName())).Equals(Unbound);
+
+		SQLite::Statement stmt = builder.Prepare(connection);
+		stmt.Bind(1, std::string{ packageId });
+
+		SQLite::rowid_t latestRowId = -1;
+		Utility::Version latestVersion;
+
+		while (stmt.Step())
+		{
+			Utility::Version currentVersion(stmt.GetColumn<std::string>(1));
+			if (latestVersion.IsUnknown() || (currentVersion > latestVersion))
+			{
+				latestVersion = currentVersion;
+				latestRowId = stmt.GetColumn<SQLite::rowid_t>(0);
+			}
+		}
+
+		return latestRowId;
 	}
 
 	void DependenciesTable::RemoveDependencies(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowId)

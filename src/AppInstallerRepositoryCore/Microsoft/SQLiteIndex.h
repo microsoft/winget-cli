@@ -93,6 +93,11 @@ namespace AppInstaller::Repository::Microsoft
         // Path is currently ignored.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
+        // Adds the manifest at the repository relative path to the index.
+        // If the function succeeds, the manifest has been added.
+        // Returns the manifest id.
+        bool ValidateManifest(const Manifest::Manifest& manifest);
+
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
 
@@ -125,6 +130,8 @@ namespace AppInstaller::Repository::Microsoft
         // Normalizes a name using the internal rules used by the index.
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const;
+
+        bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest);
 
     private:
         // Constructor used to open an existing index.

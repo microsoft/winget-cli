@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
         // Get dependencies the dependencies
         static std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
+
+        // Get dependencies the dependencies
+        static bool ValidateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest);
     private: 
         // Get all manifest dependencies.
         static std::vector<AppInstaller::Manifest::Dependency> GetDependencies(const Manifest::Manifest& manifest, Manifest::DependencyType dependencyType);
@@ -46,6 +49,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
         // Remove the dependencies by manifest id
         static void RemoveDependencies(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowId);
+
+        static SQLite::rowid_t GetPackageLatestVersion(SQLite::Connection& connection, AppInstaller::Manifest::string_t);
 
         static void InsertDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId, std::vector<Manifest::Dependency>& dependencies);
     };

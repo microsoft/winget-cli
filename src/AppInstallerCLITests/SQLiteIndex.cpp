@@ -380,7 +380,6 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_3]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest dependencyManifest1, dependencyManifest2, manifest;
-    std::string relativePath = "test/id/1.0.0.yaml";
     SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
 
     auto& publisher2 = "Test2";
@@ -485,7 +484,6 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Manifest dependencyManifest1, dependencyManifest2, manifest;
-    std::string relativePath = "test/id/1.0.0.yaml";
     SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
 
     auto& publisher2 = "Test2";
@@ -501,6 +499,32 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
 
     index.RemoveManifest(manifest, GetPathFromManfiest(manifest));
 }
+
+TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest levelOneManifest, levelTwoManifest, levelThreeManifest, topLevelManifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, levelThreeManifest, Schema::Version::Latest());
+
+    constexpr std::string_view levelTwoManifestPublisher = "LevelTwoManifest";
+    CreateFakeManifest(levelTwoManifest, levelTwoManifestPublisher);
+
+    levelTwoManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelThreeManifest.Id, "1.0.0"));
+    index.AddManifest(levelTwoManifest, GetPathFromManfiest(levelTwoManifest));
+
+    constexpr std::string_view levelOneManifestPublisher = "LevelOneManifest";
+    CreateFakeManifest(levelOneManifest, levelOneManifestPublisher);
+    levelOneManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelTwoManifest.Id, "1.0.0"));
+    index.AddManifest(levelOneManifest, GetPathFromManfiest(levelOneManifest));
+
+    constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
+    CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
+    topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
+    index.ValidateManifest(topLevelManifest);
+}
+
 
 TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 {
@@ -529,7 +553,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
     manifest2.DefaultLocalization.Add<Localization::Tags>({});
     manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
 
-    SQLiteIndex index = CreateTestIndex(tempFile, Schema::Version::Latest());
+    SQLiteIndex index = CreateTestIndex(tempFile);
 
     index.AddManifest(manifest1, manifest1Path);
     index.AddManifest(manifest2, manifest2Path);
@@ -707,7 +731,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_3]")
 
     auto& publisher3 = "Test3";
     CreateFakeManifest(manifest, publisher3);
-    const std::string dependencyPath3 = "test3/id/1.0.0.yaml";
+    const std::string dependencyPath3 = GetPathFromManfiest(manifest);
 
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
@@ -716,8 +740,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_3]")
 
     auto& publisher4 = "Test4";
     CreateFakeManifest(updateManifest, publisher4);
-    const std::string dependencyPath4 = "test4/id/1.0.0.yaml";
-    index.AddManifest(updateManifest, dependencyPath4);
+    index.AddManifest(updateManifest, GetPathFromManfiest(updateManifest));
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, updateManifest.Id, "1.0.0"));
 
     REQUIRE(index.UpdateManifest(manifest, dependencyPath3));

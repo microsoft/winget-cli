@@ -7,7 +7,7 @@
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "Microsoft/Schema/1_3/DependenciesTable.h"
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
-
+#include <winget/ManifestValidation.h>
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
@@ -46,7 +46,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
         }
 
-        // DependenciesTable::AddDependencies(connection, manifest, manifestId);
+        DependenciesTable::AddDependencies(connection, manifest, manifestId);
 
         savepoint.Commit();
 
@@ -85,13 +85,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_3");
 
-        SQLite::rowid_t manifestId = V1_1::Interface::RemoveManifest(connection, manifest, relativePath);
+        SQLite::rowid_t manifestId = V1_2::Interface::RemoveManifest(connection, manifest, relativePath);
 
-        // DependenciesTable::RemoveDependencies(connection, manifestId);
+        DependenciesTable::RemoveDependencies(connection, manifestId);
 
         savepoint.Commit();
 
         return manifestId;
+    }
+
+    bool Interface::ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const
+    {
+        return DependenciesTable::ValidateDependencies(connection, manifest);
     }
 
     std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const

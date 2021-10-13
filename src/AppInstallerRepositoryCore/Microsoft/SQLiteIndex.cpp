@@ -219,6 +219,11 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    bool SQLiteIndex::ValidateManifest(const Manifest::Manifest& manifest)
+    {
+        return m_interface->ValidateManifest(m_dbconn, manifest);
+    }
+
     Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
         AICLI_LOG(Repo, Verbose, << "Performing search: " << request.ToString());
