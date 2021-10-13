@@ -34,12 +34,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest?, Installer, InstallerPath
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
-
-    // This method appends appropriate extension to the downloaded installer.
-    // ShellExecute uses file extension to launch the installer appropriately.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Modifies: InstallerPath
-    // Outputs: None
-    void RenameDownloadedInstaller(Execution::Context& context);
 }
