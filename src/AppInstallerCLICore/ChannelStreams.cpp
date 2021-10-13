@@ -43,11 +43,15 @@ namespace AppInstaller::CLI::Execution
 
     void BaseStream::Close()
     {
-        m_enabled = false;
         if (m_VTUpdated)
         {
             Write(TextFormat::Default, true);
         }
+    }
+
+    void BaseStream::Disable()
+    {
+        m_enabled = false;
     }
 
     OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :

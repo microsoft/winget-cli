@@ -59,6 +59,8 @@ namespace AppInstaller::CLI::Execution
 
         void Close();
 
+        void Disable();
+
     private:
         template <typename T>
         void Write(const T& t, bool bypass)
