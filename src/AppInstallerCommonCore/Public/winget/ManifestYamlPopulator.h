@@ -9,21 +9,26 @@ namespace AppInstaller::Manifest
 {
     struct ManifestYamlPopulator
     {
-        static std::vector<ValidationError> PopulateManifest(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
+        static std::vector<ValidationError> PopulateManifest(
+            const YAML::Node& rootNode,
+            Manifest& manifest,
+            const ManifestVer& manifestVersion,
+            ManifestValidateOption validateOption);
 
     private:
 
-        bool m_fullValidation = false;
         bool m_isMergedManifest = false;
+        ManifestValidateOption m_validateOption;
 
         // Struct mapping a manifest field to its population logic
         struct FieldProcessInfo
         {
-            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&)> func) :
-                Name(std::move(name)), ProcessFunc(func) {}
+            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&)> func, bool requireVerifiedPublisher = false) :
+                Name(std::move(name)), ProcessFunc(func), RequireVerifiedPublisher(requireVerifiedPublisher) {}
 
             std::string Name;
             std::function<std::vector<ValidationError>(const YAML::Node&)> ProcessFunc;
+            bool RequireVerifiedPublisher = false;
         };
 
         std::vector<FieldProcessInfo> RootFieldInfos;
@@ -79,6 +84,10 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode);
         std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
 
-        std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
+        std::vector<ValidationError> PopulateManifestInternal(
+            const YAML::Node& rootNode,
+            Manifest& manifest,
+            const ManifestVer& manifestVersion,
+            ManifestValidateOption validateOption);
     };
 }

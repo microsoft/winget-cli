@@ -392,7 +392,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
-                    { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); } },
+                    { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); }, true },
                     { "ReleaseNotes", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotes>(value.as<std::string>()); return {}; } },
                     { "ReleaseNotesUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotesUrl>(value.as<std::string>()); return {}; } },
                 };
@@ -543,6 +543,13 @@ namespace AppInstaller::Manifest
                     resultErrors.emplace_back(ManifestError::FieldDuplicate, fieldInfo.Name, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column);
                 }
 
+                if (fieldInfo.RequireVerifiedPublisher)
+                {
+                    resultErrors.emplace_back(ManifestError::FieldRequireVerifiedPublisher, fieldInfo.Name, "",
+                        m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column,
+                        m_validateOption.ErrorOnVerifiedPublisherFields ? ValidationError::Level::Error : ValidationError::Level::Warning);
+                }
+
                 if (!valueNode.IsNull())
                 {
                     try
@@ -559,7 +566,7 @@ namespace AppInstaller::Manifest
             else
             {
                 // For full validation, also reports unrecognized fields as warning
-                if (m_fullValidation)
+                if (m_validateOption.FullValidation)
                 {
                     resultErrors.emplace_back(ManifestError::FieldUnknown, key, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column, ValidationError::Level::Warning);
                 }
@@ -664,9 +671,13 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
+    ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(
+        const YAML::Node& rootNode,
+        Manifest& manifest,
+        const ManifestVer& manifestVersion,
+        ManifestValidateOption validateOption)
     {
-        m_fullValidation = fullValidation;
+        m_validateOption = validateOption;
         m_isMergedManifest = !rootNode["ManifestType"sv].IsNull() && rootNode["ManifestType"sv].as<std::string>() == "merged";
 
         ValidationErrors resultErrors;
@@ -772,9 +783,13 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    ValidationErrors ManifestYamlPopulator::PopulateManifest(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
+    ValidationErrors ManifestYamlPopulator::PopulateManifest(
+        const YAML::Node& rootNode,
+        Manifest& manifest,
+        const ManifestVer& manifestVersion,
+        ManifestValidateOption validateOption)
     {
         ManifestYamlPopulator manifestPopulator;
-        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, fullValidation);
+        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, validateOption);
     }
 }

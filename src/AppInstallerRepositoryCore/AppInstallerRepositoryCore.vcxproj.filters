@@ -213,6 +213,12 @@
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClInclude>
+    <ClInclude Include="SourceList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourcePolicy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
@@ -340,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourcePolicy.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp">
       <Filter>Rest\Schema</Filter>

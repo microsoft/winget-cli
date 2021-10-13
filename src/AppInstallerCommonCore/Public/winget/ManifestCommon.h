@@ -27,6 +27,16 @@ namespace AppInstaller::Manifest
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
+    struct ManifestValidateOption
+    {
+        bool SchemaValidationOnly = false;
+        bool ErrorOnVerifiedPublisherFields = false;
+
+        // Options not exposed in winget util
+        bool FullValidation = false;
+        bool ThrowOnWarning = false;
+    };
+
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
     // ManifestVer is used to specify the version of app manifest itself.
     // ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]

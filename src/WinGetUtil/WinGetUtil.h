@@ -19,9 +19,12 @@ extern "C"
 
     enum WinGetValidateManifestOption
     {
-        Default,
-        SchemaValidationOnly
+        Default = 0,
+        SchemaValidationOnly = 0x1,
+        ErrorOnVerifiedPublisherFields = 0x2,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
 
     // Initializes the logging infrastructure.
     WINGET_UTIL_API WinGetLoggingInit(

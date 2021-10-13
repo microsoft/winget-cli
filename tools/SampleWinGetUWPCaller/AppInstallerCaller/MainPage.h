@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
 
 #include "InstallingPackageView.h"
 #include <winrt\Microsoft.Management.Deployment.h>
@@ -15,38 +17,29 @@ namespace winrt::AppInstallerCaller::implementation
         Windows::Foundation::Collections::IObservableVector<Deployment::CatalogPackage> InstalledApps();
         Windows::Foundation::Collections::IObservableVector<winrt::AppInstallerCaller::InstallingPackageView> InstallingPackages();
 
-        void InitializeUI();
-        void ToggleDevButtonClicked(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void ToggleDevSwitchToggled(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void FindSourcesButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
-        void StartServerButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void InstallButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void CancelButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void SearchButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
-        void RefreshButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void RefreshInstalledButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void ClearInstalledButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
-        void InstallingRefreshButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void RefreshInstallingButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
         void ClearInstallingButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
 
         Windows::Foundation::IAsyncAction GetSources(winrt::Windows::UI::Xaml::Controls::Button button);
-        Windows::Foundation::IAsyncAction GetInstalledPackages(winrt::Windows::UI::Xaml::Controls::Button button);
-        Windows::Foundation::IAsyncAction GetInstallingPackages(winrt::Windows::UI::Xaml::Controls::Button button);
+        Windows::Foundation::IAsyncAction GetInstalledPackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
+        Windows::Foundation::IAsyncAction GetInstallingPackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
 
-        Windows::Foundation::IAsyncAction InitializeInstallUI(
-            std::wstring installAppId,
-            winrt::Windows::UI::Xaml::Controls::Button installButton,
-            winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-            winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-            winrt::Windows::UI::Xaml::Controls::TextBlock statusText); 
         Windows::Foundation::IAsyncAction StartInstall(
             winrt::Windows::UI::Xaml::Controls::Button installButton,
             winrt::Windows::UI::Xaml::Controls::Button cancelButton,
             winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
             winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
         Windows::Foundation::IAsyncAction FindPackage(
-            winrt::Windows::UI::Xaml::Controls::Button button,
+            winrt::Windows::UI::Xaml::Controls::Button installButton,
             winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
             winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
-        Windows::Foundation::IAsyncOperation<Deployment::CatalogPackage> FindPackageAsync();
 
     private:
         Deployment::PackageManager CreatePackageManager();
@@ -59,7 +52,6 @@ namespace winrt::AppInstallerCaller::implementation
         Windows::Foundation::IAsyncOperation<Deployment::CatalogPackage> FindPackageInCatalogAsync(Deployment::PackageCatalog catalog, std::wstring packageId);
         Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> InstallPackage(Deployment::CatalogPackage package);
         Windows::Foundation::IAsyncOperation<Deployment::PackageCatalog> FindSourceAsync(std::wstring packageSource);
-        Windows::Foundation::IAsyncAction StartServer();
 
         Windows::Foundation::Collections::IObservableVector<Deployment::PackageCatalogReference> m_packageCatalogs;
         Windows::Foundation::Collections::IObservableVector<Deployment::CatalogPackage> m_installedPackages;
@@ -68,7 +60,6 @@ namespace winrt::AppInstallerCaller::implementation
         std::wstring m_installAppId;
         Deployment::PackageManager m_packageManager{ nullptr };
         bool m_useDev = false;
-
     };
 }
 

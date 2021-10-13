@@ -641,17 +641,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Report dependencies
-        DependencyList allDependencies;
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            DependencyList allDependencies;
+            for (auto package : context.Get<Execution::Data::PackagesToInstall>())
             {
                 allDependencies.Add(package.Installer.Dependencies);
             }
-        }
 
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
             context.Add<Execution::Data::Dependencies>(allDependencies);
             context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
@@ -659,7 +656,7 @@ namespace AppInstaller::CLI::Workflow
         bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
-            Logging::SubExecutionTelemetryScope subExecution;
+            Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
 
             // We want to do best effort to install all packages regardless of previous failures
             auto installContextPtr = context.Clone();
@@ -667,7 +664,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Extract the data needed for installing
             installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+            installContext.Add<Execution::Data::Manifest>(package.Manifest);
             installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
             installContext.Add<Execution::Data::Installer>(package.Installer);
 

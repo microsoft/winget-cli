@@ -42,6 +42,7 @@ namespace AppInstaller::Manifest
         const char* const InvalidBcp47Value = "The locale value is not a well formed bcp47 language tag.";
         const char* const BothAllowedAndExcludedMarketsDefined = "Both AllowedMarkets and ExcludedMarkets defined.";
         const char* const DuplicateReturnCodeEntry = "Duplicate installer return code found.";
+        const char* const FieldRequireVerifiedPublisher = "Field usage requires verified publishers.";
     }
 
     struct ValidationError

@@ -171,6 +171,11 @@ namespace AppInstaller::Utility {
         delete context;
     }
 
+    bool SHA256::AreEqual(const HashBuffer& first, const HashBuffer& second)
+    {
+        return (first.size() == second.size() && std::equal(first.begin(), first.end(), second.begin()));
+    }
+
     void SHA256::EnsureNotFinished() const
     {
         if (!context)
