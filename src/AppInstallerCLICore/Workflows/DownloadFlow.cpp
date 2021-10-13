@@ -40,11 +40,8 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Wix:
                 return L".msi"sv;
             case InstallerTypeEnum::Msix:
-            {
-                Msix::MsixInfo msixInfo(installer->Url);
-                return msixInfo.GetIsBundle() ? L".msixbundle"sv : L".msix"sv;
-                break;
-            }
+                // Note: We may need to distinguish between .msix and .msixbundle in the future.
+                return L".msix"sv;
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
             default:
@@ -81,7 +78,7 @@ namespace AppInstaller::CLI::Workflow
                 std::ifstream inStream{ filePath, std::ifstream::binary };
                 fileHash = SHA256::ComputeHash(inStream);
 
-                if (std::equal(expectedHash.begin(), expectedHash.end(), fileHash.begin()))
+                if (SHA256::AreEqual(expectedHash, fileHash))
                 {
                     return true;
                 }
