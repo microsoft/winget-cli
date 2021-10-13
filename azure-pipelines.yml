@@ -19,6 +19,8 @@ variables:
   solution: 'src/AppInstallerCLI.sln'
   buildPlatform: 'x86|x64'
   buildConfiguration: 'Release'
+  testBuildPlatform: 'x86'
+  testBuildConfiguration: 'TestRelease'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 # Do not set the build version for a PR build.
@@ -91,9 +93,20 @@ jobs:
     displayName: Build Solution
     inputs:
       platform: 'x86'
-      solution: 'src\*.sln'
+      solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)" 
+                    /p:AppxBundle=Always 
+                    /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: VSBuild@1
+    displayName: Build Test Project
+    inputs:
+      platform: 'x86'
+      solution: '$(solution)'
+      configuration: '$(testBuildConfiguration)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(testBuildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
@@ -312,10 +325,10 @@ jobs:
     displayName: Run Com Interface Tests
     inputs:
       testRunTitle: 'Com Interface Tests'
-      platform: 'x64'
+      platform: 'x86'
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
-        src\x86\Release\PackagedTests\x64\PackagedTests\PackagedTests.build.appxrecipe
+        src\x86\Release\PackagedTests\PackagedTests.build.appxrecipe
       runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
     condition: succeededOrFailed()
 
