@@ -62,36 +62,6 @@ namespace AppInstaller::CLI::Workflow
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
-    // Inputs: Manifest, Installer
-    // Outputs: None
-    void DownloadInstaller(Execution::Context& context);
-
-    // Downloads the file referenced by the Installer.
-    // Required Args: None
-    // Inputs: Installer
-    // Outputs: HashPair, InstallerPath
-    void DownloadInstallerFile(Execution::Context& context);
-
-    // Computes the hash of the MSIX signature file.
-    // Required Args: None
-    // Inputs: Installer
-    // Outputs: HashPair
-    void GetMsixSignatureHash(Execution::Context& context);
-
-    // Gets the source list, filtering it if SourceName is present.
-    // Required Args: None
-    // Inputs: HashPair
-    // Outputs: SourceList
-    void VerifyInstallerHash(Execution::Context& context);
-
-    // Update Motw of the downloaded installer if applicable
-    // Required Args: None
-    // Inputs: HashPair, InstallerPath?, SourceId?
-    // Outputs: None
-    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context);
-
-    // Composite flow that chooses what to do based on the installer type.
-    // Required Args: None
     // Inputs: Installer, InstallerPath
     // Outputs: None
     void ExecuteInstaller(Execution::Context& context);
@@ -137,13 +107,6 @@ namespace AppInstaller::CLI::Workflow
         bool m_isHResult;
     };
 
-
-    // Deletes the installer file.
-    // Required Args: None
-    // Inputs: InstallerPath
-    // Outputs: None
-    void RemoveInstaller(Execution::Context& context);
-
     // Reports manifest identity and shows installation disclaimer
     // Required Args: None
     // Inputs: Manifest
@@ -152,11 +115,17 @@ namespace AppInstaller::CLI::Workflow
 
     // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
-    // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
+    // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Installs a single package. This also does the reporting and user interaction
+    // Downloads the installer for a single package. This also does all the reporting and user interaction needed.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: InstallerPath
+    void DownloadSinglePackage(Execution::Context& context);
+
+    // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
     // RequiredArgs: None
     // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
