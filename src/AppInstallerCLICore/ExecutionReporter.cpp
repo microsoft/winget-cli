@@ -221,7 +221,9 @@ namespace AppInstaller::CLI::Execution
     void Reporter::CloseOutputStream(bool forceDisable)
     {
         if (forceDisable)
+        {
             m_out->Disable();
-        m_out->Close();
+        }
+        m_out->RestoreDefault();
     }
 }

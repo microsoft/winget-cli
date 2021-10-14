@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    void BaseStream::Close()
+    void BaseStream::RestoreDefault()
     {
         if (m_VTUpdated)
         {
