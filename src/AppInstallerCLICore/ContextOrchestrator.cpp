@@ -88,14 +88,12 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem)
     {
-        std::lock_guard<std::mutex> lockSource{ m_sourceLock };
         const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
         m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
     }
 
     void ContextOrchestrator::RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem)
     {
-        std::lock_guard<std::mutex> lockSource{ m_sourceLock };
         const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
         m_installingWriteableSource->RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
     }

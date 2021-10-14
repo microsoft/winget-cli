@@ -88,9 +88,7 @@ namespace AppInstaller::CLI::Execution
         _Requires_lock_held_(m_queueLock)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
-        std::mutex m_sourceLock;
         std::shared_ptr<::AppInstaller::Repository::IMutablePackageSource> m_installingWriteableSource = nullptr;
-
         std::map<std::string, std::unique_ptr<OrchestratorQueue>> m_commandQueues;
     };
 
