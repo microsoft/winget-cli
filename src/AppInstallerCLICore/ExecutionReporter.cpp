@@ -218,8 +218,12 @@ namespace AppInstaller::CLI::Execution
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
     }
 
-    void Reporter::CloseOutputStream()
+    void Reporter::CloseOutputStream(bool forceDisable)
     {
-        m_out->Close();
+        if (forceDisable)
+        {
+            m_out->Disable();
+        }
+        m_out->RestoreDefault();
     }
 }
