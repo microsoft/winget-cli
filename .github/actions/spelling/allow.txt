@@ -385,6 +385,7 @@ regex
 regexp
 removemanifest
 repolibtest
+requeue
 rescap
 resheader
 resmimetype
