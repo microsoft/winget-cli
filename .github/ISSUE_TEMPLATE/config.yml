@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Review open issues
+    url: https://github.com/microsoft/winget-cli/issues
+    about: Please check if your issue or a similar issue has already been submitted

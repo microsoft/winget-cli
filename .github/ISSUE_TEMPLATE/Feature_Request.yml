@@ -1,0 +1,18 @@
+name: "Feature Request/Idea 🚀"
+description: Suggest a new feature or improvement (this does not mean you have to implement it)
+labels: ["Issue-Feature"]
+body:
+  - type: textarea
+    attributes:
+      label: Description of the new feature / enhancement
+      placeholder: |
+        A clear and concise description of what the problem is that the new feature would solve.
+        Describe why and how a user would use this new functionality (if applicable).
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed technical implementation details
+      placeholder: A clear and concise description of what you want to happen
+    validations:
+      required: false
