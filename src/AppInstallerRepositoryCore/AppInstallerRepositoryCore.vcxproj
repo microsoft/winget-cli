@@ -231,6 +231,7 @@
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
+    <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
@@ -266,6 +267,8 @@
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\winget\RepositorySearch.h" />
+    <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />
     <ClInclude Include="Rest\RestSource.h" />
     <ClInclude Include="Rest\RestSourceFactory.h" />
@@ -286,8 +289,6 @@
     <ClInclude Include="SourceList.h" />
     <ClInclude Include="SourcePolicy.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
-    <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
-    <ClInclude Include="Public\AppInstallerRepositorySource.h" />
     <ClInclude Include="SQLiteTempTable.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>

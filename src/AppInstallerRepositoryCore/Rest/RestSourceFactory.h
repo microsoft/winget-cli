@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Public/AppInstallerRepositorySource.h"
+#include "Public/winget/RepositorySource.h"
 #include "SourceFactory.h"
 #include <string_view>
 

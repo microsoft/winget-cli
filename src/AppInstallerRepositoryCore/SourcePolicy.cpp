@@ -178,7 +178,7 @@ namespace AppInstaller::Repository
         return false;
     }
 
-    void EnsureSourceIsRemovable(const SourceDetailsInternal& source)
+    void EnsureSourceIsRemovable(const SourceConfigurationInternal& source)
     {
         // Block removing sources added by Group Policy
         if (source.Origin == SourceOrigin::GroupPolicy)

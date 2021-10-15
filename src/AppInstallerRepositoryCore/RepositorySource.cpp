@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/AppInstallerRepositorySource.h"
+#include "Public/winget/RepositorySource.h"
 
 #include "CompositeSource.h"
 #include "SourceFactory.h"
@@ -191,7 +191,7 @@ namespace AppInstaller::Repository
         };
     }
 
-    std::string_view ToString(SourceOrigin origin)
+    std::string_view SourceOriginToString(SourceOrigin origin)
     {
         switch (origin)
         {
@@ -199,6 +199,8 @@ namespace AppInstaller::Repository
             return "Default"sv;
         case SourceOrigin::User:
             return "User"sv;
+        case SourceOrigin::Predefined:
+            return "Predefined"sv;
         case SourceOrigin::GroupPolicy:
             return "GroupPolicy"sv;
         case SourceOrigin::Metadata:
@@ -624,6 +626,36 @@ namespace AppInstaller::Repository
     {
         SourceList sourceList;
         sourceList.SaveAcceptedSourceAgreements(source);
+    }
+
+    Source::Source()
+    {
+    }
+
+    Source::Source(std::string_view name)
+    {
+
+    }
+
+    Source::Source(PredefinedSource source)
+    {
+    }
+
+    Source::Source(WellKnownSource source)
+    {
+    }
+
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type)
+    {
+    }
+
+    Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
+    {
+    }
+
+    std::string Source::GetIdentifier() const
+    {
+        return m_source->GetIdentifier();
     }
 
     bool SearchRequest::IsForEverything() const
