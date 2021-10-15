@@ -648,8 +648,6 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        bool singleSourceSpecified = context.Args.Contains(Execution::Args::Type::Source);
-
         Execution::TableOutput<5> table(context.Reporter,
             {
                 Resource::String::SearchName,
@@ -692,7 +690,7 @@ namespace AppInstaller::CLI::Workflow
                         match.Package->GetProperty(PackageProperty::Id),
                         installedVersion->GetProperty(PackageVersionProperty::Version),
                         availableVersion,
-                        singleSourceSpecified ? ""s : sourceName
+                        context.Args.Contains(Execution::Args::Type::Source) ? ""s : sourceName
                         });
                 }
             }
