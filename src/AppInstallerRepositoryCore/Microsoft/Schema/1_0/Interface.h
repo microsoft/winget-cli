@@ -36,6 +36,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Validate the dependencies of the given manifest.
         bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const override;
+
+        bool VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest&) const override;
     protected:
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;

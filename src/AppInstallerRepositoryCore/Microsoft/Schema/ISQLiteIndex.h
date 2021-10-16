@@ -89,5 +89,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Version 1.3
         // Validate the dependencies of the given manifest.
         virtual bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const = 0;
+
+        virtual bool VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest&) const = 0;
     };
 }

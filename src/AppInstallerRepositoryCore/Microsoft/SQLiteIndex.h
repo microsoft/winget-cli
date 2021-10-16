@@ -98,6 +98,11 @@ namespace AppInstaller::Repository::Microsoft
         // Returns the manifest id.
         bool ValidateManifest(const Manifest::Manifest& manifest);
 
+        // Adds the manifest at the repository relative path to the index.
+        // If the function succeeds, the manifest has been added.
+        // Returns the manifest id.
+        bool VerifyDependenciesStructureForManifestDelete(const Manifest::Manifest& manifest);
+
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
 

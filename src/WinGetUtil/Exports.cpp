@@ -240,13 +240,13 @@ extern "C"
     CATCH_RETURN()
 
     WINGET_UTIL_API WinGetValidateManifestV3(
-        WINGET_SQLITE_INDEX_HANDLE* index,
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
+        WINGET_SQLITE_INDEX_HANDLE* index,
         WinGetValidateManifestOption option) try
-{
+    {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
@@ -262,6 +262,33 @@ extern "C"
             reinterpret_cast<SQLiteIndex*>(index)->ValidateManifest(manifest);
 
             *succeeded = TRUE;
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = e.IsWarningOnly();
+            if (message)
+            {
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API VerifyDependenciesStructureForManifestDelete(
+            WINGET_STRING inputPath,
+            BOOL* succeeded,
+            WINGET_STRING_OUT* message,
+            WINGET_STRING mergedManifestPath,
+            WINGET_SQLITE_INDEX_HANDLE* index) try
+    {
+        try
+        {
+            ManifestValidateOption validateOption;
+
+            Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
+            reinterpret_cast<SQLiteIndex*>(index)->ValidateManifest(manifest);
         }
         catch (const ManifestException& e)
         {
