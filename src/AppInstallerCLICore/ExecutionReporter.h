@@ -131,7 +131,7 @@ namespace AppInstaller::CLI::Execution
         // Cancels the in progress task.
         void CancelInProgressTask(bool force);
 
-        void CloseOutputStream();
+        void CloseOutputStream(bool forceDisable = false);
 
         void SetProgressSink(IProgressSink* sink)
         {

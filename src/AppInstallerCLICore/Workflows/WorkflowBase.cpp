@@ -709,6 +709,8 @@ namespace AppInstaller::CLI::Workflow
             });
 
         int availableUpgradesCount = 0;
+        auto &source = context.Get<Execution::Data::Source>();
+        bool shouldShowSource = source->IsComposite() && source->GetAvailableSources().size() > 1;
 
         for (const auto& match : searchResult.Matches)
         {
@@ -741,7 +743,7 @@ namespace AppInstaller::CLI::Workflow
                         match.Package->GetProperty(PackageProperty::Id),
                         installedVersion->GetProperty(PackageVersionProperty::Version),
                         availableVersion,
-                        sourceName
+                        shouldShowSource ? sourceName : ""s
                         });
                 }
             }
