@@ -32,7 +32,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto source = packageVersion->GetSource();
                 const auto& details = source->GetDetails();
-                if (!IsSourceRemote(details))
+                if (!ContainsAvailablePackages(details.Origin))
                 {
                     return;
                 }
@@ -49,13 +49,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::vector<Item> Items;
-
-        private:
-            bool IsSourceRemote(const SourceDetails& details)
-            {
-                auto origin = details.Origin;
-                return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
-            }
         };
     }
 

@@ -173,3 +173,15 @@ TEST_CASE("ReplaceWhileCopying", "[strings]")
     REQUIRE(ReplaceWhileCopying(L"A red apple", L"p", L"f") == L"A red affle");
     REQUIRE(ReplaceWhileCopying(L"A red apple", L"", L"green") == L"A red apple");
 }
+
+TEST_CASE("MakeSuitablePathPart", "[strings]")
+{
+    REQUIRE(MakeSuitablePathPart("A\\B") == "A_B");
+    REQUIRE(MakeSuitablePathPart("A\\B/") == "A_B_");
+    REQUIRE(MakeSuitablePathPart("*AB") == "_AB");
+    REQUIRE(MakeSuitablePathPart(u8"f*\xF6*ldcase") == u8"f_\xF6_ldcase");
+    REQUIRE(MakeSuitablePathPart(".") == "_");
+    REQUIRE(MakeSuitablePathPart("..") == "._");
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("COM1"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("NUL.txt"), E_INVALIDARG);
+}

@@ -4,17 +4,27 @@
 #include "winget/PackageTrackingCatalog.h"
 #include "Microsoft/SQLiteIndexSource.h"
 
+using namespace std::string_literals;
+using namespace AppInstaller::Repository::Microsoft;
+
 
 namespace AppInstaller::Repository
 {
     namespace
     {
-        constexpr std::string_view c_PackageTrackingDirectoryName = "";
+        constexpr std::string_view c_PackageTrackingFileName = "installed.db";
 
-        std::filesystem::path GetPackageTrackingRootPath()
+        std::string CreateNameForCPRWL(const std::string& pathName)
+        {
+            return "PackageTrackingCPRWL_"s + pathName;
+        }
+
+        std::filesystem::path GetPackageTrackingFilePath(const std::string& pathName)
         {
             std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
-            result /= 
+            result /= pathName;
+            result /= c_PackageTrackingFileName;
+            return result;
         }
     }
 
@@ -32,28 +42,51 @@ namespace AppInstaller::Repository
 
     PackageTrackingCatalog PackageTrackingCatalog::CreateForSource(const std::shared_ptr<const ISource>& source)
     {
-        THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-
-        auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
-        if (!lock)
+        // Not a valid source for tracking
+        const std::string& sourceIdentifier = source->GetIdentifier();
+        if (sourceIdentifier.empty() || !ContainsAvailablePackages(source->GetDetails().Origin))
         {
-            return {};
+            THROW_HR(E_INVALIDARG);
         }
 
-        std::filesystem::path packageLocation = GetStatePathFromDetails(details);
-        packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+        std::string pathName = Utility::MakeSuitablePathPart(sourceIdentifier);
 
-        if (!std::filesystem::exists(packageLocation))
+        std::string lockName = CreateNameForCPRWL(pathName);
+        auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
+
+        std::filesystem::path trackingDB = GetPackageTrackingFilePath(pathName);
+
+        if (!std::filesystem::exists(trackingDB))
         {
-            AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
-            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+            lock.Release();
+            lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
+
+            if (!std::filesystem::exists(trackingDB))
+            {
+                std::filesystem::create_directories(trackingDB.parent_path());
+                SQLiteIndex::CreateNew(trackingDB.u8string());
+            }
+
+            lock.Release();
+            lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
         }
 
-        SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
+        SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::Read);
 
-        // We didn't use to store the source identifier, so we compute it here in case it's
-        // missing from the details.
-        return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
+        // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
+        //       Could write this all now but it will be better tested when there is a new schema.
+
+        // Create fake details for the source while stashing some information that might be helpful for debugging
+        SourceDetails details;
+        details.Name = "Tracking for "s + source->GetDetails().Name;
+        details.Origin = SourceOrigin::PackageTracking;
+        details.Arg = pathName;
+
+        PackageTrackingCatalog result;
+        result.m_implementation = std::make_shared< PackageTrackingCatalog::implementation>();
+        result.m_implementation->Source = std::make_shared<SQLiteIndexSource>(details, "*Tracking", std::move(index), std::move(lock));
+
+        return result;
     }
 
     SearchResult PackageTrackingCatalog::Search(const SearchRequest& request) const

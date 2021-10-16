@@ -626,6 +626,11 @@ namespace AppInstaller::Repository
         sourceList.SaveAcceptedSourceAgreements(source);
     }
 
+    bool ContainsAvailablePackages(SourceOrigin origin)
+    {
+        return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
+    }
+
     bool SearchRequest::IsForEverything() const
     {
         return (!Query.has_value() && Inclusions.empty() && Filters.empty());
