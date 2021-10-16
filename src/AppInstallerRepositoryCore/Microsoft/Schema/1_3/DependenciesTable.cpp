@@ -502,7 +502,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 			.Values(Unbound, Unbound, Unbound);
 		SQLite::Statement insert = insertBuilder.Prepare(connection);
 
-		// TODO: use nsert with mulitple values, rather than run the query in a loop.
+		// TODO: use insert with multiple values, rather than run the query in a loop.
 		for (const auto& dep : dependencies)
 		{
 			insert.Reset();
