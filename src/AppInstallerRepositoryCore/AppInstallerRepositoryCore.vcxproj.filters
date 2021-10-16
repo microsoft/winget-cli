@@ -380,6 +380,9 @@
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
+    <ClCompile Include="RepositorySearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

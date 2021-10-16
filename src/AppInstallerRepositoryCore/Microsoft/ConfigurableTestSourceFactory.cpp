@@ -12,8 +12,6 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
-
         // The configuration defined for a source.
         // This can be added to as new scenarios are needed for testing.
         struct TestSourceConfiguration
@@ -73,6 +71,8 @@ namespace AppInstaller::Repository::Microsoft
             const SourceDetails& GetDetails() const override { return m_details; }
 
             const std::string& GetIdentifier() const override { return m_details.Identifier; }
+
+            bool SetCustomHeader(std::string_view) { return true; }
 
             SearchResult Search(const SearchRequest&) const override
             {

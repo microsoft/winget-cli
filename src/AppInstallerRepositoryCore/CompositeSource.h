@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "AppInstallerRepositorySource.h"
+#include "ISource.h"
 
 namespace AppInstaller::Repository
 {

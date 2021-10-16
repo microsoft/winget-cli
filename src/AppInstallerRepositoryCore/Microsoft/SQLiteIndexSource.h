@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Microsoft/SQLiteIndex.h"
-#include "Public/AppInstallerRepositorySource.h"
+#include "ISource.h"
 #include <AppInstallerSynchronization.h>
 
 #include <memory>

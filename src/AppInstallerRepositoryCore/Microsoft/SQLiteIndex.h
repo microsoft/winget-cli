@@ -4,7 +4,7 @@
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/Version.h"
-#include "Public/AppInstallerRepositorySearch.h"
+#include "ISource.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>

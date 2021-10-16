@@ -66,10 +66,10 @@ namespace AppInstaller::Repository
             std::string_view settingName,
             std::istream& stream,
             std::string_view rootName,
-            std::function<bool(SourceConfigurationInternal&, const std::string&, const YAML::Node&)> parse,
-            std::vector<SourceConfigurationInternal>& sourceDetails)
+            std::function<bool(SourceDetailsInternal&, const std::string&, const YAML::Node&)> parse,
+            std::vector<SourceDetailsInternal>& sourceDetails)
         {
-            std::vector<SourceConfigurationInternal> result;
+            std::vector<SourceDetailsInternal> result;
             std::string settingValue = Utility::ReadEntireStream(stream);
 
             YAML::Node document;
@@ -106,7 +106,7 @@ namespace AppInstaller::Repository
 
                 for (const auto& source : sources.Sequence())
                 {
-                    SourceConfigurationInternal details;
+                    SourceDetailsInternal details;
                     if (!parse(details, settingValue, source))
                     {
                         return false;
@@ -126,10 +126,10 @@ namespace AppInstaller::Repository
         }
 
         // Gets the source details from a particular setting, or an empty optional if no setting exists.
-        std::optional<std::vector<SourceConfigurationInternal>> TryGetSourcesFromSetting(
+        std::optional<std::vector<SourceDetailsInternal>> TryGetSourcesFromSetting(
             Settings::Stream& setting,
             std::string_view rootName,
-            std::function<bool(SourceConfigurationInternal&, const std::string&, const YAML::Node&)> parse)
+            std::function<bool(SourceDetailsInternal&, const std::string&, const YAML::Node&)> parse)
         {
             auto sourcesStream = setting.Get();
             if (!sourcesStream)
@@ -139,23 +139,23 @@ namespace AppInstaller::Repository
             }
             else
             {
-                std::vector<SourceConfigurationInternal> result;
+                std::vector<SourceDetailsInternal> result;
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result));
                 return result;
             }
         }
 
         // Gets the source details from a particular setting.
-        std::vector<SourceConfigurationInternal> GetSourcesFromSetting(
+        std::vector<SourceDetailsInternal> GetSourcesFromSetting(
             Settings::Stream& setting,
             std::string_view rootName,
-            std::function<bool(SourceConfigurationInternal&, const std::string&, const YAML::Node&)> parse)
+            std::function<bool(SourceDetailsInternal&, const std::string&, const YAML::Node&)> parse)
         {
-            return TryGetSourcesFromSetting(setting, rootName, parse).value_or(std::vector<SourceConfigurationInternal>{});
+            return TryGetSourcesFromSetting(setting, rootName, parse).value_or(std::vector<SourceDetailsInternal>{});
         }
 
         // Sets the sources for a particular setting, from a particular origin.
-        [[nodiscard]] bool SetSourcesToSettingWithFilter(Settings::Stream& setting, SourceOrigin origin, const std::vector<SourceConfigurationInternal>& sources)
+        [[nodiscard]] bool SetSourcesToSettingWithFilter(Settings::Stream& setting, SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources)
         {
             YAML::Emitter out;
             out << YAML::BeginMap;
@@ -183,19 +183,19 @@ namespace AppInstaller::Repository
         }
 
         // Assumes that names match already
-        bool DoSourceConfigurationInternalMatch(const SourceConfigurationInternal& left, const SourceConfigurationInternal& right)
+        bool DoSourceDetailsInternalMatch(const SourceDetailsInternal& left, const SourceDetailsInternal& right)
         {
             return left.Arg == right.Arg &&
                 Utility::CaseInsensitiveEquals(left.Type, right.Type);
         }
 
-        bool ShouldBeHidden(const SourceConfigurationInternal& details)
+        bool ShouldBeHidden(const SourceDetailsInternal& details)
         {
             return details.IsTombstone || details.Origin == SourceOrigin::Metadata;
         }
     }
 
-    void SourceConfigurationInternal::CopyMetadataFieldsTo(SourceConfigurationInternal& target)
+    void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
     {
         target.LastUpdateTime = LastUpdateTime;
         target.AcceptedAgreementFields = AcceptedAgreementFields;
@@ -247,13 +247,13 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    SourceConfigurationInternal GetWellKnownSourceConfigurationInternal(WellKnownSource source)
+    SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
     {
         switch (source)
         {
         case WellKnownSource::WinGet:
         {
-            SourceConfigurationInternal details;
+            SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityDefault_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
@@ -264,7 +264,7 @@ namespace AppInstaller::Repository
         }
         case WellKnownSource::MicrosoftStore:
         {
-            SourceConfigurationInternal details;
+            SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_MSStoreDefault_Name;
             details.Type = Rest::RestSourceFactory::Type();
@@ -275,7 +275,7 @@ namespace AppInstaller::Repository
         }
         case WellKnownSource::DesktopFrameworks:
         {
-            SourceConfigurationInternal details;
+            SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_DesktopFrameworks_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
@@ -300,9 +300,9 @@ namespace AppInstaller::Repository
         OverwriteMetadata();
     }
 
-    std::vector<std::reference_wrapper<SourceConfigurationInternal>> SourceList::GetCurrentSourceRefs()
+    std::vector<std::reference_wrapper<SourceDetailsInternal>> SourceList::GetCurrentSourceRefs()
     {
-        std::vector<std::reference_wrapper<SourceConfigurationInternal>> result;
+        std::vector<std::reference_wrapper<SourceDetailsInternal>> result;
 
         for (auto& s : m_sourceList)
         {
@@ -322,39 +322,32 @@ namespace AppInstaller::Repository
     auto SourceList::FindSource(std::string_view name, bool includeHidden)
     {
         return std::find_if(m_sourceList.begin(), m_sourceList.end(),
-            [name, includeHidden](const SourceConfigurationInternal& sd)
+            [name, includeHidden](const SourceDetailsInternal& sd)
             {
                 return Utility::ICUCaseInsensitiveEquals(sd.Name, name) &&
                     (includeHidden || !ShouldBeHidden(sd));
             });
     }
 
-    SourceConfigurationInternal* SourceList::GetCurrentSource(std::string_view name)
+    SourceDetailsInternal* SourceList::GetCurrentSource(std::string_view name)
     {
         auto itr = FindSource(name);
         return itr == m_sourceList.end() ? nullptr : &(*itr);
     }
 
-    SourceConfigurationInternal* SourceList::GetSource(std::string_view name)
+    SourceDetailsInternal* SourceList::GetSource(std::string_view name)
     {
         auto itr = FindSource(name, true);
         return itr == m_sourceList.end() ? nullptr : &(*itr);
     }
 
-    void SourceList::AddSource(const SourceConfigurationInternal& details)
+    void SourceList::AddSource(const SourceDetailsInternal& details)
     {
         bool sourcesSet = false;
 
         for (size_t i = 0; !sourcesSet && i < 10; ++i)
         {
-            auto currentSource = GetCurrentSource(details.Name);
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, currentSource != nullptr && !DoSourceConfigurationInternalMatch(details, *currentSource));
-
-            // Check for a hidden source data that we don't want to collide.
-            // TODO: Refactor the source interface so that we don't do this
             auto itr = FindSource(details.Name, true);
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS,
-                itr != m_sourceList.end() && itr->Origin != SourceOrigin::User && itr->Origin != SourceOrigin::Metadata);
 
             // Erase the source's entry if applicable
             if (itr != m_sourceList.end())
@@ -378,11 +371,11 @@ namespace AppInstaller::Repository
         SaveMetadataInternal(details);
     }
 
-    void SourceList::RemoveSource(const SourceConfigurationInternal& detailsRef)
+    void SourceList::RemoveSource(const SourceDetailsInternal& detailsRef)
     {
         // Copy the incoming details because we might destroy the referenced structure
         // when reloading the source details from settings.
-        SourceConfigurationInternal details = detailsRef;
+        SourceDetailsInternal details = detailsRef;
         bool sourcesSet = false;
 
         for (size_t i = 0; !sourcesSet && i < 10; ++i)
@@ -399,7 +392,7 @@ namespace AppInstaller::Repository
 
                 if (!target->IsTombstone)
                 {
-                    SourceConfigurationInternal tombstone;
+                    SourceDetailsInternal tombstone;
                     tombstone.Name = details.Name;
                     tombstone.IsTombstone = true;
                     tombstone.Origin = SourceOrigin::User;
@@ -441,22 +434,20 @@ namespace AppInstaller::Repository
         SaveMetadataInternal(details, true);
     }
 
-    void SourceList::SaveMetadata(const SourceConfigurationInternal& details)
+    void SourceList::SaveMetadata(const SourceDetailsInternal& details)
     {
         SaveMetadataInternal(details);
     }
 
-    bool SourceList::CheckSourceAgreements(const SourceDetails& details)
+    bool SourceList::CheckSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields)
     {
-        auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
-
-        if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+        if (agreementFields == ImplicitAgreementFieldEnum::None && agreementsIdentifier.empty())
         {
             // No agreements to be accepted.
             return true;
         }
 
-        auto detailsInternal = GetCurrentSource(details.Name);
+        auto detailsInternal = GetCurrentSource(sourceName);
         if (!detailsInternal)
         {
             // Source not found.
@@ -464,20 +455,18 @@ namespace AppInstaller::Repository
         }
 
         return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
-            details.Information.SourceAgreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+            agreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
     }
 
-    void SourceList::SaveAcceptedSourceAgreements(const SourceDetails& details)
+    void SourceList::SaveAcceptedSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields)
     {
-        auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
-
-        if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+        if (agreementFields == ImplicitAgreementFieldEnum::None && agreementsIdentifier.empty())
         {
             // No agreements to be accepted.
             return;
         }
 
-        auto detailsInternal = GetCurrentSource(details.Name);
+        auto detailsInternal = GetCurrentSource(sourceName);
         if (!detailsInternal)
         {
             // No source to update.
@@ -485,9 +474,9 @@ namespace AppInstaller::Repository
         }
 
         detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
-        detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementsIdentifier;
+        detailsInternal->AcceptedAgreementsIdentifier = agreementsIdentifier;
 
-        SaveMetadataInternal(details);
+        SaveMetadataInternal(*detailsInternal);
     }
 
     void SourceList::RemoveSettingsStreams()
@@ -539,9 +528,9 @@ namespace AppInstaller::Repository
     }
 
     // Gets the sources from a particular origin.
-    std::vector<SourceConfigurationInternal> SourceList::GetSourcesByOrigin(SourceOrigin origin)
+    std::vector<SourceDetailsInternal> SourceList::GetSourcesByOrigin(SourceOrigin origin)
     {
-        std::vector<SourceConfigurationInternal> result;
+        std::vector<SourceDetailsInternal> result;
 
         switch (origin)
         {
@@ -549,25 +538,25 @@ namespace AppInstaller::Repository
         {
             if (IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore))
             {
-                result.emplace_back(GetWellKnownSourceConfigurationInternal(WellKnownSource::MicrosoftStore));
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::MicrosoftStore));
             }
 
             if (IsWellKnownSourceEnabled(WellKnownSource::WinGet))
             {
-                result.emplace_back(GetWellKnownSourceConfigurationInternal(WellKnownSource::WinGet));
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
             }
 
             // Since we are using the tombstone trick, this is added just to have the source in the internal
             // list for tracking updates.  Thus there is no need to check a policy.
-            result.emplace_back(GetWellKnownSourceConfigurationInternal(WellKnownSource::DesktopFrameworks));
+            result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
         }
         break;
         case SourceOrigin::User:
         {
-            std::vector<SourceConfigurationInternal> userSources = GetSourcesFromSetting(
+            std::vector<SourceDetailsInternal> userSources = GetSourcesFromSetting(
                 m_userSourcesStream,
                 s_SourcesYaml_Sources,
-                [&](SourceConfigurationInternal& details, const std::string& settingValue, const YAML::Node& source)
+                [&](SourceDetailsInternal& details, const std::string& settingValue, const YAML::Node& source)
                 {
                     std::string_view name = m_userSourcesStream.GetName();
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Name, details.Name)) { return false; }
@@ -601,7 +590,7 @@ namespace AppInstaller::Repository
                     const auto& additionalSources = additionalSourcesOpt->get();
                     for (const auto& additionalSource : additionalSources)
                     {
-                        SourceConfigurationInternal details;
+                        SourceDetailsInternal details;
                         details.Name = additionalSource.Name;
                         details.Type = additionalSource.Type;
                         details.Arg = additionalSource.Arg;
@@ -625,7 +614,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    bool SourceList::SetSourcesByOrigin(SourceOrigin origin, const std::vector<SourceConfigurationInternal>& sources)
+    bool SourceList::SetSourcesByOrigin(SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources)
     {
         switch (origin)
         {
@@ -636,12 +625,12 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::vector<SourceConfigurationInternal> SourceList::GetMetadata()
+    std::vector<SourceDetailsInternal> SourceList::GetMetadata()
     {
         return GetSourcesFromSetting(
             m_metadataStream,
             s_MetadataYaml_Sources,
-            [&](SourceConfigurationInternal& details, const std::string& settingValue, const YAML::Node& source)
+            [&](SourceDetailsInternal& details, const std::string& settingValue, const YAML::Node& source)
             {
                 details.Origin = SourceOrigin::Metadata;
                 std::string_view name = m_metadataStream.GetName();
@@ -655,7 +644,7 @@ namespace AppInstaller::Repository
             });
     }
 
-    bool SourceList::SetMetadata(const std::vector<SourceConfigurationInternal>& sources)
+    bool SourceList::SetMetadata(const std::vector<SourceDetailsInternal>& sources)
     {
         YAML::Emitter out;
         out << YAML::BeginMap;
@@ -678,11 +667,11 @@ namespace AppInstaller::Repository
         return m_metadataStream.Set(out.str());
     }
 
-    void SourceList::SaveMetadataInternal(const SourceConfigurationInternal& detailsRef, bool remove)
+    void SourceList::SaveMetadataInternal(const SourceDetailsInternal& detailsRef, bool remove)
     {
         // Copy the incoming details because we might overwrite the metadata
         // when reloading the source details from settings.
-        SourceConfigurationInternal details = detailsRef;
+        SourceDetailsInternal details = detailsRef;
         bool metadataSet = false;
 
         for (size_t i = 0; !metadataSet && i < 10; ++i)

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Public/winget/RepositorySource.h>
+#include "Public/winget/RepositorySource.h"
 
 namespace AppInstaller::Repository
 {
@@ -14,12 +14,12 @@ namespace AppInstaller::Repository
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names unless the source is internal to winget,
         // in which case the identifier should begin with a '*' character.
-        virtual std::string GetIdentifier() const = 0;
+        virtual const std::string& GetIdentifier() const = 0;
 
-        // Get the source's details from settings.
-        virtual SourceConfiguration GetConfiguration() const = 0;
+        // Get the source's configuration from settings.
+        virtual SourceDetails& GetDetails() = 0;
 
-        virtual SourceInformation GetInformation() const = 0;
+        virtual SourceInformation GetInformation() = 0;
 
         // Opens the source.
         virtual bool Open(IProgressCallback& progress) = 0;
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository
         // Gets the available sources if the source is composite.
         virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
 
-        virtual bool SetCustomHeader(std::string_view header) { return false; };
+        virtual bool SetCustomHeader(std::string_view header) { return false; }
     };
 
     // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages

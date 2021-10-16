@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Public/AppInstallerRepositorySource.h"
+#include "ISource.h"
 #include "RestClient.h"
 
 namespace AppInstaller::Repository::Rest

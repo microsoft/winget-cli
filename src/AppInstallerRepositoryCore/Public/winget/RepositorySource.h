@@ -37,23 +37,13 @@ namespace AppInstaller::Repository
 
     DEFINE_ENUM_FLAG_OPERATORS(SourceTrustLevel);
 
-    std::string_view SourceOriginToString(SourceOrigin origin);
+    std::string_view ToString(SourceOrigin origin);
 
     // Fields that require user agreements.
     enum class ImplicitAgreementFieldEnum : int
     {
         None = 0x0,
         Market = 0x1,
-    };
-
-    DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementFieldEnum);
-
-    // Fields that require user agreements.
-    enum class SourceConstructorOption : int
-    {
-        None = 0x0,
-        PerformSourceUpdate = 0x1,
-        PerformSourceOpen = 0x1,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ImplicitAgreementFieldEnum);
@@ -91,7 +81,7 @@ namespace AppInstaller::Repository
     };
 
     // Interface for retrieving information about a source without acting on it.
-    struct SourceConfiguration
+    struct SourceDetails
     {
         // The name of the source.
         std::string Name;
@@ -169,54 +159,28 @@ namespace AppInstaller::Repository
             const Source& availableSource,
             CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
+        operator bool() const;
+
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names unless the source is internal to winget,
         // in which case the identifier should begin with a '*' character.
-        std::string GetIdentifier() const;
+        const std::string GetIdentifier() const;
 
-        // Get the source's details from settings.
-        SourceConfiguration GetConfiguration() const;
+        // Get the source's configuration from settings.
+        const SourceDetails GetDetails() const;
 
-        SourceInformation GetInformation() const;
+        const SourceInformation GetInformation() const;
 
-        // Opens the source.
-        bool Open(IProgressCallback& progress);
+        // Custom header
+        bool SetCustomHeader(std::string_view header);
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 
-        // Source operations
+        /* Source agreements */
 
-        // Add source
-        bool CommitSourceAddition();
-
-        std::vector<std::string> Update(bool forceUpdate, IProgressCallback& progress);
-
-        bool Remove(IProgressCallback& progress);
-
-        bool Drop();
-
-        // Composite sources
-
-        // Gets a value indicating whether this source is a composite of other sources,
-        // and thus the packages may come from disparate sources as well.
-        bool IsComposite() const;
-
-        // Gets the available sources if the source is composite.
-        std::vector<std::shared_ptr<Source>> GetAvailableSources();
-
-        // Writable sources
-
-        // Adds a package version to the source.
-        void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
-
-        // Removes a package version from the source.
-        void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
-
-        // Source agreements
-
-        // 
+        // Get required agreement fields info.
         ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation();
 
         // Checks the source agreements and returns if agreements are satisfied.
@@ -225,13 +189,45 @@ namespace AppInstaller::Repository
         // Saves the accepted source agreements in metadata.
         void SaveAcceptedSourceAgreements();
 
-        // Custom header
-        bool SetCustomHeader(std::string_view header);
+        /* Composite sources */
+
+        // Gets a value indicating whether this source is a composite of other sources,
+        // and thus the packages may come from disparate sources as well.
+        bool IsComposite() const;
+
+        // Gets the available sources if the source is composite.
+        std::vector<Source> GetAvailableSources();
+
+        /* Writable sources */
+
+        // Adds a package version to the source.
+        void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        // Removes a package version from the source.
+        void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        /* Source operations */
+
+        // Opens the source.
+        std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen = false);
+
+        // Add source
+        bool Add(IProgressCallback& progress);
+
+        std::vector<SourceDetails> Update(IProgressCallback& progress);
+
+        bool Remove(IProgressCallback& progress);
+
+        void Drop();
 
     private:
 
+        Source(std::shared_ptr<ISource> source, bool isNamedSource);
+
+        void InitializeSourceReference(std::string_view name);
+
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
-        bool m_isSourceOpenAll = false;
+        bool m_isNamedSource = false;
     };
 }

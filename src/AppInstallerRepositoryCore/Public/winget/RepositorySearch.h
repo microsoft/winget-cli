@@ -32,6 +32,9 @@ namespace AppInstaller::Repository
         Wildcard,
     };
 
+    // Convert a MatchType to a string.
+    std::string_view ToString(MatchType type);
+
     // The field to match on.
     // The values must be declared in order of preference in search results.
     enum class PackageMatchField
@@ -47,6 +50,12 @@ namespace AppInstaller::Repository
         Market,
         Unknown = 9999
     };
+
+    // Convert a PackageMatchField to a string.
+    std::string_view ToString(PackageMatchField matchField);
+
+    // Parse a string to PackageMatchField.
+    PackageMatchField StringToPackageMatchField(std::string_view field);
 
     // A single match to be performed during a search.
     struct RequestMatch
@@ -299,10 +308,4 @@ namespace AppInstaller::Repository
     private:
         mutable std::string m_whatMessage;
     };
-
-    std::string_view MatchTypeToString(MatchType type);
-
-    std::string_view PackageMatchFieldToString(PackageMatchField matchField);
-
-    PackageMatchField StringToPackageMatchField(std::string_view field);
 }

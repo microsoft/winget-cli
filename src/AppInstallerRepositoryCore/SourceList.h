@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Public/winget/RepositorySource.h"
+#include "ISource.h"
 #include <winget/Settings.h>
 
 
@@ -13,13 +13,13 @@ namespace AppInstaller::Repository
     std::string_view GetWellKnownSourceIdentifier(WellKnownSource source);
 
     // SourceDetails with additional data used internally.
-    struct SourceConfigurationInternal : public SourceConfiguration
+    struct SourceDetailsInternal : public SourceDetails
     {
-        SourceConfigurationInternal() = default;
-        SourceConfigurationInternal(const SourceDetails& details) : SourceConfiguration(details) {}
+        SourceDetailsInternal() = default;
+        SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {}
 
         // Copies the metadata fields from this to target.
-        void CopyMetadataFieldsTo(SourceConfigurationInternal& target);
+        void CopyMetadataFieldsTo(SourceDetailsInternal& target);
 
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
         bool IsTombstone = false;
@@ -28,7 +28,7 @@ namespace AppInstaller::Repository
     };
 
     // Gets the internal details for a well known source.
-    SourceConfigurationInternal GetWellKnownSourceDetailsInternal(WellKnownSource source);
+    SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source);
 
     // Struct containing internal implementation of the source list.
     // This contains all source data; including tombstoned sources.
@@ -38,27 +38,27 @@ namespace AppInstaller::Repository
 
         // Get a list of current sources references which can be used to update the contents in place.
         // e.g. update the LastTimeUpdated value of sources.
-        std::vector<std::reference_wrapper<SourceConfigurationInternal>> GetCurrentSourceRefs();
+        std::vector<std::reference_wrapper<SourceDetailsInternal>> GetCurrentSourceRefs();
 
         // Current source means source that's not in tombstone
-        SourceConfigurationInternal* GetCurrentSource(std::string_view name);
+        SourceDetailsInternal* GetCurrentSource(std::string_view name);
 
         // Source includes ones in tombstone
-        SourceConfigurationInternal* GetSource(std::string_view name);
+        SourceDetailsInternal* GetSource(std::string_view name);
 
         // Add/remove a current source
-        void AddSource(const SourceConfigurationInternal& details);
-        void RemoveSource(const SourceConfigurationInternal& details);
+        void AddSource(const SourceDetailsInternal& details);
+        void RemoveSource(const SourceDetailsInternal& details);
 
         // Save source metadata; the particular source with the metadata update is given.
         // The given source must already be in the internal source list.
-        void SaveMetadata(const SourceConfigurationInternal& details);
+        void SaveMetadata(const SourceDetailsInternal& details);
 
         // Checks the source agreements and returns if agreements are satisfied.
-        bool CheckSourceAgreements(const SourceDetails& details);
+        bool CheckSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields);
 
         // Save agreements information.
-        void SaveAcceptedSourceAgreements(const SourceDetails& details);
+        void SaveAcceptedSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields);
 
         // Removes all settings streams associated with the source list.
         // Implements `winget source reset --force`.
@@ -74,18 +74,18 @@ namespace AppInstaller::Repository
         // calls std::find_if and return the iterator.
         auto FindSource(std::string_view name, bool includeHidden = false);
 
-        std::vector<SourceConfigurationInternal> GetSourcesByOrigin(SourceOrigin origin);
+        std::vector<SourceDetailsInternal> GetSourcesByOrigin(SourceOrigin origin);
         // Does *NOT* set metadata; call SaveMetadataInternal afterward.
-        [[nodiscard]] bool SetSourcesByOrigin(SourceOrigin origin, const std::vector<SourceConfigurationInternal>& sources);
+        [[nodiscard]] bool SetSourcesByOrigin(SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources);
 
-        std::vector<SourceConfigurationInternal> GetMetadata();
-        [[nodiscard]] bool SetMetadata(const std::vector<SourceConfigurationInternal>& sources);
+        std::vector<SourceDetailsInternal> GetMetadata();
+        [[nodiscard]] bool SetMetadata(const std::vector<SourceDetailsInternal>& sources);
 
         // Save source metadata; the particular source with the metadata update is given.
         // If remove is true, the given source is being removed.
-        void SaveMetadataInternal(const SourceConfigurationInternal& details, bool remove = false);
+        void SaveMetadataInternal(const SourceDetailsInternal& details, bool remove = false);
 
-        std::vector<SourceConfigurationInternal> m_sourceList;
+        std::vector<SourceDetailsInternal> m_sourceList;
         Settings::Stream m_userSourcesStream;
         Settings::Stream m_metadataStream;
     };

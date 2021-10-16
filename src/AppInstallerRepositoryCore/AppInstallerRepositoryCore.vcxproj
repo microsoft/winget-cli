@@ -328,6 +328,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RepositorySearch.cpp" />
     <ClCompile Include="RepositorySource.cpp" />
     <ClCompile Include="Rest\RestClient.cpp" />
     <ClCompile Include="Rest\RestSource.cpp" />
