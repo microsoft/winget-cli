@@ -68,7 +68,7 @@ namespace AppInstaller::Repository::Microsoft
             ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
                 m_details(details), m_config(config) {}
 
-            const SourceDetails& GetDetails() const override { return m_details; }
+            SourceDetails& GetDetails() override { return m_details; }
 
             const std::string& GetIdentifier() const override { return m_details.Identifier; }
 
@@ -88,7 +88,7 @@ namespace AppInstaller::Repository::Microsoft
         // The actual factory implementation.
         struct ConfigurableTestSourceFactoryImpl : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
+            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
                 // Allow the custom header to override the arg (enables `source add` with FAILED(CreateHR))
                 TestSourceConfiguration config{ details.CustomHeader.value_or(details.Arg) };

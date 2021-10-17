@@ -70,7 +70,7 @@ namespace AppInstaller::Repository
 
         std::shared_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
         {
-            return GetFactoryForType(details.Type)->Create(details, progress);
+            return GetFactoryForType(details.Type)->Create(details);
         }
 
         template <typename MemberFunc>
@@ -223,13 +223,13 @@ namespace AppInstaller::Repository
 
     Source::Source()
     {
-        InitializeSourceReference(""sv);
+        m_source = InitializeSourceReference(""sv);
     }
 
     Source::Source(std::string_view name)
     {
         m_isNamedSource = !name.empty();
-        InitializeSourceReference(name);
+        m_source = InitializeSourceReference(name);
     }
 
     Source::Source(PredefinedSource source)
@@ -290,7 +290,7 @@ namespace AppInstaller::Repository
         return m_source != nullptr;
     }
 
-    void Source::InitializeSourceReference(std::string_view name)
+    std::shared_ptr<ISource> Source::InitializeSourceReference(std::string_view name)
     {
         SourceList sourceList;
 
@@ -305,68 +305,22 @@ namespace AppInstaller::Repository
             else if (currentSources.size() == 1)
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
+                return InitializeSourceReference(currentSources[0].get().Name);
             }
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
-                OpenSourceResult result;
-                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
                 for (auto& source : currentSources)
                 {
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
 
-                    if (ShouldUpdateBeforeOpen(source))
-                    {
-                        try
-                        {
-                            // TODO: Consider adding a context callback to indicate we are doing the same action
-                            // to avoid the progress bar fill up multiple times.
-                            if (BackgroundUpdateSourceFromDetails(source, progress))
-                            {
-                                sourceList.SaveMetadata(source);
-                            }
-                        }
-                        catch (...)
-                        {
-                            LOG_CAUGHT_EXCEPTION();
-                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
-                            result.SourcesWithUpdateFailure.emplace_back(source);
-                        }
-                    }
-
-                    std::shared_ptr<ISource> openedSource;
-
-                    try
-                    {
-                        openedSource = CreateSourceFromDetails(source, progress);
-                    }
-                    catch (...)
-                    {
-                        LOG_CAUGHT_EXCEPTION();
-                        AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
-                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source, std::current_exception()));
-                    }
-
-                    if (openedSource)
-                    {
-                        aggregatedSource->AddAvailableSource(std::move(openedSource));
-                    }
+                    std::shared_ptr<ISource> createdSource = CreateSourceFromDetails(source);
+                    aggregatedSource->AddAvailableSource(std::move(createdSource));
                 }
 
-                // If all sources failed to open, then throw an exception that is specific to this case.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
-
-                // Place all of the proxies into the source to be searched later
-                for (auto& proxy : openExceptionProxies)
-                {
-                    aggregatedSource->AddAvailableSource(std::move(proxy));
-                }
-
-                result.Source = aggregatedSource;
-                return result;
+                return aggregatedSource;
             }
         }
         else
@@ -380,26 +334,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-                OpenSourceResult result;
-
-                if (ShouldUpdateBeforeOpen(*source))
-                {
-                    try
-                    {
-                        if (BackgroundUpdateSourceFromDetails(*source, progress))
-                        {
-                            sourceList.SaveMetadata(*source);
-                        }
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
-                        result.SourcesWithUpdateFailure.emplace_back(*source);
-                    }
-                }
-
-                result.Source = CreateSourceFromDetails(*source, progress);
-                return result;
+                return CreateSourceFromDetails(*source);
             }
         }
     }
@@ -646,7 +581,7 @@ namespace AppInstaller::Repository
         const auto& details = m_source->GetDetails();
         AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << details.Name << " [" << ToString(details.Origin) << ']');
 
-        EnsureSourceIsRemovable(details);
+        EnsureSourceIsRemovable(details, m_source->GetIdentifier());
 
         bool result = RemoveSourceFromDetails(details, progress);
         if (result)
@@ -662,16 +597,18 @@ namespace AppInstaller::Repository
     {
         if (m_isNamedSource)
         {
-            SourceList sourceList;
             const auto& details = m_source->GetDetails();
 
             AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << details.Name);
 
-            EnsureSourceIsRemovable(details);
+            EnsureSourceIsRemovable(details, m_source->GetIdentifier());
+
+            SourceList sourceList;
             sourceList.RemoveSource(details);
         }
         else
         {
+            AICLI_LOG(Repo, Info, << "Dropping all source settings");
             SourceList::RemoveSettingsStreams();
         }
     }

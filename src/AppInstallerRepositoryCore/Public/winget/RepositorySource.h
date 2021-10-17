@@ -154,6 +154,8 @@ namespace AppInstaller::Repository
         // Constructor for
         Source(std::string_view name, std::string_view arg, std::string_view type);
 
+        Source(const std::vector<Source>& availableSources);
+
         Source(
             const Source& installedSource,
             const Source& availableSource,
@@ -224,7 +226,7 @@ namespace AppInstaller::Repository
 
         Source(std::shared_ptr<ISource> source, bool isNamedSource);
 
-        void InitializeSourceReference(std::string_view name);
+        std::shared_ptr<ISource> InitializeSourceReference(std::string_view name);
 
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;

@@ -52,20 +52,20 @@ namespace AppInstaller::Repository::Microsoft
         // The base class for a package that comes from a preindexed packaged source.
         struct PreIndexedFactoryBase : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
+            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
+                /*auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
                 if (!lock)
                 {
                     return {};
-                }
+                }*/
 
-                return CreateInternal(details, std::move(lock), progress);
+                return CreateInternal(details);
             }
 
-            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) = 0;
+            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details) = 0;
 
             bool Add(SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -184,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft
                 return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details) override
             {
                 auto extension = GetExtensionFromDetails(details);
                 if (!extension)
@@ -316,9 +316,9 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback&) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details) override
             {
-                std::filesystem::path packageLocation = GetStatePathFromDetails(details);
+                /*std::filesystem::path packageLocation = GetStatePathFromDetails(details);
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
 
                 if (!std::filesystem::exists(packageLocation))
@@ -330,7 +330,7 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
-                // missing from the details.
+                // missing from the details.*/
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 

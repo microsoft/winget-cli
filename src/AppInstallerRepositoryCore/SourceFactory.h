@@ -15,7 +15,7 @@ namespace AppInstaller::Repository
         virtual ~ISourceFactory() = default;
 
         // Creates a source object from the given details.
-        virtual std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) = 0;
+        virtual std::shared_ptr<ISource> Create(const SourceDetails& details) = 0;
 
         // Adds the source from the given details, writing back to the details any changes.
         // Return value indicates whether the action completed.

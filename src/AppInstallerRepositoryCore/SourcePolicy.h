@@ -22,5 +22,5 @@ namespace AppInstaller::Repository
     bool IsWellKnownSourceEnabled(WellKnownSource source, bool onlyExplicit = false);
 
     // Checks that the specified source is removable per policy; throwing if it is not.
-    void EnsureSourceIsRemovable(const SourceDetailsInternal& source);
+    void EnsureSourceIsRemovable(const SourceDetailsInternal& source, std::string_view sourceIdentifier);
 }

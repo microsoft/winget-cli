@@ -100,10 +100,10 @@ namespace AppInstaller::Repository::Microsoft
         // The factory for the predefined installed source.
         struct Factory : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
+            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
-                // TODO: Maybe we do need to use it?
-                UNREFERENCED_PARAMETER(progress);
+                /*// TODO: Maybe we do need to use it?
+                UNREFERENCED_PARAMETER(progress); */
 
                 THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedInstalledSourceFactory::Type());
 

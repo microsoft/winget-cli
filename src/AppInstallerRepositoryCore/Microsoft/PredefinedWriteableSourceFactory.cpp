@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft
     // The factory for the predefined installing source.
     struct PredefinedWriteableSourceFactoryImpl : public ISourceFactory
     {
-        std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final;
+        std::shared_ptr<ISource> Create(const SourceDetails& details) override final;
 
         bool Add(SourceDetails&, IProgressCallback&) override final
         {
@@ -46,7 +46,7 @@ namespace AppInstaller::Repository::Microsoft
     std::shared_ptr<ISource> PredefinedWriteableSourceFactoryImpl::g_sharedSource = nullptr;
     std::once_flag PredefinedWriteableSourceFactoryImpl::g_InstallingSourceOnceFlag;
 
-    std::shared_ptr<ISource> PredefinedWriteableSourceFactoryImpl::Create(const SourceDetails& details, IProgressCallback&)
+    std::shared_ptr<ISource> PredefinedWriteableSourceFactoryImpl::Create(const SourceDetails& details)
     {
         THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedWriteableSourceFactory::Type());
 
