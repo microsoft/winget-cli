@@ -123,7 +123,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
     void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifestbyid_v1_2");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "RemoveManifestById_v1_2");
 
         V1_1::Interface::RemoveManifestById(connection, manifestId);
 

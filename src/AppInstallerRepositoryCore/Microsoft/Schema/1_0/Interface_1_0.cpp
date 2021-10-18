@@ -300,7 +300,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         auto [idId, nameId, monikerId, versionId, channelId, pathLeafId] = 
             ManifestTable::GetIdsById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable, PathPartTable>(connection, manifestId);
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifestbyid_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "RemoveManifestById_v1_0");
 
         // Remove the manifest row
         ManifestTable::DeleteById(connection, manifestId);
