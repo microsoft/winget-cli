@@ -28,14 +28,16 @@ namespace AppInstaller::Repository::Microsoft
         ~SQLiteIndexSource() = default;
 
         // Get the source's details.
-        SourceDetails& GetDetails() override;
+        const SourceDetails& GetDetails() const override;
 
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names.
-        const std::string& GetIdentifier() override;
+        const std::string& GetIdentifier() const override;
 
-        void Open(IProgressCallback& progress);
+        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
+
+        void Open(IProgressCallback& progress) override;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;

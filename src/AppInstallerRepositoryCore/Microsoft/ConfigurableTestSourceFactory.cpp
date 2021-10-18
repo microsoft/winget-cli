@@ -68,13 +68,15 @@ namespace AppInstaller::Repository::Microsoft
             ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
                 m_details(details), m_config(config) {}
 
-            SourceDetails& GetDetails() override { return m_details; }
+            const SourceDetails& GetDetails() const override { return m_details; }
 
-            const std::string& GetIdentifier() override { return m_identifier; }
+            const std::string& GetIdentifier() const override { return m_identifier; }
+
+            void UpdateLastUpdateTime(std::chrono::system_clock::time_point) override {}
 
             void Open(IProgressCallback&) override {}
 
-            bool SetCustomHeader(std::string_view) { return true; }
+            bool SetCustomHeader(std::string_view) override { return true; }
 
             SearchResult Search(const SearchRequest&) const override
             {

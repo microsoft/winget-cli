@@ -21,12 +21,14 @@ namespace AppInstaller::Repository
         // ISource
 
         // Get the source's details.
-        SourceDetails& GetDetails() override;
+        const SourceDetails& GetDetails() const override;
 
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names.
-        const std::string& GetIdentifier() override;
+        const std::string& GetIdentifier() const override;
+
+        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
 
         // Gets a value indicating whether this source is a composite of other sources,
         // and thus the packages may come from disparate sources as well.

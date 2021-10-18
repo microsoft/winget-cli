@@ -22,12 +22,14 @@ namespace AppInstaller::Repository::Rest
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names.
-        const std::string& GetIdentifier() override;
+        const std::string& GetIdentifier() const override;
 
         // Get the source's details.
-        SourceDetails& GetDetails() override;
+        const SourceDetails& GetDetails() const override;
 
         SourceInformation GetInformation() const override;
+
+        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
 
         void Open(IProgressCallback& progress) override;
 

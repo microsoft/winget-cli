@@ -425,23 +425,22 @@ namespace AppInstaller::Repository
 
         if (!skipUpdateBeforeOpen)
         {
-            std::vector<std::reference_wrapper<SourceDetails>> sources;
+            std::vector<std::shared_ptr<ISource>> sourcesToUpdate;
             if (m_source->IsComposite())
             {
-                for (auto const& source : m_source->GetAvailableSources())
-                {
-                    sources.emplace_back(source->GetDetails());
-                }
+                sourcesToUpdate = m_source->GetAvailableSources();
             }
             else
             {
-                sources.emplace_back(m_source->GetDetails());
+                sourcesToUpdate.emplace_back(m_source);
             }
 
-            for (SourceDetails& details : sources)
+            for (auto& source : sourcesToUpdate)
             {
-                if (ShouldUpdateBeforeOpen(details))
+                if (ShouldUpdateBeforeOpen(source->GetDetails()))
                 {
+                    auto details = source->GetDetails();
+
                     try
                     {
                         // TODO: Consider adding a context callback to indicate we are doing the same action
@@ -449,13 +448,14 @@ namespace AppInstaller::Repository
                         if (BackgroundUpdateSourceFromDetails(details, progress))
                         {
                             sourceList.SaveMetadata(details);
+                            source->UpdateLastUpdateTime(details.LastUpdateTime);
                         }
                     }
                     catch (...)
                     {
                         LOG_CAUGHT_EXCEPTION();
                         AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                        result.emplace_back(details);
+                        result.emplace_back(std::move(details));
                     }
                 }
             }
@@ -514,21 +514,20 @@ namespace AppInstaller::Repository
         SourceList sourceList;
         std::vector<SourceDetails> result;
 
-        std::vector<std::reference_wrapper<SourceDetails>> sources;
+        std::vector<std::shared_ptr<ISource>> sourcesToUpdate;
         if (m_source->IsComposite())
         {
-            for (auto const& source : m_source->GetAvailableSources())
-            {
-                sources.emplace_back(source->GetDetails());
-            }
+            sourcesToUpdate = m_source->GetAvailableSources();
         }
         else
         {
-            sources.emplace_back(m_source->GetDetails());
+            sourcesToUpdate.emplace_back(m_source);
         }
 
-        for (SourceDetails& details : sources)
+        for (auto& source : sourcesToUpdate)
         {
+            auto details = source->GetDetails();
+
             try
             {
                 AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << details.Name);
@@ -538,6 +537,7 @@ namespace AppInstaller::Repository
                 if (UpdateSourceFromDetails(details, progress))
                 {
                     sourceList.SaveMetadata(details);
+                    source->UpdateLastUpdateTime(details.LastUpdateTime);
                 }
             }
             catch (...)

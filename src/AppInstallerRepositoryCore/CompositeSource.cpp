@@ -408,16 +408,18 @@ namespace AppInstaller::Repository
             OpenExceptionProxy(const std::string& identifier, const SourceDetails& details, std::exception_ptr exception) :
                 m_identifier(identifier), m_details(details), m_exception(std::move(exception)) {}
 
-            SourceDetails& GetDetails() override { return m_details; }
+            const SourceDetails& GetDetails() const override { return m_details; }
 
-            const std::string& GetIdentifier() override { return m_identifier; }
+            const std::string& GetIdentifier() const override { return m_identifier; }
+
+            void UpdateLastUpdateTime(std::chrono::system_clock::time_point) override {}
 
             void Open(IProgressCallback&) override {}
 
             SearchResult Search(const SearchRequest&) const override
             {
                 SearchResult result;
-                result.Failures.emplace_back(SearchResult::Failure{ const_cast<OpenExceptionProxy*>(this)->shared_from_this(), m_exception });
+                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
                 return result;
             }
 
@@ -433,14 +435,18 @@ namespace AppInstaller::Repository
         m_identifier = std::move(identifier);
     }
 
-    SourceDetails& CompositeSource::GetDetails()
+    const SourceDetails& CompositeSource::GetDetails() const
     {
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
-    const std::string& CompositeSource::GetIdentifier()
+    const std::string& CompositeSource::GetIdentifier() const
     {
         return m_identifier;
+    }
+
+    void CompositeSource::UpdateLastUpdateTime(std::chrono::system_clock::time_point)
+    {
     }
 
     void CompositeSource::Open(IProgressCallback& progress)

@@ -14,25 +14,25 @@ namespace AppInstaller::Repository::Rest
         // The source reference used by package objects.
         struct SourceReference
         {
-            SourceReference(const std::shared_ptr<RestSource>& source) :
+            SourceReference(const std::shared_ptr<const RestSource>& source) :
                 m_source(source) {}
 
         protected:
-            std::shared_ptr<RestSource> GetReferenceSource() const
+            std::shared_ptr<const RestSource> GetReferenceSource() const
             {
-                std::shared_ptr<RestSource> source = m_source.lock();
+                std::shared_ptr<const RestSource> source = m_source.lock();
                 THROW_HR_IF(E_NOT_VALID_STATE, !source);
                 return source;
             }
 
         private:
-            std::weak_ptr<RestSource> m_source;
+            std::weak_ptr<const RestSource> m_source;
         };
 
         // The IPackage implementation for Available packages from RestSource.
         struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
         {
-            AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
+            AvailablePackage(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                 SortVersionsInternal();
@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<RestSource> source = GetReferenceSource();
+                std::shared_ptr<const RestSource> source = GetReferenceSource();
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
 
                 std::vector<PackageVersionKey> result;
@@ -181,7 +181,7 @@ namespace AppInstaller::Repository::Rest
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
+                const std::shared_ptr<const RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
                 : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
@@ -322,7 +322,7 @@ namespace AppInstaller::Repository::Rest
 
         std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
         {
-            std::shared_ptr<RestSource> source = GetReferenceSource();
+            std::shared_ptr<const RestSource> source = GetReferenceSource();
             std::scoped_lock versionsLock{ m_packageVersionsLock };
 
             // Ensure that this key targets this (or any) source
@@ -382,24 +382,34 @@ namespace AppInstaller::Repository::Rest
 
     RestSource::RestSource(const SourceDetails& details) : m_details(details) {}
 
-    const std::string& RestSource::GetIdentifier()
+    const std::string& RestSource::GetIdentifier() const
     {
         if (!m_isOpened)
         {
-            OpenSourceInternal();
+            const_cast<RestSource*>(this)->OpenSourceInternal();
         }
 
         return m_identifier;
     }
 
-    SourceDetails& RestSource::GetDetails()
+    const SourceDetails& RestSource::GetDetails() const
+    {
+        return m_details;
+    }
+
+    SourceInformation RestSource::GetInformation() const
     {
         if (!m_isOpened)
         {
-            OpenSourceInternal();
+            const_cast<RestSource*>(this)->OpenSourceInternal();
         }
 
-        return m_details;
+        return m_information;
+    }
+
+    void RestSource::UpdateLastUpdateTime(std::chrono::system_clock::time_point time)
+    {
+        m_details.LastUpdateTime = time;
     }
 
     void RestSource::Open(IProgressCallback&)
@@ -417,7 +427,7 @@ namespace AppInstaller::Repository::Rest
         IRestClient::SearchResult results = m_restClient->Search(request);
         SearchResult searchResult;
 
-        std::shared_ptr<RestSource> sharedThis = const_cast<RestSource*>(this)->shared_from_this();
+        std::shared_ptr<const RestSource> sharedThis = shared_from_this();
         for (auto& result : results.Matches)
         {
             std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
