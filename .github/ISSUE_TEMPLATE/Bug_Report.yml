@@ -1,0 +1,53 @@
+name: "Bug report 🐛"
+description: Report errors or unexpected behavior
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > This bug tracker is monitored by Windows Package Manager development team and other technical folks.
+        > 
+        > **Important: When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to Github issues**.
+        > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
+        >
+        > If this is an application crash, please also provide a Feedback Hub submission link if at all possible so we can find your diagnostic data on the backend.
+        > You can open the Feedback Hub directly to the pre-populated form at https://aka.ms/winget-feedback
+        > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
+        >
+        > Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
+  - type: textarea
+    attributes:
+      label: Brief description of your issue
+      placeholder: Briefly describe your issue here.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      placeholder: A description of how to trigger this bug
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      placeholder: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual behavior
+      placeholder: What is currently happening?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment
+      placeholder: |
+        [winget --info]
+        Windows Package Manager version
+        Windows: Windows.Desktop version
+        Package: Microsoft.DesktopAppInstaller version
+
+        Any other software?
+      render: shell
+    validations:
+      required: true

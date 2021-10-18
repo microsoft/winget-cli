@@ -8,7 +8,7 @@ ms.localizationpriority: medium
 
 # upgrade command (winget)
 
-The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Optionally, you may use the [**list**](list.md) command to identify the application you want to upgrade.  
+The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Optionally, you may not specify an application, this will list all available upgrades instead.
 
 The **upgrade** command requires that you specify the exact string to upgrade. If there is any ambiguity, you will be prompted to further filter the **upgrade** command to  an exact application.
 

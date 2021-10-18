@@ -59,6 +59,13 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void ContextOrchestrator::RequeueItem(OrchestratorQueueItem& item)
+    {
+        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+
+        item.SetState(OrchestratorQueueItemState::Queued);
+    }
+
     void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
         EnqueueItem(item);
@@ -101,11 +108,10 @@ namespace AppInstaller::CLI::Execution
             HRESULT terminationHR = S_OK;
             try
             {
-                ::AppInstaller::CLI::RootCommand rootCommand;
+                std::unique_ptr<Command> command = item->PopNextCommand();
 
                 std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
 
-                std::unique_ptr<::AppInstaller::CLI::Command> command = std::make_unique<::AppInstaller::CLI::COMInstallCommand>(rootCommand.Name());
                 item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);
 
@@ -123,7 +129,16 @@ namespace AppInstaller::CLI::Execution
                 item->GetContext().SetTerminationHR(terminationHR);
             }
 
-            RemoveItemInState(*item, OrchestratorQueueItemState::Running);
+            item->GetContext().EnableCtrlHandler(false);
+
+            if (FAILED(terminationHR) || item->IsComplete())
+            {
+                RemoveItemInState(*item, OrchestratorQueueItemState::Running);
+            }
+            else
+            {
+                RequeueItem(*item);
+            }
 
             item = GetNextItem();
         }
@@ -180,7 +195,10 @@ namespace AppInstaller::CLI::Execution
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
     {
-        return std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context));
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(RootCommand::CommandName));
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMInstallCommand>(RootCommand::CommandName));
+        return item;
     }
 
 }

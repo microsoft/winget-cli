@@ -181,68 +181,6 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
-
-        // Complicated rename algorithm due to somewhat arbitrary failures.
-        // 1. First, try to rename.
-        // 2. Then, create an empty file for the target, and attempt to rename.
-        // 3. Then, try repeatedly for 500ms in case it is a timing thing.
-        // 4. Attempt to use a hard link if available.
-        // 5. Copy the file if nothing else has worked so far.
-        void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to)
-        {
-            // 1. First, try to rename.
-            try
-            {
-                // std::filesystem::rename() handles motw correctly if applicable.
-                std::filesystem::rename(from, to);
-                return;
-            }
-            CATCH_LOG();
-
-            // 2. Then, create an empty file for the target, and attempt to rename.
-            //    This seems to fix things in certain cases, so we do it.
-            try
-            {
-                {
-                    std::ofstream targetFile{ to };
-                }
-                std::filesystem::rename(from, to);
-                return;
-            }
-            CATCH_LOG();
-
-            // 3. Then, try repeatedly for 500ms in case it is a timing thing.
-            for (int i = 0; i < 5; ++i)
-            {
-                try
-                {
-                    std::this_thread::sleep_for(100ms);
-                    std::filesystem::rename(from, to);
-                    return;
-                }
-                CATCH_LOG();
-            }
-
-            // 4. Attempt to use a hard link if available.
-            if (Runtime::SupportsHardLinks(from))
-            {
-                try
-                {
-                    // Create a hard link to the file; the installer will be left in the temp directory afterward
-                    // but it is better to succeed the operation and leave a file around than to fail.
-                    // First we have to remove the target file as the function will not overwrite.
-                    std::filesystem::remove(to);
-                    std::filesystem::create_hard_link(from, to);
-                    return;
-                }
-                CATCH_LOG();
-            }
-
-            // 5. Copy the file if nothing else has worked so far.
-            // Create a copy of the file; the installer will be left in the temp directory afterward
-            // but it is better to succeed the operation and leave a file around than to fail.
-            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -283,31 +221,6 @@ namespace AppInstaller::CLI::Workflow
 
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
         context.Add<Execution::Data::InstallerArgs>(std::move(installerArgs));
-    }
-
-    void RenameDownloadedInstaller(Execution::Context& context)
-    {
-        auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path renamedDownloadedInstaller(installerPath);
-
-        switch(context.Get<Execution::Data::Installer>()->InstallerType)
-        {
-        case InstallerTypeEnum::Burn:
-        case InstallerTypeEnum::Exe:
-        case InstallerTypeEnum::Inno:
-        case InstallerTypeEnum::Nullsoft:
-            renamedDownloadedInstaller += L".exe";
-            break;
-        case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::Wix:
-            renamedDownloadedInstaller += L".msi";
-            break;
-        }
-
-        RenameFile(installerPath, renamedDownloadedInstaller);
-
-        installerPath.assign(renamedDownloadedInstaller);
-        AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
     }
 
     void ShellExecuteUninstallImpl(Execution::Context& context)

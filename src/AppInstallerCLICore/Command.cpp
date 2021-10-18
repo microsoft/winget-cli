@@ -675,6 +675,22 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name());
         }
 
+        if (execArgs.Contains(Execution::Args::Type::Count))
+        {
+            try
+            {
+                int countRequested = std::stoi(std::string(execArgs.GetArg(Execution::Args::Type::Count)));
+                if (countRequested < 1 || countRequested > 1000)
+                {
+                    throw CommandException(Resource::String::CountOutOfBoundsError);
+                }
+            }
+            catch (...)
+            {
+                throw CommandException(Resource::String::CountOutOfBoundsError);
+            }
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 
