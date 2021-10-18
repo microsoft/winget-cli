@@ -80,7 +80,7 @@ namespace AppInstaller::Repository
         AvailablePackages,
     };
 
-    // Interface for retrieving information about a source without acting on it.
+    // Interface for source configurations. Source configurations are used to get a source reference without opening the source.
     struct SourceDetails
     {
         // The name of the source.
@@ -118,7 +118,7 @@ namespace AppInstaller::Repository
             Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
     };
 
-    // Interface for retrieving information about a source after source interaction.
+    // Interface for retrieving information about a source after opening the source.
     struct SourceInformation
     {
         // Identifier of the source agreements. This is used to identify if source agreements have changed.

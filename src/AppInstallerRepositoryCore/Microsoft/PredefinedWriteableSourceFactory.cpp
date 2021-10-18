@@ -61,10 +61,13 @@ namespace AppInstaller::Repository::Microsoft
         std::call_once(g_InstallingSourceOnceFlag,
             [&]()
             {
-                // Create an in memory index
-                SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+                auto getIndexFunc =
+                    [&](const SourceDetails&, IProgressCallback&, Synchronization::CrossProcessReaderWriteLock&) -> SQLiteIndex
+                {
+                    return SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+                };
 
-                g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(details, "*PredefinedWriteableSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(details, "*PredefinedWriteableSource", std::move(getIndexFunc), true);
             });
         return g_sharedSource;
     }

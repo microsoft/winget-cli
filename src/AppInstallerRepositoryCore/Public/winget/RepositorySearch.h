@@ -271,7 +271,7 @@ namespace AppInstaller::Repository
         // Contains a failure from the Search.
         struct Failure
         {
-            std::shared_ptr<const ISource> Source;
+            std::shared_ptr<ISource> Source;
             std::exception_ptr Exception;
         };
 

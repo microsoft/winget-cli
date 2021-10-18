@@ -148,29 +148,6 @@ namespace AppInstaller::Repository
             return false;
         }
 
-        // Carries the exception from an OpenSource call and presents it back at search time.
-        struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
-        {
-            OpenExceptionProxy(const std::string& identifier, const SourceDetails& details, std::exception_ptr exception) :
-                m_identifier(identifier), m_details(details), m_exception(std::move(exception)) {}
-
-            SourceDetails& GetDetails() override { return m_details; }
-
-            const std::string& GetIdentifier() const override { return m_identifier; }
-
-            SearchResult Search(const SearchRequest&) const override
-            {
-                SearchResult result;
-                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
-                return result;
-            }
-
-        private:
-            std::string m_identifier;
-            SourceDetails m_details;
-            std::exception_ptr m_exception;
-        };
-
         SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
         {
             SourceDetails details;
@@ -386,22 +363,22 @@ namespace AppInstaller::Repository
 
     bool Source::CheckSourceAgreements()
     {
-        auto configuration = GetDetails();
+        auto details = GetDetails();
         auto agreementFields = GetAgreementFieldsFromSourceInformation();
         auto info = GetInformation();
 
         SourceList sourceList;
-        return sourceList.CheckSourceAgreements(configuration.Name, info.SourceAgreementsIdentifier, agreementFields);
+        return sourceList.CheckSourceAgreements(details.Name, info.SourceAgreementsIdentifier, agreementFields);
     }
 
     void Source::SaveAcceptedSourceAgreements()
     {
-        auto configuration = GetDetails();
+        auto details = GetDetails();
         auto agreementFields = GetAgreementFieldsFromSourceInformation();
         auto info = GetInformation();
 
         SourceList sourceList;
-        return sourceList.SaveAcceptedSourceAgreements(configuration.Name, info.SourceAgreementsIdentifier, agreementFields);
+        return sourceList.SaveAcceptedSourceAgreements(details.Name, info.SourceAgreementsIdentifier, agreementFields);
     }
 
     bool Source::IsComposite() const
@@ -417,7 +394,7 @@ namespace AppInstaller::Repository
         std::vector<Source> result;
         for (auto const& source : m_source->GetAvailableSources())
         {
-            result.emplace_back(source, true);
+            result.emplace_back(Source{ source, true });
         }
 
         return result;
@@ -491,7 +468,7 @@ namespace AppInstaller::Repository
 
     bool Source::Add(IProgressCallback& progress)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isSourceToBeAdded || !m_source);
 
         SourceDetails sourceDetails = m_source->GetDetails();
 
@@ -532,7 +509,7 @@ namespace AppInstaller::Repository
 
     std::vector<SourceDetails> Source::Update(IProgressCallback& progress)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || !m_source);
 
         SourceList sourceList;
         std::vector<SourceDetails> result;
@@ -576,7 +553,7 @@ namespace AppInstaller::Repository
 
     bool Source::Remove(IProgressCallback& progress)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_isNamedSource);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || !m_source || !m_isNamedSource);
 
         const auto& details = m_source->GetDetails();
         AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << details.Name << " [" << ToString(details.Origin) << ']');
@@ -595,6 +572,8 @@ namespace AppInstaller::Repository
 
     void Source::Drop()
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded);
+
         if (m_isNamedSource)
         {
             const auto& details = m_source->GetDetails();

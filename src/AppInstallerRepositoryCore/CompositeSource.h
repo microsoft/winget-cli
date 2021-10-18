@@ -21,12 +21,12 @@ namespace AppInstaller::Repository
         // ISource
 
         // Get the source's details.
-        const SourceDetails& GetDetails() const override;
+        SourceDetails& GetDetails() override;
 
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names.
-        const std::string& GetIdentifier() const override;
+        const std::string& GetIdentifier() override;
 
         // Gets a value indicating whether this source is a composite of other sources,
         // and thus the packages may come from disparate sources as well.
@@ -34,6 +34,8 @@ namespace AppInstaller::Repository
 
         // Gets the available sources if the source is composite.
         std::vector<std::shared_ptr<ISource>> GetAvailableSources() const override { return m_availableSources; }
+
+        void Open(IProgressCallback& progress) override;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
@@ -59,8 +61,11 @@ namespace AppInstaller::Repository
 
         std::shared_ptr<ISource> m_installedSource;
         std::vector<std::shared_ptr<ISource>> m_availableSources;
-        SourceDetails m_details;
+        std::string m_identifier;
         CompositeSearchBehavior m_searchBehavior;
+
+        std::once_flag m_openFlag;
+        std::atomic_bool m_isOpened = false;
     };
 }
 

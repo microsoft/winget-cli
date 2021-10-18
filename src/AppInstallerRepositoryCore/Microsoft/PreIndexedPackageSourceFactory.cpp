@@ -56,11 +56,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                /*auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
-                if (!lock)
-                {
-                    return {};
-                }*/
+                /*auto */
 
                 return CreateInternal(details);
             }
@@ -93,7 +89,6 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
 
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
-                details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
                 auto lock = LockExclusive(details, progress);
                 if (!lock)
@@ -186,27 +181,44 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> CreateInternal(const SourceDetails& details) override
             {
-                auto extension = GetExtensionFromDetails(details);
-                if (!extension)
+                auto getIndexFunc =
+                    [&](const SourceDetails& details, IProgressCallback& progress, Synchronization::CrossProcessReaderWriteLock& lock) -> SQLiteIndex
                 {
-                    AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
-                }
+                    lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
+                    if (!lock)
+                    {
+                        THROW_HR(APPINSTALLER_CLI_ERROR_FAILED_TO_ACQUIRE_SOURCE_LOCK);
+                    }
 
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
+                    auto extension = GetExtensionFromDetails(details);
+                    if (!extension)
+                    {
+                        AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                    }
 
-                // To work around an issue with accessing the public folder, we are temporarily
-                // constructing the location ourself.  This was already the case for the non-packaged
-                // runtime, and we can fix both in the future.  The only problem with this is that
-                // the directory in the extension *must* be Public, rather than one set by the creator.
-                std::filesystem::path indexLocation = extension->GetPackagePath();
-                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
 
-                SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+                    // To work around an issue with accessing the public folder, we are temporarily
+                    // constructing the location ourself.  This was already the case for the non-packaged
+                    // runtime, and we can fix both in the future.  The only problem with this is that
+                    // the directory in the extension *must* be Public, rather than one set by the creator.
+                    std::filesystem::path indexLocation = extension->GetPackagePath();
+                    indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
+
+                    return SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+                };
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
-                // missing from the details.
-                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
+                // missing from the details. Now we support creating the source reference before adding
+                // the source, PackageFamilyName might not yet be ready in SourceDetails.
+                std::string identifier;
+                if (!details.Data.empty())
+                {
+                    identifier = GetPackageFamilyNameFromDetails(details);
+                }
+
+                return std::make_shared<SQLiteIndexSource>(details, identifier, getIndexFunc);
             }
 
             bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
@@ -318,20 +330,37 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> CreateInternal(const SourceDetails& details) override
             {
-                /*std::filesystem::path packageLocation = GetStatePathFromDetails(details);
-                packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
-
-                if (!std::filesystem::exists(packageLocation))
+                auto getIndexFunc =
+                    [&](const SourceDetails& details, IProgressCallback& progress, Synchronization::CrossProcessReaderWriteLock& lock) -> SQLiteIndex
                 {
-                    AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
-                }
+                    lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
+                    if (!lock)
+                    {
+                        THROW_HR(APPINSTALLER_CLI_ERROR_FAILED_TO_ACQUIRE_SOURCE_LOCK);
+                    }
 
-                SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
+                    std::filesystem::path packageLocation = GetStatePathFromDetails(details);
+                    packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+
+                    if (!std::filesystem::exists(packageLocation))
+                    {
+                        AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                    }
+
+                    return SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
+                };
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
-                // missing from the details.*/
-                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
+                // missing from the details. Now we support creating the source reference before adding
+                // the source, PackageFamilyName might not yet be ready in SourceDetails.
+                std::string identifier;
+                if (!details.Data.empty())
+                {
+                    identifier = GetPackageFamilyNameFromDetails(details);
+                }
+
+                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(getIndexFunc));
             }
 
             bool UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override

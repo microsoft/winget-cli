@@ -19,10 +19,10 @@ namespace AppInstaller::Repository
         // Get the source's configuration from settings.
         virtual SourceDetails& GetDetails() = 0;
 
-        virtual SourceInformation GetInformation() = 0;
+        virtual SourceInformation GetInformation() const { return {}; };
 
         // Opens the source.
-        virtual bool Open(IProgressCallback& progress) = 0;
+        virtual void Open(IProgressCallback& progress) = 0;
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository
         // Gets the available sources if the source is composite.
         virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
 
-        virtual bool SetCustomHeader(std::string_view header) { return false; }
+        virtual bool SetCustomHeader(std::string_view header) { UNREFERENCED_PARAMETER(header); return false; }
     };
 
     // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages

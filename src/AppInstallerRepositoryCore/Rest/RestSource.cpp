@@ -14,25 +14,25 @@ namespace AppInstaller::Repository::Rest
         // The source reference used by package objects.
         struct SourceReference
         {
-            SourceReference(const std::shared_ptr<const RestSource>& source) :
+            SourceReference(const std::shared_ptr<RestSource>& source) :
                 m_source(source) {}
 
         protected:
-            std::shared_ptr<const RestSource> GetReferenceSource() const
+            std::shared_ptr<RestSource> GetReferenceSource() const
             {
-                std::shared_ptr<const RestSource> source = m_source.lock();
+                std::shared_ptr<RestSource> source = m_source.lock();
                 THROW_HR_IF(E_NOT_VALID_STATE, !source);
                 return source;
             }
 
         private:
-            std::weak_ptr<const RestSource> m_source;
+            std::weak_ptr<RestSource> m_source;
         };
 
         // The IPackage implementation for Available packages from RestSource.
         struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
         {
-            AvailablePackage(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
+            AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                 SortVersionsInternal();
@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<const RestSource> source = GetReferenceSource();
+                std::shared_ptr<RestSource> source = GetReferenceSource();
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
 
                 std::vector<PackageVersionKey> result;
@@ -181,7 +181,7 @@ namespace AppInstaller::Repository::Rest
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<const RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
+                const std::shared_ptr<RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
                 : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
@@ -322,7 +322,7 @@ namespace AppInstaller::Repository::Rest
 
         std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
         {
-            std::shared_ptr<const RestSource> source = GetReferenceSource();
+            std::shared_ptr<RestSource> source = GetReferenceSource();
             std::scoped_lock versionsLock{ m_packageVersionsLock };
 
             // Ensure that this key targets this (or any) source
@@ -380,45 +380,44 @@ namespace AppInstaller::Repository::Rest
         }
     }
 
-    RestSource::RestSource(const SourceDetails& details, std::string identifier, RestClient&& restClient)
-        : m_details(details), m_restClient(std::move(restClient))
+    RestSource::RestSource(const SourceDetails& details) : m_details(details) {}
+
+    const std::string& RestSource::GetIdentifier()
     {
-        m_details.Identifier = std::move(identifier);
-
-        const auto& sourceInformation = m_restClient.GetSourceInformation();
-        m_details.Information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
-        m_details.Information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
-        m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
-        m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
-
-        m_details.Information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
-        for (auto const& agreement : sourceInformation.SourceAgreements)
+        if (!m_isOpened)
         {
-            m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+            OpenSourceInternal();
         }
+
+        return m_identifier;
     }
 
-    const SourceDetails& RestSource::GetDetails() const
+    SourceDetails& RestSource::GetDetails()
     {
+        if (!m_isOpened)
+        {
+            OpenSourceInternal();
+        }
+
         return m_details;
     }
 
-    const RestClient& RestSource::GetRestClient() const
+    void RestSource::Open(IProgressCallback&)
     {
-        return m_restClient;
-    }
-
-    const std::string& RestSource::GetIdentifier() const
-    {
-        return m_details.Identifier;
+        if (!m_isOpened)
+        {
+            OpenSourceInternal();
+        }
     }
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        IRestClient::SearchResult results = m_restClient.Search(request);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isOpened);
+
+        IRestClient::SearchResult results = m_restClient->Search(request);
         SearchResult searchResult;
 
-        std::shared_ptr<const RestSource> sharedThis = shared_from_this();
+        std::shared_ptr<RestSource> sharedThis = const_cast<RestSource*>(this)->shared_from_this();
         for (auto& result : results.Matches)
         {
             std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
@@ -434,8 +433,45 @@ namespace AppInstaller::Repository::Rest
         return searchResult;
     }
 
+    bool RestSource::SetCustomHeader(std::string_view header)
+    {
+        m_header = header;
+        return true;
+    }
+
+    const RestClient& RestSource::GetRestClient() const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isOpened);
+        return m_restClient.value();
+    }
+
     bool RestSource::IsSame(const RestSource* other) const
     {
-        return (other && GetIdentifier() == other->GetIdentifier());
+        return (other && m_identifier == other->m_identifier);
+    }
+
+    void RestSource::OpenSourceInternal()
+    {
+        std::call_once(m_openFlag,
+            [&]()
+            {
+                m_restClient = RestClient::Create(m_details.Arg, m_header);
+
+                m_identifier = m_restClient->GetSourceIdentifier();
+
+                const auto& sourceInformation = m_restClient->GetSourceInformation();
+                m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
+                m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
+                m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
+                m_information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+
+                m_information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
+                for (auto const& agreement : sourceInformation.SourceAgreements)
+                {
+                    m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+                }
+
+                m_isOpened = true;
+            });
     }
 }

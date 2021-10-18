@@ -70,7 +70,9 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; }
 
-            const std::string& GetIdentifier() const override { return m_details.Identifier; }
+            const std::string& GetIdentifier() override { return m_identifier; }
+
+            void Open(IProgressCallback&) override {}
 
             bool SetCustomHeader(std::string_view) { return true; }
 
@@ -81,6 +83,7 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
+            std::string m_identifier;
             SourceDetails m_details;
             TestSourceConfiguration m_config;
         };
@@ -90,8 +93,8 @@ namespace AppInstaller::Repository::Microsoft
         {
             std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
-                // Allow the custom header to override the arg (enables `source add` with FAILED(CreateHR))
-                TestSourceConfiguration config{ details.CustomHeader.value_or(details.Arg) };
+                // enables `source add` with FAILED(CreateHR)
+                TestSourceConfiguration config{ details.Arg };
                 THROW_IF_FAILED(config.CreateHR);
                 return std::make_shared<ConfigurableTestSource>(details, config);
             }
