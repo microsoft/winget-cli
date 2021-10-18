@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "winget/PackageTrackingCatalog.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include "AppInstallerDateTime.h"
 
 using namespace std::string_literals;
 using namespace AppInstaller::Repository::Microsoft;
@@ -71,7 +72,7 @@ namespace AppInstaller::Repository
             lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
         }
 
-        SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::Read);
+        SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
 
         // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
         //       Could write this all now but it will be better tested when there is a new schema.
@@ -83,7 +84,7 @@ namespace AppInstaller::Repository
         details.Arg = pathName;
 
         PackageTrackingCatalog result;
-        result.m_implementation = std::make_shared< PackageTrackingCatalog::implementation>();
+        result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
         result.m_implementation->Source = std::make_shared<SQLiteIndexSource>(details, "*Tracking", std::move(index), std::move(lock));
 
         return result;
@@ -96,6 +97,7 @@ namespace AppInstaller::Repository
 
     struct PackageTrackingCatalog::Version::implementation
     {
+        SQLiteIndex::IdType Id;
     };
 
     PackageTrackingCatalog::Version::Version() = default;
@@ -120,15 +122,57 @@ namespace AppInstaller::Repository
         const Manifest::ManifestInstaller& installer,
         bool isUpgrade)
     {
-        UNREFERENCED_PARAMETER(manifest);
+        // TODO: Store additional information from these if needed
         UNREFERENCED_PARAMETER(installer);
         UNREFERENCED_PARAMETER(isUpgrade);
-        THROW_HR(E_NOTIMPL);
+
+        auto& index = m_implementation->Source->GetIndex();
+
+        // Check for an existing manifest that matches this one (could be reinstalling)
+        auto manifestIdOpt = index.GetManifestIdByManifest(manifest);
+
+        if (manifestIdOpt)
+        {
+            index.UpdateManifest(manifest);
+        }
+        else
+        {
+            manifestIdOpt = index.AddManifest(manifest);
+        }
+
+        SQLiteIndex::IdType manifestId = manifestIdOpt.value();
+
+        // Write additional metadata for package tracking
+        std::ostringstream strstr;
+        strstr << Utility::GetCurrentUnixEpoch();
+        index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::TrackingWriteTime, strstr.str());
+
+        std::shared_ptr<Version::implementation> result = std::make_shared<Version::implementation>();
+        result->Id = manifestId;
+        return { std::move(result) };
     }
 
     void PackageTrackingCatalog::RecordUninstall(const Utility::LocIndString& packageIdentifier)
     {
-        UNREFERENCED_PARAMETER(packageIdentifier);
-        THROW_HR(E_NOTIMPL);
+        auto& index = m_implementation->Source->GetIndex();
+
+        SearchRequest idSearch;
+        idSearch.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, packageIdentifier.get());
+        auto searchResult = index.Search(idSearch);
+
+        for (const auto& match : searchResult.Matches)
+        {
+            auto versions = index.GetVersionKeysById(match.first);
+
+            for (const auto& version : versions)
+            {
+                auto manifestId = index.GetManifestIdByKey(match.first, version.GetVersion().ToString(), version.GetChannel().ToString());
+
+                if (manifestId)
+                {
+                    index.RemoveManifestById(manifestId.value());
+                }
+            }
+        }
     }
 }

@@ -684,6 +684,7 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::SilentUninstallCommand: return "SilentUninstallCommand"sv;
         case PackageVersionMetadata::Publisher: return "Publisher"sv;
         case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
+        case PackageVersionMetadata::TrackingWriteTime: return "TrackingWriteTime"sv;
         default: return "Unknown"sv;
         }
     }

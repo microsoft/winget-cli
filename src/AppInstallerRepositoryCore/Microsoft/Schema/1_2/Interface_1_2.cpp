@@ -89,7 +89,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         savepoint.Commit();
     }
 
-    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_2");
 
@@ -106,7 +106,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return manifestId;
     }
 
-    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_2");
 
@@ -121,19 +121,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return { indexModified, manifestId };
     }
 
-    SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_2");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifestbyid_v1_2");
 
-        SQLite::rowid_t manifestId = V1_1::Interface::RemoveManifest(connection, manifest, relativePath);
+        V1_1::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove all of the new 1.2 data that is no longer referenced.
         NormalizedPackageNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
         NormalizedPackagePublisherTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
-
-        return manifestId;
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const

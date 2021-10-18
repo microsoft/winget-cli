@@ -9,6 +9,7 @@
 #include <winget/NameNormalization.h>
 
 #include <filesystem>
+#include <optional>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema
@@ -41,15 +42,20 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual void CreateTables(SQLite::Connection& connection) = 0;
 
         // Adds the manifest at the repository relative path to the index.
-        virtual SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) = 0;
 
         // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.
-        virtual std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual std::pair<bool, SQLite::rowid_t> UpdateManifest(
+            SQLite::Connection& connection,
+            const Manifest::Manifest& manifest,
+            const std::optional<std::filesystem::path>& relativePath) = 0;
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
-        // Path is currently ignored.
-        virtual SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) = 0;
+
+        // Removes the manifest with the given id.
+        virtual void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) = 0;
 
         // Removes data that is no longer needed for an index that is to be published.
         virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
@@ -70,6 +76,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
         virtual std::optional<SQLite::rowid_t> GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const = 0;
+
+        // Gets the manifest id for the given manifest, if present.
+        virtual std::optional<SQLite::rowid_t> GetManifestIdByManifest(const SQLite::Connection& connection, const Manifest::Manifest& manifest) const = 0;
 
         // Gets all versions and channels for the given id.
         virtual std::vector<Utility::VersionAndChannel> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const = 0;
