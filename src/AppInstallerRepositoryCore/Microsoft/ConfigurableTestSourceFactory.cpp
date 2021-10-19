@@ -76,7 +76,7 @@ namespace AppInstaller::Repository::Microsoft
 
             void Open(IProgressCallback&) override {}
 
-            bool SetCustomHeader(std::string_view) override { return true; }
+            bool SetCustomHeader(std::optional<std::string>) override { return true; }
 
             SearchResult Search(const SearchRequest&) const override
             {

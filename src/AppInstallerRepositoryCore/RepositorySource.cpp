@@ -198,10 +198,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    Source::Source()
-    {
-        m_source = InitializeSourceReference(""sv);
-    }
+    Source::Source() {}
 
     Source::Source(std::string_view name)
     {
@@ -316,25 +313,25 @@ namespace AppInstaller::Repository
         }
     }
 
-    const std::string Source::GetIdentifier() const
+    std::string Source::GetIdentifier() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
         return m_source->GetIdentifier();
     }
 
-    const SourceDetails Source::GetDetails() const
+    SourceDetails Source::GetDetails() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || m_source->IsComposite());
         return m_source->GetDetails();
     }
 
-    const SourceInformation Source::GetInformation() const
+    SourceInformation Source::GetInformation() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || m_source->IsComposite());
         return m_source->GetInformation();
     }
 
-    bool Source::SetCustomHeader(std::string_view header)
+    bool Source::SetCustomHeader(std::optional<std::string> header)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
         return m_source->SetCustomHeader(header);
@@ -584,6 +581,19 @@ namespace AppInstaller::Repository
             AICLI_LOG(Repo, Info, << "Dropping all source settings");
             SourceList::RemoveSettingsStreams();
         }
+    }
+
+    std::vector<SourceDetails> Source::GetCurrentSources()
+    {
+        SourceList sourceList;
+
+        std::vector<SourceDetails> result;
+        for (auto&& source : sourceList.GetCurrentSourceRefs())
+        {
+            result.emplace_back(std::move(source));
+        }
+
+        return result;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

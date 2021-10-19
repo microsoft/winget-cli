@@ -144,10 +144,10 @@ namespace AppInstaller::Repository
     // Represents a source which would be interacted from outside of repository lib.
     struct Source
     {
-        // Default constructor to get all sources available. Can be used in source list, etc.
+        // Default constructor with an empty source.
         Source();
 
-        // Constructor to get a named source, passing empty string will get all available sources(same as the default constructor).
+        // Constructor to get a named source, passing empty string will get all available sources.
         Source(std::string_view name);
 
         // Constructor to get a PredefinedSource. Like installed source, etc.
@@ -177,16 +177,16 @@ namespace AppInstaller::Repository
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names unless the source is internal to winget,
         // in which case the identifier should begin with a '*' character.
-        const std::string GetIdentifier() const;
+        std::string GetIdentifier() const;
 
         // Get the source's configuration details from settings.
-        const SourceDetails GetDetails() const;
+        SourceDetails GetDetails() const;
 
         // Get the source's information.
-        const SourceInformation GetInformation() const;
+        SourceInformation GetInformation() const;
 
         // Set custom header.
-        bool SetCustomHeader(std::string_view header);
+        bool SetCustomHeader(std::optional<std::string> header);
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
@@ -235,6 +235,9 @@ namespace AppInstaller::Repository
 
         // Drop source. Source reset command.
         void Drop();
+
+        // Get a list of all available SourceDetails.
+        static std::vector<SourceDetails> GetCurrentSources();
 
     private:
         // Constructor for creating a Source object from an existing ISource. Used by GetAvailableSources.

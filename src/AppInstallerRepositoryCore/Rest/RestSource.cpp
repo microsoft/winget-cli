@@ -443,7 +443,7 @@ namespace AppInstaller::Repository::Rest
         return searchResult;
     }
 
-    bool RestSource::SetCustomHeader(std::string_view header)
+    bool RestSource::SetCustomHeader(std::optional<std::string> header)
     {
         m_header = header;
         return true;

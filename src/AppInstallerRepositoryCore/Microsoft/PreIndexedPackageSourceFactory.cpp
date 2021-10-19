@@ -56,8 +56,6 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                /*auto */
-
                 return CreateInternal(details);
             }
 

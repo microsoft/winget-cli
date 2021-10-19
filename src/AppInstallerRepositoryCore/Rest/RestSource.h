@@ -36,7 +36,7 @@ namespace AppInstaller::Repository::Rest
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 
-        bool SetCustomHeader(std::string_view header) override;
+        bool SetCustomHeader(std::optional<std::string> header) override;
 
         // Gets the rest client.
         const RestClient& GetRestClient() const;
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Rest
         std::string m_identifier;
         SourceDetails m_details;
         SourceInformation m_information;
-        std::string m_header;
+        std::optional<std::string> m_header;
         std::optional<RestClient> m_restClient;
         std::once_flag m_openFlag;
         std::atomic_bool m_isOpened = false;

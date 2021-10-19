@@ -39,7 +39,7 @@ namespace AppInstaller::Repository
         virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
 
         // Set custom header for rest source. Returns false if custom header is not supported.
-        virtual bool SetCustomHeader(std::string_view header) { UNREFERENCED_PARAMETER(header); return false; }
+        virtual bool SetCustomHeader(std::optional<std::string> header) { UNREFERENCED_PARAMETER(header); return false; }
     };
 
     // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages
