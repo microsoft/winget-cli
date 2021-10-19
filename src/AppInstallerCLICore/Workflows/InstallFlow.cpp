@@ -413,9 +413,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool allSucceeded = true;
+        size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
+        size_t packagesProgress = 0;
+        
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
+
+            packagesProgress++;
+            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
 
             // We want to do best effort to install all packages regardless of previous failures
             auto installContextPtr = context.Clone();
