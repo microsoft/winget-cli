@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
-    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version)
+    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version, CreateOptions options)
     {
         AICLI_LOG(Repo, Info, << "Creating new SQLite Index [" << version << "] at '" << filePath << "'");
         SQLiteIndex result{ filePath, version };
@@ -36,7 +36,7 @@ namespace AppInstaller::Repository::Microsoft
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
 
-        result.m_interface->CreateTables(result.m_dbconn);
+        result.m_interface->CreateTables(result.m_dbconn, options);
 
         result.SetLastWriteTime();
 
@@ -227,7 +227,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifestById(IdType manifestId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifestbyid");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "SQLiteIndex_RemoveManifestById");
 
         m_interface->RemoveManifestById(m_dbconn, manifestId);
 

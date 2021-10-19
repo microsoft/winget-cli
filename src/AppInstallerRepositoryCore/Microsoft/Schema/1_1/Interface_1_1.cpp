@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return { 1, 1 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_1");
 
@@ -85,7 +85,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             { V1_0::MonikerTable::ValueName(), false, false },
             { V1_0::VersionTable::ValueName(), true, false },
             { V1_0::ChannelTable::ValueName(), true, false },
-            { V1_0::PathPartTable::ValueName(), false, true }
+            { V1_0::PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
         V1_0::TagsTable::Create(connection);

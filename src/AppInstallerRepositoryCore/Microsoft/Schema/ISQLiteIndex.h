@@ -38,8 +38,17 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Gets the schema version that this index interface is built for.
         virtual Schema::Version GetVersion() const = 0;
 
+        // Options for creating the index.
+        enum class CreateOptions
+        {
+            // Standard
+            None,
+            // Enable support for passing in nullopt values to Add/UpdateManifest
+            SupportPathless,
+        };
+
         // Creates all of the version dependent tables within the database.
-        virtual void CreateTables(SQLite::Connection& connection) = 0;
+        virtual void CreateTables(SQLite::Connection& connection, CreateOptions options) = 0;
 
         // Adds the manifest at the repository relative path to the index.
         virtual SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) = 0;
@@ -95,4 +104,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         virtual Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const = 0;
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);
 }

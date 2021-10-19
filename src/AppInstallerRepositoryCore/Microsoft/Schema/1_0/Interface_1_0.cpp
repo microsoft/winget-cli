@@ -142,7 +142,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return { 1, 0 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_0");
 
@@ -160,7 +160,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             { MonikerTable::ValueName(), false, false },
             { VersionTable::ValueName(), true, false },
             { ChannelTable::ValueName(), true, false },
-            { PathPartTable::ValueName(), false, true }
+            { PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
         TagsTable::Create_deprecated(connection);

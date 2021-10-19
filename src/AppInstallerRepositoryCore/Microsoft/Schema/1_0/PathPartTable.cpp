@@ -169,7 +169,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return s_PathPartTable_PartValue_Name;
     }
 
-    std::tuple<bool, SQLite::rowid_t> EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
+    std::tuple<bool, SQLite::rowid_t> EnsurePathExistsInternal(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
     {
         THROW_HR_IF(E_INVALIDARG, !relativePath.has_relative_path());
         THROW_HR_IF(E_INVALIDARG, relativePath.has_root_path());
@@ -222,7 +222,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         if (relativePath)
         {
-            return EnsurePathExists(connection, relativePath.value(), createIfNotFound);
+            return EnsurePathExistsInternal(connection, relativePath.value(), createIfNotFound);
         }
 
         std::unique_ptr<SQLite::Savepoint> savepoint;
@@ -320,6 +320,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
+        // Don't bother removing the pathless id
+        if (id == NoPathId)
+        {
+            return;
+        }
+
         SQLite::rowid_t currentPartToRemove = id;
         while (IsLeafPart(connection, currentPartToRemove))
         {

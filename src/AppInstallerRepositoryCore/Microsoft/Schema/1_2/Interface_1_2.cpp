@@ -73,11 +73,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return { 1, 2 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_2");
 
-        V1_1::Interface::CreateTables(connection);
+        V1_1::Interface::CreateTables(connection, options);
 
         // While the name and publisher should be linked per-locale, we are not implementing that here.
         // This will mean that one can match cross locale name and publisher, but the chance that this

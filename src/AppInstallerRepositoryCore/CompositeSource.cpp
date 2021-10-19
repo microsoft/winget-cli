@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CompositeSource.h"
-#include "winget/PackageTrackingCatalog.h"
 
 namespace AppInstaller::Repository
 {

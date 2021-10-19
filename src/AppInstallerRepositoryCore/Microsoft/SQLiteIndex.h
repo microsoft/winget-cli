@@ -33,6 +33,9 @@ namespace AppInstaller::Repository::Microsoft
         // The return type of GetMetadataByManifestId
         using MetadataResult = Schema::ISQLiteIndex::MetadataResult;
 
+        // Options for creating a new index.
+        using CreateOptions = Schema::ISQLiteIndex::CreateOptions;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -40,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndex& operator=(SQLiteIndex&&) = default;
 
         // Creates a new index database of the given version.
-        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
         // The disposition for opening the index.
         enum class OpenDisposition

@@ -20,11 +20,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         return { 1, 3 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_3");
 
-        V1_2::Interface::CreateTables(connection);
+        V1_2::Interface::CreateTables(connection, options);
 
         V1_0::ManifestTable::AddColumn(connection, { HashVirtualTable::ValueName(), HashVirtualTable::SQLiteType() });
 
