@@ -477,14 +477,8 @@ namespace AppInstaller::Repository
         // Check all sources for the given name.
         SourceList sourceList;
 
-        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
-
-        // Check for a hidden source data that we don't want to collide.
-        // TODO: Refactor the source interface so that we don't do this
-        auto hiddenSource = sourceList.GetSource(sourceDetails.Name);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS,
-            hiddenSource && hiddenSource->Origin != SourceOrigin::User && hiddenSource->Origin != SourceOrigin::Metadata);
+        auto source = sourceList.GetSource(sourceDetails.Name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr && source->Origin != SourceOrigin::Metadata && !source->IsTombstone);
 
         // Check sources allowed by group policy
         auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);

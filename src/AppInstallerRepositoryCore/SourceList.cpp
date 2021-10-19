@@ -191,7 +191,7 @@ namespace AppInstaller::Repository
 
         bool ShouldBeHidden(const SourceDetailsInternal& details)
         {
-            return details.IsTombstone || details.Origin == SourceOrigin::Metadata;
+            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible;
         }
     }
 
@@ -282,11 +282,7 @@ namespace AppInstaller::Repository
             details.Arg = s_Source_DesktopFrameworks_Arg;
             details.Data = s_Source_DesktopFrameworks_Data;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-            // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
-            // of this file, while still allowing it to properly save metadata.  There might be problems
-            // if someone chooses the exact same name as this, which is why its name is very long.
-            // TODO: When refactoring the source interface, handle this with Visibility or similar.
-            details.IsTombstone = true;
+            details.IsVisible = false;
             return details;
         }
         }
@@ -546,7 +542,7 @@ namespace AppInstaller::Repository
                 result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
             }
 
-            // Since we are using the tombstone trick, this is added just to have the source in the internal
+            // Since the source is not visible outside, this is added just to have the source in the internal
             // list for tracking updates.  Thus there is no need to check a policy.
             result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
         }

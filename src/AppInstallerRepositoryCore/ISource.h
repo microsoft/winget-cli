@@ -16,11 +16,13 @@ namespace AppInstaller::Repository
         // in which case the identifier should begin with a '*' character.
         virtual const std::string& GetIdentifier() const = 0;
 
-        // Get the source's configuration from settings.
+        // Get the source's configuration from settings. Source details can be used during opening the source.
         virtual const SourceDetails& GetDetails() const = 0;
 
+        // Get the source's information after the source is opened.
         virtual SourceInformation GetInformation() const { return {}; };
 
+        // Update the last update time of the source since source may be updated after source reference is created.
         virtual void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) = 0;
 
         // Opens the source.
@@ -36,6 +38,7 @@ namespace AppInstaller::Repository
         // Gets the available sources if the source is composite.
         virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
 
+        // Set custom header for rest source. Returns false if custom header is not supported.
         virtual bool SetCustomHeader(std::string_view header) { UNREFERENCED_PARAMETER(header); return false; }
     };
 

@@ -23,6 +23,11 @@ namespace AppInstaller::Repository
 
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
         bool IsTombstone = false;
+
+        // If false, this is not visible in GetCurrentSource or GetAllSources, it's only available when explicitly requested.
+        bool IsVisible = true;
+
+        // Accepted agreements info.
         std::string AcceptedAgreementsIdentifier;
         int AcceptedAgreementFields = 0;
     };

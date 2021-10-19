@@ -104,6 +104,7 @@ namespace AppInstaller::Repository
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
 
+        // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
     };
 
@@ -143,24 +144,33 @@ namespace AppInstaller::Repository
     // Represents a source which would be interacted from outside of repository lib.
     struct Source
     {
+        // Default constructor to get all sources available. Can be used in source list, etc.
         Source();
 
+        // Constructor to get a named source, passing empty string will get all available sources(same as the default constructor).
         Source(std::string_view name);
 
+        // Constructor to get a PredefinedSource. Like installed source, etc.
         Source(PredefinedSource source);
 
+        // Constructor to get a source coming with winget. Like winget community source, etc.
         Source(WellKnownSource source);
 
-        // Constructor for
+        // Constructor for a source to be added.
         Source(std::string_view name, std::string_view arg, std::string_view type);
 
+        // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
 
+        // Constructor for creating a composite source from an installed source and available source(may be composite already).
         Source(
             const Source& installedSource,
             const Source& availableSource,
             CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
+        // Bool operator to check if a source reference is successfully acquired.
+        // Theoretically, the constructor could just throw when CreateSource returns empty.
+        // To avoid putting try catch everywhere, we use bool operator here.
         operator bool() const;
 
         // Gets the source's identifier; a unique identifier independent of the name
@@ -169,12 +179,13 @@ namespace AppInstaller::Repository
         // in which case the identifier should begin with a '*' character.
         const std::string GetIdentifier() const;
 
-        // Get the source's configuration from settings.
+        // Get the source's configuration details from settings.
         const SourceDetails GetDetails() const;
 
+        // Get the source's information.
         const SourceInformation GetInformation() const;
 
-        // Custom header
+        // Set custom header.
         bool SetCustomHeader(std::string_view header);
 
         // Execute a search on the source.
@@ -210,20 +221,23 @@ namespace AppInstaller::Repository
 
         /* Source operations */
 
-        // Opens the source.
+        // Opens the source. if skipUpdateBeforeOpen is true, source will be opened without check background update.
         std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen = false);
 
-        // Add source
+        // Add source. Source add command.
         bool Add(IProgressCallback& progress);
 
+        // Update Source. Source update command.
         std::vector<SourceDetails> Update(IProgressCallback& progress);
 
+        // Remove source. Source remove command.
         bool Remove(IProgressCallback& progress);
 
+        // Drop source. Source reset command.
         void Drop();
 
     private:
-
+        // Constructor for creating a Source object from an existing ISource. Used by GetAvailableSources.
         Source(std::shared_ptr<ISource> source, bool isNamedSource);
 
         std::shared_ptr<ISource> InitializeSourceReference(std::string_view name);
