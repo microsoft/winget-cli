@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Builds the dependency graph.
     // Required Args: None
-    // Inputs: DependencySource
+    // Inputs: Manifest, Installer and DependencySource
     // Outputs: Dependencies
     struct ManagePackageDependencies : public WorkflowTask
     {

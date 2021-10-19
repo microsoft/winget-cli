@@ -187,7 +187,7 @@ bool HasExtension(std::string_view extension) const;
             return Id < rhs.Id;
         }
 
-        bool IsVersionOk(string_t version)
+        bool IsVersionOk(Utility::Version version)
         {
             return MinVersion <= Utility::Version(version);
         }

@@ -49,6 +49,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowPackageVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoInstallerFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoSuitableInstallerFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMatches);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowContainsLoop);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
