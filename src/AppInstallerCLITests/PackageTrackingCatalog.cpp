@@ -37,7 +37,7 @@ static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& fil
     return result;
 }
 
-TEST_CASE("TrackingCatalog_Create", "[trackingcatalog]")
+TEST_CASE("TrackingCatalog_Create", "[tracking_catalog]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -50,7 +50,7 @@ TEST_CASE("TrackingCatalog_Create", "[trackingcatalog]")
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 }
 
-TEST_CASE("TrackingCatalog_Install", "[trackingcatalog]")
+TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -80,7 +80,7 @@ TEST_CASE("TrackingCatalog_Install", "[trackingcatalog]")
     REQUIRE(metadata.find(PackageVersionMetadata::TrackingWriteTime) != metadata.end());
 }
 
-TEST_CASE("TrackingCatalog_Reinstall", "[trackingcatalog]")
+TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -114,7 +114,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[trackingcatalog]")
         newName);
 }
 
-TEST_CASE("TrackingCatalog_Upgrade", "[trackingcatalog]")
+TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -147,7 +147,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[trackingcatalog]")
         manifest.Version);
 }
 
-TEST_CASE("TrackingCatalog_Uninstall", "[trackingcatalog]")
+TEST_CASE("TrackingCatalog_Uninstall", "[tracking_catalog]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());

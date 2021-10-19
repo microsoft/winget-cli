@@ -27,7 +27,7 @@ namespace AppInstaller::Repository
         static void RemoveForSource(const std::string& identifier);
 
         // Execute a search against the catalog.
-        // Note that the pacakges in the results have the versions under "available" in order to
+        // Note that the packages in the results have the versions under "available" in order to
         // expose all versions contained therein (in the event that this is deemed useful at some point).
         SearchResult Search(const SearchRequest& request) const;
 
