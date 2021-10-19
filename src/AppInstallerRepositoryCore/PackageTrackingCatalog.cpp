@@ -90,6 +90,26 @@ namespace AppInstaller::Repository
         return result;
     }
 
+    void PackageTrackingCatalog::RemoveForSource(const std::string& identifier)
+    {
+        if (identifier.empty())
+        {
+            THROW_HR(E_INVALIDARG);
+        }
+
+        std::string pathName = Utility::MakeSuitablePathPart(identifier);
+
+        std::string lockName = CreateNameForCPRWL(pathName);
+        auto lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
+
+        std::filesystem::path trackingDB = GetPackageTrackingFilePath(pathName);
+
+        if (std::filesystem::exists(trackingDB))
+        {
+            std::filesystem::remove(trackingDB);
+        }
+    }
+
     SearchResult PackageTrackingCatalog::Search(const SearchRequest& request) const
     {
         return m_implementation->Source->Search(request);

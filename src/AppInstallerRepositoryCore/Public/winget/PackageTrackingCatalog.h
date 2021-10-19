@@ -23,7 +23,12 @@ namespace AppInstaller::Repository
         // TODO: Make creation exclusive to the refactored Source type.
         static PackageTrackingCatalog CreateForSource(const std::shared_ptr<const ISource>& source);
 
+        // Removes the package tracking catalog for a given source.
+        static void RemoveForSource(const std::string& identifier);
+
         // Execute a search against the catalog.
+        // Note that the pacakges in the results have the versions under "available" in order to
+        // expose all versions contained therein (in the event that this is deemed useful at some point).
         SearchResult Search(const SearchRequest& request) const;
 
         // Enables more granular control over the metadata in the tracking catalog if necessary.
