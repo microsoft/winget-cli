@@ -11,17 +11,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
-    std::vector<AppInstaller::Manifest::string_t, std::allocator<AppInstaller::Manifest::string_t>> GetDependencies(const Manifest::Manifest& manifest)
-    {
-        std::vector<AppInstaller::Manifest::string_t, std::allocator<AppInstaller::Manifest::string_t>> manifestDependencies;
-
-        manifest.DefaultInstallerInfo.Dependencies.ApplyToAll([&](AppInstaller::Manifest::Dependency dependency)
-            {
-                manifestDependencies.push_back(dependency.Id);
-            });
-        return manifestDependencies;
-    }
-
     Interface::Interface(Utility::NormalizationVersion normVersion) : V1_2::Interface(normVersion)
     {
     }

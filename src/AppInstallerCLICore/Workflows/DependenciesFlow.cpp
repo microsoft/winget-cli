@@ -5,7 +5,7 @@
 #include "DependenciesFlow.h"
 #include "ManifestComparator.h"
 #include "InstallFlow.h"
-
+#include "winget\DependenciesGraph.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -156,7 +156,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (matches.size() > 1) 
                     {
-                        error << Resource::String::DependenciesFlowSourceTooManyMatches;
+                        error << Resource::String::DependenciesFlowSourceTooManyMatches << " " << Utility::Normalize(node.Id);
                         AICLI_LOG(CLI, Error, << "Too many matches for package " << Utility::Normalize(node.Id));
                         foundError = true;
                         return DependencyList();
