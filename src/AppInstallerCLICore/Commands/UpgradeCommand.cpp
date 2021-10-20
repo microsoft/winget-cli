@@ -71,8 +71,8 @@ namespace AppInstaller::CLI
         }
 
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            OpenSource() <<
+            OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         switch (valueType)
         {

@@ -7,11 +7,11 @@
 #include "InstallFlow.h"
 #include "winget\DependenciesGraph.h"
 
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Manifest;
+
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace AppInstaller::Repository;
-    using namespace Manifest;
-
     void ReportDependencies::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
