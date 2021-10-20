@@ -135,6 +135,7 @@ GES
 GESMBH
 GHS
 gity
+Globals
 Google
 helplib
 helplibrary
