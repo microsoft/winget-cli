@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerLogging.h>
+#include <winget/RepositorySource.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
@@ -74,7 +75,7 @@ namespace AppInstaller::CLI::Execution
         _Requires_lock_held_(m_queueLock)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
-        std::shared_ptr<::AppInstaller::Repository::IMutablePackageSource> m_installingWriteableSource = nullptr;
+        Repository::Source m_installingWriteableSource;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
     };
 }

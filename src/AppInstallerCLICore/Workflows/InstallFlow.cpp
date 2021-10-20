@@ -390,8 +390,8 @@ namespace AppInstaller::CLI::Workflow
             context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
 
             if (context.Contains(Execution::Data::PackageVersion) &&
-                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel, SourceTrustLevel::Trusted))
+                context.Get<Execution::Data::PackageVersion>()->GetSource() &&
+                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource().GetDetails().TrustLevel, SourceTrustLevel::Trusted))
             {
                 context.SetFlags(Execution::ContextFlag::InstallerTrusted);
             }
@@ -703,15 +703,17 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && MightWriteToARP(installer->InstallerType))
         {
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress, true);
+                    return result;
                 }, true);
 
             std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
 
-            for (const auto& entry : arpSource->Search({}).Matches)
+            for (const auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
                 if (installed)
@@ -737,15 +739,17 @@ namespace AppInstaller::CLI::Workflow
             const auto& entries = context.Get<Execution::Data::ARPSnapshot>();
 
             // Open it again to get the (potentially) changed ARP entries
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress, true);
+                    return result;
                 }, true);
 
             std::vector<ResultMatch> changes;
 
-            for (auto& entry : arpSource->Search({}).Matches)
+            for (auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
 
@@ -810,7 +814,7 @@ namespace AppInstaller::CLI::Workflow
             // Don't execute this search if it would just find everything
             if (!nameAndPublisherRequest.IsForEverything())
             {
-                findByManifest = arpSource->Search(nameAndPublisherRequest);
+                findByManifest = arpSource.Search(nameAndPublisherRequest);
             }
 
             // Cross reference the changes with the search results

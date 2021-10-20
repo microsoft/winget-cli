@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <mutex>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include "PackageVersionInfo.h"
 #include "PackageVersionInfo.g.cpp"
 #include "PackageCatalogInfo.h"
@@ -81,7 +81,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (!m_packageCatalog)
         {
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-            packageCatalogInfo->Initialize(m_packageVersion->GetSource()->GetDetails());
+            packageCatalogInfo->Initialize(m_packageVersion->GetSource().GetDetails());
             auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
             packageCatalog->Initialize(*packageCatalogInfo, m_packageVersion->GetSource(), false);
             m_packageCatalog = *packageCatalog;

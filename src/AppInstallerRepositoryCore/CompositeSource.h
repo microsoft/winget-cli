@@ -59,7 +59,7 @@ namespace AppInstaller::Repository
 
         std::shared_ptr<ISource> m_installedSource;
         std::vector<std::shared_ptr<ISource>> m_availableSources;
-        std::string m_identifier;
+        SourceDetails m_details;
         CompositeSearchBehavior m_searchBehavior;
     };
 }

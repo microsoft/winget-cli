@@ -534,7 +534,7 @@ void OverrideForSourceAddWithAgreements(TestContext& context)
     {
     } });
 
-    context.Override({ OpenSourceForSourceAdd, [](TestContext& context)
+    context.Override({ CreateSourceForSourceAdd, [](TestContext& context)
     {
         auto testSource = std::make_shared<TestSource>();
         testSource->Details.Information.SourceAgreementsIdentifier = "AgreementsIdentifier";

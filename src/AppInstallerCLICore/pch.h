@@ -53,8 +53,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>

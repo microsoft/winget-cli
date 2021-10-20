@@ -348,7 +348,7 @@ namespace AppInstaller::Repository
 
     SourceDetails Source::GetDetails() const
     {
-        if (m_source && !m_source->IsComposite())
+        if (m_source)
         {
             return m_source->GetDetails();
         }
@@ -390,7 +390,7 @@ namespace AppInstaller::Repository
         return m_source->Search(request);
     }
 
-    ImplicitAgreementFieldEnum Source::GetAgreementFieldsFromSourceInformation()
+    ImplicitAgreementFieldEnum Source::GetAgreementFieldsFromSourceInformation() const
     {
         ImplicitAgreementFieldEnum result = ImplicitAgreementFieldEnum::None;
 
@@ -404,7 +404,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    bool Source::CheckSourceAgreements()
+    bool Source::CheckSourceAgreements() const
     {
         auto sourceName = GetDetails().Name;
         auto agreementFields = GetAgreementFieldsFromSourceInformation();
@@ -414,7 +414,7 @@ namespace AppInstaller::Repository
         return sourceList.CheckSourceAgreements(sourceName, agreementsIdentifier, agreementFields);
     }
 
-    void Source::SaveAcceptedSourceAgreements()
+    void Source::SaveAcceptedSourceAgreements() const
     {
         auto sourceName = GetDetails().Name;
         auto agreementFields = GetAgreementFieldsFromSourceInformation();
@@ -430,7 +430,7 @@ namespace AppInstaller::Repository
         return m_source->IsComposite();
     }
 
-    std::vector<Source> Source::GetAvailableSources()
+    std::vector<Source> Source::GetAvailableSources() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_source->IsComposite());
 
@@ -483,6 +483,11 @@ namespace AppInstaller::Repository
                             if (BackgroundUpdateSourceFromDetails(details, progress))
                             {
                                 sourceList.SaveMetadata(details);
+                            }
+                            else
+                            {
+                                AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                                result.emplace_back(details);
                             }
                         }
                         catch (...)
@@ -590,6 +595,11 @@ namespace AppInstaller::Repository
                 if (UpdateSourceFromDetails(details, progress))
                 {
                     sourceList.SaveMetadata(details);
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                    result.emplace_back(details);
                 }
             }
             catch (...)

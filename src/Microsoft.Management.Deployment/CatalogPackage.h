@@ -9,7 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         CatalogPackage() = default;
         void Initialize(
-            std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+            ::AppInstaller::Repository::Source source,
             std::shared_ptr<::AppInstaller::Repository::IPackage> package);
 
         hstring Id();
@@ -20,7 +20,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
         bool IsUpdateAvailable();
     private:
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
+        ::AppInstaller::Repository::Source m_source;
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>() };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };

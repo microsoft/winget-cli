@@ -201,13 +201,13 @@ namespace AppInstaller::Repository
         /* Source agreements */
 
         // Get required agreement fields info.
-        ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation();
+        ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation() const;
 
         // Checks the source agreements and returns if agreements are satisfied.
-        bool CheckSourceAgreements();
+        bool CheckSourceAgreements() const;
 
         // Saves the accepted source agreements in metadata.
-        void SaveAcceptedSourceAgreements();
+        void SaveAcceptedSourceAgreements() const;
 
         /* Composite sources */
 
@@ -216,7 +216,7 @@ namespace AppInstaller::Repository
         bool IsComposite() const;
 
         // Gets the available sources if the source is composite.
-        std::vector<Source> GetAvailableSources();
+        std::vector<Source> GetAvailableSources() const;
 
         /* Writable sources */
 
@@ -229,7 +229,7 @@ namespace AppInstaller::Repository
         /* Source operations */
 
         // Opens the source. If skipUpdateBeforeOpen is true, source will be opened without check background update. Not thread safe.
-        std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen = false);
+        std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen);
 
         // Add source. Source add command.
         bool Add(IProgressCallback& progress);

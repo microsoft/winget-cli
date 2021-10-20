@@ -403,17 +403,17 @@ namespace AppInstaller::Repository
 
     CompositeSource::CompositeSource(std::string identifier)
     {
-        m_identifier = std::move(identifier);
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& CompositeSource::GetDetails() const
     {
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        return m_details;
     }
 
     const std::string& CompositeSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     // The composite search needs to take several steps to get results, and due to the

@@ -10,7 +10,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageCatalog() = default;
         void Initialize(
             winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, 
-            std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+            ::AppInstaller::Repository::Source source,
             bool isComposite);
 
         bool IsComposite();
@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::FindPackagesResult FindPackages(winrt::Microsoft::Management::Deployment::FindPackagesOptions const& options);
     private:
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
+        ::AppInstaller::Repository::Source m_source;
         bool m_isComposite = false;
 
     };
