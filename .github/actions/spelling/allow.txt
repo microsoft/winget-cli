@@ -6,8 +6,10 @@ addmanifest
 addstore
 admins
 alloc
+altform
 anonymize
 api
+APIENTRY
 appdata
 appinst
 appinstaller
@@ -17,6 +19,7 @@ appx
 appxbundle
 appxbundles
 appxmanifest
+appxrecipe
 appxsdk
 APSTUDIO
 argc
@@ -105,6 +108,7 @@ DIRECTONLY
 distro
 dll
 dllexport
+dllmain
 docx
 dotnet
 downlevel
@@ -132,6 +136,7 @@ EULA
 EVENTTAG
 exe
 executables
+executionengine
 exeenus
 exeinteractive
 exelog
@@ -185,6 +190,7 @@ html
 http
 https
 Hyperlink
+IActivation
 IApplication
 IAppx
 IAsync
@@ -337,6 +343,7 @@ PBYTE
 pch
 PCWSTR
 pdb
+pdbonly
 PEVENT
 pfp
 PGP
@@ -489,6 +496,7 @@ TARG
 TARGETDIR
 targetentrypoint
 targetnametoken
+targetsize
 tdbuild
 tdd
 tellg
@@ -505,6 +513,7 @@ Timeline
 todo
 tokenizer
 tolower
+Toolchain
 toupper
 TOutput
 towlower
@@ -512,6 +521,7 @@ TRACELOGGING
 triaged
 trunc
 TRUSTEDPEOPLE
+trx
 tt
 ttl
 typedef
@@ -578,6 +588,7 @@ wcsicmp
 webpage
 wekyb
 wil
+wildcards
 WINAPI
 WINEVENT
 winget

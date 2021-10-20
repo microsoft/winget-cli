@@ -19,6 +19,8 @@ variables:
   solution: 'src/AppInstallerCLI.sln'
   buildPlatform: 'x86|x64'
   buildConfiguration: 'Release'
+  testBuildPlatform: 'x86'
+  testBuildConfiguration: 'TestRelease'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 # Do not set the build version for a PR build.
@@ -65,6 +67,11 @@ jobs:
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+
+  - task: NuGetCommand@2
+    displayName: Restore PackagedTests
+    inputs:
+      restoreSolution: 'src\PackagedTests\PackagedTests.csproj'
   
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
@@ -81,6 +88,7 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
   
+  # Build all solutions in the root directory.
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
@@ -88,6 +96,17 @@ jobs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)" 
+                    /p:AppxBundle=Always 
+                    /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: VSBuild@1
+    displayName: Build Test Project
+    inputs:
+      platform: 'x86'
+      solution: '$(solution)'
+      configuration: '$(testBuildConfiguration)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(testBuildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
@@ -301,6 +320,17 @@ jobs:
       ArtifactName: 'E2ETestPackagedx86Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
+
+  - task: VSTest@2
+    displayName: Run Com Interface Tests
+    inputs:
+      testRunTitle: 'Com Interface Tests'
+      platform: 'x86'
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        src\x86\Release\PackagedTests\PackagedTests.build.appxrecipe
+      runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
+    condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
