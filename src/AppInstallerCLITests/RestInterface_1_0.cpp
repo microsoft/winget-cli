@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
-#include <set>
 #include <Rest/Schema/1_0/Interface.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
@@ -55,7 +54,6 @@ namespace
 
     struct GoodManifest_AllFields
     {
-    public:
         utility::string_t GetSampleManifest_AllFields()
         {
             utility::string_t id = L"Foo.Bar";
@@ -259,11 +257,10 @@ namespace
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");
             REQUIRE(actualInstaller.FileExtensions.at(0) == ".file-extension");
-            REQUIRE(actualInstaller.Dependencies.WindowsFeatures.at(0) == "feature1");
-            REQUIRE(actualInstaller.Dependencies.WindowsLibraries.at(0) == "library1");
-            REQUIRE(actualInstaller.Dependencies.PackageDependencies.at(0).Id == "Foo.Baz");
-            REQUIRE(actualInstaller.Dependencies.PackageDependencies.at(0).MinVersion == "2.0.0");
-            REQUIRE(actualInstaller.Dependencies.ExternalDependencies.at(0) == "FooBarBaz");
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::WindowsFeature, "feature1"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "library1"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::Package, "Foo.Baz", "2.0.0"));
+            REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::External, "FooBarBaz"));
             REQUIRE(actualInstaller.PackageFamilyName == "FooBar.PackageFamilyName");
             REQUIRE(actualInstaller.ProductCode == "");
             REQUIRE(actualInstaller.Capabilities.at(0) == "Bluetooth");
@@ -272,7 +269,7 @@ namespace
     };
 }
 
-TEST_CASE("Search_GoodResponse", "[RestSource]")
+TEST_CASE("Search_GoodResponse", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -300,7 +297,7 @@ TEST_CASE("Search_GoodResponse", "[RestSource]")
     REQUIRE(package.Versions.at(1).VersionAndChannel.GetVersion().ToString().compare("2.0.0") == 0);
 }
 
-TEST_CASE("Search_GoodResponse_AllFields", "[RestSource][Rest]")
+TEST_CASE("Search_GoodResponse_AllFields", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -342,7 +339,7 @@ TEST_CASE("Search_GoodResponse_AllFields", "[RestSource][Rest]")
     REQUIRE(package.Versions.at(0).ProductCodes.at(1) == "pc2");
 }
 
-TEST_CASE("Search_ContinuationToken", "[RestSource]")
+TEST_CASE("Search_ContinuationToken", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -377,7 +374,7 @@ TEST_CASE("Search_ContinuationToken", "[RestSource]")
     REQUIRE(resultsWithSize1.Matches.size() == requestWithSize1.MaximumResults);
 }
 
-TEST_CASE("Search_BadResponse_NoVersions", "[RestSource]")
+TEST_CASE("Search_BadResponse_NoVersions", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
@@ -394,15 +391,14 @@ TEST_CASE("Search_BadResponse_NoVersions", "[RestSource]")
     REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
-TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource]")
+TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    Schema::IRestClient::SearchResult result = v1.Search({});
-    REQUIRE(result.Matches.empty());
+    REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }
 
-TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
+TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = GetGoodManifest_RequiredFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
@@ -433,18 +429,17 @@ TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
     REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 
-TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource]")
+TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     AppInstaller::Repository::SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
     Interface v1{ TestRestUriString, std::move(helper) };
-    Schema::IRestClient::SearchResult result = v1.Search(request);
-    REQUIRE(result.Matches.empty());
+    REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
 }
 
-TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
+TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
 {
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
@@ -463,7 +458,7 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
     sampleManifest.VerifyInstallers_AllFields(manifest);
 }
 
-TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource]")
+TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource][Interface_1_0]")
 {
     utility::string_t badManifest = _XPLATSTR(
         R"delimiter({
@@ -482,10 +477,49 @@ TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource]")
     REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
-TEST_CASE("GetManifests_NotFoundCode", "[RestSource]")
+TEST_CASE("GetManifests_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
+    REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+}
+
+TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_1_0]")
+{
+    utility::string_t msstoreInstallerResponse = _XPLATSTR(
+        R"delimiter({
+        "Data": {
+            "PackageIdentifier": "Foo.Bar",
+            "Versions": [
+                {
+                    "PackageVersion": "5.0.0",
+                    "DefaultLocale": {
+                        "PackageLocale": "en-us",
+                        "Publisher": "Foo",
+                        "PackageName": "Bar",
+                        "License": "Foo bar license",
+                        "ShortDescription": "Foo bar description"
+                    },
+                    "Installers": [
+                        {
+                            "Architecture": "x64",
+                            "InstallerType": "msstore",
+                            "MSStoreProductIdentifier": "9nblggh4nns1"
+                        }
+                    ]
+                }
+            ]
+        }
+    })delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(msstoreInstallerResponse)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
     std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
-    REQUIRE(manifests.empty());
+    REQUIRE(manifests.size() == 1);
+
+    // Verify manifest is populated and manifest validation passed
+    Manifest manifest = manifests[0];
+    REQUIRE(manifest.Installers.size() == 1);
+    REQUIRE(manifest.Installers.at(0).InstallerType == InstallerTypeEnum::Unknown);
+    REQUIRE(manifest.Installers.at(0).ProductId.empty());
 }

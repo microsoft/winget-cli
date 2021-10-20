@@ -24,15 +24,6 @@ namespace AppInstaller::CLI::Execution
             {
                 std::lock_guard<std::mutex> lock{ m_contextsLock };
 
-                // TODO: COMContexts are currently only used specifically for install operations, which Windows does not reliably support concurrently.
-                // As a temporary fix, this location which already has locking and is tracking the contexts is convenient to prevent those
-                // installs from happening concurrently. Future work will provide a more robust synchronization mechanism which can queue those requests
-                // rather than failing.
-                for (auto& existingContext : m_contexts)
-                {
-                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), (dynamic_cast<COMContext*>(existingContext) != 0));
-                }
-
                 auto itr = std::find(m_contexts.begin(), m_contexts.end(), context);
                 THROW_HR_IF(E_NOT_VALID_STATE, itr != m_contexts.end());
                 m_contexts.push_back(context);
@@ -178,6 +169,7 @@ namespace AppInstaller::CLI::Execution
             // Unless we want to spin a separate thread for all work, we have to just exit here.
             if (m_CtrlSignalCount >= 2)
             {
+                Reporter.CloseOutputStream(true);
                 Logging::Telemetry().LogCommandTermination(hr, file, line);
                 std::exit(hr);
             }
@@ -186,6 +178,11 @@ namespace AppInstaller::CLI::Execution
         Logging::Telemetry().LogCommandTermination(hr, file, line);
 
         m_isTerminated = true;
+        m_terminationHR = hr;
+    }
+
+    void Context::SetTerminationHR(HRESULT hr)
+    {
         m_terminationHR = hr;
     }
 
@@ -209,4 +206,16 @@ namespace AppInstaller::CLI::Execution
         m_executionStage = stage;
         Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
+
+    AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobals()
+    {
+        return m_threadGlobals;
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool Context::ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task)
+    {
+        return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
+    }
+#endif
 }

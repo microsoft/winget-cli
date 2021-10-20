@@ -23,6 +23,7 @@ ignore$
 \.vdproj$
 \.wapproj$
 \.wav$
+\.winmd$
 ^cgmanifest\.json$
 ^Localization/
 ^NOTICE$

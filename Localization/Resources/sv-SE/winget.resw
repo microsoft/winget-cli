@@ -141,6 +141,9 @@
     <value>Följande underkommandon är tillgängliga:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>tillgängliga uppgraderingar.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
@@ -419,9 +422,6 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Placeringen av markören i kommandoraden</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Förhandsversion</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Sekretesspolicy</value>
   </data>
@@ -466,10 +466,10 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Följande fel hittades vid validering av inställningarna:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Öppna inställningar i JSON-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnas inställningarna i anteckningar. För tillgängliga inställningar se https://aka.ms/winget-settings</value>
+    <value>Öppna inställningar i json-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnar du inställningarna i anteckningar. Tillgängliga inställningar finns i https://aka.ms/winget-settings. Det här kommandot kan också användas för att ange administratörsinställningar genom att ange argumentet "aktivera" eller "inaktivera"</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Öppna inställningar</value>
+    <value>Öppna inställningar eller ange administratörsinställningar</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Oväntat fel vid inläsning av inställningar. Verifiera inställningarna genom att köra kommandot för inställningar.</value>
@@ -544,6 +544,10 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Namn</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifierare</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Det gick inte att hitta en källa med namnet:</value>
   </data>
@@ -570,7 +574,7 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Källnamn</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Det gick inte att öppna källan; prova kommandot 'source reset' om problemet kvarstår.</value>
+    <value>Det gick inte att öppna källa(r); prova kommandot 'source reset' om problemet kvarstår.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@ Konfigurationen har inaktiverats på grund av en grup princip.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Det angivna värdet för argumentet%1är ogiltigt</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Avbröts</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Extern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Paketen i den här importen har följande beroenden:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Det här paketet kräver följande beroenden:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Paket</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Det här paketet har beroenden som kanske inte behövs längre:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestet har följande beroenden som inte har verifierats. Se till att de är giltiga:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-funktioner</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-bibliotek</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Windows Store Terms</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptera alla licensavtal för paket</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Det krävs ett licensavtal för att installera det exporterade paketet:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Utgivaren kräver att du visar ovanstående information och accepterar avtalen innan du installerar.
+Godkänner du villkoren?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Paketavtal har inte godkänts. Åtgärden avbröts.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Avta:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Författare:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beskrivning:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installationsprogram:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Språkversion:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Store-produkt ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL för nedladdning:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Licens:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL till licensen: </value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Moniker:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Startsida:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Utgivare:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nej</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Det gick inte att öppna den tillagda källan.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Acceptera alla källavtal under källåtgärder</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Källan '%1' kräver att du visar följande avtal innan du använder.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Godkänner du alla villkor för källavtal?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Ett eller flera av källavtalen har inte godkänts. Åtgärden avbröts. Acceptera källavtalen eller ta bort motsvarande källor.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Källan kräver att den aktuella datorns geografiska region skickas för att fungera korrekt.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installationen är klar. Starta om programmet för att slutföra uppgraderingen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valfritt HTTP-huvud för Windows-Package-Manager REST-källa</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorerar den valfria rubriken eftersom det inte är tillämpligt för den här källan.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Den valfria rubriken är inte tillämpligt utan att ange en källa</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Utgivningsdatum:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Utgivarens URL:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Utgivarens support-URL:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Sekretess-URL:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Copyright:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL för copyright:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Viktig information:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL för viktig information:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Det gick inte att söka efter källan; resultaten kommer inte att inkluderas:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Det gick inte att söka efter källan:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Den här funktionen måste aktiveras av administratörer. Om du vill aktivera det kör du winget settings --enable %1 som administratör.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiverar den specifika administratörsinställningen</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Inaktiverar den specifika administratörsinställningen</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>För många administratörsinställningsargument har angetts</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratörsinställning är aktiverad.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratörsinställningen har inaktiverats.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Programmet körs för närvarande. Avsluta programmet och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>En annan installation pågår redan. Försök igen senare.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>En eller flera filer används. Avsluta programmet och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Det här paketet saknar ett beroende i systemet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Det finns inget mer utrymme på datorn. Frigör utrymme och försök sedan igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Det finns inte tillräckligt med minne tillgänglig för att installera. Stäng andra program och försök sedan igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Det här programmet kräver Internetanslutning. Anslut till ett nätverk och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Det här programmet påträffade ett fel under installationen. Kontakta supporten.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Starta om datorn för att slutföra installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Din dator startas om för att slutföra installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installationen misslyckades. Starta om datorn och försök igen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Du avbröt installationen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>En annan version av det här programmet är redan installerad.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>En högre version av det här programmet är redan installerad.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisationsprinciper förhindrar installation. Kontakta administratören.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installationen avbröts</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Avinstallationen misslyckades med slutkod:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installationsloggen är tillgänglig på:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Följande paket hittades bland arbetskällorna.
+Ange en av dem med alternativet `--source` för att fortsätta.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Inga paket hittades bland arbetskällorna.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Det här är en stabil version av Windows Package Manager. Om du vill prova experimentella funktioner installerar du en förhandsversion. Instruktioner finns på GitHub på https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

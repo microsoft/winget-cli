@@ -9,6 +9,7 @@
 #include "PackageCatalog.h"
 #include "CatalogPackage.h"
 #include "Workflows/WorkflowBase.h"
+#include "AppInstallerVersions.h"
 #include "Converters.h"
 #include <wil\cppwinrt_wrl.h>
 
@@ -86,5 +87,33 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             m_packageCatalog = *packageCatalog;
         }
         return m_packageCatalog;
+    }
+
+    winrt::Microsoft::Management::Deployment::CompareResult PackageVersionInfo::CompareToVersion(hstring versionString)
+    {
+        if (versionString.empty())
+        {
+            return CompareResult::Unknown;
+        }
+
+        AppInstaller::Utility::Version thisVersion{ m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Version).get() };
+        AppInstaller::Utility::Version otherVersion{ AppInstaller::Utility::ConvertToUTF8(versionString) };
+
+        if (thisVersion < otherVersion)
+        {
+            return CompareResult::Lesser;
+        }
+        else if (otherVersion < thisVersion)
+        {
+            return CompareResult::Greater;
+        }
+        else
+        {
+            return CompareResult::Equal;
+        }
+    }
+    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
+    { 
+        return m_packageVersion; 
     }
 }

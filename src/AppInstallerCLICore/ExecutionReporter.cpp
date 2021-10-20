@@ -11,24 +11,31 @@ namespace AppInstaller::CLI::Execution
 
     const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
     const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& ManifestInfoEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& SourceInfoEmphasis = TextFormat::Foreground::Bright;
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
+    const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
+        Reporter(std::make_shared<BaseStream>(outStream, true, IsVTEnabled()), inStream)
+    {
+        SetProgressSink(this);
+    }
+
+    Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_progressBar(std::in_place, outStream, IsVTEnabled()),
-        m_spinner(std::in_place, outStream, IsVTEnabled())
+        m_progressBar(std::in_place, *m_out, IsVTEnabled()),
+        m_spinner(std::in_place, *m_out, IsVTEnabled())
     {
         SetProgressSink(this);
     }
 
     Reporter::~Reporter()
     {
-        // The goal of this is to return output to its previous state.
-        // For now, we assume this means "default".
-        GetBasicOutputStream() << TextFormat::Default;
+        this->CloseOutputStream();
     }
 
     Reporter::Reporter(const Reporter& other, clone_t) :
@@ -67,7 +74,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
-        return { m_out, m_channel == Channel::Output, IsVTEnabled() };
+        return {*m_out, m_channel == Channel::Output, IsVTEnabled() };
     }
 
     void Reporter::SetChannel(Channel channel)
@@ -96,6 +103,55 @@ namespace AppInstaller::CLI::Execution
         if (style == VisualStyle::NoVT)
         {
             m_isVTEnabled = false;
+        }
+    }
+
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
+    {
+        const std::vector<BoolPromptOption> options
+        {
+            BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
+            BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
+        };
+
+        auto out = GetOutputStream(level);
+        out << message << std::endl;
+
+        // Try prompting until we get a recognized option
+        for (;;)
+        {
+            // Output all options
+            for (size_t i = 0; i < options.size(); ++i)
+            {
+                out << PromptEmphasis << "[" + options[i].Hotkey.get() + "] " + options[i].Label.get();
+
+                if (i + 1 == options.size())
+                {
+                    out << PromptEmphasis << ": ";
+                }
+                else
+                {
+                    out << "  ";
+                }
+            }
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+            }
+
+            // Find the matching option ignoring whitespace
+            Utility::Trim(response);
+            for (const auto& option : options)
+            {
+                if (Utility::CaseInsensitiveEquals(response, option.Label) ||
+                    Utility::CaseInsensitiveEquals(response, option.Hotkey))
+                {
+                    return option.Value;
+                }
+            }
         }
     }
 
@@ -160,5 +216,14 @@ namespace AppInstaller::CLI::Execution
     bool Reporter::IsVTEnabled() const
     {
         return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
+    }
+
+    void Reporter::CloseOutputStream(bool forceDisable)
+    {
+        if (forceDisable)
+        {
+            m_out->Disable();
+        }
+        m_out->RestoreDefault();
     }
 }

@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "Resources.h"
 #include "SourceFlow.h"
@@ -82,25 +81,46 @@ namespace AppInstaller::CLI::Workflow
 
     void AddSource(Execution::Context& context)
     {
-        std::string name(context.Args.GetArg(Args::Type::SourceName));
-        std::string arg(context.Args.GetArg(Args::Type::SourceArg));
-        std::string type;
+        Repository::SourceDetails sourceDetails;
+        sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
+        sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
+
         if (context.Args.Contains(Args::Type::SourceType))
         {
-            type = context.Args.GetArg(Args::Type::SourceType);
+            sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
         }
 
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
-            "  "_liv << name << " -> "_liv << arg << std::endl;
+            "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
 
-        if (context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1)))
-        {
-            context.Reporter.Info() << Resource::String::Done;
-        }
-        else
+        if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+        }
+    }
+
+    void OpenSourceForSourceAdd(Execution::Context& context)
+    {
+        try
+        {
+            auto sourceDetails = Repository::GetSource(context.Args.GetArg(Args::Type::SourceName));
+            sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
+
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+
+            if (!result.Source)
+            {
+                context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+            }
+
+            context << Workflow::HandleSourceAgreements(result.Source);
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
         }
     }
 
@@ -119,6 +139,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListType), source.Type });
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListData), source.Data });
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListIdentifier), source.Identifier });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {

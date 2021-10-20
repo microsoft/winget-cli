@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "CompletionFlow.h"
 
@@ -12,7 +11,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Outputs the completion string, wrapping it in quotes if needed.
-        void OutputCompletionString(Execution::NoVTStream& stream, std::string_view value)
+        void OutputCompletionString(Execution::OutputStream& stream, std::string_view value)
         {
             if (value.find_first_of(' ') != std::string_view::npos)
             {

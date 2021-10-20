@@ -141,6 +141,9 @@
     <value>የሚከተሉት ንዑስ-ትዕዛዞች ይገኛሉ:-</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>ማሻሻያዎች ይገኛሉ።</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>የተገለጸውን ጣቢያ ተጠቀም፤ ነባሪው ጠቅላላ ታዳሚ ነው</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>በትእዛዝ መስመሩ ውስጥ የጠቋሚው አቀማመጥ</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>ቅድመ ዕይታ</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>የግላዊነት መግለጫ</value>
   </data>
@@ -466,10 +466,10 @@
     <value>ቅንብሮችን በማረጋገጥ ጊዜ የሚከተሉት ስህተቶች ተከስተዋል:፡</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>ቅንብሮችን በመደበኛው የጄሰን ኤዲተር ይክፈቱ። ምንም ኤዲተር ካልተመደበ፣ ቅንብሮችን በ ኖትፓድ ነው የሚከፍተው።</value>
+    <value>በነባሪ የ json ጽሑፍ አርታዒ ውስጥ ቅንብሮችን ይክፈቱ። ምንም አርታዒ ካልተዋቀረ ቅንብሮችን በ ኖትፓድ ውስጥ ይከፍታል። ለሚገኙ ቅንብሮች https://aka.ms/winget-settings ን ይመልከቱ ይህ ትእዛዝ የ 'ነቃ' ወይም ‘አልነቃም’ ክርክርን በመስጠት የአስተዳዳሪ ቅንብሮችን ለማቀናበር ሊያገለግል ይችላል</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>ቅንብሮችን ይክፈቱ</value>
+    <value>ቅንብሮችን ይክፈቱ ወይም የአስተዳዳሪ ቅንብሮችን ያዘጋጁ</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ቅንብሮችን በመጫን ላይ ያልተጠበቀ ስህተት ተከስቷል። እባክዎ የቅንብሮች ትዕዛዝ በማስኬድ ቅንብሮችዎን ያረጋግጡ።</value>
@@ -544,6 +544,10 @@
     <value>ስም</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>መለያ</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>እንደሚከተለው የተሰየመ ምንጭ አላገኘም:</value>
   </data>
@@ -570,7 +574,7 @@
     <value>የምንጩ ስም</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>ምንጭ መክፈት አልተሳካም፤ ችግሩ ከቀጠለ የ'source reset' ትእዛዝን ይሞክሩ።</value>
+    <value>ምንጩ(ምንጮቹ) በሚከፈትበት ጊዜ አልተሳካም፤ ችግሩ ከቀጠለ 'source reset' የሚለውን ይሞክሩ።</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,249 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>ለ `%1` ክርክር የቀረበው ዋጋ ልክ ያልሆነ ነው</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ተሰርዟል</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>ውጫዊ</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>በዚህ አስመጪ የተገኙት ጥቅሎች የሚከተሉት ቅድመ ሁኔታዎች አሏቸው፦</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>ይህ ጥቅል የሚከተሉት ቅድመ ሁኔታዎችን ይጠይቃል፦</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>ጥቅሎች</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>ይህ ጥቅል ካሁን በኋላ ሊያስፈልጉ የማይችሉ ቅድመ ሁኔታዎችን ይዞ ነበር፦</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>ማኒፌስት ያልተረጋገጡ የነበሩ ቅድመ ሁኔታዎች አሉት፤ ልክ መሆናቸዉን ያረጋግጡ፦</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>የ Windows ባህሪያት</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows ቤተ መጻህፍት</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>የ Windows Store ውሎች</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>ለጥቅሎች ሁሉንም የፈቃድ ስምምነቶች ይቀበሉ</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>ወደ ውጪ የተላከ ጥቅል ለመጫን የፈቃድ ስምምነት ይጠይቃል፦</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>አታሚው ከመጫንዎ በፊት ከላይ ያሉውን መረጃ እንዲመለከቱ እና ስምምነቶችን እንዲቀበሉ ይጠይቃል።
+በውሎቹ ይስማማሉ?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>የጥቅል ስምምነቶች አልተስማሙም። ክንውን ተሰርዟል።</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>ስምምነቶች፦</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>ደራሲ፥</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>መግለጫ፦</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>የመተግበሪያ ጫኝ፦</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>አካባቢያዊ፦</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>የ Store ምርት መታወቂያ፦</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256፦</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>ዓይነት፦</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>የማውረጃ Url፦</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>ፈቃድ፦</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>የፈቃድ Url፦</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>ሞኒከር፦</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>መነሻ ገጽ፦</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>አታሚ፥</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>ስሪት፥</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>አይ</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>አዎ</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>የተጨመረውን ምንጭ ለመክፈት አልተቻለም።</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>በምንጭ ክንውኖች ጊዜ ሁሉንም የምንጭ ስምምነቶች ይቀበሉ</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>'%1' ምንጭ ከመጠቀምዎ በፊት የሚከተሉትን ስምምነቶች እንዲመለከቱ ይጠይቃል።</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>ሁሉንም የምንጭ ስምምነቶች ውሎች ይስማማሉ?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>አንድ ወይም ከዚያ በላይ የሆኑት የምንጭ ስምምነቶች ስምምነት አልተስማሙም ነበር። ክንውን ተሰርዟል። እባክዎ የምንጭ ስምምነቶችን ይቀበሉ ወይም ተዛማጅ ምንጮችን ያስወግዱ።</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>ምንጩ የአሁን የማሽኑ ጂኦግራፊያዊ ክልል በአግባቡ ለመስራት እንዲላክ ይጠይቃል።</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>በተሳካ ሁኔታ ተጭኗል። ማሻሻያውን ለማጠናቀቅ መተግበሪያውን እንደገና ያስጀምሩ።</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>አማራጭ የ Windows-Package-Manager REST ምንጭ HTTP ርእስ</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>አማራጭ ርእስ ለዚህ ምንጭ ስለማይሰራ ችላ ማለት።</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>አማራጭ ርእስ ምንጩ ሳይገለጽ አይሰራም</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>የተለቀቀበት ቀን፦</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>አታም Url፦</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>የአታሚ ድጋፍ Url፦</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>የግላዊነት Url፦</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>የቅጂ መብት፦</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>የቅጂ መብት Url፦</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>መልቀቂያ ማስታወሻዎች፦</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>መልቀቂያ ማስታወሻዎች Url፦</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>ምንጭ በሚፈለግበት ጊዜ አልተሳካም፤ ውጤቶች አይካተቱም፦</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>ምንጭ ሲፈለግ አልተሳካም፦</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>ይህ ባህሪ በአስተዳዳሪዎች መንቃት አለበት። እሱን ለማንቃት ‘winget settings --enable %1’ እንደ አስተዳዳሪ ያስሂዱ።</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>የተወሰነ የአስተዳዳሪ ቅንብርን ያነቃል</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>የተወሰነ የአስተዳዳሪ ቅንብርን ያሰናክላል</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>በጣም ብዙ የአስተዳዳሪ ቅንብር ክርክሮች ቀርበዋል</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>የአስተዳዳሪ ቅንብር ነቅቷል።</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>የአስተዳዳሪ ቅንብር ተሰናክሏል።</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>መተግበሪያ በአሁኑ ጊዜ እየሰራ ነው። ከመተግበሪያው ይውጡ ከዚያም እንደገና ይሞክሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>ሌላ አጫጫን ቀድሞውኑ በሒደት ላይ ነው። በኋላ ላይ እንደገና ይሞክሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>አንድ ወይም ከዚያ በላይ ፋይሎች ጥቅም ላይ እየዋሉ ነው። ከመተግበሪያው ይወጡ ከዚያም እንደገና ይሞከሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>ይህ ጥቅል ከእርስዎ ስርዓት ጥገኛነት አልተገኘም።</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>በእርስዎ የግል ኮምፒውተር ላይ ምንም ተጨማሪ ቦታ የለም። ቦታ ያዘጋጁ፣ ከዚያም እንደገና ይሞክሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>ለመጫን ያለ በቂ ትውስታ የለም። ሌላ መተግበሪያዎችን ይዝጉ ከዚያም እንደገና ይጀምሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>ይህ መተግበሪያ የኢንተርኔት ግንኙነትን ይጠይቃል። ከአውታረመረብ ጋር ይገናኙ ከዚያም እንደገና ይሞክሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>ይህ መተግበሪያ በመጫን ጊዜ ስህተት ገጥሞታል። ድጋፍን ያግኙ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>አጫጫንን ለማጠናቀቅ የእርስዎን የግል ኮምፒውተር እንደገና ያስጀምሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>የእርስዎ የግል ኮምፒውተር መጫንን ለማጠናቀቅ እንደገና ይጀምራል።</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>አጫጫን አልተሳካም። የግል ኮምፒውተርዎን ዳግም ያስጀምሩ ከዚያም እንደገና ይሞክሩ።</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>አጫጫኑን ሰርዘውታል።</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>የዚህ መተግበሪያ ሌላኛው ስሪት ቀድሞውኑ ተጭኗል።</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>የዚህ መተግባሪያ ከፍ ያለው ስሪት ቀድሞዉኑ ተጭኗል።</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>የድርጅቶች ፖሊሲዎች አጫጫንን እየከለከሉ ነው። አስተዳደርዎን ያግኙ።</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>አጫጫን ተትቷል</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>ጫኝ ከመውጫ ኮድ ጋር አልተሳካም፦</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>የጫኝ ምዝግብ በሚከተለው ይገኛል፦</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>የሚከተሉት ጥቅሎች ከስራ ምንጮች መካከል ተገኝተዋል።
+ከእነዚህ መካከል አንዱን `--source` የሚለውን አማራጭ ተጠቅመው እባክዎ ይግለጹ።</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>ከስራ ምንጮች መካከል ምንም ጥቅሎች አልተገኙም።</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>ይህ Windows Package Manager የተረጋጋ ልቀት ነው። የሙከራ ባህሪያትን መሞከር ከፈለጉ እባክዎን የቅድመ-ልቀት ግንባታን ይጫኑ። መመሪያዎች በ GitHub https://github.com/microsoft/winget-cli ላይ ይገኛሉ።</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
 </root>

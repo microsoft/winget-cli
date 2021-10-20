@@ -18,13 +18,18 @@ namespace AppInstaller::Manifest::YamlParser
         enum class YamlScalarType
         {
             String,
-            Int
+            Int,
+            Bool
         };
 
         // List of fields that use non string scalar types
         const std::map<std::string_view, YamlScalarType> ManifestFieldTypes=
         {
-            { "InstallerSuccessCodes"sv, YamlScalarType::Int }
+            { "InstallerSuccessCodes"sv, YamlScalarType::Int },
+            { "InstallerAbortsTerminal"sv, YamlScalarType::Bool },
+            { "InstallLocationRequired"sv, YamlScalarType::Bool },
+            { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
+            { "InstallerReturnCode"sv, YamlScalarType::Int },
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)
@@ -43,6 +48,10 @@ namespace AppInstaller::Manifest::YamlParser
             if (scalarType == YamlScalarType::Int)
             {
                 return Json::Value(scalarNode.as<int>());
+            }
+            else if (scalarType == YamlScalarType::Bool)
+            {
+                return Json::Value(scalarNode.as<bool>());
             }
             else
             {
@@ -91,7 +100,30 @@ namespace AppInstaller::Manifest::YamlParser
     {
         std::string schemaStr;
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            switch (manifestType)
+            {
+            case AppInstaller::Manifest::ManifestTypeEnum::Singleton:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_SINGLETON), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Version:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_VERSION), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Installer:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_INSTALLER), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::DefaultLocale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_DEFAULTLOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Locale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_1_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
         {
             switch (manifestType)
             {

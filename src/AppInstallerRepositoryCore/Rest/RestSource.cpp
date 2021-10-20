@@ -29,12 +29,160 @@ namespace AppInstaller::Repository::Rest
             std::weak_ptr<const RestSource> m_source;
         };
 
+        // The IPackage implementation for Available packages from RestSource.
+        struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
+        {
+            AvailablePackage(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
+                SourceReference(source), m_package(std::move(package))
+            {
+                SortVersionsInternal();
+            }
+
+            // Inherited via IPackage
+            Utility::LocIndString GetProperty(PackageProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageProperty::Id:
+                    return Utility::LocIndString{ m_package.PackageInformation.PackageIdentifier };
+                case PackageProperty::Name:
+                    return Utility::LocIndString{ m_package.PackageInformation.PackageName };
+                default:
+                    THROW_HR(E_UNEXPECTED);
+                }
+            }
+
+            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
+            {
+                return {};
+            }
+
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            {
+                std::shared_ptr<const RestSource> source = GetReferenceSource();
+                std::scoped_lock versionsLock{ m_packageVersionsLock };
+
+                std::vector<PackageVersionKey> result;
+                for (const auto& versionInfo : m_package.Versions)
+                {
+                    result.emplace_back(
+                        source->GetIdentifier(), versionInfo.VersionAndChannel.GetVersion().ToString(), versionInfo.VersionAndChannel.GetChannel().ToString());
+                }
+
+                return result;
+            }
+
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            {
+                std::scoped_lock versionsLock{ m_packageVersionsLock };
+                return GetLatestVersionInternal();
+            }
+
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override;
+
+            bool IsUpdateAvailable() const override
+            {
+                return false;
+            }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
+
+                if (otherAvailablePackage)
+                {
+                    return GetReferenceSource()->IsSame(otherAvailablePackage->GetReferenceSource().get()) &&
+                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
+                }
+
+                return false;
+            }
+
+            // Helpers for PackageVersion interop
+            const IRestClient::PackageInfo& PackageInfo() const
+            {
+                return m_package.PackageInformation;
+            }
+
+            // This function is designed to handle the case where the only version that is returned by the
+            // initial search is Unknown. In that case, we perform a search intended to trigger the optimized
+            // path and directly get all manifests.
+            bool HandleSingleUnknownVersion(IRestClient::VersionInfo& versionInfo)
+            {
+                // If the calling version is unknown then we want to update it if we already
+                // have the results in the package.
+                if (versionInfo.VersionAndChannel.GetVersion().IsUnknown() && !versionInfo.Manifest)
+                {
+                    std::scoped_lock versionsLock{ m_packageVersionsLock };
+                    if (m_package.Versions.size() == 1 && m_package.Versions[0].VersionAndChannel.GetVersion().IsUnknown() && !m_package.Versions[0].Manifest)
+                    {
+                        SearchRequest request;
+                        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, m_package.PackageInformation.PackageIdentifier);
+
+                        IRestClient::SearchResult result = GetReferenceSource()->GetRestClient().Search(request);
+
+                        if (result.Matches.size() == 1)
+                        {
+                            m_package.Versions = std::move(result.Matches[0].Versions);
+                            SortVersionsInternal();
+                        }
+                        else
+                        {
+                            // Unexpected, but just leave things as they are
+                            AICLI_LOG(Repo, Warning, << "Found " << result.Matches.size() << " matches for optimized search of " << m_package.PackageInformation.PackageIdentifier);
+                        }
+                    }
+
+                    if (!m_package.Versions.empty())
+                    {
+                        // The results are now sorted; either take the last one if it is unknown
+                        // or the first one if it is not (aka latest).
+                        if (m_package.Versions.back().VersionAndChannel.GetVersion().IsUnknown())
+                        {
+                            versionInfo = m_package.Versions.back();
+                        }
+                        else
+                        {
+                            versionInfo = m_package.Versions.front();
+                        }
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            std::shared_ptr<AvailablePackage> NonConstSharedFromThis() const
+            {
+                return const_cast<AvailablePackage*>(this)->shared_from_this();
+            }
+
+            // Must hold m_packageVersionsLock while calling this
+            std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const;
+
+            // Must hold m_packageVersionsLock while calling this
+            void SortVersionsInternal()
+            {
+                std::sort(m_package.Versions.begin(), m_package.Versions.end(),
+                    [](const IRestClient::VersionInfo& a, const IRestClient::VersionInfo& b)
+                    {
+                        return a.VersionAndChannel < b.VersionAndChannel;
+                    });
+            }
+
+            IRestClient::Package m_package;
+            // Protects access to m_package.Versions
+            mutable std::mutex m_packageVersionsLock;
+        };
+
         // The IPackageVersion impl for RestSource.
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<const RestSource>& source, IRestClient::PackageInfo packageInfo, IRestClient::VersionInfo versionInfo)
-                : SourceReference(source), m_packageInfo(std::move(packageInfo)), m_versionInfo(std::move(versionInfo)) {}
+                const std::shared_ptr<const RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
+                : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
@@ -46,9 +194,9 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionProperty::SourceName:
                     return Utility::LocIndString{ GetReferenceSource()->GetDetails().Name };
                 case PackageVersionProperty::Id:
-                    return Utility::LocIndString{ m_packageInfo.PackageIdentifier };
+                    return Utility::LocIndString{ m_package->PackageInfo().PackageIdentifier };
                 case PackageVersionProperty::Name:
-                    return Utility::LocIndString{ m_packageInfo.PackageName };
+                    return Utility::LocIndString{ m_package->PackageInfo().PackageName };
                 case PackageVersionProperty::Version:
                     return Utility::LocIndString{ m_versionInfo.VersionAndChannel.GetVersion().ToString() };
                 case PackageVersionProperty::Channel:
@@ -82,7 +230,7 @@ namespace AppInstaller::Repository::Rest
                     }
                     else
                     {
-                        result.emplace_back(m_packageInfo.PackageName);
+                        result.emplace_back(m_package->PackageInfo().PackageName);
                     }
                     break;
                 case PackageVersionMultiProperty::Publisher:
@@ -92,7 +240,7 @@ namespace AppInstaller::Repository::Rest
                     }
                     else
                     {
-                        result.emplace_back(m_packageInfo.Publisher);
+                        result.emplace_back(m_package->PackageInfo().Publisher);
                     }
                     break;
                 case PackageVersionMultiProperty::Locale:
@@ -119,12 +267,18 @@ namespace AppInstaller::Repository::Rest
                     return m_versionInfo.Manifest.value();
                 }
 
+                if (m_package->HandleSingleUnknownVersion(m_versionInfo) &&
+                    m_versionInfo.Manifest)
+                {
+                    return m_versionInfo.Manifest.value();
+                }
+
                 std::optional<Manifest::Manifest> manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
-                    m_packageInfo.PackageIdentifier, m_versionInfo.VersionAndChannel.GetVersion().ToString(), m_versionInfo.VersionAndChannel.GetChannel().ToString());
+                    m_package->PackageInfo().PackageIdentifier, m_versionInfo.VersionAndChannel.GetVersion().ToString(), m_versionInfo.VersionAndChannel.GetChannel().ToString());
 
                 if (!manifest)
                 {
-                    AICLI_LOG(Repo, Verbose, << "Valid manifest not found for package: " << m_packageInfo.PackageIdentifier);
+                    AICLI_LOG(Repo, Verbose, << "Valid manifest not found for package: " << m_package->PackageInfo().PackageIdentifier);
                     return {};
                 }
                 
@@ -162,159 +316,86 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
-            IRestClient::PackageInfo m_packageInfo;
+            std::shared_ptr<AvailablePackage> m_package;
             IRestClient::VersionInfo m_versionInfo;
         };
 
-        // The base for IPackage implementations here.
-        struct PackageBase : public SourceReference
+        std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
         {
-            PackageBase(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
-                SourceReference(source), m_package(std::move(package))
-            {
-                 // Sort the versions
-                 std::sort(m_package.Versions.begin(), m_package.Versions.end(),
-                     [](const IRestClient::VersionInfo& a, const IRestClient::VersionInfo& b)
-                     {
-                         return a.VersionAndChannel < b.VersionAndChannel;
-                     });
-            }
+            std::shared_ptr<const RestSource> source = GetReferenceSource();
+            std::scoped_lock versionsLock{ m_packageVersionsLock };
 
-            Utility::LocIndString GetProperty(PackageProperty property) const
-            {
-                switch (property)
-                {
-                case PackageProperty::Id:
-                    return Utility::LocIndString{ m_package.PackageInformation.PackageIdentifier };
-                case PackageProperty::Name:
-                    return Utility::LocIndString{ m_package.PackageInformation.PackageName };
-                default:
-                    THROW_HR(E_UNEXPECTED);
-                }
-            }
-
-        protected:
-            std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
-            {
-                IRestClient::VersionInfo latestVersion = m_package.Versions.front();
-                return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.PackageInformation, latestVersion);
-            }
-
-            IRestClient::Package m_package;
-        };
-
-        // The IPackage impl for Available packages from RestSource.
-        struct AvailablePackage : public PackageBase, public IPackage
-        {
-            using PackageBase::PackageBase;
-
-            // Inherited via IPackage
-            Utility::LocIndString GetProperty(PackageProperty property) const override
-            {
-                return PackageBase::GetProperty(property);
-            }
-
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
+            // Ensure that this key targets this (or any) source
+            if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
             {
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::shared_ptr<IPackageVersion> packageVersion;
+            if (!versionKey.Version.empty() && !versionKey.Channel.empty())
             {
-                std::shared_ptr<const RestSource> source = GetReferenceSource();
-
-                std::vector<PackageVersionKey> result;
                 for (const auto& versionInfo : m_package.Versions)
                 {
-                    result.emplace_back(
-                        source->GetIdentifier(), versionInfo.VersionAndChannel.GetVersion().ToString(), versionInfo.VersionAndChannel.GetChannel().ToString());
-                }
-
-                return result;
-            }
-
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
-            {
-                return GetLatestVersionInternal();
-            }
-
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
-            {
-                std::shared_ptr<const RestSource> source = GetReferenceSource();
-
-                // Ensure that this key targets this (or any) source
-                if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
-                {
-                    return {};
-                }
-
-                std::shared_ptr<IPackageVersion> packageVersion;
-                if (!versionKey.Version.empty() && !versionKey.Channel.empty())
-                {
-                    for (const auto& versionInfo : m_package.Versions)
+                    if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetVersion().ToString(), versionKey.Version)
+                        && CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetChannel().ToString(), versionKey.Channel))
                     {
-                        if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetVersion().ToString(), versionKey.Version)
-                            && CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetChannel().ToString(), versionKey.Channel))
-                        {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
-                            break;
-                        }
+                        packageVersion = std::make_shared<PackageVersion>(source, NonConstSharedFromThis(), versionInfo);
+                        break;
                     }
                 }
-                else if (versionKey.Version.empty() && versionKey.Channel.empty())
+            }
+            else if (versionKey.Version.empty() && versionKey.Channel.empty())
+            {
+                packageVersion = GetLatestVersionInternal();
+            }
+            else if (versionKey.Version.empty())
+            {
+                for (const auto& versionInfo : m_package.Versions)
                 {
-                    packageVersion = GetLatestAvailableVersion();
-                }
-                else if (versionKey.Version.empty())
-                {
-                    for (const auto& versionInfo : m_package.Versions)
+                    if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetChannel().ToString(), versionKey.Channel))
                     {
-                        if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetChannel().ToString(), versionKey.Channel))
-                        {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
-                            break;
-                        }
+                        packageVersion = std::make_shared<PackageVersion>(source, NonConstSharedFromThis(), versionInfo);
+                        break;
                     }
                 }
-                else if (versionKey.Channel.empty())
+            }
+            else if (versionKey.Channel.empty())
+            {
+                for (const auto& versionInfo : m_package.Versions)
                 {
-                    for (const auto& versionInfo : m_package.Versions)
+                    if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetVersion().ToString(), versionKey.Version))
                     {
-                        if (CaseInsensitiveEquals(versionInfo.VersionAndChannel.GetVersion().ToString(), versionKey.Version))
-                        {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
-                            break;
-                        }
+                        packageVersion = std::make_shared<PackageVersion>(source, NonConstSharedFromThis(), versionInfo);
+                        break;
                     }
                 }
-
-                return packageVersion;
             }
 
-            bool IsUpdateAvailable() const override
-            {
-                return false;
-            }
+            return packageVersion;
+        }
 
-            bool IsSame(const IPackage* other) const override
-            {
-                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
-
-                if (otherAvailablePackage)
-                {
-                    return GetReferenceSource()->IsSame(otherAvailablePackage->GetReferenceSource().get()) &&
-                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
-                }
-
-                return false;
-            }
-        };
+        std::shared_ptr<IPackageVersion> AvailablePackage::GetLatestVersionInternal() const
+        {
+            return std::make_shared<PackageVersion>(GetReferenceSource(), NonConstSharedFromThis(), m_package.Versions.front());
+        }
     }
 
     RestSource::RestSource(const SourceDetails& details, std::string identifier, RestClient&& restClient)
         : m_details(details), m_restClient(std::move(restClient))
     {
         m_details.Identifier = std::move(identifier);
+
+        const auto& sourceInformation = m_restClient.GetSourceInformation();
+        m_details.Information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
+        m_details.Information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
+        m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
+        m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+
+        m_details.Information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
+        for (auto const& agreement : sourceInformation.SourceAgreements)
+        {
+            m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+        }
     }
 
     const SourceDetails& RestSource::GetDetails() const
@@ -334,19 +415,21 @@ namespace AppInstaller::Repository::Rest
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        RestClient::SearchResult results = m_restClient.Search(request);
+        IRestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
         std::shared_ptr<const RestSource> sharedThis = shared_from_this();
         for (auto& result : results.Matches)
         {
-            std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, std::move(result));
+            std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
 
-            // TODO: Improvise to use Package match filter to return relevant search results.
+            // TODO: Improve to use Package match filter to return relevant search results.
             PackageMatchFilter packageFilter{ {}, {}, {} };
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }
+
+        searchResult.Truncated = results.Truncated;
 
         return searchResult;
     }

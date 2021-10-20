@@ -40,10 +40,13 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 "pattern": .*$
 
 # doc/ManifestSpecv1.0.md
-^ShortDescription: "Le nouveau.*"$
+^ShortDescription: Le nouveau.*$
 
 # Ignore test patterns
 REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
 
 # URL escaped characters
 \%[0-9A-F]{2}
+
+# Sample store product id for App Installer
+9nblggh4nns1

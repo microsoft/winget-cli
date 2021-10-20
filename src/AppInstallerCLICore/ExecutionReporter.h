@@ -22,6 +22,19 @@ namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
+    // One of the options available to the users when prompting for something.
+    struct BoolPromptOption
+    {
+        BoolPromptOption(Resource::StringId labelId, char hotkey, bool value)
+            : Label(labelId), Hotkey(std::string(1, hotkey)), Value(value) {}
+
+        Utility::LocIndString Hotkey;
+        Resource::LocString Label;
+
+        // Value associated with this option.
+        bool Value;
+    };
+
     // Reporter should be the central place to show workflow status to user.
     struct Reporter : public IProgressSink
     {
@@ -68,7 +81,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream Error() { return GetOutputStream(Level::Error); }
 
         // Get a stream for outputting completion words.
-        NoVTStream Completion() { return NoVTStream(m_out, m_channel == Channel::Completion); }
+        OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
 
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
@@ -81,6 +94,9 @@ namespace AppInstaller::CLI::Execution
 
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
+
+        // Prompts the user, return true if they consented.
+        bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -115,12 +131,15 @@ namespace AppInstaller::CLI::Execution
         // Cancels the in progress task.
         void CancelInProgressTask(bool force);
 
+        void CloseOutputStream(bool forceDisable = false);
+
         void SetProgressSink(IProgressSink* sink)
         {
             m_progressSink = sink;
         }
 
     private:
+        Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
         // Gets whether VT is enabled for this reporter.
         bool IsVTEnabled() const;
 
@@ -128,7 +147,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
-        std::ostream& m_out;
+        std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         bool m_isVTEnabled = true;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
@@ -142,7 +161,10 @@ namespace AppInstaller::CLI::Execution
     // Indirection to enable change without tracking down every place
     extern const VirtualTerminal::Sequence& HelpCommandEmphasis;
     extern const VirtualTerminal::Sequence& HelpArgumentEmphasis;
+    extern const VirtualTerminal::Sequence& ManifestInfoEmphasis;
+    extern const VirtualTerminal::Sequence& SourceInfoEmphasis;
     extern const VirtualTerminal::Sequence& NameEmphasis;
     extern const VirtualTerminal::Sequence& IdEmphasis;
     extern const VirtualTerminal::Sequence& UrlEmphasis;
+    extern const VirtualTerminal::Sequence& PromptEmphasis;
 }

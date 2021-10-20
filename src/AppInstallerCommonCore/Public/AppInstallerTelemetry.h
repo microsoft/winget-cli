@@ -6,6 +6,7 @@
 
 #include <string_view>
 #include <vector>
+#include <cguid.h>
 
 namespace AppInstaller::Logging
 {
@@ -15,7 +16,9 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        virtual ~TelemetryTraceLogger();
+        TelemetryTraceLogger();
+
+        ~TelemetryTraceLogger() = default;
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
@@ -23,18 +26,21 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
-        // Gets the singleton instance of this type.
-        static TelemetryTraceLogger& GetInstance();
-
         // Control whether this trace logger is enabled at runtime.
         bool DisableRuntime();
         void EnableRuntime();
 
+        // Return address of m_activityId
+        const GUID* GetActivityId() const;
+
+        // Capture if UserSettings is enabled and set user profile path
+        void Initialize();
+
         // Store the passed in name of the Caller for COM calls
         void SetCaller(const std::string& caller);
 
-        // Store the passed in Telemetry Corelation Json for COM calls
-        void SetTelemetryCorelationJson(const std::wstring_view jsonStr_view) noexcept;
+        // Store the passed in Telemetry Correlation Json for COM calls
+        void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -52,7 +58,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept;
+        void LogException(std::string_view type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;
@@ -123,8 +129,6 @@ namespace AppInstaller::Logging
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
     protected:
-        TelemetryTraceLogger();
-
         bool IsTelemetryEnabled() const noexcept;
 
         // Used to anonymize a string to the best of our ability.
@@ -135,11 +139,19 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
 
-        std::wstring m_telemetryCorelationJsonW = L"{}";
+        GUID m_activityId = GUID_NULL;
+        std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
+    };
+
+    struct GlobalTelemetryTraceLogger : TelemetryTraceLogger
+    {
+        GlobalTelemetryTraceLogger() { Initialize(); }
+
+        ~GlobalTelemetryTraceLogger() = default;
     };
 
     // Helper to make the call sites look clean.
@@ -147,11 +159,6 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
-
-    const GUID* GetActivityId(bool isNewActivity);
-
-    // Set ActivityId
-    void SetActivityId();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.
@@ -180,11 +187,15 @@ namespace AppInstaller::Logging
     {
         SubExecutionTelemetryScope();
 
+        SubExecutionTelemetryScope(uint32_t sessionId);
+
         SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
         SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
 
         SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
         SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
+
+        uint32_t GetCurrentSubExecutionId() const;
 
         ~SubExecutionTelemetryScope();
 

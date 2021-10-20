@@ -4,6 +4,15 @@
     <Filter Include="schema">
       <UniqueIdentifier>{d6998b42-8ce1-440a-ad12-8b505a284d7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="schema\preview">
+      <UniqueIdentifier>{fe494b58-5e5c-415a-922f-c6e10725e06a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="schema\v1.0.0">
+      <UniqueIdentifier>{74616d1e-e987-4c28-bd85-7bbd205ee813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="schema\v1.1.0">
+      <UniqueIdentifier>{36190723-3948-462f-97c2-47fa1b770826}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
@@ -14,22 +23,37 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json">
-      <Filter>schema</Filter>
+      <Filter>schema\preview</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json">
-      <Filter>schema</Filter>
+      <Filter>schema\v1.0.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json">
+      <Filter>schema\v1.0.0</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json">
-      <Filter>schema</Filter>
+      <Filter>schema\v1.0.0</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json">
-      <Filter>schema</Filter>
+      <Filter>schema\v1.0.0</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json">
-      <Filter>schema</Filter>
+      <Filter>schema\v1.0.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.defaultLocale.1.1.0.json">
+      <Filter>schema\v1.1.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.installer.1.1.0.json">
+      <Filter>schema\v1.1.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.locale.1.1.0.json">
+      <Filter>schema\v1.1.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.singleton.1.1.0.json">
+      <Filter>schema\v1.1.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.version.1.1.0.json">
+      <Filter>schema\v1.1.0</Filter>
     </None>
   </ItemGroup>
 </Project>

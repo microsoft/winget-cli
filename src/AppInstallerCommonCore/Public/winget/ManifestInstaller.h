@@ -51,6 +51,8 @@ namespace AppInstaller::Manifest
 
         std::vector<DWORD> InstallerSuccessCodes;
 
+        std::map<DWORD, ExpectedReturnCodeEnum> ExpectedReturnCodes;
+
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 
         std::vector<string_t> Commands;
@@ -71,6 +73,22 @@ namespace AppInstaller::Manifest
         // For msix only
         std::vector<string_t> RestrictedCapabilities;
 
-        Dependency Dependencies;
+        DependencyList Dependencies;
+
+        bool InstallerAbortsTerminal = false;
+
+        string_t ReleaseDate;
+
+        bool InstallLocationRequired = false;
+
+        bool RequireExplicitUpgrade = false;
+
+        std::vector<AppInstaller::Utility::Architecture> UnsupportedOSArchitectures;
+
+        std::vector<AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+
+        ElevationRequirementEnum ElevationRequirement = ElevationRequirementEnum::Unknown;
+
+        MarketsInfo Markets;
     };
 }

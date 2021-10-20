@@ -6,6 +6,7 @@
 #include <winget/UserSettings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
+#include <winget/AdminSettings.h>
 
 #include <string>
 #include <string_view>
@@ -91,6 +92,7 @@ namespace AppInstaller::CLI
         Argument::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
         Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
+        Settings::AdminSetting AdminSetting() const { return m_adminSetting; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
 
@@ -118,8 +120,8 @@ namespace AppInstaller::CLI
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy) {}
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
         std::string_view m_name;
         char m_alias;
@@ -131,5 +133,6 @@ namespace AppInstaller::CLI
         size_t m_countLimit = 1;
         Settings::ExperimentalFeature::Feature m_feature = Settings::ExperimentalFeature::Feature::None;
         Settings::TogglePolicy::Policy m_groupPolicy = Settings::TogglePolicy::Policy::None;
+        Settings::AdminSetting m_adminSetting = Settings::AdminSetting::Unknown;
     };
 }

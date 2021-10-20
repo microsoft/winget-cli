@@ -52,6 +52,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceName).SetRequired(true),
             Argument::ForType(Args::Type::SourceArg),
             Argument::ForType(Args::Type::SourceType),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -78,7 +80,28 @@ namespace AppInstaller::CLI
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceList <<
             Workflow::CheckSourceListAgainstAdd <<
-            Workflow::AddSource;
+        // TODO: Could improve the workflow by opening the source before adding during ISource refactoring work
+            Workflow::AddSource <<
+            Workflow::OpenSourceForSourceAdd;
+
+        if (context.IsTerminated())
+        {
+            if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED ||
+                context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED)
+            {
+                auto contextForRemovePtr = context.Clone();
+                Context& contextForRemove = *contextForRemovePtr;
+                contextForRemove.Args.AddArg(Args::Type::SourceName, context.Args.GetArg(Args::Type::SourceName));
+
+                contextForRemove <<
+                    Workflow::GetSourceListWithFilter <<
+                    Workflow::RemoveSources;
+            }
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::Done << std::endl;
+        }
     }
 
     std::vector<Argument> SourceListCommand::GetArguments() const

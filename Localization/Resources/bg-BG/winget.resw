@@ -141,6 +141,9 @@
     <value>Предлагат се следните подкоманди:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>налични надстройки.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Използвайте зададения канал; по подразбиране е обща аудитория</value>
   </data>
@@ -419,9 +422,6 @@
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Позицията на курсора в командния ред</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Визуализация</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Декларация за поверителност</value>
   </data>
@@ -466,10 +466,10 @@
     <value>Намерени са следните грешки при проверката на настройките:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Отворете настройките в редактора на текст на JSON по подразбиране. Ако не е конфигуриран редактор, отваря настройките в Notepad. За наличните настройки вж. https://aka.ms/winget-settings</value>
+    <value>Отваряне на настройките в текстов редактор на JSON по подразбиране. Ако не е конфигуриран редактор, отваря настройките в Notepad. За наличните настройки вижте https://aka.ms/winget-settings Тази команда може да се използва и за задаване на настройки на администратор чрез предоставяне на аргумент "enable" или "disable"</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Отворете настройките</value>
+    <value>Отваряне на настройките или задаване на настройки на администратор</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Неочаквана грешка при зареждане на настройките. Проверете настройките си, като изпълните командата "Настройки".</value>
@@ -544,6 +544,10 @@
     <value>Име</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Идентификатор</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Не е намерен източник с име:</value>
   </data>
@@ -570,7 +574,7 @@
     <value>Име на източника</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Неуспешно отваряне на източника; ако проблемът продължава, изпробвайте командата „source reset“.</value>
+    <value>Неуспешно отваряне на източник(ци); опитайте командата 'source reset', ако проблемът продължава.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Стойността, предоставена за аргумента `%1`, е невалидна</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Отменено</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Външни</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Пакетите, намерени в това импортиране, имат следните зависимости:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Този пакет изисква следните зависимости:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Пакети</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Този пакет има зависимости, които може вече да не са необходими:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Манифестът има следните зависимости, които не са проверени; уверете се, че са валидни:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Компоненти на Windows</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Библиотеки на Windows</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Условия на магазина на Windows</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Приемане на всички лицензионни споразумения за пакети</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Експортираният пакет изисква лицензионно споразумение за инсталиране:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Издателят изисква да прегледате информацията по-горе и да приемете споразуменията, преди да инсталирате.
+Приемате ли условията?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Споразуменията за пакет не са одобрени. Операцията е отменена.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Споразумения:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Автор:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Описание:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Инсталатор:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Езиково-географска променлива:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>ИД на продукт на Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Тип:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL адрес за изтегляне:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Лиценз:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL адрес на лиценза:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Псевдоним:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Начална страница:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Издател:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Версия:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Не</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Неуспешно отваряне на добавения източник.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Приемане на всички споразумения източник по време на операциите на източника</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Източникът '%1' изисква да прегледате следните споразумения, преди да използвате.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Съгласни ли сте с всички условия на споразуменията източник?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Едно или повече от споразуменията за източник не са одобрени. Операцията е отменена. Приемете споразуменията за източника или премахнете съответните източници.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Източникът изисква географският регион на текущата машина да бъде изпратен, за да функционира правилно.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Успешно инсталиране. Рестартирайте приложението, за да завършите надстройката.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Опционална HTTP заглавка на REST източник на Windows-Package-Manager</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Игнориране на незадължителната заглавка, тъй като не е приложима за този източник.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Незадължителният горен колонтитул не е приложим без задаване на източник</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Дата на издаване:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>URL адрес на издателя:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>URL адрес за поддръжка на издателя:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>URL адрес за поверителност:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Авторско право:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>URL адрес за авторски права:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Бележки по изданието:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>URL адрес на бележките по изданието:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Неуспешно при търсене на източник; резултатите няма да бъдат включени:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Неуспешно търсене на източник:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Тази функция трябва да бъде разрешена от администраторите. За да я разрешите, изпълнете 'winget settings --enable %1' като администратор.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Разрешава конкретна настройка на администратор</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Забранява конкретната настройка на администратор</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>Предоставени са твърде много аргументи за настройка на администратор</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Настройката за администратор е разрешена.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Настройката за администратор е забранена.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Приложението в момента се изпълнява. Излезте от приложението, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>Вече се извършва друго инсталиране. Опитайте отново по-късно.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Използват се един или повече файлове. Излезте от приложението, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Този пакет има липсваща зависимост от вашата система.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Няма повече място на вашия компютър. Освободете място, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Няма достатъчно налична памет за инсталиране. Затворете другите приложения, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Това приложение изисква интернет връзка. Свържете се към мрежа, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Това приложение се натъкна на грешка по време на инсталирането. Свържете се с отдела за поддръжка.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Рестартирайте компютъра си, за да завършите инсталирането.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>Компютърът ви ще се рестартира, за да завърши инсталирането.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Инсталирането е неуспешно. Рестартирайте компютъра, след което опитайте отново.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Отменихте инсталирането.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>Вече е инсталирана друга версия на това приложение.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>Вече е инсталирана по-нова версия на това приложение.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Правилата на организацията не позволяват инсталиране. Свържете се с вашия администратор.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Инсталирането е прекратено</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Програмата за инсталиране не можа да изпълни кода за излизане:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Регистрационният файл на програмата за инсталиране е наличен в:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Следните пакети са открити сред работните източници.
+Задайте един от тях, като използвате опцията `--source`, за да продължите.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Не са намерени пакети сред работните източници.</value>
   </data>
 </root>

@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include <pch.h>
 #include "winget/Yaml.h"
 #include "YamlWrapper.h"
@@ -412,6 +411,13 @@ namespace AppInstaller::YAML
     }
 
     Emitter& Emitter::operator<<(int64_t value)
+    {
+        std::ostringstream stream;
+        stream << value;
+        return operator<<(stream.str());
+    }
+
+    Emitter& Emitter::operator<<(int value)
     {
         std::ostringstream stream;
         stream << value;

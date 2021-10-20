@@ -31,7 +31,6 @@ namespace AppInstaller::CLI
 
     std::string CompleteCommand::HelpLink() const
     {
-        // TODO: Define me and point to the right location
         return "https://aka.ms/winget-command-complete";
     }
 

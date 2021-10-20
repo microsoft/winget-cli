@@ -188,6 +188,7 @@ namespace AppInstaller::CLI
             links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });
             links.OutputLine({ Resource::LocString(Resource::String::ThirdPartSoftwareNotices).get(), "https://aka.ms/winget-3rdPartyNotice" });
             links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
+            links.OutputLine({ Resource::LocString(Resource::String::WindowsStoreTerms).get(), "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
 
             links.Complete();
 

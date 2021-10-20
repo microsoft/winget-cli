@@ -1,6 +1,6 @@
 # WinGet CLI Settings
 
-You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is sensible option if you have no other preference.
+You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor; if no editor is configured, Windows will prompt for you to select an editor, and Notepad is a sensible option if you have no other preference.
 
 ## File Location
 
@@ -127,22 +127,23 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    },
 ```
 
-### experimentalMSStore
+### directMSI
 
-Microsoft Store App support in WinGet is currently implemented as an experimental feature. It supports a curated list of utility apps from Microsoft Store. You can enable the feature as shown below.
+This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 
+Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it. 
+You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "experimentalMSStore": true
+       "directMSI": true
    },
 ```
+### Dependencies
 
-### packagedAPI
-
-Support in WinGet for packaged callers is currently implemented as an experimental feature. It allows other programs on Windows to use the Windows Package Manager. You can enable the feature as shown below.
+Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "packagedAPI": true
+       "dependencies": true
    },
 ```

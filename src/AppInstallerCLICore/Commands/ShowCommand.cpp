@@ -23,6 +23,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::ListVersions),
+            Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -49,6 +51,8 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
             if (context.Args.Contains(Execution::Args::Type::Manifest))
@@ -63,6 +67,7 @@ namespace AppInstaller::CLI
                 context <<
                     Workflow::OpenSource <<
                     Workflow::SearchSourceForSingle <<
+                    Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::ShowAppVersions;

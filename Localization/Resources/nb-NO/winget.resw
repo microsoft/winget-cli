@@ -141,6 +141,9 @@
     <value>Følgende underkommandoer er tilgjengelige:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
+  <data name="AvailableUpgrades" xml:space="preserve">
+    <value>oppgraderinger er tilgjengelige.</value>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Bruk angitt kanal. standard er generelle målgrupper</value>
   </data>
@@ -419,9 +422,6 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Plasseringen av markøren i kommandolinjen</value>
   </data>
-  <data name="PreviewVersion" xml:space="preserve">
-    <value>Forhåndsvisning</value>
-  </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Personvernerklæring</value>
   </data>
@@ -466,10 +466,10 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Følgende feil ble funnet under validering av innstillingene:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Åpne innstillinger i standard redigeringsprogram for JSON-tekst. Hvis det ikke er konfigurert noe redigeringsprogram, åpnes innstillingene i Notisblokk. Se https://aka.ms/winget-settings for tilgjengelige innstillinger.</value>
+    <value>Åpne innstillinger i standard redigeringsprogram for json-tekst. Hvis ingen redigeringsprogram er konfigurert, åpnes innstillingene i notisblokken. For tilgjengelige innstillinger kan du se https://aka.ms/winget-settings Denne kommandoen kan også brukes til å angi administratorinnstillinger ved å angi «aktiver» eller «deaktiver»-argument</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
-    <value>Åpne innstillinger</value>
+    <value>Åpne innstillinger eller angi administratorinnstillinger</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Uventet feil under innlasting av innstillinger. Kontroller innstillingene ved å kjøre kommandoen innstillinger.</value>
@@ -544,6 +544,10 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Navn</value>
     <comment>The name of the source.</comment>
   </data>
+  <data name="SourceListIdentifier" xml:space="preserve">
+    <value>Identifikator</value>
+    <comment>The source's unique identifier.</comment>
+  </data>
   <data name="SourceListNoneFound" xml:space="preserve">
     <value>Fant ingen kilde med navnet:</value>
   </data>
@@ -570,7 +574,7 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Navn på kilden</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Kunne ikke åpne kilden; prøv kommandoen 'source reset' hvis problemet vedvarer.</value>
+    <value>Mislyktes ved åpning av kilde(er). Prøv kommandoen source reset hvis problemet vedvarer.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
@@ -920,5 +924,245 @@ Konfigurasjonen er deaktivert på grunn av gruppe policy.</value>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>Verdien som er angitt for argumentet "%1", er ugyldig</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Avbrutt</value>
+  </data>
+  <data name="ExternalDependencies" xml:space="preserve">
+    <value>Ekstern</value>
+  </data>
+  <data name="ImportCommandReportDependencies" xml:space="preserve">
+    <value>Pakkene som ble funnet i denne importen har følgende avhengigheter:</value>
+    <comment>Import command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+    <value>Denne pakken krever følgende avhengigheter:</value>
+    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="PackageDependencies" xml:space="preserve">
+    <value>Pakker</value>
+  </data>
+  <data name="UninstallCommandReportDependencies" xml:space="preserve">
+    <value>Denne pakken hadde avhengigheter som kanskje ikke er nødvendige lenger:</value>
+    <comment>Uninstall command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="ValidateCommandReportDependencies" xml:space="preserve">
+    <value>Manifestet har følgende avhengigheter som ikke ble validert. forsikre deg om at de er gyldige:</value>
+    <comment>Validate command sentence showed before reporting dependencies</comment>
+  </data>
+  <data name="WindowsFeaturesDependencies" xml:space="preserve">
+    <value>Windows-funksjoner</value>
+  </data>
+  <data name="WindowsLibrariesDependencies" xml:space="preserve">
+    <value>Windows-biblioteker</value>
+  </data>
+  <data name="WindowsStoreTerms" xml:space="preserve">
+    <value>Vilkår for Windows Store</value>
+  </data>
+  <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
+    <value>Godta alle lisensavtaler for pakker</value>
+  </data>
+  <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
+    <value>Eksportert pakke krever lisensavtale for å installere:</value>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>Utgiveren krever at du viser informasjonen ovenfor og godtar avtalene før du installerer.
+Godtar du vilkårene?</value>
+  </data>
+  <data name="PackageAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Pakkeavtaler ble ikke godtatt. Operasjonen ble avbrutt.</value>
+  </data>
+  <data name="ShowLabelAgreements" xml:space="preserve">
+    <value>Avtaler:</value>
+  </data>
+  <data name="ShowLabelAuthor" xml:space="preserve">
+    <value>Forfatter:</value>
+  </data>
+  <data name="ShowLabelDescription" xml:space="preserve">
+    <value>Beskrivelse:</value>
+  </data>
+  <data name="ShowLabelInstaller" xml:space="preserve">
+    <value>Installasjonsprogram:</value>
+  </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Nasjonal innstilling:</value>
+  </data>
+  <data name="ShowLabelInstallerProductId" xml:space="preserve">
+    <value>Produkt-ID for butikk:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>Last ned URL-adresse:</value>
+  </data>
+  <data name="ShowLabelLicense" xml:space="preserve">
+    <value>Lisens:</value>
+  </data>
+  <data name="ShowLabelLicenseUrl" xml:space="preserve">
+    <value>URL-adresse for lisens:</value>
+  </data>
+  <data name="ShowLabelMoniker" xml:space="preserve">
+    <value>Kallenavn:</value>
+  </data>
+  <data name="ShowLabelPackageUrl" xml:space="preserve">
+    <value>Hjemmeside:</value>
+  </data>
+  <data name="ShowLabelPublisher" xml:space="preserve">
+    <value>Utgiver:</value>
+  </data>
+  <data name="ShowLabelVersion" xml:space="preserve">
+    <value>Versjon:</value>
+  </data>
+  <data name="PromptOptionNo" xml:space="preserve">
+    <value>Nei</value>
+  </data>
+  <data name="PromptOptionYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="SourceAddOpenSourceFailed" xml:space="preserve">
+    <value>Kan ikke åpne kilden som er lagt til.</value>
+  </data>
+  <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
+    <value>Godta alle kildeavtaler under kildeoperasjoner</value>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>Kilden for%1krever at du viser avtalene nedenfor før du bruker den.</value>
+    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Godtar du alle vilkårene i kildeavtalen?</value>
+  </data>
+  <data name="SourceAgreementsNotAgreedTo" xml:space="preserve">
+    <value>Én eller flere av kildeavtalene ble ikke godtatt. Operasjonen ble avbrutt. Godta kildeavtalene, eller fjern de tilsvarende kildene.</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>Kilden krever at gjeldende maskins geografiske område sendes for å fungere riktig.</value>
+  </data>
+  <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
+    <value>Installert. Start programmet på nytt for å fullføre oppgraderingen.</value>
+  </data>
+  <data name="HeaderArgumentDescription" xml:space="preserve">
+    <value>Valgfri REST-kilde-HTTP-hode for Windows Pakkebehandling</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
+    <value>Ignorerer det valgfrie hodet fordi det ikke gjelder for denne kilden.</value>
+  </data>
+  <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
+    <value>Det valgfrie hodet er ikke aktuelt uten å angi en kilde</value>
+  </data>
+  <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
+    <value>Utgivelsesdato:</value>
+  </data>
+  <data name="ShowLabelPublisherUrl" xml:space="preserve">
+    <value>Url-adresse for utgiver:</value>
+  </data>
+  <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
+    <value>Url-adresse for utgiverstøtte:</value>
+  </data>
+  <data name="ShowLabelPrivacyUrl" xml:space="preserve">
+    <value>Nettadresse for personvern:</value>
+  </data>
+  <data name="ShowLabelCopyright" xml:space="preserve">
+    <value>Opphavsrett:</value>
+  </data>
+  <data name="ShowLabelCopyrightUrl" xml:space="preserve">
+    <value>Nettadresse for opphavsrett:</value>
+  </data>
+  <data name="ShowLabelReleaseNotes" xml:space="preserve">
+    <value>Utgivelsesmerknader:</value>
+  </data>
+  <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
+    <value>Nettadresse for utgivelsesmerknader:</value>
+  </data>
+  <data name="SearchFailureWarning" xml:space="preserve">
+    <value>Mislyktes ved søk etter kilde. Resultatene vil ikke bli inkludert:</value>
+  </data>
+  <data name="SearchFailureError" xml:space="preserve">
+    <value>Mislyktes under søk etter kilde:</value>
+  </data>
+  <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
+    <value>Denne funksjonen må aktiveres av administratorer. Kjør 'winget settings --enable %1' som administrator for å aktivere den.</value>
+    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+  </data>
+  <data name="AdminSettingEnableDescription" xml:space="preserve">
+    <value>Aktiverer den spesifikke administratorinnstillingen</value>
+  </data>
+  <data name="AdminSettingDisableDescription" xml:space="preserve">
+    <value>Deaktiverer den spesifikke administratorinnstillingen</value>
+  </data>
+  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
+    <value>For mange argumenter for administratorinnstilling er angitt</value>
+  </data>
+  <data name="AdminSettingEnabled" xml:space="preserve">
+    <value>Administratorinnstilling aktivert.</value>
+  </data>
+  <data name="AdminSettingDisabled" xml:space="preserve">
+    <value>Administratorinnstillingen er deaktivert.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
+    <value>Programmet kjører for øyeblikket. Avslutt programmet og prøv på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+    <value>En annen installasjon pågår allerede. Prøv på nytt senere.</value>
+  </data>
+  <data name="InstallFlowReturnCodeFileInUse" xml:space="preserve">
+    <value>Én eller flere filer brukes. Avslutt programmet og prøv på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeMissingDependency" xml:space="preserve">
+    <value>Denne pakken har en avhengighet som mangler i systemet.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDiskFull" xml:space="preserve">
+    <value>Det er ikke mer plass på PC-en. Frigjør plass, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
+    <value>Ikke nok minne til å installere. Lukk andre programmer, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
+    <value>Dette programmet krever Internett-tilkobling. Koble til et nettverk, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeContactSupport" xml:space="preserve">
+    <value>Det oppstod en feil i dette programmet under installasjonen. Kontakt kundestøtte.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredToFinish" xml:space="preserve">
+    <value>Start PC-en på nytt for å fullføre installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootRequiredForInstall" xml:space="preserve">
+    <value>PC-en starter på nytt for å fullføre installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeRebootInitiated" xml:space="preserve">
+    <value>Installasjonen mislyktes. Start PCen på nytt, og prøv deretter på nytt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCancelledByUser" xml:space="preserve">
+    <value>Du avbrøt installasjonen.</value>
+  </data>
+  <data name="InstallFlowReturnCodeAlreadyInstalled" xml:space="preserve">
+    <value>En annen versjon av dette programmet er allerede installert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeDowngrade" xml:space="preserve">
+    <value>En høyere versjon av dette programmet er allerede installert.</value>
+  </data>
+  <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
+    <value>Organisasjonspolicyer hindrer installasjon. Kontakt systemansvarlig.</value>
+  </data>
+  <data name="InstallAbandoned" xml:space="preserve">
+    <value>Installasjonen ble avbrutt</value>
+  </data>
+  <data name="InstallerFailedWithCode" xml:space="preserve">
+    <value>Installasjonsprogrammet mislyktes med avslutningskode:</value>
+  </data>
+  <data name="InstallerLogAvailable" xml:space="preserve">
+    <value>Installasjonslogg er tilgjengelig på:</value>
+  </data>
+  <data name="SearchFailureErrorListMatches" xml:space="preserve">
+    <value>Følgende pakker ble funnet blant arbeidskildene.
+Angi én av dem ved hjelp av alternativet --source for å fortsette.</value>
+    <comment>{Locked="--source"}</comment>
+  </data>
+  <data name="SearchFailureErrorNoMatches" xml:space="preserve">
+    <value>Fant ingen pakker blant de arbeidende kildene.</value>
   </data>
 </root>

@@ -188,7 +188,6 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
-        const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
 
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecute,
@@ -198,26 +197,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << "Installation abandoned" << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-        else if (installResult.value() != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult.value()) == additionalSuccessCodes.end()))
-        {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
-
-            context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
-            // Show installer log path if exists
-            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
-            {
-                context.Reporter.Info() << "Installer log is available at: " << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
         }
         else
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            context.Add<Execution::Data::InstallerReturnCode>(installResult.value());
         }
     }
 
@@ -236,47 +221,6 @@ namespace AppInstaller::CLI::Workflow
 
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
         context.Add<Execution::Data::InstallerArgs>(std::move(installerArgs));
-    }
-
-    void RenameDownloadedInstaller(Execution::Context& context)
-    {
-        auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path renamedDownloadedInstaller(installerPath);
-
-        switch(context.Get<Execution::Data::Installer>()->InstallerType)
-        {
-        case InstallerTypeEnum::Burn:
-        case InstallerTypeEnum::Exe:
-        case InstallerTypeEnum::Inno:
-        case InstallerTypeEnum::Nullsoft:
-            renamedDownloadedInstaller += L".exe";
-            break;
-        case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::Wix:
-            renamedDownloadedInstaller += L".msi";
-            break;
-        }
-
-        // If rename fails, don't give up quite yet.
-        bool retry = true;
-
-        try
-        {
-            // std::filesystem::rename() handles motw correctly if applicable.
-            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
-            retry = false;
-        }
-        CATCH_LOG();
-
-        if (retry)
-        {
-            std::this_thread::sleep_for(250ms);
-            // If it fails again, let that one throw
-            std::filesystem::rename(installerPath, renamedDownloadedInstaller);
-        }
-
-        installerPath.assign(renamedDownloadedInstaller);
-        AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
     }
 
     void ShellExecuteUninstallImpl(Execution::Context& context)

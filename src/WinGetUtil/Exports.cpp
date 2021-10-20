@@ -183,7 +183,12 @@ extern "C"
 
         try
         {
-            (void)YamlParser::CreateFromPath(manifestPath, true, true);
+            ManifestValidateOption validateOption;
+            validateOption.FullValidation = true;
+            validateOption.ThrowOnWarning = true;
+
+            (void)YamlParser::CreateFromPath(manifestPath, validateOption);
+
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
@@ -211,9 +216,14 @@ extern "C"
 
         try
         {
-            (void)YamlParser::CreateFromPath(inputPath, true, true,
-                mergedManifestPath ? mergedManifestPath : L"",
-                option == WinGetValidateManifestOption::SchemaValidationOnly);
+            ManifestValidateOption validateOption;
+            validateOption.FullValidation = true;
+            validateOption.ThrowOnWarning = true;
+            validateOption.SchemaValidationOnly = WI_IsFlagSet(option, WinGetValidateManifestOption::SchemaValidationOnly);
+            validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
+
+            (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
+
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)

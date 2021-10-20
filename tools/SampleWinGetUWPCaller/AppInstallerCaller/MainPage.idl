@@ -1,0 +1,30 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace AppInstallerCaller
+{
+    [default_interface]
+    runtimeclass InstallingPackageView : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        InstallingPackageView();
+        Microsoft.Management.Deployment.CatalogPackage Package;
+        Windows.Foundation.IAsyncOperationWithProgress<Microsoft.Management.Deployment.InstallResult, Microsoft.Management.Deployment.InstallProgress>  AsyncOperation;
+        Double Progress;
+        String StatusText;
+        Windows.UI.Core.CoreDispatcher Dispatcher;
+    }
+
+    [default_interface]
+    runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
+    {
+        MainPage();
+        Windows.Foundation.Collections.IObservableVector<Microsoft.Management.Deployment.PackageCatalogReference> PackageCatalogs{ get; };
+        Windows.Foundation.Collections.IObservableVector<Microsoft.Management.Deployment.CatalogPackage> InstalledApps{ get; };
+        Windows.Foundation.Collections.IObservableVector<InstallingPackageView> InstallingPackages{ get; };
+    }
+        
+    declare
+    {
+        interface Windows.Foundation.Collections.IVector<InstallingPackageView>;
+        interface Windows.Foundation.Collections.IVectorView<InstallingPackageView>;
+    }
+}

@@ -5,11 +5,11 @@
 #include "TestRestRequestHandler.h"
 #include <AppInstallerErrors.h>
 #include <Rest/Schema/1_0/Json/SearchRequestSerializer.h>
+#include <Rest/Schema/1_1/Json/SearchRequestSerializer.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::Repository::Rest::Schema::V1_0;
-using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
+using namespace AppInstaller::Repository::Rest::Schema;
 
 TEST_CASE("SearchRequestSerializer_InclusionsFilters", "[RestSource]")
 {
@@ -19,7 +19,7 @@ TEST_CASE("SearchRequestSerializer_InclusionsFilters", "[RestSource]")
     searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, MatchType::Exact, "FooBar"));
     searchRequest.MaximumResults = 10;
 
-    SearchRequestSerializer serializer;
+    V1_0::Json::SearchRequestSerializer serializer;
     web::json::value actual = serializer.Serialize(searchRequest);
 
     REQUIRE(!actual.is_null());
@@ -50,8 +50,8 @@ TEST_CASE("SearchRequestSerializer_Query", "[RestSource]")
 {
     SearchRequest searchRequest;
     searchRequest.Query = RequestMatch(MatchType::Substring, "Foo.Bar");
-    
-    SearchRequestSerializer serializer;
+
+    V1_0::Json::SearchRequestSerializer serializer;
     web::json::value actual = serializer.Serialize(std::move(searchRequest));
 
     REQUIRE(!actual.is_null());
@@ -62,9 +62,27 @@ TEST_CASE("SearchRequestSerializer_Query", "[RestSource]")
 
 TEST_CASE("SearchRequestSerializer_FetchAllManifests", "[RestSource]")
 {
-    SearchRequestSerializer serializer;
+    V1_0::Json::SearchRequestSerializer serializer;
     web::json::value actual = serializer.Serialize({});
 
     REQUIRE(!actual.is_null());
     REQUIRE(actual.at(L"FetchAllManifests").as_bool());
+}
+
+TEST_CASE("SearchRequestSerializer_NewFields", "[RestSource]")
+{
+    SearchRequest searchRequest;
+    searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Substring, "Foo.Bar"));
+    searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::Substring, "Foo"));
+    searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Market, MatchType::Exact, "FooBar"));
+
+    V1_0::Json::SearchRequestSerializer serializerV1_0;
+    web::json::value actual_1_0 = serializerV1_0.Serialize(searchRequest);
+    REQUIRE(!actual_1_0.is_null());
+    REQUIRE(actual_1_0.at(L"Filters").as_array().size() == 0);
+
+    V1_1::Json::SearchRequestSerializer serializerV1_1;
+    web::json::value actual_1_1 = serializerV1_1.Serialize(searchRequest);
+    REQUIRE(!actual_1_1.is_null());
+    REQUIRE(actual_1_1.at(L"Filters").as_array().size() == 1);
 }

@@ -8,9 +8,7 @@ ms.localizationpriority: medium
 
 # Windows Package Manager (preview)
 
-[!INCLUDE [preview-note](../includes/package-manager-preview.md)]
-
-Windows Package Manager is a comprehensive [package manager solution](#understanding-package-managers) that consists of a command line tool and set of services for installing applications on Windows 10.
+Windows Package Manager is a comprehensive [package manager solution](#understanding-package-managers) that consists of a command line tool and set of services for installing applications on Windows 10 and Windows 11.
 
 ## Windows Package Manager for developers
 
