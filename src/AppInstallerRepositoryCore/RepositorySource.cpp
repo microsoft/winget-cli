@@ -391,7 +391,7 @@ namespace AppInstaller::Repository
         std::vector<Source> result;
         for (auto const& source : m_source->GetAvailableSources())
         {
-            result.emplace_back(Source{ source, true });
+            result.emplace_back(Source{ source });
         }
 
         return result;

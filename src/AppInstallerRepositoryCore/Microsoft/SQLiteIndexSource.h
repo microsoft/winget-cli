@@ -49,6 +49,8 @@ namespace AppInstaller::Repository::Microsoft
         bool IsSame(const SQLiteIndexSource* other) const;
 
     private:
+        std::shared_ptr<SQLiteIndexSource> NonConstSharedFromThis() const;
+
         std::string m_identifier;
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;

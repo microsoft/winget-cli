@@ -45,7 +45,7 @@ namespace AppInstaller::Repository::Rest
         bool IsSame(const RestSource* other) const;
 
     private:
-
+        std::shared_ptr<RestSource> NonConstSharedFromThis() const;
         void OpenSourceInternal();
 
         std::string m_identifier;

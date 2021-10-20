@@ -168,6 +168,9 @@ namespace AppInstaller::Repository
             const Source& availableSource,
             CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
+        // Constructor for creating a Source object from an existing ISource.
+        Source(std::shared_ptr<ISource> source, bool isNamedSource = true);
+
         // Bool operator to check if a source reference is successfully acquired.
         // Theoretically, the constructor could just throw when CreateSource returns empty.
         // To avoid putting try catch everywhere, we use bool operator here.
@@ -240,8 +243,6 @@ namespace AppInstaller::Repository
         static std::vector<SourceDetails> GetCurrentSources();
 
     private:
-        // Constructor for creating a Source object from an existing ISource. Used by GetAvailableSources.
-        Source(std::shared_ptr<ISource> source, bool isNamedSource);
 
         std::shared_ptr<ISource> InitializeSourceReference(std::string_view name);
 

@@ -17,7 +17,7 @@
 
 namespace AppInstaller::Repository
 {
-    struct ISource;
+    struct Source;
 
     // The type of matching to perform during a search.
     // The values must be declared in order of preference in search results.
@@ -192,7 +192,7 @@ namespace AppInstaller::Repository
         virtual Manifest::Manifest GetManifest() = 0;
 
         // Gets the source where this package version is from.
-        virtual std::shared_ptr<const ISource> GetSource() const = 0;
+        virtual Source GetSource() const = 0;
 
         // Gets any metadata associated with this package version.
         // Primarily stores data on installed packages.
@@ -271,7 +271,7 @@ namespace AppInstaller::Repository
         // Contains a failure from the Search.
         struct Failure
         {
-            std::shared_ptr<const ISource> Source;
+            std::string SourceName;
             std::exception_ptr Exception;
         };
 

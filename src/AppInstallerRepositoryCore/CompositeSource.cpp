@@ -335,9 +335,7 @@ namespace AppInstaller::Repository
             {
                 auto itr = std::find_if(Failures.begin(), Failures.end(),
                     [&failure](const SearchResult::Failure& present) {
-                        return (
-                            present.Source->GetIdentifier() == failure.Source->GetIdentifier() &&
-                            present.Source->GetDetails().Type == failure.Source->GetDetails().Type);
+                        return present.SourceName == failure.SourceName;
                     });
 
                 if (itr == Failures.end())
@@ -419,7 +417,7 @@ namespace AppInstaller::Repository
             SearchResult Search(const SearchRequest&) const override
             {
                 SearchResult result;
-                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
+                result.Failures.emplace_back(SearchResult::Failure{ GetDetails().Name, m_exception });
                 return result;
             }
 
@@ -584,7 +582,7 @@ namespace AppInstaller::Repository
                         }
                         catch (...)
                         {
-                            if (result.AddFailureIfSourceNotPresent({ source, std::current_exception() }))
+                            if (result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() }))
                             {
                                 LOG_CAUGHT_EXCEPTION();
                                 AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
@@ -676,7 +674,7 @@ namespace AppInstaller::Repository
             {
                 LOG_CAUGHT_EXCEPTION();
                 AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.AddFailureIfSourceNotPresent({ source, std::current_exception() });
+                result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() });
             }
 
             // Move failures into the single result
@@ -780,7 +778,7 @@ namespace AppInstaller::Repository
             {
                 LOG_CAUGHT_EXCEPTION();
                 AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.Failures.emplace_back(SearchResult::Failure{ source, std::current_exception() });
+                result.Failures.emplace_back(SearchResult::Failure{ source->GetDetails().Name, std::current_exception() });
             }
 
             // Move into the single result
