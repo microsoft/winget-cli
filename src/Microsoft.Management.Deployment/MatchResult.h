@@ -12,8 +12,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         winrt::Microsoft::Management::Deployment::CatalogPackage CatalogPackage();
         winrt::Microsoft::Management::Deployment::PackageMatchFilter MatchCriteria();
+        
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         Microsoft::Management::Deployment::CatalogPackage m_catalogPackage{ nullptr };
         Microsoft::Management::Deployment::PackageMatchFilter m_matchCriteria{ nullptr };
+#endif
     };
 }
