@@ -128,7 +128,7 @@ void OverrideOpenSourceForDependencies(TestContext& context)
     } });
 }
 
-void OverrideForInstallMultiplePacakages(TestContext& context)
+void OverrideForInstallMultiplePackages(TestContext& context)
 {
     context.Override({ Workflow::InstallMultiplePackages(
         Resource::String::InstallAndUpgradeCommandsReportDependencies,
@@ -150,7 +150,7 @@ TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][de
     TestContext context{ installOutput, std::cin };
     Manifest manifest = CreateFakeManifestWithDependencies("NeedsToInstallBFirst");
     OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePacakages(context);
+    OverrideForInstallMultiplePackages(context);
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     context.Add<Execution::Data::Manifest>(manifest);
@@ -179,7 +179,7 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
     TestContext context{ installOutput, std::cin };
     Manifest manifest = CreateFakeManifestWithDependencies("DependenciesInstalled");
     OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePacakages(context);
+    OverrideForInstallMultiplePackages(context);
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     context.Add<Execution::Data::Manifest>(manifest);
@@ -203,7 +203,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     TestContext context{ installOutput, std::cin };
     Manifest manifest = CreateFakeManifestWithDependencies("DependenciesValidMinVersions");
     OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePacakages(context);
+    OverrideForInstallMultiplePackages(context);
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     context.Add<Execution::Data::Manifest>(manifest);
@@ -231,7 +231,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     TestContext context{ installOutput, std::cin };
     Manifest manifest = CreateFakeManifestWithDependencies("PathBetweenBranchesButNoLoop");
     OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePacakages(context);
+    OverrideForInstallMultiplePackages(context);
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     context.Add<Execution::Data::Manifest>(manifest);
@@ -262,7 +262,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGr
     TestContext context{ installOutput, std::cin };
     Manifest manifest = CreateFakeManifestWithDependencies("DependencyAlreadyInStackButNoLoop");
     OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePacakages(context);
+    OverrideForInstallMultiplePackages(context);
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     context.Add<Execution::Data::Manifest>(manifest);

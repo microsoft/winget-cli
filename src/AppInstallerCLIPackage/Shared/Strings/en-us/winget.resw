@@ -969,7 +969,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>No suitable installer found for manifest</value>
-    <comment>Attmpt to get preferred installer for manifest failed.</comment>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Error processing package dependencies, do you wish to continue installation?</value>
