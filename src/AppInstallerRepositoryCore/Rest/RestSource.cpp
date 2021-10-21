@@ -380,15 +380,13 @@ namespace AppInstaller::Repository::Rest
         }
     }
 
-    RestSource::RestSource(const SourceDetails& details) : m_details(details) {}
+    RestSource::RestSource(const SourceDetails& details, std::string identifier, SourceInformation information, RestClient&& restClient)
+        : m_identifier(std::move(identifier)), m_details(details), m_information(std::move(information)), m_restClient(std::move(restClient))
+    {
+    }
 
     const std::string& RestSource::GetIdentifier() const
     {
-        if (!m_isOpened)
-        {
-            const_cast<RestSource*>(this)->OpenSourceInternal();
-        }
-
         return m_identifier;
     }
 
@@ -399,32 +397,12 @@ namespace AppInstaller::Repository::Rest
 
     SourceInformation RestSource::GetInformation() const
     {
-        if (!m_isOpened)
-        {
-            const_cast<RestSource*>(this)->OpenSourceInternal();
-        }
-
         return m_information;
-    }
-
-    void RestSource::UpdateLastUpdateTime(std::chrono::system_clock::time_point time)
-    {
-        m_details.LastUpdateTime = time;
-    }
-
-    void RestSource::Open(IProgressCallback&)
-    {
-        if (!m_isOpened)
-        {
-            OpenSourceInternal();
-        }
     }
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isOpened);
-
-        IRestClient::SearchResult results = m_restClient->Search(request);
+        IRestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
         std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
@@ -443,16 +421,9 @@ namespace AppInstaller::Repository::Rest
         return searchResult;
     }
 
-    bool RestSource::SetCustomHeader(std::optional<std::string> header)
-    {
-        m_header = header;
-        return true;
-    }
-
     const RestClient& RestSource::GetRestClient() const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isOpened);
-        return m_restClient.value();
+        return m_restClient;
     }
 
     bool RestSource::IsSame(const RestSource* other) const
@@ -463,30 +434,5 @@ namespace AppInstaller::Repository::Rest
     std::shared_ptr<RestSource> RestSource::NonConstSharedFromThis() const
     {
         return const_cast<RestSource*>(this)->shared_from_this();
-    }
-
-    void RestSource::OpenSourceInternal()
-    {
-        std::call_once(m_openFlag,
-            [&]()
-            {
-                m_restClient = RestClient::Create(m_details.Arg, m_header);
-
-                m_identifier = m_restClient->GetSourceIdentifier();
-
-                const auto& sourceInformation = m_restClient->GetSourceInformation();
-                m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
-                m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
-                m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
-                m_information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
-
-                m_information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
-                for (auto const& agreement : sourceInformation.SourceAgreements)
-                {
-                    m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
-                }
-
-                m_isOpened = true;
-            });
     }
 }

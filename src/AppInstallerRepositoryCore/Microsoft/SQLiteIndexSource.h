@@ -16,7 +16,8 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndexSource(
             const SourceDetails& details,
             std::string identifier,
-            std::function<SQLiteIndex(const SourceDetails&, IProgressCallback&, Synchronization::CrossProcessReaderWriteLock&)>&& getIndexFunc,
+            SQLiteIndex&& index,
+            Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);
 
         SQLiteIndexSource(const SQLiteIndexSource&) = delete;
@@ -34,10 +35,6 @@ namespace AppInstaller::Repository::Microsoft
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
-
-        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
-
-        void Open(IProgressCallback& progress) override;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
@@ -59,16 +56,16 @@ namespace AppInstaller::Repository::Microsoft
 
     protected:
         std::optional<SQLiteIndex> m_index;
-        std::once_flag m_openFlag;
-        std::atomic_bool m_isOpened = false;
     };
 
     // A source that holds a SQLiteIndex and lock.
     struct SQLiteIndexWriteableSource : public SQLiteIndexSource, public IMutablePackageSource
     {
-        SQLiteIndexWriteableSource(const SourceDetails& details,
+        SQLiteIndexWriteableSource(
+            const SourceDetails& details,
             std::string identifier,
-            std::function<SQLiteIndex(const SourceDetails&, IProgressCallback&, Synchronization::CrossProcessReaderWriteLock&)>&& getIndexFunc,
+            SQLiteIndex&& index,
+            Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);
 
         // Adds a package version to the source.

@@ -22,12 +22,6 @@ namespace AppInstaller::Repository
         // Get the source's information after the source is opened.
         virtual SourceInformation GetInformation() const { return {}; };
 
-        // Update the last update time of the source since source may be updated after source reference is created.
-        virtual void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) = 0;
-
-        // Opens the source.
-        virtual void Open(IProgressCallback& progress) = 0;
-
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
 
@@ -37,12 +31,32 @@ namespace AppInstaller::Repository
 
         // Gets the available sources if the source is composite.
         virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
-
-        // Set custom header for rest source. Returns false if custom header is not supported.
-        virtual bool SetCustomHeader(std::optional<std::string> header) { UNREFERENCED_PARAMETER(header); return false; }
     };
 
-    // Interface extension to ISource for databases that can be updated after creation, like InstallingPackages
+    // Internal interface to represents source information; basically SourceDetails but with methods to enable differential behaviors.
+    struct ISourceReference
+    {
+        // Gets the source's identifier; a unique identifier independent of the name
+        // that will not change between a remove/add or between additional adds.
+        // Must be suitable for filesystem names unless the source is internal to winget,
+        // in which case the identifier should begin with a '*' character.
+        virtual std::string GetIdentifier() = 0;
+
+        // Get the source's configuration details from settings.
+        virtual SourceDetails& GetDetails() = 0;
+
+        // Get the source's information.
+        virtual SourceInformation GetInformation() { return {}; }
+
+        // Set custom header. Returns false if custom header is not supported.
+        virtual bool SetCustomHeader(std::optional<std::string> header) { UNREFERENCED_PARAMETER(header); return false; }
+
+        // Opens the source. if skipUpdateBeforeOpen is true, source will be opened without check background update.
+        // This function should throw upon open failure rather than returning an empty pointer.
+        virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;
+    };
+
+    // Internal interface extension to ISource for databases that can be updated after creation, like InstallingPackages
     struct IMutablePackageSource
     {
         virtual ~IMutablePackageSource() = default;

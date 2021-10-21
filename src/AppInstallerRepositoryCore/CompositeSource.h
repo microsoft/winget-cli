@@ -28,16 +28,12 @@ namespace AppInstaller::Repository
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
 
-        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
-
         // Gets a value indicating whether this source is a composite of other sources,
         // and thus the packages may come from disparate sources as well.
         bool IsComposite() const override { return true; }
 
         // Gets the available sources if the source is composite.
         std::vector<std::shared_ptr<ISource>> GetAvailableSources() const override { return m_availableSources; }
-
-        void Open(IProgressCallback& progress) override;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
@@ -65,10 +61,5 @@ namespace AppInstaller::Repository
         std::vector<std::shared_ptr<ISource>> m_availableSources;
         std::string m_identifier;
         CompositeSearchBehavior m_searchBehavior;
-
-        std::once_flag m_openFlag;
-        std::atomic_bool m_isOpened = false;
     };
 }
-
-

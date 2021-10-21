@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Rest
     // A source that holds a RestSource.
     struct RestSource : public std::enable_shared_from_this<RestSource>, public ISource
     {
-        RestSource(const SourceDetails& details);
+        RestSource(const SourceDetails& details, std::string identifier, SourceInformation information, RestClient&& restClient);
 
         RestSource(const RestSource&) = delete;
         RestSource& operator=(const RestSource&) = delete;
@@ -29,14 +29,8 @@ namespace AppInstaller::Repository::Rest
 
         SourceInformation GetInformation() const override;
 
-        void UpdateLastUpdateTime(std::chrono::system_clock::time_point time) override;
-
-        void Open(IProgressCallback& progress) override;
-
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
-
-        bool SetCustomHeader(std::optional<std::string> header) override;
 
         // Gets the rest client.
         const RestClient& GetRestClient() const;
@@ -46,14 +40,10 @@ namespace AppInstaller::Repository::Rest
 
     private:
         std::shared_ptr<RestSource> NonConstSharedFromThis() const;
-        void OpenSourceInternal();
 
         std::string m_identifier;
         SourceDetails m_details;
         SourceInformation m_information;
-        std::optional<std::string> m_header;
-        std::optional<RestClient> m_restClient;
-        std::once_flag m_openFlag;
-        std::atomic_bool m_isOpened = false;
+        RestClient m_restClient;
     };
 }

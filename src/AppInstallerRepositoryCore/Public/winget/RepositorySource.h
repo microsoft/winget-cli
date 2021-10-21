@@ -15,6 +15,7 @@
 
 namespace AppInstaller::Repository
 {
+    struct ISourceReference;
     struct ISource;
 
     // Defines the origin of the source details.
@@ -224,7 +225,7 @@ namespace AppInstaller::Repository
 
         /* Source operations */
 
-        // Opens the source. if skipUpdateBeforeOpen is true, source will be opened without check background update.
+        // Opens the source. If skipUpdateBeforeOpen is true, source will be opened without check background update. Not thread safe.
         std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen = false);
 
         // Add source. Source add command.
@@ -243,9 +244,9 @@ namespace AppInstaller::Repository
         static std::vector<SourceDetails> GetCurrentSources();
 
     private:
+        void InitializeSourceReference(std::string_view name);
 
-        std::shared_ptr<ISource> InitializeSourceReference(std::string_view name);
-
+        std::vector<std::shared_ptr<ISourceReference>> m_sourceReferences;
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isNamedSource = false;

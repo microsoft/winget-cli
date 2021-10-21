@@ -97,43 +97,55 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
 
+        struct PredefinedInstalledSourceReference : public ISourceReference
+        {
+            PredefinedInstalledSourceReference(const SourceDetails& details) : m_details(details) {}
+
+            std::string GetIdentifier() override { return m_identifier; }
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            std::shared_ptr<ISource> Open(IProgressCallback& progress) override
+            {
+                // TODO: Maybe we do need to use it?
+                UNREFERENCED_PARAMETER(progress);
+
+                // Determine the filter
+                PredefinedInstalledSourceFactory::Filter filter = PredefinedInstalledSourceFactory::StringToFilter(m_details.Arg);
+                AICLI_LOG(Repo, Info, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
+
+                // Create an in memory index
+                SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+
+                // Put installed packages into the index
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP)
+                {
+                    ARPHelper arpHelper;
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
+                }
+
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
+                {
+                    PopulateIndexFromMSIX(index);
+                }
+
+                return std::make_shared<SQLiteIndexSource>(m_details, "*PredefinedInstalledSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+            }
+
+        private:
+            const std::string m_identifier = "*PredefinedInstalledSource";
+            SourceDetails m_details;
+        };
+
         // The factory for the predefined installed source.
         struct Factory : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedInstalledSourceFactory::Type());
 
-                auto getIndexFunc =
-                    [&](const SourceDetails& details, IProgressCallback& progress, Synchronization::CrossProcessReaderWriteLock&) -> SQLiteIndex
-                {
-                    // TODO: Maybe we do need to use it?
-                    UNREFERENCED_PARAMETER(progress);
-
-                    // Determine the filter
-                    PredefinedInstalledSourceFactory::Filter filter = PredefinedInstalledSourceFactory::StringToFilter(details.Arg);
-                    AICLI_LOG(Repo, Info, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
-
-                    // Create an in memory index
-                    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
-
-                    // Put installed packages into the index
-                    if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP)
-                    {
-                        ARPHelper arpHelper;
-                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
-                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
-                    }
-
-                    if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
-                    {
-                        PopulateIndexFromMSIX(index);
-                    }
-
-                    return index;
-                };
-
-                return std::make_shared<SQLiteIndexSource>(details, "*PredefinedInstalledSource", std::move(getIndexFunc), true);
+                return std::make_shared<PredefinedInstalledSourceReference>(details);
             }
 
             bool Add(SourceDetails&, IProgressCallback&) override final

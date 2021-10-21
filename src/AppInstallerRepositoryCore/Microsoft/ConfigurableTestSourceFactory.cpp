@@ -27,7 +27,7 @@ namespace AppInstaller::Repository::Microsoft
                 if (reader->parse(config.c_str(), config.c_str() + config.size(), &root, &error))
                 {
                     // TODO: If this becomes more dynamic, refactor the UserSettings code to make it easier to leverage here
-                    ParseHR(root, ".CreateHR", CreateHR);
+                    ParseHR(root, ".OpenHR", OpenHR);
                     ParseHR(root, ".SearchHR", SearchHR);
                 }
                 else
@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             // The HR to throw on Factory::Create (if FAILED)
-            HRESULT CreateHR = S_OK;
+            HRESULT OpenHR = S_OK;
 
             // The HR to throw on Source::Search (if FAILED)
             HRESULT SearchHR = S_OK;
@@ -65,18 +65,12 @@ namespace AppInstaller::Repository::Microsoft
         // The configurable source itself.
         struct ConfigurableTestSource : public ISource
         {
-            ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
-                m_details(details), m_config(config) {}
+            ConfigurableTestSource(const std::string& identifier, const SourceDetails& details, const TestSourceConfiguration& config) :
+                m_identifier(identifier), m_details(details), m_config(config) {}
 
             const SourceDetails& GetDetails() const override { return m_details; }
 
             const std::string& GetIdentifier() const override { return m_identifier; }
-
-            void UpdateLastUpdateTime(std::chrono::system_clock::time_point) override {}
-
-            void Open(IProgressCallback&) override {}
-
-            bool SetCustomHeader(std::optional<std::string>) override { return true; }
 
             SearchResult Search(const SearchRequest&) const override
             {
@@ -90,15 +84,35 @@ namespace AppInstaller::Repository::Microsoft
             TestSourceConfiguration m_config;
         };
 
+        struct ConfigurableTestSourceReference : public ISourceReference
+        {
+            ConfigurableTestSourceReference(const SourceDetails& details) : m_details(details) {}
+
+            std::string GetIdentifier() override { return m_identifier; }
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            bool SetCustomHeader(std::optional<std::string>) override { return true; }
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                // enables `source add` with FAILED(OpenHR)
+                TestSourceConfiguration config{ m_details.Arg };
+                THROW_IF_FAILED(config.OpenHR);
+                return std::make_shared<ConfigurableTestSource>(m_identifier, m_details, config);
+            }
+
+        private:
+            const std::string m_identifier = "*ConfigurableTestSource";
+            SourceDetails m_details;
+        };
+
         // The actual factory implementation.
         struct ConfigurableTestSourceFactoryImpl : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                // enables `source add` with FAILED(CreateHR)
-                TestSourceConfiguration config{ details.Arg };
-                THROW_IF_FAILED(config.CreateHR);
-                return std::make_shared<ConfigurableTestSource>(details, config);
+                return std::make_shared<ConfigurableTestSourceReference>(details);
             }
 
             bool Add(SourceDetails& details, IProgressCallback&) override final

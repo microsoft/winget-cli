@@ -400,32 +400,7 @@ namespace AppInstaller::Repository
             }
         };
 
-        // Carries the exception from an OpenSource call and presents it back at search time.
-        struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
-        {
-            OpenExceptionProxy(const std::string& identifier, const SourceDetails& details, std::exception_ptr exception) :
-                m_identifier(identifier), m_details(details), m_exception(std::move(exception)) {}
-
-            const SourceDetails& GetDetails() const override { return m_details; }
-
-            const std::string& GetIdentifier() const override { return m_identifier; }
-
-            void UpdateLastUpdateTime(std::chrono::system_clock::time_point) override {}
-
-            void Open(IProgressCallback&) override {}
-
-            SearchResult Search(const SearchRequest&) const override
-            {
-                SearchResult result;
-                result.Failures.emplace_back(SearchResult::Failure{ GetDetails().Name, m_exception });
-                return result;
-            }
-
-        private:
-            std::string m_identifier;
-            SourceDetails m_details;
-            std::exception_ptr m_exception;
-        };
+        
     }
 
     CompositeSource::CompositeSource(std::string identifier)
@@ -443,60 +418,6 @@ namespace AppInstaller::Repository
         return m_identifier;
     }
 
-    void CompositeSource::UpdateLastUpdateTime(std::chrono::system_clock::time_point)
-    {
-    }
-
-    void CompositeSource::Open(IProgressCallback& progress)
-    {
-        if (!m_isOpened)
-        {
-            std::call_once(m_openFlag,
-                [&]()
-                {
-                    // Open installed source
-                    if (m_installedSource)
-                    {
-                        m_installedSource->Open(progress);
-                    }
-
-                    // Open available sources
-                    std::vector<std::shared_ptr<ISource>> openedAvailableSources;
-                    std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
-
-                    for (auto& source : m_availableSources)
-                    {
-                        AICLI_LOG(Repo, Info, << "Opening available source: " << source->GetDetails().Name);
-
-                        try
-                        {
-                            source->Open(progress);
-                            openedAvailableSources.emplace_back(source);
-                        }
-                        catch (...)
-                        {
-                            LOG_CAUGHT_EXCEPTION();
-                            AICLI_LOG(Repo, Warning, << "Failed to open available source: " << source->GetDetails().Name);
-                            openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source->GetIdentifier(), source->GetDetails(), std::current_exception()));
-                        }
-                    }
-
-                    // If all sources failed to open, then throw an exception that is specific to this case.
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, openedAvailableSources.empty());
-
-                    m_availableSources = openedAvailableSources;
-
-                    // Place all of the proxies into the source to be searched later
-                    for (auto& proxy : openExceptionProxies)
-                    {
-                        m_availableSources.emplace_back(std::move(proxy));
-                    }
-
-                    m_isOpened = true;
-                });
-        }
-    }
-
     // The composite search needs to take several steps to get results, and due to the
     // potential for different information spread across multiple sources, base searches
     // need to be performed in both installed and available.
@@ -506,8 +427,6 @@ namespace AppInstaller::Repository
     // will only return results where a match is found in the installed source.
     SearchResult CompositeSource::Search(const SearchRequest& request) const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isOpened);
-
         if (m_installedSource)
         {
             return SearchInstalled(request);
