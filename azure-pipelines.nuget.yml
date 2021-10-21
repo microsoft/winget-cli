@@ -72,6 +72,28 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
+      # Copy Interop Test files
+      - task: CopyFiles@2
+        displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
+        inputs:
+          SourceFolder: '$(Build.SourcesDirectory)\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
+          TargetFolder:  '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests\'
+          CleanTargetFolder: true
+          OverWrite: true
+        condition: succeeded()
+
+      # Run Interop Unit tests
+      - task: VSTest@2
+        displayName: 'Run tests: WinGetUtilInterop.UnitTests'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
+          searchFolder: '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests'
+          codeCoverageEnabled: true
+          platform: 'Any CPU'
+          configuration: '$(BuildConfiguration)'
+        condition: succeeded()
+
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
@@ -79,6 +101,7 @@ jobs:
           FolderPath: src
           Pattern: |
             *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
+            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
           UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |

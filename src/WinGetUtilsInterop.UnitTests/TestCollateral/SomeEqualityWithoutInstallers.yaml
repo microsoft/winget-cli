@@ -1,0 +1,5 @@
+Id: id.id
+Version: 1.2.3
+Switches:
+  Custom: custom
+  Silent: /s
