@@ -19,24 +19,28 @@ namespace AppInstaller::CLI::Workflow
 
     void GetSourceListWithFilter(Execution::Context& context)
     {
+        auto currentSources = Repository::Source::GetCurrentSources();
         if (context.Args.Contains(Args::Type::SourceName))
         {
             std::string_view name = context.Args.GetArg(Args::Type::SourceName);
-            Repository::Source source{ name };
 
-            if (!source)
+            for (auto const& source : currentSources)
             {
-                context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+                if (Utility::ICUCaseInsensitiveEquals(source.Name, name))
+                {
+                    std::vector<Repository::SourceDetails> sources;
+                    sources.emplace_back(source);
+                    context.Add<Execution::Data::SourceList>(std::move(sources));
+                    return;
+                }
             }
 
-            std::vector<Repository::SourceDetails> sources;
-            sources.emplace_back(source.GetDetails());
-            context.Add<Execution::Data::SourceList>(std::move(sources));
+            context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
         else
         {
-            context.Add<Execution::Data::SourceList>(Repository::Source::GetCurrentSources());
+            context.Add<Execution::Data::SourceList>(std::move(currentSources));
         }
     }
 
@@ -251,7 +255,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << sd.Name << "..."_liv;
-            Repository::Source source{ sd.Name };
+            Repository::Source source{ sd.Name, true };
             source.Drop();
             context.Reporter.Info() << Resource::String::Done << std::endl;
         }
@@ -260,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
     void ResetAllSources(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::SourceResetAll;
-        Repository::Source source{ ""sv };
+        Repository::Source source{ ""sv, true };
         source.Drop();
         context.Reporter.Info() << Resource::String::Done << std::endl;
     }

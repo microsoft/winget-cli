@@ -19,8 +19,7 @@
 #include <Workflows/SourceFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/WorkflowBase.h>
-#include <Public/AppInstallerRepositorySource.h>
-#include <Public/AppInstallerRepositorySearch.h>
+#include <Public/winget/RepositorySource.h>
 #include <Commands/ExportCommand.h>
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
@@ -364,7 +363,7 @@ void OverrideForOpenSource(TestContext& context)
 {
     context.Override({ Workflow::OpenSource, [](TestContext& context)
     {
-        context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestSource>());
+        context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestSource>() });
     } });
 }
 
@@ -376,7 +375,7 @@ void OverrideForCompositeInstalledSource(TestContext& context, bool upgradeUsesL
 
     context.Override({ "OpenCompositeSource", [=](TestContext& context)
     {
-        context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestCompositeSource>(upgradeUsesLicenses));
+        context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestCompositeSource>(upgradeUsesLicenses) });
     } });
 }
 
@@ -389,7 +388,7 @@ void OverrideForImportSource(TestContext& context)
 
     context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
     {
-        context.Add<Execution::Data::Sources>(std::vector<std::shared_ptr<ISource>>{ std::make_shared<WorkflowTestCompositeSource>(false) });
+        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>(false) } });
     } });
 }
 
@@ -524,24 +523,27 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
     } });
 }
 
-void OverrideForSourceAddWithAgreements(TestContext& context)
+void OverrideForSourceAddWithAgreements(TestContext& context, bool isAddExpected = true)
 {
     context.Override({ EnsureRunningAsAdmin, [](TestContext&)
     {
     } });
 
-    context.Override({ AddSource, [](TestContext&)
+    if (isAddExpected)
     {
-    } });
+        context.Override({ AddSource, [](TestContext&)
+        {
+        } });
+    }
 
     context.Override({ CreateSourceForSourceAdd, [](TestContext& context)
     {
         auto testSource = std::make_shared<TestSource>();
-        testSource->Details.Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
-        testSource->Details.Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
-        testSource->Details.Information.RequiredPackageMatchFields.emplace_back("Market");
-        testSource->Details.Information.RequiredQueryParameters.emplace_back("Market");
-        context << Workflow::HandleSourceAgreements(testSource);
+        testSource->Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
+        testSource->Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
+        testSource->Information.RequiredPackageMatchFields.emplace_back("Market");
+        testSource->Information.RequiredQueryParameters.emplace_back("Market");
+        context << Workflow::HandleSourceAgreements(Source{ testSource });
     } });
 }
 
@@ -2136,14 +2138,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     std::istringstream sourceAddInput{ "n" };
     std::ostringstream sourceAddOutput;
     TestContext context{ sourceAddOutput, sourceAddInput };
-    OverrideForSourceAddWithAgreements(context);
-    // This tests RemoveSource is called after agreement is not accepted. If they are not called, the test fails with unused override.
-    context.Override({ GetSourceListWithFilter, [](TestContext&)
-    {
-    } });
-    context.Override({ RemoveSources, [](TestContext&)
-    {
-    } });
+    OverrideForSourceAddWithAgreements(context, false);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
     context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
     context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
@@ -2158,7 +2153,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
     REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
 
-    // Verify Installer is called.
+    // Verify failed with expected error code.
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
 }
 
@@ -2172,11 +2167,16 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     details.Type = "Microsoft.Rest";
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
-    details.CustomHeader = "CustomHeader";
+
+    std::string customHeader = "Test custom header in Open source Flow";
 
     bool receivedCustomHeader = false;
-    TestSourceFactory factory { [&](const SourceDetails& sd) { return std::shared_ptr<ISource>(new TestSource(sd)); } };
-    factory.OnAdd = [&](SourceDetails& sd) { receivedCustomHeader = details.CustomHeader.value().compare(sd.CustomHeader.value()) == 0; };
+    TestSourceFactory factory{
+        [&](const SourceDetails& sd, std::optional<std::string> header)
+        {
+            receivedCustomHeader = header.value() == customHeader;
+            return std::shared_ptr<ISource>(new TestSource(sd));
+        } };
     TestHook_SetSourceFactoryOverride(details.Type, factory);
 
     TestProgress progress;
@@ -2185,14 +2185,11 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     std::ostringstream output;
     TestContext context{ output, std::cin };
     context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
-
-    std::string customHeader2 = "Test custom header in Open source Flow";
-    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader2);
+    context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader);
     context.Args.AddArg(Execution::Args::Type::Source, details.Name);
 
     OpenSource(context);
-    auto source = context.Get<Execution::Data::Source>();
-    REQUIRE(source.get()->GetDetails().CustomHeader.value_or("").compare(customHeader2) == 0);
+    REQUIRE(receivedCustomHeader);
 }
 
 TEST_CASE("AdminSetting_LocalManifestFiles", "[LocalManifests][workflow]")

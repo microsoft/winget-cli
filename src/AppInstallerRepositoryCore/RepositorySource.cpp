@@ -222,10 +222,14 @@ namespace AppInstaller::Repository
 
     Source::Source() {}
 
-    Source::Source(std::string_view name)
+    Source::Source(std::string_view name, bool skipReferenceInitialization)
     {
         m_isNamedSource = !name.empty();
-        InitializeSourceReference(name);
+        m_inputSourceName = name;
+        if (!skipReferenceInitialization)
+        {
+            InitializeSourceReference(name);
+        }
     }
 
     Source::Source(PredefinedSource source)
@@ -236,12 +240,14 @@ namespace AppInstaller::Repository
 
     Source::Source(WellKnownSource source)
     {
+        m_isNamedSource = true;
         SourceDetails details = GetWellKnownSourceDetailsInternal(source);
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
     Source::Source(std::string_view name, std::string_view arg, std::string_view type)
     {
+        m_isSourceToBeAdded = true;
         SourceDetails details;
         details.Name = name;
         details.Arg = arg;
@@ -264,7 +270,7 @@ namespace AppInstaller::Repository
 
     Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
     {
-        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.IsComposite() || !availableSource.m_source);
+        THROW_HR_IF(E_INVALIDARG, (installedSource.m_source && installedSource.IsComposite()) || !availableSource.m_source);
 
         std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
 
@@ -482,7 +488,9 @@ namespace AppInstaller::Repository
                             // to avoid the progress bar fill up multiple times.
                             if (BackgroundUpdateSourceFromDetails(details, progress))
                             {
-                                sourceList.SaveMetadata(details);
+                                auto detailsInternal = sourceList.GetSource(details.Name);
+                                detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                                sourceList.SaveMetadata(*detailsInternal);
                             }
                             else
                             {
@@ -570,6 +578,7 @@ namespace AppInstaller::Repository
         if (result)
         {
             sourceList.AddSource(sourceDetails);
+            SaveAcceptedSourceAgreements();
             AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
         }
 
@@ -594,7 +603,9 @@ namespace AppInstaller::Repository
                 // to avoid the progress bar fill up multiple times.
                 if (UpdateSourceFromDetails(details, progress))
                 {
-                    sourceList.SaveMetadata(details);
+                    auto detailsInternal = sourceList.GetSource(details.Name);
+                    detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                    sourceList.SaveMetadata(*detailsInternal);
                 }
                 else
                 {
@@ -634,18 +645,18 @@ namespace AppInstaller::Repository
 
     void Source::Drop()
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || (m_isNamedSource && m_sourceReferences.size() != 1) || m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 0 || m_source);
 
         if (m_isNamedSource)
         {
-            const auto& details = m_sourceReferences[0]->GetDetails();
-
-            AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << details.Name);
-
-            EnsureSourceIsRemovable(details);
-
             SourceList sourceList;
-            sourceList.RemoveSource(details);
+            auto details = sourceList.GetCurrentSource(m_inputSourceName);
+            if (details)
+            {
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << details->Name);
+                EnsureSourceIsRemovable(*details);
+                sourceList.RemoveSource(*details);
+            }
         }
         else
         {

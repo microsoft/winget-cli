@@ -27,8 +27,9 @@ std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, 
     details.Type = "TestType";
     details.Arg = testManifest.GetPath().parent_path().u8string();
     details.Data = "";
+    details.Identifier = "*SimpleTestSetup";
 
-    return std::make_shared<SQLiteIndexSource>(details, "*SimpleTestSetup", std::move(index));
+    return std::make_shared<SQLiteIndexSource>(details, std::move(index));
 }
 
 TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")

@@ -349,6 +349,8 @@ namespace AppInstaller::Repository
         for (size_t i = 0; !sourcesSet && i < 10; ++i)
         {
             auto itr = FindSource(details.Name, true);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS,
+                itr != m_sourceList.end() && itr->Origin != SourceOrigin::Metadata && !itr->IsTombstone);
 
             // Erase the source's entry if applicable
             if (itr != m_sourceList.end())

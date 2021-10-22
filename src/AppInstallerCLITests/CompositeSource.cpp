@@ -677,7 +677,7 @@ TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
     REQUIRE(pfns[0] == pfn);
 
     REQUIRE(result.Failures.size() == 1);
-    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+    REQUIRE(result.Failures[0].SourceName == AvailableFails->Details.Name);
 
     HRESULT searchFailure = S_OK;
     try
@@ -713,7 +713,7 @@ TEST_CASE("CompositeSource_InstalledToAvailableCorrelationSearchFailure", "[Comp
     REQUIRE(result.Matches.size() == 1);
 
     REQUIRE(result.Failures.size() == 1);
-    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+    REQUIRE(result.Failures[0].SourceName == AvailableFails->Details.Name);
 
     HRESULT searchFailure = S_OK;
     try
@@ -757,7 +757,7 @@ TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]"
     REQUIRE(result.Matches.size() == 1);
 
     REQUIRE(result.Failures.size() == 1);
-    REQUIRE(result.Failures[0].Source->GetDetails().Name == AvailableFails->Details.Name);
+    REQUIRE(result.Failures[0].SourceName == AvailableFails->Details.Name);
 
     HRESULT searchFailure = S_OK;
     try

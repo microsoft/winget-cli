@@ -152,7 +152,9 @@ namespace AppInstaller::Repository
         Source();
 
         // Constructor to get a named source, passing empty string will get all available sources.
-        Source(std::string_view name);
+        // If skipReferenceInitialization is true, the constructor will skip initializing the source
+        // references, this is mainly for Source Drop command in case the user_sources are in a bad state.
+        Source(std::string_view name, bool skipReferenceInitialization = false);
 
         // Constructor to get a PredefinedSource. Like installed source, etc.
         Source(PredefinedSource source);
@@ -249,6 +251,7 @@ namespace AppInstaller::Repository
     private:
         void InitializeSourceReference(std::string_view name);
 
+        std::string m_inputSourceName;
         std::vector<std::shared_ptr<ISourceReference>> m_sourceReferences;
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
