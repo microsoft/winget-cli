@@ -314,7 +314,7 @@ TEST_CASE("ARPChanges_SingleChange_SingleMatch", "[ARPChanges][workflow]")
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
 
     context << ReportARPChanges;
-    context.ExpectEvent(1, 1, 0, context.EverythingResult.Matches.back().Package.get());
+    context.ExpectEvent(1, 1, 0, context.MatchResult.Matches.back().Package.get());
 }
 
 TEST_CASE("ARPChanges_SingleChange_MultiMatch", "[ARPChanges][workflow]")
@@ -358,7 +358,7 @@ TEST_CASE("ARPChanges_MultiChange_SingleMatch_NoOverlap", "[ARPChanges][workflow
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
 
     context << ReportARPChanges;
-    context.ExpectEvent(2, 1, 0);
+    context.ExpectEvent(2, 1, 0, context.MatchResult.Matches.back().Package.get());
 }
 
 TEST_CASE("ARPChanges_MultiChange_SingleMatch_Overlap", "[ARPChanges][workflow]")
