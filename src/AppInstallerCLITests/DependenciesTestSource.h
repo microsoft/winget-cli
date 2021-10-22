@@ -24,6 +24,12 @@ namespace TestCommon
             installer.ProductId = input;
             installer.Dependencies.Clear();
 
+            if (input == "withoutInstallers")
+            {
+                manifest.Installers.clear();
+                return manifest;
+            }
+
             /*
             * Dependencies:
             *   "A": Depends on the test
@@ -154,6 +160,11 @@ namespace TestCommon
             if (input == "installed1")
             {
                 installed  = true;
+            }
+
+            if (input == "NoMatches")
+            {
+                return result;
             }
 
             Manifest manifest = CreateFakeManifestWithDependencies(input);

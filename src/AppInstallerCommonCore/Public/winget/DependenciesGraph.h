@@ -34,10 +34,9 @@ namespace AppInstaller::Manifest
         const Dependency& m_root;
         std::map<Dependency, std::set<Dependency>> m_adjacents;
         std::function<const DependencyList(const Dependency&)> getDependencies;
-
-        bool hasLoop;
+        bool m_HasLoop;
+        bool m_rootDependencyEvaluated = false;
         std::vector<Dependency> m_installationOrder;
-
         std::vector<Dependency> m_toCheck;
     };
 }

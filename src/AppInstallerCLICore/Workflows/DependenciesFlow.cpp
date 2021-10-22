@@ -6,6 +6,7 @@
 #include "ManifestComparator.h"
 #include "InstallFlow.h"
 #include "winget\DependenciesGraph.h"
+#include "DependencyNodeProcessor.h"
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Manifest;
@@ -144,103 +145,28 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); 
         }
 
-        const auto& source = context.Get<Execution::Data::DependencySource>();
+        
         std::map<string_t, Execution::PackageToInstall> idToPackageMap;
         bool foundError = false;
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
+                DependencyNodeProcessor nodeProcessor(context);
+                
+                auto result = nodeProcessor.EvaluateDependencies(node);
+                DependencyList list = nodeProcessor.GetDependencyList();
+                foundError = foundError || (result == DependencyNodeProcessorResult::Error);
 
-                SearchRequest searchRequest;
-                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, node.Id));
-                const auto& matches = source->Search(searchRequest).Matches;
-
-                if (!matches.empty())
+                if (result == DependencyNodeProcessorResult::Success)
                 {
-                    if (matches.size() > 1) 
-                    {
-                        error << Resource::String::DependenciesFlowSourceTooManyMatches << " " << Utility::Normalize(node.Id);
-                        AICLI_LOG(CLI, Error, << "Too many matches for package " << node.Id);
-                        foundError = true;
-                        return DependencyList();
-                    }
-                    const auto& match = matches.at(0);
-
-                    const auto& package = match.Package;
-
-                    auto packageId = package->GetProperty(PackageProperty::Id);
-                    auto installedVersion = package->GetInstalledVersion();
-
-                    if (installedVersion && node.IsVersionOk(Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version))))
-                    {
-                        // return empty dependency list,
-                        // as we won't keep searching for dependencies for installed packages
-                        return DependencyList(); 
-                    }
-
-                    std::shared_ptr<IPackageVersion> latestVersion = package->GetLatestAvailableVersion();
-                    if (!latestVersion) 
-                    {
-                        error << Resource::String::DependenciesFlowPackageVersionNotFound << " " << Utility::Normalize(packageId);
-                        AICLI_LOG(CLI, Error, << "Latest available version not found for package " << packageId);
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    if (!node.IsVersionOk(Utility::Version(latestVersion->GetProperty(PackageVersionProperty::Version))))
-                    {
-                        error << Resource::String::DependenciesFlowNoMinVersion << " " << Utility::Normalize(packageId);
-                        AICLI_LOG(CLI, Error, << "No suitable min version found for package " << packageId);
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    auto manifest = latestVersion->GetManifest();
-                    if (manifest.Installers.empty()) {
-                        error << Resource::String::DependenciesFlowNoInstallerFound << " " << Utility::Normalize(manifest.Id);
-                        AICLI_LOG(CLI, Error, << "Installer not found for manifest " << manifest.Id << " with version" << manifest.Version);
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    
-
-                    std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
-
-                    IPackageVersion::Metadata installationMetadata;
-                    if (installedVersion)
-                    {
-                        installationMetadata = installedVersion->GetMetadata();
-                    }
-
-                    ManifestComparator manifestComparator(context, installationMetadata);
-                    installer = manifestComparator.GetPreferredInstaller(manifest);
-
-                    if (!installer.has_value())
-                    {
-                        error << Resource::String::DependenciesFlowNoSuitableInstallerFound << " " << Utility::Normalize(manifest.Id) << manifest.Version;
-                        AICLI_LOG(CLI, Error, << "No suitable installer found for manifest " << manifest.Id << " with version "  << manifest.Version);
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    auto nodeDependencies = installer.value().Dependencies;
-
                     Execution::PackageToInstall packageToInstall{
-                        std::move(latestVersion),
-                        std::move(installedVersion),
-                        std::move(manifest),
-                        std::move(installer.value()) };
-
+                        std::move(nodeProcessor.GetPackageLatestVersion()),
+                        std::move(nodeProcessor.GetPackageInstalledVersion()),
+                        std::move(nodeProcessor.GetManifest()),
+                        std::move(nodeProcessor.GetPrefferedInstaller()) };
                     idToPackageMap.emplace(node.Id, std::move(packageToInstall));
+                };
 
-                    return nodeDependencies;
-                }
-                else
-                {
-                    error << Resource::String::DependenciesFlowNoMatches;
-                    foundError = true;
-                    return DependencyList();
-                }
+                return list;
             });
 
         dependencyGraph.BuildGraph();

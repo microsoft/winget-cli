@@ -17,24 +17,29 @@ namespace AppInstaller::Manifest
                 AddNode(dependency);
                 AddAdjacent(root, dependency);
             });
+        m_rootDependencyEvaluated = true;
     }
 
     DependencyGraph::DependencyGraph(const Dependency& root, std::function<const DependencyList(const Dependency&)> infoFunction) : m_root(root), getDependencies(infoFunction)
     {
         m_adjacents[m_root] = std::set<Dependency>();
         m_toCheck = std::vector<Dependency>();
-
-        const DependencyList& rootDependencies = getDependencies(root);
-        rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
-            {
-                m_toCheck.push_back(dependency);
-                AddNode(dependency);
-                AddAdjacent(root, dependency);
-            });
     }
 
     void DependencyGraph::BuildGraph()
     {
+        if (!m_rootDependencyEvaluated) 
+        {
+            const DependencyList& rootDependencies = getDependencies(m_root);
+            rootDependencies.ApplyToType(DependencyType::Package, [&](Dependency dependency)
+                {
+                    m_toCheck.push_back(dependency);
+                    AddNode(dependency);
+                    AddAdjacent(m_root, dependency);
+                });
+            m_rootDependencyEvaluated = true;
+        }
+
         if (m_toCheck.empty())
         {
             return;
@@ -78,14 +83,14 @@ namespace AppInstaller::Manifest
 
     bool DependencyGraph::HasLoop()
     {
-        return hasLoop;
+        return m_HasLoop;
     }
 
     void DependencyGraph::CheckForLoopsAndGetOrder()
     {
         m_installationOrder = std::vector<Dependency>();
         std::set<Dependency> visited;
-        hasLoop = HasLoopDFS(visited, m_root);
+        m_HasLoop = HasLoopDFS(visited, m_root);
     }
 
     std::vector<Dependency> DependencyGraph::GetInstallationOrder()

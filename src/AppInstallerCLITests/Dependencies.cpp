@@ -1,14 +1,11 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
-#include "TestHooks.h"
-#include "TestSettings.h"
 #include "DependenciesTestSource.h"
+#include <winget/DependenciesGraph.h>
+#include <workflows/DependencyNodeProcessor.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
-#include <Workflows/ImportExportFlow.h>
-#include <Workflows/DownloadFlow.h>
-#include <Workflows/InstallFlow.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/WorkflowBase.h>
 #include <Public/AppInstallerRepositorySource.h>
@@ -27,259 +24,186 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Settings;
 
-namespace
-{
-    struct TestContext;
-
-    struct WorkflowTaskOverride
-    {
-        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o) :
-            Target(f), Override(o) {}
-
-        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o) :
-            Target(n), Override(o) {}
-
-        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o) :
-            Target(t), Override(o) {}
-
-        bool Used = false;
-        WorkflowTask Target;
-        std::function<void(TestContext&)> Override;
-    };
-
-    // Enables overriding the behavior of specific workflow tasks.
-    struct TestContext : public Context
-    {
-        TestContext(std::ostream& out, std::istream& in) : TestContext(out, in, false, std::make_shared<std::vector<WorkflowTaskOverride>>())
-        {
-            WorkflowTaskOverride wto
-            { RemoveInstaller, [](TestContext&)
-                {
-                    // Do nothing; we never want to remove the test files.
-            } };
-
-            // Mark this one as used so that it doesn't anger the destructor.
-            wto.Used = true;
-
-            Override(wto);
-        }
-
-        TestContext(std::ostream& out, std::istream& in, bool isClone, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
-            m_out(out), m_in(in), m_overrides(overrides), m_isClone(isClone), Context(out, in)
-        {
-            m_shouldExecuteWorkflowTask = [this](const Workflow::WorkflowTask& task)
-            {
-                auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
-
-                if (itr == m_overrides->end())
-                {
-                    return true;
-                }
-                else
-                {
-                    itr->Used = true;
-                    itr->Override(*this);
-                    return false;
-                }
-            };
-        }
-
-        ~TestContext()
-        {
-            if (!m_isClone)
-            {
-                for (const auto& wto : *m_overrides)
-                {
-                    if (!wto.Used)
-                    {
-                        FAIL_CHECK("Unused override " + wto.Target.GetName());
-                    }
-                }
-            }
-        }
-
-        void Override(const WorkflowTaskOverride& wto)
-        {
-            m_overrides->emplace_back(wto);
-        }
-
-        std::unique_ptr<Context> Clone() override
-        {
-            auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
-            clone->SetFlags(this->GetFlags());
-            return clone;
-        }
-
-    private:
-        std::shared_ptr<std::vector<WorkflowTaskOverride>> m_overrides;
-        std::ostream& m_out;
-        std::istream& m_in;
-        bool m_isClone = false;
-    };
-}
-
-void OverrideOpenSourceForDependencies(TestContext& context)
-{
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    } });
-}
-
-void OverrideForInstallMultiplePackages(TestContext& context)
-{
-    context.Override({ Workflow::InstallMultiplePackages(
-        Resource::String::InstallAndUpgradeCommandsReportDependencies,
-        APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
-        {},
-        false,
-        true), [](TestContext& )
-    {
-        
-    } });
-}
-
-TEST_CASE("DependencyGraph_BFirst", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     std::vector<Dependency> installationOrder;
 
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    Manifest manifest = CreateFakeManifestWithDependencies("NeedsToInstallBFirst");
-    OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePackages(context);
+    const auto& manifest = CreateFakeManifestWithDependencies("NeedsToInstallBFirst");
+    const auto& installers = manifest.Installers;
+    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    DependencyList rootDependencies;
+    std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    context.Add<Execution::Data::Manifest>(manifest);
-    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node)
+        {
+            DependencyList dependencyList;
+            auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+            for (auto installer : dependencyManifest.Installers)
+            {
+                dependencyList.Add(installer.Dependencies);
+            }
 
-    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+            return dependencyList;
+        });
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    graph.BuildGraph();
 
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+    installationOrder = graph.GetInstallationOrder();
 
-    // Verify installers are called in order
-    REQUIRE(installers.size() == 2);
-    REQUIRE(installers.at(0).Manifest.Id == "B");
-    REQUIRE(installers.at(1).Manifest.Id == "C");
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "C");
+    REQUIRE(installationOrder.at(1).Id == "B");
+    REQUIRE(installationOrder.at(2).Id == "NeedsToInstallBFirst");
 }
 
-TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+TEST_CASE("DependencyGraph_InStackNoLoop", "[dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    const auto& manifest = CreateFakeManifestWithDependencies("DependencyAlreadyInStackButNoLoop");
+    const auto& installers = manifest.Installers;
+    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    DependencyList rootDependencies;
+    std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
+
+    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node)
+        {
+            DependencyList dependencyList;
+            auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
+
+            for (auto installer : dependencyManifest.Installers)
+            {
+                dependencyList.Add(installer.Dependencies);
+            }
+
+            return dependencyList;
+        });
+
+    graph.BuildGraph();
+
+    installationOrder = graph.GetInstallationOrder();
+
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id == "F");
+    REQUIRE(installationOrder.at(1).Id == "C");
+    REQUIRE(installationOrder.at(2).Id == "DependencyAlreadyInStackButNoLoop");
+}
+
+TEST_CASE("DependencyGraph_EasyToSeeLoop", "[dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    std::vector<Dependency> installationOrder;
+
+    const auto& manifest = CreateFakeManifestWithDependencies("EasyToSeeLoop");
+    const auto& installers = manifest.Installers;
+    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    DependencyList rootDependencies;
+    std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
+
+    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node) {
+        DependencyList dependencyList;
+        auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
+
+        for (auto installer : dependencyManifest.Installers)
+        {
+            dependencyList.Add(installer.Dependencies);
+        }
+
+        return dependencyList;
+        });
+
+    graph.BuildGraph();
+
+    installationOrder = graph.GetInstallationOrder();
+
+    bool hasLoop = graph.HasLoop();
+
+    REQUIRE(hasLoop);
+
+    REQUIRE(installationOrder.size() == 2);
+    REQUIRE(installationOrder.at(0).Id == "D");
+    REQUIRE(installationOrder.at(1).Id == "EasyToSeeLoop");
+}
+
+TEST_CASE("DependencyNodeProcessor_SkipInstalled", "[dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
     std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    Manifest manifest = CreateFakeManifestWithDependencies("DependenciesInstalled");
-    OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePackages(context);
+    Context context{ installOutput, std::cin };
+
+    Manifest manifest = CreateFakeManifestWithDependencies("installed1");
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    context.Add<Execution::Data::Manifest>(manifest);
-    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    DependencyNodeProcessor nodeProcessor(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
 
-    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 0);
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    REQUIRE(result == DependencyNodeProcessorResult::Skipped);
 }
 
-TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
     std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    Manifest manifest = CreateFakeManifestWithDependencies("DependenciesValidMinVersions");
-    OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePackages(context);
+    Context context { installOutput, std::cin };
+
+    Manifest manifest = CreateFakeManifestWithDependencies("withoutInstallers");
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    context.Add<Execution::Data::Manifest>(manifest);
-    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    DependencyNodeProcessor nodeProcessor(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
 
-    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
-
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 1);
-    REQUIRE(installers.at(0).Manifest.Id == "minVersion");
-    // minVersion 1.5 is available but this requires 1.0 so that version is installed
-    REQUIRE(installers.at(0).Manifest.Version == "1.0");
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound)) != std::string::npos);
+    REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 
-TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
+TEST_CASE("DependencyNodeProcessor_StackOrderIsOk", "[dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
     std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    Manifest manifest = CreateFakeManifestWithDependencies("PathBetweenBranchesButNoLoop");
-    OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePackages(context);
+    Context context{ installOutput, std::cin };
+
+    Manifest manifest = CreateFakeManifestWithDependencies("StackOrderIsOk");
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    context.Add<Execution::Data::Manifest>(manifest);
-    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    DependencyNodeProcessor nodeProcessor(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
 
-    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
-
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installers.size() == 4);
-    REQUIRE(installers.at(0).Manifest.Id == "B");
-    REQUIRE(installers.at(1).Manifest.Id == "C");
-    REQUIRE(installers.at(2).Manifest.Id == "G");
-    REQUIRE(installers.at(3).Manifest.Id == "H");
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    auto dependencyList = nodeProcessor.GetDependencyList();
+    REQUIRE(dependencyList.Size() == 1);
+    REQUIRE(dependencyList.HasDependency(Dependency(DependencyType::Package, "C")));
+    REQUIRE(result == DependencyNodeProcessorResult::Success);
 }
 
-TEST_CASE("DependencyGraph_InStackNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
     std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    Manifest manifest = CreateFakeManifestWithDependencies("DependencyAlreadyInStackButNoLoop");
-    OverrideOpenSourceForDependencies(context);
-    OverrideForInstallMultiplePackages(context);
+    Context context{ installOutput, std::cin };
+
+    Manifest manifest = CreateFakeManifestWithDependencies("NoMatches");
 
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
-    context.Add<Execution::Data::Manifest>(manifest);
-    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    DependencyNodeProcessor nodeProcessor(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
 
-    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
-
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-
-    // Verify installers are called in order
-    REQUIRE(installers.size() == 3);
-    REQUIRE(installers.at(0).Manifest.Id == "B");
-    REQUIRE(installers.at(1).Manifest.Id == "C");
-    REQUIRE(installers.at(2).Manifest.Id == "F");
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    auto dependencyList = nodeProcessor.GetDependencyList();
+    REQUIRE(dependencyList.Size() == 0);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoMatches)) != std::string::npos);
+    REQUIRE(result == DependencyNodeProcessorResult::Error);
 }

@@ -598,6 +598,27 @@ void OverrideForSourceAddWithAgreements(TestContext& context)
     } });
 }
 
+void OverrideOpenDependencySource(TestContext& context)
+{
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    } });
+}
+
+void OverrideForInstallMultiplePackages(TestContext& context)
+{
+    context.Override({ Workflow::InstallMultiplePackages(
+        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+        APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
+        {},
+        false,
+        true), [](TestContext&)
+    {
+
+    } });
+}
+
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -1094,6 +1115,90 @@ TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
     REQUIRE(showOutput.str().find("Package.Dep2-x64") != std::string::npos);
     REQUIRE(showOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
     REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
+}
+
+TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+
+    Manifest manifest = CreateFakeManifestWithDependencies("DependenciesInstalled");
+    OverrideOpenDependencySource(context);
+    OverrideForInstallMultiplePackages(context);
+
+    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::Manifest>(manifest);
+    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+
+    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+    REQUIRE(installers.size() == 0);
+}
+
+TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    Manifest manifest = CreateFakeManifestWithDependencies("DependenciesValidMinVersions");
+    OverrideOpenDependencySource(context);
+    OverrideForInstallMultiplePackages(context);
+
+    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::Manifest>(manifest);
+    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+
+    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+    REQUIRE(installers.size() == 1);
+    REQUIRE(installers.at(0).Manifest.Id == "minVersion");
+    // minVersion 1.5 is available but this requires 1.0 so that version is installed
+    REQUIRE(installers.at(0).Manifest.Version == "1.0");
+}
+
+TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    Manifest manifest = CreateFakeManifestWithDependencies("PathBetweenBranchesButNoLoop");
+    OverrideOpenDependencySource(context);
+    OverrideForInstallMultiplePackages(context);
+
+    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::Manifest>(manifest);
+    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+
+    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installers.size() == 4);
+    REQUIRE(installers.at(0).Manifest.Id == "B");
+    REQUIRE(installers.at(1).Manifest.Id == "C");
+    REQUIRE(installers.at(2).Manifest.Id == "G");
+    REQUIRE(installers.at(3).Manifest.Id == "H");
 }
 
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
@@ -2250,27 +2355,6 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     // Verify all types of dependencies are printed
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
-}
-
-TEST_CASE("DependencyGraph_Loop", "[InstallFlow][workflow][dependencyGraph][dependencies]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    OverrideOpenSourceForDependencies(context);
-    OverrideForShellExecute(context);
-
-    context.Args.AddArg(Execution::Args::Type::Query, "EasyToSeeLoop"sv);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) != std::string::npos);
 }
 
 TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
