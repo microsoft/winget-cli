@@ -112,4 +112,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return CompareResult::Equal;
         }
     }
+    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
+    { 
+        return m_packageVersion; 
+    }
 }

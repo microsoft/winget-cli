@@ -170,6 +170,9 @@
     <ClInclude Include="Workflows\SettingsFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\DownloadFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -305,6 +308,9 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\SettingsFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\DlownloadFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

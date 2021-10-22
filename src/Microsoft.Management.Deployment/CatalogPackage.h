@@ -8,9 +8,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct CatalogPackage : CatalogPackageT<CatalogPackage>
     {
         CatalogPackage() = default;
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
             ::AppInstaller::Repository::Source source,
             std::shared_ptr<::AppInstaller::Repository::IPackage> package);
+#endif
 
         hstring Id();
         hstring Name();
@@ -19,6 +22,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo DefaultInstallVersion();
         winrt::Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
         bool IsUpdateAvailable();
+        
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Repository::Source m_source;
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
@@ -28,5 +33,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::once_flag m_installedVersionOnceFlag;
         std::once_flag m_availableVersionsOnceFlag;
         std::once_flag m_defaultInstallVersionOnceFlag;
+#endif
     };
 }
