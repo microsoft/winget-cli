@@ -844,45 +844,24 @@ namespace AppInstaller::CLI::Workflow
             //  1 package   ::  Golden path; this should be what we installed.
             //  2+ packages ::  The data in the manifest is either too broad or we have
             //                  a problem with our name normalization.
-            //
-            //                           ARP Package changes
-            //                0                  1                     N
-            //      +------------------+--------------------+--------------------+
-            // M    |                  |                    |                    |
-            // a    | Package does not | Manifest data does | Manifest data does |
-            // n  0 |   write to ARP   |   not match ARP    |   not match ARP    |
-            // i    |  Log this fact   |   Log for fixup    |   Log for fixup    |
-            // f    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // t    |   Reinstall of   |    Golden Path!    | Treat manifest as  |
-            //    1 | existing version |  (assuming match)  |   main if common   |
-            // r    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // u    |   Not expected   | Treat ARP as main  |    Not expected    |
-            // l  N |   Log this for   |                    |    Log this for    |
-            // t    |   investigation  |                    |    investigation   |
-            // s    |                  |                    |                    |
-            //      +------------------+--------------------+--------------------+
 
             // Find the package that we are going to log
             std::shared_ptr<IPackageVersion> toLog;
 
-            // If no changes found, only log if a single matching package was found by the manifest
-            if (changes.empty() && findByManifest.Matches.size() == 1)
+            // If there is only a single common package (changed and matches), it is almost certainly the correct one.
+            if (packagesInBoth.size() == 1)
+            {
+                toLog = packagesInBoth[0]->GetInstalledVersion();
+            }
+            // If it wasn't changed but we still find a match, that is the best thing to report.
+            else if (findByManifest.Matches.size() == 1)
             {
                 toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
             }
-            // If only a single ARP entry was changed, always log that
-            else if (changes.size() == 1)
+            // If only a single ARP entry was changed and we found no matches, report that.
+            else if (findByManifest.Matches.empty() && changes.size() == 1)
             {
                 toLog = changes[0].Package->GetInstalledVersion();
-            }
-            // Finally, if there is only a single common package, log that one
-            else if (packagesInBoth.size() == 1)
-            {
-                toLog = packagesInBoth[0]->GetInstalledVersion();
             }
 
             IPackageVersion::Metadata toLogMetadata;
