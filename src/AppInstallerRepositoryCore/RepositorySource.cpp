@@ -181,12 +181,12 @@ namespace AppInstaller::Repository
         // Carries the exception from an OpenSource call and presents it back at search time.
         struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
         {
-            OpenExceptionProxy(const std::string& identifier, const SourceDetails& details, std::exception_ptr exception) :
-                m_identifier(identifier), m_details(details), m_exception(std::move(exception)) {}
+            OpenExceptionProxy(const SourceDetails& details, std::exception_ptr exception) :
+                m_details(details), m_exception(std::move(exception)) {}
 
             const SourceDetails& GetDetails() const override { return m_details; }
 
-            const std::string& GetIdentifier() const override { return m_identifier; }
+            const std::string& GetIdentifier() const override { return m_details.Identifier; }
 
             SearchResult Search(const SearchRequest&) const override
             {
@@ -196,7 +196,6 @@ namespace AppInstaller::Repository
             }
 
         private:
-            std::string m_identifier;
             SourceDetails m_details;
             std::exception_ptr m_exception;
         };
@@ -514,7 +513,7 @@ namespace AppInstaller::Repository
                     {
                         LOG_CAUGHT_EXCEPTION();
                         AICLI_LOG(Repo, Warning, << "Failed to open available source: " << sourceReference->GetDetails().Name);
-                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(sourceReference->GetIdentifier(), sourceReference->GetDetails(), std::current_exception()));
+                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(sourceReference->GetDetails(), std::current_exception()));
                     }
                 }
 
@@ -542,7 +541,7 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isSourceToBeAdded || m_sourceReferences.size() != 1);
 
-        SourceDetails sourceDetails = m_sourceReferences[0]->GetDetails();
+        auto& sourceDetails = m_sourceReferences[0]->GetDetails();
 
         AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
@@ -611,7 +610,7 @@ namespace AppInstaller::Repository
         const auto& details = m_sourceReferences[0]->GetDetails();
         AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << details.Name << " [" << ToString(details.Origin) << ']');
 
-        EnsureSourceIsRemovable(details, m_sourceReferences[0]->GetIdentifier());
+        EnsureSourceIsRemovable(details);
 
         bool result = RemoveSourceFromDetails(details, progress);
         if (result)
@@ -633,7 +632,7 @@ namespace AppInstaller::Repository
 
             AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << details.Name);
 
-            EnsureSourceIsRemovable(details, m_sourceReferences[0]->GetIdentifier());
+            EnsureSourceIsRemovable(details);
 
             SourceList sourceList;
             sourceList.RemoveSource(details);

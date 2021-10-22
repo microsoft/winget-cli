@@ -380,14 +380,14 @@ namespace AppInstaller::Repository::Rest
         }
     }
 
-    RestSource::RestSource(const SourceDetails& details, std::string identifier, SourceInformation information, RestClient&& restClient)
-        : m_identifier(std::move(identifier)), m_details(details), m_information(std::move(information)), m_restClient(std::move(restClient))
+    RestSource::RestSource(const SourceDetails& details, SourceInformation information, RestClient&& restClient)
+        : m_details(details), m_information(std::move(information)), m_restClient(std::move(restClient))
     {
     }
 
     const std::string& RestSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     const SourceDetails& RestSource::GetDetails() const
@@ -428,7 +428,7 @@ namespace AppInstaller::Repository::Rest
 
     bool RestSource::IsSame(const RestSource* other) const
     {
-        return (other && m_identifier == other->m_identifier);
+        return (other && GetIdentifier() == other->GetIdentifier());
     }
 
     std::shared_ptr<RestSource> RestSource::NonConstSharedFromThis() const

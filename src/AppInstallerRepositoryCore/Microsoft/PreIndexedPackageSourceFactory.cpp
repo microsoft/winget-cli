@@ -87,6 +87,7 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
 
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
+                details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
                 auto lock = LockExclusive(details, progress);
                 if (!lock)
@@ -180,11 +181,11 @@ namespace AppInstaller::Repository::Microsoft
             {
                 if (!m_details.Data.empty())
                 {
-                    m_identifier = GetPackageFamilyNameFromDetails(details);
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(details);
                 }
             }
 
-            std::string GetIdentifier() override { return m_identifier; }
+            std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
 
@@ -216,11 +217,11 @@ namespace AppInstaller::Repository::Microsoft
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
-                return std::make_shared<SQLiteIndexSource>(m_details, m_identifier, std::move(index), std::move(lock));
+                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
             }
 
         private:
-            std::string m_identifier;
             SourceDetails m_details;
         };
 
@@ -342,11 +343,11 @@ namespace AppInstaller::Repository::Microsoft
             {
                 if (!m_details.Data.empty())
                 {
-                    m_identifier = GetPackageFamilyNameFromDetails(details);
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(details);
                 }
             }
 
-            std::string GetIdentifier() override { return m_identifier; }
+            std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
 
@@ -371,11 +372,11 @@ namespace AppInstaller::Repository::Microsoft
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
-                return std::make_shared<SQLiteIndexSource>(m_details, m_identifier, std::move(index), std::move(lock));
+                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
             }
 
         private:
-            std::string m_identifier;
             SourceDetails m_details;
         };
 

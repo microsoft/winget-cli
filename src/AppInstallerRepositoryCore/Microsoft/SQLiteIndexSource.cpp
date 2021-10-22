@@ -346,8 +346,8 @@ namespace AppInstaller::Repository::Microsoft
         };
     }
 
-    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        m_details(details), m_identifier(identifier), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
+    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
+        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
     {
     }
 
@@ -358,12 +358,12 @@ namespace AppInstaller::Repository::Microsoft
 
     const std::string& SQLiteIndexSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const
     {
-        auto indexResults = m_index->Search(request);
+        auto indexResults = m_index.Search(request);
 
         SearchResult result;
         std::shared_ptr<SQLiteIndexSource> sharedThis = NonConstSharedFromThis();
@@ -386,15 +386,9 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    const SQLiteIndex& SQLiteIndexSource::GetIndex() const
-    {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_index);
-        return m_index.value();
-    }
-
     bool SQLiteIndexSource::IsSame(const SQLiteIndexSource* other) const
     {
-        return (other && m_identifier == other->m_identifier);
+        return (other && GetIdentifier() == other->GetIdentifier());
     }
 
     std::shared_ptr<SQLiteIndexSource> SQLiteIndexSource::NonConstSharedFromThis() const
@@ -402,18 +396,18 @@ namespace AppInstaller::Repository::Microsoft
         return const_cast<SQLiteIndexSource*>(this)->shared_from_this();
     }
 
-    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        SQLiteIndexSource(details, identifier, std::move(index), std::move(lock), isInstalledSource)
+    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
+        SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
     {
     }
 
     void SQLiteIndexWriteableSource::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        m_index->AddManifest(manifest, relativePath);
+        m_index.AddManifest(manifest, relativePath);
     }
     
     void SQLiteIndexWriteableSource::RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        m_index->RemoveManifest(manifest, relativePath);
+        m_index.RemoveManifest(manifest, relativePath);
     }
 }

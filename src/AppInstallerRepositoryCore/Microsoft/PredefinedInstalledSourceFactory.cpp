@@ -99,9 +99,12 @@ namespace AppInstaller::Repository::Microsoft
 
         struct PredefinedInstalledSourceReference : public ISourceReference
         {
-            PredefinedInstalledSourceReference(const SourceDetails& details) : m_details(details) {}
+            PredefinedInstalledSourceReference(const SourceDetails& details) : m_details(details)
+            {
+                m_details.Identifier = "*PredefinedInstalledSource";
+            }
 
-            std::string GetIdentifier() override { return m_identifier; }
+            std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
 
@@ -130,11 +133,10 @@ namespace AppInstaller::Repository::Microsoft
                     PopulateIndexFromMSIX(index);
                 }
 
-                return std::make_shared<SQLiteIndexSource>(m_details, "*PredefinedInstalledSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
             }
 
         private:
-            const std::string m_identifier = "*PredefinedInstalledSource";
             SourceDetails m_details;
         };
 

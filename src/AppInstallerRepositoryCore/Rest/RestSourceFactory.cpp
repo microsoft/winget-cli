@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::Rest
                 {
                     Initialize();
                 }
-                return m_identifier;
+                return m_details.Identifier;
             }
 
             SourceInformation GetInformation() override
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Rest
                 }
 
                 RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
-                return std::make_shared<RestSource>(m_details, m_identifier, m_information, std::move(restClient));
+                return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
         private:
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Rest
                     {
                         m_restClient = RestClient::Create(m_details.Arg, m_customHeader);
 
-                        m_identifier = m_restClient->GetSourceIdentifier();
+                        m_details.Identifier = m_restClient->GetSourceIdentifier();
 
                         const auto& sourceInformation = m_restClient->GetSourceInformation();
                         m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
@@ -78,7 +78,6 @@ namespace AppInstaller::Repository::Rest
                     });
             }
 
-            std::string m_identifier;
             SourceDetails m_details;
             SourceInformation m_information;
             std::optional<std::string> m_customHeader;

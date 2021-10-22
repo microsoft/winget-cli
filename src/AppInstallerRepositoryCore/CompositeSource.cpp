@@ -399,8 +399,6 @@ namespace AppInstaller::Repository
                 }
             }
         };
-
-        
     }
 
     CompositeSource::CompositeSource(std::string identifier)

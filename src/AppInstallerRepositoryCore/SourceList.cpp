@@ -171,6 +171,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << details.Type;
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
+                    out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::EndMap;
                 }
@@ -186,6 +187,7 @@ namespace AppInstaller::Repository
         bool DoSourceDetailsInternalMatch(const SourceDetailsInternal& left, const SourceDetailsInternal& right)
         {
             return left.Arg == right.Arg &&
+                left.Identifier == right.Identifier &&
                 Utility::CaseInsensitiveEquals(left.Type, right.Type);
         }
 
@@ -259,6 +261,7 @@ namespace AppInstaller::Repository
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
             details.Arg = s_Source_WingetCommunityDefault_Arg;
             details.Data = s_Source_WingetCommunityDefault_Data;
+            details.Identifier = s_Source_WingetCommunityDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
             return details;
         }
@@ -269,6 +272,7 @@ namespace AppInstaller::Repository
             details.Name = s_Source_MSStoreDefault_Name;
             details.Type = Rest::RestSourceFactory::Type();
             details.Arg = s_Source_MSStoreDefault_Arg;
+            details.Identifier = s_Source_MSStoreDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted;
             details.SupportInstalledSearchCorrelation = false;
             return details;
@@ -281,6 +285,7 @@ namespace AppInstaller::Repository
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
             details.Arg = s_Source_DesktopFrameworks_Arg;
             details.Data = s_Source_DesktopFrameworks_Data;
+            details.Identifier = s_Source_DesktopFrameworks_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
             details.IsVisible = false;
             return details;
@@ -560,6 +565,7 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                     return true;
                 });
 
@@ -591,6 +597,7 @@ namespace AppInstaller::Repository
                         details.Type = additionalSource.Type;
                         details.Arg = additionalSource.Arg;
                         details.Data = additionalSource.Data;
+                        details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
                         result.emplace_back(std::move(details));
                     }

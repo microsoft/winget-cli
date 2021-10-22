@@ -65,12 +65,12 @@ namespace AppInstaller::Repository::Microsoft
         // The configurable source itself.
         struct ConfigurableTestSource : public ISource
         {
-            ConfigurableTestSource(const std::string& identifier, const SourceDetails& details, const TestSourceConfiguration& config) :
-                m_identifier(identifier), m_details(details), m_config(config) {}
+            ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
+                m_details(details), m_config(config) {}
 
             const SourceDetails& GetDetails() const override { return m_details; }
 
-            const std::string& GetIdentifier() const override { return m_identifier; }
+            const std::string& GetIdentifier() const override { return m_details.Identifier; }
 
             SearchResult Search(const SearchRequest&) const override
             {
@@ -79,16 +79,18 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            std::string m_identifier;
             SourceDetails m_details;
             TestSourceConfiguration m_config;
         };
 
         struct ConfigurableTestSourceReference : public ISourceReference
         {
-            ConfigurableTestSourceReference(const SourceDetails& details) : m_details(details) {}
+            ConfigurableTestSourceReference(const SourceDetails& details) : m_details(details)
+            {
+                m_details.Identifier = "*ConfigurableTestSource";
+            }
 
-            std::string GetIdentifier() override { return m_identifier; }
+            std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
 
@@ -99,11 +101,10 @@ namespace AppInstaller::Repository::Microsoft
                 // enables `source add` with FAILED(OpenHR)
                 TestSourceConfiguration config{ m_details.Arg };
                 THROW_IF_FAILED(config.OpenHR);
-                return std::make_shared<ConfigurableTestSource>(m_identifier, m_details, config);
+                return std::make_shared<ConfigurableTestSource>(m_details, config);
             }
 
         private:
-            const std::string m_identifier = "*ConfigurableTestSource";
             SourceDetails m_details;
         };
 

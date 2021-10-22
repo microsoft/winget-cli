@@ -15,7 +15,6 @@ namespace AppInstaller::Repository::Microsoft
     {
         SQLiteIndexSource(
             const SourceDetails& details,
-            std::string identifier,
             SQLiteIndex&& index,
             Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);
@@ -40,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft
         SearchResult Search(const SearchRequest& request) const override;
 
         // Gets the index.
-        const SQLiteIndex& GetIndex() const;
+        const SQLiteIndex& GetIndex() const { return m_index; }
 
         // Determines if the other source refers to the same as this.
         bool IsSame(const SQLiteIndexSource* other) const;
@@ -48,14 +47,12 @@ namespace AppInstaller::Repository::Microsoft
     private:
         std::shared_ptr<SQLiteIndexSource> NonConstSharedFromThis() const;
 
-        std::string m_identifier;
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;
         bool m_isInstalled;
-        std::function<SQLiteIndex(const SourceDetails&, IProgressCallback&, Synchronization::CrossProcessReaderWriteLock&)> m_getIndexFunc;
 
     protected:
-        std::optional<SQLiteIndex> m_index;
+        SQLiteIndex m_index;
     };
 
     // A source that holds a SQLiteIndex and lock.
@@ -63,7 +60,6 @@ namespace AppInstaller::Repository::Microsoft
     {
         SQLiteIndexWriteableSource(
             const SourceDetails& details,
-            std::string identifier,
             SQLiteIndex&& index,
             Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);

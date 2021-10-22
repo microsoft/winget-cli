@@ -43,9 +43,12 @@ namespace AppInstaller::Repository::Microsoft
 
         struct PredefinedWriteableSourceReference : public ISourceReference
         {
-            PredefinedWriteableSourceReference(const SourceDetails& details) : m_details(details) {}
+            PredefinedWriteableSourceReference(const SourceDetails& details) : m_details(details)
+            {
+                m_details.Identifier = "*PredefinedWriteableSource";
+            }
 
-            std::string GetIdentifier() override { return m_identifier; }
+            std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
 
@@ -60,14 +63,13 @@ namespace AppInstaller::Repository::Microsoft
                         // Create an in memory index
                         SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
-                        g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, "*PredefinedWriteableSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                        g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
                     });
 
                 return g_sharedSource;
             }
 
         private:
-            const std::string m_identifier = "*PredefinedWriteableSource";
             SourceDetails m_details;
             static std::shared_ptr<ISource> g_sharedSource;
             static std::once_flag g_InstallingSourceOnceFlag;

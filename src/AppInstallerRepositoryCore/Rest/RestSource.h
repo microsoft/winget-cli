@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Rest
     // A source that holds a RestSource.
     struct RestSource : public std::enable_shared_from_this<RestSource>, public ISource
     {
-        RestSource(const SourceDetails& details, std::string identifier, SourceInformation information, RestClient&& restClient);
+        RestSource(const SourceDetails& details, SourceInformation information, RestClient&& restClient);
 
         RestSource(const RestSource&) = delete;
         RestSource& operator=(const RestSource&) = delete;
@@ -41,7 +41,6 @@ namespace AppInstaller::Repository::Rest
     private:
         std::shared_ptr<RestSource> NonConstSharedFromThis() const;
 
-        std::string m_identifier;
         SourceDetails m_details;
         SourceInformation m_information;
         RestClient m_restClient;

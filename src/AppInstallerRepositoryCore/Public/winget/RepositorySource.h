@@ -96,6 +96,9 @@ namespace AppInstaller::Repository
         // The source's extra data string.
         std::string Data;
 
+        // The source's unique identifier.
+        std::string Identifier;
+
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
 

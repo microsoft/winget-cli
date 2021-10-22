@@ -178,7 +178,7 @@ namespace AppInstaller::Repository
         return false;
     }
 
-    void EnsureSourceIsRemovable(const SourceDetailsInternal& source, std::string_view sourceIdentifier)
+    void EnsureSourceIsRemovable(const SourceDetailsInternal& source)
     {
         // Block removing sources added by Group Policy
         if (source.Origin == SourceOrigin::GroupPolicy)
@@ -191,13 +191,13 @@ namespace AppInstaller::Repository
         if (source.Origin == SourceOrigin::Default)
         {
             if (GroupPolicies().GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::Enabled &&
-                sourceIdentifier == GetWellKnownSourceIdentifier(WellKnownSource::WinGet))
+                source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::WinGet))
             {
                 throw GroupPolicyException(TogglePolicy::Policy::DefaultSource);
             }
 
             if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled &&
-                sourceIdentifier == GetWellKnownSourceIdentifier(WellKnownSource::MicrosoftStore))
+                source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::MicrosoftStore))
             {
                 throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
             }
