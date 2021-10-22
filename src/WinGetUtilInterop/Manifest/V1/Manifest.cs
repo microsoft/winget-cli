@@ -176,7 +176,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<string> InstallModes { get; set; }
 
         /// <summary>
-        /// Gets or sets the default list of addtional installer success codes.
+        /// Gets or sets the default list of additional installer success codes.
         /// </summary>
         public List<long> InstallerSuccessCodes { get; set; }
 

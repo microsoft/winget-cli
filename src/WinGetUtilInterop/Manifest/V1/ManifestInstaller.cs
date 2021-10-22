@@ -69,7 +69,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<string> InstallModes { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of addtional installer success codes.
+        /// Gets or sets the list of additional installer success codes.
         /// </summary>
         public List<long> InstallerSuccessCodes { get; set; }
 

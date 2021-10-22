@@ -85,7 +85,7 @@ namespace Microsoft.WinGetUtil.Models.Preview
         public string FileExtensions { get; set; }
 
         /// <summary>
-        /// Gets or sets the IntallerType of the package. Must be one
+        /// Gets or sets the InstallerType of the package. Must be one
         /// of the values of ValidInstallerTypes. IManifestInstallerDefaults.
         /// An InstallerType in the root of the manifest is required if
         /// InstallerType is not defined in an ManifestInstaller entry.
