@@ -32,11 +32,11 @@ TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
 
     const auto& manifest = CreateFakeManifestWithDependencies("NeedsToInstallBFirst");
     const auto& installers = manifest.Installers;
-    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    const Dependency& rootAsDependency = Dependency(DependencyType::Package, manifest.Id);
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node)
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node)
         {
             DependencyList dependencyList;
             auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
@@ -66,11 +66,11 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[dependencyGraph][dependencies]")
 
     const auto& manifest = CreateFakeManifestWithDependencies("DependencyAlreadyInStackButNoLoop");
     const auto& installers = manifest.Installers;
-    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    const Dependency& rootAsDependency = Dependency(DependencyType::Package, manifest.Id);
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node)
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node)
         {
             DependencyList dependencyList;
             auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
@@ -100,11 +100,11 @@ TEST_CASE("DependencyGraph_EasyToSeeLoop", "[dependencyGraph][dependencies]")
 
     const auto& manifest = CreateFakeManifestWithDependencies("EasyToSeeLoop");
     const auto& installers = manifest.Installers;
-    const Dependency& rootAsDependecy = Dependency(DependencyType::Package, manifest.Id);
+    const Dependency& rootAsDependency = Dependency(DependencyType::Package, manifest.Id);
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependecy, rootDependencies, [&](Dependency node) {
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node) {
         DependencyList dependencyList;
         auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
 
@@ -141,9 +141,9 @@ TEST_CASE("DependencyNodeProcessor_SkipInstalled", "[dependencies]")
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     DependencyNodeProcessor nodeProcessor(context);
 
-    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
+    Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
-    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
     REQUIRE(result == DependencyNodeProcessorResult::Skipped);
 }
 
@@ -159,9 +159,9 @@ TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     DependencyNodeProcessor nodeProcessor(context);
 
-    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
+    Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
-    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound)) != std::string::npos);
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
@@ -178,9 +178,9 @@ TEST_CASE("DependencyNodeProcessor_StackOrderIsOk", "[dependencies]")
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     DependencyNodeProcessor nodeProcessor(context);
 
-    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
+    Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
-    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
     auto dependencyList = nodeProcessor.GetDependencyList();
     REQUIRE(dependencyList.Size() == 1);
     REQUIRE(dependencyList.HasDependency(Dependency(DependencyType::Package, "C")));
@@ -199,9 +199,9 @@ TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
     context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
     DependencyNodeProcessor nodeProcessor(context);
 
-    Dependency rootAsDependecy(DependencyType::Package, manifest.Id);
+    Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
-    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependecy);
+    DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
     auto dependencyList = nodeProcessor.GetDependencyList();
     REQUIRE(dependencyList.Size() == 0);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoMatches)) != std::string::npos);
