@@ -335,7 +335,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
       TargetFolder:  '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
