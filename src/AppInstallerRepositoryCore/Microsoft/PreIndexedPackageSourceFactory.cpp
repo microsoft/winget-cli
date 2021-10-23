@@ -54,7 +54,8 @@ namespace AppInstaller::Repository::Microsoft
         {
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                // With more than one source implementation, we will probably need to probe first
+                THROW_HR_IF(E_INVALIDARG, !details.Type.empty() && details.Type != PreIndexedPackageSourceFactory::Type());
 
                 return CreateInternal(details);
             }

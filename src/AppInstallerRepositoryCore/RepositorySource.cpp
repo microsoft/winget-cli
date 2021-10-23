@@ -432,8 +432,18 @@ namespace AppInstaller::Repository
 
     bool Source::IsComposite() const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
-        return m_source->IsComposite();
+        if (m_source)
+        {
+            return m_source->IsComposite();
+        }
+        else if (m_sourceReferences.size() > 0)
+        {
+            return m_sourceReferences.size() > 1;
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
     }
 
     std::vector<Source> Source::GetAvailableSources() const
