@@ -26,9 +26,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
     };
 }
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct PackageManager : PackageManagerT<PackageManager, implementation::PackageManager>
     {
     };
 }
+#endif

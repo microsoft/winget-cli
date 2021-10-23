@@ -440,7 +440,7 @@ namespace AppInstaller::Manifest
             result =
             {
                 { "PackageIdentifier", [this](const YAML::Node& value)->ValidationErrors { m_p_packageDependency->Id = Utility::Trim(value.as<std::string>()); return {}; } },
-                { "MinimumVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_packageDependency->MinVersion = AppInstaller::Utility::Version(Utility::Trim(value.as<std::string>())); return {}; } },
+                { "MinimumVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_packageDependency->MinVersion = Utility::Version(Utility::Trim(value.as<std::string>())); return {}; } },
             };
         }
 

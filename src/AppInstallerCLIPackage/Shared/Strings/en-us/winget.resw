@@ -946,18 +946,18 @@ Configuration is disabled due to Group Policy.</value>
     <value>Dependency source not found</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>Too many matches</value>
-    <comment>When node package id search yield too many matches d</comment>
+    <value>Package search yield more than one result.</value>
+    <comment>When node package id search yield too many matches</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>No package version found</value>
+    <value>Latest version not found for package</value>
     <comment>When no suitable version found for the specific package.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
     <value>No installers found</value>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>Minimum required version not available</value>
+    <value>Minimum required version not available for package</value>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>No matches</value>
@@ -966,6 +966,10 @@ Configuration is disabled due to Group Policy.</value>
   <data name="DependenciesFlowContainsLoop" xml:space="preserve">
     <value>Has loop</value>
     <comment>Dependency graph has loop</comment>
+  </data>
+  <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
+    <value>No suitable installer found for manifest</value>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Error processing package dependencies, do you wish to continue installation?</value>

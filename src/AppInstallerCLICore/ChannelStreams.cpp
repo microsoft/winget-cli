@@ -41,13 +41,17 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    void BaseStream::Close()
+    void BaseStream::RestoreDefault()
     {
-        m_enabled = false;
         if (m_VTUpdated)
         {
             Write(TextFormat::Default, true);
         }
+    }
+
+    void BaseStream::Disable()
+    {
+        m_enabled = false;
     }
 
     OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :
@@ -114,8 +118,15 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream& OutputStream::operator<<(const std::filesystem::path& path)
     {
-        ApplyFormat();
-        m_out << path.u8string();
+        if (m_enabled)
+        {
+            if (m_VTEnabled)
+            {
+                ApplyFormat();
+            }
+            m_out << path.u8string();
+        }
         return *this;
+        
     }
 }

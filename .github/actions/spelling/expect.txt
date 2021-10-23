@@ -1,5 +1,6 @@
 abcd
 adjacents
+activatable
 adml
 admx
 affle
@@ -81,6 +82,7 @@ count'th
 countof
 countryregion
 createmanifestmetadata
+CSharp
 cstdint
 ctc
 Ctx
@@ -133,6 +135,7 @@ GES
 GESMBH
 GHS
 gity
+Globals
 Google
 helplib
 helplibrary
@@ -163,6 +166,7 @@ insufficientmemory
 Intelli
 IPackage
 IPersist
+IRead
 IService
 ISettings
 ishelp
@@ -232,6 +236,8 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
+mytool
+NETFX
 netlify
 Newtonsoft
 NOEXPAND
@@ -366,6 +372,7 @@ VERSI
 VERSIE
 vns
 vscode
+vstest
 vy
 wcslen
 webpages

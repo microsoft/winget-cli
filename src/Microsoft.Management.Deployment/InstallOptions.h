@@ -33,6 +33,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
         winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> AllowedArchitectures();
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         std::wstring m_preferredInstallLocation = L"";
@@ -45,11 +47,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_additionalPackageCatalogArguments = L"";
         Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
+#endif
     };
 }
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
     struct InstallOptions : InstallOptionsT<InstallOptions, implementation::InstallOptions>
     {
     };
 }
+#endif

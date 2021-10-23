@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "COMInstallCommand.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
@@ -13,12 +14,21 @@ using namespace AppInstaller::Utility::literals;
 namespace AppInstaller::CLI
 {
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
-    void COMInstallCommand::ExecuteInternal(Context& context) const
+    void COMDownloadCommand::ExecuteInternal(Context& context) const
     {
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::InstallSinglePackage;
+            Workflow::DownloadSinglePackage;
+    }
+
+    // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
+    void COMInstallCommand::ExecuteInternal(Context& context) const
+    {
+        context <<
+            Workflow::GetInstallerHash <<
+            Workflow::VerifyInstallerHash <<
+            Workflow::InstallPackageInstaller;
     }
 }

@@ -5,13 +5,14 @@
 #include "DependenciesFlow.h"
 #include "ManifestComparator.h"
 #include "InstallFlow.h"
+#include "winget\DependenciesGraph.h"
+#include "DependencyNodeProcessor.h"
 
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace AppInstaller::Repository;
-    using namespace Manifest;
-
     void ReportDependencies::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
@@ -23,7 +24,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& dependencies = context.Get<Execution::Data::Dependencies>();
         if (dependencies.HasAny())
         {
-            info << Resource::StringId(m_messageId) << std::endl;
+            info << m_messageId << std::endl;
 
             if (dependencies.HasAnyOf(DependencyType::WindowsFeature))
             {
@@ -43,7 +44,10 @@ namespace AppInstaller::CLI::Workflow
                 dependencies.ApplyToType(DependencyType::Package, [&info](Dependency dependency)
                     {
                         info << "      " << dependency.Id;
-                        if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value().ToString() << "]";
+                        if (dependency.MinVersion)
+                        {
+                            info << " [>= " << dependency.MinVersion.value().ToString() << "]";
+                        }
                         info << std::endl;
                     });
             }
@@ -135,103 +139,43 @@ namespace AppInstaller::CLI::Workflow
         info << Resource::String::DependenciesFlowInstall << std::endl;
 
         context << OpenDependencySource;
-        if (!context.Contains(Execution::Data::DependencySource))
+        if (context.IsTerminated())
         {
             info << Resource::String::DependenciesFlowSourceNotFound << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); 
         }
 
-        const auto& source = context.Get<Execution::Data::DependencySource>();
+        
         std::map<string_t, Execution::PackageToInstall> idToPackageMap;
         bool foundError = false;
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
-                auto info = context.Reporter.Info();
+                DependencyNodeProcessor nodeProcessor(context);
+                
+                auto result = nodeProcessor.EvaluateDependencies(node);
+                DependencyList list = nodeProcessor.GetDependencyList();
+                foundError = foundError || (result == DependencyNodeProcessorResult::Error);
 
-                SearchRequest searchRequest;
-                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, node.Id));
-                const auto& matches = source->Search(searchRequest).Matches;
-
-                if (!matches.empty())
+                if (result == DependencyNodeProcessorResult::Success)
                 {
-                    if (matches.size() > 1) 
-                    {
-                        error << Resource::String::DependenciesFlowSourceTooManyMatches;
-                        AICLI_LOG(CLI, Error, << "Too many matches for package " << Utility::Normalize(node.Id));
-                        foundError = true;
-                        return DependencyList();
-                    }
-                    const auto& match = matches.at(0);
-
-                    const auto& package = match.Package;
-
-                    auto packageId = package->GetProperty(PackageProperty::Id);
-                    auto installedVersion = package->GetInstalledVersion();
-
-                    if (installedVersion && node.IsVersionOk(installedVersion->GetManifest().Version))
-                    {
-                        // return empty dependency list,
-                        // as we won't keep searching for dependencies for installed packages
-                        return DependencyList(); 
-                    }
-
-                    std::shared_ptr<IPackageVersion> latestVersion = package->GetLatestAvailableVersion();
-                    if (!latestVersion) 
-                    {
-                        error << Resource::String::DependenciesFlowPackageVersionNotFound;
-                        AICLI_LOG(CLI, Error, << "Latest available version not found for package " << Utility::Normalize(packageId));
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    auto manifest = latestVersion->GetManifest();
-                    if (manifest.Installers.empty()) {
-                        error << Resource::String::DependenciesFlowNoInstallerFound;
-                        AICLI_LOG(CLI, Error, << "Installer not found for manifest " << Utility::Normalize(manifest.Id) << " with version" << Utility::Normalize(manifest.Version));
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    if (!node.IsVersionOk(manifest.Version))
-                    {
-                        error << Resource::String::DependenciesFlowNoMinVersion;
-                        AICLI_LOG(CLI, Error, << "No suitable min version found for package " << Utility::Normalize(manifest.Id));
-                        foundError = true;
-                        return DependencyList();
-                    }
-
-                    std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
-
-                    IPackageVersion::Metadata installationMetadata;
-                    if (installedVersion)
-                    {
-                        installationMetadata = installedVersion->GetMetadata();
-                    }
-
-                    ManifestComparator manifestComparator(context, installationMetadata);
-                    installer = manifestComparator.GetPreferredInstaller(manifest);
-
-                    auto nodeDependencies = installer.value().Dependencies;
-
                     Execution::PackageToInstall packageToInstall{
-                        std::move(latestVersion),
-                        std::move(installedVersion),
-                        std::move(manifest),
-                        std::move(installer.value()) };
+                        std::move(nodeProcessor.GetPackageLatestVersion()),
+                        std::move(nodeProcessor.GetPackageInstalledVersion()),
+                        std::move(nodeProcessor.GetManifest()),
+                        std::move(nodeProcessor.GetPrefferedInstaller()) };
+                    idToPackageMap.emplace(node.Id, std::move(packageToInstall));
+                };
 
-                    idToPackageMap.emplace(node.Id, packageToInstall);
-
-                    return nodeDependencies;
-                }
-                else
-                {
-                    error << Resource::String::DependenciesFlowNoMatches;
-                    foundError = true;
-                    return DependencyList();
-                }
+                return list;
             });
 
-        dependencyGraph.BuildGraph(); // maybe it's better if it already does it on the constructor?
+        dependencyGraph.BuildGraph();
+
+        if (foundError)
+        {
+            error << Resource::String::DependenciesManagementExitMessage << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
+        }
 
         if (dependencyGraph.HasLoop())
         {
@@ -249,16 +193,10 @@ namespace AppInstaller::CLI::Workflow
             // then there will be no installer for it on the map.
             if (itr != idToPackageMap.end())
             {
-                installers.push_back(itr->second);
+                installers.push_back(std::move(itr->second));
             }
         }
         
-        if (foundError)
-        {
-            error << Resource::String::DependenciesManagementExitMessage << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
-        }
-
         // Install dependencies in the correct order
         context.Add<Execution::Data::PackagesToInstall>(installers);
         context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true);
