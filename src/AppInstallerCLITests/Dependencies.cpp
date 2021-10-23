@@ -3,7 +3,7 @@
 #include "TestSource.h"
 #include "DependenciesTestSource.h"
 #include <winget/DependenciesGraph.h>
-#include <workflows/DependencyNodeProcessor.h>
+#include <Workflows/DependencyNodeProcessor.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/DependenciesFlow.h>
