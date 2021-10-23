@@ -270,7 +270,7 @@ namespace AppInstaller::Repository
 
     Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
     {
-        THROW_HR_IF(E_INVALIDARG, (installedSource.m_source && installedSource.IsComposite()) || !availableSource.m_source);
+        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_source->IsComposite() || !availableSource.m_source);
 
         std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
 

@@ -4,6 +4,7 @@ Name: AppInstaller Test Exe Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe
 License: Test
+ProductCode: AppInstallerCliTest.TestExeInstaller
 Installers: 
     - Arch: x64
       Url: https://ThisIsNotUsed

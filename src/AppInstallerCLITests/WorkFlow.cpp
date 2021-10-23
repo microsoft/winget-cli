@@ -125,7 +125,7 @@ namespace
             }
 
             // Empty query should return all exe, msix and msstore installer
-            if (input.empty() || input == "AppInstallerCliTest.TestExeInstaller")
+            if (input.empty() || CaseInsensitiveEquals(input, "AppInstallerCliTest.TestExeInstaller"))
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
@@ -380,11 +380,13 @@ void OverrideForCompositeInstalledSource(TestContext& context, bool upgradeUsesL
     } });
 }
 
-void OverrideForImportSource(TestContext& context)
+void OverrideForImportSource(TestContext& context, SearchResult installedResult = {})
 {
-    context.Override({ "OpenPredefinedSource", [](TestContext& context)
+    context.Override({ "OpenPredefinedSource", [=](TestContext& context)
     {
-        context.Add<Execution::Data::Source>({});
+        auto installedSource = std::make_shared<TestSource>();
+        installedSource->SearchFunction = [=](const SearchRequest&) { return installedResult; };
+        context.Add<Execution::Data::Source>(Source{ installedSource });
     } });
 
     context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
@@ -1634,7 +1636,20 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
-    OverrideForImportSource(context);
+
+    SearchResult installedResult;
+    installedResult.Matches.emplace_back(
+        ResultMatch(
+            TestPackage::Make(
+                YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml")),
+                TestPackage::MetadataMap
+                {
+                    { PackageVersionMetadata::InstalledType, "Exe" },
+                }
+            ),
+            PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+
+    OverrideForImportSource(context, installedResult);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
 
     ImportCommand importCommand({});

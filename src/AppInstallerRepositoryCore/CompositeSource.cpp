@@ -605,6 +605,12 @@ namespace AppInstaller::Repository
                 // Check for a package already in the result that should have been correlated already.
                 auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
 
+                // If found existing package in the result, continue
+                if (!packageData)
+                {
+                    continue;
+                }
+
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
                 bool foundInstalledMatch = false;
@@ -651,10 +657,13 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
+                    if (installedPackage)
                     {
                         foundInstalledMatch = true;
-                        result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
+                        if (!result.ContainsInstalledPackage(installedPackage.get()))
+                        {
+                            result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
+                        }
                     }
                 }
 
