@@ -32,7 +32,7 @@ namespace AppInstaller::CLI::Workflow
 
 		Manifest::Manifest GetManifest() { return m_nodeManifest;  }
 
-		Manifest::ManifestInstaller GetPrefferedInstaller() { return m_installer; }
+		Manifest::ManifestInstaller GetPreferredInstaller() { return m_installer; }
 
 	private:
 		Execution::Context& m_context;
