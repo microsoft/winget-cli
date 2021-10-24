@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
                         std::move(nodeProcessor.GetPackageLatestVersion()),
                         std::move(nodeProcessor.GetPackageInstalledVersion()),
                         std::move(nodeProcessor.GetManifest()),
-                        std::move(nodeProcessor.GetPrefferedInstaller()) };
+                        std::move(nodeProcessor.GetPreferredInstaller()) };
                     idToPackageMap.emplace(node.Id, std::move(packageToInstall));
                 };
 
