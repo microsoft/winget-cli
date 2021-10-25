@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
+#include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
 
 using namespace std::string_view_literals;
@@ -182,6 +183,7 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     REQUIRE(MakeSuitablePathPart(u8"f*\xF6*ldcase") == u8"f_\xF6_ldcase");
     REQUIRE(MakeSuitablePathPart(".") == "_");
     REQUIRE(MakeSuitablePathPart("..") == "._");
+    REQUIRE(MakeSuitablePathPart(std::string(300, ' ')) == SHA256::ConvertToString(SHA256::ComputeHash(std::string(300, ' '))));
     REQUIRE_THROWS_HR(MakeSuitablePathPart("COM1"), E_INVALIDARG);
     REQUIRE_THROWS_HR(MakeSuitablePathPart("NUL.txt"), E_INVALIDARG);
 }

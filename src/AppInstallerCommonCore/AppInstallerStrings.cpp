@@ -4,6 +4,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerSHA256.h"
 
 namespace AppInstaller::Utility
 {
@@ -515,18 +516,22 @@ namespace AppInstaller::Utility
 
     // Follow the rules at https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file to replace
     // invalid characters in a candidate path part.
+    // Additionally, based on https://docs.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison#limits
+    // limit the number of characters to 255.
     std::string MakeSuitablePathPart(std::string_view candidate)
     {
         constexpr char replaceChar = '_';
         constexpr std::string_view illegalChars = R"(<>:"/\|?*)";
+        constexpr size_t pathLengthLimit = 255;
 
         // First, walk the string and replace illegal characters
         std::string result;
         result.reserve(candidate.size());
 
         ICUBreakIterator itr{ candidate, UBRK_CHARACTER };
+        size_t resultBreakCount = 0;
 
-        while (itr.CurrentBreak() != UBRK_DONE && itr.CurrentOffset() < candidate.size())
+        while (itr.CurrentBreak() != UBRK_DONE && itr.CurrentOffset() < candidate.size() && resultBreakCount <= pathLengthLimit)
         {
             UChar32 current = itr.CurrentCodePoint();
             bool isIllegal = current < 32 || (current < 256 && illegalChars.find(static_cast<char>(current)) != std::string::npos);
@@ -552,6 +557,15 @@ namespace AppInstaller::Utility
                 size_t count = (nextOffset == UBRK_DONE ? std::string::npos : static_cast<size_t>(nextOffset) - static_cast<size_t>(offset));
                 result.append(candidate.substr(static_cast<size_t>(offset), count));
             }
+
+            ++resultBreakCount;
+        }
+
+        // If there are too many characters for a single path; switch to a hash.
+        // This should basically never happen, but if it does it will prevent collisions better.
+        if (resultBreakCount > pathLengthLimit)
+        {
+            return SHA256::ConvertToString(SHA256::ComputeHash(candidate));
         }
 
         // Second, look for any newly formed illegal names.
