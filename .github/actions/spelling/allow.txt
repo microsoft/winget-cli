@@ -132,6 +132,7 @@ ensurepathexists
 ENU
 enum
 EOAC
+ependency
 errorlevel
 errstr
 esrp
