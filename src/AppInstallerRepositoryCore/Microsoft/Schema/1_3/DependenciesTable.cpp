@@ -3,18 +3,21 @@
 #include "pch.h"
 #include "DependenciesTable.h"
 #include "SQLiteStatementBuilder.h"
+#include "winget\DependenciesGraph.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
 #include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
 #include "Microsoft/Schema/1_0/Interface.h"
+#include "Microsoft/Schema/1_0/ChannelTable.h"
+#include "winget/ManifestValidation.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {
 	using namespace std::string_view_literals;
 	using namespace SQLite::Builder;
-	using QCol = SQLite::Builder::QualifiedColumn;
 	using namespace Schema::V1_0;
+	using QCol = SQLite::Builder::QualifiedColumn;
 
 	static constexpr std::string_view s_DependenciesTable_Table_Name = "dependencies"sv;
 	static constexpr std::string_view s_DependenciesTable_Index_Name = "dependencies_index"sv;
@@ -337,6 +340,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 		constexpr std::string_view packageIdAlias = "pId";
 
 		StatementBuilder builder;
+		// Find all packages that depend on this package.
+		// SELECT [dep].[manifest], [pId].[id], [minV].[version] FROM [dependencies] AS [dep] 
+		// JOIN [versions] AS [minV] ON [dep].[min_version] = [minV].[rowid] 
+		// JOIN [ids] AS [pId] ON [pId].[rowid] = [dep].[package_id] 
+		// WHERE [pId].[id] = ?
 		builder.Select()
 			.Column(QCol(depTableAlias, s_DependenciesTable_Manifest_Column_Name ))
 			.Column(QCol(packageIdAlias, IdTable::ValueName()))
@@ -372,8 +380,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		if (!packageLatest.has_value())
 		{
-			// raise error, package not present in repository.
-			return false;
+			// this is a fatal error, a manifest should exists in the very least(including the current manifest being deleted),
+			// since this is a delete operation. 
+			THROW_HR(E_UNEXPECTED);
 		}
 
 		if (Utility::Version(manifest.Version) < packageLatest.value().second)
@@ -386,9 +395,23 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		if (!nextLatestAfterDelete.has_value())
 		{
-			// no other package in the repository, this is the only package and deleting it will breaking the 
-			// dependency structure.
-			return false;
+			std::string dependentPackages;
+			
+			std::for_each(
+				resultSet.begin(),
+				resultSet.end(),
+				[&](std::pair<Manifest::Dependency, SQLite::rowid_t> current)
+				{
+					auto [id, version, channel] = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(connection, current.second);
+					dependentPackages.append(id + "." + version).append("\n");
+				});
+			
+			std::string error = Manifest::ManifestError::SingleManifestPackageHasDependencies;
+			error.append("\n" + dependentPackages);
+			THROW_EXCEPTION(
+				Manifest::ManifestException({ Manifest::ValidationError(error) },
+					APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
+			
 		}
 
 		std::vector<std::pair<Manifest::Dependency, SQLite::rowid_t>> breakingManifests;

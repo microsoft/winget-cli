@@ -628,7 +628,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureBroken
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest));
 
-    REQUIRE(!index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest));
+    REQUIRE_THROWS_HR(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureNotBroken", "[sqliteindex][V1_0]")
