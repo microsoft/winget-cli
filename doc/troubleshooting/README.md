@@ -32,11 +32,13 @@ Customers may install any [release](https://github.com/microsoft/winget-cli/rele
 
 Only the Windows Insider DEV channel will continue receiving pre-release builds of the Windows Package Manager after v1.0.11451. Other Windows Insider channels will only receive stable release candidates or updated versions of the Windows Package Manager with critical bug fixes.
 
-### Machine-wide Install
+### Machine-wide Provisioning
 
-The Windows Package Manager can be installed machine-wide or for each new user. The following PowerShell cmdlet can be used to install the package machine-wide. The Windows Package Manager release and license can be downloaded directly from the GitHub repository. It is dependent on the [Microsoft.VCLibs](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge) desktop framework package, which needs to be downloaded and specified in the dependency path option in the cmdlet.
+The Windows Package Manager can be provisioned machine-wide or for each new user. The following PowerShell cmdlet can be used to provision the package machine-wide. The latest Windows Package Manager release and license can be downloaded directly from the GitHub repository. It is dependent on the [Microsoft.VCLibs](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge) desktop framework package, which needs to be downloaded and specified in the dependency path option in the cmdlet.
 
   >`Add-AppxProvisionedPackage -online -PackagePath <desktop AppInstaller msixbundle package path> -LicensePath <license path> -DependencyPackagePath <Microsoft.VCLibs package path>`
+
+After the package is provisioned, the users need to log into their Windows account to get the package registered and use it.
 
 ## Common Issues
 
