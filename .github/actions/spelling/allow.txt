@@ -26,6 +26,7 @@ argc
 args
 argv
 ARRAYSIZE
+artifactstagingdirectory
 aspirational
 aspnet
 authn
@@ -66,6 +67,8 @@ conemu
 config
 Configurability
 constexpr
+contosa
+contosainstaller
 Contoso
 copyable
 COSTDEFERRED
@@ -98,6 +101,7 @@ Demitrius
 denelon
 depersist
 deque
+deserialize
 Deserialize
 deserializer
 deserializing
@@ -109,6 +113,7 @@ distro
 dll
 dllexport
 dllmain
+Dlls
 docx
 dotnet
 downlevel
@@ -131,6 +136,8 @@ errorlevel
 errstr
 esrp
 etag
+etcoreapp
+etstandard
 ETW
 EULA
 EVENTTAG
@@ -149,6 +156,7 @@ EXTRAFLAGS
 FAILIFTHERE
 fakeswitch
 FATALEXIT
+FEBAB
 FIELDTAG
 FILEFLAGS
 FILEFLAGSMASK
@@ -196,9 +204,12 @@ IAppx
 IAsync
 IBuffer
 icu
+IDeserializer
 IDisposable
 IDX
 IEnumerable
+IEquatable
+IEquitable
 IFACEMETHOD
 ifdef
 ifndef
@@ -207,8 +218,10 @@ IInput
 IInspectable
 IIS
 ILogger
+IManifest
 impl
 Inet
+inheritdoc
 inno
 INotify
 INPROC
@@ -230,10 +243,12 @@ IProgress
 IRandom
 IRest
 ISAPPROVEDFOROUTPUT
+ISet
 ISource
 isspace
 istream
 istringstream
+ITest
 IUnknown
 json
 junit
@@ -274,6 +289,7 @@ Minimatch
 MINORVERSION
 mkdir
 monostate
+Moq
 motw
 mrm
 msbuild
@@ -284,6 +300,7 @@ msiexec
 msix
 msixbundle
 msixinfo
+msixmgr
 msixsdk
 msixsdkx
 msixtest
@@ -296,6 +313,7 @@ namespace
 namespaces
 Nelon
 netcoreapp
+netstandard
 newid
 NOCLOSEPROCESS
 nodiscard
@@ -471,6 +489,7 @@ stoll
 storeedgefd
 storepreview
 stoull
+stpkgmanvalwestustest
 strcoll
 streamoff
 streampos
@@ -551,6 +570,7 @@ UNICODESTRING
 uninstall
 uninstalling
 Unregister
+untimes
 updatemanifest
 UPLEVEL
 upvote
@@ -622,6 +642,7 @@ XName
 XResource
 xsd
 XTOKEN
+xunit
 yaml
 yml
 yy
