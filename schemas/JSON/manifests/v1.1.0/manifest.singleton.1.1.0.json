@@ -17,7 +17,7 @@
     },
     "Locale": {
       "type": [ "string", "null" ],
-      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+      "pattern": "^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
       "maxLength": 20,
       "description": "The package meta-data locale"
     },
@@ -590,10 +590,7 @@
       "$ref": "#/definitions/PackageVersion"
     },
     "PackageLocale": {
-      "type": "string",
-      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
-      "maxLength": 20,
-      "description": "The package meta-data locale"
+      "$ref": "#/definitions/Locale"
     },
     "Publisher": {
       "type": "string",

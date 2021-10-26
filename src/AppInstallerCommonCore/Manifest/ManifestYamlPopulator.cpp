@@ -754,11 +754,12 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            // Populate installer default return codes if not present
+            // Populate installer default return codes if not present in ExpectedReturnCodes and InstallerSuccessCodes
             auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
             for (auto const& defaultReturnCode : defaultReturnCodes)
             {
-                if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end())
+                if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&
+                    std::find(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end(), defaultReturnCode.first) == installer.InstallerSuccessCodes.end())
                 {
                     installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
                 }
