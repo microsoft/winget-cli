@@ -74,7 +74,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             }
         }
 
-        indexModified = indexModified || DependenciesTable::UpdateDependencies(connection, manifest, manifestId);
+        bool dependenciesModified = DependenciesTable::UpdateDependencies(connection, manifest, manifestId);
+        indexModified = indexModified || dependenciesModified;
 
         savepoint.Commit();
 
