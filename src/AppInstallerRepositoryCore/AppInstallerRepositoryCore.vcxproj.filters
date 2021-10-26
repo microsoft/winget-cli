@@ -216,6 +216,9 @@
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClInclude>
+    <ClInclude Include="DependenciesTable.h">
+      <Filter>Microsoft\Schema\1_3</Filter>
+    </ClInclude>
     <ClInclude Include="SourceList.h">
       <Filter>Header Files</Filter>
     </ClInclude>

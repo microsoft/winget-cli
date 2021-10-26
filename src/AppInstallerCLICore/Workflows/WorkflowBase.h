@@ -63,7 +63,15 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: Source
-    void OpenSource(Execution::Context& context);
+    struct OpenSource : public WorkflowTask
+    {
+        OpenSource(bool forDependencies = false) : WorkflowTask("OpenSource"), m_forDependencies(forDependencies) {}
+
+        void operator()(Execution::Context& context) const override;
+    
+    private:
+        bool m_forDependencies;
+    };
 
     // Creates a source object for a source specified by name, and adds it to the list of open sources.
     // Required Args: None
@@ -85,12 +93,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     struct OpenPredefinedSource : public WorkflowTask
     {
-        OpenPredefinedSource(Repository::PredefinedSource source) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source) {}
+        OpenPredefinedSource(Repository::PredefinedSource source, bool forDependencies = false) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source), m_forDependencies(forDependencies) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Repository::PredefinedSource m_predefinedSource;
+        bool m_forDependencies;
     };
 
     // Creates a composite source from the given predefined source and the existing source.
@@ -99,12 +108,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     struct OpenCompositeSource : public WorkflowTask
     {
-        OpenCompositeSource(Repository::PredefinedSource source) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source) {}
+        OpenCompositeSource(Repository::PredefinedSource source, bool forDependencies = false) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source), m_forDependencies(forDependencies) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Repository::PredefinedSource m_predefinedSource;
+        bool m_forDependencies;
     };
 
     // Performs a search on the source.

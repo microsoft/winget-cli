@@ -297,12 +297,22 @@ namespace AppInstaller::CLI::Workflow
         return E_UNEXPECTED;
     }
 
-    void OpenSource(Execution::Context& context)
+    void OpenSource::operator()(Execution::Context& context) const
     {
         std::string_view sourceName;
-        if (context.Args.Contains(Execution::Args::Type::Source))
+        if (m_forDependencies)
         {
-            sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+            if (context.Args.Contains(Execution::Args::Type::DependencySource))
+            {
+                sourceName = context.Args.GetArg(Execution::Args::Type::DependencySource);
+            }
+        }
+        else
+        {
+            if (context.Args.Contains(Execution::Args::Type::Source))
+            {
+                sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+            }
         }
 
         auto source = OpenNamedSource(context, sourceName);
@@ -311,13 +321,21 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        
         context << HandleSourceAgreements(source);
         if (context.IsTerminated())
         {
             return;
         }
 
-        context.Add<Execution::Data::Source>(std::move(source));
+        if (m_forDependencies)
+        {
+            context.Add<Execution::Data::DependencySource>(std::move(source));
+        }
+        else
+        {
+            context.Add<Execution::Data::Source>(std::move(source));
+        }
     }
 
     void OpenNamedSourceForSources::operator()(Execution::Context& context) const
@@ -360,22 +378,55 @@ namespace AppInstaller::CLI::Workflow
         // A well known predefined source should return a value.
         THROW_HR_IF(E_UNEXPECTED, !source);
 
-        context.Add<Execution::Data::Source>(std::move(source));
+        if (m_forDependencies)
+        {
+            context.Add<Execution::Data::DependencySource>(std::move(source));
+        }
+        else 
+        {
+            context.Add<Execution::Data::Source>(std::move(source));
+        }
     }
 
     void OpenCompositeSource::operator()(Execution::Context& context) const
     {
         // Get the already open source for use as the available.
-        std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
+        std::shared_ptr<Repository::ISource> availableSource;
+        if (m_forDependencies)
+        {
+            availableSource = context.Get<Execution::Data::DependencySource>();
+        }
+        else
+        {
+            availableSource = context.Get<Execution::Data::Source>();
+        }
 
         // Open the predefined source.
-        context << OpenPredefinedSource(m_predefinedSource);
+        context << OpenPredefinedSource(m_predefinedSource, m_forDependencies);
 
         // Create the composite source from the two.
-        std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), availableSource);
+        std::shared_ptr<Repository::ISource> source;
+        std::shared_ptr<Repository::ISource> compositeSource;
+        if (m_forDependencies)
+        {
+            source = context.Get<Execution::Data::DependencySource>();
+            compositeSource = Repository::CreateCompositeSource(source, availableSource, CompositeSearchBehavior::AvailablePackages);
+        }
+        else
+        {
+            source = context.Get<Execution::Data::Source>();
+            compositeSource = Repository::CreateCompositeSource(source, availableSource);
+        }
 
         // Overwrite the source with the composite.
-        context.Add<Execution::Data::Source>(std::move(compositeSource));
+        if (m_forDependencies)
+        {
+            context.Add<Execution::Data::DependencySource>(std::move(compositeSource));
+        }
+        else
+        {
+            context.Add<Execution::Data::Source>(std::move(compositeSource));
+        }
     }
 
     void SearchSourceForMany(Execution::Context& context)
@@ -898,7 +949,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context <<
-                OpenSource <<
+                OpenSource() <<
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(false) <<

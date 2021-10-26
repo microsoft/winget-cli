@@ -16,25 +16,25 @@ namespace AppInstaller::Repository::Microsoft
         // The base for the package objects.
         struct SourceReference
         {
-            SourceReference(const std::shared_ptr<const SQLiteIndexSource>& source) :
+            SourceReference(const std::shared_ptr<SQLiteIndexSource>& source) :
                 m_source(source) {}
 
         protected:
-            std::shared_ptr<const SQLiteIndexSource> GetReferenceSource() const
+            std::shared_ptr<SQLiteIndexSource> GetReferenceSource() const
             {
-                std::shared_ptr<const SQLiteIndexSource> source = m_source.lock();
+                std::shared_ptr<SQLiteIndexSource> source = m_source.lock();
                 THROW_HR_IF(E_NOT_VALID_STATE, !source);
                 return source;
             }
 
         private:
-            std::weak_ptr<const SQLiteIndexSource> m_source;
+            std::weak_ptr<SQLiteIndexSource> m_source;
         };
 
         // The IPackageVersion impl for SQLiteIndexSource.
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
-            PackageVersion(const std::shared_ptr<const SQLiteIndexSource>& source, SQLiteIndex::IdType manifestId) :
+            PackageVersion(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType manifestId) :
                 SourceReference(source), m_manifestId(manifestId) {}
 
             // Inherited via IPackageVersion
@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Microsoft
 
             Manifest::Manifest GetManifest() override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
@@ -178,7 +178,7 @@ namespace AppInstaller::Repository::Microsoft
         // The base for IPackage implementations here.
         struct PackageBase : public SourceReference
         {
-            PackageBase(const std::shared_ptr<const SQLiteIndexSource>& source, SQLiteIndex::IdType idId) :
+            PackageBase(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType idId) :
                 SourceReference(source), m_idId(idId) {}
 
             Utility::LocIndString GetProperty(PackageProperty property) const
@@ -210,7 +210,7 @@ namespace AppInstaller::Repository::Microsoft
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, {}, {});
 
                 if (manifestId)
@@ -242,7 +242,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
 
                 std::vector<PackageVersionKey> result;
@@ -260,7 +260,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
                 // Ensure that this key targets this (or any) source
                 if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
@@ -367,7 +367,7 @@ namespace AppInstaller::Repository::Microsoft
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
-        std::shared_ptr<const SQLiteIndexSource> sharedThis = shared_from_this();
+        std::shared_ptr<SQLiteIndexSource> sharedThis = const_cast<SQLiteIndexSource*>(this)->shared_from_this();
         for (auto& indexResult : indexResults.Matches)
         {
             std::unique_ptr<IPackage> package;
