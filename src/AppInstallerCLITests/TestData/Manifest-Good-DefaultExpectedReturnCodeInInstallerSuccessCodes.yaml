@@ -1,4 +1,4 @@
-# Default expected return codes overrided by SuccessfulInstallerCodes
+# Default expected return codes exist in InstallerSuccessCodes
 PackageIdentifier: microsoft.msixsdk
 PackageName: MSIX SDK
 PackageVersion: 1.07.32-beta
