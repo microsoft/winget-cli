@@ -22,4 +22,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageFamilyNames
     // Outputs: None
     void MsixUninstall(Execution::Context& context);
+
+    // Records the uninstall to the tracking catalog.
+    // Required Args: None
+    // Inputs: Package
+    // Outputs: None
+    void RecordUninstall(Execution::Context& context);
 }

@@ -136,6 +136,7 @@ namespace AppInstaller::CLI
             Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteUninstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PostExecution);
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::RecordUninstall;
     }
 }

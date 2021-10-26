@@ -12,10 +12,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     {
         // Version 1.0
         Schema::Version GetVersion() const override;
-        void CreateTables(SQLite::Connection& connection) override;
-        SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
-        std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
-        SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
+        void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
+        SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
+        std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
+        void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
         void PrepareForPackaging(SQLite::Connection& connection) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
