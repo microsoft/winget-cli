@@ -230,7 +230,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
-    <ClInclude Include="DependenciesTable.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />

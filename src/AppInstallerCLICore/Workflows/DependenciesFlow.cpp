@@ -101,12 +101,13 @@ namespace AppInstaller::CLI::Workflow
         if (context.Contains(Execution::Data::PackageVersion))
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            context.Add<Execution::Data::DependencySource>(std::const_pointer_cast<Repository::ISource>(packageVersion->GetSource()));
+            context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
             context <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);
         }
         else
-        { // install from manifest requires --dependency-source to be set
+        {
+            // install from manifest requires --dependency-source to be set
             context <<
                 Workflow::OpenSource(true) <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true);

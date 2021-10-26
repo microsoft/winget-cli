@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySearch.h>
 #include "ExecutionContext.h"
 #include "winget/ManifestCommon.h"
 

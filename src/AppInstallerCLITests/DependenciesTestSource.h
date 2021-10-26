@@ -3,8 +3,7 @@
 #include "pch.h"
 #include "TestSource.h"
 #include "TestCommon.h"
-#include <Public/AppInstallerRepositorySearch.h>
-#include <Public/AppInstallerRepositorySource.h>
+#include <Public/winget/RepositorySource.h>
 #include <winget/ManifestYamlParser.h>
 
 using namespace AppInstaller::Repository;
@@ -181,7 +180,7 @@ namespace TestCommon
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest },
-                            const_cast<DependenciesTestSource*>(this)->shared_from_this()
+                            shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
             }
@@ -191,7 +190,7 @@ namespace TestCommon
                     ResultMatch(
                         TestPackage::Make(
                             std::vector<Manifest>{ manifest },
-                            const_cast<DependenciesTestSource*>(this)->shared_from_this()
+                            shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id)));
             }
