@@ -193,6 +193,9 @@ namespace AppInstaller::Repository
         // Get the source's information.
         SourceInformation GetInformation() const;
 
+        // Returns true if the origin type can contain available packages.
+        bool ContainsAvailablePackages() const;
+
         // Set custom header.
         bool SetCustomHeader(std::optional<std::string> header);
 
@@ -254,7 +257,4 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
     };
-
-    // Returns true if the origin type can contain available packages.
-    bool ContainsAvailablePackages(SourceOrigin origin);
 }

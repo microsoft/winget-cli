@@ -125,11 +125,15 @@ namespace AppInstaller::Repository
             return factory->Remove(details, progress);
         }
 
+        bool ContainsAvailablePackagesInternal(SourceOrigin origin)
+        {
+            return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
+        }
+
         // Determines whether (and logs why) a source should be updated before it is opened.
         bool ShouldUpdateBeforeOpen(const SourceDetails& details)
         {
-            // Some sources that do not need updating like the Installed source, do not have Name values.
-            if (details.Name.empty())
+            if (!ContainsAvailablePackagesInternal(details.Origin))
             {
                 return false;
             }
@@ -383,6 +387,12 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool Source::ContainsAvailablePackages() const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), IsComposite());
+        return ContainsAvailablePackagesInternal(GetDetails().Origin);
+    }
+
     bool Source::SetCustomHeader(std::optional<std::string> header)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
@@ -589,7 +599,6 @@ namespace AppInstaller::Repository
             SaveAcceptedSourceAgreements();
             m_isSourceToBeAdded = false;
             AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
-        case PackageVersionMetadata::TrackingWriteTime: return "TrackingWriteTime"sv;
         }
 
         return result;
@@ -604,6 +613,8 @@ namespace AppInstaller::Repository
 
         for (auto& sourceReference : m_sourceReferences)
         {
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !ContainsAvailablePackagesInternal(sourceReference->GetDetails().Origin));
+
             auto& details = sourceReference->GetDetails();
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << details.Name);
 
@@ -693,11 +704,6 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
-    }
-
-    bool ContainsAvailablePackages(SourceOrigin origin)
-    {
-        return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
+#include <Public/winget/RepositorySource.h>
 
 #include <memory>
 
@@ -21,7 +20,7 @@ namespace AppInstaller::Repository
 
         // Creates or opens the tracking catalog for the given source.
         // TODO: Make creation exclusive to the refactored Source type.
-        static PackageTrackingCatalog CreateForSource(const std::shared_ptr<const ISource>& source);
+        static PackageTrackingCatalog CreateForSource(const Source& source);
 
         // Removes the package tracking catalog for a given source.
         static void RemoveForSource(const std::string& identifier);

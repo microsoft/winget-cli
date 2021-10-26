@@ -24,15 +24,15 @@ namespace AppInstaller::CLI::Workflow
             struct Item
             {
                 Utility::LocIndString Identifier;
-                std::shared_ptr<const ISource> Source;
+                Source FromSource;
                 std::string SourceIdentifier;
             };
 
             void AddIfRemoteAndNotPresent(const std::shared_ptr<IPackageVersion>& packageVersion)
             {
                 auto source = packageVersion->GetSource();
-                const auto& details = source->GetDetails();
-                if (!ContainsAvailablePackages(details.Origin))
+                const auto details = source.GetDetails();
+                if (!source.ContainsAvailablePackages())
                 {
                     return;
                 }
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI::Workflow
         // Finally record the uninstall for each found value
         for (const auto& item : correlatedSources.Items)
         {
-            auto trackingCatalog = PackageTrackingCatalog::CreateForSource(item.Source);
+            auto trackingCatalog = PackageTrackingCatalog::CreateForSource(item.FromSource);
             trackingCatalog.RecordUninstall(item.Identifier);
         }
     }

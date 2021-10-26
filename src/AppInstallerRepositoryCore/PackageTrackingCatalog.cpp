@@ -41,11 +41,11 @@ namespace AppInstaller::Repository
     PackageTrackingCatalog& PackageTrackingCatalog::operator=(PackageTrackingCatalog&&) noexcept = default;
     PackageTrackingCatalog::~PackageTrackingCatalog() = default;
 
-    PackageTrackingCatalog PackageTrackingCatalog::CreateForSource(const std::shared_ptr<const ISource>& source)
+    PackageTrackingCatalog PackageTrackingCatalog::CreateForSource(const Source& source)
     {
         // Not a valid source for tracking
-        const std::string& sourceIdentifier = source->GetIdentifier();
-        if (sourceIdentifier.empty() || !ContainsAvailablePackages(source->GetDetails().Origin))
+        const std::string sourceIdentifier = source.GetIdentifier();
+        if (sourceIdentifier.empty() || !source.ContainsAvailablePackages())
         {
             THROW_HR(E_INVALIDARG);
         }
@@ -79,13 +79,14 @@ namespace AppInstaller::Repository
 
         // Create fake details for the source while stashing some information that might be helpful for debugging
         SourceDetails details;
-        details.Name = "Tracking for "s + source->GetDetails().Name;
+        details.Identifier = "*Tracking";
+        details.Name = "Tracking for "s + source.GetDetails().Name;
         details.Origin = SourceOrigin::PackageTracking;
         details.Arg = pathName;
 
         PackageTrackingCatalog result;
         result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
-        result.m_implementation->Source = std::make_shared<SQLiteIndexSource>(details, "*Tracking", std::move(index), std::move(lock));
+        result.m_implementation->Source = std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
 
         return result;
     }

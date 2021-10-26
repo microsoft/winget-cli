@@ -14,7 +14,7 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 using namespace AppInstaller::Utility;
 
-static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
+static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
 {
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
@@ -25,16 +25,17 @@ static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& fil
 
     index.AddManifest(manifest, relativePath);
 
+    details.Identifier = "*SimpleTestSetup";
     details.Name = "TestName";
     details.Type = "TestType";
     details.Arg = testManifest.GetPath().parent_path().u8string();
     details.Data = "";
 
-    auto result = std::make_shared<SQLiteIndexSource>(details, "*SimpleTestSetup", std::move(index));
+    auto result = std::make_shared<SQLiteIndexSource>(details, std::move(index));
 
     PackageTrackingCatalog::RemoveForSource(result->GetIdentifier());
 
-    return result;
+    return { result };
 }
 
 TEST_CASE("TrackingCatalog_Create", "[tracking_catalog]")
@@ -45,7 +46,7 @@ TEST_CASE("TrackingCatalog_Create", "[tracking_catalog]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 }
@@ -58,7 +59,7 @@ TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 
@@ -88,7 +89,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 
@@ -122,7 +123,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 
@@ -155,7 +156,7 @@ TEST_CASE("TrackingCatalog_Uninstall", "[tracking_catalog]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
 
