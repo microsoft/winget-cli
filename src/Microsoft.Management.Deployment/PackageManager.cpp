@@ -43,9 +43,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         for (uint32_t i = 0; i < sources.size(); i++)
         {
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-            packageCatalogInfo->Initialize(sources.at(i));
+            ::AppInstaller::Repository::Source sourceReference{ sources.at(i).Name };
+            packageCatalogInfo->Initialize(sourceReference.GetDetails());
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-            packageCatalogRef->Initialize(*packageCatalogInfo);
+            packageCatalogRef->Initialize(*packageCatalogInfo, sourceReference);
             catalogs.Append(*packageCatalogRef);
         }
         return catalogs.GetView();
@@ -53,51 +54,44 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
     {
         ::AppInstaller::Repository::Source source;
-        ::AppInstaller::Repository::WellKnownSource wellKnownSource = ::AppInstaller::Repository::WellKnownSource::WinGet;
         switch (predefinedPackageCatalog)
         {
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalog:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::WinGet };
-            wellKnownSource = ::AppInstaller::Repository::WellKnownSource::WinGet;
             break;
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::MicrosoftStore:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::MicrosoftStore };
-            wellKnownSource = ::AppInstaller::Repository::WellKnownSource::MicrosoftStore;
             break;
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::DesktopFrameworks:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::DesktopFrameworks };
-            wellKnownSource = ::AppInstaller::Repository::WellKnownSource::DesktopFrameworks;
             break;
         default:
             throw hresult_invalid_argument();
         }
         auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-        packageCatalogInfo->Initialize(source.GetDetails(), wellKnownSource);
+        packageCatalogInfo->Initialize(source.GetDetails());
         auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-        packageCatalogRef->Initialize(*packageCatalogInfo);
+        packageCatalogRef->Initialize(*packageCatalogInfo, source);
         return *packageCatalogRef;
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
         ::AppInstaller::Repository::Source source;
-        ::AppInstaller::Repository::PredefinedSource predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
         switch (localPackageCatalog)
         {
         case winrt::Microsoft::Management::Deployment::LocalPackageCatalog::InstalledPackages:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installed };
-            predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installed;
             break;
         case winrt::Microsoft::Management::Deployment::LocalPackageCatalog::InstallingPackages:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installing };
-            predefinedSource = ::AppInstaller::Repository::PredefinedSource::Installing;
             break;
         default:
             throw hresult_invalid_argument();
         }
         auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-        packageCatalogInfo->Initialize(source.GetDetails(), predefinedSource);
+        packageCatalogInfo->Initialize(source.GetDetails());
         auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-        packageCatalogRef->Initialize(*packageCatalogInfo);
+        packageCatalogRef->Initialize(*packageCatalogInfo, source);
         return *packageCatalogRef;
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPackageCatalogByName(hstring const& catalogName)
@@ -115,7 +109,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
             packageCatalogInfo->Initialize(source.GetDetails());
             auto packageCatalogRef = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>>();
-            packageCatalogRef->Initialize(*packageCatalogInfo);
+            packageCatalogRef->Initialize(*packageCatalogInfo, source);
             return *packageCatalogRef;
         }
         else

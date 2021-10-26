@@ -12,35 +12,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_sourceDetails = sourceDetails;
     }
-    void PackageCatalogInfo::Initialize(const::AppInstaller::Repository::SourceDetails& sourceDetails, ::AppInstaller::Repository::WellKnownSource wellKnownSource)
-    {
-        Initialize(sourceDetails);
-        m_wellKnownSource = wellKnownSource;
-    }
-    void PackageCatalogInfo::Initialize(const::AppInstaller::Repository::SourceDetails& sourceDetails, ::AppInstaller::Repository::PredefinedSource predefinedSource)
-    {
-        Initialize(sourceDetails);
-        m_predefinedSource = predefinedSource;
-    }
     ::AppInstaller::Repository::SourceDetails& PackageCatalogInfo::GetSourceDetails()
     {
         return m_sourceDetails;
-    }
-    std::optional<::AppInstaller::Repository::WellKnownSource> PackageCatalogInfo::GetWellKnownSource()
-    {
-        return m_wellKnownSource;
-    }
-    std::optional<::AppInstaller::Repository::PredefinedSource> PackageCatalogInfo::GetPredefinedSource()
-    {
-        return m_predefinedSource;
-    }
-    void PackageCatalogInfo::SetAdditionalPackageCatalogArguments(std::string value)
-    {
-        m_additionalPackageCatalogArguments = value;
-    }
-    std::optional<std::string> PackageCatalogInfo::GetAdditionalPackageCatalogArguments()
-    {
-        return m_additionalPackageCatalogArguments;
     }
     hstring PackageCatalogInfo::Id()
     {

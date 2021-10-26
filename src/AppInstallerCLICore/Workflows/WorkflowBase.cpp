@@ -82,7 +82,8 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                auto updateFailures = context.Reporter.ExecuteWithProgress(std::bind(&Repository::Source::Open, &source, std::placeholders::_1, false), true);
+                auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+                auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
 
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : updateFailures)
@@ -350,7 +351,8 @@ namespace AppInstaller::CLI::Workflow
             // A well known predefined source should return a value.
             THROW_HR_IF(E_UNEXPECTED, !source);
 
-            context.Reporter.ExecuteWithProgress(std::bind(&Repository::Source::Open, &source, std::placeholders::_1, true), true);
+            auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+            context.Reporter.ExecuteWithProgress(openFunction, true);
         }
         catch (...)
         {

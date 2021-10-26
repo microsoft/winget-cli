@@ -195,7 +195,7 @@ namespace AppInstaller::Repository::Microsoft
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
                 if (!lock)
                 {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_FAILED_TO_ACQUIRE_SOURCE_LOCK);
+                    return {};
                 }
 
                 auto extension = GetExtensionFromDetails(m_details);
@@ -357,7 +357,7 @@ namespace AppInstaller::Repository::Microsoft
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
                 if (!lock)
                 {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_FAILED_TO_ACQUIRE_SOURCE_LOCK);
+                    return {};
                 }
 
                 std::filesystem::path packageLocation = GetStatePathFromDetails(m_details);

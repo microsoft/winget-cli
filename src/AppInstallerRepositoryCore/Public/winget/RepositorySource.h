@@ -152,9 +152,7 @@ namespace AppInstaller::Repository
         Source();
 
         // Constructor to get a named source, passing empty string will get all available sources.
-        // If skipReferenceInitialization is true, the constructor will skip initializing the source
-        // references, this is mainly for Source Drop command in case the user_sources are in a bad state.
-        Source(std::string_view name, bool skipReferenceInitialization = false);
+        Source(std::string_view name);
 
         // Constructor to get a PredefinedSource. Like installed source, etc.
         Source(PredefinedSource source);
@@ -175,7 +173,7 @@ namespace AppInstaller::Repository
             CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
         // Constructor for creating a Source object from an existing ISource.
-        Source(std::shared_ptr<ISource> source, bool isNamedSource = true);
+        Source(std::shared_ptr<ISource> source);
 
         // Bool operator to check if a source reference is successfully acquired.
         // Theoretically, the constructor could just throw when CreateSource returns empty.
@@ -230,8 +228,8 @@ namespace AppInstaller::Repository
 
         /* Source operations */
 
-        // Opens the source. If skipUpdateBeforeOpen is true, source will be opened without check background update. Not thread safe.
-        std::vector<SourceDetails> Open(IProgressCallback& progress, bool skipUpdateBeforeOpen);
+        // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
+        std::vector<SourceDetails> Open(IProgressCallback& progress);
 
         // Add source. Source add command.
         bool Add(IProgressCallback& progress);
@@ -243,7 +241,7 @@ namespace AppInstaller::Repository
         bool Remove(IProgressCallback& progress);
 
         // Drop source. Source reset command.
-        void Drop();
+        static bool DropSource(std::string_view name);
 
         // Get a list of all available SourceDetails.
         static std::vector<SourceDetails> GetCurrentSources();
@@ -251,10 +249,8 @@ namespace AppInstaller::Repository
     private:
         void InitializeSourceReference(std::string_view name);
 
-        std::string m_inputSourceName;
         std::vector<std::shared_ptr<ISourceReference>> m_sourceReferences;
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
-        bool m_isNamedSource = false;
     };
 }

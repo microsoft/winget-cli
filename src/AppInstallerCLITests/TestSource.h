@@ -71,6 +71,7 @@ namespace TestCommon
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
+        std::function<bool(const IPackage*, const IPackage*)> IsSameOverride;
     };
 
     // An ISource implementation for use across the test code.

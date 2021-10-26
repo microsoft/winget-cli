@@ -88,7 +88,8 @@ namespace AppInstaller::CLI::Workflow
             Resource::String::SourceAddBegin << std::endl <<
             "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
 
-        if (!context.Reporter.ExecuteWithProgress(std::bind(&Repository::Source::Add, &sourceToAdd, std::placeholders::_1)))
+        auto addFunction = [&](IProgressCallback& progress)->bool { return sourceToAdd.Add(progress); };
+        if (!context.Reporter.ExecuteWithProgress(addFunction))
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
         }
@@ -195,7 +196,8 @@ namespace AppInstaller::CLI::Workflow
         {
             Repository::Source source{ sd.Name };
             context.Reporter.Info() << Resource::String::SourceUpdateOne << ' ' << sd.Name << "..."_liv << std::endl;
-            if (!context.Reporter.ExecuteWithProgress(std::bind(&Repository::Source::Update, &source, std::placeholders::_1)).empty())
+            auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
+            if (!context.Reporter.ExecuteWithProgress(updateFunction).empty())
             {
                 context.Reporter.Info() << Resource::String::Cancelled << std::endl;
             }
@@ -220,7 +222,8 @@ namespace AppInstaller::CLI::Workflow
         {
             Repository::Source source{ sd.Name };
             context.Reporter.Info() << Resource::String::SourceRemoveOne << ' ' << sd.Name << "..."_liv << std::endl;
-            if (context.Reporter.ExecuteWithProgress(std::bind(&Repository::Source::Remove, &source, std::placeholders::_1)))
+            auto removeFunction = [&](IProgressCallback& progress)->bool { return source.Remove(progress); };
+            if (context.Reporter.ExecuteWithProgress(removeFunction))
             {
                 context.Reporter.Info() << Resource::String::Done << std::endl;
             }
@@ -252,11 +255,10 @@ namespace AppInstaller::CLI::Workflow
     {
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
 
-        for (const auto& sd : sources)
+        for (const auto& source : sources)
         {
-            context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << sd.Name << "..."_liv;
-            Repository::Source source{ sd.Name, true };
-            source.Drop();
+            context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << source.Name << "..."_liv;
+            Repository::Source::DropSource(source.Name);
             context.Reporter.Info() << Resource::String::Done << std::endl;
         }
     }
@@ -264,8 +266,7 @@ namespace AppInstaller::CLI::Workflow
     void ResetAllSources(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::SourceResetAll;
-        Repository::Source source{ ""sv, true };
-        source.Drop();
+        Repository::Source::DropSource({});
         context.Reporter.Info() << Resource::String::Done << std::endl;
     }
 

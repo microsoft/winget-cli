@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Execution
     {
         ProgressCallback progress;
         m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
-        m_installingWriteableSource.Open(progress, true);
+        m_installingWriteableSource.Open(progress);
     }
 
     _Requires_lock_held_(m_queueLock) 

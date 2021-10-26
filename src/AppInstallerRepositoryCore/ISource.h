@@ -51,8 +51,7 @@ namespace AppInstaller::Repository
         // Set custom header. Returns false if custom header is not supported.
         virtual bool SetCustomHeader(std::optional<std::string> header) { UNREFERENCED_PARAMETER(header); return false; }
 
-        // Opens the source. if skipUpdateBeforeOpen is true, source will be opened without check background update.
-        // This function should throw upon open failure rather than returning an empty pointer.
+        // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
         virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;
     };
 

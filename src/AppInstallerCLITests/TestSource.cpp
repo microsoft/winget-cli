@@ -219,6 +219,11 @@ namespace TestCommon
 
     bool TestPackage::IsSame(const IPackage* other) const
     {
+        if (IsSameOverride)
+        {
+            return IsSameOverride(this, other);
+        }
+
         const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
 
         if (!otherAvailable ||
@@ -342,13 +347,12 @@ namespace TestCommon
     AppInstaller::Repository::Source OpenSource(std::string_view name, AppInstaller::IProgressCallback& progress)
     {
         Repository::Source source{ name };
-        source.Open(progress, false);
+        source.Open(progress);
         return source;
     }
 
     void DropSource(std::string_view name)
     {
-        Repository::Source source{ name, true };
-        source.Drop();
+        Source::DropSource(name);
     }
 }

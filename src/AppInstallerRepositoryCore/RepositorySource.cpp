@@ -128,6 +128,12 @@ namespace AppInstaller::Repository
         // Determines whether (and logs why) a source should be updated before it is opened.
         bool ShouldUpdateBeforeOpen(const SourceDetails& details)
         {
+            // Some sources that do not need updating like the Installed source, do not have Name values.
+            if (details.Name.empty())
+            {
+                return false;
+            }
+
             constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
@@ -222,14 +228,9 @@ namespace AppInstaller::Repository
 
     Source::Source() {}
 
-    Source::Source(std::string_view name, bool skipReferenceInitialization)
+    Source::Source(std::string_view name)
     {
-        m_isNamedSource = !name.empty();
-        m_inputSourceName = name;
-        if (!skipReferenceInitialization)
-        {
-            InitializeSourceReference(name);
-        }
+        InitializeSourceReference(name);
     }
 
     Source::Source(PredefinedSource source)
@@ -240,7 +241,6 @@ namespace AppInstaller::Repository
 
     Source::Source(WellKnownSource source)
     {
-        m_isNamedSource = true;
         SourceDetails details = GetWellKnownSourceDetailsInternal(source);
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
@@ -285,8 +285,7 @@ namespace AppInstaller::Repository
         m_source = compositeSource;
     }
 
-    Source::Source(std::shared_ptr<ISource> source, bool isNamedSource) :
-        m_source(std::move(source)), m_isNamedSource(isNamedSource) {}
+    Source::Source(std::shared_ptr<ISource> source) : m_source(std::move(source)) {}
 
     Source::operator bool() const
     {
@@ -475,7 +474,7 @@ namespace AppInstaller::Repository
         writableSource->RemovePackageVersion(manifest, relativePath);
     }
 
-    std::vector<SourceDetails> Source::Open(IProgressCallback& progress, bool skipUpdateBeforeOpen)
+    std::vector<SourceDetails> Source::Open(IProgressCallback& progress)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.empty());
 
@@ -483,37 +482,35 @@ namespace AppInstaller::Repository
 
         if (!m_source)
         {
-            if (!skipUpdateBeforeOpen)
-            {
-                SourceList sourceList;
+            SourceList sourceList;
 
-                for (auto& sourceReference : m_sourceReferences)
+            // Check for updates before opening.
+            for (auto& sourceReference : m_sourceReferences)
+            {
+                auto& details = sourceReference->GetDetails();
+                if (ShouldUpdateBeforeOpen(details))
                 {
-                    auto& details = sourceReference->GetDetails();
-                    if (ShouldUpdateBeforeOpen(details))
+                    try
                     {
-                        try
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
+                        if (BackgroundUpdateSourceFromDetails(details, progress))
                         {
-                            // TODO: Consider adding a context callback to indicate we are doing the same action
-                            // to avoid the progress bar fill up multiple times.
-                            if (BackgroundUpdateSourceFromDetails(details, progress))
-                            {
-                                auto detailsInternal = sourceList.GetSource(details.Name);
-                                detailsInternal->LastUpdateTime = details.LastUpdateTime;
-                                sourceList.SaveMetadata(*detailsInternal);
-                            }
-                            else
-                            {
-                                AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
-                                result.emplace_back(details);
-                            }
+                            auto detailsInternal = sourceList.GetSource(details.Name);
+                            detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                            sourceList.SaveMetadata(*detailsInternal);
                         }
-                        catch (...)
+                        else
                         {
-                            LOG_CAUGHT_EXCEPTION();
-                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                            AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
                             result.emplace_back(details);
                         }
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                        result.emplace_back(details);
                     }
                 }
             }
@@ -589,6 +586,7 @@ namespace AppInstaller::Repository
         {
             sourceList.AddSource(sourceDetails);
             SaveAcceptedSourceAgreements();
+            m_isSourceToBeAdded = false;
             AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
         }
 
@@ -636,7 +634,7 @@ namespace AppInstaller::Repository
 
     bool Source::Remove(IProgressCallback& progress)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || !m_isNamedSource || m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
 
         const auto& details = m_sourceReferences[0]->GetDetails();
         AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << details.Name << " [" << ToString(details.Origin) << ']');
@@ -653,28 +651,6 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    void Source::Drop()
-    {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 0 || m_source);
-
-        if (m_isNamedSource)
-        {
-            SourceList sourceList;
-            auto details = sourceList.GetCurrentSource(m_inputSourceName);
-            if (details)
-            {
-                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << details->Name);
-                EnsureSourceIsRemovable(*details);
-                sourceList.RemoveSource(*details);
-            }
-        }
-        else
-        {
-            AICLI_LOG(Repo, Info, << "Dropping all source settings");
-            SourceList::RemoveSettingsStreams();
-        }
-    }
-
     std::vector<SourceDetails> Source::GetCurrentSources()
     {
         SourceList sourceList;
@@ -686,6 +662,35 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    bool Source::DropSource(std::string_view name)
+    {
+        if (name.empty())
+        {
+            SourceList::RemoveSettingsStreams();
+            return true;
+        }
+        else
+        {
+            SourceList sourceList;
+
+            auto source = sourceList.GetCurrentSource(name);
+            if (!source)
+            {
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
+                return false;
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source->Name);
+
+                EnsureSourceIsRemovable(*source);
+                sourceList.RemoveSource(*source);
+
+                return true;
+            }
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

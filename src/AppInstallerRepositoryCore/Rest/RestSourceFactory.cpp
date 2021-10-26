@@ -20,19 +20,13 @@ namespace AppInstaller::Repository::Rest
 
             std::string GetIdentifier() override
             {
-                if (!m_restClient)
-                {
-                    Initialize();
-                }
+                Initialize();
                 return m_details.Identifier;
             }
 
             SourceInformation GetInformation() override
             {
-                if (!m_restClient)
-                {
-                    Initialize();
-                }
+                Initialize();
                 return m_information;
             }
 
@@ -45,11 +39,7 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
-                if (!m_restClient)
-                {
-                    Initialize();
-                }
-
+                Initialize();
                 RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
@@ -60,11 +50,11 @@ namespace AppInstaller::Repository::Rest
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
-                        m_restClient = RestClient::Create(m_details.Arg, m_customHeader);
+                        RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
 
-                        m_details.Identifier = m_restClient->GetSourceIdentifier();
+                        m_details.Identifier = restClient.GetSourceIdentifier();
 
-                        const auto& sourceInformation = m_restClient->GetSourceInformation();
+                        const auto& sourceInformation = restClient.GetSourceInformation();
                         m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
                         m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
                         m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
@@ -81,7 +71,6 @@ namespace AppInstaller::Repository::Rest
             SourceDetails m_details;
             SourceInformation m_information;
             std::optional<std::string> m_customHeader;
-            std::optional<RestClient> m_restClient;
             std::once_flag m_initializeFlag;
         };
 

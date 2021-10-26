@@ -130,19 +130,22 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 auto manifest3 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Exe_2_LicenseAgreement.yaml" : "UpdateFlowTest_Exe_2.yaml"));
+                auto testPackage =
+                    TestPackage::Make(
+                        manifest,
+                        TestPackage::MetadataMap
+                        {
+                            { PackageVersionMetadata::InstalledType, "Exe" },
+                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                        },
+                        std::vector<Manifest>{ manifest3, manifest2, manifest },
+                        this->shared_from_this()
+                        );
+                testPackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(
-                            manifest,
-                            TestPackage::MetadataMap
-                            {
-                                { PackageVersionMetadata::InstalledType, "Exe" },
-                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
-                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
-                            },
-                            std::vector<Manifest>{ manifest3, manifest2, manifest },
-                            this->shared_from_this()
-                        ),
+                        testPackage,
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
@@ -380,12 +383,11 @@ void OverrideForCompositeInstalledSource(TestContext& context, bool upgradeUsesL
     } });
 }
 
-void OverrideForImportSource(TestContext& context, SearchResult installedResult = {})
+void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false)
 {
     context.Override({ "OpenPredefinedSource", [=](TestContext& context)
     {
-        auto installedSource = std::make_shared<TestSource>();
-        installedSource->SearchFunction = [=](const SearchRequest&) { return installedResult; };
+        auto installedSource = useTestCompositeSource? std::make_shared<WorkflowTestCompositeSource>(false) : std::make_shared<TestSource>();
         context.Add<Execution::Data::Source>(Source{ installedSource });
     } });
 
@@ -1636,20 +1638,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
-
-    SearchResult installedResult;
-    installedResult.Matches.emplace_back(
-        ResultMatch(
-            TestPackage::Make(
-                YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml")),
-                TestPackage::MetadataMap
-                {
-                    { PackageVersionMetadata::InstalledType, "Exe" },
-                }
-            ),
-            PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-
-    OverrideForImportSource(context, installedResult);
+    OverrideForImportSource(context, true);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
 
     ImportCommand importCommand({});

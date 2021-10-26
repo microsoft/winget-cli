@@ -657,13 +657,11 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    if (installedPackage)
+                    if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
                     {
+                        // TODO: Needs a whole separate change to fix the fact that we don't support multiple availables and what the different search behaviors mean
                         foundInstalledMatch = true;
-                        if (!result.ContainsInstalledPackage(installedPackage.get()))
-                        {
-                            result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
-                        }
+                        result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
                     }
                 }
 

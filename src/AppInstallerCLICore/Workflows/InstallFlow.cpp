@@ -467,7 +467,7 @@ namespace AppInstaller::CLI::Workflow
                 [](IProgressCallback& progress)
                 {
                     Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                    result.Open(progress, true);
+                    result.Open(progress);
                     return result;
                 }, true);
 
@@ -503,7 +503,7 @@ namespace AppInstaller::CLI::Workflow
                 [](IProgressCallback& progress)
                 {
                     Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                    result.Open(progress, true);
+                    result.Open(progress);
                     return result;
                 }, true);
 
