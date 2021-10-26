@@ -118,14 +118,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 		createTableBuilder.CreateTable(TableName()).BeginColumns();
 		createTableBuilder.Column(IntegerPrimaryKey());
 
-		std::vector<DepedenciesTableColumnInfo> dependenciesColumns =
+		std::vector<DependenciesTableColumnInfo> dependenciesColumns =
 		{ 
 			{ s_DependenciesTable_Manifest_Column_Name },
 			{ s_DependenciesTable_MinVersion_Column_Name },
 			{ s_DependenciesTable_PackageId_Column_Name }
 		};
 
-		for (const DepedenciesTableColumnInfo& value : dependenciesColumns)
+		for (const DependenciesTableColumnInfo& value : dependenciesColumns)
 		{
 			createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull());
 		}
@@ -305,10 +305,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 				return depList;
 			}
 			
-			auto packagLatestDependencies = GetDependenciesByManifestRowId(connection, packageLatest.value().first);
+			auto packageLatestDependencies = GetDependenciesByManifestRowId(connection, packageLatest.value().first);
 			std::for_each(
-				packagLatestDependencies.begin(),
-				packagLatestDependencies.end(),
+				packageLatestDependencies.begin(),
+				packageLatestDependencies.end(),
 				[&](std::pair<Dependency, SQLite::rowid_t> row)
 				{
 					depList.Add(row.first);

@@ -604,7 +604,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[
     REQUIRE(!index.ValidateManifest(topLevelManifest));
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureBroken", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -631,7 +631,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureBroken
     REQUIRE_THROWS_HR(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureNotBroken", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBroken", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -655,14 +655,14 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureNotBro
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest));
 
-    constexpr std::string_view levelThreeManifestv2Publisher = "Test";
-    CreateFakeManifest(levelThreeManifestV2, levelThreeManifestv2Publisher, "2.0.0");
+    constexpr std::string_view levelThreeManifestV2Publisher = "Test";
+    CreateFakeManifest(levelThreeManifestV2, levelThreeManifestV2Publisher, "2.0.0");
     index.AddManifest(levelThreeManifestV2, GetPathFromManifest(levelThreeManifestV2));
 
     REQUIRE(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest));
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureBroken_NoSuitablOldManifest", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_NoSuitableOldManifest", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -670,8 +670,8 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsADependency_StructureBroken
     Manifest levelOneManifest, levelTwoManifest, levelThreeManifest, topLevelManifest, levelThreeManifestV2;
     SQLiteIndex index = SimpleTestSetup(tempFile, levelThreeManifest, Schema::Version::Latest());
 
-    constexpr std::string_view levelThreeManifestv2Publisher = "Test";
-    CreateFakeManifest(levelThreeManifestV2, levelThreeManifestv2Publisher, "2.0.0");
+    constexpr std::string_view levelThreeManifestV2Publisher = "Test";
+    CreateFakeManifest(levelThreeManifestV2, levelThreeManifestV2Publisher, "2.0.0");
     index.AddManifest(levelThreeManifestV2, GetPathFromManifest(levelThreeManifestV2));
 
     constexpr std::string_view levelTwoManifestPublisher = "LevelTwoManifest";
