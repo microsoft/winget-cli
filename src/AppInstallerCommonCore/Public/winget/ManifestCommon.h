@@ -5,6 +5,7 @@
 #include <AppInstallerVersions.h>
 #include <functional>
 #include <map>
+#include <set>
 #include <string_view>
 
 namespace AppInstaller::Manifest
@@ -53,7 +54,7 @@ namespace AppInstaller::Manifest
 
         bool HasExtension() const;
 
-        bool HasExtension(std::string_view extension) const;
+bool HasExtension(std::string_view extension) const;
 
     private:
         std::vector<Version> m_extensions;
@@ -171,11 +172,43 @@ namespace AppInstaller::Manifest
     {
         DependencyType Type;
         string_t Id;
-        std::optional<string_t> MinVersion;
+        std::optional<Utility::Version> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(std::move(minVersion)) {}
-        Dependency(DependencyType type, string_t id) : Type(std::move(type)), Id(std::move(id)) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(Utility::Version(minVersion)) {}
+        Dependency(DependencyType type, string_t id) : Type(type), Id(std::move(id)) {}
         Dependency(DependencyType type) : Type(type) {}
+
+        bool operator==(const Dependency& rhs) const {
+            return Type == rhs.Type && ICUCaseInsensitiveEquals(Id, rhs.Id) && MinVersion == rhs.MinVersion;
+        }
+
+        bool operator <(const Dependency& rhs) const
+        {
+            return Id < rhs.Id;
+        }
+
+        bool IsVersionOk(Utility::Version version)
+        {
+            return MinVersion <= Utility::Version(version);
+        }
+    };
+
+    struct DependencyList
+    {
+        void Add(const Dependency& newDependency);
+        void Add(const DependencyList& otherDependencyList);
+        bool HasAny() const;
+        bool HasAnyOf(DependencyType type) const;
+        Dependency* HasDependency(const Dependency& dependencyToSearch);
+        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const;
+        void ApplyToAll(std::function<void(const Dependency&)> func) const;
+        bool Empty() const;
+        void Clear();
+        bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "");
+        size_t Size();
+
+    private:
+        std::vector<Dependency> m_dependencies;
     };
 
     struct AppsAndFeaturesEntry
@@ -192,107 +225,6 @@ namespace AppInstaller::Manifest
     {
         std::vector<string_t> AllowedMarkets;
         std::vector<string_t> ExcludedMarkets;
-    };
-
-    struct DependencyList
-    {
-        DependencyList() = default;
-
-        void Add(const Dependency& newDependency)
-        { 
-            Dependency* existingDependency = this->HasDependency(newDependency);
-
-            if (existingDependency != NULL) {
-                if (newDependency.MinVersion) 
-                {
-                    if (existingDependency->MinVersion)
-                    {
-                        const auto& newDependencyVersion = AppInstaller::Utility::Version(newDependency.MinVersion.value());
-                        const auto& existingDependencyVersion = AppInstaller::Utility::Version(existingDependency->MinVersion.value());
-                        if (newDependencyVersion > existingDependencyVersion) 
-                        {
-                            existingDependency->MinVersion.value() = newDependencyVersion.ToString();
-                        }
-                    }
-                    else
-                    {
-                        existingDependency->MinVersion.value() = newDependency.MinVersion.value();
-                    }
-                }
-            }
-            else 
-            {
-                dependencies.push_back(newDependency); 
-            }
-        }
-
-        void Add(const DependencyList& otherDependencyList)
-        {
-            for (const auto& dependency : otherDependencyList.dependencies)
-            {
-                this->Add(dependency);
-            }
-        }
-
-        bool HasAny() const { return !dependencies.empty(); }
-        bool HasAnyOf(DependencyType type) const 
-        {
-            for (const auto& dependency : dependencies)
-            {
-                if (dependency.Type == type) return true;
-            };
-            return false;
-        }
-
-        Dependency* HasDependency(const Dependency& dependencyToSearch)
-        {
-            for (auto& dependency : dependencies) {
-                if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
-                {
-                    return &dependency;
-                }
-            }
-            return nullptr;
-        }
-
-        // for testing purposes
-        bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "")
-        {
-            for (const auto& dependency : dependencies)
-            {
-                if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
-                {
-                    if (dependency.MinVersion) {
-                        if (dependency.MinVersion.value() == minVersion)
-                        {
-                            return true;
-                        }
-                    }
-                    else {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        size_t Size()
-        {
-            return dependencies.size();
-        }
-
-        void ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
-        {
-            for (const auto& dependency : dependencies)
-            {
-                if (dependency.Type == type) func(dependency);
-            }
-        }
-
-        void Clear() { dependencies.clear(); }
-
-    private:
-        std::vector<Dependency> dependencies;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

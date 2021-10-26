@@ -523,4 +523,110 @@ namespace AppInstaller::Manifest
             return {};
         }
     }
+
+    void DependencyList::Add(const Dependency& newDependency)
+    {
+        Dependency* existingDependency = this->HasDependency(newDependency);
+
+        if (existingDependency != NULL) {
+            if (newDependency.MinVersion)
+            {
+                if (existingDependency->MinVersion)
+                {
+                    const auto& newDependencyVersion = Utility::Version(newDependency.MinVersion.value());
+                    const auto& existingDependencyVersion = Utility::Version(existingDependency->MinVersion.value());
+                    if (newDependencyVersion > existingDependencyVersion)
+                    {
+                        existingDependency->MinVersion.value() = newDependencyVersion.ToString();
+                    }
+                }
+                else
+                {
+                    existingDependency->MinVersion.value() = newDependency.MinVersion.value();
+                }
+            }
+        }
+        else
+        {
+            m_dependencies.push_back(newDependency);
+        }
+    }
+
+    void DependencyList::Add(const DependencyList& otherDependencyList)
+    {
+        for (const auto& dependency : otherDependencyList.m_dependencies)
+        {
+            this->Add(dependency);
+        }
+    }
+
+    bool DependencyList::HasAny() const { return !m_dependencies.empty(); }
+    bool DependencyList::HasAnyOf(DependencyType type) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type) return true;
+        };
+        return false;
+    }
+
+    Dependency* DependencyList::HasDependency(const Dependency& dependencyToSearch)
+    {
+        for (auto& dependency : m_dependencies) {
+            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+            {
+                return &dependency;
+            }
+        }
+        return nullptr;
+    }
+
+    // for testing purposes
+    bool DependencyList::HasExactDependency(DependencyType type, string_t id, string_t minVersion)
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
+            {
+                if (dependency.MinVersion) {
+                    if (dependency.MinVersion.value() == minVersion)
+                    {
+                        return true;
+                    }
+                }
+                else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    size_t DependencyList::Size()
+    {
+        return m_dependencies.size();
+    }
+
+    void DependencyList::ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type) func(dependency);
+        }
+    }
+
+    void DependencyList::ApplyToAll(std::function<void(const Dependency&)> func) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            func(dependency);
+        }
+    }
+
+    bool DependencyList::Empty() const
+    {
+        return m_dependencies.empty();
+    }
+
+    void DependencyList::Clear() { m_dependencies.clear(); }
 }

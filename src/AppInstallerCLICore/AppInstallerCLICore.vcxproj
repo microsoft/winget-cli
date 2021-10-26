@@ -275,6 +275,7 @@
     <ClInclude Include="VTSupport.h" />
     <ClInclude Include="PackageCollection.h" />
     <ClInclude Include="Workflows\CompletionFlow.h" />
+    <ClInclude Include="Workflows\DependencyNodeProcessor.h" />
     <ClInclude Include="Workflows\DownloadFlow.h" />
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
@@ -325,6 +326,7 @@
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
+    <ClCompile Include="Workflows\DependencyNodeProcessor.cpp" />
     <ClCompile Include="Workflows\DownloadFlow.cpp" />
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />

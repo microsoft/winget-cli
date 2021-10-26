@@ -48,6 +48,7 @@ namespace AppInstaller::CLI::Execution
         Sources,
         ARPSnapshot,
         Dependencies,
+        DependencySource,
         AllowedArchitectures,
         Max
     };
@@ -224,6 +225,12 @@ namespace AppInstaller::CLI::Execution
             using value_t = Manifest::DependencyList;
         };
 
+        template <>
+        struct DataMapping<Data::DependencySource>
+        {
+            using value_t = std::shared_ptr<Repository::ISource>;
+        };
+        
         template <>
         struct DataMapping<Data::AllowedArchitectures>
         {

@@ -1,5 +1,5 @@
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller.Dependencies
-PackageVersion: 1.0.0.0
+PackageVersion: 1.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Exe Installer With Package Dep
 Publisher: Microsoft Corporation

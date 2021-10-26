@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Microsoft
 
             Manifest::Manifest GetManifest() override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
@@ -242,7 +242,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
 
                 std::vector<PackageVersionKey> result;
