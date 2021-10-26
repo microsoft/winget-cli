@@ -139,4 +139,7 @@ namespace AppInstaller::Utility
 
     // Replace message predefined token
     std::string FindAndReplaceMessageToken(std::string_view message, std::string_view value);
+
+    // Converts the candidate path part into one suitable for the actual file system
+    std::string MakeSuitablePathPart(std::string_view candidate);
 }

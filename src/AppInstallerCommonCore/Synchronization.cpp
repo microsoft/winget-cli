@@ -46,10 +46,7 @@ namespace AppInstaller::Synchronization
 
     CrossProcessReaderWriteLock::~CrossProcessReaderWriteLock()
     {
-        for (auto& mutex : m_mutexesHeld)
-        {
-            ReleaseMutex(mutex.get());
-        }
+        Release();
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockShared(std::string_view name)
@@ -80,6 +77,15 @@ namespace AppInstaller::Synchronization
     CrossProcessReaderWriteLock::operator bool() const
     {
         return !m_mutexesHeld.empty();
+    }
+
+    void CrossProcessReaderWriteLock::Release()
+    {
+        for (auto& mutex : m_mutexesHeld)
+        {
+            ReleaseMutex(mutex.get());
+        }
+        m_mutexesHeld.clear();
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::Lock(

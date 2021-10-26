@@ -39,6 +39,7 @@ namespace AppInstaller::Repository::Microsoft
         SearchResult Search(const SearchRequest& request) const override;
 
         // Gets the index.
+        SQLiteIndex& GetIndex() { return m_index; }
         const SQLiteIndex& GetIndex() const { return m_index; }
 
         // Determines if the other source refers to the same as this.

@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -32,6 +33,9 @@ namespace AppInstaller::Repository::Microsoft
         // The return type of GetMetadataByManifestId
         using MetadataResult = Schema::ISQLiteIndex::MetadataResult;
 
+        // Options for creating a new index.
+        using CreateOptions = Schema::ISQLiteIndex::CreateOptions;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -39,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndex& operator=(SQLiteIndex&&) = default;
 
         // Creates a new index database of the given version.
-        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
         // The disposition for opening the index.
         enum class OpenDisposition
@@ -77,6 +81,11 @@ namespace AppInstaller::Repository::Microsoft
         // Returns the manifest id.
         IdType AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
+        // Adds the manifest to the index.
+        // If the function succeeds, the manifest has been added.
+        // Returns the manifest id.
+        IdType AddManifest(const Manifest::Manifest& manifest);
+
         // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.
         bool UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
@@ -85,13 +94,21 @@ namespace AppInstaller::Repository::Microsoft
         // The return value indicates whether the index was modified by the function.
         bool UpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
+        // Updates the manifest with matching { Id, Version, Channel } in the index.
+        // The return value indicates whether the index was modified by the function.
+        bool UpdateManifest(const Manifest::Manifest& manifest);
+
         // Removes the manifest with matching { Id, Version, Channel } from the index.
-        // Path is currently ignored.
         void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
-        // Path is currently ignored.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        // Removes the manifest with matching { Id, Version, Channel } from the index.
+        void RemoveManifest(const Manifest::Manifest& manifest);
+
+        // Removes the manifest with the given id.
+        void RemoveManifestById(IdType manifestId);
 
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
@@ -113,6 +130,9 @@ namespace AppInstaller::Repository::Microsoft
         // If version is empty, gets the value for the 'latest' version.
         std::optional<IdType> GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const;
 
+        // Gets the manifest id for the given manifest, if present.
+        std::optional<IdType> GetManifestIdByManifest(const Manifest::Manifest& manifest) const;
+
         // Gets all versions and channels for the given id.
         std::vector<Utility::VersionAndChannel> GetVersionKeysById(IdType id) const;
 
@@ -132,6 +152,10 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
+
+        // Internal functions to normalize on the relativePath being present.
+        IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
+        bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
         // Sets the last write time metadata value in the index.
         void SetLastWriteTime();

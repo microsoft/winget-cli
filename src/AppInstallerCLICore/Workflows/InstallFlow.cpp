@@ -11,19 +11,23 @@
 #include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
+#include <winget/PackageTrackingCatalog.h>
 
 #include <AppInstallerDeployment.h>
 
+using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Foundation::Collections;
+using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
+
+
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
-    using namespace winrt::Windows::Foundation;
-    using namespace winrt::Windows::Foundation::Collections;
-    using namespace winrt::Windows::Management::Deployment;
-    using namespace AppInstaller::Manifest;
-    using namespace AppInstaller::Repository;
-    using namespace AppInstaller::Settings;
-
     namespace
     {
         bool MightWriteToARP(InstallerTypeEnum type)
@@ -370,6 +374,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ExecuteInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
+            Workflow::RecordInstall <<
             Workflow::RemoveInstaller;
     }
 
@@ -413,9 +418,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool allSucceeded = true;
+        size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
+        size_t packagesProgress = 0;
+        
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
+
+            packagesProgress++;
+            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
 
             // We want to do best effort to install all packages regardless of previous failures
             auto installContextPtr = context.Clone();
@@ -605,45 +616,24 @@ namespace AppInstaller::CLI::Workflow
             //  1 package   ::  Golden path; this should be what we installed.
             //  2+ packages ::  The data in the manifest is either too broad or we have
             //                  a problem with our name normalization.
-            //
-            //                           ARP Package changes
-            //                0                  1                     N
-            //      +------------------+--------------------+--------------------+
-            // M    |                  |                    |                    |
-            // a    | Package does not | Manifest data does | Manifest data does |
-            // n  0 |   write to ARP   |   not match ARP    |   not match ARP    |
-            // i    |  Log this fact   |   Log for fixup    |   Log for fixup    |
-            // f    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // t    |   Reinstall of   |    Golden Path!    | Treat manifest as  |
-            //    1 | existing version |  (assuming match)  |   main if common   |
-            // r    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // u    |   Not expected   | Treat ARP as main  |    Not expected    |
-            // l  N |   Log this for   |                    |    Log this for    |
-            // t    |   investigation  |                    |    investigation   |
-            // s    |                  |                    |                    |
-            //      +------------------+--------------------+--------------------+
 
             // Find the package that we are going to log
             std::shared_ptr<IPackageVersion> toLog;
 
-            // If no changes found, only log if a single matching package was found by the manifest
-            if (changes.empty() && findByManifest.Matches.size() == 1)
+            // If there is only a single common package (changed and matches), it is almost certainly the correct one.
+            if (packagesInBoth.size() == 1)
+            {
+                toLog = packagesInBoth[0]->GetInstalledVersion();
+            }
+            // If it wasn't changed but we still find a match, that is the best thing to report.
+            else if (findByManifest.Matches.size() == 1)
             {
                 toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
             }
-            // If only a single ARP entry was changed, always log that
-            else if (changes.size() == 1)
+            // If only a single ARP entry was changed and we found no matches, report that.
+            else if (findByManifest.Matches.empty() && changes.size() == 1)
             {
                 toLog = changes[0].Package->GetInstalledVersion();
-            }
-            // Finally, if there is only a single common package, log that one
-            else if (packagesInBoth.size() == 1)
-            {
-                toLog = packagesInBoth[0]->GetInstalledVersion();
             }
 
             IPackageVersion::Metadata toLogMetadata;
@@ -674,5 +664,23 @@ namespace AppInstaller::CLI::Workflow
             );
         }
     }
-    CATCH_LOG()
+    CATCH_LOG();
+
+    void RecordInstall(Context& context)
+    {
+        // Local manifest installs won't have a package version, and tracking them doesn't provide much
+        // value currently. If we ever do use our own database as a primary source of packages that we
+        // maintain, this decision will probably have to be reconsidered.
+        if (!context.Contains(Data::PackageVersion))
+        {
+            return;
+        }
+
+        auto trackingCatalog = PackageTrackingCatalog::CreateForSource(context.Get<Data::PackageVersion>()->GetSource());
+
+        trackingCatalog.RecordInstall(
+            context.Get<Data::Manifest>(),
+            context.Get<Data::Installer>().value(),
+            WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+    }
 }

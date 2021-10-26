@@ -267,6 +267,7 @@
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
     <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />
@@ -325,6 +326,7 @@
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

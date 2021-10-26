@@ -85,6 +85,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         // The sqlite_schema type value for a table.
         constexpr std::string_view Type_Table = "table"sv;
 
+        // The sqlite_schema type value for an index.
+        constexpr std::string_view Type_Index = "index"sv;
+
         // The sqlite_schema column name for the name of the object.
         constexpr std::string_view NameColumn = "name"sv;
     }
@@ -358,9 +361,9 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Begin an index deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
-        StatementBuilder& DropIndex(std::string_view table);
-        StatementBuilder& DropIndex(QualifiedTable table);
-        StatementBuilder& DropIndex(std::initializer_list<std::string_view> table);
+        StatementBuilder& DropIndex(std::string_view index);
+        StatementBuilder& DropIndex(QualifiedTable index);
+        StatementBuilder& DropIndex(std::initializer_list<std::string_view> index);
 
         // Set index target table.
         StatementBuilder& On(std::string_view table);

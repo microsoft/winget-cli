@@ -526,6 +526,7 @@ namespace AppInstaller::Repository
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << sourceReference->GetDetails().Name);
 
                     try
+
                     {
                         aggregatedSource->AddAvailableSource(sourceReference->Open(progress));
                     }
@@ -588,6 +589,7 @@ namespace AppInstaller::Repository
             SaveAcceptedSourceAgreements();
             m_isSourceToBeAdded = false;
             AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
+        case PackageVersionMetadata::TrackingWriteTime: return "TrackingWriteTime"sv;
         }
 
         return result;
@@ -691,6 +693,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    bool ContainsAvailablePackages(SourceOrigin origin)
+    {
+        return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

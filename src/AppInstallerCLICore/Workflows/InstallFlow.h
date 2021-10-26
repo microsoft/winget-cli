@@ -160,4 +160,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
     // Outputs: None
     void ReportARPChanges(Execution::Context& context);
+
+    // Records the installation to the tracking catalog.
+    // Required Args: None
+    // Inputs: PackageVersion?, Manifest, Installer
+    // Outputs: None
+    void RecordInstall(Execution::Context& context);
 }

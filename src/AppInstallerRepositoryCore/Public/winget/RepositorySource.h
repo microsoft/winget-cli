@@ -26,6 +26,7 @@ namespace AppInstaller::Repository
         Predefined,
         GroupPolicy,
         Metadata,
+        PackageTracking,
     };
 
     // Defines the trust level of the source.
@@ -253,4 +254,7 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
     };
+
+    // Returns true if the origin type can contain available packages.
+    bool ContainsAvailablePackages(SourceOrigin origin);
 }

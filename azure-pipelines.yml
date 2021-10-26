@@ -332,6 +332,26 @@ jobs:
       runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
     condition: succeededOrFailed()
 
+  - task: CopyFiles@2
+    displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
+      TargetFolder:  '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests\'
+      CleanTargetFolder: true
+      OverWrite: true
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: WinGetUtilInterop.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
+      searchFolder: '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests'
+      codeCoverageEnabled: true
+      platform: 'Any CPU'
+      configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:

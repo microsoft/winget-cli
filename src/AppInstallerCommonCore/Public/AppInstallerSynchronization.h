@@ -21,6 +21,11 @@ namespace AppInstaller::Synchronization
     // - Readers are limited to an arbitrarily chosen limit.
     // - Not re-entrant (although repeated read locking will work, it will consume additional slots).
     // - No upgrade from reader to writer.
+    //      In order to change from reader/write, one must release and reacquire the lock:
+    //          auto lock = CrossProcessReaderWriteLock::LockShared(same_name);
+    //          ... Determine that an exclusive is needed ...
+    //          lock.Release();
+    //          lock = CrossProcessReaderWriteLock::LockExclusive(same_name);
     struct CrossProcessReaderWriteLock
     {
         // Create unheld lock.
@@ -42,6 +47,8 @@ namespace AppInstaller::Synchronization
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name, std::chrono::milliseconds timeout);
 
         operator bool() const;
+
+        void Release();
 
     private:
         static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress);
