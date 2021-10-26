@@ -79,6 +79,7 @@ jobs:
           FolderPath: src
           Pattern: |
             *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
+            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
           UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |

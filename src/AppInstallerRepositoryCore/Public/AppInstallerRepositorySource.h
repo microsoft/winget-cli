@@ -23,6 +23,7 @@ namespace AppInstaller::Repository
         Predefined,
         GroupPolicy,
         Metadata,
+        PackageTracking,
     };
 
     // Defines the trust level of the source.
@@ -253,4 +254,7 @@ namespace AppInstaller::Repository
 
     // Saves the accepted source agreements in metadata.
     void SaveAcceptedSourceAgreements(const SourceDetails& source);
+
+    // Returns true if the origin type can contain available packages.
+    bool ContainsAvailablePackages(SourceOrigin origin);
 }

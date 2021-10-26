@@ -49,6 +49,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return connection.GetLastInsertRowID();
         }
 
+        // Inserts the no path part into the table.
+        SQLite::rowid_t InsertNoPathPart(SQLite::Connection& connection)
+        {
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                InsertInto(s_PathPartTable_Table_Name).
+                Columns({ SQLite::RowIDName, s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).
+                Values(PathPartTable::NoPathId, std::optional<SQLite::rowid_t>{}, std::string_view{});
+
+            builder.Execute(connection);
+
+            return connection.GetLastInsertRowID();
+        }
+
         // Gets the parent of a given part by id.
         // This should only be called when the part must exist, as it will throw if not found.
         std::optional<SQLite::rowid_t> GetParentById(SQLite::Connection& connection, SQLite::rowid_t id)
@@ -155,7 +169,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return s_PathPartTable_PartValue_Name;
     }
 
-    std::tuple<bool, SQLite::rowid_t> PathPartTable::EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
+    std::tuple<bool, SQLite::rowid_t> EnsurePathExistsInternal(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
     {
         THROW_HR_IF(E_INVALIDARG, !relativePath.has_relative_path());
         THROW_HR_IF(E_INVALIDARG, relativePath.has_root_path());
@@ -202,6 +216,49 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // If we were asked to create it, return whether we needed to or it was already present.
         // If not, then true indicates that it exists.
         return { (createIfNotFound ? partsAdded : true), parent.value() };
+    }
+
+    std::tuple<bool, SQLite::rowid_t> PathPartTable::EnsurePathExists(SQLite::Connection& connection, const std::optional<std::filesystem::path>& relativePath, bool createIfNotFound)
+    {
+        if (relativePath)
+        {
+            return EnsurePathExistsInternal(connection, relativePath.value(), createIfNotFound);
+        }
+
+        std::unique_ptr<SQLite::Savepoint> savepoint;
+        if (createIfNotFound)
+        {
+            savepoint = std::make_unique<SQLite::Savepoint>(SQLite::Savepoint::Create(connection, "ensurepathexists_v1_0"));
+        }
+
+        bool partsAdded = false;
+
+        std::optional<SQLite::rowid_t> noPathPart = SelectPathPart(connection, {}, {});
+
+        if (!noPathPart)
+        {
+            if (createIfNotFound)
+            {
+                partsAdded = true;
+                noPathPart = InsertNoPathPart(connection);
+            }
+            else
+            {
+                // Not found, and we were told not to create.
+                // Return false to indicate that the path does not exist.
+                return {};
+            }
+        }
+
+        if (savepoint)
+        {
+            savepoint->Commit();
+        }
+
+        // If we get this far, the path exists.
+        // If we were asked to create it, return whether we needed to or it was already present.
+        // If not, then true indicates that it exists.
+        return { (createIfNotFound ? partsAdded : true), noPathPart.value() };
     }
 
     std::optional<std::string> PathPartTable::GetPathById(const SQLite::Connection& connection, SQLite::rowid_t id)
@@ -263,6 +320,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
+        // Don't bother removing the pathless id
+        if (id == NoPathId)
+        {
+            return;
+        }
+
         SQLite::rowid_t currentPartToRemove = id;
         while (IsLeafPart(connection, currentPartToRemove))
         {

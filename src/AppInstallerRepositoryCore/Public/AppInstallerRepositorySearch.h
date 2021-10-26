@@ -161,6 +161,8 @@ namespace AppInstaller::Repository
         Publisher,
         // The locale of the package
         InstalledLocale,
+        // The write time for the given version
+        TrackingWriteTime,
     };
 
     // Convert a PackageVersionMetadata to a string.
