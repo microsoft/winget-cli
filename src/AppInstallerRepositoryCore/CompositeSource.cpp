@@ -335,9 +335,7 @@ namespace AppInstaller::Repository
             {
                 auto itr = std::find_if(Failures.begin(), Failures.end(),
                     [&failure](const SearchResult::Failure& present) {
-                        const auto& presentDetails = present.Source->GetDetails();
-                        const auto& incomingDetails = failure.Source->GetDetails();
-                        return (presentDetails.Identifier == incomingDetails.Identifier && presentDetails.Type == incomingDetails.Type);
+                        return present.SourceName == failure.SourceName;
                     });
 
                 if (itr == Failures.end())
@@ -405,7 +403,6 @@ namespace AppInstaller::Repository
 
     CompositeSource::CompositeSource(std::string identifier)
     {
-        m_details.Name = "CompositeSource";
         m_details.Identifier = std::move(identifier);
     }
 
@@ -501,7 +498,7 @@ namespace AppInstaller::Repository
                         }
                         catch (...)
                         {
-                            if (result.AddFailureIfSourceNotPresent({ source, std::current_exception() }))
+                            if (result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() }))
                             {
                                 LOG_CAUGHT_EXCEPTION();
                                 AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
@@ -593,7 +590,7 @@ namespace AppInstaller::Repository
             {
                 LOG_CAUGHT_EXCEPTION();
                 AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.AddFailureIfSourceNotPresent({ source, std::current_exception() });
+                result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() });
             }
 
             // Move failures into the single result
@@ -606,6 +603,12 @@ namespace AppInstaller::Repository
             {
                 // Check for a package already in the result that should have been correlated already.
                 auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
+
+                // If found existing package in the result, continue
+                if (!packageData)
+                {
+                    continue;
+                }
 
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
@@ -655,6 +658,7 @@ namespace AppInstaller::Repository
 
                     if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
                     {
+                        // TODO: Needs a whole separate change to fix the fact that we don't support multiple available packages and what the different search behaviors mean
                         foundInstalledMatch = true;
                         result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(installedPackage), std::move(match.Package)), match.MatchCriteria);
                     }
@@ -697,7 +701,7 @@ namespace AppInstaller::Repository
             {
                 LOG_CAUGHT_EXCEPTION();
                 AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.Failures.emplace_back(SearchResult::Failure{ source, std::current_exception() });
+                result.Failures.emplace_back(SearchResult::Failure{ source->GetDetails().Name, std::current_exception() });
             }
 
             // Move into the single result

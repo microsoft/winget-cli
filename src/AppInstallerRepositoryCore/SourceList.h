@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AppInstallerRepositorySource.h"
+#include "ISource.h"
 #include <winget/Settings.h>
 
 
@@ -23,6 +23,11 @@ namespace AppInstaller::Repository
 
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
         bool IsTombstone = false;
+
+        // If false, this is not visible in GetCurrentSource or GetAllSources, it's only available when explicitly requested.
+        bool IsVisible = true;
+
+        // Accepted agreements info.
         std::string AcceptedAgreementsIdentifier;
         int AcceptedAgreementFields = 0;
     };
@@ -55,10 +60,10 @@ namespace AppInstaller::Repository
         void SaveMetadata(const SourceDetailsInternal& details);
 
         // Checks the source agreements and returns if agreements are satisfied.
-        bool CheckSourceAgreements(const SourceDetails& details);
+        bool CheckSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields);
 
         // Save agreements information.
-        void SaveAcceptedSourceAgreements(const SourceDetails& details);
+        void SaveAcceptedSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields);
 
         // Removes all settings streams associated with the source list.
         // Implements `winget source reset --force`.

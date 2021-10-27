@@ -3,7 +3,7 @@
 #pragma once
 #include "ExecutionArgs.h"
 #include <winget/ExperimentalFeature.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySearch.h>
 
 #include <string>
 #include <string_view>
@@ -320,10 +320,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureRunningAsAdmin(Execution::Context& context);
 
-    // Gets the custom header from Arguments.
-    // Returns: Custom header if provided and applicable.
-    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const AppInstaller::Repository::SourceDetails& sourceDetails);
-
     // Ensures that the feature is enabled.
     // Required Args: the desired feature
     // Inputs: None
@@ -371,12 +367,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct HandleSourceAgreements : public WorkflowTask
     {
-        HandleSourceAgreements(std::shared_ptr<Repository::ISource> source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
+        HandleSourceAgreements(Repository::Source source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        std::shared_ptr<Repository::ISource> m_source;
+        Repository::Source m_source;
     };
 }
 

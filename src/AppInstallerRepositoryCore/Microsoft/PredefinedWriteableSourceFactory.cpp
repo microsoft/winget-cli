@@ -15,58 +15,75 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::Microsoft
 {
-    // The factory for the predefined installing source.
-    struct PredefinedWriteableSourceFactoryImpl : public ISourceFactory
+    namespace
     {
-        std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final;
-
-        bool Add(SourceDetails&, IProgressCallback&) override final
+        // The factory for the predefined installing source.
+        struct PredefinedWriteableSourceFactoryImpl : public ISourceFactory
         {
-            // Add should never be needed, as this is predefined.
-            THROW_HR(E_NOTIMPL);
-        }
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final;
 
-        bool Update(const SourceDetails&, IProgressCallback&) override final
-        {
-            // Update could be used later, but not for now.
-            THROW_HR(E_NOTIMPL);
-        }
-
-        bool Remove(const SourceDetails&, IProgressCallback&) override final
-        {
-            // Similar to add, remove should never be needed.
-            THROW_HR(E_NOTIMPL);
-        }
-
-    private:
-        static std::shared_ptr<ISource> g_sharedSource;
-        static std::once_flag g_InstallingSourceOnceFlag;
-    };
-
-    std::shared_ptr<ISource> PredefinedWriteableSourceFactoryImpl::g_sharedSource = nullptr;
-    std::once_flag PredefinedWriteableSourceFactoryImpl::g_InstallingSourceOnceFlag;
-
-    std::shared_ptr<ISource> PredefinedWriteableSourceFactoryImpl::Create(const SourceDetails& details, IProgressCallback&)
-    {
-        THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedWriteableSourceFactory::Type());
-
-        std::string lockName = "WriteableSource_";
-
-        // Create an in memory index
-        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
-
-        // Installing is the only type right now so just return the Installing source to all callers.
-        // Since the source is writeable, it must be shared by all callers that try to open it
-        // since queries on one instance would not see what was written on another instance.
-        std::call_once(g_InstallingSourceOnceFlag,
-            [&]()
+            bool Add(SourceDetails&, IProgressCallback&) override final
             {
-                // Create an in memory index
-                SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+                // Add should never be needed, as this is predefined.
+                THROW_HR(E_NOTIMPL);
+            }
 
-                g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(details, "*PredefinedWriteableSource", std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
-            });
-        return g_sharedSource;
+            bool Update(const SourceDetails&, IProgressCallback&) override final
+            {
+                // Update could be used later, but not for now.
+                THROW_HR(E_NOTIMPL);
+            }
+
+            bool Remove(const SourceDetails&, IProgressCallback&) override final
+            {
+                // Similar to add, remove should never be needed.
+                THROW_HR(E_NOTIMPL);
+            }
+        };
+
+        struct PredefinedWriteableSourceReference : public ISourceReference
+        {
+            PredefinedWriteableSourceReference(const SourceDetails& details) : m_details(details)
+            {
+                m_details.Identifier = "*PredefinedWriteableSource";
+            }
+
+            std::string GetIdentifier() override { return m_details.Identifier; }
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                // Installing is the only type right now so just return the Installing source to all callers.
+                // Since the source is writeable, it must be shared by all callers that try to open it
+                // since queries on one instance would not see what was written on another instance.
+                std::call_once(g_InstallingSourceOnceFlag,
+                    [&]()
+                    {
+                        // Create an in memory index
+                        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+
+                        g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                    });
+
+                return g_sharedSource;
+            }
+
+        private:
+            SourceDetails m_details;
+            static std::shared_ptr<ISource> g_sharedSource;
+            static std::once_flag g_InstallingSourceOnceFlag;
+        };
+
+        std::shared_ptr<ISource> PredefinedWriteableSourceReference::g_sharedSource = nullptr;
+        std::once_flag PredefinedWriteableSourceReference::g_InstallingSourceOnceFlag;
+
+        std::shared_ptr<ISourceReference> PredefinedWriteableSourceFactoryImpl::Create(const SourceDetails& details)
+        {
+            THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedWriteableSourceFactory::Type());
+
+            return std::make_shared<PredefinedWriteableSourceReference>(details);
+        }
     }
 
     std::string_view PredefinedWriteableSourceFactory::TypeToString(WriteableType type)

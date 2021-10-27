@@ -8,8 +8,7 @@
 #include <AppInstallerStrings.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/WorkflowBase.h>
-#include <Public/AppInstallerRepositorySource.h>
-#include <Public/AppInstallerRepositorySearch.h>
+#include <winget/RepositorySource.h>
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
 
@@ -138,7 +137,7 @@ TEST_CASE("DependencyNodeProcessor_SkipInstalled", "[dependencies]")
 
     Manifest manifest = CreateFakeManifestWithDependencies("installed1");
 
-    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     DependencyNodeProcessor nodeProcessor(context);
 
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
@@ -156,7 +155,7 @@ TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
 
     Manifest manifest = CreateFakeManifestWithDependencies("withoutInstallers");
 
-    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     DependencyNodeProcessor nodeProcessor(context);
 
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
@@ -175,7 +174,7 @@ TEST_CASE("DependencyNodeProcessor_StackOrderIsOk", "[dependencies]")
 
     Manifest manifest = CreateFakeManifestWithDependencies("StackOrderIsOk");
 
-    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     DependencyNodeProcessor nodeProcessor(context);
 
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
@@ -196,7 +195,7 @@ TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
 
     Manifest manifest = CreateFakeManifestWithDependencies("NoMatches");
 
-    context.Add<Execution::Data::DependencySource>(std::make_shared<DependenciesTestSource>());
+    context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     DependencyNodeProcessor nodeProcessor(context);
 
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);

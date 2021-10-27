@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <mutex>
-#include <AppInstallerRepositorySource.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySource.h>
 #include "MatchResult.h"
 #include "MatchResult.g.cpp"
 #include "CatalogPackage.h"

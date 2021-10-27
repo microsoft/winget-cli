@@ -82,9 +82,9 @@ namespace AppInstaller::Repository::Microsoft
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
             }
 
-            std::shared_ptr<const ISource> GetSource() const override
+            Source GetSource() const override
             {
-                return GetReferenceSource();
+                return Source{ GetReferenceSource() };
             }
 
             IPackageVersion::Metadata GetMetadata() const override
@@ -346,10 +346,9 @@ namespace AppInstaller::Repository::Microsoft
         };
     }
 
-    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
+    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
         m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
     {
-        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& SQLiteIndexSource::GetDetails() const
@@ -367,7 +366,7 @@ namespace AppInstaller::Repository::Microsoft
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
-        std::shared_ptr<SQLiteIndexSource> sharedThis = const_cast<SQLiteIndexSource*>(this)->shared_from_this();
+        std::shared_ptr<SQLiteIndexSource> sharedThis = NonConstSharedFromThis();
         for (auto& indexResult : indexResults.Matches)
         {
             std::unique_ptr<IPackage> package;
@@ -392,8 +391,13 @@ namespace AppInstaller::Repository::Microsoft
         return (other && GetIdentifier() == other->GetIdentifier());
     }
 
-    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        SQLiteIndexSource(details, identifier, std::move(index), std::move(lock), isInstalledSource)
+    std::shared_ptr<SQLiteIndexSource> SQLiteIndexSource::NonConstSharedFromThis() const
+    {
+        return const_cast<SQLiteIndexSource*>(this)->shared_from_this();
+    }
+
+    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
+        SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
     {
     }
 

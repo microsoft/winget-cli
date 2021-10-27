@@ -17,7 +17,7 @@
 
 namespace AppInstaller::Repository
 {
-    struct ISource;
+    struct Source;
 
     // The type of matching to perform during a search.
     // The values must be declared in order of preference in search results.
@@ -31,6 +31,9 @@ namespace AppInstaller::Repository
         FuzzySubstring,
         Wildcard,
     };
+
+    // Convert a MatchType to a string.
+    std::string_view ToString(MatchType type);
 
     // The field to match on.
     // The values must be declared in order of preference in search results.
@@ -47,6 +50,12 @@ namespace AppInstaller::Repository
         Market,
         Unknown = 9999
     };
+
+    // Convert a PackageMatchField to a string.
+    std::string_view ToString(PackageMatchField matchField);
+
+    // Parse a string to PackageMatchField.
+    PackageMatchField StringToPackageMatchField(std::string_view field);
 
     // A single match to be performed during a search.
     struct RequestMatch
@@ -185,7 +194,7 @@ namespace AppInstaller::Repository
         virtual Manifest::Manifest GetManifest() = 0;
 
         // Gets the source where this package version is from.
-        virtual std::shared_ptr<const ISource> GetSource() const = 0;
+        virtual Source GetSource() const = 0;
 
         // Gets any metadata associated with this package version.
         // Primarily stores data on installed packages.
@@ -264,7 +273,7 @@ namespace AppInstaller::Repository
         // Contains a failure from the Search.
         struct Failure
         {
-            std::shared_ptr<const ISource> Source;
+            std::string SourceName;
             std::exception_ptr Exception;
         };
 
@@ -301,10 +310,4 @@ namespace AppInstaller::Repository
     private:
         mutable std::string m_whatMessage;
     };
-
-    std::string_view MatchTypeToString(MatchType type);
-
-    std::string_view PackageMatchFieldToString(PackageMatchField matchField);
-
-    PackageMatchField StringToPackageMatchField(std::string_view field);
 }

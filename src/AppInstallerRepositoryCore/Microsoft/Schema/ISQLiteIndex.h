@@ -3,7 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/Version.h"
-#include "Public/AppInstallerRepositorySearch.h"
+#include "ISource.h"
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
 #include <winget/NameNormalization.h>

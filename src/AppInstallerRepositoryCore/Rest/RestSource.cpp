@@ -286,9 +286,9 @@ namespace AppInstaller::Repository::Rest
                 return m_versionInfo.Manifest.value();
             }
 
-            std::shared_ptr<const ISource> GetSource() const override
+            Source GetSource() const override
             {
-                return GetReferenceSource();
+                return Source{ GetReferenceSource() };
             }
 
             IPackageVersion::Metadata GetMetadata() const override
@@ -380,32 +380,9 @@ namespace AppInstaller::Repository::Rest
         }
     }
 
-    RestSource::RestSource(const SourceDetails& details, std::string identifier, RestClient&& restClient)
-        : m_details(details), m_restClient(std::move(restClient))
+    RestSource::RestSource(const SourceDetails& details, SourceInformation information, RestClient&& restClient)
+        : m_details(details), m_information(std::move(information)), m_restClient(std::move(restClient))
     {
-        m_details.Identifier = std::move(identifier);
-
-        const auto& sourceInformation = m_restClient.GetSourceInformation();
-        m_details.Information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
-        m_details.Information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
-        m_details.Information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
-        m_details.Information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
-
-        m_details.Information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
-        for (auto const& agreement : sourceInformation.SourceAgreements)
-        {
-            m_details.Information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
-        }
-    }
-
-    const SourceDetails& RestSource::GetDetails() const
-    {
-        return m_details;
-    }
-
-    const RestClient& RestSource::GetRestClient() const
-    {
-        return m_restClient;
     }
 
     const std::string& RestSource::GetIdentifier() const
@@ -413,12 +390,22 @@ namespace AppInstaller::Repository::Rest
         return m_details.Identifier;
     }
 
+    const SourceDetails& RestSource::GetDetails() const
+    {
+        return m_details;
+    }
+
+    SourceInformation RestSource::GetInformation() const
+    {
+        return m_information;
+    }
+
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
         IRestClient::SearchResult results = m_restClient.Search(request);
         SearchResult searchResult;
 
-        std::shared_ptr<RestSource> sharedThis = const_cast<RestSource*>(this)->shared_from_this();
+        std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
         for (auto& result : results.Matches)
         {
             std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
@@ -434,8 +421,18 @@ namespace AppInstaller::Repository::Rest
         return searchResult;
     }
 
+    const RestClient& RestSource::GetRestClient() const
+    {
+        return m_restClient;
+    }
+
     bool RestSource::IsSame(const RestSource* other) const
     {
         return (other && GetIdentifier() == other->GetIdentifier());
+    }
+
+    std::shared_ptr<RestSource> RestSource::NonConstSharedFromThis() const
+    {
+        return const_cast<RestSource*>(this)->shared_from_this();
     }
 }

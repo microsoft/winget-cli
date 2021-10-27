@@ -12,16 +12,76 @@ namespace AppInstaller::Repository::Rest
 {
     namespace
     {
+        struct RestSourceReference : public ISourceReference
+        {
+            RestSourceReference(const SourceDetails& details) : m_details(details) {}
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            std::string GetIdentifier() override
+            {
+                Initialize();
+                return m_details.Identifier;
+            }
+
+            SourceInformation GetInformation() override
+            {
+                Initialize();
+                return m_information;
+            }
+
+            // Set custom header. Returns false if custom header is not supported.
+            bool SetCustomHeader(std::optional<std::string> header) override
+            {
+                m_customHeader = header;
+                return true;
+            }
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                Initialize();
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
+                return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
+            }
+
+        private:
+            void Initialize()
+            {
+                std::call_once(m_initializeFlag,
+                    [&]()
+                    {
+                        RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
+
+                        m_details.Identifier = restClient.GetSourceIdentifier();
+
+                        const auto& sourceInformation = restClient.GetSourceInformation();
+                        m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
+                        m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
+                        m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
+                        m_information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+
+                        m_information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
+                        for (auto const& agreement : sourceInformation.SourceAgreements)
+                        {
+                            m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
+                        }
+                    });
+            }
+
+            SourceDetails m_details;
+            SourceInformation m_information;
+            std::optional<std::string> m_customHeader;
+            std::once_flag m_initializeFlag;
+        };
+
         // The base class for data that comes from a rest based source.
         struct RestSourceFactoryImpl : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
 
-                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
-
-                return std::make_shared<RestSource>(details, restClient.GetSourceIdentifier(), std::move(restClient));
+                return std::make_shared<RestSourceReference>(details);
             }
 
             bool Add(SourceDetails& details, IProgressCallback&) override final
@@ -38,9 +98,6 @@ namespace AppInstaller::Repository::Rest
                 // Check if URL is remote and secure
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
-
-                RestClient restClient = RestClient::Create(details.Arg, details.CustomHeader);
-                details.Identifier = restClient.GetSourceIdentifier();
 
                 return true;
             }

@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name)
             {
-                std::string result{ PackageMatchFieldToString(match.MatchCriteria.Field) };
+                std::string result{ ToString(match.MatchCriteria.Field) };
                 result += ": ";
                 result += match.MatchCriteria.Value;
                 return result;
@@ -41,32 +41,52 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
         }
 
-        std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
+        Repository::Source OpenNamedSource(Execution::Context& context, std::string_view sourceName)
         {
-            std::shared_ptr<Repository::ISource> source;
+            Repository::Source source;
 
             try
             {
-                OpenSourceResult result;
-                if (!sourceName.empty())
-                {
-                    auto sourceDetails = Repository::GetSource(sourceName);
-                    if (sourceDetails)
-                    {
-                        sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
+                source = Source{ sourceName };
 
-                        result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+                if (!source)
+                {
+                    std::vector<SourceDetails> sources = Source::GetCurrentSources();
+
+                    if (!sourceName.empty() && !sources.empty())
+                    {
+                        // A bad name was given, try to help.
+                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << sourceName << std::endl;
+                        context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
+                        for (const auto& details : sources)
+                        {
+                            context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                        }
+
+                        AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
+                    }
+                    else
+                    {
+                        // Even if a name was given, there are no sources
+                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
                     }
                 }
-                else
+
+                if (context.Args.Contains(Execution::Args::Type::CustomHeader))
                 {
-                    result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+                    std::string customHeader{ context.Args.GetArg(Execution::Args::Type::CustomHeader) };
+                    if (!source.SetCustomHeader(customHeader))
+                    {
+                        context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
+                    }
                 }
 
-                source = result.Source;
+                auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+                auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
 
                 // We'll only report the source update failure as warning and continue
-                for (const auto& s : result.SourcesWithUpdateFailure)
+                for (const auto& s : updateFailures)
                 {
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
                 }
@@ -89,30 +109,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
                 throw;
-            }
-
-            if (!source)
-            {
-                std::vector<SourceDetails> sources = GetSources();
-
-                if (!sourceName.empty() && !sources.empty())
-                {
-                    // A bad name was given, try to help.
-                    context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << sourceName << std::endl;
-                    context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
-                    for (const auto& details : sources)
-                    {
-                        context.Reporter.Info() << "  "_liv << details.Name << std::endl;
-                    }
-
-                    AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
-                }
-                else
-                {
-                    // Even if a name was given, there are no sources
-                    context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
-                    AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
-                }
             }
 
             return source;
@@ -153,22 +149,23 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        bool HandleSourceAgreementsForOneSource(Execution::Context& context, const SourceDetails& source)
+        bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Source& source)
         {
-            AICLI_LOG(CLI, Verbose, << "Checking Source agreements for source: " << source.Name);
+            auto details = source.GetDetails();
+            AICLI_LOG(CLI, Verbose, << "Checking Source agreements for source: " << details.Name);
 
-            if (CheckSourceAgreements(source))
+            if (source.CheckSourceAgreements())
             {
-                AICLI_LOG(CLI, Verbose, << "Source agreements satisfied. Source: " << source.Name);
+                AICLI_LOG(CLI, Verbose, << "Source agreements satisfied. Source: " << details.Name);
                 return true;
             }
 
             // Show source agreements
             std::string agreementsTitleMessage = Resource::LocString{ Resource::String::SourceAgreementsTitle };
             context.Reporter.Info() << Execution::SourceInfoEmphasis <<
-                Utility::LocIndString{ Utility::FindAndReplaceMessageToken(agreementsTitleMessage, source.Name) } << std::endl;
+                Utility::LocIndString{ Utility::FindAndReplaceMessageToken(agreementsTitleMessage, details.Name) } << std::endl;
 
-            const auto& agreements = source.Information.SourceAgreements;
+            const auto& agreements = source.GetInformation().SourceAgreements;
 
             for (const auto& agreement : agreements)
             {
@@ -189,7 +186,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Show message for each individual implicit agreement field
-            auto fields = GetAgreementFieldsFromSourceInformation(source.Information);
+            auto fields = source.GetAgreementFieldsFromSourceInformation();
             if (WI_IsFlagSet(fields, ImplicitAgreementFieldEnum::Market))
             {
                 context.Reporter.Info() << Resource::String::SourceAgreementsMarketMessage << std::endl;
@@ -206,12 +203,12 @@ namespace AppInstaller::CLI::Workflow
 
             if (accepted)
             {
-                AICLI_LOG(CLI, Verbose, << "Source agreements accepted. Source: " << source.Name);
-                SaveAcceptedSourceAgreements(source);
+                AICLI_LOG(CLI, Verbose, << "Source agreements accepted. Source: " << details.Name);
+                source.SaveAcceptedSourceAgreements();
             }
             else
             {
-                AICLI_LOG(CLI, Verbose, << "Source agreements rejected. Source: " << source.Name);
+                AICLI_LOG(CLI, Verbose, << "Source agreements rejected. Source: " << details.Name);
             }
 
             return accepted;
@@ -364,19 +361,22 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenPredefinedSource::operator()(Execution::Context& context) const
     {
-        std::shared_ptr<Repository::ISource> source;
+        Repository::Source source;
         try
         {
-            source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, m_predefinedSource, std::placeholders::_1), true);
+            source = Source{ m_predefinedSource };
+
+            // A well known predefined source should return a value.
+            THROW_HR_IF(E_UNEXPECTED, !source);
+
+            auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+            context.Reporter.ExecuteWithProgress(openFunction, true);
         }
         catch (...)
         {
             context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
             throw;
         }
-
-        // A well known predefined source should return a value.
-        THROW_HR_IF(E_UNEXPECTED, !source);
 
         if (m_forDependencies)
         {
@@ -391,7 +391,7 @@ namespace AppInstaller::CLI::Workflow
     void OpenCompositeSource::operator()(Execution::Context& context) const
     {
         // Get the already open source for use as the available.
-        std::shared_ptr<Repository::ISource> availableSource;
+        Repository::Source availableSource;
         if (m_forDependencies)
         {
             availableSource = context.Get<Execution::Data::DependencySource>();
@@ -405,17 +405,17 @@ namespace AppInstaller::CLI::Workflow
         context << OpenPredefinedSource(m_predefinedSource, m_forDependencies);
 
         // Create the composite source from the two.
-        std::shared_ptr<Repository::ISource> source;
-        std::shared_ptr<Repository::ISource> compositeSource;
+        Repository::Source source;
+        Repository::Source compositeSource;
         if (m_forDependencies)
         {
             source = context.Get<Execution::Data::DependencySource>();
-            compositeSource = Repository::CreateCompositeSource(source, availableSource, CompositeSearchBehavior::AvailablePackages);
+            compositeSource = Repository::Source{ source, availableSource, CompositeSearchBehavior::AvailablePackages };
         }
         else
         {
             source = context.Get<Execution::Data::Source>();
-            compositeSource = Repository::CreateCompositeSource(source, availableSource);
+            compositeSource = Repository::Source{ source, availableSource };
         }
 
         // Overwrite the source with the composite.
@@ -458,7 +458,7 @@ namespace AppInstaller::CLI::Workflow
             searchRequest.MaximumResults,
             searchRequest.ToString());
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
     void SearchSourceForSingle(Execution::Context& context)
@@ -498,7 +498,7 @@ namespace AppInstaller::CLI::Workflow
             searchRequest.MaximumResults,
             searchRequest.ToString());
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
     void SearchSourceForManyCompletion(Execution::Context& context)
@@ -511,7 +511,7 @@ namespace AppInstaller::CLI::Workflow
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
     void SearchSourceForSingleCompletion(Execution::Context& context)
@@ -526,7 +526,7 @@ namespace AppInstaller::CLI::Workflow
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
     void SearchSourceForCompletionField::operator()(Execution::Context& context) const
@@ -539,7 +539,7 @@ namespace AppInstaller::CLI::Workflow
         // If filters are provided, be generous with the search no matter the intended result.
         SearchSourceApplyFilters(context, searchRequest, MatchType::Substring);
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
     void ReportSearchResult(Execution::Context& context)
@@ -547,7 +547,7 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        bool sourceIsComposite = context.Get<Execution::Data::Source>()->IsComposite();
+        bool sourceIsComposite = context.Get<Execution::Data::Source>().IsComposite();
         Execution::TableOutput<5> table(context.Reporter,
             {
                 Resource::String::SearchName,
@@ -589,7 +589,7 @@ namespace AppInstaller::CLI::Workflow
                 auto warn = context.Reporter.Warn();
                 for (const auto& failure : searchResult.Failures)
                 {
-                    warn << Resource::String::SearchFailureWarning << ' ' << failure.Source->GetDetails().Name << std::endl;
+                    warn << Resource::String::SearchFailureWarning << ' ' << failure.SourceName << std::endl;
                 }
             }
             else
@@ -598,7 +598,7 @@ namespace AppInstaller::CLI::Workflow
                 auto error = context.Reporter.Error();
                 for (const auto& failure : searchResult.Failures)
                 {
-                    error << Resource::String::SearchFailureError << ' ' << failure.Source->GetDetails().Name << std::endl;
+                    error << Resource::String::SearchFailureError << ' ' << failure.SourceName << std::endl;
                     HRESULT failureHR = HandleException(context, failure.Exception);
 
                     // Just take first failure for now
@@ -676,7 +676,7 @@ namespace AppInstaller::CLI::Workflow
                 auto source = latest->GetSource();
                 if (source)
                 {
-                    sourceName = source->GetDetails().Name;
+                    sourceName = source.GetDetails().Name;
                 }
             }
 
@@ -710,7 +710,7 @@ namespace AppInstaller::CLI::Workflow
 
         int availableUpgradesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
-        bool shouldShowSource = source->IsComposite() && source->GetAvailableSources().size() > 1;
+        bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
         for (const auto& match : searchResult.Matches)
         {
@@ -980,24 +980,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const SourceDetails& sourceDetails)
-    {
-        std::optional<std::string> customHeader;
-        if (context.Args.Contains(Execution::Args::Type::CustomHeader))
-        {
-            if (!SupportsCustomHeader(sourceDetails))
-            {
-                context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
-            }
-            else
-            {
-                customHeader = context.Args.GetArg(Execution::Args::Type::CustomHeader);
-            }
-        }
-
-        return customHeader;
-    }
-
     void EnsureFeatureEnabled::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
@@ -1029,7 +1011,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!searchRequest.Inclusions.empty())
             {
-                auto searchResult = source->Search(searchRequest);
+                auto searchResult = source.Search(searchRequest);
 
                 if (!searchResult.Matches.empty())
                 {
@@ -1045,7 +1027,7 @@ namespace AppInstaller::CLI::Workflow
         // In case there're same Ids from different sources, filter the result using package name
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>()));
 
-        context.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
     }
 
     void GetInstalledPackageVersion(Execution::Context& context)
@@ -1068,11 +1050,11 @@ namespace AppInstaller::CLI::Workflow
 
         bool allAccepted = true;
 
-        if (m_source->IsComposite())
+        if (m_source.IsComposite())
         {
-            for (auto const& source : m_source->GetAvailableSources())
+            for (auto const& source : m_source.GetAvailableSources())
             {
-                if (!HandleSourceAgreementsForOneSource(context, source->GetDetails()))
+                if (!HandleSourceAgreementsForOneSource(context, source))
                 {
                     allAccepted = false;
                 }
@@ -1080,7 +1062,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            allAccepted = HandleSourceAgreementsForOneSource(context, m_source->GetDetails());
+            allAccepted = HandleSourceAgreementsForOneSource(context, m_source);
         }
 
         if (!allAccepted)

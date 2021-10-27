@@ -21,7 +21,7 @@ namespace AppInstaller::CLI::Workflow
 
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
 
-        const auto& matches = source->Search(searchRequest).Matches;
+        const auto& matches = source.Search(searchRequest).Matches;
 
         if (matches.empty())
         {

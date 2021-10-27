@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "PackageCatalogReference.g.h"
+#include <optional>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -10,7 +11,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageCatalogReference() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo);
+        void Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference);
         void Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options);
 #endif
 
@@ -25,6 +26,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_compositePackageCatalogOptions{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
+        ::AppInstaller::Repository::Source m_sourceReference;
+        std::optional<std::string> m_additionalPackageCatalogArguments;
 #endif
     };
 }
