@@ -322,6 +322,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpdateDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);

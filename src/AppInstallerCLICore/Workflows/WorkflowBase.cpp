@@ -918,6 +918,14 @@ namespace AppInstaller::CLI::Workflow
 
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+
+        if (!installer.has_value() &&
+            WI_IsSingleFlagSetInMask(inapplicability, InapplicabilityFlags::InstalledType))
+        {
+            context.Reporter.Info() << Resource::String::UpdateDifferentInstallTechnology << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+        }
+
         context.Add<Execution::Data::Installer>(installer);
     }
 
