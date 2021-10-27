@@ -11,19 +11,22 @@
 #include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
-
+#include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerDeployment.h>
+
+using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Foundation::Collections;
+using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
+
 
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
-    using namespace winrt::Windows::Foundation;
-    using namespace winrt::Windows::Foundation::Collections;
-    using namespace winrt::Windows::Management::Deployment;
-    using namespace AppInstaller::Manifest;
-    using namespace AppInstaller::Repository;
-    using namespace AppInstaller::Settings;
-
     namespace
     {
         bool MightWriteToARP(InstallerTypeEnum type)
@@ -370,6 +373,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ExecuteInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
+            Workflow::RecordInstall <<
             Workflow::RemoveInstaller;
     }
 
@@ -380,6 +384,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::DownloadInstaller;
     }
 
@@ -392,8 +397,12 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
-        // Show all license agreements before installing anything
-        context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
+        if (m_ensurePackageAgreements)
+        {
+            // Show all license agreements before installing anything
+            context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
+        }
+
         if (context.IsTerminated())
         {
             return;
@@ -413,9 +422,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool allSucceeded = true;
+        size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
+        size_t packagesProgress = 0;
+        
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
+
+            packagesProgress++;
+            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
 
             // We want to do best effort to install all packages regardless of previous failures
             auto installContextPtr = context.Clone();
@@ -427,10 +442,13 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
             installContext.Add<Execution::Data::Installer>(package.Installer);
 
-            installContext <<
-                Workflow::ReportIdentityAndInstallationDisclaimer <<
-                Workflow::DownloadInstaller <<
-                Workflow::InstallPackageInstaller;
+            installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
+            if (!m_ignorePackageDependencies)
+            {
+                installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
+            }
+            installContext << Workflow::DownloadInstaller;
+            installContext << Workflow::InstallPackageInstaller;
 
             installContext.Reporter.Info() << std::endl;
 
@@ -463,15 +481,17 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && MightWriteToARP(installer->InstallerType))
         {
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress);
+                    return result;
                 }, true);
 
             std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
 
-            for (const auto& entry : arpSource->Search({}).Matches)
+            for (const auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
                 if (installed)
@@ -497,15 +517,17 @@ namespace AppInstaller::CLI::Workflow
             const auto& entries = context.Get<Execution::Data::ARPSnapshot>();
 
             // Open it again to get the (potentially) changed ARP entries
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress);
+                    return result;
                 }, true);
 
             std::vector<ResultMatch> changes;
 
-            for (auto& entry : arpSource->Search({}).Matches)
+            for (auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
 
@@ -570,7 +592,7 @@ namespace AppInstaller::CLI::Workflow
             // Don't execute this search if it would just find everything
             if (!nameAndPublisherRequest.IsForEverything())
             {
-                findByManifest = arpSource->Search(nameAndPublisherRequest);
+                findByManifest = arpSource.Search(nameAndPublisherRequest);
             }
 
             // Cross reference the changes with the search results
@@ -649,5 +671,23 @@ namespace AppInstaller::CLI::Workflow
             );
         }
     }
-    CATCH_LOG()
+    CATCH_LOG();
+
+    void RecordInstall(Context& context)
+    {
+        // Local manifest installs won't have a package version, and tracking them doesn't provide much
+        // value currently. If we ever do use our own database as a primary source of packages that we
+        // maintain, this decision will probably have to be reconsidered.
+        if (!context.Contains(Data::PackageVersion))
+        {
+            return;
+        }
+
+        auto trackingCatalog = PackageTrackingCatalog::CreateForSource(context.Get<Data::PackageVersion>()->GetSource());
+
+        trackingCatalog.RecordInstall(
+            context.Get<Data::Manifest>(),
+            context.Get<Data::Installer>().value(),
+            WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+    }
 }

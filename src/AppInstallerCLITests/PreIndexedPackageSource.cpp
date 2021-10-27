@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestSource.h"
 #include "TestCommon.h"
 #include "TestSettings.h"
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <Microsoft/PreIndexedPackageSourceFactory.h>

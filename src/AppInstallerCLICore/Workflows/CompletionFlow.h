@@ -3,7 +3,7 @@
 #pragma once
 #include "ExecutionContext.h"
 #include "WorkflowBase.h"
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySearch.h>
 
 namespace AppInstaller::CLI::Workflow
 {

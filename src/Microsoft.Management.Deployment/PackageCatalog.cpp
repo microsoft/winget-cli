@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <mutex>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "PackageCatalog.h"
@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void PackageCatalog::Initialize(
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo info,
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+        ::AppInstaller::Repository::Source source,
         bool isComposite)
     {
         m_info = info;
@@ -137,7 +137,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
         
             searchRequest.MaximumResults = options.ResultLimit();
-            auto searchResult = m_source->Search(searchRequest);
+            auto searchResult = m_source.Search(searchRequest);
 
             // Handle failures by just rethrowing the first one for now.
             // TODO: Look into updating the COM interface to enable the single source

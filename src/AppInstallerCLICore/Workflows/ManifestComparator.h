@@ -3,7 +3,7 @@
 #pragma once
 #include "ExecutionArgs.h"
 #include <winget/Manifest.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySearch.h>
 
 #include <memory>
 #include <string>

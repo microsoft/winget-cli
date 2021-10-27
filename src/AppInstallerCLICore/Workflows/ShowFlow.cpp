@@ -172,7 +172,10 @@ namespace AppInstaller::CLI::Workflow
                         dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
                             {
                                 info << "        "_liv << dependency.Id;
-                                if (dependency.MinVersion) info << " [>= " << dependency.MinVersion.value() << "]";
+                                if (dependency.MinVersion)
+                                {
+                                    info << " [>= " << dependency.MinVersion.value().ToString() << "]";
+                                }
                                 info << std::endl;
                             });
                     }

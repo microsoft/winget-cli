@@ -96,9 +96,9 @@ namespace TestCommon
         return VersionManifest;
     }
 
-    std::shared_ptr<const ISource> TestPackageVersion::GetSource() const
+    Repository::Source TestPackageVersion::GetSource() const
     {
-        return Source.lock();
+        return std::const_pointer_cast<TestPackageVersion::ISource>(Source.lock());
     }
 
     TestPackageVersion::MetadataMap TestPackageVersion::GetMetadata() const
@@ -219,6 +219,11 @@ namespace TestCommon
 
     bool TestPackage::IsSame(const IPackage* other) const
     {
+        if (IsSameOverride)
+        {
+            return IsSameOverride(this, other);
+        }
+
         const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
 
         if (!otherAvailable ||
@@ -249,6 +254,11 @@ namespace TestCommon
         return Details.Identifier;
     }
 
+    SourceInformation TestSource::GetInformation() const
+    {
+        return Information;
+    }
+
     SearchResult TestSource::Search(const SearchRequest& request) const
     {
         if (SearchFunction)
@@ -266,9 +276,16 @@ namespace TestCommon
         return Composite;
     }
 
-    std::shared_ptr<ISource> TestSourceFactory::Create(const SourceDetails& details, IProgressCallback&)
+    std::shared_ptr<ISourceReference> TestSourceFactory::Create(const SourceDetails& details)
     {
-        return OnCreate(details);
+        if (OnOpenWithCustomHeader)
+        {
+            return std::make_shared<TestSourceReference>(details, OnOpenWithCustomHeader);
+        }
+        else
+        {
+            return std::make_shared<TestSourceReference>(details, OnOpen);
+        }
     }
 
     bool TestSourceFactory::Add(SourceDetails& details, IProgressCallback&)
@@ -302,5 +319,40 @@ namespace TestCommon
     TestSourceFactory::operator std::function<std::unique_ptr<ISourceFactory>()>()
     {
         return [this]() { return std::make_unique<TestSourceFactory>(*this); };
+    }
+
+    bool AddSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress)
+    {
+        Repository::Source source{ details.Name, details.Arg, details.Type };
+        return source.Add(progress);
+    }
+
+    bool UpdateSource(std::string_view name, AppInstaller::IProgressCallback& progress)
+    {
+        Repository::Source source{ name };
+        return source.Update(progress).empty();
+    }
+
+    bool RemoveSource(std::string_view name, AppInstaller::IProgressCallback& progress)
+    {
+        Repository::Source source{ name };
+        return source.Remove(progress);
+    }
+
+    std::vector<AppInstaller::Repository::SourceDetails> GetSources()
+    {
+        return Repository::Source::GetCurrentSources();
+    }
+
+    AppInstaller::Repository::Source OpenSource(std::string_view name, AppInstaller::IProgressCallback& progress)
+    {
+        Repository::Source source{ name };
+        source.Open(progress);
+        return source;
+    }
+
+    void DropSource(std::string_view name)
+    {
+        Source::DropSource(name);
     }
 }

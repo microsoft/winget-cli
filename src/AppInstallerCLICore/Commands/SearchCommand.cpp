@@ -44,7 +44,7 @@ namespace AppInstaller::CLI
         {
         case Execution::Args::Type::Query:
             context <<
-                Workflow::OpenSource <<
+                Workflow::OpenSource() <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
                 Workflow::CompleteWithMatchedField;
@@ -71,7 +71,7 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::OpenSource <<
+            Workflow::OpenSource() <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(false) <<

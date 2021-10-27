@@ -14,62 +14,62 @@ namespace AppInstaller::CLI::Workflow
 
     void GetSourceList(Execution::Context& context)
     {
-        context.Add<Execution::Data::SourceList>(Repository::GetSources());
+        context.Add<Execution::Data::SourceList>(Repository::Source::GetCurrentSources());
     }
 
     void GetSourceListWithFilter(Execution::Context& context)
     {
+        auto currentSources = Repository::Source::GetCurrentSources();
         if (context.Args.Contains(Args::Type::SourceName))
         {
             std::string_view name = context.Args.GetArg(Args::Type::SourceName);
-            std::optional<Repository::SourceDetails> source = Repository::GetSource(name);
 
-            if (!source)
+            for (auto const& source : currentSources)
             {
-                context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+                if (Utility::ICUCaseInsensitiveEquals(source.Name, name))
+                {
+                    std::vector<Repository::SourceDetails> sources;
+                    sources.emplace_back(source);
+                    context.Add<Execution::Data::SourceList>(std::move(sources));
+                    return;
+                }
             }
 
-            std::vector<Repository::SourceDetails> sources;
-            sources.emplace_back(std::move(source.value()));
-            context.Add<Execution::Data::SourceList>(std::move(sources));
+            context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
         else
         {
-            context.Add<Execution::Data::SourceList>(Repository::GetSources());
+            context.Add<Execution::Data::SourceList>(std::move(currentSources));
         }
     }
 
     void CheckSourceListAgainstAdd(Execution::Context& context)
     {
+        auto sourceList = context.Get<Execution::Data::SourceList>();
         std::string_view name = context.Args.GetArg(Args::Type::SourceName);
         std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
-
-        // First check if this is going to be a name conflict
-        std::optional<Repository::SourceDetails> source = Repository::GetSource(name);
-        if (source)
-        {
-            if (source->Arg == arg)
-            {
-                // Name and arg match, indicate this to the user and bail.
-                context.Reporter.Info() << Resource::String::SourceAddAlreadyExistsMatch << std::endl <<
-                    "  "_liv << source->Name << " -> "_liv << source->Arg << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
-            }
-            else
-            {
-                context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentArg << std::endl <<
-                    "  "_liv << source->Name << " -> "_liv << source->Arg << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
-            }
-        }
-
-        // Now check if the URL is already in use under a different name
-        auto sourceList = context.Get<Execution::Data::SourceList>();
         std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
         for (const auto& details : sourceList)
         {
+            if (Utility::ICUCaseInsensitiveEquals(details.Name, name))
+            {
+                if (details.Arg == arg)
+                {
+                    // Name and arg match, indicate this to the user and bail.
+                    context.Reporter.Info() << Resource::String::SourceAddAlreadyExistsMatch << std::endl <<
+                        "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentArg << std::endl <<
+                        "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
+                }
+            }
+
             if (!details.Arg.empty() && details.Arg == arg && details.Type == type)
             {
                 context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentName << std::endl <<
@@ -81,41 +81,50 @@ namespace AppInstaller::CLI::Workflow
 
     void AddSource(Execution::Context& context)
     {
-        Repository::SourceDetails sourceDetails;
-        sourceDetails.Name = context.Args.GetArg(Args::Type::SourceName);
-        sourceDetails.Arg = context.Args.GetArg(Args::Type::SourceArg);
-
-        if (context.Args.Contains(Args::Type::SourceType))
-        {
-            sourceDetails.Type = context.Args.GetArg(Args::Type::SourceType);
-        }
+        auto& sourceToAdd = context.Get<Execution::Data::Source>();
+        auto details = sourceToAdd.GetDetails();
 
         context.Reporter.Info() <<
             Resource::String::SourceAddBegin << std::endl <<
-            "  "_liv << sourceDetails.Name << " -> "_liv << sourceDetails.Arg << std::endl;
+            "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
 
-        if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, sourceDetails, std::placeholders::_1)))
+        auto addFunction = [&](IProgressCallback& progress)->bool { return sourceToAdd.Add(progress); };
+        if (!context.Reporter.ExecuteWithProgress(addFunction))
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
         }
+        else
+        {
+            context.Reporter.Info() << Resource::String::Done << std::endl;
+        }
     }
 
-    void OpenSourceForSourceAdd(Execution::Context& context)
+    void CreateSourceForSourceAdd(Execution::Context& context)
     {
         try
         {
-            auto sourceDetails = Repository::GetSource(context.Args.GetArg(Args::Type::SourceName));
-            sourceDetails.value().CustomHeader = GetCustomHeaderFromArg(context, sourceDetails.value());
+            std::string_view name = context.Args.GetArg(Args::Type::SourceName);
+            std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
+            std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
-            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSourceFromDetails, sourceDetails.value(), std::placeholders::_1), true);
+            Repository::Source sourceToAdd{ name, arg, type };
 
-            if (!result.Source)
+            if (context.Args.Contains(Execution::Args::Type::CustomHeader))
             {
-                context.Reporter.Error() << Resource::String::SourceAddOpenSourceFailed;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+                std::string customHeader{ context.Args.GetArg(Execution::Args::Type::CustomHeader) };
+                if (!sourceToAdd.SetCustomHeader(customHeader))
+                {
+                    context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
+                }
             }
 
-            context << Workflow::HandleSourceAgreements(result.Source);
+            context << Workflow::HandleSourceAgreements(sourceToAdd);
+            if (context.IsTerminated())
+            {
+                return;
+            }
+
+            context.Add<Execution::Data::Source>(std::move(sourceToAdd));
         }
         catch (...)
         {
@@ -185,14 +194,16 @@ namespace AppInstaller::CLI::Workflow
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
         for (const auto& sd : sources)
         {
+            Repository::Source source{ sd.Name };
             context.Reporter.Info() << Resource::String::SourceUpdateOne << ' ' << sd.Name << "..."_liv << std::endl;
-            if (context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1)))
+            auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
+            if (!context.Reporter.ExecuteWithProgress(updateFunction).empty())
             {
-                context.Reporter.Info() << Resource::String::Done << std::endl;
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
             }
             else
             {
-                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                context.Reporter.Info() << Resource::String::Done << std::endl;
             }
         }
     }
@@ -209,8 +220,10 @@ namespace AppInstaller::CLI::Workflow
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
         for (const auto& sd : sources)
         {
+            Repository::Source source{ sd.Name };
             context.Reporter.Info() << Resource::String::SourceRemoveOne << ' ' << sd.Name << "..."_liv << std::endl;
-            if (context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1)))
+            auto removeFunction = [&](IProgressCallback& progress)->bool { return source.Remove(progress); };
+            if (context.Reporter.ExecuteWithProgress(removeFunction))
             {
                 context.Reporter.Info() << Resource::String::Done << std::endl;
             }
@@ -245,7 +258,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& source : sources)
         {
             context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << source.Name << "..."_liv;
-            Repository::DropSource(source.Name);
+            Repository::Source::DropSource(source.Name);
             context.Reporter.Info() << Resource::String::Done << std::endl;
         }
     }
@@ -253,7 +266,7 @@ namespace AppInstaller::CLI::Workflow
     void ResetAllSources(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::SourceResetAll;
-        Repository::DropSource({});
+        Repository::Source::DropSource({});
         context.Reporter.Info() << Resource::String::Done << std::endl;
     }
 

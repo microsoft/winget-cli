@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Data::CompletionData>().Word();
         auto stream = context.Reporter.Completion();
 
-        for (const auto& source : Repository::GetSources())
+        for (const auto& source : Repository::Source::GetCurrentSources())
         {
             if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(source.Name, word))
             {
@@ -114,7 +114,7 @@ namespace AppInstaller::CLI::Workflow
         case Execution::Args::Type::Version:
         case Execution::Args::Type::Channel:
             context <<
-                Workflow::OpenSource;
+                Workflow::OpenSource();
             break;
         }
 
