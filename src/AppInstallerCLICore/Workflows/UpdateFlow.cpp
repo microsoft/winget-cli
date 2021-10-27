@@ -27,6 +27,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
+        InapplicabilityFlags inapplicabilityVersions = InapplicabilityFlags::None;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -39,9 +40,10 @@ namespace AppInstaller::CLI::Workflow
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
-                auto installer = manifestComparator.GetPreferredInstaller(manifest);
+                auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    WI_SetAllFlags(inapplicabilityVersions, inapplicability);
                     continue;
                 }
 
@@ -66,7 +68,13 @@ namespace AppInstaller::CLI::Workflow
             if (m_reportUpdateNotFound)
             {
                 context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+
+                if (WI_IsSingleFlagSetInMask(inapplicabilityVersions, InapplicabilityFlags::InstalledType))
+                {
+                    context.Reporter.Info() << "TODO CHANGE" << std::endl;
+                }
             }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }

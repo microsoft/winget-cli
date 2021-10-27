@@ -917,7 +917,8 @@ namespace AppInstaller::CLI::Workflow
         }
 
         ManifestComparator manifestComparator(context, installationMetadata);
-        context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
+        auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+        context.Add<Execution::Data::Installer>(installer);
     }
 
     void EnsureRunningAsAdmin(Execution::Context& context)
