@@ -18,9 +18,9 @@ namespace AppInstaller::CLI::Execution
 
     ContextOrchestrator::ContextOrchestrator()
     {
-        ::AppInstaller::ProgressCallback progress;
-        std::shared_ptr<::AppInstaller::Repository::ISource> installingSource = ::AppInstaller::Repository::OpenPredefinedSource(::AppInstaller::Repository::PredefinedSource::Installing, progress);
-        m_installingWriteableSource = std::dynamic_pointer_cast<::AppInstaller::Repository::IMutablePackageSource>(installingSource);
+        ProgressCallback progress;
+        m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
+        m_installingWriteableSource.Open(progress);
     }
 
     _Requires_lock_held_(m_queueLock) 
@@ -49,9 +49,9 @@ namespace AppInstaller::CLI::Execution
             m_queueItems.push_back(item);
         }
 
-        // Add the package to the Installing source so that it can be queried using the ISource interface.
+        // Add the package to the Installing source so that it can be queried using the Source interface.
         const auto& manifest = item->GetContext().Get<Execution::Data::Manifest>();
-        m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+        m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
 
         {
             std::lock_guard<std::mutex> lockQueue{ m_queueLock };
@@ -166,7 +166,7 @@ namespace AppInstaller::CLI::Execution
         if (foundItem)
         {
             const auto& manifest = item.GetContext().Get<Execution::Data::Manifest>();
-            m_installingWriteableSource->RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+            m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
 
             item.GetCompletedEvent().SetEvent();
         }

@@ -43,6 +43,17 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowPackageVersionNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoInstallerFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoSuitableInstallerFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowContainsLoop);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
@@ -265,6 +276,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependencySourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandLongDescription);

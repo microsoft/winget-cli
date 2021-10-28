@@ -38,4 +38,25 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: Dependencies
     void GetDependenciesInfoForUninstall(Execution::Context& context);
+
+    // Builds the dependency graph.
+    // Required Args: None
+    // Inputs: Manifest, Installer and DependencySource
+    // Outputs: Dependencies
+    struct ManagePackageDependencies : public WorkflowTask
+    {
+        ManagePackageDependencies(AppInstaller::StringResource::StringId dependencyReportMessage) :
+            WorkflowTask("ReportDependencies"), m_dependencyReportMessage(dependencyReportMessage) {}
+
+        void operator()(Execution::Context& context) const override;
+
+        private:
+            AppInstaller::StringResource::StringId m_dependencyReportMessage;
+    };
+
+    // Sets up the source used to get the dependencies.
+    // Required Args: None
+    // Inputs: PackageVersion, Manifest
+    // Outputs: DependencySource
+    void OpenDependencySource(Execution::Context& context);
 }

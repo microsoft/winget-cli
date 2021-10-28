@@ -4,7 +4,7 @@
 #include "SQLiteWrapper.h"
 #include "SQLiteTempTable.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "AppInstallerRepositorySearch.h"
+#include "Public/winget/RepositorySearch.h"
 
 #include <optional>
 #include <utility>

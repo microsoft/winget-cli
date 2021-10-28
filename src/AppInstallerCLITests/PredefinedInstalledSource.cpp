@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <AppInstallerRepositorySource.h>
+#include <ISource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
@@ -142,7 +142,7 @@ std::shared_ptr<ISource> CreatePredefinedInstalledSource(Factory::Filter filter 
     TestProgress progress;
 
     auto factory = Factory::Create();
-    return factory->Create(details, progress);
+    return factory->Create(details)->Open(progress);
 }
 
 TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")

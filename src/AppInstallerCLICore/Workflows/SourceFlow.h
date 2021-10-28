@@ -31,10 +31,10 @@ namespace AppInstaller::CLI::Workflow
     void AddSource(Execution::Context& context);
 
     // Opens a source before source add command.
-    // Required Args: None
+    // Required Args: SourceName, SourceArg
     // Inputs: None
     // Outputs: Source
-    void OpenSourceForSourceAdd(Execution::Context& context);
+    void CreateSourceForSourceAdd(Execution::Context& context);
 
     // Lists the sources in SourceList.
     // Required Args: None

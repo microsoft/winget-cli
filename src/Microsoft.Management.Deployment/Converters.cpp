@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerErrors.h>
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"

@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct PackageCatalogInfo : PackageCatalogInfoT<PackageCatalogInfo>
     {
         PackageCatalogInfo() = default;
-        
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(const ::AppInstaller::Repository::SourceDetails& sourceDetails);
         ::AppInstaller::Repository::SourceDetails& GetSourceDetails();
@@ -24,7 +24,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        ::AppInstaller::Repository::SourceDetails m_sourceDetails{};
+        ::AppInstaller::Repository::SourceDetails m_sourceDetails;
 #endif
     };
 }

@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <mutex>
-#include <AppInstallerRepositorySource.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySource.h>
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
 #include "PackageCatalog.h"
@@ -14,7 +13,7 @@
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void CatalogPackage::Initialize(
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+        ::AppInstaller::Repository::Source source,
         std::shared_ptr<::AppInstaller::Repository::IPackage> package)
     {
         m_source = std::move(source);
