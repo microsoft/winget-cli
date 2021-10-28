@@ -71,6 +71,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << "Installer not found for manifest " << m_nodeManifest.Id << " with version" << m_nodeManifest.Version);
             return DependencyNodeProcessorResult::Error;
         }
+        m_nodeManifest.ApplyLocale();
 
         std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
 
