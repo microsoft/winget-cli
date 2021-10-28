@@ -72,8 +72,6 @@ namespace AppInstaller::CLI::Workflow
             return DependencyNodeProcessorResult::Error;
         }
 
-        std::optional<AppInstaller::Manifest::ManifestInstaller> installer;
-
         IPackageVersion::Metadata installationMetadata;
         if (m_nodePackageInstalledVersion)
         {
@@ -81,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         ManifestComparator manifestComparator(m_context, installationMetadata);
-        installer = manifestComparator.GetPreferredInstaller(m_nodeManifest);
+        auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(m_nodeManifest);
 
         if (!installer.has_value())
         {

@@ -67,9 +67,9 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_reportUpdateNotFound)
             {
-                if (WI_IsSingleFlagSetInMask(inapplicabilityVersions, InapplicabilityFlags::InstalledType))
+                if (inapplicabilityVersions == InapplicabilityFlags::InstalledType)
                 {
-                    context.Reporter.Info() << Resource::String::UpdateDifferentInstallTechnology << std::endl;
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
                 }
                 else
                 {

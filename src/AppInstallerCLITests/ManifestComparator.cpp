@@ -58,7 +58,7 @@ TEST_CASE("ManifestComparator_OSFilter_Low", "[manifest_comparator]")
     auto [result, inapplicability] = mc.GetPreferredInstaller(manifest);
 
     REQUIRE(!result);
-    REQUIRE(WI_IsSingleFlagSetInMask(inapplicability, InapplicabilityFlags::OSVersion));
+    REQUIRE(inapplicability == InapplicabilityFlags::OSVersion);
 }
 
 TEST_CASE("ManifestComparator_OSFilter_High", "[manifest_comparator]")
@@ -362,7 +362,7 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]
         auto [result, inapplicability] = mc.GetPreferredInstaller(manifest);
 
         REQUIRE(!result);
-        REQUIRE(WI_IsSingleFlagSetInMask(inapplicability, InapplicabilityFlags::InstalledLocale));
+        REQUIRE(inapplicability == InapplicabilityFlags::InstalledLocale);
     }
 }
 
@@ -392,7 +392,7 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
         auto [result, inapplicability] = mc.GetPreferredInstaller(manifest);
 
         REQUIRE(!result);
-        REQUIRE(WI_IsSingleFlagSetInMask(inapplicability, InapplicabilityFlags::Locale));
+        REQUIRE(inapplicability == InapplicabilityFlags::Locale);
     }
     SECTION("en-US Preference")
     {
@@ -428,7 +428,7 @@ TEST_CASE("ManifestComparator_AllowedArchitecture_x64_only", "[manifest_comparat
     auto [result, inapplicability] = mc.GetPreferredInstaller(manifest);
 
     REQUIRE(!result);
-    REQUIRE(WI_IsSingleFlagSetInMask(inapplicability, InapplicabilityFlags::MachineArchitecture));
+    REQUIRE(inapplicability == InapplicabilityFlags::MachineArchitecture);
 }
 
 TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")

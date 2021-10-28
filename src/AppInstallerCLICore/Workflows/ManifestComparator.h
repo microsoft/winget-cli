@@ -33,16 +33,14 @@ namespace AppInstaller::CLI::Workflow
         // An interface for defining new filters based on user inputs.
         struct FilterField
         {
-            FilterField(std::string_view name, InapplicabilityFlags installerApplicability) :
-                m_name(name), m_installerApplicability(installerApplicability) {}
+            FilterField(std::string_view name) : m_name(name) {}
 
             virtual ~FilterField() = default;
 
             std::string_view Name() const { return m_name; }
-            InapplicabilityFlags InapplicableReason() const { return m_installerApplicability; }
 
             // Determines if the installer is applicable based on this field alone.
-            virtual bool IsApplicable(const Manifest::ManifestInstaller& installer) = 0;
+            virtual InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) = 0;
 
             // Explains why the filter regarded this installer as inapplicable.
             // Will only be called when IsApplicable returns false.
@@ -50,7 +48,6 @@ namespace AppInstaller::CLI::Workflow
 
         private:
             std::string_view m_name;
-            InapplicabilityFlags m_installerApplicability;
         };
 
         // An interface for defining new comparisons based on user inputs.
@@ -65,13 +62,19 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
+    struct InstallerAndInapplicability
+    {
+        std::optional<Manifest::ManifestInstaller> installer;
+        InapplicabilityFlags inapplicabilityFlags;
+    };
+
     // Class in charge of comparing manifest entries
     struct ManifestComparator
     {
         ManifestComparator(const Execution::Context& context, const Repository::IPackageVersion::Metadata& installationMetadata);
 
         // Gets the best installer from the manifest, if at least one is applicable.
-        std::tuple<std::optional<Manifest::ManifestInstaller>, InapplicabilityFlags> GetPreferredInstaller(const Manifest::Manifest& manifest);
+        InstallerAndInapplicability GetPreferredInstaller(const Manifest::Manifest& manifest);
 
         // Determines if an installer is applicable.
         InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer);

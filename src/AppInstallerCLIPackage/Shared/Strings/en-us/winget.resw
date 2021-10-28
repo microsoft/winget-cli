@@ -1236,7 +1236,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
   </data>
-  <data name="UpdateDifferentInstallTechnology" xml:space="preserve">
-    <value>At least a newer package was found but the installed technology is different from the current version installed. Please uninstall the package and install a newer version.</value>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>At least a newer package was found but the install technology is different from the current version installed. Please uninstall the package and install a newer version.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>The install technology is different from the current version installed. Please uninstall the package and the newer version.</value>
   </data>
 </root>
