@@ -270,11 +270,12 @@ namespace AppInstaller::Repository
         }
 
         m_source = compositeSource;
+        m_isComposite = true;
     }
 
     Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
     {
-        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_source->IsComposite() || !availableSource.m_source);
+        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_isComposite || !availableSource.m_source);
 
         std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
 
@@ -287,6 +288,7 @@ namespace AppInstaller::Repository
         compositeSource->SetInstalledSource(installedSource.m_source, searchBehavior);
 
         m_source = compositeSource;
+        m_isComposite = true;
     }
 
     Source::Source(std::shared_ptr<ISource> source) : m_source(std::move(source)) {}
@@ -315,13 +317,14 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, adding all to source references.");
-                //auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
 
                 for (auto& source : currentSources)
                 {
                     AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
                     m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
                 }
+
+                m_isComposite = true;
             }
         }
         else
@@ -373,7 +376,7 @@ namespace AppInstaller::Repository
 
     SourceInformation Source::GetInformation() const
     {
-        if (m_source && !m_source->IsComposite())
+        if (m_source && !m_isComposite)
         {
             return m_source->GetInformation();
         }
@@ -441,31 +444,17 @@ namespace AppInstaller::Repository
 
     bool Source::IsComposite() const
     {
-        if (m_source)
-        {
-            return m_source->IsComposite();
-        }
-        else if (m_sourceReferences.size() > 0)
-        {
-            return m_sourceReferences.size() > 1;
-        }
-        else
-        {
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
-        }
+        return m_isComposite;
     }
 
     std::vector<Source> Source::GetAvailableSources() const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_source->IsComposite());
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_isComposite);
 
-        std::vector<Source> result;
-        for (auto const& availableSource : m_source->GetAvailableSources())
-        {
-            result.emplace_back(availableSource);
-        }
+        auto compositeSource = std::dynamic_pointer_cast<CompositeSource>(m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !compositeSource);
 
-        return result;
+        return compositeSource->GetAvailableSources();
     }
 
     void Source::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
@@ -554,7 +543,7 @@ namespace AppInstaller::Repository
                 // Place all of the proxies into the source to be searched later
                 for (auto& proxy : openExceptionProxies)
                 {
-                    aggregatedSource->AddAvailableSource(std::move(proxy));
+                    aggregatedSource->AddAvailableSource(Source{ std::move(proxy) });
                 }
 
                 m_source = aggregatedSource;
@@ -662,6 +651,16 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    PackageTrackingCatalog Source::GetTrackingCatalog() const
+    {
+        if (!m_trackingCatalog)
+        {
+            m_trackingCatalog = PackageTrackingCatalog::CreateForSource(*this);
+        }
+
+        return m_trackingCatalog;
     }
 
     std::vector<SourceDetails> Source::GetCurrentSources()

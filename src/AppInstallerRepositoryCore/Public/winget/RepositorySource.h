@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Public/winget/RepositorySearch.h>
+#include <Public/winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
 
 #include <chrono>
@@ -174,6 +175,7 @@ namespace AppInstaller::Repository
             CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
         // Constructor for creating a Source object from an existing ISource.
+        // Should only be used internally by ISource implementations to return the value from IPackageVersion::GetSource.
         Source(std::shared_ptr<ISource> source);
 
         // Bool operator to check if a source reference is successfully acquired.
@@ -244,6 +246,9 @@ namespace AppInstaller::Repository
         // Remove source. Source remove command.
         bool Remove(IProgressCallback& progress);
 
+        // Gets the tracking catalog for the current source.
+        PackageTrackingCatalog GetTrackingCatalog() const;
+
         // Drop source. Source reset command.
         static bool DropSource(std::string_view name);
 
@@ -256,5 +261,7 @@ namespace AppInstaller::Repository
         std::vector<std::shared_ptr<ISourceReference>> m_sourceReferences;
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
+        bool m_isComposite = false;
+        mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }

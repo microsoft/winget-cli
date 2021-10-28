@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/PackageTrackingCatalog.h"
+#include "winget/RepositorySource.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "AppInstallerDateTime.h"
 
@@ -109,6 +110,11 @@ namespace AppInstaller::Repository
         {
             std::filesystem::remove(trackingDB);
         }
+    }
+
+    PackageTrackingCatalog::operator bool() const
+    {
+        return static_cast<bool>(m_implementation);
     }
 
     SearchResult PackageTrackingCatalog::Search(const SearchRequest& request) const

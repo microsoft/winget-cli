@@ -435,9 +435,9 @@ namespace AppInstaller::Repository
         }
     }
 
-    void CompositeSource::AddAvailableSource(std::shared_ptr<ISource> source)
+    void CompositeSource::AddAvailableSource(const Source& source)
     {
-        m_availableSources.emplace_back(std::move(source));
+        m_availableSources.emplace_back(source);
     }
 
     void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior)
@@ -479,13 +479,87 @@ namespace AppInstaller::Repository
                         srs.AddToFilters(systemReferenceSearch.Inclusions);
                     }
 
+                    std::shared_ptr<IPackage> trackingPackage;
                     std::shared_ptr<IPackage> availablePackage;
+
+                    // Check the tracking catalog first to see if there is a correlation there.
+                    // TODO: When the issue with support for multiple available packages is fixed, this should move into
+                    //       the below available sources loop as we will check all sources at that point.
+                    //for (const auto& source : m_availableSources)
+                    {
+                        //auto trackingCatalog = source.GetTrackingCatalog();
+                        //SearchResult trackingResult;
+
+                        //try
+                        //{
+                        //    trackingResult = trackingCatalog.Search(systemReferenceSearch);
+                        //}
+                        //catch (...)
+                        //{
+                        //    if (result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() }))
+                        //    {
+                        //        LOG_CAUGHT_EXCEPTION();
+                        //        AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
+                        //    }
+                        //}
+
+                        //// Move failures into the single result
+                        //for (SearchResult::Failure& failure : availableResult.Failures)
+                        //{
+                        //    result.AddFailureIfSourceNotPresent(std::move(failure));
+                        //}
+
+                        //if (availableResult.Matches.empty())
+                        //{
+                        //    continue;
+                        //}
+
+                        //if (availableResult.Matches.size() == 1)
+                        //{
+                        //    availablePackage = std::move(availableResult.Matches[0].Package);
+                        //}
+                        //else // availableResult.Matches.size() > 1
+                        //{
+                        //    AICLI_LOG(Repo, Info,
+                        //        << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                        //        "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+
+                        //    // More than one match found for the system reference; run some heuristics to check for a match
+                        //    for (auto&& availableMatch : availableResult.Matches)
+                        //    {
+                        //        AICLI_LOG(Repo, Info, << "  Checking match with package id: " <<
+                        //            availableMatch.Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Id));
+
+                        //        if (IsStrongMatchField(availableMatch.MatchCriteria.Field))
+                        //        {
+                        //            if (!availablePackage)
+                        //            {
+                        //                availablePackage = std::move(availableMatch.Package);
+                        //            }
+                        //            else
+                        //            {
+                        //                AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
+                        //                availablePackage.reset();
+                        //                break;
+                        //            }
+                        //        }
+                        //    }
+
+                        //    if (!availablePackage)
+                        //    {
+                        //        AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
+                        //    }
+                        //}
+
+                        //// We found some matching packages here, don't keep going
+                        //break;
+                    }
 
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
                         // Do not attempt to correlate local packages against this source
-                        if (!source->GetDetails().SupportInstalledSearchCorrelation)
+                        if (!source.GetDetails().SupportInstalledSearchCorrelation)
                         {
                             continue;
                         }
@@ -494,14 +568,14 @@ namespace AppInstaller::Repository
 
                         try
                         {
-                            availableResult = source->Search(systemReferenceSearch);
+                            availableResult = source.Search(systemReferenceSearch);
                         }
                         catch (...)
                         {
-                            if (result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() }))
+                            if (result.AddFailureIfSourceNotPresent({ source.GetDetails().Name, std::current_exception() }))
                             {
                                 LOG_CAUGHT_EXCEPTION();
-                                AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
+                                AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source.GetDetails().Name);
                             }
                         }
 
@@ -524,7 +598,7 @@ namespace AppInstaller::Repository
                         {
                             AICLI_LOG(Repo, Info,
                                 << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
 
                             // More than one match found for the system reference; run some heuristics to check for a match
                             for (auto&& availableMatch : availableResult.Matches)
@@ -575,7 +649,7 @@ namespace AppInstaller::Repository
         for (const auto& source : m_availableSources)
         {
             // Do not attempt to correlate local packages against this source.
-            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source->GetDetails().SupportInstalledSearchCorrelation)
+            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source.GetDetails().SupportInstalledSearchCorrelation)
             {
                 continue;
             }
@@ -584,13 +658,13 @@ namespace AppInstaller::Repository
 
             try
             {
-                availableResult = source->Search(request);
+                availableResult = source.Search(request);
             }
             catch (...)
             {
                 LOG_CAUGHT_EXCEPTION();
-                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() });
+                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source.GetDetails().Name);
+                result.AddFailureIfSourceNotPresent({ source.GetDetails().Name, std::current_exception() });
             }
 
             // Move failures into the single result
@@ -634,7 +708,7 @@ namespace AppInstaller::Repository
                     {
                         AICLI_LOG(Repo, Info,
                             << "Found multiple matches for available package [" << match.Package->GetProperty(PackageProperty::Id) <<
-                            "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                            "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
 
                         // More than one match found for the system reference; run some heuristics to check for a match
                         for (auto&& crossRef : installedCrossRef.Matches)
@@ -695,13 +769,13 @@ namespace AppInstaller::Repository
 
             try
             {
-                oneSourceResult = source->Search(request);
+                oneSourceResult = source.Search(request);
             }
             catch (...)
             {
                 LOG_CAUGHT_EXCEPTION();
-                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.Failures.emplace_back(SearchResult::Failure{ source->GetDetails().Name, std::current_exception() });
+                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source.GetDetails().Name);
+                result.Failures.emplace_back(SearchResult::Failure{ source.GetDetails().Name, std::current_exception() });
             }
 
             // Move into the single result
