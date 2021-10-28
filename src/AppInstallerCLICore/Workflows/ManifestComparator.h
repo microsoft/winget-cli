@@ -62,10 +62,10 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    struct InstallerAndInapplicability
+    struct InstallerAndInapplicabilities
     {
         std::optional<Manifest::ManifestInstaller> installer;
-        InapplicabilityFlags inapplicabilityFlags;
+        std::vector<InapplicabilityFlags> inapplicabilitiesInstaller;
     };
 
     // Class in charge of comparing manifest entries
@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Workflow
         ManifestComparator(const Execution::Context& context, const Repository::IPackageVersion::Metadata& installationMetadata);
 
         // Gets the best installer from the manifest, if at least one is applicable.
-        InstallerAndInapplicability GetPreferredInstaller(const Manifest::Manifest& manifest);
+        InstallerAndInapplicabilities GetPreferredInstaller(const Manifest::Manifest& manifest);
 
         // Determines if an installer is applicable.
         InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer);

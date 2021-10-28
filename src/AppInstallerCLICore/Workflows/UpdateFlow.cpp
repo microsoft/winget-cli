@@ -27,7 +27,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
-        InapplicabilityFlags inapplicabilityVersions = InapplicabilityFlags::None;
+        bool installedTypeInapplicable = false;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -40,10 +40,16 @@ namespace AppInstaller::CLI::Workflow
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
-                auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(manifest);
+                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
-                    WI_SetAllFlags(inapplicabilityVersions, inapplicability);
+                    // If there is at least one installer whose only reason is InstalledType.
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    if (onlyInstalledType != inapplicabilities.end())
+                    {
+                        installedTypeInapplicable = true;
+                    }
+
                     continue;
                 }
 
@@ -67,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_reportUpdateNotFound)
             {
-                if (inapplicabilityVersions == InapplicabilityFlags::InstalledType)
+                if (installedTypeInapplicable)
                 {
                     context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
                 }

@@ -968,13 +968,16 @@ namespace AppInstaller::CLI::Workflow
         }
 
         ManifestComparator manifestComparator(context, installationMetadata);
-        auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
 
-        if (!installer.has_value() &&
-            (inapplicability == InapplicabilityFlags::InstalledType))
+        if (!installer.has_value())
         {
-            context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+            if (onlyInstalledType != inapplicabilities.end())
+            {
+                context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            }
         }
 
         context.Add<Execution::Data::Installer>(installer);

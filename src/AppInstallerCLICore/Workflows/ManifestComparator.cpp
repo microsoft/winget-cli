@@ -533,12 +533,12 @@ namespace AppInstaller::CLI::Workflow
         AddComparator(MachineArchitectureComparator::Create(context, installationMetadata));
     }
 
-    InstallerAndInapplicability ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
+    InstallerAndInapplicabilities ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
     {
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         const Manifest::ManifestInstaller* result = nullptr;
-        InapplicabilityFlags inapplicabilityInstallers = InapplicabilityFlags::None;
+        std::vector<InapplicabilityFlags> inapplicabilitiesInstallers;
 
         for (const auto& installer : manifest.Installers)
         {
@@ -553,13 +553,13 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                WI_SetAllFlags(inapplicabilityInstallers, inapplicabilityInstaller);
+                inapplicabilitiesInstallers.push_back(inapplicabilityInstaller);
             }
         }
 
         if (!result)
         {
-            return { {}, inapplicabilityInstallers };
+            return { {}, std::move(inapplicabilitiesInstallers) };
         }
 
         Logging::Telemetry().LogSelectedInstaller(
@@ -569,22 +569,24 @@ namespace AppInstaller::CLI::Workflow
             Manifest::ScopeToString(result->Scope),
             result->Locale);
 
-        return { *result, InapplicabilityFlags::None };
+        return { *result, std::move(inapplicabilitiesInstallers) };
     }
 
     InapplicabilityFlags ManifestComparator::IsApplicable(const Manifest::ManifestInstaller& installer)
     {
+        InapplicabilityFlags inapplicabilityResult = InapplicabilityFlags::None;
+
         for (const auto& filter : m_filters)
         {
             auto inapplicability = filter->IsApplicable(installer);
             if (inapplicability != InapplicabilityFlags::None)
             {
                 AICLI_LOG(CLI, Info, << "Installer " << installer << " not applicable: " << filter->ExplainInapplicable(installer));
-                return inapplicability;
+                WI_SetAllFlags(inapplicabilityResult, inapplicability);
             }
         }
 
-        return InapplicabilityFlags::None;
+        return inapplicabilityResult;
     }
 
     bool ManifestComparator::IsFirstBetter(

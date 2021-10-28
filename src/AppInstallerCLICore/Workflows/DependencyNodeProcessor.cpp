@@ -79,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         ManifestComparator manifestComparator(m_context, installationMetadata);
-        auto [installer, inapplicability] = manifestComparator.GetPreferredInstaller(m_nodeManifest);
+        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(m_nodeManifest);
 
         if (!installer.has_value())
         {
