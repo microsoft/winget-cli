@@ -52,7 +52,7 @@ void RequireInapplicabilities(const std::vector<InapplicabilityFlags>& inapplica
 {
     REQUIRE(inapplicabilities.size() == expected.size());
 
-    for (int i = 0; i < inapplicabilities.size(); i++)
+    for (std::size_t  i = 0; i < inapplicabilities.size(); i++)
     {
         REQUIRE(inapplicabilities[i] == expected[i]);
     }
