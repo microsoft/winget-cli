@@ -44,7 +44,7 @@ struct CompositeTestSetup
         Installed = std::make_shared<ComponentTestSource>();
         Available = std::make_shared<ComponentTestSource>();
         Composite.SetInstalledSource(Installed);
-        Composite.AddAvailableSource(Available);
+        Composite.AddAvailableSource(Source{ Available });
     }
 
     SearchResult Search()
@@ -544,7 +544,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
 
     CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
-    setup.Composite.AddAvailableSource(secondAvailable);
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
 
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPFN(pfn), Criteria());
 
@@ -582,7 +582,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
 
     CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
-    setup.Composite.AddAvailableSource(secondAvailable);
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
 
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPFN(pfn), Criteria());
 
@@ -611,7 +611,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
 
     CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
-    setup.Composite.AddAvailableSource(secondAvailable);
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
 
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
@@ -665,8 +665,8 @@ TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
     AvailableFails->Details.Name = "The one that fails";
 
     CompositeSource Composite("*CompositeSource_AvailableSearchFailure");
-    Composite.AddAvailableSource(AvailableSucceeds);
-    Composite.AddAvailableSource(AvailableFails);
+    Composite.AddAvailableSource(Source{ AvailableSucceeds });
+    Composite.AddAvailableSource(Source{ AvailableFails });
 
     SearchResult result = Composite.Search({});
 
@@ -706,7 +706,7 @@ TEST_CASE("CompositeSource_InstalledToAvailableCorrelationSearchFailure", "[Comp
     AvailableFails->SearchFunction = [&](const SearchRequest&) -> SearchResult { THROW_HR(expectedHR); };
     AvailableFails->Details.Name = "The one that fails";
 
-    setup.Composite.AddAvailableSource(AvailableFails);
+    setup.Composite.AddAvailableSource(Source{ AvailableFails });
 
     SearchResult result = setup.Search();
 
@@ -746,7 +746,7 @@ TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]"
     AvailableFails->SearchFunction = [&](const SearchRequest&) -> SearchResult { THROW_HR(expectedHR); };
     AvailableFails->Details.Name = "The one that fails";
 
-    setup.Composite.AddAvailableSource(AvailableFails);
+    setup.Composite.AddAvailableSource(Source{ AvailableFails });
 
     setup.Composite.SetInstalledSource(setup.Installed, CompositeSearchBehavior::AvailablePackages);
 
