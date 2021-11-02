@@ -291,7 +291,7 @@ extern "C"
 
             std::unique_ptr<SQLiteIndex> index = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite));
             Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
-            index->ValidateManifest(manifest);
+            index->VerifyDependenciesStructureForManifestDelete(manifest);
         }
         catch (const ManifestException& e)
         {
