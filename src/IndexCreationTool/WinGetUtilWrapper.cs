@@ -33,7 +33,7 @@ namespace IndexCreationTool
         /// <summary>
         /// Dll name.
         /// </summary>
-        public const string DllName = @"C:\Users\akalagbe\source\repos\winget-cli\src\x64\Debug\WinGetUtil\WinGetUtil.dll";
+        public const string DllName = @"WinGetUtil.dll";
 
         private const uint LatestVersion = unchecked((uint)-1);
 
