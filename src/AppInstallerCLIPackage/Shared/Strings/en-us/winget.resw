@@ -1236,4 +1236,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
   </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Select the architecture to install</value>
+  </data>
 </root>
