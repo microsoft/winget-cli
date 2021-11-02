@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
@@ -96,7 +95,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Source>
         {
-            using value_t = std::shared_ptr<Repository::ISource>;
+            using value_t = Repository::Source;
         };
 
         template <>
@@ -210,7 +209,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Sources>
         {
-            using value_t = std::vector<std::shared_ptr<Repository::ISource>>;
+            using value_t = std::vector<Repository::Source>;
         };
 
         template <>
@@ -229,7 +228,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::DependencySource>
         {
-            using value_t = std::shared_ptr<Repository::ISource>;
+            using value_t = Repository::Source;
         };
         
         template <>

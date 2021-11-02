@@ -3,8 +3,7 @@
 #pragma once
 #include "PackageMatchFilter.g.h"
 #include <AppInstallerArchitecture.h>
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include <Workflows/WorkflowBase.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation

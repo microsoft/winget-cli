@@ -62,7 +62,16 @@ namespace AppInstaller::Repository::SQLite
 
         void ParameterSpecificsImpl<std::string_view>::Bind(sqlite3_stmt* stmt, int index, std::string_view v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+            if (v.empty())
+            {
+                // An empty string_view can have it's data member return nullptr, which effectively binds a null value.
+                // We don't want that, so instead bind an empty string, which will have a non-null data pointer.
+                ParameterSpecificsImpl<std::string>::Bind(stmt, index, {});
+            }
+            else
+            {
+                THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+            }
         }
 
         void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)

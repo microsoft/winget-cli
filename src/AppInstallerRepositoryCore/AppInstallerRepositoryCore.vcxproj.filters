@@ -55,6 +55,9 @@
     <Filter Include="Rest\Schema\1_1\Json">
       <UniqueIdentifier>{2cc20cdb-dcb2-4e0e-b04f-e2d838146100}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Public\winget">
+      <UniqueIdentifier>{aa7315bc-4eb0-4280-9572-f5a25f6e73ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -113,12 +116,6 @@
     </ClInclude>
     <ClInclude Include="SQLiteStatementBuilder.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerRepositorySource.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerRepositorySearch.h">
-      <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="SourceFactory.h">
       <Filter>Header Files</Filter>
@@ -242,6 +239,18 @@
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_3\DependenciesTable.h">
       <Filter>Microsoft\Schema\1_3</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PackageTrackingCatalog.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\RepositorySearch.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\RepositorySource.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="ISource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +388,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_3\DependenciesTable.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageTrackingCatalog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RepositorySearch.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,11 +20,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         return { 1, 3 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_3");
 
-        V1_2::Interface::CreateTables(connection);
+        V1_2::Interface::CreateTables(connection, options);
 
         V1_0::ManifestTable::AddColumn(connection, { HashVirtualTable::ValueName(), HashVirtualTable::SQLiteType() });
 
@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         savepoint.Commit();
     }
 
-    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_3");
 
@@ -53,7 +53,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         return manifestId;
     }
 
-    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_3");
 
@@ -82,17 +82,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         return { indexModified, manifestId };
     }
 
-    SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_3");
 
-        SQLite::rowid_t manifestId = V1_2::Interface::RemoveManifest(connection, manifest, relativePath);
+        V1_2::Interface::RemoveManifestById(connection, manifestId);
 
         DependenciesTable::RemoveDependencies(connection, manifestId);
 
         savepoint.Commit();
-
-        return manifestId;
     }
 
     bool Interface::ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const

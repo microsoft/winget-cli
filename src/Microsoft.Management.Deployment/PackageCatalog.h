@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
             winrt::Microsoft::Management::Deployment::PackageCatalogInfo info, 
-            std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+            ::AppInstaller::Repository::Source source,
             bool isComposite);
 #endif
 
@@ -24,7 +24,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
+        ::AppInstaller::Repository::Source m_source;
         bool m_isComposite = false;
 #endif
     };

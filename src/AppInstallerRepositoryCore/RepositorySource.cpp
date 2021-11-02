@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/AppInstallerRepositorySource.h"
-
+#include "ISource.h"
 #include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "SourceList.h"
@@ -69,9 +68,9 @@ namespace AppInstaller::Repository
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
 
-        std::shared_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
+        std::shared_ptr<ISourceReference> CreateSourceFromDetails(const SourceDetails& details)
         {
-            return GetFactoryForType(details.Type)->Create(details, progress);
+            return GetFactoryForType(details.Type)->Create(details);
         }
 
         template <typename MemberFunc>
@@ -126,9 +125,19 @@ namespace AppInstaller::Repository
             return factory->Remove(details, progress);
         }
 
+        bool ContainsAvailablePackagesInternal(SourceOrigin origin)
+        {
+            return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
+        }
+
         // Determines whether (and logs why) a source should be updated before it is opened.
         bool ShouldUpdateBeforeOpen(const SourceDetails& details)
         {
+            if (!ContainsAvailablePackagesInternal(details.Origin))
+            {
+                return false;
+            }
+
             constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
@@ -149,23 +158,34 @@ namespace AppInstaller::Repository
             return false;
         }
 
-        std::string GetStringVectorMessage(const std::vector<std::string>& input)
+        SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
         {
-            std::string result;
-            bool first = true;
-            for (auto const& field : input)
+            SourceDetails details;
+            details.Origin = SourceOrigin::Predefined;
+
+            switch (source)
             {
-                if (first)
-                {
-                    result += field;
-                    first = false;
-                }
-                else
-                {
-                    result += ", " + field;
-                }
+            case PredefinedSource::Installed:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
+                return details;
+            case PredefinedSource::ARP:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
+                return details;
+            case PredefinedSource::MSIX:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
+                return details;
+            case PredefinedSource::Installing:
+                details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+                // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
+                // so this is used here for consistency with other predefined sources.
+                details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
+                return details;
             }
-            return result;
+
+            THROW_HR(E_UNEXPECTED);
         }
 
         // Carries the exception from an OpenSource call and presents it back at search time.
@@ -181,7 +201,7 @@ namespace AppInstaller::Repository
             SearchResult Search(const SearchRequest&) const override
             {
                 SearchResult result;
-                result.Failures.emplace_back(SearchResult::Failure{ shared_from_this(), m_exception });
+                result.Failures.emplace_back(SearchResult::Failure{ GetDetails().Name, m_exception });
                 return result;
             }
 
@@ -199,6 +219,8 @@ namespace AppInstaller::Repository
             return "Default"sv;
         case SourceOrigin::User:
             return "User"sv;
+        case SourceOrigin::Predefined:
+            return "Predefined"sv;
         case SourceOrigin::GroupPolicy:
             return "GroupPolicy"sv;
         case SourceOrigin::Metadata:
@@ -208,10 +230,186 @@ namespace AppInstaller::Repository
         }
     }
 
-    ImplicitAgreementFieldEnum GetAgreementFieldsFromSourceInformation(const SourceInformation& info)
+    Source::Source() {}
+
+    Source::Source(std::string_view name)
+    {
+        InitializeSourceReference(name);
+    }
+
+    Source::Source(PredefinedSource source)
+    {
+        SourceDetails details = GetPredefinedSourceDetails(source);
+        m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
+    }
+
+    Source::Source(WellKnownSource source)
+    {
+        SourceDetails details = GetWellKnownSourceDetailsInternal(source);
+        m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
+    }
+
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type)
+    {
+        m_isSourceToBeAdded = true;
+        SourceDetails details;
+        details.Name = name;
+        details.Arg = arg;
+        details.Type = type;
+        m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
+    }
+
+    Source::Source(const std::vector<Source>& availableSources)
+    {
+        std::shared_ptr<CompositeSource> compositeSource = std::make_shared<CompositeSource>("*CompositeSource");
+
+        for (const auto& availableSource : availableSources)
+        {
+            THROW_HR_IF(E_INVALIDARG, !availableSource.m_source || availableSource.IsComposite());
+            compositeSource->AddAvailableSource(availableSource.m_source);
+        }
+
+        m_source = compositeSource;
+    }
+
+    Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
+    {
+        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_source->IsComposite() || !availableSource.m_source);
+
+        std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
+
+        if (!compositeSource)
+        {
+            compositeSource = std::make_shared<CompositeSource>("*CompositeSource");
+            compositeSource->AddAvailableSource(availableSource.m_source);
+        }
+
+        compositeSource->SetInstalledSource(installedSource.m_source, searchBehavior);
+
+        m_source = compositeSource;
+    }
+
+    Source::Source(std::shared_ptr<ISource> source) : m_source(std::move(source)) {}
+
+    Source::operator bool() const
+    {
+        return !m_sourceReferences.empty() || m_source != nullptr;
+    }
+
+    void Source::InitializeSourceReference(std::string_view name)
+    {
+        SourceList sourceList;
+
+        if (name.empty())
+        {
+            auto currentSources = sourceList.GetCurrentSourceRefs();
+            if (currentSources.empty())
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
+            }
+            else if (currentSources.size() == 1)
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                InitializeSourceReference(currentSources[0].get().Name);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, adding all to source references.");
+                //auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
+
+                for (auto& source : currentSources)
+                {
+                    AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
+                    m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
+                }
+            }
+        }
+        else
+        {
+            auto source = sourceList.GetCurrentSource(name);
+            if (!source)
+            {
+                AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
+                m_sourceReferences.emplace_back(CreateSourceFromDetails(*source));
+            }
+        }
+    }
+
+    std::string Source::GetIdentifier() const
+    {
+        if (m_source)
+        {
+            return m_source->GetIdentifier();
+        }
+        else if (m_sourceReferences.size() == 1)
+        {
+            return m_sourceReferences[0]->GetIdentifier();
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+    }
+
+    SourceDetails Source::GetDetails() const
+    {
+        if (m_source)
+        {
+            return m_source->GetDetails();
+        }
+        else if (m_sourceReferences.size() == 1)
+        {
+            return m_sourceReferences[0]->GetDetails();
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+    }
+
+    SourceInformation Source::GetInformation() const
+    {
+        if (m_source && !m_source->IsComposite())
+        {
+            return m_source->GetInformation();
+        }
+        else if (m_sourceReferences.size() == 1)
+        {
+            return m_sourceReferences[0]->GetInformation();
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+    }
+
+    bool Source::ContainsAvailablePackages() const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), IsComposite());
+        return ContainsAvailablePackagesInternal(GetDetails().Origin);
+    }
+
+    bool Source::SetCustomHeader(std::optional<std::string> header)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
+        return m_sourceReferences[0]->SetCustomHeader(header);
+    }
+
+    SearchResult Source::Search(const SearchRequest& request) const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        return m_source->Search(request);
+    }
+
+    ImplicitAgreementFieldEnum Source::GetAgreementFieldsFromSourceInformation() const
     {
         ImplicitAgreementFieldEnum result = ImplicitAgreementFieldEnum::None;
 
+        auto info = GetInformation();
         if (info.RequiredPackageMatchFields.end() != std::find_if(info.RequiredPackageMatchFields.begin(), info.RequiredPackageMatchFields.end(), [&](const auto& field) { return Utility::CaseInsensitiveEquals(field, "market"); }) ||
             info.RequiredQueryParameters.end() != std::find_if(info.RequiredQueryParameters.begin(), info.RequiredQueryParameters.end(), [&](const auto& param) { return Utility::CaseInsensitiveEquals(param, "market"); }))
         {
@@ -221,52 +419,168 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    std::vector<SourceDetails> GetSources()
+    bool Source::CheckSourceAgreements() const
     {
-        SourceList sourceList;
+        auto sourceName = GetDetails().Name;
+        auto agreementFields = GetAgreementFieldsFromSourceInformation();
+        auto agreementsIdentifier = GetInformation().SourceAgreementsIdentifier;
 
-        std::vector<SourceDetails> result;
-        for (auto&& source : sourceList.GetCurrentSourceRefs())
+        SourceList sourceList;
+        return sourceList.CheckSourceAgreements(sourceName, agreementsIdentifier, agreementFields);
+    }
+
+    void Source::SaveAcceptedSourceAgreements() const
+    {
+        auto sourceName = GetDetails().Name;
+        auto agreementFields = GetAgreementFieldsFromSourceInformation();
+        auto agreementsIdentifier = GetInformation().SourceAgreementsIdentifier;
+
+        SourceList sourceList;
+        return sourceList.SaveAcceptedSourceAgreements(sourceName, agreementsIdentifier, agreementFields);
+    }
+
+    bool Source::IsComposite() const
+    {
+        if (m_source)
         {
-            result.emplace_back(std::move(source));
+            return m_source->IsComposite();
+        }
+        else if (m_sourceReferences.size() > 0)
+        {
+            return m_sourceReferences.size() > 1;
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+    }
+
+    std::vector<Source> Source::GetAvailableSources() const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_source->IsComposite());
+
+        std::vector<Source> result;
+        for (auto const& availableSource : m_source->GetAvailableSources())
+        {
+            result.emplace_back(availableSource);
         }
 
         return result;
     }
 
-    std::optional<SourceDetails> GetSource(std::string_view name)
+    void Source::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        // Check all sources for the given name.
-        SourceList sourceList;
-
-        auto source = sourceList.GetCurrentSource(name);
-        if (!source)
-        {
-            return {};
-        }
-        else
-        {
-            return *source;
-        }
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        auto writableSource = std::dynamic_pointer_cast<IMutablePackageSource>(m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !writableSource);
+        writableSource->AddPackageVersion(manifest, relativePath);
     }
 
-    bool AddSource(SourceDetails& sourceDetails, IProgressCallback& progress)
+    void Source::RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        THROW_HR_IF(E_INVALIDARG, sourceDetails.Name.empty());
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        auto writableSource = std::dynamic_pointer_cast<IMutablePackageSource>(m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !writableSource);
+        writableSource->RemovePackageVersion(manifest, relativePath);
+    }
+
+    std::vector<SourceDetails> Source::Open(IProgressCallback& progress)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.empty());
+
+        std::vector<SourceDetails> result;
+
+        if (!m_source)
+        {
+            SourceList sourceList;
+
+            // Check for updates before opening.
+            for (auto& sourceReference : m_sourceReferences)
+            {
+                auto& details = sourceReference->GetDetails();
+                if (ShouldUpdateBeforeOpen(details))
+                {
+                    try
+                    {
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
+                        if (BackgroundUpdateSourceFromDetails(details, progress))
+                        {
+                            auto detailsInternal = sourceList.GetSource(details.Name);
+                            detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                            sourceList.SaveMetadata(*detailsInternal);
+                        }
+                        else
+                        {
+                            AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                            result.emplace_back(details);
+                        }
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
+                        result.emplace_back(details);
+                    }
+                }
+            }
+
+            if (m_sourceReferences.size() > 1)
+            {
+                AICLI_LOG(Repo, Info, << "Multiple sources available, creating aggregated source.");
+                auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
+                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
+
+                for (auto& sourceReference : m_sourceReferences)
+                {
+                    AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << sourceReference->GetDetails().Name);
+
+                    try
+
+                    {
+                        aggregatedSource->AddAvailableSource(sourceReference->Open(progress));
+                    }
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to open available source: " << sourceReference->GetDetails().Name);
+                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(sourceReference->GetDetails(), std::current_exception()));
+                    }
+                }
+
+                // If all sources failed to open, then throw an exception that is specific to this case.
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
+
+                // Place all of the proxies into the source to be searched later
+                for (auto& proxy : openExceptionProxies)
+                {
+                    aggregatedSource->AddAvailableSource(std::move(proxy));
+                }
+
+                m_source = aggregatedSource;
+            }
+            else
+            {
+                m_source = m_sourceReferences[0]->Open(progress);
+            }
+        }
+
+        return result;
+    }
+
+    bool Source::Add(IProgressCallback& progress)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isSourceToBeAdded || m_sourceReferences.size() != 1);
+
+        auto& sourceDetails = m_sourceReferences[0]->GetDetails();
 
         AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceList sourceList;
 
-        auto source = sourceList.GetCurrentSource(sourceDetails.Name);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
-
-        // Check for a hidden source data that we don't want to collide.
-        // TODO: Refactor the source interface so that we don't do this
-        auto hiddenSource = GetSource(sourceDetails.Name);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS,
-            hiddenSource && hiddenSource->Origin != SourceOrigin::User && hiddenSource->Origin != SourceOrigin::Metadata);
+        auto source = sourceList.GetSource(sourceDetails.Name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr && source->Origin != SourceOrigin::Metadata && !source->IsTombstone);
 
         // Check sources allowed by group policy
         auto blockingPolicy = GetPolicyBlockingUserSource(sourceDetails.Name, sourceDetails.Type, sourceDetails.Arg, false);
@@ -281,299 +595,89 @@ namespace AppInstaller::Repository
         bool result = AddSourceFromDetails(sourceDetails, progress);
         if (result)
         {
-            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
-            AICLI_LOG(Repo, Info, << "Source created with identifier: " << sourceDetails.Identifier);
-
             sourceList.AddSource(sourceDetails);
+            SaveAcceptedSourceAgreements();
+            m_isSourceToBeAdded = false;
+            AICLI_LOG(Repo, Info, << "Source created with extra data: " << sourceDetails.Data);
         }
 
         return result;
     }
 
-    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
+    std::vector<SourceDetails> Source::Update(IProgressCallback& progress)
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_source || m_sourceReferences.empty());
+
         SourceList sourceList;
+        std::vector<SourceDetails> result;
 
-        if (name.empty())
+        for (auto& sourceReference : m_sourceReferences)
         {
-            auto currentSources = sourceList.GetCurrentSourceRefs();
-            if (currentSources.empty())
-            {
-                AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
-                return {};
-            }
-            else if (currentSources.size() == 1)
-            {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                return OpenSource(currentSources[0].get().Name, progress);
-            }
-            else
-            {
-                AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
-                auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
-                OpenSourceResult result;
-                std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !ContainsAvailablePackagesInternal(sourceReference->GetDetails().Origin));
 
-                for (auto& source : currentSources)
+            auto& details = sourceReference->GetDetails();
+            AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << details.Name);
+
+            try
+            {
+                // TODO: Consider adding a context callback to indicate we are doing the same action
+                // to avoid the progress bar fill up multiple times.
+                if (UpdateSourceFromDetails(details, progress))
                 {
-                    AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.get().Name);
-
-                    if (ShouldUpdateBeforeOpen(source))
-                    {
-                        try
-                        {
-                            // TODO: Consider adding a context callback to indicate we are doing the same action
-                            // to avoid the progress bar fill up multiple times.
-                            if (BackgroundUpdateSourceFromDetails(source, progress))
-                            {
-                                sourceList.SaveMetadata(source);
-                            }
-                        }
-                        catch (...)
-                        {
-                            LOG_CAUGHT_EXCEPTION();
-                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
-                            result.SourcesWithUpdateFailure.emplace_back(source);
-                        }
-                    }
-
-                    std::shared_ptr<ISource> openedSource;
-
-                    try
-                    {
-                        openedSource = CreateSourceFromDetails(source, progress);
-                    }
-                    catch (...)
-                    {
-                        LOG_CAUGHT_EXCEPTION();
-                        AICLI_LOG(Repo, Warning, << "Failed to open source: " << source.get().Name);
-                        openExceptionProxies.emplace_back(std::make_shared<OpenExceptionProxy>(source, std::current_exception()));
-                    }
-
-                    if (openedSource)
-                    {
-                        aggregatedSource->AddAvailableSource(std::move(openedSource));
-                    }
+                    auto detailsInternal = sourceList.GetSource(details.Name);
+                    detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                    sourceList.SaveMetadata(*detailsInternal);
                 }
-
-                // If all sources failed to open, then throw an exception that is specific to this case.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, !aggregatedSource->HasAvailableSource());
-
-                // Place all of the proxies into the source to be searched later
-                for (auto& proxy : openExceptionProxies)
+                else
                 {
-                    aggregatedSource->AddAvailableSource(std::move(proxy));
+                    AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                    result.emplace_back(details);
                 }
-
-                result.Source = aggregatedSource;
-                return result;
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                result.emplace_back(details);
             }
         }
-        else
-        {
-            auto source = sourceList.GetCurrentSource(name);
-            if (!source)
-            {
-                AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
-                return {};
-            }
-            else
-            {
-                AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-                OpenSourceResult result;
 
-                if (ShouldUpdateBeforeOpen(*source))
-                {
-                    try
-                    {
-                        if (BackgroundUpdateSourceFromDetails(*source, progress))
-                        {
-                            sourceList.SaveMetadata(*source);
-                        }
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
-                        result.SourcesWithUpdateFailure.emplace_back(*source);
-                    }
-                }
-
-                result.Source = CreateSourceFromDetails(*source, progress);
-                return result;
-            }
-        }
+        return result;
     }
 
-    OpenSourceResult OpenSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+    bool Source::Remove(IProgressCallback& progress)
     {
-        OpenSourceResult result;
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
 
-        // Get the details again by name from the source list because SaveMetadata only updates the LastUpdateTime
-        // if the details came from the same instance of the list that's being saved.
-        // Some sources that do not need updating like the Installed source, do not have Name values.
-        // Restricted sources don't have full functionality
-        if (!details.Name.empty())
+        const auto& details = m_sourceReferences[0]->GetDetails();
+        AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << details.Name << " [" << ToString(details.Origin) << ']');
+
+        EnsureSourceIsRemovable(details);
+
+        bool result = RemoveSourceFromDetails(details, progress);
+        if (result)
         {
             SourceList sourceList;
-            auto source = sourceList.GetSource(details.Name);
-            if (!source)
-            {
-                AICLI_LOG(Repo, Info, << "Named source no longer found. Source may have been removed by the user: " << details.Name);
-                return {};
-            }
-
-            if (ShouldUpdateBeforeOpen(*source))
-            {
-                try
-                {
-                    if (BackgroundUpdateSourceFromDetails(*source, progress))
-                    {
-                        sourceList.SaveMetadata(*source);
-                    }
-                }
-                catch (...)
-                {
-                    AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                    result.SourcesWithUpdateFailure.emplace_back(*source);
-                }
-            }
-        }
-
-        result.Source = CreateSourceFromDetails(details, progress);
-        return result;
-    }
-
-    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
-    {
-        SourceDetails details = GetPredefinedSourceDetails(source);
-        return CreateSourceFromDetails(details, progress);
-    }
-
-    SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
-    {
-        SourceDetails details;
-        details.Origin = SourceOrigin::Predefined;
-
-        switch (source)
-        {
-        case PredefinedSource::Installed:
-            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
-            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
-            return details;
-        case PredefinedSource::ARP:
-            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
-            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
-            return details;
-        case PredefinedSource::MSIX:
-            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
-            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
-            return details;
-        case PredefinedSource::Installing:
-            details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
-            // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
-            // so this is used here for consistency with other predefined sources.
-            details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
-            return details;
-        }
-
-        THROW_HR(E_UNEXPECTED);
-    }
-
-    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
-    {
-        return GetWellKnownSourceDetailsInternal(source);
-    }
-
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
-    {
-        std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
-
-        if (!result)
-        {
-            result = std::make_shared<CompositeSource>("*CompositeSource");
-            result->AddAvailableSource(availableSource);
-        }
-
-        result->SetInstalledSource(installedSource, searchBehavior);
-
-        return result;
-    }
-
-    std::shared_ptr<ISource> CreateCompositeSource(
-        const std::shared_ptr<ISource>& installedSource,
-        const std::vector<std::shared_ptr<ISource>>& availableSources,
-        CompositeSearchBehavior searchBehavior)
-    {
-        std::shared_ptr<CompositeSource> result = std::make_shared<CompositeSource>("*CompositeSource");
-
-        for (const auto& availableSource : availableSources)
-        {
-            result->AddAvailableSource(availableSource);
-        }
-
-        if (installedSource)
-        {
-            result->SetInstalledSource(installedSource, searchBehavior);
+            sourceList.RemoveSource(details);
         }
 
         return result;
     }
 
-    bool UpdateSource(std::string_view name, IProgressCallback& progress)
+    std::vector<SourceDetails> Source::GetCurrentSources()
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
-
         SourceList sourceList;
 
-        auto source = sourceList.GetCurrentSource(name);
-        if (!source)
+        std::vector<SourceDetails> result;
+        for (auto&& source : sourceList.GetCurrentSourceRefs())
         {
-            AICLI_LOG(Repo, Info, << "Named source to be updated, but not found: " << name);
-            return false;
+            result.emplace_back(std::move(source));
         }
-        else
-        {
-            AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source->Name);
 
-            bool result = UpdateSourceFromDetails(*source, progress);
-            if (result)
-            {
-                sourceList.SaveMetadata(*source);
-            }
-
-            return result;
-        }
+        return result;
     }
 
-    bool RemoveSource(std::string_view name, IProgressCallback& progress)
-    {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
-
-        SourceList sourceList;
-
-        auto source = sourceList.GetCurrentSource(name);
-        if (!source)
-        {
-            AICLI_LOG(Repo, Info, << "Named source to be removed, but not found: " << name);
-            return false;
-        }
-        else
-        {
-            AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source->Name << " [" << ToString(source->Origin) << ']');
-
-            EnsureSourceIsRemovable(*source);
-
-            bool result = RemoveSourceFromDetails(*source, progress);
-            if (result)
-            {
-                sourceList.RemoveSource(*source);
-            }
-
-            return result;
-        }
-    }
-
-    bool DropSource(std::string_view name)
+    bool Source::DropSource(std::string_view name)
     {
         if (name.empty())
         {
@@ -600,211 +704,6 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
-    }
-
-    bool SupportsCustomHeader(const SourceDetails& sourceDetails)
-    {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), sourceDetails.Type))
-        {
-            return true;
-        }
-#endif
-
-        return Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceDetails.Type);
-    }
-
-    bool CheckSourceAgreements(const SourceDetails& source)
-    {
-        SourceList sourceList;
-        return sourceList.CheckSourceAgreements(source);
-    }
-
-    void SaveAcceptedSourceAgreements(const SourceDetails& source)
-    {
-        SourceList sourceList;
-        sourceList.SaveAcceptedSourceAgreements(source);
-    }
-
-    bool SearchRequest::IsForEverything() const
-    {
-        return (!Query.has_value() && Inclusions.empty() && Filters.empty());
-    }
-
-    std::string SearchRequest::ToString() const
-    {
-        std::ostringstream result;
-
-        result << "Query:";
-        if (Query)
-        {
-            result << '\'' << Query.value().Value << "'[" << MatchTypeToString(Query.value().Type) << ']';
-        }
-        else
-        {
-            result << "[none]";
-        }
-
-        for (const auto& include : Inclusions)
-        {
-            result << " Include:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'";
-            if (include.Additional)
-            {
-                result << "+'" << include.Additional.value() << "'";
-            }
-            result << "[" << MatchTypeToString(include.Type) << "]";
-        }
-
-        for (const auto& filter : Filters)
-        {
-            result << " Filter:" << PackageMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
-        }
-
-        if (MaximumResults)
-        {
-            result << " Limit:" << MaximumResults;
-        }
-
-        return result.str();
-    }
-
-    std::string_view ToString(PackageVersionMetadata pvm)
-    {
-        switch (pvm)
-        {
-        case PackageVersionMetadata::InstalledType: return "InstalledType"sv;
-        case PackageVersionMetadata::InstalledScope: return "InstalledScope"sv;
-        case PackageVersionMetadata::InstalledLocation: return "InstalledLocation"sv;
-        case PackageVersionMetadata::StandardUninstallCommand: return "StandardUninstallCommand"sv;
-        case PackageVersionMetadata::SilentUninstallCommand: return "SilentUninstallCommand"sv;
-        case PackageVersionMetadata::Publisher: return "Publisher"sv;
-        case PackageVersionMetadata::InstalledLocale: return "InstalledLocale"sv;
-        default: return "Unknown"sv;
-        }
-    }
-
-    const char* UnsupportedRequestException::what() const noexcept
-    {
-        if (m_whatMessage.empty())
-        {
-            m_whatMessage = "The request is not supported.";
-
-            if (!UnsupportedPackageMatchFields.empty())
-            {
-                m_whatMessage += "Unsupported Package Match Fields: " + GetStringVectorMessage(UnsupportedPackageMatchFields);
-            }
-            if (!RequiredPackageMatchFields.empty())
-            {
-                m_whatMessage += "Required Package Match Fields: " + GetStringVectorMessage(RequiredPackageMatchFields);
-            }
-            if (!UnsupportedQueryParameters.empty())
-            {
-                m_whatMessage += "Unsupported Query Parameters: " + GetStringVectorMessage(UnsupportedQueryParameters);
-            }
-            if (!RequiredQueryParameters.empty())
-            {
-                m_whatMessage += "Required Query Parameters: " + GetStringVectorMessage(RequiredQueryParameters);
-            }
-        }
-        return m_whatMessage.c_str();
-    }
-
-    std::string_view MatchTypeToString(MatchType type)
-    {
-        using namespace std::string_view_literals;
-
-        switch (type)
-        {
-        case MatchType::Exact:
-            return "Exact"sv;
-        case MatchType::CaseInsensitive:
-            return "CaseInsensitive"sv;
-        case MatchType::StartsWith:
-            return "StartsWith"sv;
-        case MatchType::Substring:
-            return "Substring"sv;
-        case MatchType::Wildcard:
-            return "Wildcard"sv;
-        case MatchType::Fuzzy:
-            return "Fuzzy"sv;
-        case MatchType::FuzzySubstring:
-            return "FuzzySubstring"sv;
-        }
-
-        return "UnknownMatchType"sv;
-    }
-
-    std::string_view PackageMatchFieldToString(PackageMatchField matchField)
-    {
-        using namespace std::string_view_literals;
-
-        switch (matchField)
-        {
-        case PackageMatchField::Command:
-            return "Command"sv;
-        case PackageMatchField::Id:
-            return "Id"sv;
-        case PackageMatchField::Moniker:
-            return "Moniker"sv;
-        case PackageMatchField::Name:
-            return "Name"sv;
-        case PackageMatchField::Tag:
-            return "Tag"sv;
-        case PackageMatchField::PackageFamilyName:
-            return "PackageFamilyName"sv;
-        case PackageMatchField::ProductCode:
-            return "ProductCode"sv;
-        case PackageMatchField::NormalizedNameAndPublisher:
-            return "NormalizedNameAndPublisher"sv;
-        case PackageMatchField::Market:
-            return "Market"sv;
-        }
-
-        return "UnknownMatchField"sv;
-    }
-
-    PackageMatchField StringToPackageMatchField(std::string_view field)
-    {
-        std::string toLower = Utility::ToLower(field);
-
-        if (toLower == "command")
-        {
-            return PackageMatchField::Command;
-        }
-        else if (toLower == "id")
-        {
-            return PackageMatchField::Id;
-        }
-        else if (toLower == "moniker")
-        {
-            return PackageMatchField::Moniker;
-        }
-        else if (toLower == "name")
-        {
-            return PackageMatchField::Name;
-        }
-        else if (toLower == "tag")
-        {
-            return PackageMatchField::Tag;
-        }
-        else if (toLower == "packagefamilyname")
-        {
-            return PackageMatchField::PackageFamilyName;
-        }
-        else if (toLower == "productcode")
-        {
-            return PackageMatchField::ProductCode;
-        }
-        else if (toLower == "normalizednameandpublisher")
-        {
-            return PackageMatchField::NormalizedNameAndPublisher;
-        }
-        else if (toLower == "market")
-        {
-            return PackageMatchField::Market;
-        }
-
-        return PackageMatchField::Unknown;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

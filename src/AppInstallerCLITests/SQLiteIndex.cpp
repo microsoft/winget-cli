@@ -995,6 +995,98 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
+TEST_CASE("SQLiteIndex_UpdateManifest_Pathless", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    manifest.Installers.push_back({});
+    manifest.Id = "test.id";
+    manifest.DefaultLocalization.Add < Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest);
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Update with no updates should return false
+        REQUIRE(!index.UpdateManifest(manifest));
+
+        manifest.DefaultLocalization.Add<Localization::Description>("description2");
+
+        // Update with no indexed updates should return false
+        REQUIRE(!index.UpdateManifest(manifest));
+
+        // Update with indexed changes
+        manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name2");
+        manifest.Moniker = "testmoniker2";
+        manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2", "t3" });
+        manifest.Installers[0].Commands = {};
+
+        REQUIRE(index.UpdateManifest(manifest));
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        // The update removed all commands
+        REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest2
+        index.RemoveManifest(manifest);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
 TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
@@ -1351,6 +1443,33 @@ TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
     Manifest manifest;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest);
     auto relativePath = GetPathFromManifest(manifest);
+
+    TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto specificResult = GetPathStringByKey(index, results.Matches[0].first, manifest.Version, manifest.Channel);
+    REQUIRE(specificResult == relativePath);
+
+    auto latestResult = GetPathStringByKey(index, results.Matches[0].first, "", manifest.Channel);
+    REQUIRE(latestResult == relativePath);
+}
+
+TEST_CASE("SQLiteIndex_PathlessString", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+
+    SQLiteIndex index = CreateTestIndex(tempFile);
+    CreateFakeManifest(manifest, "Test");
+    index.AddManifest(manifest);
 
     TestPrepareForRead(index);
 

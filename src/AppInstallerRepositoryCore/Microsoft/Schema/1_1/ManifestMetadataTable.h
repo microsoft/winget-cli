@@ -3,7 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "AppInstallerRepositorySearch.h"
+#include "Public/winget/RepositorySearch.h"
 
 #include <string>
 #include <string_view>

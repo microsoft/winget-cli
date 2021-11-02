@@ -11,7 +11,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
-            std::shared_ptr<const ::AppInstaller::Repository::ISource> source,
+            ::AppInstaller::Repository::Source source,
             std::shared_ptr<::AppInstaller::Repository::IPackage> package);
 #endif
 
@@ -25,7 +25,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        std::shared_ptr<const ::AppInstaller::Repository::ISource> m_source;
+        ::AppInstaller::Repository::Source m_source;
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>() };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };

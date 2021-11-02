@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Public/AppInstallerRepositorySource.h>
+#include <ISource.h>
 #include <winget/Manifest.h>
 #include <SourceFactory.h>
 
@@ -30,7 +30,7 @@ namespace TestCommon
         LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
         std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
         Manifest GetManifest() override;
-        std::shared_ptr<const ISource> GetSource() const override;
+        AppInstaller::Repository::Source GetSource() const override;
         MetadataMap GetMetadata() const override;
 
         Manifest VersionManifest;
@@ -71,6 +71,7 @@ namespace TestCommon
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
+        std::function<bool(const IPackage*, const IPackage*)> IsSameOverride;
     };
 
     // An ISource implementation for use across the test code.
@@ -78,10 +79,13 @@ namespace TestCommon
     {
         const AppInstaller::Repository::SourceDetails& GetDetails() const override;
         const std::string& GetIdentifier() const override;
+        AppInstaller::Repository::SourceInformation GetInformation() const override;
+
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
         bool IsComposite() const override;
 
         AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
+        AppInstaller::Repository::SourceInformation Information;
         std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
         bool Composite = false;
 
@@ -89,18 +93,53 @@ namespace TestCommon
         TestSource(const AppInstaller::Repository::SourceDetails& details) : Details(details) {}
     };
 
+    struct TestSourceReference : public AppInstaller::Repository::ISourceReference
+    {
+        using OpenFunctor = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&)>;
+        using OpenFunctorWithCustomHeader = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&, std::optional<std::string>)>;
+
+        TestSourceReference(const AppInstaller::Repository::SourceDetails& details, OpenFunctor open) : m_details(details), m_onOpen(open) {}
+        TestSourceReference(const AppInstaller::Repository::SourceDetails& details, OpenFunctorWithCustomHeader open) : m_details(details), m_onOpenWithCustomHeader(open) {}
+
+        std::string GetIdentifier() override { return m_details.Identifier; }
+
+        AppInstaller::Repository::SourceDetails& GetDetails() override { return m_details; };
+
+        bool SetCustomHeader(std::optional<std::string> header) override { m_header = header; return true; }
+
+        std::shared_ptr<AppInstaller::Repository::ISource> Open(AppInstaller::IProgressCallback&) override
+        {
+            if (m_onOpenWithCustomHeader)
+            {
+                return m_onOpenWithCustomHeader(m_details, m_header);
+            }
+            else
+            {
+                return m_onOpen(m_details);
+            }
+        }
+
+    private:
+        AppInstaller::Repository::SourceDetails m_details;
+        OpenFunctor m_onOpen;
+        OpenFunctorWithCustomHeader m_onOpenWithCustomHeader;
+        std::optional<std::string> m_header;
+    };
+
     // An ISourceFactory implementation for use across the test code.
     struct TestSourceFactory : public AppInstaller::Repository::ISourceFactory
     {
-        using CreateFunctor = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&)>;
+        using OpenFunctor = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&)>;
+        using OpenFunctorWithCustomHeader = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&, std::optional<std::string>)>;
         using AddFunctor = std::function<void(AppInstaller::Repository::SourceDetails&)>;
         using UpdateFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
         using RemoveFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
 
-        TestSourceFactory(CreateFunctor create) : OnCreate(std::move(create)) {}
+        TestSourceFactory(OpenFunctor open) : OnOpen(std::move(open)) {}
+        TestSourceFactory(OpenFunctorWithCustomHeader open) : OnOpenWithCustomHeader(std::move(open)) {}
 
         // ISourceFactory
-        std::shared_ptr<AppInstaller::Repository::ISource> Create(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        std::shared_ptr<AppInstaller::Repository::ISourceReference> Create(const AppInstaller::Repository::SourceDetails& details) override;
         bool Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Remove(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
@@ -108,9 +147,17 @@ namespace TestCommon
         // Make copies of self when requested.
         operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();
 
-        CreateFunctor OnCreate;
+        OpenFunctor OnOpen;
+        OpenFunctorWithCustomHeader OnOpenWithCustomHeader;
         AddFunctor OnAdd;
         UpdateFunctor OnUpdate;
         RemoveFunctor OnRemove;
     };
+
+    bool AddSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress);
+    bool UpdateSource(std::string_view name, AppInstaller::IProgressCallback& progress);
+    bool RemoveSource(std::string_view name, AppInstaller::IProgressCallback& progress);
+    AppInstaller::Repository::Source OpenSource(std::string_view name, AppInstaller::IProgressCallback& progress);
+    void DropSource(std::string_view name);
+    std::vector<AppInstaller::Repository::SourceDetails> GetSources();
 }

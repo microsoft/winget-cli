@@ -21,7 +21,7 @@ namespace AppInstaller::CLI::Workflow
 
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
 
-        const auto& matches = source->Search(searchRequest).Matches;
+        const auto& matches = source.Search(searchRequest).Matches;
 
         if (matches.empty())
         {
@@ -65,6 +65,8 @@ namespace AppInstaller::CLI::Workflow
         }
 
         m_nodeManifest = m_nodePackageLatestVersion->GetManifest();
+        m_nodeManifest.ApplyLocale();
+
         if (m_nodeManifest.Installers.empty())
         {
             error << Resource::String::DependenciesFlowNoInstallerFound << " " << Utility::Normalize(m_nodeManifest.Id);

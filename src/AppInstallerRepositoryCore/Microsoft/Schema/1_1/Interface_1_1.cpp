@@ -67,7 +67,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return { 1, 1 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_1");
 
@@ -85,7 +85,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             { V1_0::MonikerTable::ValueName(), false, false },
             { V1_0::VersionTable::ValueName(), true, false },
             { V1_0::ChannelTable::ValueName(), true, false },
-            { V1_0::PathPartTable::ValueName(), false, true }
+            { V1_0::PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
         V1_0::TagsTable::Create(connection);
@@ -96,7 +96,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         savepoint.Commit();
     }
 
-    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_1");
 
@@ -113,7 +113,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return manifestId;
     }
 
-    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_1");
 
@@ -128,11 +128,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return { indexModified, manifestId };
     }
 
-    SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_1");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "RemoveManifestById_v1_1");
 
-        SQLite::rowid_t manifestId = V1_0::Interface::RemoveManifest(connection, manifest, relativePath);
+        V1_0::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove all of the new 1:N data that is no longer referenced.
         PackageFamilyNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
@@ -144,8 +144,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         }
 
         savepoint.Commit();
-
-        return manifestId;
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection)

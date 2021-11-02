@@ -135,6 +135,11 @@ namespace AppInstaller::Utility {
         return hasher.Get();
     }
 
+    SHA256::HashBuffer SHA256::ComputeHash(std::string_view buffer)
+    {
+        return ComputeHash(reinterpret_cast<const std::uint8_t*>(buffer.data()), static_cast<std::uint32_t>(buffer.size()));
+    }
+
     SHA256::HashBuffer SHA256::ComputeHash(std::istream& in)
     {
         // Throw exceptions on badbit

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "AppInstallerRepositorySource.h"
+#include "ISource.h"
 
 namespace AppInstaller::Repository
 {
@@ -51,7 +51,6 @@ namespace AppInstaller::Repository
 
     private:
         // Performs a search when an installed source is present.
-        // Will only return packages that are installed.
         SearchResult SearchInstalled(const SearchRequest& request) const;
 
         // Performs a search when no installed source is present.
@@ -63,5 +62,3 @@ namespace AppInstaller::Repository
         CompositeSearchBehavior m_searchBehavior;
     };
 }
-
-
