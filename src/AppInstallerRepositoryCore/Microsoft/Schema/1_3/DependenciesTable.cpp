@@ -436,8 +436,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 		
 		if (breakingManifests.size())
 		{
-			// report errors.
-			return false;
+			std::string dependentPackages;
+			
+			std::for_each(
+				breakingManifests.begin(),
+				breakingManifests.end(),
+				[&](std::pair<Manifest::Dependency, SQLite::rowid_t> current)
+				{
+					auto [id, version, channel] = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(connection, current.second);
+					dependentPackages.append(id + "." + version).append("\n");
+				});
+
+			std::string error = Manifest::ManifestError::MultiManifestPackageHasDependencies;
+			error.append("\n" + dependentPackages);
+			THROW_EXCEPTION(
+				Manifest::ManifestException({ Manifest::ValidationError(error) },
+					APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
 		}
 
 		return true;
