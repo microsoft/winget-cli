@@ -44,6 +44,8 @@ namespace AppInstaller::Manifest
         const char* const DuplicateReturnCodeEntry = "Duplicate installer return code found.";
         const char* const FieldRequireVerifiedPublisher = "Field usage requires verified publishers.";
         const char* const SingleManifestPackageHasDependencies = "Package has a single manifest and is a dependency of other manifests.";
+        const char* const MissingManifestDependenciesNode = "Dependency not found: ";
+        const char* const NoSuitableMinVersion = "No Suitable Minimum Version: ";
     }
 
     struct ValidationError

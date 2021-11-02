@@ -576,7 +576,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteind
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
-    REQUIRE(!index.ValidateManifest(topLevelManifest));
+    REQUIRE_THROWS_HR(index.ValidateManifest(topLevelManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[sqliteindex][V1_0]")
@@ -601,7 +601,8 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "2.0.0"));
-    REQUIRE(!index.ValidateManifest(topLevelManifest));
+
+    REQUIRE_THROWS_HR(index.ValidateManifest(topLevelManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken", "[sqliteindex][V1_0]")

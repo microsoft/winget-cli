@@ -71,8 +71,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 					result.emplace(std::pair<SQLite::rowid_t, Utility::Version>(latestRowId, latestVersion));
 				}
 			}
-
-			
 			return result;
 		}
 	}
@@ -273,9 +271,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 	bool DependenciesTable::ValidateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest)
 	{
 		using namespace Manifest;
-		Dependency rootId(DependencyType::Package, manifest.Id, manifest.Version);
 
+		Dependency rootId(DependencyType::Package, manifest.Id, manifest.Version);
+		std::vector<ValidationError> dependenciesError;
 		bool foundErrors = false;
+
 		
 		DependencyGraph graph(rootId, [&](const Dependency& node) {
 
@@ -295,12 +295,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 			auto packageLatest = GetPackageLatestVersion(connection, node.Id);
 			if (!packageLatest.has_value())
 			{
+				std::string error = ManifestError::MissingManifestDependenciesNode;
+				error.append(" ").append(node.Id);
+				dependenciesError.emplace_back(ValidationError(error));
 				foundErrors = true;
 				return depList;
 			}
 
 			if (node.MinVersion > packageLatest.value().second)
 			{
+				std::string error = ManifestError::NoSuitableMinVersion;
+				error.append(" ").append(node.Id);
+				dependenciesError.emplace_back(ValidationError(error));
 				foundErrors = true;
 				return depList;
 			}
@@ -321,7 +327,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		if (foundErrors)
 		{
-			return false;
+			THROW_EXCEPTION(ManifestException(std::move(dependenciesError), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
 		}
 
 		if (graph.HasLoop())
