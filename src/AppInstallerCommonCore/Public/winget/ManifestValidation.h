@@ -46,6 +46,7 @@ namespace AppInstaller::Manifest
         const char* const SingleManifestPackageHasDependencies = "Package has a single manifest and is a dependency of other manifests.";
         const char* const MissingManifestDependenciesNode = "Dependency not found: ";
         const char* const NoSuitableMinVersion = "No Suitable Minimum Version: ";
+        const char* const FoundLoop = "Loop found.";
     }
 
     struct ValidationError

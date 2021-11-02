@@ -551,7 +551,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex]
 
     levelThreeManifest.Installers.push_back(ManifestInstaller{});
     levelThreeManifest.Installers[1].Dependencies.Add(Dependency(DependencyType::Package, topLevelManifest.Id, "1.0.0"));
-    REQUIRE(!index.ValidateManifest(levelThreeManifest));
+    REQUIRE_THROWS_HR(index.ValidateManifest(levelThreeManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteindex][V1_0]")

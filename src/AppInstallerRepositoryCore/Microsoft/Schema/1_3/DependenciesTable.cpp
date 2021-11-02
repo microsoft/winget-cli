@@ -332,9 +332,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
 		if (graph.HasLoop())
 		{
-			// report loop errors.
-			return false;
+			std::string error = ManifestError::FoundLoop;
+			dependenciesError.emplace_back(error);
+			THROW_EXCEPTION(ManifestException(std::move(dependenciesError), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
 		}
+
 		return true;
 	}
 	

@@ -244,7 +244,7 @@ extern "C"
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
-        WINGET_SQLITE_INDEX_HANDLE* index,
+        WINGET_STRING indexPath,
         WinGetValidateManifestOption option) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
@@ -259,7 +259,9 @@ extern "C"
             validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
 
             Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
-            reinterpret_cast<SQLiteIndex*>(index)->ValidateManifest(manifest);
+            
+            std::unique_ptr<SQLiteIndex> index = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite));
+            index->ValidateManifest(manifest);
 
             *succeeded = TRUE;
         }
@@ -276,19 +278,20 @@ extern "C"
     }
     CATCH_RETURN()
 
-    WINGET_UTIL_API VerifyDependenciesStructureForManifestDelete(
+    WINGET_UTIL_API WinGetVerifyDependenciesStructureForManifestDelete(
             WINGET_STRING inputPath,
             BOOL* succeeded,
             WINGET_STRING_OUT* message,
             WINGET_STRING mergedManifestPath,
-            WINGET_SQLITE_INDEX_HANDLE* index) try
+            WINGET_STRING indexPath) try
     {
         try
         {
             ManifestValidateOption validateOption;
 
+            std::unique_ptr<SQLiteIndex> index = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite));
             Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
-            reinterpret_cast<SQLiteIndex*>(index)->ValidateManifest(manifest);
+            index->ValidateManifest(manifest);
         }
         catch (const ManifestException& e)
         {

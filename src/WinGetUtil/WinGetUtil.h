@@ -109,19 +109,19 @@ extern "C"
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
-        WINGET_SQLITE_INDEX_HANDLE* index,
+        WINGET_STRING indexPath,
         WinGetValidateManifestOption option);
 
     // Validates a given manifest with dependencies. Returns a bool for validation result and
     // a string representing validation errors if validation failed.
     // If mergedManifestPath is provided, this method will write a merged manifest
     // to the location specified by mergedManifestPath
-    WINGET_UTIL_API VerifyDependenciesStructureForManifestDelete(
+    WINGET_UTIL_API WinGetVerifyDependenciesStructureForManifestDelete(
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
-        WINGET_SQLITE_INDEX_HANDLE* index);
+        WINGET_STRING indexPath);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(
