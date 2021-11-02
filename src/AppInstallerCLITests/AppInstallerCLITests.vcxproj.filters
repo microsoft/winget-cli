@@ -513,6 +513,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

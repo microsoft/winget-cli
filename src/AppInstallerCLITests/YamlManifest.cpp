@@ -220,6 +220,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum.yaml" },
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
+        { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
     };
 
     for (auto const& testCase : TestCases)
