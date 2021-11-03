@@ -693,6 +693,26 @@ namespace AppInstaller::Repository
     // Next the search is performed against the available sources and correlated with the installed source. A result will only
     // be added if there exists an installed package that was not found by the initial search.
     // This allows for search terms to find installed packages by their available metadata, as well as the local values.
+    //
+    // Search flow:
+    //  Installed :: Search incoming request
+    //  For each result
+    //      For each available source
+    //          Tracking :: Search system references
+    //      If tracking found
+    //          Available :: Search tracking ID
+    //      If no available, for each available source
+    //          Available :: Search system references
+    // 
+    //  For each available source
+    //      Tracking :: Search incoming request
+    //      For each result
+    //          Installed :: Search system references
+    //          If found
+    //              Available :: Search tracking ID
+    //      Available :: Search incoming request
+    //      For each result
+    //          Installed :: Search system references
     SearchResult CompositeSource::SearchInstalled(const SearchRequest& request) const
     {
         CompositeResult result;

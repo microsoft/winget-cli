@@ -29,7 +29,7 @@ namespace AppInstaller::Repository
         // Removes the package tracking catalog for a given source identifier.
         static void RemoveForSource(const std::string& identifier);
 
-        // Determines if the curent object holds anything.
+        // Determines if the current object holds anything.
         operator bool() const;
 
         // Execute a search against the catalog.

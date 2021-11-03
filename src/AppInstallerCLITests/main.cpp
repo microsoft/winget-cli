@@ -47,6 +47,27 @@ struct LoggingBreakListener : public Catch::TestEventListenerBase
 };
 CATCH_REGISTER_LISTENER(LoggingBreakListener);
 
+// Map CATCH exceptions so that WIL doesn't fail fast the tests
+HRESULT __stdcall CatchResultFromCaughtException() WI_PFN_NOEXCEPT
+{
+    try
+    {
+        throw;
+    }
+    catch (const Catch::TestFailureException&)
+    {
+        // REC_E_TEST_FAILURE :: Test failure.
+        // Not sure what could generate this, but it is unlikely that we use it.
+        // Since the message is aligned with the issue it should help diagnosis.
+        return 0x8b051032;
+    }
+    catch (...)
+    {
+        // Means we couldn't map the exception
+        return S_OK;
+    }
+}
+
 int main(int argc, char** argv)
 {
     init_apartment();
@@ -122,6 +143,8 @@ int main(int argc, char** argv)
     }
     Logging::Log().SetLevel(Logging::Level::Verbose);
     Logging::EnableWilFailureTelemetry();
+
+    wil::SetResultFromCaughtExceptionCallback(CatchResultFromCaughtException);
 
     // Forcibly enable event writing to catch bugs in that code
     g_IsTelemetryProviderEnabled = true;

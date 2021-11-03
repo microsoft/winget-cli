@@ -10,6 +10,7 @@
 #include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
+#include "PackageTrackingCatalogSourceFactory.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "Microsoft/ConfigurableTestSourceFactory.h"
@@ -28,56 +29,16 @@ namespace AppInstaller::Repository
         static std::map<std::string, std::function<std::unique_ptr<ISourceFactory>()>> s_Sources_TestHook_SourceFactories;
 #endif
 
-        std::unique_ptr<ISourceFactory> GetFactoryForType(std::string_view type)
-        {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-            // Tests can ensure case matching
-            auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
-            if (itr != s_Sources_TestHook_SourceFactories.end())
-            {
-                return itr->second();
-            }
-
-            if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
-            {
-                return Microsoft::ConfigurableTestSourceFactory::Create();
-            }
-#endif
-
-            // For now, enable an empty type to represent the only one we have.
-            if (type.empty() ||
-                Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
-            {
-                return Microsoft::PreIndexedPackageSourceFactory::Create();
-            }
-            // Should always come from code, so no need for case insensitivity
-            else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
-            {
-                return Microsoft::PredefinedInstalledSourceFactory::Create();
-            }
-            // Should always come from code, so no need for case insensitivity
-            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
-            {
-                return Microsoft::PredefinedWriteableSourceFactory::Create();
-            }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
-            {
-                return Rest::RestSourceFactory::Create();
-            }
-
-            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
-        }
-
         std::shared_ptr<ISourceReference> CreateSourceFromDetails(const SourceDetails& details)
         {
-            return GetFactoryForType(details.Type)->Create(details);
+            return ISourceFactory::GetForType(details.Type)->Create(details);
         }
 
         template <typename MemberFunc>
         bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
             bool result = false;
-            auto factory = GetFactoryForType(details.Type);
+            auto factory = ISourceFactory::GetForType(details.Type);
 
             // Attempt; if it fails, wait a short time and retry.
             try
@@ -120,7 +81,7 @@ namespace AppInstaller::Repository
 
         bool RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
-            auto factory = GetFactoryForType(details.Type);
+            auto factory = ISourceFactory::GetForType(details.Type);
 
             return factory->Remove(details, progress);
         }
@@ -209,6 +170,51 @@ namespace AppInstaller::Repository
             SourceDetails m_details;
             std::exception_ptr m_exception;
         };
+    }
+
+    std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(std::string_view type)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Tests can ensure case matching
+        auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
+        if (itr != s_Sources_TestHook_SourceFactories.end())
+        {
+            return itr->second();
+        }
+
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+        {
+            return Microsoft::ConfigurableTestSourceFactory::Create();
+        }
+#endif
+
+        // For now, enable an empty type to represent the only one we have.
+        if (type.empty() ||
+            Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
+        {
+            return Microsoft::PreIndexedPackageSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
+        {
+            return Microsoft::PredefinedInstalledSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+        {
+            return Microsoft::PredefinedWriteableSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (PackageTrackingCatalogSourceFactory::Type() == type)
+        {
+            return PackageTrackingCatalogSourceFactory::Create();
+        }
+        else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
+        {
+            return Rest::RestSourceFactory::Create();
+        }
+
+        THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
     }
 
     std::string_view ToString(SourceOrigin origin)
