@@ -88,7 +88,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         for (auto const& field : m_information.RequiredPackageMatchFields)
         {
-            PackageMatchField matchField = StringToPackageMatchField(field);
+            PackageMatchField matchField = ConvertStringToPackageMatchField(field);
 
             if (searchRequest.Filters.end() == std::find_if(searchRequest.Filters.begin(), searchRequest.Filters.end(), [&](const PackageMatchFilter& filter) { return filter.Field == matchField; }))
             {
@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         for (auto const& field : m_information.UnsupportedPackageMatchFields)
         {
-            PackageMatchField matchField = StringToPackageMatchField(field);
+            PackageMatchField matchField = ConvertStringToPackageMatchField(field);
 
             if (matchField == PackageMatchField::Unknown)
             {
@@ -116,8 +116,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             {
                 AICLI_LOG(Repo, Info, << "Search request Inclusions contains package match field not supported by the rest source. Ignoring the field. Unsupported package match field: " << field);
 
-                auto itr = std::find_if(resultSearchRequest.Inclusions.begin(), resultSearchRequest.Inclusions.end(), [&](const PackageMatchFilter& inclusion) { return inclusion.Field == matchField; });
-                resultSearchRequest.Inclusions.erase(itr);
+                resultSearchRequest.Inclusions.erase(
+                    std::remove_if(
+                        resultSearchRequest.Inclusions.begin(), resultSearchRequest.Inclusions.end(),
+                        [&](const PackageMatchFilter& inclusion) { return inclusion.Field == matchField; }),
+                    resultSearchRequest.Inclusions.end());
             }
 
             if (searchRequest.Filters.end() != std::find_if(searchRequest.Filters.begin(), searchRequest.Filters.end(), [&](const PackageMatchFilter& filter) { return filter.Field == matchField; }))
@@ -168,5 +171,49 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         }
 
         return result;
+    }
+
+    PackageMatchField Interface::ConvertStringToPackageMatchField(std::string_view field) const
+    {
+        std::string toLower = Utility::ToLower(field);
+
+        if (toLower == "command")
+        {
+            return PackageMatchField::Command;
+        }
+        else if (toLower == "packageidentifier")
+        {
+            return PackageMatchField::Id;
+        }
+        else if (toLower == "moniker")
+        {
+            return PackageMatchField::Moniker;
+        }
+        else if (toLower == "packagename")
+        {
+            return PackageMatchField::Name;
+        }
+        else if (toLower == "tag")
+        {
+            return PackageMatchField::Tag;
+        }
+        else if (toLower == "packagefamilyname")
+        {
+            return PackageMatchField::PackageFamilyName;
+        }
+        else if (toLower == "productcode")
+        {
+            return PackageMatchField::ProductCode;
+        }
+        else if (toLower == "normalizedpackagenameandpublisher")
+        {
+            return PackageMatchField::NormalizedNameAndPublisher;
+        }
+        else if (toLower == "market")
+        {
+            return PackageMatchField::Market;
+        }
+
+        return PackageMatchField::Unknown;
     }
 }

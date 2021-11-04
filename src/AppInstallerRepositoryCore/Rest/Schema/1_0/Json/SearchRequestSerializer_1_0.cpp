@@ -144,8 +144,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         filter[JsonHelper::GetUtilityString(PackageMatchField)] = web::json::value::string(JsonHelper::GetUtilityString(matchField.value()));
-        AppInstaller::Repository::RequestMatch requestMatch{ packageMatchFilter.Type, packageMatchFilter.Value };
-        std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(requestMatch);
+        std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(packageMatchFilter);
 
         if (!requestMatchJson)
         {
