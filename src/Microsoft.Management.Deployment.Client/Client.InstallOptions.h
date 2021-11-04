@@ -9,7 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::factory_implementation
     {
         auto ActivateInstance() const
         {
-            return winrt::create_instance<winrt::Microsoft::Management::Deployment::PackageManager>(__uuidof(implementation::InstallOptions), CLSCTX_ALL);
+            return winrt::create_instance<winrt::Microsoft::Management::Deployment::InstallOptions>(__uuidof(implementation::InstallOptions), CLSCTX_ALL);
         }
     };
 }
