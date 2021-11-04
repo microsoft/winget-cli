@@ -553,7 +553,13 @@ namespace AppInstaller::Logging
         }
         else
         {
-            static GlobalTelemetryTraceLogger processGlobalTelemetry;
+            static std::once_flag processGlobalTelemetryOnceFlag;
+            static TelemetryTraceLogger processGlobalTelemetry;
+            std::call_once(processGlobalTelemetryOnceFlag,
+                [&]()
+                {
+                    processGlobalTelemetry.Initialize();
+                });
             return processGlobalTelemetry;
         }
     }

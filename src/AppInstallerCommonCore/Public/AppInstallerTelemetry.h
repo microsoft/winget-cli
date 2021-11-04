@@ -147,13 +147,6 @@ namespace AppInstaller::Logging
         std::wstring m_userProfile;
     };
 
-    struct GlobalTelemetryTraceLogger : TelemetryTraceLogger
-    {
-        GlobalTelemetryTraceLogger() { Initialize(); }
-
-        ~GlobalTelemetryTraceLogger() = default;
-    };
-
     // Helper to make the call sites look clean.
     TelemetryTraceLogger& Telemetry();
 
