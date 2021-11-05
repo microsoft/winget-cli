@@ -44,17 +44,6 @@ namespace AppInstaller::Repository
                 return m_details.Identifier;
             }
 
-            SourceInformation GetInformation() override
-            {
-                return {};
-            }
-
-            // Set custom header. Returns false if custom header is not supported.
-            bool SetCustomHeader(std::optional<std::string> header) override
-            {
-                return false;
-            }
-
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 m_details.Arg = Utility::MakeSuitablePathPart(m_details.Data);
@@ -84,7 +73,7 @@ namespace AppInstaller::Repository
             }
 
         private:
-            // Store the indentifier of the source in the Data field.
+            // Store the identifier of the source in the Data field.
             SourceDetails m_details;
         };
 

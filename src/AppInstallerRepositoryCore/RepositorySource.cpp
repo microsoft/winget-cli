@@ -291,7 +291,7 @@ namespace AppInstaller::Repository
             compositeSource->AddAvailableSource(availableSource.m_source);
         }
 
-        compositeSource->SetInstalledSource(installedSource.m_source, searchBehavior);
+        compositeSource->SetInstalledSource(installedSource, searchBehavior);
 
         m_source = compositeSource;
         m_isComposite = true;

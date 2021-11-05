@@ -54,7 +54,7 @@ struct CompositeTestSetup
     {
         Installed = std::make_shared<ComponentTestSource>("InstalledTestSource1");
         Available = std::make_shared<ComponentTestSource>("AvailableTestSource1");
-        Composite.SetInstalledSource(Installed);
+        Composite.SetInstalledSource(Source{ Installed });
         Composite.AddAvailableSource(Source{ Available });
     }
 
@@ -782,7 +782,7 @@ TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]"
 
     setup.Composite.AddAvailableSource(Source{ AvailableFails });
 
-    setup.Composite.SetInstalledSource(setup.Installed, CompositeSearchBehavior::AvailablePackages);
+    setup.Composite.SetInstalledSource(Source{ setup.Installed }, CompositeSearchBehavior::AvailablePackages);
 
     SearchRequest request;
     request.Query = RequestMatch{ MatchType::Exact, "whatever" };

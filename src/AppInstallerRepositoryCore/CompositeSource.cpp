@@ -683,7 +683,7 @@ namespace AppInstaller::Repository
         m_availableSources.emplace_back(source);
     }
 
-    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior)
+    void CompositeSource::SetInstalledSource(Source source, CompositeSearchBehavior searchBehavior)
     {
         m_installedSource = std::move(source);
         m_searchBehavior = searchBehavior;
@@ -722,7 +722,7 @@ namespace AppInstaller::Repository
         if (m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed)
         {
             // Search installed source (allow exceptions out as we own the installed source)
-            SearchResult installedResult = m_installedSource->Search(request);
+            SearchResult installedResult = m_installedSource.Search(request);
             result.Truncated = installedResult.Truncated;
 
             for (auto&& match : installedResult.Matches)
@@ -852,7 +852,7 @@ namespace AppInstaller::Repository
                     SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
 
                     // Correlate against installed (allow exceptions out as we own the installed source)
-                    SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
+                    SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
                     std::shared_ptr<IPackage> installedPackage = GetMatchingPackage(installedCrossRef.Matches,
                         [&]() {
@@ -904,7 +904,7 @@ namespace AppInstaller::Repository
                     SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
 
                     // Correlate against installed (allow exceptions out as we own the installed source)
-                    SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
+                    SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
                     std::shared_ptr<IPackage> installedPackage = GetMatchingPackage(installedCrossRef.Matches,
                         [&]() {

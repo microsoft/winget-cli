@@ -42,7 +42,7 @@ namespace AppInstaller::Repository
         bool HasAvailableSource() const { return !m_availableSources.empty(); }
 
         // Sets the installed source to be composited.
-        void SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
+        void SetInstalledSource(Source source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     private:
         // Performs a search when an installed source is present.
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository
         // Performs a search when no installed source is present.
         SearchResult SearchAvailable(const SearchRequest& request) const;
 
-        std::shared_ptr<ISource> m_installedSource;
+        Source m_installedSource;
         std::vector<Source> m_availableSources;
         SourceDetails m_details;
         CompositeSearchBehavior m_searchBehavior;
