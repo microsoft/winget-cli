@@ -26,7 +26,6 @@
   </Applications>
   <Capabilities>
     <Capability Name="internetClient" />
-    <rescap:Capability Name="packageQuery" />
     <rescap:Capability Name="packageManagement" />
   </Capabilities>
 </Package>
