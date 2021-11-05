@@ -29,6 +29,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case ::AppInstaller::Repository::PackageMatchField::Tag:
             matchField = Microsoft::Management::Deployment::PackageMatchField::Tag;
             break;
+        case ::AppInstaller::Repository::PackageMatchField::ProductCode:
+            matchField = Microsoft::Management::Deployment::PackageMatchField::ProductCode;
+            break;
+        case ::AppInstaller::Repository::PackageMatchField::PackageFamilyName:
+            matchField = Microsoft::Management::Deployment::PackageMatchField::PackageFamilyName;
+            break;
         default:
             matchField = Microsoft::Management::Deployment::PackageMatchField::Id;
             break;
@@ -55,6 +61,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             break;
         case Microsoft::Management::Deployment::PackageMatchField::Tag:
             matchField = ::AppInstaller::Repository::PackageMatchField::Tag;
+            break;
+        case Microsoft::Management::Deployment::PackageMatchField::ProductCode:
+            matchField = ::AppInstaller::Repository::PackageMatchField::ProductCode;
+            break;
+        case Microsoft::Management::Deployment::PackageMatchField::PackageFamilyName:
+            matchField = ::AppInstaller::Repository::PackageMatchField::PackageFamilyName;
             break;
         default:
             matchField = ::AppInstaller::Repository::PackageMatchField::Id;
