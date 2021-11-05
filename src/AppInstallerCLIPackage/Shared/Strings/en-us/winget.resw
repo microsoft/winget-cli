@@ -1241,4 +1241,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Windows Package Manager (Preview)</value>
     <comment>The product name plus an indicator that this is a pre-release version.</comment>
   </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Select the architecture to install</value>
+  </data>
 </root>
