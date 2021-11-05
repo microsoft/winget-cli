@@ -10,6 +10,7 @@
 #pragma warning( pop )
 #include "InstallOptions.g.cpp"
 #include "Converters.h"
+#include "Helpers.h"
 
 #include <AppInstallerArchitecture.h>
 
@@ -103,5 +104,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_allowedArchitectures;
     }
-    CoCreatableCppWinRtClass(InstallOptions);
+
+    CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

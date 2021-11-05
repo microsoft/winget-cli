@@ -1,13 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include <winrt/Microsoft.Management.Deployment.h>
 #include <wrl/module.h>
-#include <winget/ExperimentalFeature.h>
-#include <winget/GroupPolicy.h>
 #include "COMContext.h"
-#include "AppInstallerRuntime.h"
-#include "AppInstallerVersions.h"
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -27,17 +22,6 @@ static void _releaseNotifier() noexcept
     _comServerExitEvent.SetEvent();
 }
 
-// Check whether the packaged api is enabled and the overarching winget group policy is enabled.
-bool IsServerEnabled()
-{
-    if (!::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet))
-    {
-        return false;
-    }
-
-    return true;
-}
-
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int)
 {
     winrt::init_apartment();
@@ -55,11 +39,6 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int
     auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);
     try
     {
-        if (!IsServerEnabled())
-        {
-            return 0;
-        }
-
         // Register all the CoCreatableClassWrlCreatorMapInclude classes
         RETURN_IF_FAILED(module.RegisterObjects());
         _comServerExitEvent.wait();

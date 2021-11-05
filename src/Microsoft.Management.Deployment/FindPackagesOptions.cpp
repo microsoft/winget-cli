@@ -9,6 +9,7 @@
 #include "FindPackagesOptions.h"
 #pragma warning( pop )
 #include "FindPackagesOptions.g.cpp"
+#include "Helpers.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -28,5 +29,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_resultLimit = value;
     }
-    CoCreatableCppWinRtClass(FindPackagesOptions);
+
+    CoCreatableMicrosoftManagementDeploymentClass(FindPackagesOptions);
 }
