@@ -38,6 +38,7 @@ namespace AppInstaller::CLI::Execution
             Override, //Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,
+            InstallArchitecture,
             HashOverride, // Ignore hash mismatches
             AcceptPackageAgreements, // Accept all license agreements for packages
 
