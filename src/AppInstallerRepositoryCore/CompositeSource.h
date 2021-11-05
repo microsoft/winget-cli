@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include "ISource.h"
 
@@ -28,26 +27,22 @@ namespace AppInstaller::Repository
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
 
-        // Gets a value indicating whether this source is a composite of other sources,
-        // and thus the packages may come from disparate sources as well.
-        bool IsComposite() const override { return true; }
-
-        // Gets the available sources if the source is composite.
-        std::vector<std::shared_ptr<ISource>> GetAvailableSources() const override { return m_availableSources; }
-
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 
         // ~ISource
 
         // Adds an available source to be aggregated.
-        void AddAvailableSource(std::shared_ptr<ISource> source);
+        void AddAvailableSource(const Source& source);
+
+        // Gets the available sources if the source is composite.
+        std::vector<Source> GetAvailableSources() const { return m_availableSources; }
 
         // Checks if any available sources are present
         bool HasAvailableSource() const { return !m_availableSources.empty(); }
 
         // Sets the installed source to be composited.
-        void SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
+        void SetInstalledSource(Source source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     private:
         // Performs a search when an installed source is present.
@@ -56,8 +51,8 @@ namespace AppInstaller::Repository
         // Performs a search when no installed source is present.
         SearchResult SearchAvailable(const SearchRequest& request) const;
 
-        std::shared_ptr<ISource> m_installedSource;
-        std::vector<std::shared_ptr<ISource>> m_availableSources;
+        Source m_installedSource;
+        std::vector<Source> m_availableSources;
         SourceDetails m_details;
         CompositeSearchBehavior m_searchBehavior;
     };

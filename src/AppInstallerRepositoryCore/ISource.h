@@ -24,13 +24,6 @@ namespace AppInstaller::Repository
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
-
-        // Gets a value indicating whether this source is a composite of other sources,
-        // and thus the packages may come from disparate sources as well.
-        virtual bool IsComposite() const { return false; }
-
-        // Gets the available sources if the source is composite.
-        virtual std::vector<std::shared_ptr<ISource>> GetAvailableSources() const { return {}; }
     };
 
     // Internal interface to represents source information; basically SourceDetails but with methods to enable differential behaviors.

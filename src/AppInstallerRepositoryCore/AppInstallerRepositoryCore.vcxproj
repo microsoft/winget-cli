@@ -266,6 +266,7 @@
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
+    <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />

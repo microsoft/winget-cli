@@ -1,16 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Public/winget/RepositorySource.h>
+#include <AppInstallerStrings.h>
+#include <winget/Manifest.h>
 
 #include <memory>
 
 
 namespace AppInstaller::Repository
 {
+    struct Source;
+    struct SearchRequest;
+    struct SearchResult;
+    enum class PackageVersionMetadata;
+
     // A catalog for tracking package actions from a given source.
     struct PackageTrackingCatalog
     {
+        friend Source;
+
         PackageTrackingCatalog();
         PackageTrackingCatalog(const PackageTrackingCatalog&);
         PackageTrackingCatalog& operator=(const PackageTrackingCatalog&);
@@ -18,12 +26,11 @@ namespace AppInstaller::Repository
         PackageTrackingCatalog& operator=(PackageTrackingCatalog&&) noexcept;
         ~PackageTrackingCatalog();
 
-        // Creates or opens the tracking catalog for the given source.
-        // TODO: Make creation exclusive to the refactored Source type.
-        static PackageTrackingCatalog CreateForSource(const Source& source);
-
-        // Removes the package tracking catalog for a given source.
+        // Removes the package tracking catalog for a given source identifier.
         static void RemoveForSource(const std::string& identifier);
+
+        // Determines if the current object holds anything.
+        operator bool() const;
 
         // Execute a search against the catalog.
         // Note that the packages in the results have the versions under "available" in order to
@@ -56,6 +63,10 @@ namespace AppInstaller::Repository
 
         // Records an uninstall of the given package.
         void RecordUninstall(const Utility::LocIndString& packageIdentifier);
+
+    protected:
+        // Creates or opens the tracking catalog for the given source.
+        static PackageTrackingCatalog CreateForSource(const Source& source);
 
     private:
         struct implementation;

@@ -11,7 +11,6 @@
 #include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
-#include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerDeployment.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
@@ -683,7 +682,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        auto trackingCatalog = PackageTrackingCatalog::CreateForSource(context.Get<Data::PackageVersion>()->GetSource());
+        auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
 
         trackingCatalog.RecordInstall(
             context.Get<Data::Manifest>(),
