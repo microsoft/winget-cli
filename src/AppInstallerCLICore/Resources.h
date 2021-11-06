@@ -354,6 +354,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManager);
+        WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManagerPreview);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 
