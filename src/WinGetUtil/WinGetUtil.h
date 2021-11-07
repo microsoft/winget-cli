@@ -108,9 +108,7 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING mergedManifestPath,
-        WINGET_STRING indexPath,
-        WinGetValidateManifestOption option);
+        WINGET_STRING indexPath);
 
     // Validates a given manifest with dependencies. Returns a bool for validation result and
     // a string representing validation errors if validation failed.

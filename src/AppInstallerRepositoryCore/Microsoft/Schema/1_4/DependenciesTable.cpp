@@ -12,7 +12,7 @@
 #include "Microsoft/Schema/1_0/ChannelTable.h"
 #include "winget/ManifestValidation.h"
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_3
+namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 {
 	using namespace std::string_view_literals;
 	using namespace SQLite::Builder;

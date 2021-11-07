@@ -5,7 +5,6 @@
 #include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_0/ManifestTable.h"
-#include "Microsoft/Schema/1_3/DependenciesTable.h"
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
 #include <winget/ManifestValidation.h>
 
@@ -28,8 +27,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
         V1_0::ManifestTable::AddColumn(connection, { HashVirtualTable::ValueName(), HashVirtualTable::SQLiteType() });
 
-        DependenciesTable::Create(connection);
-
         savepoint.Commit();
     }
 
@@ -45,8 +42,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             THROW_HR_IF(E_INVALIDARG, manifest.StreamSha256.size() != Utility::SHA256::HashBufferSizeInBytes);
             V1_0::ManifestTable::UpdateValueIdById<HashVirtualTable>(connection, manifestId, manifest.StreamSha256);
         }
-
-        DependenciesTable::AddDependencies(connection, manifest, manifestId);
 
         savepoint.Commit();
 
@@ -74,11 +69,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             }
         }
 
-        bool dependenciesModified = DependenciesTable::UpdateDependencies(connection, manifest, manifestId);
-        indexModified = indexModified || dependenciesModified;
-
-        savepoint.Commit();
-
         return { indexModified, manifestId };
     }
 
@@ -88,19 +78,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 
         V1_2::Interface::RemoveManifestById(connection, manifestId);
 
-        DependenciesTable::RemoveDependencies(connection, manifestId);
-
         savepoint.Commit();
-    }
-
-    bool Interface::ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const
-    {
-        return DependenciesTable::ValidateDependencies(connection, manifest);
-    }
-
-    bool Interface::VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest& manifest) const
-    {
-        return DependenciesTable::VerifyDependenciesStructureForManifestDelete(connection, manifest);
     }
 
     std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
@@ -122,8 +100,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_3");
 
         V1_2::Interface::PrepareForPackaging(connection, false);
-
-        DependenciesTable::PrepareForPackaging(connection);
 
         savepoint.Commit();
 

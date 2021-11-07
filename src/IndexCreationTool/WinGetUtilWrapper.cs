@@ -174,6 +174,7 @@ namespace IndexCreationTool
         /// <param name="relativePath">Path of the manifest in the repository.</param>
         public (bool isValid, string message) ValidateManifestV3(
             string manifestPath,
+            string indexPath,
             string mergedManifestPath = null,
             ValidateManifestOption option = ValidateManifestOption.Default)
         {
@@ -182,8 +183,28 @@ namespace IndexCreationTool
                 out bool succeeded,
                 out string failureOrWarningMessage,
                 mergedManifestPath,
-                this.indexHandle,
+                indexPath,
                 option);
+            return (succeeded, failureOrWarningMessage);
+        }
+
+        /// <summary>
+        /// Delete manifest from index.
+        /// </summary>
+        /// <param name="manifestPath">Path to manifest to modify.</param>
+        /// <param name="relativePath">Path of the manifest in the repository.</param>
+        public (bool isValid, string message) VerifyDependenciesStructureForManifestDelete(
+            string manifestPath,
+            string indexPath,
+            string mergedManifestPath = null,
+            ValidateManifestOption option = ValidateManifestOption.Default)
+        {
+            WinGetVerifyDependenciesStructureForManifestDelete(
+                manifestPath,
+                out bool succeeded,
+                out string failureOrWarningMessage,
+                mergedManifestPath,
+                indexPath);
             return (succeeded, failureOrWarningMessage);
         }
 
@@ -308,7 +329,15 @@ namespace IndexCreationTool
             [MarshalAs(UnmanagedType.U1)] out bool succeeded,
             [MarshalAs(UnmanagedType.BStr)] out string failureMessage,
             string mergedManifestPath,
-            IntPtr index,
+            string indexPath,
             ValidateManifestOption option);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern IntPtr WinGetVerifyDependenciesStructureForManifestDelete(
+            string manifestPath,
+            [MarshalAs(UnmanagedType.U1)] out bool succeeded,
+            [MarshalAs(UnmanagedType.BStr)] out string failureMessage,
+            string mergedManifestPath,
+            string indexPath);
     }
 }

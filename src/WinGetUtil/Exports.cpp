@@ -243,25 +243,17 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING mergedManifestPath,
-        WINGET_STRING indexPath,
-        WinGetValidateManifestOption option) try
+        WINGET_STRING indexPath) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
         try
         {
-            ManifestValidateOption validateOption;
-            validateOption.FullValidation = true;
-            validateOption.ThrowOnWarning = true;
-            validateOption.SchemaValidationOnly = WI_IsFlagSet(option, WinGetValidateManifestOption::SchemaValidationOnly);
-            validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
-
-            Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
+            Manifest manifest = YamlParser::CreateFromPath(inputPath);
             
-            std::unique_ptr<SQLiteIndex> index = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite));
-            index->ValidateManifest(manifest);
+            SQLiteIndex index(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite)); 
+            index.ValidateManifest(manifest);
 
             *succeeded = TRUE;
         }

@@ -12,14 +12,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
     {
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
-        // Version 1.0
+        // Version 1.3
         Schema::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
-        bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const override;
-        bool VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest&) const override;
         void PrepareForPackaging(SQLite::Connection& connection, bool vau) override;
         
     protected:

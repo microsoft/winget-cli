@@ -258,9 +258,10 @@
     <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackageNameTable.h" />
     <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackagePublisherTable.h" />
     <ClInclude Include="Microsoft\Schema\1_2\SearchResultsTable.h" />
-    <ClInclude Include="Microsoft\Schema\1_3\DependenciesTable.h" />
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h" />
     <ClInclude Include="Microsoft\Schema\1_3\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_4\DependenciesTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_4\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -322,8 +323,9 @@
     <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp" />
     <ClCompile Include="Microsoft\Schema\1_2\Interface_1_2.cpp" />
     <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp" />
-    <ClCompile Include="Microsoft\Schema\1_3\DependenciesTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_4\DependenciesTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
