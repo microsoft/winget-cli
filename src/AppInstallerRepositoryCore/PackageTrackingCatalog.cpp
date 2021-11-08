@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/PackageTrackingCatalog.h"
+#include "PackageTrackingCatalogSourceFactory.h"
+#include "winget/RepositorySource.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "AppInstallerDateTime.h"
 
@@ -27,6 +29,97 @@ namespace AppInstaller::Repository
             result /= c_PackageTrackingFileName;
             return result;
         }
+
+        struct PackageTrackingCatalogSourceReference : public ISourceReference
+        {
+            PackageTrackingCatalogSourceReference(const SourceDetails& details) : m_details(details) {}
+
+            SourceDetails& GetDetails() override
+            {
+                return m_details;
+            }
+
+            std::string GetIdentifier() override
+            {
+                return m_details.Identifier;
+            }
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                m_details.Arg = Utility::MakeSuitablePathPart(m_details.Data);
+                std::filesystem::path trackingDB = GetPackageTrackingFilePath(m_details.Arg);
+
+                std::string lockName = CreateNameForCPRWL(m_details.Arg);
+
+                if (!std::filesystem::exists(trackingDB))
+                {
+                    auto exclusiveLock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
+
+                    if (!std::filesystem::exists(trackingDB))
+                    {
+                        std::filesystem::create_directories(trackingDB.parent_path());
+                        SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless);
+                    }
+                }
+
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
+
+                SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+
+                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
+                //       Could write this all now but it will be better tested when there is a new schema.
+
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+            }
+
+        private:
+            // Store the identifier of the source in the Data field.
+            SourceDetails m_details;
+        };
+
+        struct PackageTrackingCatalogSourceFactoryImpl : public ISourceFactory
+        {
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
+
+                return std::make_shared<PackageTrackingCatalogSourceReference>(details);
+            }
+
+            bool Add(SourceDetails&, IProgressCallback&) override final
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            bool Update(const SourceDetails&, IProgressCallback&) override final
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
+
+                std::string pathName = Utility::MakeSuitablePathPart(details.Data);
+
+                std::string lockName = CreateNameForCPRWL(pathName);
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName, progress);
+
+                if (!lock)
+                {
+                    return false;
+                }
+
+                std::filesystem::path trackingDB = GetPackageTrackingFilePath(pathName);
+
+                if (std::filesystem::exists(trackingDB))
+                {
+                    std::filesystem::remove(trackingDB);
+                }
+
+                return true;
+            }
+        };
     }
 
     struct PackageTrackingCatalog::implementation
@@ -50,43 +143,19 @@ namespace AppInstaller::Repository
             THROW_HR(E_INVALIDARG);
         }
 
-        std::string pathName = Utility::MakeSuitablePathPart(sourceIdentifier);
-
-        std::string lockName = CreateNameForCPRWL(pathName);
-        auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
-
-        std::filesystem::path trackingDB = GetPackageTrackingFilePath(pathName);
-
-        if (!std::filesystem::exists(trackingDB))
-        {
-            lock.Release();
-            lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
-
-            if (!std::filesystem::exists(trackingDB))
-            {
-                std::filesystem::create_directories(trackingDB.parent_path());
-                SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless);
-            }
-
-            lock.Release();
-            lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
-        }
-
-        SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
-
-        // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
-        //       Could write this all now but it will be better tested when there is a new schema.
-
         // Create fake details for the source while stashing some information that might be helpful for debugging
         SourceDetails details;
+        details.Type = PackageTrackingCatalogSourceFactory::Type();
         details.Identifier = "*Tracking";
         details.Name = "Tracking for "s + source.GetDetails().Name;
         details.Origin = SourceOrigin::PackageTracking;
-        details.Arg = pathName;
+        details.Data = sourceIdentifier;
+
+        ProgressCallback dummyProgress;
 
         PackageTrackingCatalog result;
         result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
-        result.m_implementation->Source = std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+        result.m_implementation->Source = std::dynamic_pointer_cast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
 
         return result;
     }
@@ -98,17 +167,19 @@ namespace AppInstaller::Repository
             THROW_HR(E_INVALIDARG);
         }
 
-        std::string pathName = Utility::MakeSuitablePathPart(identifier);
+        // Create details to pass to the factory; the identifier of the source is passed in the Data field.
+        SourceDetails dummyDetails;
+        dummyDetails.Type = PackageTrackingCatalogSourceFactory::Type();
+        dummyDetails.Data = identifier;
 
-        std::string lockName = CreateNameForCPRWL(pathName);
-        auto lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
+        ProgressCallback dummyProgress;
 
-        std::filesystem::path trackingDB = GetPackageTrackingFilePath(pathName);
+        ISourceFactory::GetForType(dummyDetails.Type)->Remove(dummyDetails, dummyProgress);
+    }
 
-        if (std::filesystem::exists(trackingDB))
-        {
-            std::filesystem::remove(trackingDB);
-        }
+    PackageTrackingCatalog::operator bool() const
+    {
+        return static_cast<bool>(m_implementation);
     }
 
     SearchResult PackageTrackingCatalog::Search(const SearchRequest& request) const
@@ -195,5 +266,10 @@ namespace AppInstaller::Repository
                 }
             }
         }
+    }
+
+    std::unique_ptr<ISourceFactory> PackageTrackingCatalogSourceFactory::Create()
+    {
+        return std::make_unique<PackageTrackingCatalogSourceFactoryImpl>();
     }
 }

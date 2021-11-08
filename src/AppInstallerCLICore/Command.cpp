@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            Resource::String::WindowsPackageManager << " v"_liv << Runtime::GetClientVersion() << std::endl <<
+            (Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview) << " v"_liv << Runtime::GetClientVersion() << std::endl <<
             Resource::String::MainCopyrightNotice << std::endl;
     }
 

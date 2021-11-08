@@ -63,4 +63,7 @@ namespace AppInstaller::Runtime
 
     // Checks if the file system at path supports hard links
     bool SupportsHardLinks(const std::filesystem::path& path);
+
+    // Returns true if this is a release build; false if not.
+    inline constexpr bool IsReleaseBuild();
 }

@@ -29,6 +29,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         SearchResult GetSearchResult(const web::json::value& searchResponseObject) const override;
         std::vector<Manifest::Manifest> GetParsedManifests(const web::json::value& manifestsResponseObject) const override;
 
+        PackageMatchField ConvertStringToPackageMatchField(std::string_view field) const;
+
     private:
         IRestClient::Information m_information;
     };

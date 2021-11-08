@@ -258,6 +258,9 @@
     <ClInclude Include="Microsoft\Schema\1_4\Interface.h">
       <Filter>Microsoft\Schema\1_4</Filter>
     </ClInclude>
+    <ClInclude Include="PackageTrackingCatalogSourceFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

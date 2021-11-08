@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(2)]
+    [contractversion(3)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -283,9 +283,12 @@ namespace Microsoft.Management.Deployment
         Moniker,
         Command,
         Tag,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 3)]
+        {
+            PackageFamilyName,
+            ProductCode,
+        }
         /// DESIGN NOTE: The following PackageFieldMatchOption from winget/RepositorySearch.h are not implemented in V1.
-        /// PackageFamilyName,
-        /// ProductCode,
         /// NormalizedNameAndPublisher,
     };
 

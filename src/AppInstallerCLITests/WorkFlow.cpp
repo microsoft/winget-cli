@@ -269,6 +269,41 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestInstallerWithLicenseAgreement")));
             }
 
+            if (input == "TestUpgradeAllWithDuplicateUpgradeItems")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Exe_2_LicenseAgreement.yaml" : "UpdateFlowTest_Exe_2.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest2,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
             return result;
         }
 
@@ -280,16 +315,18 @@ namespace
 
     struct WorkflowTaskOverride
     {
-        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o) :
-            Target(f), Override(o) {}
+        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(f), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o) :
-            Target(n), Override(o) {}
+        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(n), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o) :
-            Target(t), Override(o) {}
+        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(t), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        bool Used = false;
+        // -1 means no check on actual use count, as long as it's used.
+        int ExpectedUseCount = -1;
+        int UseCount = 0;
         WorkflowTask Target;
         std::function<void(TestContext&)> Override;
     };
@@ -306,7 +343,7 @@ namespace
             } };
 
             // Mark this one as used so that it doesn't anger the destructor.
-            wto.Used = true;
+            wto.UseCount++;
 
             Override(wto);
         }
@@ -324,7 +361,7 @@ namespace
                 }
                 else
                 {
-                    itr->Used = true;
+                    itr->UseCount++;
                     itr->Override(*this);
                     return false;
                 }
@@ -337,9 +374,13 @@ namespace
             {
                 for (const auto& wto : *m_overrides)
                 {
-                    if (!wto.Used)
+                    if (wto.UseCount == 0)
                     {
                         FAIL_CHECK("Unused override " + wto.Target.GetName());
+                    }
+                    else if (wto.ExpectedUseCount != -1 && wto.ExpectedUseCount != wto.UseCount)
+                    {
+                        FAIL_CHECK("Used override count does not match expected " + wto.Target.GetName());
                     }
                 }
             }
@@ -434,7 +475,7 @@ void OverrideForCheckExistingInstaller(TestContext& context)
     } });
 }
 
-void OverrideForShellExecute(TestContext& context)
+void OverrideForShellExecute(TestContext& context, int expectedUseCount = -1)
 {
     OverrideForCheckExistingInstaller(context);
 
@@ -442,11 +483,11 @@ void OverrideForShellExecute(TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-    } });
+    }, expectedUseCount });
 
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
     {
-    } });
+    }, expectedUseCount });
 
     OverrideForUpdateInstallerMotw(context);
 }
@@ -1459,6 +1500,26 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    // Installer should only be run once since the 2 upgrade items are same.
+    OverrideForShellExecute(context, 1);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestUpgradeAllWithDuplicateUpgradeItems"sv);
+    context.Args.AddArg(Execution::Args::Type::All);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify installers are called.
+    REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
 }
 
 TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
