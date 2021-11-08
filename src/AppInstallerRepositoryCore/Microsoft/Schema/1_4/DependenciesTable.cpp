@@ -152,15 +152,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 			ManifestTable::ExistsById(connection, manifestRowId);
 
-			// SELECT FROM versions where id IN ("1.0.0", "1.1.0" )
-			auto versionsResultSet = SelectIdsByValues(connection, VersionTable::TableName(), VersionTable::ValueName(), minVersions);
-			std::vector<Utility::NormalizedString> notFoundVersion;
-			FindMissing(versionsResultSet, minVersions, notFoundVersion);
-
 			// SELECT FROM ids where id IN (Example.Id1, Example.Id2, .... )
 			auto idResultSet = SelectIdsByValues(connection, IdTable::TableName(), IdTable::ValueName(), packageIds);
 			std::vector<Utility::NormalizedString> notFoundIds;
 			FindMissing(idResultSet, packageIds, notFoundIds);
+
+			if (notFoundIds.size() > 0)
+			{
+				std::string failedPackages;
+				std::for_each(
+					notFoundIds.begin(),
+					notFoundIds.end(),
+					[&](Utility::NormalizedString& packageId) {failedPackages.append(std::string{ packageId }); });
+				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "%s", failedPackages.c_str());
+			}
+
+
+			// SELECT FROM versions where id IN ("1.0.0", "1.1.0" )
+			auto versionsResultSet = SelectIdsByValues(connection, VersionTable::TableName(), VersionTable::ValueName(), minVersions);
+			std::vector<Utility::NormalizedString> notFoundVersion;
+			FindMissing(versionsResultSet, minVersions, notFoundVersion);
 
 			StatementBuilder insertBuilder;
 			insertBuilder.InsertInto(s_DependenciesTable_Table_Name)
