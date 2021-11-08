@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerErrors.h>
 #include <winget/GroupPolicy.h>
 #include <wil\cppwinrt_wrl.h>
 
