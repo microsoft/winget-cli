@@ -103,16 +103,6 @@ namespace AppInstaller::Repository::Microsoft
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
-
-        // Adds the manifest at the repository relative path to the index.
-        // If the function succeeds, the manifest has been added.
-        // Returns the manifest id.
-        bool ValidateManifest(const Manifest::Manifest& manifest);
-
-        // Adds the manifest at the repository relative path to the index.
-        // If the function succeeds, the manifest has been added.
-        // Returns the manifest id.
-        bool VerifyDependenciesStructureForManifestDelete(const Manifest::Manifest& manifest);
         
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         void RemoveManifest(const Manifest::Manifest& manifest);

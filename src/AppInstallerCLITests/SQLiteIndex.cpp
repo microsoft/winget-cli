@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
+#include <PackageDependenciesValidation.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
 #include <AppInstallerStrings.h>
@@ -522,7 +523,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_0]")
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
-    REQUIRE(index.ValidateManifest(topLevelManifest));
+    REQUIRE(PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest));
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex][V1_0]")
@@ -551,7 +552,9 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex]
 
     levelThreeManifest.Installers.push_back(ManifestInstaller{});
     levelThreeManifest.Installers[1].Dependencies.Add(Dependency(DependencyType::Package, topLevelManifest.Id, "1.0.0"));
-    REQUIRE_THROWS_HR(index.ValidateManifest(levelThreeManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
+    REQUIRE_THROWS_HR(
+        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), levelThreeManifest),
+        APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteindex][V1_0]")
@@ -576,7 +579,9 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteind
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
-    REQUIRE_THROWS_HR(index.ValidateManifest(topLevelManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
+    REQUIRE_THROWS_HR(
+        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest),
+        APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[sqliteindex][V1_0]")
@@ -602,7 +607,9 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "2.0.0"));
 
-    REQUIRE_THROWS_HR(index.ValidateManifest(topLevelManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
+    REQUIRE_THROWS_HR(
+        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest),
+        APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken", "[sqliteindex][V1_0]")
@@ -629,7 +636,9 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken"
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest));
 
-    REQUIRE_THROWS_HR(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
+    REQUIRE_THROWS_HR(
+        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifest),
+        APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBroken", "[sqliteindex][V1_0]")
@@ -660,7 +669,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBrok
     CreateFakeManifest(levelThreeManifestV2, levelThreeManifestV2Publisher, "2.0.0");
     index.AddManifest(levelThreeManifestV2, GetPathFromManifest(levelThreeManifestV2));
 
-    REQUIRE(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifest));
+    REQUIRE(PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifest));
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_NoSuitableOldManifest", "[sqliteindex][V1_0]")
@@ -691,7 +700,9 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest)); 
 
-    REQUIRE_THROWS(index.VerifyDependenciesStructureForManifestDelete(levelThreeManifestV2), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
+    REQUIRE_THROWS(
+        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifestV2),
+        APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")

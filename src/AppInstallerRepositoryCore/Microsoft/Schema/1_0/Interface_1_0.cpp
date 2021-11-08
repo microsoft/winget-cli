@@ -552,16 +552,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return result;
     }
 
-    bool Interface::ValidateManifest(SQLite::Connection&, const Manifest::Manifest&) const
-    {
-        return false;
-    }
-
-    bool Interface::VerifyDependenciesStructureForManifestDelete(SQLite::Connection&, const Manifest::Manifest&) const
-    {
-        return false;
-    }
-
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);

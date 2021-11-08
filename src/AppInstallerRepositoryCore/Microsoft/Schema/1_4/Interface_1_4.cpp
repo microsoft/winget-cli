@@ -66,16 +66,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
 
-    bool Interface::ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) const
-    {
-        return DependenciesTable::ValidateDependencies(connection, manifest);
-    }
-
-    bool Interface::VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest& manifest) const
-    {
-        return DependenciesTable::VerifyDependenciesStructureForManifestDelete(connection, manifest);
-    }
-
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_3");
