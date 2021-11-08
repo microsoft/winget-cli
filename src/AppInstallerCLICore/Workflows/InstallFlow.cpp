@@ -123,7 +123,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (installerType == InstallerTypeEnum::MSStore)
         {
-            context.Reporter.Info() << Resource::String::InstallationDisclaimerMSStore << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallationDisclaimerMSStore << std::endl;
         }
         else
         {
