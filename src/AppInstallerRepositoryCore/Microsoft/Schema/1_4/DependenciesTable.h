@@ -44,16 +44,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         static bool VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest& manifest);
 
         static void PrepareForPackaging(SQLite::Connection& connection);
-    private: 
-        // Get all manifest dependencies.
-        static std::vector<AppInstaller::Manifest::Dependency> GetDependencies(const Manifest::Manifest& manifest, Manifest::DependencyType dependencyType);
-
-        static void FindMissing(
-            std::map<std::string, SQLite::rowid_t> resultSet, std::vector<Utility::NormalizedString>& searchSpace, std::vector<Utility::NormalizedString>& notFoundIds);
-
-        // Remove the dependencies by manifest id
-        static void RemoveDependencies(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowId);
-
-        static void InsertDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId, std::vector<Manifest::Dependency>& dependencies);
     };
 }

@@ -69,6 +69,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             }
         }
 
+        savepoint.Commit();
+
         return { indexModified, manifestId };
     }
 
