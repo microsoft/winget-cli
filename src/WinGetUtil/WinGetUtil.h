@@ -104,7 +104,7 @@ extern "C"
     // a string representing validation errors if validation failed.
     // If mergedManifestPath is provided, this method will write a merged manifest
     // to the location specified by mergedManifestPath
-    WINGET_UTIL_API WinGetValidateManifestV3(
+    WINGET_UTIL_API WinGetValidateManifestDependencies(
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
@@ -118,7 +118,6 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING mergedManifestPath,
         WINGET_STRING indexPath);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.

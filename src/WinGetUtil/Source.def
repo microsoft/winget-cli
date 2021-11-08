@@ -14,5 +14,5 @@ EXPORTS
     WinGetDownload
     WinGetCompareVersions
     WinGetValidateManifestV2
-    WinGetValidateManifestV3
+    WinGetValidateManifestDependencies
     WinGetVerifyDependenciesStructureForManifestDelete

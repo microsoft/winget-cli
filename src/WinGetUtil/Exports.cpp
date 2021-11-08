@@ -10,9 +10,11 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
+#include <PackageDependenciesValidation.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
@@ -239,7 +241,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    WINGET_UTIL_API WinGetValidateManifestV3(
+    WINGET_UTIL_API WinGetValidateManifestDependencies(
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
@@ -252,8 +254,7 @@ extern "C"
         {
             Manifest manifest = YamlParser::CreateFromPath(inputPath);
             
-            SQLiteIndex index(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite)); 
-            index.ValidateManifest(manifest);
+            PackageDependenciesValidation::ValidateManifestDependencies(ConvertToUTF8(indexPath), manifest);
 
             *succeeded = TRUE;
         }
@@ -274,16 +275,14 @@ extern "C"
             WINGET_STRING inputPath,
             BOOL* succeeded,
             WINGET_STRING_OUT* message,
-            WINGET_STRING mergedManifestPath,
             WINGET_STRING indexPath) try
     {
         try
         {
-            ManifestValidateOption validateOption;
+            Manifest manifest = YamlParser::CreateFromPath(inputPath);
+            PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(ConvertToUTF8(indexPath), manifest);
 
-            std::unique_ptr<SQLiteIndex> index = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(ConvertToUTF8(indexPath), SQLiteIndex::OpenDisposition::ReadWrite));
-            Manifest manifest = YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
-            index->VerifyDependenciesStructureForManifestDelete(manifest);
+            *succeeded = TRUE;
         }
         catch (const ManifestException& e)
         {

@@ -261,6 +261,9 @@
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PackageDependenciesValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -406,6 +409,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp">
       <Filter>Microsoft\Schema\1_4</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
