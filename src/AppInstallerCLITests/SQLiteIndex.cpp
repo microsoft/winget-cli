@@ -415,6 +415,26 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteinde
     REQUIRE_THROWS_HR(index.AddManifest(manifest, GetPathFromManifest(manifest)), APPINSTALLER_CLI_ERROR_MISSING_PACKAGE);
 }
 
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteindex][V1_3]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "0.0.1"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "0.0.2"));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+}
+
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 {
     SQLiteIndex index = CreateTestIndex(SQLITE_MEMORY_DB_CONNECTION_TARGET);

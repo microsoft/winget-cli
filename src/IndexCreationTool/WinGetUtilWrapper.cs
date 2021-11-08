@@ -11,25 +11,6 @@ namespace IndexCreationTool
     /// </summary>
     internal class WinGetUtilWrapper : IDisposable
     {
-        [Flags]
-        public enum ValidateManifestOption
-        {
-            /// <summary>
-            /// Default validation behavior.
-            /// </summary>
-            Default = 0,
-
-            /// <summary>
-            /// Schema validation only.
-            /// </summary>
-            SchemaValidationOnly = 1,
-
-            /// <summary>
-            /// Report error on fields requiring verified publisher.
-            /// </summary>
-            ErrorOnVerifiedPublisherFields = 2,
-        }
-
         /// <summary>
         /// Dll name.
         /// </summary>
@@ -166,48 +147,6 @@ namespace IndexCreationTool
             }
         }
 
-
-        /// <summary>
-        /// Delete manifest from index.
-        /// </summary>
-        /// <param name="manifestPath">Path to manifest to modify.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
-        public (bool isValid, string message) ValidateManifestV3(
-            string manifestPath,
-            string indexPath,
-            string mergedManifestPath = null,
-            ValidateManifestOption option = ValidateManifestOption.Default)
-        {
-            WinGetValidateManifestV3(
-                manifestPath,
-                out bool succeeded,
-                out string failureOrWarningMessage,
-                mergedManifestPath,
-                indexPath,
-                option);
-            return (succeeded, failureOrWarningMessage);
-        }
-
-        /// <summary>
-        /// Delete manifest from index.
-        /// </summary>
-        /// <param name="manifestPath">Path to manifest to modify.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
-        public (bool isValid, string message) VerifyDependenciesStructureForManifestDelete(
-            string manifestPath,
-            string indexPath,
-            string mergedManifestPath = null,
-            ValidateManifestOption option = ValidateManifestOption.Default)
-        {
-            WinGetVerifyDependenciesStructureForManifestDelete(
-                manifestPath,
-                out bool succeeded,
-                out string failureOrWarningMessage,
-                mergedManifestPath,
-                indexPath);
-            return (succeeded, failureOrWarningMessage);
-        }
-
         /// <summary>
         /// Wrapper for WinGetSQLiteIndexPrepareForPackaging.
         /// </summary>
@@ -321,23 +260,5 @@ namespace IndexCreationTool
         /// <returns>HRESULT.</returns>
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexPrepareForPackaging(IntPtr index);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        private static extern IntPtr WinGetValidateManifestV3(
-            string manifestPath,
-            [MarshalAs(UnmanagedType.U1)] out bool succeeded,
-            [MarshalAs(UnmanagedType.BStr)] out string failureMessage,
-            string mergedManifestPath,
-            string indexPath,
-            ValidateManifestOption option);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        private static extern IntPtr WinGetVerifyDependenciesStructureForManifestDelete(
-            string manifestPath,
-            [MarshalAs(UnmanagedType.U1)] out bool succeeded,
-            [MarshalAs(UnmanagedType.BStr)] out string failureMessage,
-            string mergedManifestPath,
-            string indexPath);
     }
 }

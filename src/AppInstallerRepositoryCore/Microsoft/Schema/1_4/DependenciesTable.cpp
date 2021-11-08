@@ -167,11 +167,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "%s", failedPackages.c_str());
 			}
 
-
 			// SELECT FROM versions where id IN ("1.0.0", "1.1.0" )
 			auto versionsResultSet = SelectIdsByValues(connection, VersionTable::TableName(), VersionTable::ValueName(), minVersions);
 			std::vector<Utility::NormalizedString> notFoundVersion;
 			FindMissing(versionsResultSet, minVersions, notFoundVersion);
+
+			std::for_each(
+				notFoundVersion.begin(),
+				notFoundVersion.end(),
+				[&](Utility::NormalizedString& version) { versionsResultSet[version] = VersionTable::EnsureExists(connection, version); });
 
 			StatementBuilder insertBuilder;
 			insertBuilder.InsertInto(s_DependenciesTable_Table_Name)

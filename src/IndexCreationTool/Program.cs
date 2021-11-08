@@ -12,97 +12,81 @@ namespace IndexCreationTool
         public const string IndexName = @"index.db";
         public const string IndexPathInPackage = @"Public\index.db";
         public const string IndexPackageName = @"source.msix";
-        public const string ManifestPathRootDir = @"manifests\m\microsoft";
 
         static void Main(string[] args)
         {
-            // Add();
-            // Update();
-            // Verify();
-            VerifyForDelete();
-        }
+            string rootDir = string.Empty;
+            string appxManifestPath = string.Empty;
+            string certPath = string.Empty;
 
-        static void Add()
-        {
-            const string AddRootDirectory = @"C:\Users\akalagbe\OneDrive - Microsoft\Documents\dependencies-index-playground\add";
-            if (File.Exists(IndexName))
+            for (int i = 0; i < args.Length; i++)
             {
-                File.Delete(IndexName);
-            }
-
-            string[] adds = new string[] { "Microsoft.MsGraphCLI", "Microsoft.EdgeBeta", "Microsoft.AzureCLI", "Microsoft.VisualStudioCode.Insiders" };
-            using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
-            {
-                foreach (var add in adds)
+                if (args[i] == "-d" && ++i < args.Length)
                 {
-                    string manifestRelativePath = Path.Combine(ManifestPathRootDir, add);
-                    string filePath = Path.Combine(AddRootDirectory, $"{manifestRelativePath}.yaml");
-                    indexHelper.AddManifest(filePath, manifestRelativePath);
+                    rootDir = args[i];
+                }
+                else if (args[i] == "-m" && ++i < args.Length)
+                {
+                    appxManifestPath = args[i];
+                }
+                else if (args[i] == "-c" && ++i < args.Length)
+                {
+                    certPath = args[i];
                 }
             }
-        }
 
-        static void Update()
-        {
-            const string UpdateRootDirectory = @"C:\Users\akalagbe\OneDrive - Microsoft\Documents\dependencies-index-playground\update";
-
-            if (!File.Exists(IndexName))
+            if (string.IsNullOrEmpty(rootDir))
             {
-                throw new Exception($"File does not exists {IndexName}");
+                Console.WriteLine("Usage: IndexCreationTool.exe -d <Path to search for yaml> [-m <appxmanifest for index package> [-c <cert for signing index package>]]");
+                return;
             }
 
-            string[] adds = new string[] { "Microsoft.VisualStudioCode.Insiders" };
-            using (var indexHelper = WinGetUtilWrapper.Open(IndexName))
+            try
             {
-                foreach (var add in adds)
+                if (File.Exists(IndexName))
                 {
-                    string manifestRelativePath = Path.Combine(ManifestPathRootDir, add);
-                    string filePath = Path.Combine(UpdateRootDirectory, $"{manifestRelativePath}.yaml");
-                    indexHelper.UpdateManifest(filePath, manifestRelativePath);
+                    File.Delete(IndexName);
+                }
+
+                using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
+                {
+                    foreach (string file in Directory.EnumerateFiles(rootDir, "*.yaml", SearchOption.AllDirectories))
+                    {
+                        indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                    }
+                    indexHelper.PrepareForPackaging();
+                }
+
+                if (!string.IsNullOrEmpty(appxManifestPath))
+                {
+                    using (StreamWriter outputFile = new StreamWriter("MappingFile.txt"))
+                    {
+                        outputFile.WriteLine("[Files]");
+                        outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
+                        outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
+                    }
+                    RunCommand("makeappx.exe", $"pack /f MappingFile.txt /o /nv /p {IndexPackageName}");
+
+                    if (!string.IsNullOrEmpty(certPath))
+                    {
+                        RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed. Reason: " + e.Message);
+            }
+
+            Environment.Exit(0);
         }
 
-        static void Verify()
+        static void RunCommand(string command, string args)
         {
-            const string UpdateRootDirectory = @"C:\Users\akalagbe\OneDrive - Microsoft\Documents\dependencies-index-playground\verify";
-
-            if (!File.Exists(IndexName))
-            {
-                throw new Exception($"File does not exists {IndexName}");
-            }
-
-            string[] adds = new string[] { "Microsoft.ADKPEAddon" };
-            using (var indexHelper = WinGetUtilWrapper.Open(IndexName))
-            {
-                foreach (var add in adds)
-                {
-                    string manifestRelativePath = Path.Combine(ManifestPathRootDir, add);
-                    string filePath = Path.Combine(UpdateRootDirectory, $"{manifestRelativePath}.yaml");
-                    indexHelper.ValidateManifestV3(filePath, IndexName);
-                }
-            }
-        }
-
-        static void VerifyForDelete()
-        {
-            const string UpdateRootDirectory = @"C:\Users\akalagbe\OneDrive - Microsoft\Documents\dependencies-index-playground\verify";
-
-            if (!File.Exists(IndexName))
-            {
-                throw new Exception($"File does not exists {IndexName}");
-            }
-
-            string[] adds = new string[] { "Microsoft.ADKPEAddon" };
-            using (var indexHelper = WinGetUtilWrapper.Open(IndexName))
-            {
-                foreach (var add in adds)
-                {
-                    string manifestRelativePath = Path.Combine(ManifestPathRootDir, add);
-                    string filePath = Path.Combine(UpdateRootDirectory, $"{manifestRelativePath}.yaml");
-                    indexHelper.VerifyDependenciesStructureForManifestDelete(filePath, IndexName);
-                }
-            }
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.Start();
+            p.WaitForExit();
         }
     }
 }
