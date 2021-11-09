@@ -10,6 +10,7 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/ThreadGlobals.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -21,8 +22,13 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        static std::once_flag s_initLogging;
-        std::call_once(s_initLogging, []() {
+        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals threadGlobals;
+        thread_local std::once_flag initLogging;
+
+        std::call_once(initLogging, []() {
+            std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> previous = threadGlobals.SetForCurrentThread();
+            // Intentionally release to leave the local ThreadGlobals.
+            previous.release();
             // Enable all logs for now.
             AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
             AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);

@@ -8,10 +8,13 @@
 #include <vector>
 #include <cguid.h>
 
+namespace AppInstaller::Settings
+{
+    struct UserSettings;
+}
+
 namespace AppInstaller::Logging
 {
-    struct AppInstaller::Settings::UserSettings;
-
     // This type contains the registration lifetime of the telemetry trace logging provider.
     // Due to the nature of trace logging, specific methods should be added per desired trace.
     // As there should not be a significantly large number of individual telemetry events,
