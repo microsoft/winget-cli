@@ -17,9 +17,9 @@
     },
     "Locale": {
       "type": [ "string", "null" ],
-      "minLength": 1,
+      "pattern": "^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
       "maxLength": 20,
-      "description": "The package meta-data locale"
+      "description": "The installer meta-data locale"
     },
     "Channel": {
       "type": [ "string", "null" ],

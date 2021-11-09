@@ -14,28 +14,41 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 using namespace AppInstaller::Utility;
 
-static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
+namespace
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+    static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
-    TestDataFile testManifest("Manifest-Good.yaml");
-    manifest = YamlParser::CreateFromPath(testManifest);
+        TestDataFile testManifest("Manifest-Good.yaml");
+        manifest = YamlParser::CreateFromPath(testManifest);
 
-    relativePath = testManifest.GetPath().filename().u8string();
+        relativePath = testManifest.GetPath().filename().u8string();
 
-    index.AddManifest(manifest, relativePath);
+        index.AddManifest(manifest, relativePath);
 
-    details.Identifier = "*SimpleTestSetup";
-    details.Name = "TestName";
-    details.Type = "TestType";
-    details.Arg = testManifest.GetPath().parent_path().u8string();
-    details.Data = "";
+        details.Identifier = "*SimpleTestSetup";
+        details.Name = "TestName";
+        details.Type = "TestType";
+        details.Arg = testManifest.GetPath().parent_path().u8string();
+        details.Data = "";
 
-    auto result = std::make_shared<SQLiteIndexSource>(details, std::move(index));
+        auto result = std::make_shared<SQLiteIndexSource>(details, std::move(index));
 
-    PackageTrackingCatalog::RemoveForSource(result->GetIdentifier());
+        PackageTrackingCatalog::RemoveForSource(result->GetIdentifier());
 
-    return { result };
+        return { result };
+    }
+
+    struct TestCatalog : public PackageTrackingCatalog
+    {
+        using PackageTrackingCatalog::CreateForSource;
+    };
+
+    PackageTrackingCatalog CreatePackageTrackingCatalogForSource(const Source& source)
+    {
+        return TestCatalog::CreateForSource(source);
+    }
 }
 
 TEST_CASE("TrackingCatalog_Create", "[tracking_catalog]")
@@ -48,7 +61,7 @@ TEST_CASE("TrackingCatalog_Create", "[tracking_catalog]")
     std::string relativePath;
     auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
-    PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
 }
 
 TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
@@ -61,7 +74,7 @@ TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
     std::string relativePath;
     auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
-    PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);
@@ -91,7 +104,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
     std::string relativePath;
     auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
-    PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);
@@ -125,7 +138,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
     std::string relativePath;
     auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
-    PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);
@@ -158,7 +171,7 @@ TEST_CASE("TrackingCatalog_Uninstall", "[tracking_catalog]")
     std::string relativePath;
     auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
-    PackageTrackingCatalog catalog = PackageTrackingCatalog::CreateForSource(source);
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);

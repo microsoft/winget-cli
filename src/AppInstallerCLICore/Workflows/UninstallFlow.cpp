@@ -7,7 +7,6 @@
 #include "AppInstallerMsixInfo.h"
 
 #include <AppInstallerDeployment.h>
-#include <winget/PackageTrackingCatalog.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
@@ -181,7 +180,7 @@ namespace AppInstaller::CLI::Workflow
         // Finally record the uninstall for each found value
         for (const auto& item : correlatedSources.Items)
         {
-            auto trackingCatalog = PackageTrackingCatalog::CreateForSource(item.FromSource);
+            auto trackingCatalog = item.FromSource.GetTrackingCatalog();
             trackingCatalog.RecordUninstall(item.Identifier);
         }
     }

@@ -25,6 +25,7 @@ namespace AppInstaller::Runtime
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
+        constexpr std::string_view s_PreviewBuildSuffix = "-preview"sv;
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -167,6 +168,11 @@ namespace AppInstaller::Runtime
         else
         {
             strstr << VERSION_BUILD;
+        }
+
+        if (!IsReleaseBuild())
+        {
+            strstr << s_PreviewBuildSuffix;
         }
 
         return LocIndString{ strstr.str() };
@@ -442,6 +448,15 @@ namespace AppInstaller::Runtime
     bool SupportsHardLinks(const std::filesystem::path& path)
     {
         return IsNTFS(path);
+    }
+
+    constexpr bool IsReleaseBuild()
+    {
+#ifdef WINGET_ENABLE_RELEASE_BUILD
+        return true;
+#else
+        return false;
+#endif
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

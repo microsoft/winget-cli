@@ -18,6 +18,21 @@ namespace AppInstaller::CLI::Workflow
         {
             return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
+
+        void AddToPackagesToInstallIfNotPresent(std::vector<Execution::PackageToInstall>& packagesToInstall, Execution::PackageToInstall&& package)
+        {
+            for (auto const& existing : packagesToInstall)
+            {
+                if (existing.Manifest.Id == package.Manifest.Id &&
+                    existing.Manifest.Version == package.Manifest.Version &&
+                    existing.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier) == package.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier))
+                {
+                    return;
+                }
+            }
+
+            packagesToInstall.emplace_back(std::move(package));
+        }
     }
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
@@ -135,7 +150,7 @@ namespace AppInstaller::CLI::Workflow
                 std::move(updateContext.Get<Execution::Data::Installer>().value()) };
             package.PackageSubExecutionId = subExecution.GetCurrentSubExecutionId();
 
-            packagesToInstall.emplace_back(std::move(package));
+            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(package));
         }
 
         if (!updateAllFoundUpdate)

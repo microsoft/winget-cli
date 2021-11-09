@@ -966,7 +966,10 @@ namespace AppInstaller::CLI::Workflow
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-
+        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
+        }
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
 

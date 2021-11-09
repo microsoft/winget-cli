@@ -1,0 +1,18 @@
+# Default expected return codes exist in InstallerSuccessCodes
+PackageIdentifier: microsoft.msixsdk
+PackageName: MSIX SDK
+PackageVersion: 1.07.32-beta
+Publisher: Microsoft
+ShortDescription: description
+License: Test
+PackageLocale: en-US
+InstallerSuccessCodes:
+- 1603
+- 3010
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdk-x86.msi
+    InstallerSha256: 98B67758CEAFFCBB3FE47838FD0A8D7BD581C2650842D6B2B0E0D49A23270CCD
+    InstallerType: msi
+ManifestType: singleton
+ManifestVersion: 1.1.0

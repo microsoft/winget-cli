@@ -1229,6 +1229,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
     <value>Windows Package Manager</value>
+    <comment>The product name.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions in import file</value>
@@ -1241,5 +1242,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>The install technology of the newer version specified is different from the current version installed. Please uninstall the package and install the newer version.</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Windows Package Manager (Preview)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Select the architecture to install</value>
   </data>
 </root>
