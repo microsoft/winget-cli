@@ -1237,6 +1237,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
   </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>A newer version was found, but the install technology is different from the current version installed. Please uninstall the package and install the newer version.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>The install technology of the newer version specified is different from the current version installed. Please uninstall the package and install the newer version.</value>
+  </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
     <value>Windows Package Manager (Preview)</value>
     <comment>The product name plus an indicator that this is a pre-release version.</comment>

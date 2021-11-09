@@ -971,7 +971,19 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
         }
         ManifestComparator manifestComparator(context, installationMetadata);
-        context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
+        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+
+        if (!installer.has_value())
+        {
+            auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+            if (onlyInstalledType != inapplicabilities.end())
+            {
+                context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            }
+        }
+
+        context.Add<Execution::Data::Installer>(installer);
     }
 
     void EnsureRunningAsAdmin(Execution::Context& context)
