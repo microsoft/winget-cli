@@ -10,6 +10,8 @@
 
 namespace AppInstaller::Logging
 {
+    struct AppInstaller::Settings::UserSettings;
+
     // This type contains the registration lifetime of the telemetry trace logging provider.
     // Due to the nature of trace logging, specific methods should be added per desired trace.
     // As there should not be a significantly large number of individual telemetry events,
@@ -35,6 +37,9 @@ namespace AppInstaller::Logging
 
         // Capture if UserSettings is enabled and set user profile path
         void Initialize();
+
+        // Try to capture if UserSettings is enabled and set user profile path, returns whether the action is successfully completed.
+        bool TryInitialize();
 
         // Store the passed in name of the Caller for COM calls
         void SetCaller(const std::string& caller);
@@ -131,6 +136,8 @@ namespace AppInstaller::Logging
     protected:
         bool IsTelemetryEnabled() const noexcept;
 
+        void InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings);
+
         // Used to anonymize a string to the best of our ability.
         // Should primarily be used on failure messages or paths if needed.
         std::wstring AnonymizeString(const wchar_t* input) const noexcept;
@@ -138,6 +145,7 @@ namespace AppInstaller::Logging
 
         bool m_isSettingEnabled = true;
         std::atomic_bool m_isRuntimeEnabled{ true };
+        std::atomic_bool m_isInitialized{ false };
 
         GUID m_activityId = GUID_NULL;
         std::wstring m_telemetryCorrelationJsonW = L"{}";

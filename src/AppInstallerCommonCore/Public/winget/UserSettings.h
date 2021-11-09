@@ -188,8 +188,6 @@ namespace AppInstaller::Settings
         ~UserSettings() = default;
     };
 
-    inline UserSettings const& User()
-    {
-        return UserSettings::Instance();
-    }
+    const UserSettings* TryGetUser();
+    UserSettings const& User();
 }
