@@ -152,9 +152,6 @@
     <ClInclude Include="ExecutionContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="COMContext.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="ContextOrchestrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -175,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="Workflows\DependencyNodeProcessor.h">
       <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\COMContext.h">
+      <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

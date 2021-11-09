@@ -1,16 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#include <winrt/Microsoft.Management.Deployment.h>
-#include <wrl/module.h>
-#include "COMContext.h"
-
-using namespace winrt::Microsoft::Management::Deployment;
-
-CoCreatableClassWrlCreatorMapInclude(PackageManager);
-CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
-CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
-CoCreatableClassWrlCreatorMapInclude(InstallOptions);
-CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
+#include <wil/resource.h>
+#include <winrt/base.h>
+#include <objidl.h>
+#include <WindowsPackageManager.h>
 
 // Holds the wwinmain open until COM tells us there are no more server connections
 wil::unique_event _comServerExitEvent;
@@ -33,17 +26,16 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int
         winrt::check_hresult(globalOptions->Set(COMGLB_RO_SETTINGS, COMGLB_FAST_RUNDOWN));
     }
 
-    AppInstaller::CLI::Execution::COMContext::SetLoggers();
+    RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
 
     _comServerExitEvent.create();
-    auto& module = ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(&_releaseNotifier);
+    RETURN_IF_FAILED(WindowsPackageManagerServerModuleCreate(&_releaseNotifier));
     try
     {
         // Register all the CoCreatableClassWrlCreatorMapInclude classes
-        RETURN_IF_FAILED(module.RegisterObjects());
+        RETURN_IF_FAILED(WindowsPackageManagerServerModuleRegister());
         _comServerExitEvent.wait();
-        RETURN_IF_FAILED(module.UnregisterObjects());
-
+        RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
     }
     CATCH_RETURN()
 

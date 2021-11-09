@@ -7,6 +7,7 @@
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
+#include "COMContext.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -132,5 +133,10 @@ namespace AppInstaller::CLI
     catch (...)
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    void ServerInitialize()
+    {
+        AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }
