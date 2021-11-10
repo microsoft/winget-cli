@@ -15,7 +15,7 @@ namespace AppInstaller::Logging
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
+            Telemetry().GetActivityId(),
             nullptr,
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }
@@ -28,7 +28,7 @@ namespace AppInstaller::Logging
     {
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
-            nullptr, // TODO: ActivityId of the Global and COMContext telemetry to be logged in future
+            Telemetry().GetActivityId(),
             nullptr,
             TraceLoggingCountedUtf8String(message.data(), static_cast<ULONG>(message.size()), "LogMessage"));
     }

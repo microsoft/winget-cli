@@ -80,8 +80,24 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::Initialize()
     {
-        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
-        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+        if (!m_isInitialized)
+        {
+            InitializeInternal(Settings::User());
+        }
+    }
+
+    bool TelemetryTraceLogger::TryInitialize()
+    {
+        if (!m_isInitialized)
+        {
+            auto userSettings = Settings::TryGetUser();
+            if (userSettings)
+            {
+                InitializeInternal(*userSettings);
+            }
+        }
+
+        return m_isInitialized;
     }
 
     void TelemetryTraceLogger::SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept
@@ -520,7 +536,14 @@ namespace AppInstaller::Logging
 
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
-        return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
+        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled;
+    }
+
+    void TelemetryTraceLogger::InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings)
+    {
+        m_isSettingEnabled = !userSettings.Get<Settings::Setting::TelemetryDisable>();
+        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+        m_isInitialized = true;
     }
 
     std::wstring TelemetryTraceLogger::AnonymizeString(const wchar_t* input) const noexcept
@@ -553,7 +576,8 @@ namespace AppInstaller::Logging
         }
         else
         {
-            static GlobalTelemetryTraceLogger processGlobalTelemetry;
+            static TelemetryTraceLogger processGlobalTelemetry;
+            processGlobalTelemetry.TryInitialize();
             return processGlobalTelemetry;
         }
     }
