@@ -44,7 +44,7 @@ namespace AppInstallerCLIE2ETests
                 }
                 else
                 {
-                    TestCommon.AICLIPath = TestCommon.GetTestFile("AppInstallerCli.exe");
+                    TestCommon.AICLIPath = TestCommon.GetTestFile("winget.exe");
                 }
             }
 

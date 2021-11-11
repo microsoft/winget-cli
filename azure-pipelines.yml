@@ -278,7 +278,7 @@ jobs:
       runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
-                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
@@ -304,7 +304,7 @@ jobs:
       runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
-                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex

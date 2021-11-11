@@ -13,6 +13,7 @@
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
     <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
+    <CppWinRTGenerateWindowsMetadata>false</CppWinRTGenerateWindowsMetadata>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
