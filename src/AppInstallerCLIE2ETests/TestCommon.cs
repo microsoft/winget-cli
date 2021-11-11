@@ -103,7 +103,7 @@ namespace AppInstallerCLIE2ETests
             }
             else
             {
-                throw new TimeoutException("Command run timed out.");
+                throw new TimeoutException($"Command run timed out {command} {parameters}");
             }
 
             return result;
@@ -155,7 +155,7 @@ namespace AppInstallerCLIE2ETests
 
             if (waitedTime >= timeOut)
             {
-                throw new TimeoutException("Command run timed out.");
+                throw new TimeoutException($"Command run timed out {command} {parameters}");
             }
 
             RunCommandResult result = new RunCommandResult();

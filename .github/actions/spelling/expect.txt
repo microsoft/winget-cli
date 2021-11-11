@@ -150,6 +150,7 @@ htm
 IAttachment
 IConfiguration
 idx
+IFACEMETHODIMP
 IGlobal
 IHelp
 IHost
@@ -251,7 +252,9 @@ nuffing
 nullopt
 NX
 objbase
+objidl
 ofile
+Outptr
 Packagedx
 packageinuse
 pathparts
@@ -288,10 +291,12 @@ rebootrequiredforinstall
 rebootrequiredtofinish
 redirector
 Redist
+REFIID
 regexes
 REGSAM
 restsource
 rhs
+riid
 roblox
 rosoft
 rowids
@@ -333,6 +338,7 @@ SYD
 SYG
 sysrefcomp
 Tagit
+TCpp
 Templating
 temppath
 testexampleinstaller
