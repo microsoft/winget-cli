@@ -15,4 +15,3 @@ EXPORTS
     WinGetCompareVersions
     WinGetValidateManifestV2
     WinGetValidateManifestDependencies
-    WinGetVerifyDependenciesStructureForManifestDelete

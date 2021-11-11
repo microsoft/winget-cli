@@ -245,7 +245,8 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING indexPath) try
+        WINGET_STRING indexPath,
+        WinGetValidateManifestDependenciesValidationOption dependenciesValidationOption) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
@@ -254,33 +255,17 @@ extern "C"
         {
             Manifest manifest = YamlParser::CreateFromPath(inputPath);
             
-            PackageDependenciesValidation::ValidateManifestDependencies(ConvertToUTF8(indexPath), manifest);
-
-            *succeeded = TRUE;
-        }
-        catch (const ManifestException& e)
-        {
-            *succeeded = e.IsWarningOnly();
-            if (message)
+            switch (dependenciesValidationOption)
             {
-                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+                case WinGetValidateManifestDependenciesValidationOption::Standard:
+                    PackageDependenciesValidation::ValidateManifestDependencies(ConvertToUTF8(indexPath), manifest);
+                    break;
+                case WinGetValidateManifestDependenciesValidationOption::ForDelete:
+                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(ConvertToUTF8(indexPath), manifest);
+                    break;
+                default:
+                    THROW_HR(E_INVALIDARG);
             }
-        }
-
-        return S_OK;
-    }
-    CATCH_RETURN()
-
-    WINGET_UTIL_API WinGetVerifyDependenciesStructureForManifestDelete(
-            WINGET_STRING inputPath,
-            BOOL* succeeded,
-            WINGET_STRING_OUT* message,
-            WINGET_STRING indexPath) try
-    {
-        try
-        {
-            Manifest manifest = YamlParser::CreateFromPath(inputPath);
-            PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(ConvertToUTF8(indexPath), manifest);
 
             *succeeded = TRUE;
         }
