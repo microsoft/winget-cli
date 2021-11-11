@@ -74,15 +74,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         return { indexModified, manifestId };
     }
 
-    void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_3");
-
-        V1_2::Interface::RemoveManifestById(connection, manifestId);
-
-        savepoint.Commit();
-    }
-
     std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
         switch (property)
@@ -94,24 +85,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         }
         default:
             return V1_2::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
-        }
-    }
-
-    void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_3");
-
-        V1_2::Interface::PrepareForPackaging(connection, false);
-
-        savepoint.Commit();
-
-        if (vacuum)
-        {
-            // Force the database to actually shrink the file size.
-            // This *must* be done outside of an active transaction.
-            SQLite::Builder::StatementBuilder builder;
-            builder.Vacuum();
-            builder.Execute(connection);
         }
     }
 }

@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_4");
 
-        V1_3::Interface::RemoveManifestById(connection, manifestId);
+        V1_2::Interface::RemoveManifestById(connection, manifestId);
 
         DependenciesTable::RemoveDependencies(connection, manifestId);
 
@@ -68,9 +68,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_3");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_4");
 
-        V1_3::Interface::PrepareForPackaging(connection, false);
+        V1_2::Interface::PrepareForPackaging(connection, false);
 
         DependenciesTable::PrepareForPackaging(connection);
 
