@@ -33,7 +33,7 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 }, Schema::Version::Latest());
+        version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version::Latest());
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -62,6 +62,16 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
         Schema::Version version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
 
         if (version != Schema::Version{ 1, 3 })
+        {
+            index.ForceVersion(version);
+            return version;
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 4 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 });
+
+        if (version != Schema::Version{ 1, 4 })
         {
             index.ForceVersion(version);
             return version;
@@ -375,7 +385,7 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     REQUIRE_THROWS_HR(index.AddManifest(manifest, relativePath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_3]")
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -395,7 +405,7 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_3]")
     index.AddManifest(manifest, GetPathFromManifest(manifest));
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteindex][V1_3]")
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -415,7 +425,7 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteinde
     REQUIRE_THROWS_HR(index.AddManifest(manifest, GetPathFromManifest(manifest)), APPINSTALLER_CLI_ERROR_MISSING_PACKAGE);
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteindex][V1_3]")
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -519,7 +529,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
-TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -541,7 +551,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_0]")
     index.RemoveManifest(manifest, GetPathFromManifest(manifest));
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -566,7 +576,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_0]")
     REQUIRE(PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest));
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -597,7 +607,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex]
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -624,7 +634,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteind
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -652,7 +662,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -681,7 +691,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken"
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBroken", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBroken", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -712,7 +722,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBrok
     REQUIRE(PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifest));
 }
 
-TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_NoSuitableOldManifest", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_NoSuitableOldManifest", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -936,7 +946,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
-TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_3]")
+TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());

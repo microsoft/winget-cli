@@ -267,8 +267,8 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::Select(details::rowcount_t)
     {
-m_stream << "SELECT COUNT(*)";
-return *this;
+        m_stream << "SELECT COUNT(*)";
+        return *this;
     }
 
     StatementBuilder& StatementBuilder::From()

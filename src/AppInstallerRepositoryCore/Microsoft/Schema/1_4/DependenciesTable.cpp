@@ -545,7 +545,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 				[&](std::pair<Manifest::Dependency, SQLite::rowid_t> current)
 				{
 					auto [id, version, channel] = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(connection, current.second);
-					dependentPackages.append(id + "." + version).append("\n");
+					dependentPackages.append(id + "." + version).append(", ");
 				});
 
 			std::string error = Manifest::ManifestError::MultiManifestPackageHasDependencies;

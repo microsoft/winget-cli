@@ -146,8 +146,6 @@ namespace AppInstaller::Repository::Microsoft
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const;
 
-        bool ValidateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest);
-
     private:
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);
