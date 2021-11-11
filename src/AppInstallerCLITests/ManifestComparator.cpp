@@ -48,15 +48,26 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
     REQUIRE(actual->Locale == expected.Locale);
 }
 
+void RequireInapplicabilities(const std::vector<InapplicabilityFlags>& inapplicabilities, const std::vector<InapplicabilityFlags>& expected)
+{
+    REQUIRE(inapplicabilities.size() == expected.size());
+
+    for (std::size_t  i = 0; i < inapplicabilities.size(); i++)
+    {
+        REQUIRE(inapplicabilities[i] == expected[i]);
+    }
+}
+
 TEST_CASE("ManifestComparator_OSFilter_Low", "[manifest_comparator]")
 {
     Manifest manifest;
     AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Exe, ScopeEnum::Unknown, "10.0.99999.0");
 
     ManifestComparator mc(ManifestComparatorTestContext{}, {});
-    auto result = mc.GetPreferredInstaller(manifest);
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
     REQUIRE(!result);
+    RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::OSVersion });
 }
 
 TEST_CASE("ManifestComparator_OSFilter_High", "[manifest_comparator]")
@@ -65,9 +76,10 @@ TEST_CASE("ManifestComparator_OSFilter_High", "[manifest_comparator]")
     ManifestInstaller expected = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Exe, ScopeEnum::Unknown, "10.0.0.0");
 
     ManifestComparator mc(ManifestComparatorTestContext{}, {});
-    auto result = mc.GetPreferredInstaller(manifest);
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
     RequireInstaller(result, expected);
+    REQUIRE(inapplicabilities.size() == 0);
 }
 
 TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparator]")
@@ -78,10 +90,11 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparato
     SECTION("Nothing Installed")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, unknown);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("User Installed")
     {
@@ -89,9 +102,10 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparato
         metadata[PackageVersionMetadata::InstalledScope] = ScopeToString(ScopeEnum::User);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, unknown);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("Machine Installed")
     {
@@ -99,9 +113,10 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparato
         metadata[PackageVersionMetadata::InstalledScope] = ScopeToString(ScopeEnum::Machine);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, unknown);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }
 
@@ -114,10 +129,11 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter", "[manifest_comparator]")
     SECTION("Nothing Installed")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, user);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("User Installed")
     {
@@ -125,9 +141,10 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledScope] = ScopeToString(ScopeEnum::User);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, user);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledScope });
     }
     SECTION("Machine Installed")
     {
@@ -135,9 +152,10 @@ TEST_CASE("ManifestComparator_InstalledScopeFilter", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledScope] = ScopeToString(ScopeEnum::Machine);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, machine);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledScope });
     }
 }
 
@@ -150,10 +168,11 @@ TEST_CASE("ManifestComparator_InstalledTypeFilter", "[manifest_comparator]")
     SECTION("Nothing Installed")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, msi);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("MSI Installed")
     {
@@ -161,9 +180,10 @@ TEST_CASE("ManifestComparator_InstalledTypeFilter", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Msi);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, msi);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledType });
     }
     SECTION("MSIX Installed")
     {
@@ -171,9 +191,10 @@ TEST_CASE("ManifestComparator_InstalledTypeFilter", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Msix);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, msix);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledType });
     }
 }
 
@@ -186,10 +207,11 @@ TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
     SECTION("Nothing Installed")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, burn);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("Exe Installed")
     {
@@ -197,9 +219,10 @@ TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Exe);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, exe);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("Inno Installed")
     {
@@ -207,9 +230,10 @@ TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
         metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Inno);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, burn);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }
 
@@ -222,10 +246,11 @@ TEST_CASE("ManifestComparator_ScopeFilter", "[manifest_comparator]")
     SECTION("Nothing Required")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, user);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("User Required")
     {
@@ -233,9 +258,10 @@ TEST_CASE("ManifestComparator_ScopeFilter", "[manifest_comparator]")
         context.Args.AddArg(Args::Type::InstallScope, ScopeToString(ScopeEnum::User));
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, user);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Scope });
     }
     SECTION("Machine Required")
     {
@@ -243,9 +269,10 @@ TEST_CASE("ManifestComparator_ScopeFilter", "[manifest_comparator]")
         context.Args.AddArg(Args::Type::InstallScope, ScopeToString(ScopeEnum::Machine));
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, machine);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Scope });
     }
 }
 
@@ -258,10 +285,11 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     SECTION("No Preference")
     {
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // The default preference is user
         RequireInstaller(result, user);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("User Preference")
     {
@@ -269,9 +297,10 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
         settings.Set<Setting::InstallScopePreference>(ScopePreference::User);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, user);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("Machine Preference")
     {
@@ -279,9 +308,10 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
         settings.Set<Setting::InstallScopePreference>(ScopePreference::Machine);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, machine);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }
 
@@ -297,10 +327,11 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comp
         settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, enGB);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("en-US Installed")
     {
@@ -308,9 +339,10 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comp
         metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, enGB);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("zh-CN Installed")
     {
@@ -318,9 +350,10 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comp
         metadata[PackageVersionMetadata::InstalledLocale] = "zh-CN";
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, unknown);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale });
     }
 }
 
@@ -336,10 +369,11 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]
         settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         // Only because it is first
         RequireInstaller(result, enGB);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("en-US Installed")
     {
@@ -347,9 +381,10 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]
         metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, enGB);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale });
     }
     SECTION("zh-CN Installed")
     {
@@ -357,9 +392,10 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]
         metadata[PackageVersionMetadata::InstalledLocale] = "zh-CN";
 
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale, InapplicabilityFlags::InstalledLocale });
     }
 }
 
@@ -376,9 +412,10 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
         context.Args.AddArg(Args::Type::Locale, "en-GB"s);
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, enGB);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Locale , InapplicabilityFlags::Locale });
     }
     SECTION("zh-CN Required")
     {
@@ -386,9 +423,10 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
         context.Args.AddArg(Args::Type::Locale, "zh-CN"s);
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Locale , InapplicabilityFlags::Locale, InapplicabilityFlags::Locale });
     }
     SECTION("en-US Preference")
     {
@@ -396,9 +434,10 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
         settings.Set<Setting::InstallLocalePreference>({ "en-US" });
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, enGB);
+        REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("zh-CN Preference")
     {
@@ -406,9 +445,10 @@ TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
         settings.Set<Setting::InstallLocalePreference>({ "zh-CN" });
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, unknown);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }
 
@@ -421,9 +461,10 @@ TEST_CASE("ManifestComparator_AllowedArchitecture_x64_only", "[manifest_comparat
     context.Add<Data::AllowedArchitectures>({ Architecture::X64 });
 
     ManifestComparator mc(context, {});
-    auto result = mc.GetPreferredInstaller(manifest);
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
     REQUIRE(!result);
+    RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture });
 }
 
 TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
@@ -440,9 +481,10 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
         context.Add<Data::AllowedArchitectures>({ Architecture::X86, Architecture::X64 });
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, x86);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
     }
     SECTION("Unknown")
     {
@@ -450,10 +492,11 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
         context.Add<Data::AllowedArchitectures>({ Architecture::Unknown });
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         REQUIRE(result);
         REQUIRE(result->Arch == GetApplicableArchitectures()[0]);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
     }
     SECTION("x86 and Unknown")
     {
@@ -461,8 +504,31 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
         context.Add<Data::AllowedArchitectures>({ Architecture::X86, Architecture::Unknown });
 
         ManifestComparator mc(context, {});
-        auto result = mc.GetPreferredInstaller(manifest);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, x86);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
     }
+}
+
+TEST_CASE("ManifestComparator_Inapplicabilities", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller installer = AddInstaller(manifest, Architecture::Arm64, InstallerTypeEnum::Exe, ScopeEnum::User, "10.0.99999.0", "es-MX");
+
+    ManifestComparatorTestContext context;
+    context.Add<Data::AllowedArchitectures>({ Architecture::X86 });
+    context.Args.AddArg(Args::Type::InstallScope, ScopeToString(ScopeEnum::Machine));
+    context.Args.AddArg(Args::Type::Locale, "en-GB"s);
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Msix);
+
+    ManifestComparator mc(context, metadata);
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+    REQUIRE(!result);
+    RequireInapplicabilities(
+        inapplicabilities,
+        { InapplicabilityFlags::OSVersion | InapplicabilityFlags::InstalledType | InapplicabilityFlags::Locale | InapplicabilityFlags::Scope | InapplicabilityFlags::MachineArchitecture });
 }

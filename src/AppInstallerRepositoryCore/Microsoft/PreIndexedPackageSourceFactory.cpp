@@ -52,20 +52,15 @@ namespace AppInstaller::Repository::Microsoft
         // The base class for a package that comes from a preindexed packaged source.
         struct PreIndexedFactoryBase : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
+            std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                // With more than one source implementation, we will probably need to probe first
+                THROW_HR_IF(E_INVALIDARG, !details.Type.empty() && details.Type != PreIndexedPackageSourceFactory::Type());
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(details), progress);
-                if (!lock)
-                {
-                    return {};
-                }
-
-                return CreateInternal(details, std::move(lock), progress);
+                return CreateInternal(details);
             }
 
-            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) = 0;
+            virtual std::shared_ptr<ISourceReference> CreateInternal(const SourceDetails& details) = 0;
 
             bool Add(SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -174,22 +169,39 @@ namespace AppInstaller::Repository::Microsoft
             }
         };
 
-        // Source factory for running within a packaged context
-        struct PackagedContextFactory : public PreIndexedFactoryBase
+        // *Should only be called when under a CrossProcessReaderWriteLock*
+        std::optional<Deployment::Extension> GetExtensionFromDetails(const SourceDetails& details)
         {
-            // *Should only be called when under a CrossProcessReaderWriteLock*
-            std::optional<Deployment::Extension> GetExtensionFromDetails(const SourceDetails& details)
+            Deployment::ExtensionCatalog catalog(Deployment::SourceExtensionName);
+            return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
+        }
+
+        struct PackagedContextSourceReference : public ISourceReference
+        {
+            PackagedContextSourceReference(const SourceDetails& details) : m_details(details)
             {
-                Deployment::ExtensionCatalog catalog(Deployment::SourceExtensionName);
-                return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
+                if (!m_details.Data.empty())
+                {
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(details);
+                }
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) override
+            std::string GetIdentifier() override { return m_details.Identifier; }
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                auto extension = GetExtensionFromDetails(details);
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
+                if (!lock)
+                {
+                    return {};
+                }
+
+                auto extension = GetExtensionFromDetails(m_details);
                 if (!extension)
                 {
-                    AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
+                    AICLI_LOG(Repo, Info, << "Package not found " << m_details.Data);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
@@ -206,7 +218,20 @@ namespace AppInstaller::Repository::Microsoft
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
-                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
+                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+            }
+
+        private:
+            SourceDetails m_details;
+        };
+
+        // Source factory for running within a packaged context
+        struct PackagedContextFactory : public PreIndexedFactoryBase
+        {
+            std::shared_ptr<ISourceReference> CreateInternal(const SourceDetails& details) override
+            {
+                return std::make_shared<PackagedContextSourceReference>(details);
             }
 
             bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
@@ -304,21 +329,38 @@ namespace AppInstaller::Repository::Microsoft
             }
         };
 
-        // Source factory for running outside of a package.
-        struct DesktopContextFactory : public PreIndexedFactoryBase
+        // Constructs the location that we will write files to.
+        std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
         {
-            // Constructs the location that we will write files to.
-            std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
+            std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
+            result /= PreIndexedPackageSourceFactory::Type();
+            result /= GetPackageFamilyNameFromDetails(details);
+            return result;
+        }
+
+        struct DesktopContextSourceReference : public ISourceReference
+        {
+            DesktopContextSourceReference(const SourceDetails& details) : m_details(details)
             {
-                std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
-                result /= PreIndexedPackageSourceFactory::Type();
-                result /= GetPackageFamilyNameFromDetails(details);
-                return result;
+                if (!m_details.Data.empty())
+                {
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(details);
+                }
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback&) override
+            std::string GetIdentifier() override { return m_details.Identifier; }
+
+            SourceDetails& GetDetails() override { return m_details; };
+
+            std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                std::filesystem::path packageLocation = GetStatePathFromDetails(details);
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
+                if (!lock)
+                {
+                    return {};
+                }
+
+                std::filesystem::path packageLocation = GetStatePathFromDetails(m_details);
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
 
                 if (!std::filesystem::exists(packageLocation))
@@ -331,7 +373,20 @@ namespace AppInstaller::Repository::Microsoft
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
-                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
+                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+            }
+
+        private:
+            SourceDetails m_details;
+        };
+
+        // Source factory for running outside of a package.
+        struct DesktopContextFactory : public PreIndexedFactoryBase
+        {
+            std::shared_ptr<ISourceReference> CreateInternal(const SourceDetails& details) override
+            {
+                return std::make_shared<DesktopContextSourceReference>(details);
             }
 
             bool UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override

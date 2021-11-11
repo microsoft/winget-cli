@@ -30,6 +30,8 @@ namespace AppInstaller::CLI
             return Argument{ "command", NoAlias, Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Source:
             return Argument{ "source", 's', Args::Type::Source, Resource::String::SourceArgumentDescription, ArgumentType::Standard };
+        case Args::Type::DependencySource:
+            return Argument{ "dependency-source", NoAlias, Args::Type::DependencySource, Resource::String::DependencySourceArgumentDescription, ArgumentType::Standard };
         case Args::Type::Count:
             return Argument{ "count", 'n', Args::Type::Count, Resource::String::CountArgumentDescription, ArgumentType::Standard };
         case Args::Type::Exact:

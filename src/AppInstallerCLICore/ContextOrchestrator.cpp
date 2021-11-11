@@ -18,9 +18,9 @@ namespace AppInstaller::CLI::Execution
 
     ContextOrchestrator::ContextOrchestrator()
     {
-        ::AppInstaller::ProgressCallback progress;
-        std::shared_ptr<::AppInstaller::Repository::ISource> installingSource = ::AppInstaller::Repository::OpenPredefinedSource(::AppInstaller::Repository::PredefinedSource::Installing, progress);
-        m_installingWriteableSource = std::dynamic_pointer_cast<::AppInstaller::Repository::IMutablePackageSource>(installingSource);
+        ProgressCallback progress;
+        m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
+        m_installingWriteableSource.Open(progress);
 
         AddCommandQueue(COMDownloadCommand::CommandName, 5);
         AddCommandQueue(COMInstallCommand::CommandName, 1);
@@ -95,7 +95,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem)
     {
         const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-        m_installingWriteableSource->RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+        m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
     }
 
     _Requires_lock_held_(m_queueLock)
@@ -123,7 +123,7 @@ namespace AppInstaller::CLI::Execution
             m_queueItems.push_back(item);
         }
 
-        // Add the package to the Installing source so that it can be queried using the ISource interface.
+        // Add the package to the Installing source so that it can be queried using the Source interface.
         // Only do this the first time the item is queued.
         if (isFirstCommand)
         {

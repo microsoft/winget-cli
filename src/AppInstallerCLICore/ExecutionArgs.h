@@ -38,6 +38,7 @@ namespace AppInstaller::CLI::Execution
             Override, //Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,
+            InstallArchitecture,
             HashOverride, // Ignore hash mismatches
             AcceptPackageAgreements, // Accept all license agreements for packages
 
@@ -81,6 +82,7 @@ namespace AppInstaller::CLI::Execution
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
+            DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
 

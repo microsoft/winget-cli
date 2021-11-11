@@ -6,8 +6,10 @@ addmanifest
 addstore
 admins
 alloc
+altform
 anonymize
 api
+APIENTRY
 appdata
 appinst
 appinstaller
@@ -17,12 +19,14 @@ appx
 appxbundle
 appxbundles
 appxmanifest
+appxrecipe
 appxsdk
 APSTUDIO
 argc
 args
 argv
 ARRAYSIZE
+artifactstagingdirectory
 aspirational
 aspnet
 authn
@@ -63,6 +67,8 @@ conemu
 config
 Configurability
 constexpr
+contosa
+contosainstaller
 Contoso
 copyable
 COSTDEFERRED
@@ -95,6 +101,7 @@ Demitrius
 denelon
 depersist
 deque
+deserialize
 Deserialize
 deserializer
 deserializing
@@ -105,6 +112,8 @@ DIRECTONLY
 distro
 dll
 dllexport
+dllmain
+Dlls
 docx
 dotnet
 downlevel
@@ -123,15 +132,19 @@ ensurepathexists
 ENU
 enum
 EOAC
+ependency
 errorlevel
 errstr
 esrp
 etag
+etcoreapp
+etstandard
 ETW
 EULA
 EVENTTAG
 exe
 executables
+executionengine
 exeenus
 exeinteractive
 exelog
@@ -144,6 +157,7 @@ EXTRAFLAGS
 FAILIFTHERE
 fakeswitch
 FATALEXIT
+FEBAB
 FIELDTAG
 FILEFLAGS
 FILEFLAGSMASK
@@ -185,14 +199,18 @@ html
 http
 https
 Hyperlink
+IActivation
 IApplication
 IAppx
 IAsync
 IBuffer
 icu
+IDeserializer
 IDisposable
 IDX
 IEnumerable
+IEquatable
+IEquitable
 IFACEMETHOD
 ifdef
 ifndef
@@ -201,8 +219,11 @@ IInput
 IInspectable
 IIS
 ILogger
+IManifest
 impl
+inapplicabilities
 Inet
+inheritdoc
 inno
 INotify
 INPROC
@@ -224,10 +245,12 @@ IProgress
 IRandom
 IRest
 ISAPPROVEDFOROUTPUT
+ISet
 ISource
 isspace
 istream
 istringstream
+ITest
 IUnknown
 json
 junit
@@ -268,6 +291,7 @@ Minimatch
 MINORVERSION
 mkdir
 monostate
+Moq
 motw
 mrm
 msbuild
@@ -278,6 +302,7 @@ msiexec
 msix
 msixbundle
 msixinfo
+msixmgr
 msixsdk
 msixsdkx
 msixtest
@@ -290,6 +315,7 @@ namespace
 namespaces
 Nelon
 netcoreapp
+netstandard
 newid
 NOCLOSEPROCESS
 nodiscard
@@ -301,6 +327,7 @@ nonexistentsetting
 NONINFRINGEMENT
 norestart
 normalizednameandpublisher
+normalizedpackagenameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
@@ -327,6 +354,8 @@ OUTOFDISKSPACE
 OUTOFMEMORY
 OWC
 packagefamilyname
+packageidentifier
+packagename
 PACKAGESSCHEMA
 Params
 params
@@ -337,6 +366,7 @@ PBYTE
 pch
 PCWSTR
 pdb
+pdbonly
 PEVENT
 pfp
 PGP
@@ -464,6 +494,7 @@ stoll
 storeedgefd
 storepreview
 stoull
+stpkgmanvalwestustest
 strcoll
 streamoff
 streampos
@@ -489,6 +520,7 @@ TARG
 TARGETDIR
 targetentrypoint
 targetnametoken
+targetsize
 tdbuild
 tdd
 tellg
@@ -505,6 +537,7 @@ Timeline
 todo
 tokenizer
 tolower
+Toolchain
 toupper
 TOutput
 towlower
@@ -512,6 +545,7 @@ TRACELOGGING
 triaged
 trunc
 TRUSTEDPEOPLE
+trx
 tt
 ttl
 typedef
@@ -541,6 +575,7 @@ UNICODESTRING
 uninstall
 uninstalling
 Unregister
+untimes
 updatemanifest
 UPLEVEL
 upvote
@@ -578,6 +613,7 @@ wcsicmp
 webpage
 wekyb
 wil
+wildcards
 WINAPI
 WINEVENT
 winget
@@ -611,6 +647,7 @@ XName
 XResource
 xsd
 XTOKEN
+xunit
 yaml
 yml
 yy

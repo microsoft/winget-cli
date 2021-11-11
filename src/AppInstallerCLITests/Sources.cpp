@@ -6,7 +6,6 @@
 #include "TestSettings.h"
 #include "TestSource.h"
 
-#include <AppInstallerRepositorySource.h>
 #include <AppInstallerDateTime.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
@@ -581,7 +580,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     SetSetting(Stream::UserSources, s_SingleSource);
 
     ProgressCallback progress;
-    auto source = OpenSource(name, progress).Source;
+    auto source = OpenSource(name, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -645,10 +644,10 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
-    auto source = OpenSource("", progress).Source;
+    auto source = OpenSource("", progress);
 
     SearchRequest request;
-    auto result = source->Search(request);
+    auto result = source.Search(request);
     REQUIRE(result.Matches.size() == 6);
     REQUIRE_FALSE(result.Truncated);
     // matches are sorted in expected order
@@ -661,7 +660,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 
     // when truncate required
     request.MaximumResults = 3;
-    result = source->Search(request);
+    result = source.Search(request);
     REQUIRE(result.Matches.size() == 3);
     REQUIRE(result.Truncated);
     // matches are sorted in expected order
@@ -875,6 +874,11 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             policySource.Data = "data";
             policySource.Identifier = "id";
 
+            bool removeCalledOnFactory = false;
+            TestSourceFactory factory{ SourcesTestSource::Create };
+            factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
+            TestHook_SetSourceFactoryOverride(policySource.Type, factory);
+
             policies.SetValue<ValuePolicy::AdditionalSources>({ policySource });
             SetSetting(Stream::UserSources, s_EmptySources);
 
@@ -882,6 +886,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             REQUIRE_POLICY_EXCEPTION(
                 RemoveSource(policySource.Name, progress),
                 TogglePolicy::Policy::AdditionalSources);
+            REQUIRE_FALSE(removeCalledOnFactory);
         }
         SECTION("Additional source overrides default")
         {
@@ -974,15 +979,17 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             policies.SetValue<ValuePolicy::AllowedSources>({ policySource });
             SetSetting(Stream::UserSources, s_EmptySources);
 
-            bool addCalledOnFactory = false;
-            TestSourceFactory factory{ SourcesTestSource::Create };
-            factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
-
             ProgressCallback progress;
             SourceDetails details;
             details.Name = "notAllowed";
             details.Type = "type";
             details.Arg = "arg";
+
+            bool addCalledOnFactory = false;
+            TestSourceFactory factory{ SourcesTestSource::Create };
+            factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
+            TestHook_SetSourceFactoryOverride(details.Type, factory);
+
             REQUIRE_POLICY_EXCEPTION(
                 AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
@@ -999,15 +1006,17 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
         {
             SetSetting(Stream::UserSources, s_EmptySources);
 
-            bool addCalledOnFactory = false;
-            TestSourceFactory factory{ SourcesTestSource::Create };
-            factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
-
             ProgressCallback progress;
             SourceDetails details;
             details.Name = "name";
             details.Type = "type";
             details.Arg = "arg";
+
+            bool addCalledOnFactory = false;
+            TestSourceFactory factory{ SourcesTestSource::Create };
+            factory.OnAdd = [&](SourceDetails&) { addCalledOnFactory = true; };
+            TestHook_SetSourceFactoryOverride(details.Type, factory);
+
             REQUIRE_POLICY_EXCEPTION(
                 AddSource(details, progress),
                 TogglePolicy::Policy::AllowedSources);
@@ -1039,10 +1048,9 @@ TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
     ProgressCallback progress;
     auto result = OpenSource("", progress);
 
-    REQUIRE(result.Source);
-    REQUIRE(result.SourcesWithUpdateFailure.empty());
+    REQUIRE(result);
 
-    SearchResult searchResult = result.Source->Search({});
+    SearchResult searchResult = result.Search({});
 
     REQUIRE(searchResult.Failures.size() == 1);
 

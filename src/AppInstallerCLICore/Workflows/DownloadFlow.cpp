@@ -385,8 +385,8 @@ namespace AppInstaller::CLI::Workflow
             context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
 
             if (context.Contains(Execution::Data::PackageVersion) &&
-                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel, SourceTrustLevel::Trusted))
+                context.Get<Execution::Data::PackageVersion>()->GetSource() &&
+                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource().GetDetails().TrustLevel, SourceTrustLevel::Trusted))
             {
                 context.SetFlags(Execution::ContextFlag::InstallerTrusted);
             }

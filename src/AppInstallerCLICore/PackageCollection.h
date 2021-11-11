@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerDateTime.h"
-#include "AppInstallerRepositorySource.h"
+#include "winget/RepositorySource.h"
 #include <winget/Manifest.h>
 
 #include <json.h>

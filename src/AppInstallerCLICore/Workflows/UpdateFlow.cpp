@@ -18,6 +18,21 @@ namespace AppInstaller::CLI::Workflow
         {
             return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
+
+        void AddToPackagesToInstallIfNotPresent(std::vector<Execution::PackageToInstall>& packagesToInstall, Execution::PackageToInstall&& package)
+        {
+            for (auto const& existing : packagesToInstall)
+            {
+                if (existing.Manifest.Id == package.Manifest.Id &&
+                    existing.Manifest.Version == package.Manifest.Version &&
+                    existing.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier) == package.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier))
+                {
+                    return;
+                }
+            }
+
+            packagesToInstall.emplace_back(std::move(package));
+        }
     }
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
@@ -27,6 +42,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
+        bool installedTypeInapplicable = false;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -39,9 +55,16 @@ namespace AppInstaller::CLI::Workflow
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
-                auto installer = manifestComparator.GetPreferredInstaller(manifest);
+                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    // If there is at least one installer whose only reason is InstalledType.
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    if (onlyInstalledType != inapplicabilities.end())
+                    {
+                        installedTypeInapplicable = true;
+                    }
+
                     continue;
                 }
 
@@ -65,8 +88,16 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_reportUpdateNotFound)
             {
-                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                if (installedTypeInapplicable)
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                }
             }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -119,7 +150,7 @@ namespace AppInstaller::CLI::Workflow
                 std::move(updateContext.Get<Execution::Data::Installer>().value()) };
             package.PackageSubExecutionId = subExecution.GetCurrentSubExecutionId();
 
-            packagesToInstall.emplace_back(std::move(package));
+            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(package));
         }
 
         if (!updateAllFoundUpdate)

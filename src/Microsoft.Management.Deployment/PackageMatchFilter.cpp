@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <AppInstallerRepositorySource.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySource.h>
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #pragma warning( push )

@@ -686,21 +686,21 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
+    StatementBuilder& StatementBuilder::DropIndex(std::string_view index)
     {
-        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        OutputOperationAndTable(m_stream, "DROP INDEX", index);
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::DropIndex(QualifiedTable table)
+    StatementBuilder& StatementBuilder::DropIndex(QualifiedTable index)
     {
-        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        OutputOperationAndTable(m_stream, "DROP INDEX", index);
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::DropIndex(std::initializer_list<std::string_view> table)
+    StatementBuilder& StatementBuilder::DropIndex(std::initializer_list<std::string_view> index)
     {
-        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        OutputOperationAndTable(m_stream, "DROP INDEX", index);
         return *this;
     }
 

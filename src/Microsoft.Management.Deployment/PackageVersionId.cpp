@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <AppInstallerRepositorySource.h>
+#include <winget/RepositorySource.h>
 #include "PackageVersionId.h"
 #include "PackageVersionId.g.cpp"
 #include <wil\cppwinrt_wrl.h>

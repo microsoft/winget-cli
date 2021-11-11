@@ -305,18 +305,48 @@ namespace AppInstaller::Settings
     }
 #endif
 
+    static std::atomic_bool s_userSettingsInitialized{ false };
+    static std::atomic_bool s_userSettingsInInitialization{ false };
+
     UserSettings const& UserSettings::Instance()
     {
-        static UserSettings userSettings;
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_UserSettings_Override)
         {
             return *s_UserSettings_Override;
         }
 #endif
+        if (!s_userSettingsInitialized)
+        {
+            s_userSettingsInInitialization = true;
+        }
+
+        static UserSettings userSettings;
+        s_userSettingsInitialized = true;
+        s_userSettingsInInitialization = false;
 
         return userSettings;
+    }
+
+    const UserSettings* TryGetUser()
+    {
+        if (s_userSettingsInitialized)
+        {
+            return &UserSettings::Instance();
+        }
+
+        // Try to initialize UserSettings, return nullptr if it's already in initialization.
+        if (s_userSettingsInInitialization)
+        {
+            return nullptr;
+        }
+
+        return &UserSettings::Instance();
+    }
+
+    UserSettings const& User()
+    {
+        return UserSettings::Instance();
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
