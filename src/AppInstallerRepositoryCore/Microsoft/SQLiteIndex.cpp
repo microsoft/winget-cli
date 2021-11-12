@@ -151,9 +151,9 @@ namespace AppInstaller::Repository::Microsoft
 
     SQLiteIndex::IdType SQLiteIndex::AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
 
         IdType result = m_interface->AddManifest(m_dbconn, manifest, relativePath);
@@ -185,9 +185,9 @@ namespace AppInstaller::Repository::Microsoft
 
     bool SQLiteIndex::UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
         bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath).first;
@@ -241,23 +241,18 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::PrepareForPackaging()
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Preparing index for packaging");
 
-        {
-            std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-            m_interface->PrepareForPackaging(m_dbconn);
-        }
+        m_interface->PrepareForPackaging(m_dbconn);
     }
 
     bool SQLiteIndex::CheckConsistency(bool log) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Checking index consistency...");
 
-        bool result;
-        {
-            std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-            result = m_interface->CheckConsistency(m_dbconn, log);
-        }
+        bool result = m_interface->CheckConsistency(m_dbconn, log);
 
         AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
 
@@ -266,9 +261,9 @@ namespace AppInstaller::Repository::Microsoft
 
     Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Performing search: " << request.ToString());
 
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->Search(m_dbconn, request);
     }
 
