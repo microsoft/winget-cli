@@ -269,6 +269,16 @@ jobs:
       arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
+  - task: CopyFiles@2
+    displayName: 'Copy x64 Files to Package Output'
+    inputs:
+      SourceFolder: '$(system.defaultWorkingDirectory)\src\x64\Release\WindowsPackageManager'
+      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release'
+      Contents: WindowsPackageManager.dll
+      CleanTargetFolder: false
+      OverWrite: true
+    condition: succeededOrFailed()
+
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
     inputs:
@@ -293,7 +303,17 @@ jobs:
       PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
       ArtifactName: 'E2ETestPackagedx64Log'
       publishLocation: 'Container'
-    condition: succeededOrFailed()  
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 Files to Package Output'
+    inputs:
+      SourceFolder: '$(system.defaultWorkingDirectory)\src\x86\Release\WindowsPackageManager'
+      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release'
+      Contents: WindowsPackageManager.dll
+      CleanTargetFolder: false
+      OverWrite: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x86

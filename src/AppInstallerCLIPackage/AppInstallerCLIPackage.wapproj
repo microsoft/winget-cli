@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
+    <ProjectReference Include="..\WinGetServer\WinGetServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <PropertyGroup Label="Configuration">
@@ -150,42 +151,24 @@
   </PropertyGroup>
   <Target Name="IncludeWinMdInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
-      <AppInstallerCLIPath>$(OutputPath)\..\winget.exe</AppInstallerCLIPath>
-      <AppInstallerCLIPath Condition="!Exists('$(AppInstallerCLIPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\AppInstallerCLI\winget.exe</AppInstallerCLIPath>
-      <AppInstallerCLIFileName>WinGetDev.exe</AppInstallerCLIFileName>
       <WindowsPackageManagerPath>$(OutputPath)\..\WindowsPackageManager.dll</WindowsPackageManagerPath>
       <WindowsPackageManagerPath Condition="!Exists('$(WindowsPackageManagerPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll</WindowsPackageManagerPath>
       <WindowsPackageManagerFileName>WindowsPackageManager.dll</WindowsPackageManagerFileName>
-      <WPMServerPath>$(OutputPath)\..\WindowsPackageManagerServer.exe</WPMServerPath>
-      <WPMServerPath Condition="!Exists('$(WPMServerPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\WinGetServer\WindowsPackageManagerServer.exe</WPMServerPath>
-      <WPMServerFileName>WindowsPackageManagerServer.exe</WPMServerFileName>
       <MicrosoftManagementDeploymentPath>$(OutputPath)\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentPath Condition="!Exists('$(MicrosoftManagementDeploymentPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentFileName>Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentFileName>
     </PropertyGroup>
     <ItemGroup>
-      <AppInstallerCLIItem Include="$(AppInstallerCLIPath)" />
       <WindowsPackageManagerItem Include="$(WindowsPackageManagerPath)" />
-      <WPMServerItem Include="$(WPMServerPath)" />
       <MicrosoftManagementDeploymentWinmd Include="$(MicrosoftManagementDeploymentPath)" />
     </ItemGroup>
-    <Error Condition="!Exists('$(AppInstallerCLIPath)')" Text="$(AppInstallerCLIPath) was not found" />
     <Error Condition="!Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) was not found" />
-    <Error Condition="!Exists('$(WPMServerPath)')" Text="$(WPMServerPath) was not found" />
     <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
-    <Message Importance="normal" Condition="Exists('$(AppInstallerCLIPath)')" Text="$(AppInstallerCLIPath) -&gt; $(AppInstallerCLIFileName)" />
     <Message Importance="normal" Condition="Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) -&gt; $(WindowsPackageManagerFileName)" />
-    <Message Importance="normal" Condition="Exists('$(WPMServerPath)')" Text="$(WPMServerPath) -&gt; $(WPMServerFileName)" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) -&gt; $(MicrosoftManagementDeploymentFileName)" />
     <ItemGroup>
-      <AppxPackagePayload Include="@(AppInstallerCLIItem)" KeepDuplicates="false">
-        <TargetPath>$(AppInstallerCLIFileName)</TargetPath>
-      </AppxPackagePayload>
       <AppxPackagePayload Include="@(WindowsPackageManagerItem)" KeepDuplicates="false">
         <TargetPath>$(WindowsPackageManagerFileName)</TargetPath>
-      </AppxPackagePayload>
-      <AppxPackagePayload Include="@(WPMServerItem)" KeepDuplicates="false">
-        <TargetPath>$(WPMServerFileName)</TargetPath>
       </AppxPackagePayload>
       <AppxPackagePayload Include="@(MicrosoftManagementDeploymentWinmd)" KeepDuplicates="false">
         <TargetPath>$(MicrosoftManagementDeploymentFileName)</TargetPath>
