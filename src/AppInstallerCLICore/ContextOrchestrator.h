@@ -46,10 +46,12 @@ namespace AppInstaller::CLI::Execution
         const Command& GetNextCommand() const { return *m_commands.front(); }
         std::unique_ptr<Command> PopNextCommand()
         {
+            m_isOnFirstCommand = false;
             std::unique_ptr<Command> command = std::move(m_commands.front());
             m_commands.pop_front();
             return command;
         }
+        bool IsOnFirstCommand() const { return m_isOnFirstCommand; }
         bool IsComplete() const { return m_commands.empty(); }
 
     private:
@@ -58,6 +60,7 @@ namespace AppInstaller::CLI::Execution
         wil::unique_event m_completedEvent{ wil::EventOptions::ManualReset };
         OrchestratorQueueItemId m_id;
         std::deque<std::unique_ptr<Command>> m_commands;
+        bool m_isOnFirstCommand = true;
     };
 
     struct OrchestratorQueueItemFactory
@@ -77,7 +80,6 @@ namespace AppInstaller::CLI::Execution
 
         std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId& queueItemId);
 
-        void RequeueItem(std::shared_ptr<OrchestratorQueueItem> queueItem);
         void AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem);
         void RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem);
 
@@ -104,7 +106,7 @@ namespace AppInstaller::CLI::Execution
         std::string_view CommandName() const { return m_commandName; }
 
         // Enqueues an item. If the queue has capacity, immediately starts running it.
-        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item, bool isFirstCommand);
+        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item);
 
         // Removes an item by id, provided that it is in the given state.
         // Returns true if an item was removed.
@@ -117,7 +119,7 @@ namespace AppInstaller::CLI::Execution
 
     private:
         // Enqueues an item.
-        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item, bool isFirstCommand);
+        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
 
         // Runs items while there are more in the queue.
         void RunItems();

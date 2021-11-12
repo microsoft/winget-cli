@@ -57,14 +57,13 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
         std::lock_guard<std::mutex> lockQueue{ m_queueLock };
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
-        m_commandQueues.at(std::string(item->GetNextCommand().Name()))->EnqueueAndRunItem(item, true);
-    }
 
-    void ContextOrchestrator::RequeueItem(std::shared_ptr<OrchestratorQueueItem> item)
-    {
-        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
-        m_commandQueues.at(std::string(item->GetNextCommand().Name()))->EnqueueAndRunItem(item, false);
+        if (item->IsOnFirstCommand())
+        {
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
+        }
+
+        m_commandQueues.at(std::string(item->GetNextCommand().Name()))->EnqueueAndRunItem(item);
     }
 
     void ContextOrchestrator::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state)
@@ -97,7 +96,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem)
     {
         const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-        m_installingWriteableSource->AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+        m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
     }
 
     void ContextOrchestrator::RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem)
@@ -124,7 +123,7 @@ namespace AppInstaller::CLI::Execution
         return {};
     }
 
-    void OrchestratorQueue::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item, bool isFirstCommand)
+    void OrchestratorQueue::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
         {
             std::lock_guard<std::mutex> lockQueue{ m_queueLock };
@@ -133,7 +132,7 @@ namespace AppInstaller::CLI::Execution
 
         // Add the package to the Installing source so that it can be queried using the Source interface.
         // Only do this the first time the item is queued.
-        if (isFirstCommand)
+        if (item->IsOnFirstCommand())
         {
             ContextOrchestrator::Instance().AddItemManifestToInstallingSource(*item);
         }
@@ -144,9 +143,9 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void OrchestratorQueue::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item, bool isFirstCommand)
+    void OrchestratorQueue::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
     {
-        EnqueueItem(item, isFirstCommand);
+        EnqueueItem(item);
 
         {
             // Start a runner for this item if there is capacity for it
