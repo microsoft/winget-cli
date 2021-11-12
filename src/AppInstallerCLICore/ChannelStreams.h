@@ -82,7 +82,7 @@ namespace AppInstaller::CLI::Execution
     // Holds output formatting information.
     struct OutputStream
     {
-        OutputStream(BaseStream& out, bool enabled, bool VTEnabled);
+        OutputStream(BaseStream& out, bool enabled, bool VTEnabled = true);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);

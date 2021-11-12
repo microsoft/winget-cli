@@ -140,8 +140,6 @@ namespace AppInstaller::CLI::Execution
 
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
-        // Gets whether VT is enabled for this reporter.
-        bool IsVTEnabled() const;
 
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
