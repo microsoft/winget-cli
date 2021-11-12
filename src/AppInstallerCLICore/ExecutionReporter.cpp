@@ -102,7 +102,7 @@ namespace AppInstaller::CLI::Execution
         }
         if (style == VisualStyle::NoVT)
         {
-            m_isVTEnabled = false;
+            m_out->SetVTEnabled(false);
         }
     }
 
@@ -215,7 +215,7 @@ namespace AppInstaller::CLI::Execution
 
     bool Reporter::IsVTEnabled() const
     {
-        return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
+        return ConsoleModeRestore::Instance().IsVTEnabled();
     }
 
     void Reporter::CloseOutputStream(bool forceDisable)

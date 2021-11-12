@@ -57,6 +57,8 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void SetVTEnabled(bool enabled);
+
         void RestoreDefault();
 
         void Disable();
