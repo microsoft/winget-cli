@@ -179,52 +179,60 @@ namespace AppInstaller::CLI::Execution
 
     void OrchestratorQueue::RunItems()
     {
-        std::shared_ptr<OrchestratorQueueItem> item = GetNextItem();
-        while (item != nullptr)
+        HRESULT hr = S_OK;
+        try
         {
-            HRESULT terminationHR = S_OK;
-            try
+            std::shared_ptr<OrchestratorQueueItem> item = GetNextItem();
+            while (item != nullptr)
             {
-                std::unique_ptr<Command> command = item->PopNextCommand();
+                HRESULT terminationHR = S_OK;
+                try
+                {
+                    std::unique_ptr<Command> command = item->PopNextCommand();
 
-                std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
+                    std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
 
-                item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
-                command->ValidateArguments(item->GetContext().Args);
+                    item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
+                    command->ValidateArguments(item->GetContext().Args);
 
-                item->GetContext().EnableCtrlHandler();
+                    item->GetContext().EnableCtrlHandler();
 
-                terminationHR = ::AppInstaller::CLI::Execute(item->GetContext(), command);
+                    terminationHR = ::AppInstaller::CLI::Execute(item->GetContext(), command);
+                }
+                WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+
+                if (FAILED(terminationHR))
+                {
+                    // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
+                    // being updated with that hresult. This sets the termination hr directly so that the context always 
+                    // has the result of the operation no matter how it failed.
+                    item->GetContext().SetTerminationHR(terminationHR);
+                }
+
+                item->GetContext().EnableCtrlHandler(false);
+
+                if (FAILED(terminationHR) || item->IsComplete())
+                {
+                    RemoveItemInState(*item, OrchestratorQueueItemState::Running, true);
+                }
+                else
+                {
+                    // Remove item from this queue and add it to the queue for the next command.
+                    RemoveItemInState(*item, OrchestratorQueueItemState::Running, false);
+                    ContextOrchestrator::Instance().EnqueueAndRunItem(item);
+                }
+
+                item = GetNextItem();
             }
-            WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
-            if (FAILED(terminationHR))
             {
-                // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
-                // being updated with that hresult. This sets the termination hr directly so that the context always 
-                // has the result of the operation no matter how it failed.
-                item->GetContext().SetTerminationHR(terminationHR);
+                std::lock_guard<std::mutex> lockQueue{ m_threadsLock };
+                --m_runningThreads;
             }
-
-            item->GetContext().EnableCtrlHandler(false);
-
-            if (FAILED(terminationHR) || item->IsComplete())
-            {
-                RemoveItemInState(*item, OrchestratorQueueItemState::Running, true);
-            }
-            else
-            {
-                // Remove item from this queue and add it to the queue for the next command.
-                RemoveItemInState(*item, OrchestratorQueueItemState::Running, false);
-                ContextOrchestrator::Instance().RequeueItem(item);
-            }
-
-            item = GetNextItem();
         }
-
+        catch (...)
         {
-            std::lock_guard<std::mutex> lockQueue{ m_threadsLock };
-            --m_runningThreads;
+            // TODO
         }
     }
 
