@@ -22,8 +22,16 @@ namespace AppInstaller::CLI::Execution
         m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
         m_installingWriteableSource.Open(progress);
 
-        AddCommandQueue(COMDownloadCommand::CommandName, 5);
-        AddCommandQueue(COMInstallCommand::CommandName, 1);
+        // Decide how many threads to use for each command.
+        // We always allow only one install at a time.
+        // For download, if we can find the number of supported concurrent threads, use that as the maximum;
+        // otherwise use a single thread.
+        const auto supportedConcurrentThreads = std::thread::hardware_concurrency();
+        const UINT32 installThreads = 1;
+        const UINT32 downloadThreads = supportedConcurrentThreads ? supportedConcurrentThreads - 1 : 1;
+
+        AddCommandQueue(COMDownloadCommand::CommandName, downloadThreads);
+        AddCommandQueue(COMInstallCommand::CommandName, installThreads);
     }
 
     void ContextOrchestrator::AddCommandQueue(std::string_view commandName, UINT32 allowedThreads)
