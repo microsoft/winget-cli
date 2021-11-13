@@ -573,7 +573,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_4]")
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
-    REQUIRE(PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest));
+    REQUIRE(PackageDependenciesValidation::ValidateManifestDependencies(&index, topLevelManifest));
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex][V1_4]")
@@ -603,7 +603,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesHasLoops", "[sqliteindex]
     levelThreeManifest.Installers.push_back(ManifestInstaller{});
     levelThreeManifest.Installers[1].Dependencies.Add(Dependency(DependencyType::Package, topLevelManifest.Id, "1.0.0"));
     REQUIRE_THROWS_HR(
-        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), levelThreeManifest),
+        PackageDependenciesValidation::ValidateManifestDependencies(&index, levelThreeManifest),
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
@@ -630,7 +630,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesMissingNode", "[sqliteind
     CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
     REQUIRE_THROWS_HR(
-        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest),
+        PackageDependenciesValidation::ValidateManifestDependencies(&index, topLevelManifest),
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
@@ -658,7 +658,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWithDependenciesNoSuitableMinVersion", "[
     topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "2.0.0"));
 
     REQUIRE_THROWS_HR(
-        PackageDependenciesValidation::ValidateManifestDependencies(tempFile.GetPath().string(), topLevelManifest),
+        PackageDependenciesValidation::ValidateManifestDependencies(&index, topLevelManifest),
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
@@ -687,7 +687,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken"
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest));
 
     REQUIRE_THROWS_HR(
-        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifest),
+        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(&index, levelThreeManifest),
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
@@ -719,7 +719,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBrok
     CreateFakeManifest(levelThreeManifestV2, levelThreeManifestV2Publisher, "2.0.0");
     index.AddManifest(levelThreeManifestV2, GetPathFromManifest(levelThreeManifestV2));
 
-    REQUIRE(PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifest));
+    REQUIRE(PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(&index, levelThreeManifest));
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_NoSuitableOldManifest", "[sqliteindex][V1_4]")
@@ -751,7 +751,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_
     index.AddManifest(topLevelManifest, GetPathFromManifest(topLevelManifest)); 
 
     REQUIRE_THROWS(
-        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(tempFile.GetPath().string(), levelThreeManifestV2),
+        PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(&index, levelThreeManifestV2),
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 

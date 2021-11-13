@@ -114,7 +114,7 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING indexPath,
+        WINGET_SQLITE_INDEX_HANDLE index,
         WinGetValidateManifestDependenciesValidationOption dependenciesValidationOption);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.

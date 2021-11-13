@@ -519,6 +519,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return GetExistingManifestId(connection, manifest);
     }
 
+    std::map<Manifest::Dependency, SQLite::rowid_t> Interface::GetDependenciesByManifestRowId(const SQLite::Connection&, SQLite::rowid_t) const
+    {
+        return {};
+    }
+
+    std::vector<std::pair<Manifest::Manifest, Utility::Version>> Interface::GetDependenciesByPackageId(const SQLite::Connection&, AppInstaller::Manifest::string_t) const
+    {
+        return {};
+    }
+
     std::vector<Utility::VersionAndChannel> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
@@ -614,5 +624,55 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         default:
             return {};
         }
+    }
+
+    std::optional<std::pair<SQLite::rowid_t, Utility::Version>> Interface::GetPackageLatestVersion(
+        const SQLite::Connection& connection,
+        AppInstaller::Manifest::string_t packageId,
+        std::set<Utility::Version> exclusions) const
+    {
+        using QCol = SQLite::Builder::QualifiedColumn;
+        using namespace SQLite::Builder;
+        
+        StatementBuilder builder;
+
+        constexpr std::string_view manifestTableAlias = "m";
+        constexpr std::string_view versionAlias = "v";
+        constexpr std::string_view packageIdAlias = "pId";
+
+        builder.Select().
+            Column(QCol(manifestTableAlias, SQLite::RowIDName))
+            .Column(QCol(versionAlias, VersionTable::ValueName()))
+            .From({ ManifestTable::TableName() }).As(manifestTableAlias)
+            .Join({ VersionTable::TableName() }).As(versionAlias)
+            .On(QCol(manifestTableAlias, VersionTable::ValueName()), QCol(versionAlias, SQLite::RowIDName))
+            .Join({ IdTable::TableName() }).As(packageIdAlias)
+            .On(QCol(packageIdAlias, SQLite::RowIDName), QCol(manifestTableAlias, IdTable::ValueName()))
+            .Where(QCol(packageIdAlias, IdTable::ValueName())).Equals(Unbound);
+
+        SQLite::Statement stmt = builder.Prepare(connection);
+        stmt.Bind(1, std::string{ packageId });
+
+        std::optional<std::pair<SQLite::rowid_t, Utility::Version>> result;
+
+        SQLite::rowid_t latestRowId = -1;
+        Utility::Version latestVersion;
+
+        while (stmt.Step())
+        {
+            Utility::Version currentVersion(stmt.GetColumn<std::string>(1));
+            if (exclusions.find(currentVersion) != exclusions.end())
+            {
+                continue;
+            }
+
+            if (latestVersion.IsUnknown() || (currentVersion > latestVersion))
+            {
+                latestRowId = stmt.GetColumn<SQLite::rowid_t>(0);
+                latestVersion = currentVersion;
+                result.emplace(std::pair<SQLite::rowid_t, Utility::Version>(latestRowId, latestVersion));
+            }
+        }
+        return result;
     }
 }

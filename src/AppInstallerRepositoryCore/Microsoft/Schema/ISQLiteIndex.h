@@ -103,6 +103,12 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Normalizes a name using the internal rules used by the index.
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         virtual Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const = 0;
+
+        // Get all the dependencies for a specific manifest.
+        virtual std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
+
+        virtual std::optional<std::pair<SQLite::rowid_t, Utility::Version>> GetPackageLatestVersion(const SQLite::Connection& connection, Manifest::string_t packageId, std::set<Utility::Version> versionsToExclude = {}) const = 0;
+        virtual std::vector<std::pair<Manifest::Manifest, Utility::Version>> GetDependenciesByPackageId(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const = 0;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

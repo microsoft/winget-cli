@@ -245,7 +245,7 @@ extern "C"
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
-        WINGET_STRING indexPath,
+        WINGET_SQLITE_INDEX_HANDLE index,
         WinGetValidateManifestDependenciesValidationOption dependenciesValidationOption) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
@@ -254,14 +254,15 @@ extern "C"
         try
         {
             Manifest manifest = YamlParser::CreateFromPath(inputPath);
+            SQLiteIndex* SqlIndex(reinterpret_cast<SQLiteIndex*>(index));
             
             switch (dependenciesValidationOption)
             {
                 case WinGetValidateManifestDependenciesValidationOption::Standard:
-                    PackageDependenciesValidation::ValidateManifestDependencies(ConvertToUTF8(indexPath), manifest);
+                    PackageDependenciesValidation::ValidateManifestDependencies(SqlIndex, manifest);
                     break;
                 case WinGetValidateManifestDependenciesValidationOption::ForDelete:
-                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(ConvertToUTF8(indexPath), manifest);
+                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SqlIndex, manifest);
                     break;
                 default:
                     THROW_HR(E_INVALIDARG);

@@ -301,6 +301,16 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->NormalizeName(name, publisher);
     }
 
+    std::map<Manifest::Dependency, SQLite::rowid_t> SQLiteIndex::GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const
+    {
+        return m_interface->GetDependenciesByManifestRowId(m_dbconn, manifestRowId);
+    }
+
+    std::vector<std::pair<Manifest::Manifest, Utility::Version>> SQLiteIndex::GetDependenciesByPackageId(AppInstaller::Manifest::string_t packageId) const
+    {
+        return m_interface->GetDependenciesByPackageId(m_dbconn, packageId);
+    }
+
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()
@@ -312,5 +322,12 @@ namespace AppInstaller::Repository::Microsoft
     {
         int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
+    }
+    
+    std::optional<std::pair<SQLite::rowid_t, Utility::Version>> SQLiteIndex::GetPackageLatestVersion(
+        AppInstaller::Manifest::string_t packageId,
+        std::set<Utility::Version> exclusions) const
+    {
+        return m_interface->GetPackageLatestVersion(m_dbconn, packageId, exclusions);
     }
 }

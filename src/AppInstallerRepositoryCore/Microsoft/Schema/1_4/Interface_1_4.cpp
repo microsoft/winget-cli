@@ -86,4 +86,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         }
     }
 
+    std::map<Manifest::Dependency, SQLite::rowid_t> Interface::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const
+    {
+        return DependenciesTable::GetDependenciesByManifestRowId(connection, manifestRowId);
+    }
+
+    std::vector<std::pair<Manifest::Manifest, Utility::Version>> Interface::GetDependenciesByPackageId(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const
+    {
+        return DependenciesTable::GetDependenciesByPackageId(connection, packageId);
+    }
 }

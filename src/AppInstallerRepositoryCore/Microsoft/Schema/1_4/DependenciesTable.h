@@ -36,12 +36,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         static void RemoveDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
 
         // Get dependencies the dependencies
-        static std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
+        static std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
 
-        // Get the dependencies
-        static bool ValidateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest);
-
-        static bool VerifyDependenciesStructureForManifestDelete(SQLite::Connection& connection, const Manifest::Manifest& manifest);
+        // Get dependencies by package id.
+        static std::vector<std::pair<Manifest::Manifest, Utility::Version>> GetDependenciesByPackageId(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId);
 
         static void PrepareForPackaging(SQLite::Connection& connection);
     };
