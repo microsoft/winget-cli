@@ -6,6 +6,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerLogging.h"
 
 using namespace AppInstaller::Runtime;
 
@@ -142,6 +143,8 @@ namespace AppInstaller::Utility {
 
     SHA256::HashBuffer SHA256::ComputeHash(std::istream& in)
     {
+        // TODO: DELETE ALL LOGGING FROM HERE
+        AICLI_LOG(Core, Info, << "Starting ComputeHash: stream is " << in.rdstate());
         // Throw exceptions on badbit
         auto excState = in.exceptions();
         auto revertExcState = wil::scope_exit([excState, &in]() { in.exceptions(excState); });
@@ -154,15 +157,20 @@ namespace AppInstaller::Utility {
 
         while (in.good())
         {
+            AICLI_LOG(Core, Info, << "Reading stream");
             in.read((char*)(buffer.get()), bufferSize);
+            AICLI_LOG(Core, Info, << "  read " << in.gcount() << " bytes");
             if (in.gcount())
             {
+                AICLI_LOG(Core, Info, << "  adding to hash");
                 hasher.Add(buffer.get(), static_cast<size_t>(in.gcount()));
             }
+            AICLI_LOG(Core, Info, << "  stream is " << in.rdstate());
         }
 
         if (in.eof())
         {
+            AICLI_LOG(Core, Info, << "Returning hash");
             return hasher.Get();
         }
         else
