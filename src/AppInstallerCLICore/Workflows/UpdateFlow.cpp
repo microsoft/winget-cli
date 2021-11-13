@@ -42,6 +42,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
+        bool installedTypeInapplicable = false;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -54,9 +55,16 @@ namespace AppInstaller::CLI::Workflow
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
-                auto installer = manifestComparator.GetPreferredInstaller(manifest);
+                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    // If there is at least one installer whose only reason is InstalledType.
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    if (onlyInstalledType != inapplicabilities.end())
+                    {
+                        installedTypeInapplicable = true;
+                    }
+
                     continue;
                 }
 
@@ -80,8 +88,16 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_reportUpdateNotFound)
             {
-                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                if (installedTypeInapplicable)
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                }
             }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }

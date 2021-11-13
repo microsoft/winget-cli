@@ -26,13 +26,12 @@ namespace AppInstaller::ThreadLocalStorage
         static ThreadGlobals* GetForCurrentThread();
 
     private:
-        
+
         void Initialize();
 
         std::unique_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
         std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger> m_pTelemetryLogger;
         std::once_flag loggerInitOnceFlag;
-        
     };
 
     struct PreviousThreadGlobals

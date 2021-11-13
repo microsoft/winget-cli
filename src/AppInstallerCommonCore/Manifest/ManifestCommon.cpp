@@ -356,26 +356,26 @@ namespace AppInstaller::Manifest
         switch (installerType)
         {
         case InstallerTypeEnum::Exe:
-            return "Exe"sv;
+            return "exe"sv;
         case InstallerTypeEnum::Inno:
-            return "Inno"sv;
+            return "inno"sv;
         case InstallerTypeEnum::Msi:
-            return "Msi"sv;
+            return "msi"sv;
         case InstallerTypeEnum::Msix:
-            return "Msix"sv;
+            return "msix"sv;
         case InstallerTypeEnum::Nullsoft:
-            return "Nullsoft"sv;
+            return "nullsoft"sv;
         case InstallerTypeEnum::Wix:
-            return "Wix"sv;
+            return "wix"sv;
         case InstallerTypeEnum::Zip:
-            return "Zip"sv;
+            return "zip"sv;
         case InstallerTypeEnum::Burn:
-            return "Burn"sv;
+            return "burn"sv;
         case InstallerTypeEnum::MSStore:
-            return "MSStore"sv;
+            return "msstore"sv;
         }
 
-        return "Unknown"sv;
+        return "unknown"sv;
     }
 
     std::string_view ScopeToString(ScopeEnum scope)
