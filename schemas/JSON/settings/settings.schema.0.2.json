@@ -26,7 +26,6 @@
           "enum": [
             "accent",
             "rainbow",
-            "plain",
             "retro"
           ]
         }
