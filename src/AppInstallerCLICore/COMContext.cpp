@@ -44,11 +44,11 @@ namespace AppInstaller::CLI::Execution
         FireCallbacks(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);
     };
 
-    void COMContext::SetExecutionStage(CLI::Workflow::ExecutionStage executionStage, bool)
+    void COMContext::SetExecutionStage(CLI::Workflow::ExecutionStage executionStage)
     {
         m_executionStage = executionStage;
         FireCallbacks(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
-        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
+        Logging::Telemetry().SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
     void COMContext::SetContextLoggers(const std::wstring_view telemetryCorrelationJson, const std::string& caller)

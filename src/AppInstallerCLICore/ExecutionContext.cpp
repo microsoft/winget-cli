@@ -118,9 +118,9 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    std::unique_ptr<Context> Context::Clone()
+    std::unique_ptr<Context> Context::CreateSubContext()
     {
-        auto clone = std::make_unique<Context>(Reporter);
+        auto clone = std::make_unique<Context>(Reporter, m_threadGlobals);
         clone->m_flags = m_flags;
         // If the parent is hooked up to the CTRL signal, have the clone be as well
         if (m_disableCtrlHandlerOnExit)
@@ -192,19 +192,19 @@ namespace AppInstaller::CLI::Execution
         Reporter.CancelInProgressTask(bypassUser);
     }
 
-    void Context::SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward)
+    void Context::SetExecutionStage(Workflow::ExecutionStage stage)
     {
         if (m_executionStage == stage)
         {
             return;
         }
-        else if (m_executionStage > stage && !allowBackward)
+        else if (m_executionStage > stage)
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
         }
 
         m_executionStage = stage;
-        Logging::SetExecutionStage(static_cast<uint32_t>(m_executionStage));
+        Logging::Telemetry().SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
     AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobals()

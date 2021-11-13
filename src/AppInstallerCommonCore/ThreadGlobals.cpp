@@ -8,9 +8,31 @@ namespace AppInstaller::ThreadLocalStorage
     // Set and return Globals for Current Thread
     static ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals = nullptr);
 
+    ThreadGlobals::ThreadGlobals(std::shared_ptr<DiagnosticLogger> diagnosticLogger, std::unique_ptr<TelemetryTraceLogger>&& telemetryLogger)
+        : m_pDiagnosticLogger(std::move(diagnosticLogger)), m_pTelemetryLogger(std::move(telemetryLogger))
+    {
+        // Flip the initialization flag
+        std::call_once(m_loggerInitOnceFlag, []() {});
+    }
+
+    ThreadGlobals::ThreadGlobals(const ThreadGlobals& parent, create_sub_thread_globals_t)
+        : ThreadGlobals(parent.m_pDiagnosticLogger, parent.m_pTelemetryLogger ? parent.m_pTelemetryLogger->CreateSubTraceLogger() : nullptr)
+    {
+    }
+
+    bool ThreadGlobals::ContainsDiagnosticLogger() const
+    {
+        return m_pDiagnosticLogger != nullptr;
+    }
+
     DiagnosticLogger& ThreadGlobals::GetDiagnosticLogger()
     {
         return *(m_pDiagnosticLogger);
+    }
+
+    bool ThreadGlobals::ContainsTelemetryLogger() const
+    {
+        return m_pTelemetryLogger != nullptr;
     }
 
     TelemetryTraceLogger& ThreadGlobals::GetTelemetryLogger()
@@ -31,7 +53,7 @@ namespace AppInstaller::ThreadLocalStorage
     {
         try
         {
-            std::call_once(loggerInitOnceFlag, [this]()
+            std::call_once(m_loggerInitOnceFlag, [this]()
                 {
                     m_pDiagnosticLogger = std::make_unique<DiagnosticLogger>();
                     m_pTelemetryLogger = std::make_unique<TelemetryTraceLogger>();

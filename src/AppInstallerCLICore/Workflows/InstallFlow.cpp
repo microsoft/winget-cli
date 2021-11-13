@@ -189,23 +189,18 @@ namespace AppInstaller::CLI::Workflow
     void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context)
     {
         bool hasPackageAgreements = false;
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            // Show agreements for each package in a sub-context
-            auto showContextPtr = context.Clone();
-            Execution::Context& showContext = *showContextPtr;
-
-            showContext.Add<Execution::Data::Manifest>(package.Manifest);
-
-            showContext <<
+            // Show agreements for each package in the sub-context
+            *packageContext <<
                 Workflow::ReportManifestIdentityWithVersion <<
                 Workflow::ShowPackageAgreements(/* ensureAcceptance */ false);
-            if (showContext.IsTerminated())
+            if (packageContext->IsTerminated())
             {
-                AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
+                AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
             }
 
-            hasPackageAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+            hasPackageAgreements |= !packageContext->Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
         }
 
         // If any package has agreements, ensure they are accepted

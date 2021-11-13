@@ -146,13 +146,12 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR); 
         }
 
-        
         std::map<string_t, Execution::PackageToInstall> idToPackageMap;
         bool foundError = false;
         DependencyGraph dependencyGraph(rootAsDependency, rootDependencies, 
             [&](Dependency node) {
                 DependencyNodeProcessor nodeProcessor(context);
-                
+
                 auto result = nodeProcessor.EvaluateDependencies(node);
                 DependencyList list = nodeProcessor.GetDependencyList();
                 foundError = foundError || (result == DependencyNodeProcessorResult::Error);

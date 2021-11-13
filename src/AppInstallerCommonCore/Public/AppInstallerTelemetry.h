@@ -31,12 +31,11 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
-        // Control whether this trace logger is enabled at runtime.
-        bool DisableRuntime();
-        void EnableRuntime();
-
         // Return address of m_activityId
         const GUID* GetActivityId() const;
+
+        // Return address of m_parentActivityId
+        const GUID* GetParentActivityId() const;
 
         // Capture if UserSettings is enabled and set user profile path
         void Initialize();
@@ -49,6 +48,10 @@ namespace AppInstaller::Logging
 
         // Store the passed in Telemetry Correlation Json for COM calls
         void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
+
+        void SetExecutionStage(uint32_t stage) noexcept;
+
+        std::unique_ptr<TelemetryTraceLogger> CreateSubTraceLogger() const;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -147,15 +150,20 @@ namespace AppInstaller::Logging
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
         bool m_isSettingEnabled = true;
-        std::atomic_bool m_isRuntimeEnabled{ true };
         std::atomic_bool m_isInitialized{ false };
 
+        std::atomic_uint32_t m_executionStage{ 0 };
+
         GUID m_activityId = GUID_NULL;
+        GUID m_parentActivityId = GUID_NULL;
         std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
+
+        // TODO: This and all related code could be removed after transition to summary event in back end.
+        uint32_t m_subExecutionId;
     };
 
     // Helper to make the call sites look clean.
@@ -180,30 +188,5 @@ namespace AppInstaller::Logging
 
     private:
         DestructionToken m_token;
-    };
-
-    // Sets an execution stage to be reported when failures occur.
-    void SetExecutionStage(uint32_t stage);
-
-    // An RAII object to log telemetry as sub execution.
-    // Does not support nested sub execution.
-    struct SubExecutionTelemetryScope
-    {
-        SubExecutionTelemetryScope();
-
-        SubExecutionTelemetryScope(uint32_t sessionId);
-
-        SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
-        SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
-
-        SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
-        SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
-
-        uint32_t GetCurrentSubExecutionId() const;
-
-        ~SubExecutionTelemetryScope();
-
-    private:
-        static std::atomic_uint32_t m_sessionId;
     };
 }

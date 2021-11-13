@@ -44,11 +44,11 @@ namespace AppInstaller::Logging
 
     namespace
     {
+        // TODO: This and all usages should be removed after transition to summary event in back end.
         static const uint32_t s_RootExecutionId = 0;
+        static std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
 
-        std::atomic_uint32_t s_executionStage{ 0 };
-
-        std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
+        static std::atomic_bool s_isRuntimeEnabled{ true };
 
         constexpr std::wstring_view s_UserProfileReplacement = L"%USERPROFILE%"sv;
 
@@ -68,14 +68,9 @@ namespace AppInstaller::Logging
         return &m_activityId;
     }
 
-    bool TelemetryTraceLogger::DisableRuntime()
+    const GUID* TelemetryTraceLogger::GetParentActivityId() const
     {
-        return m_isRuntimeEnabled.exchange(false);
-    }
-
-    void TelemetryTraceLogger::EnableRuntime()
-    {
-        m_isRuntimeEnabled = true;
+        return &m_parentActivityId;
     }
 
     void TelemetryTraceLogger::Initialize()
@@ -132,6 +127,20 @@ namespace AppInstaller::Logging
         m_caller = caller;
     }
 
+    void TelemetryTraceLogger::SetExecutionStage(uint32_t stage) noexcept
+    {
+        m_executionStage = stage;
+    }
+
+    std::unique_ptr<TelemetryTraceLogger> TelemetryTraceLogger::CreateSubTraceLogger() const
+    {
+        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>(*this);
+        subTraceLogger->m_parentActivityId = this->m_activityId;
+        std::ignore = CoCreateGuid(&subTraceLogger->m_activityId);
+        subTraceLogger->m_subExecutionId = s_subExecutionId++;
+        return subTraceLogger;
+    }
+
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
     {
         if (IsTelemetryEnabled())
@@ -148,7 +157,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
                 TraceLoggingString(failure.pszFile, "File"),
                 TraceLoggingUInt32(failure.uLineNumber, "Line"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -229,7 +238,7 @@ namespace AppInstaller::Logging
                 TraceLoggingHResult(hr, "HResult"),
                 AICLI_TraceLoggingStringView(file, "File"),
                 TraceLoggingUInt64(static_cast<UINT64>(line), "Line"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -248,7 +257,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingWStringView(anonMessage, "Message"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -536,7 +545,7 @@ namespace AppInstaller::Logging
 
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
-        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled;
+        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && s_isRuntimeEnabled;
     }
 
     void TelemetryTraceLogger::InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings)
@@ -570,7 +579,7 @@ namespace AppInstaller::Logging
         }
 #endif
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
-        if (pThreadGlobals)
+        if (pThreadGlobals && pThreadGlobals->ContainsTelemetryLogger())
         {
             return pThreadGlobals->GetTelemetryLogger();
         }
@@ -589,46 +598,15 @@ namespace AppInstaller::Logging
 
     DisableTelemetryScope::DisableTelemetryScope()
     {
-        m_token = Telemetry().DisableRuntime();
+        m_token = s_isRuntimeEnabled.exchange(false);
     }
 
     DisableTelemetryScope::~DisableTelemetryScope()
     {
         if (m_token)
         {
-            Telemetry().EnableRuntime();
+            s_isRuntimeEnabled = true;
         }
-    }
-
-    void SetExecutionStage(uint32_t stage)
-    {
-        s_executionStage = stage;
-    }
-
-    std::atomic_uint32_t SubExecutionTelemetryScope::m_sessionId{ s_RootExecutionId };
-
-    SubExecutionTelemetryScope::SubExecutionTelemetryScope()
-    {
-        auto expected = s_RootExecutionId;
-        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, ++m_sessionId),
-            "Cannot create a sub execution telemetry session when a previous session exists.");
-    }
-
-    SubExecutionTelemetryScope::SubExecutionTelemetryScope(uint32_t sessionId)
-    {
-        auto expected = s_RootExecutionId;
-        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, sessionId),
-            "Cannot create a sub execution telemetry session when a previous session exists.");
-    }
-
-    uint32_t SubExecutionTelemetryScope::GetCurrentSubExecutionId() const
-    {
-        return (uint32_t)s_subExecutionId;
-    }
-
-    SubExecutionTelemetryScope::~SubExecutionTelemetryScope()
-    {
-        s_subExecutionId = s_RootExecutionId;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

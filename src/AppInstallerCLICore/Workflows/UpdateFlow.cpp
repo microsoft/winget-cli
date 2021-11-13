@@ -118,7 +118,7 @@ namespace AppInstaller::CLI::Workflow
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
-        std::vector<Execution::PackageToInstall> packagesToInstall;
+        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool updateAllFoundUpdate = false;
 
         for (const auto& match : matches)
@@ -126,7 +126,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::SubExecutionTelemetryScope subExecution;
 
             // We want to do best effort to update all applicable updates regardless on previous update failure
-            auto updateContextPtr = context.Clone();
+            auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
 
             updateContext.Add<Execution::Data::Package>(match.Package);

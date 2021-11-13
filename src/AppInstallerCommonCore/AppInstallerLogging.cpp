@@ -141,7 +141,7 @@ namespace AppInstaller::Logging
     DiagnosticLogger& Log()
     {
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
-        if (pThreadGlobals)
+        if (pThreadGlobals && pThreadGlobals->ContainsDiagnosticLogger())
         {
             return pThreadGlobals->GetDiagnosticLogger();
         }

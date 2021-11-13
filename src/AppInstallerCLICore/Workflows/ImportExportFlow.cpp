@@ -246,7 +246,7 @@ namespace AppInstaller::CLI::Workflow
     void SearchPackagesForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<Execution::PackageToInstall> packagesToInstall = {};
+        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool foundAll = true;
 
         // Look for the packages needed from each source independently.
@@ -273,7 +273,7 @@ namespace AppInstaller::CLI::Workflow
                 SearchRequest searchRequest;
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
-                auto searchContextPtr = context.Clone();
+                auto searchContextPtr = context.CreateSubContext();
                 Execution::Context& searchContext = *searchContextPtr;
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
@@ -320,13 +320,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.emplace_back(
-                    std::move(searchContext.Get<Execution::Data::PackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::Manifest>()),
-                    std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope,
-                    subExecution.GetCurrentSubExecutionId());
+                packagesToInstall.emplace_back(std::move(searchContextPtr));
             }
         }
 

@@ -53,10 +53,12 @@ namespace AppInstaller::CLI::Execution
         Max
     };
 
+    struct Context;
+
     // Contains all the information needed to install a package.
     // This is used when installing multiple packages to pass all the
     // data to a sub-context.
-    struct PackageToInstall
+    /*struct PackageToInstall
     {
         PackageToInstall(
             std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
@@ -82,7 +84,7 @@ namespace AppInstaller::CLI::Execution
         // Use this sub execution id when installing this package so that 
         // install telemetry is captured with the same sub execution id as other events in Search phase.
         uint32_t PackageSubExecutionId = 0;
-    };
+    };*/
 
     namespace details
     {
@@ -203,7 +205,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {
-            using value_t = std::vector<PackageToInstall>;
+            using value_t = std::vector<std::unique_ptr<Context>>;
         };
 
         template <>
