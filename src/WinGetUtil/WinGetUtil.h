@@ -22,7 +22,7 @@ extern "C"
         Default = 0,
         SchemaValidationOnly = 0x1,
         ErrorOnVerifiedPublisherFields = 0x2,
-        ForDelete = 0x3,
+        ForDelete = 0x4,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
