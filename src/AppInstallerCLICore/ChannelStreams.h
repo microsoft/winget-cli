@@ -57,6 +57,8 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void SetVTEnabled(bool enabled);
+
         void RestoreDefault();
 
         void Disable();
@@ -80,7 +82,7 @@ namespace AppInstaller::CLI::Execution
     // Holds output formatting information.
     struct OutputStream
     {
-        OutputStream(BaseStream& out, bool enabled, bool VTEnabled);
+        OutputStream(BaseStream& out, bool enabled, bool VTEnabled = true);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);

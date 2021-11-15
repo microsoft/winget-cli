@@ -41,6 +41,11 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
+    void BaseStream::SetVTEnabled(bool enabled)
+    {
+        m_VTEnabled = enabled;
+    }
+
     void BaseStream::RestoreDefault()
     {
         if (m_VTUpdated)
