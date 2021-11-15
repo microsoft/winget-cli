@@ -266,7 +266,6 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
-                Logging::SubExecutionTelemetryScope subExecution;
                 AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
 
                 // Search for the current package
@@ -275,6 +274,8 @@ namespace AppInstaller::CLI::Workflow
 
                 auto searchContextPtr = context.CreateSubContext();
                 Execution::Context& searchContext = *searchContextPtr;
+                auto previousThreadGlobals = searchContext.GetThreadGlobals().SetForCurrentThread();
+
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
 

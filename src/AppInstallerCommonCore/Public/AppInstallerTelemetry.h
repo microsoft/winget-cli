@@ -31,6 +31,10 @@ namespace AppInstaller::Logging
         TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
         TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
+        // Control whether this trace logger is enabled at runtime.
+        bool DisableRuntime();
+        void EnableRuntime();
+
         // Return address of m_activityId
         const GUID* GetActivityId() const;
 
@@ -150,6 +154,7 @@ namespace AppInstaller::Logging
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
         bool m_isSettingEnabled = true;
+        std::atomic_bool m_isRuntimeEnabled{ true };
         std::atomic_bool m_isInitialized{ false };
 
         std::atomic_uint32_t m_executionStage{ 0 };

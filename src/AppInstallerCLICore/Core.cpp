@@ -61,7 +61,7 @@ namespace AppInstaller::CLI
         // Initiate the background cleanup of the log file location.
         Logging::BeginLogFileCleanup();
 
-        Execution::Context context{ std::cout, std::cin };
+        Execution::Context context{ std::cout, std::cin, nullptr /* Command execution always use global diagnostic logger */, Logging::Telemetry().CreateSubTraceLogger() };
         context.EnableCtrlHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);

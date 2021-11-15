@@ -48,8 +48,6 @@ namespace AppInstaller::Logging
         static const uint32_t s_RootExecutionId = 0;
         static std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
 
-        static std::atomic_bool s_isRuntimeEnabled{ true };
-
         constexpr std::wstring_view s_UserProfileReplacement = L"%USERPROFILE%"sv;
 
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
@@ -61,6 +59,7 @@ namespace AppInstaller::Logging
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
         std::ignore = CoCreateGuid(&m_activityId);
+        m_subExecutionId = s_RootExecutionId;
     }
 
     const GUID* TelemetryTraceLogger::GetActivityId() const
@@ -71,6 +70,16 @@ namespace AppInstaller::Logging
     const GUID* TelemetryTraceLogger::GetParentActivityId() const
     {
         return &m_parentActivityId;
+    }
+
+    bool TelemetryTraceLogger::DisableRuntime()
+    {
+        return m_isRuntimeEnabled.exchange(false);
+    }
+
+    void TelemetryTraceLogger::EnableRuntime()
+    {
+        m_isRuntimeEnabled = true;
     }
 
     void TelemetryTraceLogger::Initialize()
@@ -134,10 +143,22 @@ namespace AppInstaller::Logging
 
     std::unique_ptr<TelemetryTraceLogger> TelemetryTraceLogger::CreateSubTraceLogger() const
     {
-        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>(*this);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !this->m_isInitialized);
+
+        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>();
+
         subTraceLogger->m_parentActivityId = this->m_activityId;
-        std::ignore = CoCreateGuid(&subTraceLogger->m_activityId);
         subTraceLogger->m_subExecutionId = s_subExecutionId++;
+
+        // Copy remaining fields from parent.
+        subTraceLogger->m_isSettingEnabled = this->m_isSettingEnabled;
+        subTraceLogger->m_isRuntimeEnabled = this->m_isRuntimeEnabled.load();
+        subTraceLogger->m_isInitialized = this->m_isInitialized.load();
+        subTraceLogger->m_executionStage = this->m_executionStage.load();
+        subTraceLogger->m_telemetryCorrelationJsonW = this->m_telemetryCorrelationJsonW;
+        subTraceLogger->m_caller = this->m_caller;
+        subTraceLogger->m_userProfile = this->m_userProfile;
+
         return subTraceLogger;
     }
 
@@ -545,7 +566,7 @@ namespace AppInstaller::Logging
 
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
-        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && s_isRuntimeEnabled;
+        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled;
     }
 
     void TelemetryTraceLogger::InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings)
@@ -598,14 +619,14 @@ namespace AppInstaller::Logging
 
     DisableTelemetryScope::DisableTelemetryScope()
     {
-        m_token = s_isRuntimeEnabled.exchange(false);
+        m_token = Telemetry().DisableRuntime();
     }
 
     DisableTelemetryScope::~DisableTelemetryScope()
     {
         if (m_token)
         {
-            s_isRuntimeEnabled = true;
+            Telemetry().EnableRuntime();
         }
     }
 

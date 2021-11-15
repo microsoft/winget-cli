@@ -191,16 +191,19 @@ namespace AppInstaller::CLI::Workflow
         bool hasPackageAgreements = false;
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            // Show agreements for each package in the sub-context
-            *packageContext <<
+            // Show agreements for each package
+            Execution::Context& showContext = *packageContext;
+            auto previousThreadGlobals = showContext.GetThreadGlobals().SetForCurrentThread();
+
+            showContext <<
                 Workflow::ReportManifestIdentityWithVersion <<
                 Workflow::ShowPackageAgreements(/* ensureAcceptance */ false);
-            if (packageContext->IsTerminated())
+            if (showContext.IsTerminated())
             {
-                AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
+                AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
             }
 
-            hasPackageAgreements |= !packageContext->Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+            hasPackageAgreements |= !showContext.Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
         }
 
         // If any package has agreements, ensure they are accepted
@@ -406,9 +409,9 @@ namespace AppInstaller::CLI::Workflow
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             DependencyList allDependencies;
-            for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+            for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
             {
-                allDependencies.Add(package.Installer.Dependencies);
+                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
 
             context.Add<Execution::Data::Dependencies>(allDependencies);
@@ -419,22 +422,14 @@ namespace AppInstaller::CLI::Workflow
         size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
         size_t packagesProgress = 0;
         
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
-
             packagesProgress++;
             context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
 
             // We want to do best effort to install all packages regardless of previous failures
-            auto installContextPtr = context.Clone();
-            Execution::Context& installContext = *installContextPtr;
-
-            // Extract the data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.Manifest);
-            installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
-            installContext.Add<Execution::Data::Installer>(package.Installer);
+            Execution::Context& installContext = *packageContext;
+            auto previousThreadGlobals = installContext.GetThreadGlobals().SetForCurrentThread();
 
             installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
             if (!m_ignorePackageDependencies)

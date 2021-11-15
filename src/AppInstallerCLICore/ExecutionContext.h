@@ -70,6 +70,12 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
+        Context(
+            std::ostream& out,
+            std::istream& in,
+            std::shared_ptr<AppInstaller::Logging::DiagnosticLogger> diagnosticLogger,
+            std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger>&& telemetryLogger) : Reporter(out, in), m_threadGlobals(diagnosticLogger, std::move(telemetryLogger)) {}
+
         // Constructor for creating a sub-context.
         Context(Execution::Reporter& reporter, const ThreadLocalStorage::ThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),

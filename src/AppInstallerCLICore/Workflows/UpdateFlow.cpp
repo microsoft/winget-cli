@@ -19,19 +19,19 @@ namespace AppInstaller::CLI::Workflow
             return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
 
-        void AddToPackagesToInstallIfNotPresent(std::vector<Execution::PackageToInstall>& packagesToInstall, Execution::PackageToInstall&& package)
+        void AddToPackagesToInstallIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packagesToInstall, std::unique_ptr<Execution::Context> packageContext)
         {
             for (auto const& existing : packagesToInstall)
             {
-                if (existing.Manifest.Id == package.Manifest.Id &&
-                    existing.Manifest.Version == package.Manifest.Version &&
-                    existing.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier) == package.PackageVersion->GetProperty(PackageVersionProperty::SourceIdentifier))
+                if (existing->Get<Execution::Data::Manifest>().Id == packageContext->Get<Execution::Data::Manifest>().Id &&
+                    existing->Get<Execution::Data::Manifest>().Version == packageContext->Get<Execution::Data::Manifest>().Version &&
+                    existing->Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier) == packageContext->Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier))
                 {
                     return;
                 }
             }
 
-            packagesToInstall.emplace_back(std::move(package));
+            packagesToInstall.emplace_back(std::move(packageContext));
         }
     }
 
@@ -123,11 +123,10 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& match : matches)
         {
-            Logging::SubExecutionTelemetryScope subExecution;
-
             // We want to do best effort to update all applicable updates regardless on previous update failure
             auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
+            auto previousThreadGlobals = updateContext.GetThreadGlobals().SetForCurrentThread();
 
             updateContext.Add<Execution::Data::Package>(match.Package);
 
@@ -143,14 +142,7 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            Execution::PackageToInstall package{
-                std::move(updateContext.Get<Execution::Data::PackageVersion>()),
-                std::move(updateContext.Get<Execution::Data::InstalledPackageVersion>()),
-                std::move(updateContext.Get<Execution::Data::Manifest>()),
-                std::move(updateContext.Get<Execution::Data::Installer>().value()) };
-            package.PackageSubExecutionId = subExecution.GetCurrentSubExecutionId();
-
-            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(package));
+            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(updateContextPtr));
         }
 
         if (!updateAllFoundUpdate)
