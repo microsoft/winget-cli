@@ -216,6 +216,18 @@ namespace AppInstaller::CLI::Workflow
                 Execution::Context& dependencyContext = *dependencyContextPtr;
                 auto previousThreadGlobals = dependencyContext.GetThreadGlobals().SetForCurrentThread();
 
+                Logging::Telemetry().LogSelectedInstaller(
+                    static_cast<int>(itr->second.Installer.Arch),
+                    itr->second.Installer.Url,
+                    Manifest::InstallerTypeToString(itr->second.Installer.InstallerType),
+                    Manifest::ScopeToString(itr->second.Installer.Scope),
+                    itr->second.Installer.Locale);
+
+                Logging::Telemetry().LogManifestFields(
+                    itr->second.Manifest.Id,
+                    itr->second.Manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    itr->second.Manifest.Version);
+
                 // Extract the data needed for installing
                 dependencyContext.Add<Execution::Data::PackageVersion>(itr->second.PackageVersion);
                 dependencyContext.Add<Execution::Data::Manifest>(itr->second.Manifest);

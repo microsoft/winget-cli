@@ -983,6 +983,16 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        if (installer.has_value())
+        {
+            Logging::Telemetry().LogSelectedInstaller(
+                static_cast<int>(installer->Arch),
+                installer->Url,
+                Manifest::InstallerTypeToString(installer->InstallerType),
+                Manifest::ScopeToString(installer->Scope),
+                installer->Locale);
+        }
+
         context.Add<Execution::Data::Installer>(installer);
     }
 
