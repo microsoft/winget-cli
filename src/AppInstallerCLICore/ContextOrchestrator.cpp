@@ -160,9 +160,11 @@ namespace AppInstaller::CLI::Execution
     }
 
     OrchestratorQueue::OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads) :
-        m_commandName(commandName), m_allowedThreads(allowedThreads), m_threadPool(CreateThreadpool(nullptr)), m_threadPoolCleanupGroup(CreateThreadpoolCleanupGroup())
+        m_commandName(commandName), m_allowedThreads(allowedThreads)
     {
+        m_threadPool.reset(CreateThreadpool(nullptr));
         THROW_LAST_ERROR_IF_NULL(m_threadPool);
+        m_threadPoolCleanupGroup.reset(CreateThreadpoolCleanupGroup());
         THROW_LAST_ERROR_IF_NULL(m_threadPoolCleanupGroup);
         InitializeThreadpoolEnvironment(&m_threadPoolCallbackEnviron);
         SetThreadpoolCallbackPool(&m_threadPoolCallbackEnviron, m_threadPool.get());
