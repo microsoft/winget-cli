@@ -45,21 +45,10 @@ namespace AppInstallerCLIE2ETests
 
         public void InitializeAllFeatures(bool status)
         {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-
-            var settingsJson = new
-            {
-                experimentalFeatures = new
-                {
-                    experimentalArg = status,
-                    experimentalCmd = status,
-                    dependencies = status,
-                    directMSI = status,
-                }
-            };
-
-            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
+            ConfigureFeature("experimentalArg", status);
+            ConfigureFeature("experimentalCmd", status);
+            ConfigureFeature("dependencies", status);
+            ConfigureFeature("directMSI", status);
         }
     }
 }

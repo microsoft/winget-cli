@@ -4,6 +4,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using Microsoft.Win32;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using System;
@@ -99,7 +100,7 @@ namespace AppInstallerCLIE2ETests
 
             TestIndexSetup.GenerateTestDirectory();
 
-            EnableWingetSelfInitiatedMinidump(true);
+            InitializeWingetSettings();
         }
 
         [OneTimeTearDown]
@@ -198,28 +199,27 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        private void EnableWingetSelfInitiatedMinidump(bool enabled)
+        public void InitializeWingetSettings()
         {
             string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
-            JObject debugging = (JObject)settingsJson["debugging"];
 
-            if (debugging == null)
+            var settingsJson = new
             {
-                settingsJson["debugging"] = JObject.FromObject(new
+                experimentalFeatures = new
                 {
-                    debugging = new
-                    {
-                        enableSelfInitiatedMinidump = enabled
-                    }
-                });
-            }
-            else
-            {
-                debugging["enableSelfInitiatedMinidump"] = enabled;
-            }
+                    experimentalArg = false,
+                    experimentalCmd = false,
+                    dependencies = false,
+                    directMSI = false,
+                },
+                debugging = new
+                {
+                    enableSelfInitiatedMinidump = true
+                }
+            };
 
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
+            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
+            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
         }
     }
 }
