@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Execution
         // context must be a pointer to a queue item.
         void OrchestratorQueueWorkCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK)
         {
-            auto queueItem = static_cast<OrchestratorQueueItem*>(context);
+            auto queueItem = reinterpret_cast<OrchestratorQueueItem*>(context);
             auto queue = queueItem->GetCurrentQueue();
             if (queue)
             {
@@ -39,11 +39,12 @@ namespace AppInstaller::CLI::Execution
 
         // Decide how many threads to use for each command.
         // We always allow only one install at a time.
-        // For download, if we can find the number of supported concurrent threads, use that as the maximum;
-        // otherwise use a single thread.
+        // For download, if we can find the number of supported concurrent threads,
+        // use that as the maximum (up to 3); otherwise use a single thread.
         const auto supportedConcurrentThreads = std::thread::hardware_concurrency();
+        const UINT32 maxDownloadThreads = 3;
         const UINT32 installThreads = 1;
-        const UINT32 downloadThreads = supportedConcurrentThreads ? supportedConcurrentThreads - 1 : 1;
+        const UINT32 downloadThreads = std::min(supportedConcurrentThreads ? supportedConcurrentThreads - 1 : 1, maxDownloadThreads);
 
         AddCommandQueue(COMDownloadCommand::CommandName, downloadThreads);
         AddCommandQueue(COMInstallCommand::CommandName, installThreads);
