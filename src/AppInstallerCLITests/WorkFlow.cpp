@@ -391,7 +391,7 @@ namespace
             m_overrides->emplace_back(wto);
         }
 
-        std::unique_ptr<Context> Clone() override
+        std::unique_ptr<Context> CreateSubContext() override
         {
             auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
             clone->SetFlags(this->GetFlags());
@@ -1184,9 +1184,9 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 0);
+    REQUIRE(dependencyPackages.size() == 0);
 }
 
 TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
@@ -1208,13 +1208,13 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 1);
-    REQUIRE(installers.at(0).Manifest.Id == "minVersion");
+    REQUIRE(dependencyPackages.size() == 1);
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Id == "minVersion");
     // minVersion 1.5 is available but this requires 1.0 so that version is installed
-    REQUIRE(installers.at(0).Manifest.Version == "1.0");
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Version == "1.0");
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
@@ -1236,16 +1236,16 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
 
     // Verify installers are called in order
-    REQUIRE(installers.size() == 4);
-    REQUIRE(installers.at(0).Manifest.Id == "B");
-    REQUIRE(installers.at(1).Manifest.Id == "C");
-    REQUIRE(installers.at(2).Manifest.Id == "G");
-    REQUIRE(installers.at(3).Manifest.Id == "H");
+    REQUIRE(dependencyPackages.size() == 4);
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Id == "B");
+    REQUIRE(dependencyPackages.at(1)->Get<Execution::Data::Manifest>().Id == "C");
+    REQUIRE(dependencyPackages.at(2)->Get<Execution::Data::Manifest>().Id == "G");
+    REQUIRE(dependencyPackages.at(3)->Get<Execution::Data::Manifest>().Id == "H");
 }
 
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
