@@ -43,7 +43,7 @@ namespace AppInstaller::Logging
         // LogCommandTermination
         HRESULT CommandTerminationHResult = S_OK;
         std::string CommandTerminationFile;
-        UINT32 CommandTerminationLine = 0;
+        UINT64 CommandTerminationLine = 0;
 
         // LogStartup
         bool IsCOMCall = false;
@@ -126,7 +126,7 @@ namespace AppInstaller::Logging
     {
         TelemetryTraceLogger();
 
-        ~TelemetryTraceLogger() = default;
+        ~TelemetryTraceLogger();
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;

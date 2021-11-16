@@ -691,6 +691,87 @@ namespace AppInstaller::Logging
         }
     }
 
+    TelemetryTraceLogger::~TelemetryTraceLogger()
+    {
+        if (IsTelemetryEnabled())
+        {
+            LocIndString version = Runtime::GetClientVersion();
+            LocIndString packageVersion;
+            if (Runtime::IsRunningInPackagedContext())
+            {
+                packageVersion = Runtime::GetPackageVersion();
+            }
+
+            TraceLoggingWriteActivity(
+                g_hTraceProvider,
+                "Summary",
+                GetActivityId(),
+                GetParentActivityId(),
+                // From member fields or program info.
+                AICLI_TraceLoggingStringView(m_caller, "Caller"),
+                TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
+                TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
+                TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
+                TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
+                // From TelemetrySummary
+                TraceLoggingHResult(m_summary.FailureHResult, "FailureHResult"),
+                AICLI_TraceLoggingWStringView(m_summary.FailureMessage, "FailureMessage"),
+                AICLI_TraceLoggingStringView(m_summary.FailureModule, "FailureModule"),
+                TraceLoggingUInt32(m_summary.FailureThreadId, "FailureThreadId"),
+                TraceLoggingUInt32(m_summary.FailureType, "FailureType"),
+                AICLI_TraceLoggingStringView(m_summary.FailureFile, "FailureFile"),
+                TraceLoggingUInt32(m_summary.FailureLine, "FailureLine"),
+                TraceLoggingHResult(m_summary.CommandTerminationHResult, "CommandTerminationHResult"),
+                AICLI_TraceLoggingStringView(m_summary.CommandTerminationFile, "CommandTerminationFile"),
+                TraceLoggingUInt64(m_summary.CommandTerminationLine, "CommandTerminationLine"),
+                TraceLoggingBool(m_summary.IsCOMCall, "IsCOMCall"),
+                AICLI_TraceLoggingStringView(m_summary.Command, "Command"),
+                TraceLoggingBool(m_summary.CommandSuccess, "CommandSuccess"),
+                TraceLoggingBool(m_summary.IsManifestLocal, "IsManifestLocal"),
+                AICLI_TraceLoggingStringView(m_summary.PackageIdentifier, "PackageIdentifier"),
+                AICLI_TraceLoggingStringView(m_summary.PackageName, "PackageName"),
+                AICLI_TraceLoggingStringView(m_summary.PackageVersion, "PackageVersion"),
+                AICLI_TraceLoggingStringView(m_summary.Channel, "Channel"),
+                AICLI_TraceLoggingStringView(m_summary.SourceIdentifier, "SourceIdentifier"),
+                TraceLoggingBool(m_summary.NoAppMatch, "NoAppMatch"),
+                TraceLoggingBool(m_summary.MultipleAppMatch, "MultipleAppMatch"),
+                TraceLoggingInt32(m_summary.InstallerArchitecture, "InstallerArchitecture"),
+                AICLI_TraceLoggingStringView(m_summary.InstallerUrl, "InstallerUrl"),
+                AICLI_TraceLoggingStringView(m_summary.InstallerType, "InstallerType"),
+                AICLI_TraceLoggingStringView(m_summary.InstallerScope, "InstallerScope"),
+                AICLI_TraceLoggingStringView(m_summary.InstallerLocale, "InstallerLocale"),
+                AICLI_TraceLoggingStringView(m_summary.SearchType, "SearchType"),
+                AICLI_TraceLoggingStringView(m_summary.SearchQuery, "SearchQuery"),
+                AICLI_TraceLoggingStringView(m_summary.SearchId, "SearchId"),
+                AICLI_TraceLoggingStringView(m_summary.SearchName, "SearchName"),
+                AICLI_TraceLoggingStringView(m_summary.SearchMoniker, "SearchMoniker"),
+                AICLI_TraceLoggingStringView(m_summary.SearchTag, "SearchTag"),
+                AICLI_TraceLoggingStringView(m_summary.SearchCommand, "SearchCommand"),
+                TraceLoggingUInt64(m_summary.SearchMaximum, "SearchMaximum"),
+                AICLI_TraceLoggingStringView(m_summary.SearchRequest, "SearchRequest"),
+                TraceLoggingUInt64(m_summary.SearchResultCount, "SearchResultCount"),
+                TraceLoggingBinary(m_summary.HashMismatchExpected.data(), static_cast<ULONG>(m_summary.HashMismatchExpected.size()), "HashMismatchExpected"),
+                TraceLoggingBinary(m_summary.HashMismatchActual.data(), static_cast<ULONG>(m_summary.HashMismatchActual.size()), "HashMismatchActual"),
+                TraceLoggingBool(m_summary.HashMismatchOverride, "HashMismatchOverride"),
+                AICLI_TraceLoggingStringView(m_summary.InstallerExecutionType, "InstallerExecutionType"),
+                TraceLoggingUInt32(m_summary.InstallerErrorCode, "InstallerErrorCode"),
+                AICLI_TraceLoggingStringView(m_summary.UninstallerExecutionType, "UninstallerExecutionType"),
+                TraceLoggingUInt32(m_summary.UninstallerErrorCode, "UninstallerErrorCode"),
+                TraceLoggingUInt64(m_summary.ChangesToARP, "ChangesToARP"),
+                TraceLoggingUInt64(m_summary.MatchesInARP, "MatchesInARP"),
+                TraceLoggingUInt64(m_summary.ChangesThatMatch, "ChangesThatMatch"),
+                TraceLoggingUInt64(m_summary.ARPLanguage, "ARPLanguage"),
+                AICLI_TraceLoggingStringView(m_summary.ARPName, "ARPName"),
+                AICLI_TraceLoggingStringView(m_summary.ARPVersion, "ARPVersion"),
+                AICLI_TraceLoggingStringView(m_summary.ARPPublisher, "ARPPublisher"),
+                AICLI_TraceLoggingStringView(m_summary.DOUrl, "DOUrl"),
+                TraceLoggingHResult(m_summary.DOHResult, "DOHResult"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+    }
+
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
         return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled;
