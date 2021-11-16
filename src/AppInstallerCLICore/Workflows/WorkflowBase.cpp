@@ -247,7 +247,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException("wil::ResultException", re.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeResultException, re.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(re) << std::endl;
@@ -256,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const winrt::hresult_error& hre)
         {
             std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException("winrt::hresult_error", message);
+            Logging::Telemetry().LogException(Logging::FailureTypeWinrtHResultError, message);
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 message << std::endl;
@@ -270,13 +270,13 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const Resource::ResourceOpenException& e)
         {
-            Logging::Telemetry().LogException("ResourceOpenException", e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeResourceOpen, e.what());
             context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
             return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
         }
         catch (const std::exception& e)
         {
-            Logging::Telemetry().LogException("std::exception", e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeStdException, e.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(e) << std::endl;
@@ -285,7 +285,7 @@ namespace AppInstaller::CLI::Workflow
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException("unknown", {});
+            Logging::Telemetry().LogException(Logging::FailureTypeUnknown, {});
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;

@@ -15,6 +15,109 @@ namespace AppInstaller::Settings
 
 namespace AppInstaller::Logging
 {
+    static constexpr UINT32 FailureTypeNone = 0;
+    // Failure type from FailureInfo in result_macros.h
+    static constexpr UINT32 FailureTypeResultException = 1; // THROW_...
+    static constexpr UINT32 FailureTypeResultReturn = 2; // RETURN_..._LOG or RETURN_..._MSG
+    static constexpr UINT32 FailureTypeResultLog = 3; // LOG_...
+    static constexpr UINT32 FailureTypeResultFailFast = 4; // FAIL_FAST_...
+    // Other failure types from LogException()
+    static constexpr UINT32 FailureTypeWinrtHResultError = 101;
+    static constexpr UINT32 FailureTypeResourceOpen = 102;
+    static constexpr UINT32 FailureTypeStdException = 103;
+    static constexpr UINT32 FailureTypeUnknown = 104;
+
+    // Contains all fields logged through the TelemetryTraceLogger. Last write wins.
+    // This will be used to report a summary event upon destruction of the TelemetryTraceLogger.
+    struct TelemetrySummary
+    {
+        // Log wil failure, exception
+        HRESULT FailureHResult = S_OK;
+        std::wstring FailureMessage;
+        std::string FailureModule;
+        UINT32 FailureThreadId = 0;
+        UINT32 FailureType = FailureTypeNone;
+        std::string FailureFile;
+        UINT32 FailureLine = 0;
+
+        // LogCommandTermination
+        HRESULT CommandTerminationHResult = S_OK;
+        std::string CommandTerminationFile;
+        UINT32 CommandTerminationLine = 0;
+
+        // LogStartup
+        bool IsCOMCall = false;
+
+        // LogCommand
+        std::string Command;
+
+        // LogCommandSuccess
+        bool CommandSuccess = false;
+
+        // LogIsManifestLocal
+        bool IsManifestLocal = false;
+
+        // LogManifestFields, LogAppFound
+        std::string PackageIdentifier;
+        std::string PackageName;
+        std::string PackageVersion;
+        std::string Channel;
+        std::string SourceIdentifier;
+
+        // LogNoAppMatch
+        bool NoAppMatch = false;
+
+        // LogMultipleAppMatch
+        bool MultipleAppMatch = false;
+
+        // LogSelectedInstaller
+        INT32 InstallerArchitecture = -1;
+        std::string InstallerUrl;
+        std::string InstallerType;
+        std::string InstallerScope;
+        std::string InstallerLocale;
+
+        // LogSearchRequest
+        std::string SearchType;
+        std::string SearchQuery;
+        std::string SearchId;
+        std::string SearchName;
+        std::string SearchMoniker;
+        std::string SearchTag;
+        std::string SearchCommand;
+        UINT64 SearchMaximum = 0;
+        std::string SearchRequest;
+
+        // LogSearchResultCount
+        UINT64 SearchResultCount = 0;
+
+        // LogInstallerHashMismatch
+        std::vector<uint8_t> HashMismatchExpected;
+        std::vector<uint8_t> HashMismatchActual;
+        bool HashMismatchOverride = false;
+
+        // LogInstallerFailure
+        std::string InstallerExecutionType;
+        UINT32 InstallerErrorCode = 0;
+
+        // LogUninstallerFailure
+        std::string UninstallerExecutionType;
+        UINT32 UninstallerErrorCode = 0;
+
+        // LogSuccessfulInstallARPChange
+        UINT64 ChangesToARP = 0;
+        UINT64 MatchesInARP = 0;
+        UINT64 ChangesThatMatch = 0;
+        UINT64 ARPLanguage = 0;
+        std::string ARPName;
+        std::string ARPVersion;
+        std::string ARPPublisher;
+
+        // LogNonFatalDOError
+        std::string DOUrl;
+        HRESULT DOHResult = S_OK;
+    };
+
     // This type contains the registration lifetime of the telemetry trace logging provider.
     // Due to the nature of trace logging, specific methods should be added per desired trace.
     // As there should not be a significantly large number of individual telemetry events,
@@ -73,7 +176,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view type, std::string_view message) const noexcept;
+        void LogException(UINT32 type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;
@@ -167,6 +270,8 @@ namespace AppInstaller::Logging
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
 
+        mutable TelemetrySummary m_summary;
+
         // TODO: This and all related code could be removed after transition to summary event in back end.
         uint32_t m_subExecutionId;
     };
@@ -176,6 +281,9 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
+
+    // TODO: Temporary code to keep existing telemetry behavior for command execution cases.
+    void UseGlobalTelemetryLoggerActivityIdOnly();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.
