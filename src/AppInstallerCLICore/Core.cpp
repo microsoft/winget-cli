@@ -9,6 +9,9 @@
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
 
+// TEMP: DEBUGGING
+#include <winget/Debugging.h>
+
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
 using namespace AppInstaller::CLI;
@@ -46,6 +49,9 @@ namespace AppInstaller::CLI
     int CoreMain(int argc, wchar_t const** argv) try
     {
         init_apartment();
+
+        // TEMP
+        Debugging::EnableSelfInitiatedMinidump();
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
