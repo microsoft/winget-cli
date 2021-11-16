@@ -111,6 +111,13 @@ jobs:
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
+  - task: PublishBuildArtifacts@1
+    displayName: Publish WindowsPackageManager.dll Symbols
+    inputs:
+      PathtoPublish: 'src\x64\Release\WindowsPackageManager\WindowsPackageManager.pdb'
+      ArtifactName: 'WindowsPackageManager.pdb'
+      publishLocation: 'Container'
+
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
