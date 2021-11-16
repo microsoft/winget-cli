@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Execution
     {
         // Callback function used by worker threads in the queue.
         // context must be a pointer to a queue item.
-        void OrchestratorQueueWorkCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK)
+        void CALLBACK OrchestratorQueueWorkCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK)
         {
             auto queueItem = reinterpret_cast<OrchestratorQueueItem*>(context);
             auto queue = queueItem->GetCurrentQueue();
