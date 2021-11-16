@@ -4,6 +4,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using Microsoft.Win32;
+    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using System;
     using System.IO;
@@ -97,6 +98,8 @@ namespace AppInstallerCLIE2ETests
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();
+
+            EnableWingetSelfInitiatedMinidump(true);
         }
 
         [OneTimeTearDown]
@@ -193,6 +196,30 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
+        }
+
+        private void EnableWingetSelfInitiatedMinidump(bool enabled)
+        {
+            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
+            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
+            JObject debugging = (JObject)settingsJson["debugging"];
+
+            if (debugging == null)
+            {
+                settingsJson["debugging"] = JObject.FromObject(new
+                {
+                    debugging = new
+                    {
+                        enableSelfInitiatedMinidump = enabled
+                    }
+                });
+            }
+            else
+            {
+                debugging["enableSelfInitiatedMinidump"] = enabled;
+            }
+
+            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
         }
     }
 }

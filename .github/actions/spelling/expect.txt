@@ -88,6 +88,7 @@ ctc
 Ctx
 curated
 CYRL
+Dbg
 debian
 deigh
 deleteifnotneeded
@@ -212,10 +213,12 @@ lw
 lz
 malware
 MBH
+mdmp
 megamorf
 memcpy
 middleware
 midl
+minidump
 minexample
 minschema
 missingdependency

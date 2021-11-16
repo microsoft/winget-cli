@@ -34,6 +34,15 @@ namespace AppInstallerCLIE2ETests
         
         public static string PackageCertificatePath { get; set; }
 
+        public static string SettingsJsonFilePath {
+            get
+            {
+                return PackagedContext ?
+                    @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
+                    @"Microsoft\WinGet\Settings\settings.json";
+            }
+        }
+
         public struct RunCommandResult
         {
             public int ExitCode;

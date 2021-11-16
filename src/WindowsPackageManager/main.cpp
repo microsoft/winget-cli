@@ -20,6 +20,7 @@ extern "C"
 {
     int WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerCLIMain(int argc, wchar_t const** argv) try
     {
+        ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::Create();
         return AppInstaller::CLI::CoreMain(argc, argv);
     }
     CATCH_RETURN();

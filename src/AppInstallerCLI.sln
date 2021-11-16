@@ -144,16 +144,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinGetUtilInterop.UnitTests
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsPackageManager", "WindowsPackageManager\WindowsPackageManager.vcxproj", "{2046B5AF-666D-4CE8-8D3E-C32C57908A56}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMServer.vcxitems", "{409CD681-22A4-469D-88AE-CB5E4836E07A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
+		COMServer\COMServer.vcxitems*{1cc41a9a-ae66-459d-9210-1e572dd7be69}*SharedItemsImports = 4
 		binver\binver.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
+		COMServer\COMServer.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
 		ManifestSchema\ManifestSchema.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{358bc478-0624-4ad1-a933-0422b5292af8}*SharedItemsImports = 9
+		COMServer\COMServer.vcxitems*{409cd681-22a4-469d-88ae-cb5e4836e07a}*SharedItemsImports = 9
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
+		COMServer\COMServer.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		ManifestSchema\ManifestSchema.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		binver\binver.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
@@ -1019,6 +1025,7 @@ Global
 		{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
+		{409CD681-22A4-469D-88AE-CB5E4836E07A} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}
