@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #define AICLI_LOG(_channel_,_level_,_outstream_) \
@@ -171,12 +172,6 @@ namespace AppInstaller::Logging
     {
         // Force use of the UTF-8 string from a file path.
         // This should not be necessary when we move to C++20 and convert to using u8string.
-        friend AppInstaller::Logging::LoggingStream& operator<<(AppInstaller::Logging::LoggingStream& out, std::filesystem::path& path)
-        {
-            out.m_out << path.u8string();
-            return out;
-        }
-
         friend AppInstaller::Logging::LoggingStream& operator<<(AppInstaller::Logging::LoggingStream& out, const std::filesystem::path& path)
         {
             out.m_out << path.u8string();
@@ -185,7 +180,8 @@ namespace AppInstaller::Logging
 
         // Everything else.
         template <typename T>
-        friend AppInstaller::Logging::LoggingStream& operator<<(AppInstaller::Logging::LoggingStream& out, T&& t)
+        friend std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::filesystem::path>, AppInstaller::Logging::LoggingStream&>
+            operator<<(AppInstaller::Logging::LoggingStream& out, T&& t)
         {
             out.m_out << std::forward<T>(t);
             return out;
