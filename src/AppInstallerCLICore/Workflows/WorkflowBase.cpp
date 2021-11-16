@@ -1039,7 +1039,7 @@ namespace AppInstaller::CLI::Workflow
         // If we cannot find a package using PackageFamilyName or ProductId, try manifest Id and Name pair
         SearchRequest searchRequest;
         searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
-        // In case there're same Ids from different sources, filter the result using package name
+        // In case there are same Ids from different sources, filter the result using package name
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>()));
 
         context.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
