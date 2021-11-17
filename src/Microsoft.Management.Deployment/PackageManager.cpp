@@ -585,5 +585,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetInstallOperation(canCancelQueueItem, std::move(queueItem));
     }
 
-    CoCreatableCppWinRtClass(PackageManager);
+    CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }

@@ -22,7 +22,7 @@
     <Resource Language="x-generate" />
   </Resources>
   <Applications>
-    <Application Id="WinGetDev" Executable="AppInstallerCLI\AppInstallerCLI.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="WinGetDev" Executable="AppInstallerCLI\winget.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements DisplayName="WinGet Dev Client" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet dev client." BackgroundColor="#0078d7" AppListEntry="none" />
       <Extensions>
         <uap3:Extension Category="windows.appExtensionHost">

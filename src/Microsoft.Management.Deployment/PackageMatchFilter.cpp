@@ -12,6 +12,7 @@
 #include "PackageMatchFilter.h"
 #pragma warning( pop )
 #include "PackageMatchFilter.g.cpp"
+#include "Helpers.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -45,5 +46,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_value = value;
     }
-    CoCreatableCppWinRtClass(PackageMatchFilter);
+
+    CoCreatableMicrosoftManagementDeploymentClass(PackageMatchFilter);
 }

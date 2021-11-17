@@ -34,6 +34,15 @@ namespace AppInstallerCLIE2ETests
         
         public static string PackageCertificatePath { get; set; }
 
+        public static string SettingsJsonFilePath {
+            get
+            {
+                return PackagedContext ?
+                    @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
+                    @"Microsoft\WinGet\Settings\settings.json";
+            }
+        }
+
         public struct RunCommandResult
         {
             public int ExitCode;
@@ -103,7 +112,7 @@ namespace AppInstallerCLIE2ETests
             }
             else
             {
-                throw new TimeoutException("Command run timed out.");
+                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
             }
 
             return result;
@@ -155,7 +164,7 @@ namespace AppInstallerCLIE2ETests
 
             if (waitedTime >= timeOut)
             {
-                throw new TimeoutException("Command run timed out.");
+                throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
             }
 
             RunCommandResult result = new RunCommandResult();

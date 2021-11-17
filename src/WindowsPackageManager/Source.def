@@ -1,0 +1,7 @@
+LIBRARY     WindowsPackageManager
+EXPORTS
+    WindowsPackageManagerCLIMain
+    WindowsPackageManagerServerInitialize
+    WindowsPackageManagerServerModuleCreate
+    WindowsPackageManagerServerModuleRegister
+    WindowsPackageManagerServerModuleUnregister

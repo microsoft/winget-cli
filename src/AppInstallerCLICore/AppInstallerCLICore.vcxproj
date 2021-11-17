@@ -239,7 +239,6 @@
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
-    <ClInclude Include="COMContext.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMInstallCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
@@ -260,6 +259,7 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ContextOrchestrator.h" />
+    <ClInclude Include="Public\COMContext.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContextData.h" />
