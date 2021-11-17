@@ -59,8 +59,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <rapidjson/document.h>
-
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/constraints/concrete_constraints.hpp>
 #include <valijson/utils/rapidjson_utils.hpp>

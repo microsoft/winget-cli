@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace valijson {
@@ -25,21 +26,6 @@ public:
      */
     struct Error
     {
-        /**
-         * @brief  Construct an Error object with no context or description.
-         */
-        Error() { }
-
-        /**
-         * @brief  Construct an Error object using a context and description.
-         *
-         * @param  context      Context string to use
-         * @param  description  Description string to use
-         */
-        Error(const std::vector<std::string> &context, const std::string &description)
-          : context(context),
-            description(description) { }
-
         /// Path to the node that failed validation.
         std::vector<std::string> context;
 
@@ -52,7 +38,7 @@ public:
      */
     std::deque<Error>::const_iterator begin() const
     {
-        return errors.begin();
+        return m_errors.begin();
     }
 
     /**
@@ -60,7 +46,7 @@ public:
      */
     std::deque<Error>::const_iterator end() const
     {
-        return errors.end();
+        return m_errors.end();
     }
 
     /**
@@ -68,7 +54,7 @@ public:
      */
     size_t numErrors() const
     {
-        return errors.size();
+        return m_errors.size();
     }
 
     /**
@@ -78,7 +64,7 @@ public:
      */
     void pushError(const Error &error)
     {
-        errors.push_back(error);
+        m_errors.push_back(error);
     }
 
     /**
@@ -90,7 +76,7 @@ public:
     void
     pushError(const std::vector<std::string> &context, const std::string &description)
     {
-        errors.push_back(Error(context, description));
+        m_errors.push_back({context, description});
     }
 
     /**
@@ -103,20 +89,19 @@ public:
     bool
     popError(Error &error)
     {
-        if (errors.empty()) {
+        if (m_errors.empty()) {
             return false;
         }
 
-        error = errors.front();
-        errors.pop_front();
+        error = m_errors.front();
+        m_errors.pop_front();
         return true;
     }
 
 private:
 
     /// FIFO queue of validation errors that have been reported
-    std::deque<Error> errors;
-
+    std::deque<Error> m_errors;
 };
 
 } // namespace valijson

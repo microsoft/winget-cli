@@ -7,8 +7,6 @@
 
 #include <iostream>
 
-#include <rapidjson/document.h>
-
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/internal/json_pointer.hpp>
 #include <valijson/internal/json_reference.hpp>

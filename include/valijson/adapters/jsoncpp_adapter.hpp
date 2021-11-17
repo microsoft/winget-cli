@@ -34,6 +34,7 @@
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/adapters/basic_adapter.hpp>
 #include <valijson/adapters/frozen_value.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {
@@ -64,7 +65,7 @@ public:
 
     /// Construct a JsonCppArray referencing an empty array.
     JsonCppArray()
-      : value(emptyArray()) { }
+      : m_value(emptyArray()) { }
 
     /**
      * @brief   Construct a JsonCppArray referencing a specific JsonCpp value.
@@ -75,10 +76,10 @@ public:
      * an array.
      */
     JsonCppArray(const Json::Value &value)
-      : value(value)
+      : m_value(value)
     {
         if (!value.isArray()) {
-            throw std::runtime_error("Value is not an array.");
+            throwRuntimeError("Value is not an array.");
         }
     }
 
@@ -101,7 +102,7 @@ public:
     /// Return the number of elements in the array.
     size_t size() const
     {
-        return value.size();
+        return m_value.size();
     }
 
 private:
@@ -118,7 +119,7 @@ private:
     }
 
     /// Reference to the contained array
-    const Json::Value &value;
+    const Json::Value &m_value;
 
 };
 
@@ -142,7 +143,7 @@ public:
 
     /// Construct a JsonCppObject referencing an empty object singleton.
     JsonCppObject()
-      : value(emptyObject()) { }
+      : m_value(emptyObject()) { }
 
     /**
      * @brief   Construct a JsonCppObject referencing a specific JsonCpp value.
@@ -153,10 +154,10 @@ public:
      * an object.
      */
     JsonCppObject(const Json::Value &value)
-      : value(value)
+      : m_value(value)
     {
         if (!value.isObject()) {
-            throw std::runtime_error("Value is not an object.");
+            throwRuntimeError("Value is not an object.");
         }
     }
 
@@ -189,7 +190,7 @@ public:
     /// Return the number of members in the object
     size_t size() const
     {
-        return value.size();
+        return m_value.size();
     }
 
 private:
@@ -202,7 +203,7 @@ private:
     }
 
     /// Reference to the contained object
-    const Json::Value &value;
+    const Json::Value &m_value;
 };
 
 /**
@@ -224,19 +225,19 @@ public:
      * @param  source  the JsonCpp value to be copied
      */
     explicit JsonCppFrozenValue(const Json::Value &source)
-      : value(source) { }
+      : m_value(source) { }
 
-    virtual FrozenValue * clone() const
+    FrozenValue * clone() const override
     {
-        return new JsonCppFrozenValue(value);
+        return new JsonCppFrozenValue(m_value);
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const;
+    bool equalTo(const Adapter &other, bool strict) const override;
 
 private:
 
     /// Stored JsonCpp value
-    Json::Value value;
+    Json::Value m_value;
 };
 
 /**
@@ -259,11 +260,11 @@ public:
 
     /// Construct a wrapper for the empty object singleton
     JsonCppValue()
-      : value(emptyObject()) { }
+      : m_value(emptyObject()) { }
 
     /// Construct a wrapper for a specific JsonCpp value
     JsonCppValue(const Json::Value &value)
-      : value(value) { }
+      : m_value(value) { }
 
     /**
      * @brief   Create a new JsonCppFrozenValue instance that contains the
@@ -274,7 +275,7 @@ public:
      */
     FrozenValue * freeze() const
     {
-        return new JsonCppFrozenValue(value);
+        return new JsonCppFrozenValue(m_value);
     }
 
     /**
@@ -288,11 +289,11 @@ public:
      */
     opt::optional<JsonCppArray> getArrayOptional() const
     {
-        if (value.isArray()) {
-            return opt::make_optional(JsonCppArray(value));
+        if (m_value.isArray()) {
+            return opt::make_optional(JsonCppArray(m_value));
         }
 
-        return opt::optional<JsonCppArray>();
+        return {};
     }
 
     /**
@@ -308,8 +309,8 @@ public:
      */
     bool getArraySize(size_t &result) const
     {
-        if (value.isArray()) {
-            result = value.size();
+        if (m_value.isArray()) {
+            result = m_value.size();
             return true;
         }
 
@@ -318,8 +319,8 @@ public:
 
     bool getBool(bool &result) const
     {
-        if (value.isBool()) {
-            result = value.asBool();
+        if (m_value.isBool()) {
+            result = m_value.asBool();
             return true;
         }
 
@@ -328,8 +329,8 @@ public:
 
     bool getDouble(double &result) const
     {
-        if (value.isDouble()) {
-            result = value.asDouble();
+        if (m_value.isDouble()) {
+            result = m_value.asDouble();
             return true;
         }
 
@@ -338,8 +339,8 @@ public:
 
     bool getInteger(int64_t &result) const
     {
-        if (value.isIntegral()) {
-            result = static_cast<int64_t>(value.asInt());
+        if (m_value.isIntegral()) {
+            result = static_cast<int64_t>(m_value.asInt());
             return true;
         }
 
@@ -357,11 +358,11 @@ public:
      */
     opt::optional<JsonCppObject> getObjectOptional() const
     {
-        if (value.isObject()) {
-            return opt::make_optional(JsonCppObject(value));
+        if (m_value.isObject()) {
+            return opt::make_optional(JsonCppObject(m_value));
         }
 
-        return opt::optional<JsonCppObject>();
+        return {};
     }
 
     /**
@@ -377,8 +378,8 @@ public:
      */
     bool getObjectSize(size_t &result) const
     {
-        if (value.isObject()) {
-            result = value.size();
+        if (m_value.isObject()) {
+            result = m_value.size();
             return true;
         }
 
@@ -387,8 +388,8 @@ public:
 
     bool getString(std::string &result) const
     {
-        if (value.isString()) {
-            result = value.asString();
+        if (m_value.isString()) {
+            result = m_value.asString();
             return true;
         }
 
@@ -402,42 +403,42 @@ public:
 
     bool isArray() const
     {
-        return value.isArray() && !value.isNull();
+        return m_value.isArray() && !m_value.isNull();
     }
 
     bool isBool() const
     {
-        return value.isBool();
+        return m_value.isBool();
     }
 
     bool isDouble() const
     {
-        return value.isDouble();
+        return m_value.isDouble();
     }
 
     bool isInteger() const
     {
-        return value.isIntegral() && !value.isBool();
+        return m_value.isIntegral() && !m_value.isBool();
     }
 
     bool isNull() const
     {
-        return value.isNull();
+        return m_value.isNull();
     }
 
     bool isNumber() const
     {
-        return value.isNumeric()  && !value.isBool();
+        return m_value.isNumeric()  && !m_value.isBool();
     }
 
     bool isObject() const
     {
-        return value.isObject() && !value.isNull();
+        return m_value.isObject() && !m_value.isNull();
     }
 
     bool isString() const
     {
-        return value.isString();
+        return m_value.isString();
     }
 
 private:
@@ -450,7 +451,7 @@ private:
     }
 
     /// Reference to the contained JsonCpp value
-    const Json::Value &value;
+    const Json::Value &m_value;
 };
 
 /**
@@ -489,13 +490,14 @@ public:
  *
  * @see JsonCppArray
  */
-class JsonCppArrayValueIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,     // bi-directional iterator
-        JsonCppAdapter>                      // value type
+class JsonCppArrayValueIterator
 {
-
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = JsonCppAdapter;
+    using difference_type = JsonCppAdapter;
+    using pointer = JsonCppAdapter*;
+    using reference = JsonCppAdapter&;
 
     /**
      * @brief   Construct a new JsonCppArrayValueIterator using an existing
@@ -504,12 +506,12 @@ public:
      * @param   itr  JsonCpp iterator to store
      */
     JsonCppArrayValueIterator(const Json::Value::const_iterator &itr)
-      : itr(itr) { }
+      : m_itr(itr) { }
 
     /// Returns a JsonCppAdapter that contains the value of the current element.
     JsonCppAdapter operator*() const
     {
-        return JsonCppAdapter(*itr);
+        return JsonCppAdapter(*m_itr);
     }
 
     DerefProxy<JsonCppAdapter> operator->() const
@@ -530,31 +532,31 @@ public:
      */
     bool operator==(const JsonCppArrayValueIterator &rhs) const
     {
-        return itr == rhs.itr;
+        return m_itr == rhs.m_itr;
     }
 
     bool operator!=(const JsonCppArrayValueIterator &rhs) const
     {
-        return !(itr == rhs.itr);
+        return !(m_itr == rhs.m_itr);
     }
 
     JsonCppArrayValueIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     JsonCppArrayValueIterator operator++(int)
     {
-        JsonCppArrayValueIterator iterator_pre(itr);
+        JsonCppArrayValueIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     JsonCppArrayValueIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
@@ -563,18 +565,18 @@ public:
     {
         if (n > 0) {
             while (n-- > 0) {
-                itr++;
+                m_itr++;
             }
         } else {
             while (n++ < 0) {
-                itr--;
+                m_itr--;
             }
         }
     }
 
 private:
 
-    Json::Value::const_iterator itr;
+    Json::Value::const_iterator m_itr;
 };
 
 /**
@@ -587,12 +589,14 @@ private:
  * @see JsonCppObject
  * @see JsonCppObjectMember
  */
-class JsonCppObjectMemberIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,     // bi-directional iterator
-        JsonCppObjectMember>                 // value type
+class JsonCppObjectMemberIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = JsonCppObjectMember;
+    using difference_type = JsonCppObjectMember;
+    using pointer = JsonCppObjectMember*;
+    using reference = JsonCppObjectMember&;
 
     /**
      * @brief   Construct an iterator from a JsonCpp iterator.
@@ -600,7 +604,7 @@ public:
      * @param   itr  JsonCpp iterator to store
      */
     JsonCppObjectMemberIterator(const Json::ValueConstIterator &itr)
-      : itr(itr) { }
+      : m_itr(itr) { }
 
     /**
      * @brief   Returns a JsonCppObjectMember that contains the key and value
@@ -608,7 +612,7 @@ public:
      */
     JsonCppObjectMember operator*() const
     {
-        return JsonCppObjectMember(itr.key().asString(), *itr);
+        return JsonCppObjectMember(m_itr.key().asString(), *m_itr);
     }
 
     DerefProxy<JsonCppObjectMember> operator->() const
@@ -629,31 +633,31 @@ public:
      */
     bool operator==(const JsonCppObjectMemberIterator &rhs) const
     {
-        return itr == rhs.itr;
+        return m_itr == rhs.m_itr;
     }
 
     bool operator!=(const JsonCppObjectMemberIterator &rhs) const
     {
-        return !(itr == rhs.itr);
+        return !(m_itr == rhs.m_itr);
     }
 
     const JsonCppObjectMemberIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     JsonCppObjectMemberIterator operator++(int)
     {
-        JsonCppObjectMemberIterator iterator_pre(itr);
+        JsonCppObjectMemberIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     JsonCppObjectMemberIterator operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
@@ -661,7 +665,7 @@ public:
 private:
 
     /// Iternal copy of the original JsonCpp iterator
-    Json::ValueConstIterator itr;
+    Json::ValueConstIterator m_itr;
 };
 
 /// Specialisation of the AdapterTraits template struct for JsonCppAdapter.
@@ -678,42 +682,42 @@ struct AdapterTraits<valijson::adapters::JsonCppAdapter>
 
 inline bool JsonCppFrozenValue::equalTo(const Adapter &other, bool strict) const
 {
-    return JsonCppAdapter(value).equalTo(other, strict);
+    return JsonCppAdapter(m_value).equalTo(other, strict);
 }
 
 inline JsonCppArrayValueIterator JsonCppArray::begin() const
 {
-    return value.begin();
+    return m_value.begin();
 }
 
 inline JsonCppArrayValueIterator JsonCppArray::end() const
 {
-    return value.end();
+    return m_value.end();
 }
 
 inline JsonCppObjectMemberIterator JsonCppObject::begin() const
 {
-    return value.begin();
+    return m_value.begin();
 }
 
 inline JsonCppObjectMemberIterator JsonCppObject::end() const
 {
-    return value.end();
+    return m_value.end();
 }
 
 inline JsonCppObjectMemberIterator JsonCppObject::find(
     const std::string &propertyName) const
 {
-    if (value.isMember(propertyName)) {
+    if (m_value.isMember(propertyName)) {
         Json::ValueConstIterator itr;
-        for (itr = value.begin(); itr != value.end(); ++itr) {
+        for (itr = m_value.begin(); itr != m_value.end(); ++itr) {
             if (itr.key() == propertyName) {
                 return itr;
             }
         }
     }
 
-    return value.end();
+    return m_value.end();
 }
 
 }  // namespace adapters

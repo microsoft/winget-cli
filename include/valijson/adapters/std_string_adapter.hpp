@@ -19,6 +19,7 @@
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/adapters/frozen_value.hpp>
 #include <valijson/adapters/basic_adapter.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {
@@ -35,13 +36,13 @@ public:
     typedef StdStringArrayValueIterator const_iterator;
     typedef StdStringArrayValueIterator iterator;
 
-    StdStringArray() { }
+    StdStringArray() = default;
 
     StdStringArrayValueIterator begin() const;
 
     StdStringArrayValueIterator end() const;
 
-    size_t size() const
+    static size_t size()
     {
         return 0;
     }
@@ -53,7 +54,7 @@ public:
     typedef StdStringObjectMemberIterator const_iterator;
     typedef StdStringObjectMemberIterator iterator;
 
-    StdStringObject() { }
+    StdStringObject() = default;
 
     StdStringObjectMemberIterator begin() const;
 
@@ -61,7 +62,7 @@ public:
 
     StdStringObjectMemberIterator find(const std::string &propertyName) const;
 
-    size_t size() const
+    static size_t size()
     {
         return 0;
     }
@@ -70,15 +71,15 @@ public:
 class StdStringFrozenValue: public FrozenValue
 {
 public:
-    explicit StdStringFrozenValue(const std::string &source)
-      : value(source) { }
+    explicit StdStringFrozenValue(std::string source)
+      : value(std::move(source)) { }
 
-    virtual FrozenValue * clone() const
+    FrozenValue * clone() const override
     {
         return new StdStringFrozenValue(value);
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const;
+    bool equalTo(const Adapter &other, bool strict) const override;
 
 private:
     std::string value;
@@ -91,15 +92,15 @@ public:
     typedef StdStringObject Object;
     typedef StdStringObjectMember ObjectMember;
 
-    StdStringAdapter(const std::string &value)
-      : value(value) { }
+    explicit StdStringAdapter(const std::string &value)
+      : m_value(value) { }
 
-    virtual bool applyToArray(ArrayValueCallback fn) const
+    bool applyToArray(ArrayValueCallback) const override
     {
         return maybeArray();
     }
 
-    virtual bool applyToObject(ObjectMemberCallback fn) const
+    bool applyToObject(ObjectMemberCallback) const override
     {
         return maybeObject();
     }
@@ -107,40 +108,40 @@ public:
     StdStringArray asArray() const
     {
         if (maybeArray()) {
-            return StdStringArray();
+            return {};
         }
 
-        throw std::runtime_error("String value cannot be cast to array");
+        throwRuntimeError("String value cannot be cast to array");
     }
 
-    virtual bool asBool() const
+    bool asBool() const override
     {
         return true;
     }
 
-    virtual bool asBool(bool &result) const
+    bool asBool(bool &result) const override
     {
         result = true;
         return true;
     }
 
-    virtual double asDouble() const
+    double asDouble() const override
     {
         return 0;
     }
 
-    virtual bool asDouble(double &result) const
+    bool asDouble(double &result) const override
     {
         result = 0;
         return true;
     }
 
-    virtual int64_t asInteger() const
+    int64_t asInteger() const override
     {
         return 0;
     }
 
-    virtual bool asInteger(int64_t &result) const
+    bool asInteger(int64_t &result) const override
     {
         result = 0;
         return true;
@@ -149,179 +150,179 @@ public:
     StdStringObject asObject() const
     {
         if (maybeObject()) {
-            return StdStringObject();
+            return {};
         }
 
-        throw std::runtime_error("String value cannot be cast to object");
+        throwRuntimeError("String value cannot be cast to object");
     }
 
-    virtual std::string asString() const
+    std::string asString() const override
     {
-        return value;
+        return m_value;
     }
 
-    virtual bool asString(std::string &result) const
+    bool asString(std::string &result) const override
     {
-        result = value;
+        result = m_value;
         return true;
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const
+    bool equalTo(const Adapter &other, bool strict) const override
     {
         if (strict && !other.isString()) {
             return false;
         }
 
-        return value.compare(other.asString()) == 0;
+        return m_value == other.asString();
     }
 
-    virtual FrozenValue* freeze() const
+    FrozenValue* freeze() const override
     {
-        return new StdStringFrozenValue(value);
+        return new StdStringFrozenValue(m_value);
     }
 
-    StdStringArray getArray() const
+    static StdStringArray getArray()
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual size_t getArraySize() const
+    size_t getArraySize() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getArraySize(size_t &result) const
+    bool getArraySize(size_t &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getBool() const
+    bool getBool() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getBool(bool &result) const
+    bool getBool(bool &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual double getDouble() const
+    double getDouble() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getDouble(double &result) const
+    bool getDouble(double &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual int64_t getInteger() const
+    int64_t getInteger() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getInteger(int64_t &result) const
+    bool getInteger(int64_t &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual double getNumber() const
+    double getNumber() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getNumber(double &result) const
+    bool getNumber(double &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual size_t getObjectSize() const
+    size_t getObjectSize() const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual bool getObjectSize(size_t &result) const
+    bool getObjectSize(size_t &) const override
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    virtual std::string getString() const
+    std::string getString() const override
     {
-        return value;
+        return m_value;
     }
 
-    virtual bool getString(std::string &result) const
+    bool getString(std::string &result) const override
     {
-        result = value;
+        result = m_value;
         return true;
     }
 
-    virtual bool hasStrictTypes() const
-    {
-        return true;
-    }
-
-    virtual bool isArray() const
-    {
-        return false;
-    }
-
-    virtual bool isBool() const
-    {
-        return false;
-    }
-
-    virtual bool isDouble() const
-    {
-        return false;
-    }
-
-    virtual bool isInteger() const
-    {
-        return false;
-    }
-
-    virtual bool isNull() const
-    {
-        return false;
-    }
-
-    virtual bool isNumber() const
-    {
-        return false;
-    }
-
-    virtual bool isObject() const
-    {
-        return false;
-    }
-
-    virtual bool isString() const
+    bool hasStrictTypes() const override
     {
         return true;
     }
 
-    virtual bool maybeArray() const
+    bool isArray() const override
     {
         return false;
     }
 
-    virtual bool maybeBool() const
+    bool isBool() const override
     {
-        return value.compare("true") == 0 || value.compare("false") == 0;
+        return false;
     }
 
-    virtual bool maybeDouble() const
+    bool isDouble() const override
     {
-        const char *b = value.c_str();
-        char *e = NULL;
+        return false;
+    }
+
+    bool isInteger() const override
+    {
+        return false;
+    }
+
+    bool isNull() const override
+    {
+        return false;
+    }
+
+    bool isNumber() const override
+    {
+        return false;
+    }
+
+    bool isObject() const override
+    {
+        return false;
+    }
+
+    bool isString() const override
+    {
+        return true;
+    }
+
+    bool maybeArray() const override
+    {
+        return false;
+    }
+
+    bool maybeBool() const override
+    {
+        return m_value == "true" || m_value == "false";
+    }
+
+    bool maybeDouble() const override
+    {
+        const char *b = m_value.c_str();
+        char *e = nullptr;
         strtod(b, &e);
-        return e != b && e == b + value.length();
+        return e != b && e == b + m_value.length();
     }
 
-    virtual bool maybeInteger() const
+    bool maybeInteger() const override
     {
-        std::istringstream i(value);
+        std::istringstream i(m_value);
         int64_t x;
         char c;
         if (!(i >> x) || i.get(c)) {
@@ -331,96 +332,102 @@ public:
         return true;
     }
 
-    virtual bool maybeNull() const
+    bool maybeNull() const override
     {
-        return value.size() == 0;
+        return m_value.empty();
     }
 
-    virtual bool maybeObject() const
+    bool maybeObject() const override
     {
-        return value.size() == 0;
+        return m_value.empty();
     }
 
-    virtual bool maybeString() const
+    bool maybeString() const override
     {
         return true;
     }
 
 private:
-    const std::string &value;
+    const std::string &m_value;
 };
 
-class StdStringArrayValueIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,
-        StdStringAdapter>
+class StdStringArrayValueIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = StdStringAdapter;
+    using difference_type = StdStringAdapter;
+    using pointer = StdStringAdapter*;
+    using reference = StdStringAdapter&;
+
     StdStringAdapter operator*() const
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     DerefProxy<StdStringAdapter> operator->() const
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    bool operator==(const StdStringArrayValueIterator &other) const
+    bool operator==(const StdStringArrayValueIterator &) const
     {
         return true;
     }
 
-    bool operator!=(const StdStringArrayValueIterator &other) const
+    bool operator!=(const StdStringArrayValueIterator &) const
     {
         return false;
     }
 
     const StdStringArrayValueIterator& operator++()
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     StdStringArrayValueIterator operator++(int)
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     const StdStringArrayValueIterator& operator--()
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
-    void advance(std::ptrdiff_t n)
+    void advance(std::ptrdiff_t)
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 };
 
 inline StdStringArrayValueIterator StdStringArray::begin() const
 {
-    return StdStringArrayValueIterator();
+    return {};
 }
 
 inline StdStringArrayValueIterator StdStringArray::end() const
 {
-    return StdStringArrayValueIterator();
+    return {};
 }
 
-class StdStringObjectMemberIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,
-        StdStringObjectMember>
+class StdStringObjectMemberIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = StdStringObjectMember;
+    using difference_type = StdStringObjectMember;
+    using pointer = StdStringObjectMember*;
+    using reference = StdStringObjectMember&;
+
     StdStringObjectMember operator*() const
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     DerefProxy<StdStringObjectMember> operator->() const
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     bool operator==(const StdStringObjectMemberIterator &) const
@@ -435,33 +442,33 @@ public:
 
     const StdStringObjectMemberIterator& operator++()
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     StdStringObjectMemberIterator operator++(int)
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 
     const StdStringObjectMemberIterator& operator--()
     {
-        throw std::runtime_error("Not supported");
+        throwNotSupported();
     }
 };
 
 inline StdStringObjectMemberIterator StdStringObject::begin() const
 {
-    return StdStringObjectMemberIterator();
+    return {};
 }
 
 inline StdStringObjectMemberIterator StdStringObject::end() const
 {
-    return StdStringObjectMemberIterator();
+    return {};
 }
 
-inline StdStringObjectMemberIterator StdStringObject::find(const std::string &propertyName) const
+inline StdStringObjectMemberIterator StdStringObject::find(const std::string &) const
 {
-    return StdStringObjectMemberIterator();
+    return {};
 }
 
 template<>
