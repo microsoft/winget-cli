@@ -95,7 +95,7 @@ ManifestVersion: 1.0.0
 This is not compliant with the actual schema v1.1.0. We need to specify which binary to add in
 PATH env var. Therefore, schema need to be updated to take knowledge of that information.
 
-### Repack ZIP into MSI package
+### Repack uncompressed files into a supported package format
 
 This section need more specifications. There are many tool to repack an MSI package, some expansive and
 some apparently free (Advanced Installer ?).
