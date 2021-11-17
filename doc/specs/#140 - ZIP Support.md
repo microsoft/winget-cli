@@ -102,7 +102,7 @@ some apparently free (Advanced Installer ?).
 
 ## UI/UX Design
 
-One downside of this feature is the MSI repackaging will be executed on client side.
+One downside of this feature is the package will be built on the client side.
 Which mean for each installation the same process will be executed and remain the same for an 
 application x.y.z.
 
