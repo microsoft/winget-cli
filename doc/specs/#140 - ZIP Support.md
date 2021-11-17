@@ -5,7 +5,7 @@ last updated: 2021-11-17
 issue id: 140
 ---
 
-# Spec Title
+# Zip Support
 
 For [#140](https://github.com/microsoft/winget-cli/issues/140)
 
