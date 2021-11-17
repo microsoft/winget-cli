@@ -41,15 +41,9 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
 
 Schema::Version TestPrepareForRead(SQLiteIndex& index)
 {
-    // This will only be called for tests that want to support cross version checks.
-    // Based on the version of the incoming, we only want to generate versions less or equal to it.
-    if (index.GetVersion() == Schema::Version{ 1, 1 })
+    if (index.GetVersion() == Schema::Version{ 1, 2 })
     {
-        // Nothing to do here
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 2 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 });
+        Schema::Version version = GENERATE(Schema::Version{ 1, 2 });
 
         if (version != Schema::Version{ 1, 2 })
         {
@@ -59,7 +53,7 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
     }
     else if (index.GetVersion() == Schema::Version{ 1, 3 })
     {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
+        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
 
         if (version != Schema::Version{ 1, 3 })
         {

@@ -252,7 +252,7 @@ extern "C"
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_SQLITE_INDEX_HANDLE index,
-        WinGetValidateManifestOption validationOption) try
+        WinGetValidateManifestDependenciesOption validationOption) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
@@ -264,10 +264,10 @@ extern "C"
             
             switch (validationOption)
             {
-                case WinGetValidateManifestOption::Default:
+                case WinGetValidateManifestDependenciesOption::DefaultValidation:
                     PackageDependenciesValidation::ValidateManifestDependencies(sqliteIndex, manifest);
                     break;
-                case WinGetValidateManifestOption::ForDelete:
+                case WinGetValidateManifestDependenciesOption::ForDelete:
                     PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(sqliteIndex, manifest);
                     break;
                 default:

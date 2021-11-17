@@ -22,7 +22,12 @@ extern "C"
         Default = 0,
         SchemaValidationOnly = 0x1,
         ErrorOnVerifiedPublisherFields = 0x2,
-        ForDelete = 0x4,
+    };
+
+    enum WinGetValidateManifestDependenciesOption
+    {
+        DefaultValidation = 0,
+        ForDelete = 0x1,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
@@ -110,7 +115,7 @@ extern "C"
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_SQLITE_INDEX_HANDLE index,
-        WinGetValidateManifestOption dependenciesValidationOption);
+        WinGetValidateManifestDependenciesOption dependenciesValidationOption);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(
