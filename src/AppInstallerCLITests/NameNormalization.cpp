@@ -13,11 +13,11 @@ using namespace AppInstaller::Utility;
 // copy the file(s) back to the git managed location to update.
 TEST_CASE("NameNorm_Update_Database_Initial", "[.]")
 {
-    std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt"));
+    std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt").GetPath());
     REQUIRE(namesStream);
-    std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt"));
+    std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt").GetPath());
     REQUIRE(publishersStream);
-    std::ofstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIdsUpdate.txt"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+    std::ofstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIdsUpdate.txt").GetPath(), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
     REQUIRE(resultsStream);
 
     // Far larger than any one value; hopefully
@@ -60,11 +60,11 @@ TEST_CASE("NameNorm_Update_Database_Initial", "[.]")
 // source.
 TEST_CASE("NameNorm_Database_Initial", "[name_norm]")
 {
-    std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt"));
+    std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt").GetPath());
     REQUIRE(namesStream);
-    std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt"));
+    std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt").GetPath());
     REQUIRE(publishersStream);
-    std::ifstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt"));
+    std::ifstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt").GetPath());
     REQUIRE(resultsStream);
 
     // Far larger than any one value; hopefully

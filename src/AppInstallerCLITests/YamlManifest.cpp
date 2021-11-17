@@ -122,7 +122,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 
     // Stream hash
-    std::ifstream stream(manifestFile, std::ios_base::in | std::ios_base::binary);
+    std::ifstream stream(manifestFile.GetPath(), std::ios_base::in | std::ios_base::binary);
     REQUIRE(!stream.fail());
     auto manifestHash = SHA256::ComputeHash(stream);
     REQUIRE(manifestHash.size() == manifest.StreamSha256.size());

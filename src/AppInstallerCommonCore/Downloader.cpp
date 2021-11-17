@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 #include "pch.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
@@ -22,6 +23,9 @@ namespace AppInstaller::Utility
         IProgressCallback& progress,
         bool computeHash)
     {
+        // For AICLI_LOG usages with string literals.
+        #pragma warning(disable:26449)
+
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
@@ -125,6 +129,8 @@ namespace AppInstaller::Utility
         }
 
         AICLI_LOG(Core, Info, << "Download completed.");
+
+        #pragma warning(disable:26449)
 
         return result;
     }
