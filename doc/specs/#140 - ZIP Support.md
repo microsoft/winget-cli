@@ -11,26 +11,26 @@ For [#140](https://github.com/microsoft/winget-cli/issues/140)
 
 ## Abstract
 
-This feature adds to winget-cli the ability to install application delivered through a ZIP archive.
+This feature adds to winget-cli the ability to install application deserved thought a ZIP archive.
 
 ## Inspiration
 
 A bunch of applications are only provided by developer's through a ZIP archive. There are three cases:
-1) The archive contain only one binary that need do to be extracted and add to PATH env var
-2) The archive contain an installer that need to be executed and let do his job
-3) The archive contain a complex hierarchy that need do to be extracted and add specific folder to PATH env var
+1) The archive contains only one binary (a portable / standalone executable).
+2) The archive contains only one supported installer (msix, msi, or exe).
+3) The archive contains more than one file.
 
 ## Solution Design
 
-A new installation flow need to be created to execute different installation strategies regarding these three cases above.
+A new installation flow need to be created to execute different installation strategies regarding the three cases above.
 
-First thing first, the archive need to be extracted in a specific path (TEMP folder can be a good candidate).
+First thing first, the archive needs to be extracted in a specific path (TEMP folder can be a good candidate).
 
-Regarding case 1, installation flow check if TEMP folder contain a single binary and repack it
+Regarding case 1, installation flow check if TEMP folder contain a single binary and repack that binary
 into an MSI package (including setting PATH env var). Then, MSI installation flow can take control.
 
 Regarding case 2, installation flow check if TEMP folder contain an installer (.exe, .msi, .msix) and pass control
-to MSI/Other installation flow.
+to MSI installation flow.
 
 Regarding case 3, installation flow check if TEMP folder does not contain an installer nor a single binary.
 This case is the complex one, example with 'vagrant' hierarchy:
@@ -92,7 +92,7 @@ ManifestType: installer
 ManifestVersion: 1.0.0
 ```
 
-This is not compliant with the actual schema v1.1.0. We need to specify which binary to add into
+This is not compliant with the actual schema v1.1.0. We need to specify which binary to add in
 PATH env var. Therefore, schema need to be updated to take knowledge of that information.
 
 ### Repack ZIP into MSI package
