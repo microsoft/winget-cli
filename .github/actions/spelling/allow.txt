@@ -575,6 +575,7 @@ UNICODESTRING
 uninstall
 uninstalling
 Unregister
+Unregisters
 untimes
 updatemanifest
 UPLEVEL

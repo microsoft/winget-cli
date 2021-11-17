@@ -111,6 +111,13 @@ jobs:
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
+  - task: PublishBuildArtifacts@1
+    displayName: Publish WindowsPackageManager.dll Symbols
+    inputs:
+      PathtoPublish: 'src\x64\Release\WindowsPackageManager\WindowsPackageManager.pdb'
+      ArtifactName: 'WindowsPackageManager.pdb'
+      publishLocation: 'Container'
+
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
@@ -269,6 +276,16 @@ jobs:
       arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
+  - task: CopyFiles@2
+    displayName: 'Copy x64 Files to Package Output'
+    inputs:
+      SourceFolder: '$(system.defaultWorkingDirectory)\src\x64\Release\WindowsPackageManager'
+      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release'
+      Contents: WindowsPackageManager.dll
+      CleanTargetFolder: false
+      OverWrite: true
+    condition: succeededOrFailed()
+
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
     inputs:
@@ -278,7 +295,7 @@ jobs:
       runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
-                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
@@ -293,7 +310,17 @@ jobs:
       PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
       ArtifactName: 'E2ETestPackagedx64Log'
       publishLocation: 'Container'
-    condition: succeededOrFailed()  
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 Files to Package Output'
+    inputs:
+      SourceFolder: '$(system.defaultWorkingDirectory)\src\x86\Release\WindowsPackageManager'
+      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release'
+      Contents: WindowsPackageManager.dll
+      CleanTargetFolder: false
+      OverWrite: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x86
@@ -304,7 +331,7 @@ jobs:
       runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
-                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
@@ -351,13 +378,6 @@ jobs:
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
     condition: succeededOrFailed()
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish CLI Binary
-    inputs:
-      PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
-      ArtifactName: 'AppInstallerCLI.exe'
-      publishLocation: 'Container'
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Util Binary

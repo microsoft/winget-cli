@@ -5,6 +5,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AppInstallerCLIPackage", "AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj", "{6AA3791A-0713-4548-A357-87A323E7AC3A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4BC1F40B-36C2-4BBB-8306-76E490B13BBD} = {4BC1F40B-36C2-4BBB-8306-76E490B13BBD}
+		{2B00D362-AC92-41F3-A8D2-5B1599BDCA01} = {2B00D362-AC92-41F3-A8D2-5B1599BDCA01}
 		{1CC41A9A-AE66-459D-9210-1E572DD7BE69} = {1CC41A9A-AE66-459D-9210-1E572DD7BE69}
 		{5B6F90DF-FD19-4BAE-83D9-24DAD128E777} = {5B6F90DF-FD19-4BAE-83D9-24DAD128E777}
 	EndProjectSection
@@ -141,18 +142,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinGetUtilInterop", "WinGet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinGetUtilInterop.UnitTests", "WinGetUtilInterop.UnitTests\WinGetUtilInterop.UnitTests.csproj", "{68808357-902B-406C-8C19-E8E26A69DE8A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsPackageManager", "WindowsPackageManager\WindowsPackageManager.vcxproj", "{2046B5AF-666D-4CE8-8D3E-C32C57908A56}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMServer.vcxitems", "{409CD681-22A4-469D-88AE-CB5E4836E07A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
+		COMServer\COMServer.vcxitems*{1cc41a9a-ae66-459d-9210-1e572dd7be69}*SharedItemsImports = 4
+		binver\binver.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
+		COMServer\COMServer.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
+		ManifestSchema\ManifestSchema.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
+		WinGetSchemas\WinGetSchemas.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{358bc478-0624-4ad1-a933-0422b5292af8}*SharedItemsImports = 9
+		COMServer\COMServer.vcxitems*{409cd681-22a4-469d-88ae-cb5e4836e07a}*SharedItemsImports = 9
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
+		COMServer\COMServer.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		ManifestSchema\ManifestSchema.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		binver\binver.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
-		ManifestSchema\ManifestSchema.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
-		WinGetSchemas\WinGetSchemas.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
 		binver\binver.vcxitems*{6e36ddd7-1602-474e-b1d7-d0a7e1d5ad86}*SharedItemsImports = 9
 		ManifestSchema\ManifestSchema.vcxitems*{7d05f64d-ce5a-42aa-a2c1-e91458f061cf}*SharedItemsImports = 9
 		catch2\catch2.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
@@ -955,6 +965,44 @@ Global
 		{68808357-902B-406C-8C19-E8E26A69DE8A}.TestRelease|x64.Build.0 = Release|Any CPU
 		{68808357-902B-406C-8C19-E8E26A69DE8A}.TestRelease|x86.ActiveCfg = Release|Any CPU
 		{68808357-902B-406C-8C19-E8E26A69DE8A}.TestRelease|x86.Build.0 = Release|Any CPU
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|ARM.ActiveCfg = Debug|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|ARM.Build.0 = Debug|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|ARM64.Build.0 = Debug|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|x64.ActiveCfg = Debug|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|x64.Build.0 = Debug|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|x86.ActiveCfg = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Debug|x86.Build.0 = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|Any CPU.ActiveCfg = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|Any CPU.Build.0 = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|ARM.ActiveCfg = Debug|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|ARM.Build.0 = Debug|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|ARM64.ActiveCfg = Debug|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|ARM64.Build.0 = Debug|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|x64.ActiveCfg = Debug|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|x64.Build.0 = Debug|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|x86.ActiveCfg = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Fuzzing|x86.Build.0 = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|Any CPU.ActiveCfg = Release|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|ARM.ActiveCfg = Release|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|ARM.Build.0 = Release|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|ARM64.ActiveCfg = Release|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|ARM64.Build.0 = Release|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|x64.ActiveCfg = Release|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|x64.Build.0 = Release|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|x86.ActiveCfg = Release|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.Release|x86.Build.0 = Release|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|Any CPU.ActiveCfg = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|Any CPU.Build.0 = Debug|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|ARM.ActiveCfg = Release|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|ARM.Build.0 = Release|ARM
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|ARM64.ActiveCfg = Release|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|ARM64.Build.0 = Release|ARM64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x64.ActiveCfg = Release|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x64.Build.0 = Release|x64
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x86.ActiveCfg = Release|Win32
+		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -977,6 +1025,7 @@ Global
 		{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
+		{409CD681-22A4-469D-88AE-CB5E4836E07A} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}

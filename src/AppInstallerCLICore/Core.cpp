@@ -7,6 +7,11 @@
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
+#include "COMContext.h"
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <winget/Debugging.h>
+#endif
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -45,6 +50,13 @@ namespace AppInstaller::CLI
     int CoreMain(int argc, wchar_t const** argv) try
     {
         init_apartment();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
@@ -132,5 +144,10 @@ namespace AppInstaller::CLI
     catch (...)
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    void ServerInitialize()
+    {
+        AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }
