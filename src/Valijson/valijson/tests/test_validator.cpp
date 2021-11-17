@@ -1,6 +1,13 @@
+#ifdef _MSC_VER
+#pragma warning(disable: 4706)
 #include <picojson.h>
+#pragma warning(default: 4706)
+#else
+#include <picojson.h>
+#endif
 
 #include <iostream>
+#include <map>
 
 #include <gtest/gtest.h>
 
@@ -16,6 +23,7 @@
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
+#include <valijson/exceptions.hpp>
 
 #ifdef VALIJSON_BUILD_POCO_ADAPTER
 #include <valijson/adapters/poco_json_adapter.hpp>
@@ -35,24 +43,22 @@ using valijson::Validator;
 std::string getRelativePath(const std::string &uri)
 {
    const std::string dummyUri = "http://localhost:1234/";
-   size_t n = uri.find(dummyUri);
-   if (n != std::string::npos) {
+   if (uri.find(dummyUri) != std::string::npos) {
        return REMOTES_DIR + uri.substr(dummyUri.size());
    }
 
-   const std::string v3SchemaUri = "http://json-schema.org/draft-03/schema";
-   n = uri.find(v3SchemaUri);
-   if (n != std::string::npos) {
-       return "../doc/schema/draft-03.json";
+   static const std::map<std::string, std::string> schemaMap = {
+       { "http://json-schema.org/draft-03/schema", "../doc/schema/draft-03.json" },
+       { "http://json-schema.org/draft-04/schema", "../doc/schema/draft-04.json" },
+       { "http://json-schema.org/draft-07/schema", "../doc/schema/draft-07.json" }
+   };
+
+   const auto itr = schemaMap.find(uri);
+   if (itr != schemaMap.end()) {
+       return itr->second;
    }
 
-   const std::string v4SchemaUri = "http://json-schema.org/draft-04/schema";
-   n = uri.find(v4SchemaUri);
-   if (n != std::string::npos) {
-       return "../doc/schema/draft-04.json";
-   }
-
-   throw std::runtime_error("Attempt fetchDoc of " + uri);
+   valijson::throwRuntimeError("Attempt fetchDoc of " + uri);
 }
 
 template<typename AdapterType>
@@ -66,7 +72,7 @@ const typename AdapterTraits<AdapterType>::DocumentType * fetchDocument(
 
    if (!valijson::utils::loadDocument(relativePath, *document)) {
        delete document;
-       throw std::runtime_error("Failed fetchDoc of " + uri);
+       valijson::throwRuntimeError("Failed fetchDoc of " + uri);
    }
 
    return document;
@@ -89,8 +95,9 @@ protected:
         std::string currentTestCase;
         std::string currentTest;
 
+#if VALIJSON_USE_EXCEPTIONS
         try {
-
+#endif
             // Load test document
             typename AdapterTraits<AdapterType>::DocumentType document;
             ASSERT_TRUE( valijson::utils::loadDocument(testFile, document) );
@@ -152,13 +159,14 @@ protected:
                         << AdapterTraits<AdapterType>::adapterName() << "'";
                 }
             }
-
+#if VALIJSON_USE_EXCEPTIONS
         } catch (const std::exception &e) {
             FAIL() << "Exception thrown with message '" << e.what()
                    << "' in '" << currentTest << "' of test case '"
                    << currentTestCase << "' with adapter '"
                    << AdapterTraits<AdapterType>::adapterName() << "'";
         }
+#endif
     }
 
     void processTestFile(const std::string &testFile,
@@ -409,7 +417,10 @@ TEST_F(TestValidator, Draft4_Properties)
 
 // TODO: broken refRemote
 
-// TODO: broken required
+TEST_F(TestValidator, Draft4_Required)
+{
+    processDraft4TestFile(TEST_SUITE_DIR "draft4/required.json");
+}
 
 TEST_F(TestValidator, Draft4_Type)
 {
@@ -461,7 +472,15 @@ TEST_F(TestValidator, Draft7_Contains)
     processDraft7TestFile(TEST_SUITE_DIR "draft7/contains.json");
 }
 
-// TOOD: untested default
+TEST_F(TestValidator, Draft7_Default)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/default.json");
+}
+
+TEST_F(TestValidator, Draft7_Definitions)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/definitions.json");
+}
 
 TEST_F(TestValidator, Draft7_Dependencies)
 {
@@ -503,6 +522,11 @@ TEST_F(TestValidator, Draft7_MaxItems)
     processDraft7TestFile(TEST_SUITE_DIR "draft7/maxItems.json");
 }
 
+TEST_F(TestValidator, Draft7_MaxLength)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/maxLength.json");
+}
+
 TEST_F(TestValidator, Draft7_MaxProperties)
 {
     processDraft7TestFile(TEST_SUITE_DIR "draft7/maxProperties.json");
@@ -516,6 +540,11 @@ TEST_F(TestValidator, Draft7_Minimum)
 TEST_F(TestValidator, Draft7_MinItems)
 {
     processDraft7TestFile(TEST_SUITE_DIR "draft7/minItems.json");
+}
+
+TEST_F(TestValidator, Draft7_MinLength)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/minLength.json");
 }
 
 TEST_F(TestValidator, Draft7_MinProperties)

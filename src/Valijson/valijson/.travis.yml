@@ -57,14 +57,14 @@ before_install:
   - export POCO_OPTS="$POCO_OPTS -DENABLE_MONGODB=off -DENABLE_NET=off -DENABLE_NETSSL=off -DENABLE_PAGECOMPILER=off"
   - export POCO_OPTS="$POCO_OPTS -DENABLE_PAGECOMPILER_FILE2PAGE=off -DENABLE_PDF=off -DENABLE_UTIL=off -DENABLE_XML=off -DENABLE_ZIP=off"
   - cmake -D CMAKE_CXX_COMPILER=`which ${CXX_COMPILER}` -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" -DCMAKE_EXE_LINKER_FLAGS="$CMAKE_EXE_LINKER_FLAGS" $POCO_OPTS  ..
-  - sudo make install
+  - sudo make -j 4 install
   - wget -O curlpp-0.8.1.tar.gz https://github.com/jpbarrette/curlpp/archive/v0.8.1.tar.gz
   - tar -xf curlpp-0.8.1.tar.gz
   - cd curlpp-0.8.1
   - mkdir cmake_build
   - cd cmake_build
   - cmake -D CMAKE_CXX_COMPILER=`which ${CXX_COMPILER}` -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" -DCMAKE_EXE_LINKER_FLAGS="$CMAKE_EXE_LINKER_FLAGS" ..
-  - sudo make install
+  - sudo make -j 4 install
   - popd
 
 script:

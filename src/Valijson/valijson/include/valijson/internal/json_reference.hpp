@@ -20,7 +20,7 @@ namespace json_reference {
 inline opt::optional<std::string> getJsonReferenceUri(
     const std::string &jsonRef)
 {
-    const size_t ptrPos = jsonRef.find("#");
+    const size_t ptrPos = jsonRef.find('#');
     if (ptrPos == 0) {
         // The JSON Reference does not contain a URI, but might contain a
         // JSON Pointer that refers to the current document
@@ -47,7 +47,7 @@ inline opt::optional<std::string> getJsonReferencePointer(
     // Attempt to extract JSON Pointer if '#' character is present. Note
     // that a valid pointer would contain at least a leading forward
     // slash character.
-    const size_t ptrPos = jsonRef.find("#");
+    const size_t ptrPos = jsonRef.find('#');
     if (ptrPos != std::string::npos) {
         return jsonRef.substr(ptrPos + 1);
     }

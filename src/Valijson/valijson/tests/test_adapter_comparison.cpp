@@ -1,4 +1,10 @@
+#ifdef _MSC_VER
+#pragma warning(disable: 4706)
 #include <picojson.h>
+#pragma warning(default: 4706)
+#else
+#include <picojson.h>
+#endif
 
 #include <gtest/gtest.h>
 
@@ -14,14 +20,17 @@
 #include <valijson/utils/picojson_utils.hpp>
 #include <valijson/utils/rapidjson_utils.hpp>
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 #include <valijson/adapters/property_tree_adapter.hpp>
 #include <valijson/utils/property_tree_utils.hpp>
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
 #endif
 
 #ifdef VALIJSON_BUILD_QT_ADAPTER
 #include <valijson/adapters/qtjson_adapter.hpp>
 #include <valijson/utils/qtjson_utils.hpp>
+#include <utility>
 #endif
 
 #ifdef VALIJSON_BUILD_POCO_ADAPTER
@@ -39,19 +48,18 @@ protected:
 
     struct JsonFile
     {
-        JsonFile(const std::string &path, int strictGroup, int looseGroup)
-          : path(path),
-            strictGroup(strictGroup),
-            looseGroup(looseGroup) { }
+        JsonFile(std::string path, int strictGroup, int looseGroup)
+          : m_path(std::move(path)),
+            m_strictGroup(strictGroup),
+            m_looseGroup(looseGroup) { }
 
-        std::string path;
-
-        int strictGroup;
-        int looseGroup;
+        std::string m_path;
+        int m_strictGroup;
+        int m_looseGroup;
     };
 
-    static void SetUpTestCase() {
-
+    static void SetUpTestCase()
+    {
         const std::string testDataDir(TEST_DATA_DIR);
 
         //
@@ -66,17 +74,17 @@ protected:
         // strict types. However, only the first two files in the same strict
         // group, which means that only they should be equal.
         //
-        jsonFiles.push_back(JsonFile(testDataDir + "array_doubles_1_2_3.json",        1,  1));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_integers_1_2_3.json",       1,  1));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_strings_1_2_3.json",        2,  1));
+        jsonFiles.emplace_back(testDataDir + "array_doubles_1_2_3.json",        1,  1);
+        jsonFiles.emplace_back(testDataDir + "array_integers_1_2_3.json",       1,  1);
+        jsonFiles.emplace_back(testDataDir + "array_strings_1_2_3.json",        2,  1);
 
-        jsonFiles.push_back(JsonFile(testDataDir + "array_doubles_1_2_3_4.json",      3,  2));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_integers_1_2_3_4.json",     3,  2));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_strings_1_2_3_4.json",      4,  2));
+        jsonFiles.emplace_back(testDataDir + "array_doubles_1_2_3_4.json",      3,  2);
+        jsonFiles.emplace_back(testDataDir + "array_integers_1_2_3_4.json",     3,  2);
+        jsonFiles.emplace_back(testDataDir + "array_strings_1_2_3_4.json",      4,  2);
 
-        jsonFiles.push_back(JsonFile(testDataDir + "array_doubles_10_20_30_40.json",  5,  3));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_integers_10_20_30_40.json", 5,  3));
-        jsonFiles.push_back(JsonFile(testDataDir + "array_strings_10_20_30_40.json",  6,  3));
+        jsonFiles.emplace_back(testDataDir + "array_doubles_10_20_30_40.json",  5,  3);
+        jsonFiles.emplace_back(testDataDir + "array_integers_10_20_30_40.json", 5,  3);
+        jsonFiles.emplace_back(testDataDir + "array_strings_10_20_30_40.json",  6,  3);
     }
 
     template<typename Adapter1, typename Adapter2>
@@ -87,16 +95,16 @@ protected:
         for(outerItr = jsonFiles.begin(); outerItr != jsonFiles.end() - 1; ++outerItr) {
             for(innerItr = outerItr; innerItr != jsonFiles.end(); ++innerItr) {
 
-                const bool expectedStrict = (outerItr->strictGroup == innerItr->strictGroup);
-                const bool expectedLoose = (outerItr->looseGroup == innerItr->looseGroup);
+                const bool expectedStrict = (outerItr->m_strictGroup == innerItr->m_strictGroup);
+                const bool expectedLoose = (outerItr->m_looseGroup == innerItr->m_looseGroup);
 
                 typename AdapterTraits<Adapter1>::DocumentType document1;
-                ASSERT_TRUE( valijson::utils::loadDocument(outerItr->path, document1) );
+                ASSERT_TRUE( valijson::utils::loadDocument(outerItr->m_path, document1) );
                 const Adapter1 adapter1(document1);
                 const std::string adapter1Name = AdapterTraits<Adapter1>::adapterName();
 
                 typename AdapterTraits<Adapter2>::DocumentType document2;
-                ASSERT_TRUE( valijson::utils::loadDocument(innerItr->path, document2) );
+                ASSERT_TRUE( valijson::utils::loadDocument(innerItr->m_path, document2) );
                 const Adapter2 adapter2(document2);
                 const std::string adapter2Name = AdapterTraits<Adapter2>::adapterName();
 
@@ -107,22 +115,22 @@ protected:
                 // of equality makes sense.
                 if (adapter1.hasStrictTypes() && adapter2.hasStrictTypes() && adapter1Name == adapter2Name) {
                     EXPECT_EQ(expectedStrict, adapter1.equalTo(adapter2, true))
-                        << "Comparing '" << outerItr->path << "' to '"
-                        << innerItr->path << "' "
+                        << "Comparing '" << outerItr->m_path << "' to '"
+                        << innerItr->m_path << "' "
                         << "with strict comparison enabled";
                     EXPECT_EQ(expectedStrict, adapter2.equalTo(adapter1, true))
-                        << "Comparing '" << innerItr->path << "' to '"
-                        << outerItr->path << "' "
+                        << "Comparing '" << innerItr->m_path << "' to '"
+                        << outerItr->m_path << "' "
                         << "with strict comparison enabled";
                 }
 
                 EXPECT_EQ(expectedLoose, adapter1.equalTo(adapter2, false))
-                    << "Comparing '" << outerItr->path << "' to '"
-                    << innerItr->path << "' "
+                    << "Comparing '" << outerItr->m_path << "' to '"
+                    << innerItr->m_path << "' "
                     << "with strict comparison disabled";
                 EXPECT_EQ(expectedLoose, adapter2.equalTo(adapter1, false))
-                    << "Comparing '" << innerItr->path << "' to '"
-                    << outerItr->path << "' "
+                    << "Comparing '" << innerItr->m_path << "' to '"
+                    << outerItr->m_path << "' "
                     << "with strict comparison disabled";
             }
         }
@@ -151,13 +159,20 @@ TEST_F(TestAdapterComparison, JsonCppVsPicoJson)
         valijson::adapters::PicoJsonAdapter>();
 }
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, JsonCppVsPropertyTree)
 {
     testComparison<
         valijson::adapters::JsonCppAdapter,
         valijson::adapters::PropertyTreeAdapter>();
+}
+
+TEST_F(TestAdapterComparison, JsonCppVsBoostJson)
+{
+    testComparison<
+        valijson::adapters::JsonCppAdapter,
+        valijson::adapters::BoostJsonAdapter>();
 }
 
 #endif
@@ -178,11 +193,11 @@ TEST_F(TestAdapterComparison, JsonCppVsRapidJsonCrtAlloc)
             rapidjson::CrtAllocator> > >();
 }
 
+
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 //
 // PropertyTreeAdapter vs X
 // ------------------------------------------------------------------------------------------------
-
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
 
 TEST_F(TestAdapterComparison, PropertyTreeVsPicoJson)
 {
@@ -209,6 +224,40 @@ TEST_F(TestAdapterComparison, PropertyTreeVsRapidJsonCrtAlloc)
 {
     testComparison<
         valijson::adapters::PropertyTreeAdapter,
+        valijson::adapters::GenericRapidJsonAdapter<
+            rapidjson::GenericValue<rapidjson::UTF8<>,
+            rapidjson::CrtAllocator> > >();
+}
+
+//
+// BoostJsonAdapter vs X
+// ------------------------------------------------------------------------------------------------
+
+TEST_F(TestAdapterComparison, BoostJsonVsPicoJson)
+{
+    testComparison<
+        valijson::adapters::BoostJsonAdapter,
+        valijson::adapters::PicoJsonAdapter>();
+}
+
+TEST_F(TestAdapterComparison, BoostJsonVsBoostJson)
+{
+    testComparison<
+        valijson::adapters::BoostJsonAdapter,
+        valijson::adapters::BoostJsonAdapter>();
+}
+
+TEST_F(TestAdapterComparison, BoostJsonVsRapidJson)
+{
+    testComparison<
+        valijson::adapters::BoostJsonAdapter,
+        valijson::adapters::RapidJsonAdapter>();
+}
+
+TEST_F(TestAdapterComparison, BoostJsonVsRapidJsonCrtAlloc)
+{
+    testComparison<
+        valijson::adapters::BoostJsonAdapter,
         valijson::adapters::GenericRapidJsonAdapter<
             rapidjson::GenericValue<rapidjson::UTF8<>,
             rapidjson::CrtAllocator> > >();
@@ -316,7 +365,7 @@ TEST_F(TestAdapterComparison, Json11VsPicoJson)
         valijson::adapters::PicoJsonAdapter>();
 }
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, Json11VsPropertyTree)
 {
@@ -325,7 +374,14 @@ TEST_F(TestAdapterComparison, Json11VsPropertyTree)
         valijson::adapters::PropertyTreeAdapter>();
 }
 
-#endif // VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+TEST_F(TestAdapterComparison, Json11VsBoostJson)
+{
+    testComparison<
+        valijson::adapters::Json11Adapter,
+        valijson::adapters::BoostJsonAdapter>();
+}
+
+#endif // VALIJSON_BUILD_BOOST_ADAPTERS
 
 //
 // NlohmannJsonAdapter vs X
@@ -375,7 +431,7 @@ TEST_F(TestAdapterComparison, NlohmannJsonVsPicoJson)
             valijson::adapters::PicoJsonAdapter>();
 }
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, NlohmannJsonVsPropertyTree)
 {
@@ -384,7 +440,14 @@ TEST_F(TestAdapterComparison, NlohmannJsonVsPropertyTree)
             valijson::adapters::PropertyTreeAdapter>();
 }
 
-#endif // VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+TEST_F(TestAdapterComparison, NlohmannJsonVsBoostJson)
+{
+    testComparison<
+            valijson::adapters::NlohmannJsonAdapter,
+            valijson::adapters::BoostJsonAdapter>();
+}
+
+#endif // VALIJSON_BUILD_BOOST_ADAPTERS
 
 //
 // QtJsonAdapter vs X
@@ -428,7 +491,7 @@ TEST_F(TestAdapterComparison, QtJsonVsPicoJson)
             valijson::adapters::PicoJsonAdapter>();
 }
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, QtJsonVsPropertyTree)
 {
@@ -437,7 +500,14 @@ TEST_F(TestAdapterComparison, QtJsonVsPropertyTree)
             valijson::adapters::PropertyTreeAdapter>();
 }
 
-#endif // VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+TEST_F(TestAdapterComparison, QtJsonVsBoostJson)
+{
+    testComparison<
+            valijson::adapters::QtJsonAdapter,
+            valijson::adapters::BoostJsonAdapter>();
+}
+
+#endif // VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, QtJsonVsJson11)
 {
@@ -498,7 +568,7 @@ TEST_F(TestAdapterComparison, PocoJsonVsPicoJson)
             valijson::adapters::PicoJsonAdapter>();
 }
 
-#ifdef VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+#ifdef VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, PocoJsonVsPropertyTree)
 {
@@ -507,7 +577,14 @@ TEST_F(TestAdapterComparison, PocoJsonVsPropertyTree)
             valijson::adapters::PropertyTreeAdapter>();
 }
 
-#endif // VALIJSON_BUILD_PROPERTY_TREE_ADAPTER
+TEST_F(TestAdapterComparison, PocoJsonVsBoostJson)
+{
+    testComparison<
+            valijson::adapters::PocoJsonAdapter,
+            valijson::adapters::BoostJsonAdapter>();
+}
+
+#endif // VALIJSON_BUILD_BOOST_ADAPTERS
 
 TEST_F(TestAdapterComparison, PocoJsonVsJson11)
 {
