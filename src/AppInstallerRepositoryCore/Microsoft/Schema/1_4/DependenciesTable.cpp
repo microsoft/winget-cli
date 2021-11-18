@@ -46,26 +46,27 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			return dependencies;
 		}
 
-		void RemoveDependenciesByRowIds(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowId)
+		void RemoveDependenciesByRowIds(SQLite::Connection& connection, std::vector<SQLite::rowid_t> dependencyRowIds)
 		{
 			using namespace SQLite::Builder;
+			if (dependencyRowIds.empty())
+			{
+				return;
+			}
 			SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_rowid");
 
-			if (dependencyRowId.size() > 0)
+			SQLite::Builder::StatementBuilder builder;
+			builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(SQLite::RowIDName).In(dependencyRowIds.size());
+
+			SQLite::Statement deleteStmt = builder.Prepare(connection);
+			int bindIndex = 1;
+			for (SQLite::rowid_t rowId : dependencyRowIds)
 			{
-				SQLite::Builder::StatementBuilder builder;
-				builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(SQLite::RowIDName).In(dependencyRowId.size());
-
-				SQLite::Statement deleteStmt = builder.Prepare(connection);
-				int bindIndex = 1;
-				for (SQLite::rowid_t rowId : dependencyRowId)
-				{
-					deleteStmt.Bind(bindIndex, rowId);
-					bindIndex++;
-				}
-
-				deleteStmt.Execute(true);
+				deleteStmt.Bind(bindIndex, rowId);
+				bindIndex++;
 			}
+
+			deleteStmt.Execute(true);
 
 			savepoint.Commit();
 		}
@@ -240,7 +241,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 	void DependenciesTable::RemoveDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
 	{
-		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_manifest");
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_manifest_v1_4");
 		SQLite::Builder::StatementBuilder builder;
 		builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(s_DependenciesTable_Manifest_Column_Name).Equals(manifestRowId);
 
@@ -334,7 +335,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 	void DependenciesTable::PrepareForPackaging(SQLite::Connection& connection)
 	{
-		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareForPacking_V1_3");
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareForPacking_V1_4");
 
 		StatementBuilder dropIndexBuilder;
 		dropIndexBuilder.DropIndex({ s_DependenciesTable_Index_Name });
