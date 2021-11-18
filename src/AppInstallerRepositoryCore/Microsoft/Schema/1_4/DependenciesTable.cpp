@@ -27,10 +27,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 	namespace 
 	{
-		std::vector<Manifest::Dependency> GetDependencies(
+		std::set<Manifest::Dependency> GetDependencies(
 			const Manifest::Manifest& manifest, Manifest::DependencyType dependencyType)
 		{
-			std::vector<Manifest::Dependency>  dependencies;
+			std::set<Manifest::Dependency>  dependencies;
 
 			for (const auto& installer : manifest.Installers)
 			{
@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 					{
 						if (dependency.Type == dependencyType)
 						{
-							dependencies.emplace_back(dependency);
+							dependencies.emplace(dependency);
 						}
 					});
 			}
@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		void InsertManifestDependencies(
 			SQLite::Connection& connection,
 			SQLite::rowid_t manifestRowId,
-			std::vector<Manifest::Dependency>& dependencies)
+			std::set<Manifest::Dependency>& dependencies)
 		{
 			using namespace SQLite::Builder;
 			using namespace Schema::V1_0;
@@ -200,7 +200,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies_v1_4");
 
 		const auto dependencies = GetDependencies(manifest, Manifest::DependencyType::Package);
-		const std::set<Manifest::Dependency> dependenciesSet(dependencies.begin(), dependencies.end());
 		if (!dependencies.size())
 		{
 			return false;
@@ -209,11 +208,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		auto existingDependencies = GetDependenciesByManifestRowId(connection, manifestRowId);
 		
 		// Get dependencies to add.
-		std::vector<Manifest::Dependency> toAddDependencies;
+		std::set<Manifest::Dependency> toAddDependencies;
 		std::copy_if(
 			dependencies.begin(),
 			dependencies.end(),
-			std::back_inserter(toAddDependencies),
+			std::inserter(toAddDependencies, toAddDependencies.begin()),
 			[&](Manifest::Dependency dep) 
 			{ 
 				return existingDependencies.find(dep) == existingDependencies.end(); 
@@ -227,7 +226,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			existingDependencies.end(),
 			[&](std::pair<Manifest::Dependency, SQLite::rowid_t> row)
 			{ 
-				if (dependenciesSet.find(row.first) == dependenciesSet.end())
+				if (dependencies.find(row.first) == dependencies.end())
 					toRemoveDependencies.emplace_back(row.second);  
 			}
 		);
