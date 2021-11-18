@@ -15,35 +15,47 @@ namespace AppInstaller::Settings
 
 namespace AppInstaller::Logging
 {
-    static constexpr UINT32 FailureTypeNone = 0;
-    // Failure type from FailureInfo in result_macros.h
-    static constexpr UINT32 FailureTypeResultException = 1; // THROW_...
-    static constexpr UINT32 FailureTypeResultReturn = 2; // RETURN_..._LOG or RETURN_..._MSG
-    static constexpr UINT32 FailureTypeResultLog = 3; // LOG_...
-    static constexpr UINT32 FailureTypeResultFailFast = 4; // FAIL_FAST_...
-    // Other failure types from LogException()
-    static constexpr UINT32 FailureTypeWinrtHResultError = 101;
-    static constexpr UINT32 FailureTypeResourceOpen = 102;
-    static constexpr UINT32 FailureTypeStdException = 103;
-    static constexpr UINT32 FailureTypeUnknown = 104;
+    enum class FailureTypeEnum : UINT32
+    {
+        None = 0x0,
+
+        // Failure type from FailureInfo in result_macros.h
+        ResultException = 0x1, // THROW_...
+        ResultReturn = 0x2, // RETURN_..._LOG or RETURN_..._MSG
+        ResultLog = 0x3, // LOG_...
+        ResultFailFast = 0x4, // FAIL_FAST_...
+
+        // Other failure types from LogException()
+        Unknown = 0x10000,
+        WinrtHResultError = 0x10001,
+        ResourceOpen = 0x10002,
+        StdException = 0x10003,
+
+        // Command termination
+        CommandTermination = 0x20000,
+    };
 
     // Contains all fields logged through the TelemetryTraceLogger. Last write wins.
     // This will be used to report a summary event upon destruction of the TelemetryTraceLogger.
     struct TelemetrySummary
     {
-        // Log wil failure, exception
+        TelemetrySummary() = default;
+
+        // Selectively copy member fields for copy constructor;
+        TelemetrySummary(const TelemetrySummary& other);
+        TelemetrySummary& operator=(const TelemetrySummary&) = default;
+
+        TelemetrySummary(TelemetrySummary&&) = default;
+        TelemetrySummary& operator=(TelemetrySummary&&) = default;
+
+        // Log wil failure, exception, command termination
         HRESULT FailureHResult = S_OK;
         std::wstring FailureMessage;
         std::string FailureModule;
         UINT32 FailureThreadId = 0;
-        UINT32 FailureType = FailureTypeNone;
+        FailureTypeEnum FailureType = FailureTypeEnum::None;
         std::string FailureFile;
         UINT32 FailureLine = 0;
-
-        // LogCommandTermination
-        HRESULT CommandTerminationHResult = S_OK;
-        std::string CommandTerminationFile;
-        UINT64 CommandTerminationLine = 0;
 
         // LogStartup
         bool IsCOMCall = false;
@@ -63,12 +75,6 @@ namespace AppInstaller::Logging
         std::string PackageVersion;
         std::string Channel;
         std::string SourceIdentifier;
-
-        // LogNoAppMatch
-        bool NoAppMatch = false;
-
-        // LogMultipleAppMatch
-        bool MultipleAppMatch = false;
 
         // LogSelectedInstaller
         INT32 InstallerArchitecture = -1;
@@ -176,7 +182,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(UINT32 type, std::string_view message) const noexcept;
+        void LogException(FailureTypeEnum type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;
@@ -257,10 +263,10 @@ namespace AppInstaller::Logging
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
         bool m_isSettingEnabled = true;
-        std::atomic_bool m_isRuntimeEnabled{ true };
-        std::atomic_bool m_isInitialized{ false };
+        CopyConstructibleAtomic<bool> m_isRuntimeEnabled{ true };
+        CopyConstructibleAtomic<bool> m_isInitialized{ false };
 
-        std::atomic_uint32_t m_executionStage{ 0 };
+        CopyConstructibleAtomic<uint32_t> m_executionStage{ 0 };
 
         GUID m_activityId = GUID_NULL;
         GUID m_parentActivityId = GUID_NULL;

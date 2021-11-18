@@ -110,7 +110,7 @@ namespace AppInstaller::CLI::Execution
             {
                 std::unique_ptr<Command> command = item->PopNextCommand();
 
-                std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().GetThreadGlobals().SetForCurrentThread();
+                std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().SetForCurrentThread();
 
                 item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);

@@ -247,7 +247,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException(Logging::FailureTypeResultException, re.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(re) << std::endl;
@@ -256,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const winrt::hresult_error& hre)
         {
             std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException(Logging::FailureTypeWinrtHResultError, message);
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 message << std::endl;
@@ -270,13 +270,13 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const Resource::ResourceOpenException& e)
         {
-            Logging::Telemetry().LogException(Logging::FailureTypeResourceOpen, e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResourceOpen, e.what());
             context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
             return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
         }
         catch (const std::exception& e)
         {
-            Logging::Telemetry().LogException(Logging::FailureTypeStdException, e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(e) << std::endl;
@@ -285,7 +285,7 @@ namespace AppInstaller::CLI::Workflow
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException(Logging::FailureTypeUnknown, {});
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
@@ -545,7 +545,6 @@ namespace AppInstaller::CLI::Workflow
     void ReportSearchResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
         bool sourceIsComposite = context.Get<Execution::Data::Source>().IsComposite();
         Execution::TableOutput<5> table(context.Reporter,
@@ -621,7 +620,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                AICLI_TERMINATE_CONTEXT(overallHR);
+                context.SetTerminationHR(overallHR);
             }
         }
     }
@@ -773,6 +772,8 @@ namespace AppInstaller::CLI::Workflow
     void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
         if (searchResult.Matches.size() == 0)
         {

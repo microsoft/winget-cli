@@ -138,7 +138,7 @@ namespace AppInstaller::CLI::Workflow
             // We want to do best effort to update all applicable updates regardless on previous update failure
             auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
-            auto previousThreadGlobals = updateContext.GetThreadGlobals().SetForCurrentThread();
+            auto previousThreadGlobals = updateContext.SetForCurrentThread();
 
             updateContext.Add<Execution::Data::Package>(match.Package);
 

@@ -274,7 +274,7 @@ namespace AppInstaller::CLI::Workflow
 
                 auto searchContextPtr = context.CreateSubContext();
                 Execution::Context& searchContext = *searchContextPtr;
-                auto previousThreadGlobals = searchContext.GetThreadGlobals().SetForCurrentThread();
+                auto previousThreadGlobals = searchContext.SetForCurrentThread();
 
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));

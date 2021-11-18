@@ -55,7 +55,7 @@ namespace AppInstaller::CLI
             // Create a new Context to execute the Complete from
             auto subContextPtr = context.CreateSubContext();
             Context& subContext = *subContextPtr;
-            auto previousThreadGlobals = subContext.GetThreadGlobals().SetForCurrentThread();
+            auto previousThreadGlobals = subContext.SetForCurrentThread();
 
             subContext.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
             subContext.Add<Data::CompletionData>(std::move(data));

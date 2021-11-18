@@ -15,7 +15,7 @@
 #define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
 g_hTraceProvider,\
 _eventName_,\
-s_useGlobalTelemetryActivityId ? s_globalTelemetryLoggerActivityId : GetActivityId(),\
+s_useGlobalTelemetryActivityId ? &s_globalTelemetryLoggerActivityId : GetActivityId(),\
 nullptr,\
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
 TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
@@ -52,47 +52,52 @@ namespace AppInstaller::Logging
 
         // TODO: Temporary code to keep existing telemetry behavior
         static bool s_useGlobalTelemetryActivityId = false;
-        static const GUID* s_globalTelemetryLoggerActivityId = nullptr;
+        static GUID s_globalTelemetryLoggerActivityId = GUID_NULL;
 
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
         }
 
-        UINT32 ConvertWilFailureTypeToFailureType(wil::FailureType failureType)
+        FailureTypeEnum ConvertWilFailureTypeToFailureType(wil::FailureType failureType)
         {
             switch (failureType)
             {
             case wil::FailureType::Exception:
-                return FailureTypeResultException;
+                return FailureTypeEnum::ResultException;
             case wil::FailureType::Return:
-                return FailureTypeResultReturn;
+                return FailureTypeEnum::ResultReturn;
             case wil::FailureType::Log:
-                return FailureTypeResultLog;
+                return FailureTypeEnum::ResultLog;
             case wil::FailureType::FailFast:
-                return FailureTypeResultFailFast;
+                return FailureTypeEnum::ResultFailFast;
             default:
-                return FailureTypeUnknown;
+                return FailureTypeEnum::Unknown;
             }
         }
 
-        std::string_view LogExceptionTypeToString(UINT32 exceptionType)
+        std::string_view LogExceptionTypeToString(FailureTypeEnum exceptionType)
         {
             switch (exceptionType)
             {
-            case FailureTypeResultException:
+            case FailureTypeEnum::ResultException:
                 return "wil::ResultException"sv;
-            case FailureTypeWinrtHResultError:
+            case FailureTypeEnum::WinrtHResultError:
                 return "winrt::hresult_error"sv;
-            case FailureTypeResourceOpen:
+            case FailureTypeEnum::ResourceOpen:
                 return "ResourceOpenException"sv;
-            case FailureTypeStdException:
+            case FailureTypeEnum::StdException:
                 return "std::exception"sv;
-            case FailureTypeUnknown:
+            case FailureTypeEnum::Unknown:
             default:
                 return "unknown"sv;
             }
         }
+    }
+
+    TelemetrySummary::TelemetrySummary(const TelemetrySummary& other)
+    {
+        this->IsCOMCall = other.IsCOMCall;
     }
 
     TelemetryTraceLogger::TelemetryTraceLogger()
@@ -184,20 +189,10 @@ namespace AppInstaller::Logging
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !this->m_isInitialized);
 
-        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>();
+        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>(*this);
 
         subTraceLogger->m_parentActivityId = this->m_activityId;
         subTraceLogger->m_subExecutionId = s_subExecutionId++;
-
-        // Copy remaining fields from parent.
-        subTraceLogger->m_isSettingEnabled = this->m_isSettingEnabled;
-        subTraceLogger->m_isRuntimeEnabled = this->m_isRuntimeEnabled.load();
-        subTraceLogger->m_isInitialized = this->m_isInitialized.load();
-        subTraceLogger->m_executionStage = this->m_executionStage.load();
-        subTraceLogger->m_telemetryCorrelationJsonW = this->m_telemetryCorrelationJsonW;
-        subTraceLogger->m_caller = this->m_caller;
-        subTraceLogger->m_userProfile = this->m_userProfile;
-        subTraceLogger->m_summary = this->m_summary;
 
         return subTraceLogger;
     }
@@ -317,15 +312,16 @@ namespace AppInstaller::Logging
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
-            m_summary.CommandTerminationHResult = hr;
-            m_summary.CommandTerminationFile = file;
-            m_summary.CommandTerminationLine = static_cast<UINT64>(line);
+            m_summary.FailureHResult = hr;
+            m_summary.FailureType = FailureTypeEnum::CommandTermination;
+            m_summary.FailureFile = file;
+            m_summary.FailureLine = static_cast<UINT32>(line);
         }
 
         AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
-    void TelemetryTraceLogger::LogException(UINT32 type, std::string_view message) const noexcept
+    void TelemetryTraceLogger::LogException(FailureTypeEnum type, std::string_view message) const noexcept
     {
         auto exceptionTypeString = LogExceptionTypeToString(type);
 
@@ -394,8 +390,6 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-
-            m_summary.NoAppMatch = true;
         }
 
         AICLI_LOG(CLI, Info, << "No app found matching input criteria");
@@ -410,8 +404,6 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-
-            m_summary.MultipleAppMatch = true;
         }
 
         AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
@@ -719,12 +711,9 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingWStringView(m_summary.FailureMessage, "FailureMessage"),
                 AICLI_TraceLoggingStringView(m_summary.FailureModule, "FailureModule"),
                 TraceLoggingUInt32(m_summary.FailureThreadId, "FailureThreadId"),
-                TraceLoggingUInt32(m_summary.FailureType, "FailureType"),
+                TraceLoggingUInt32(static_cast<UINT32>(m_summary.FailureType), "FailureType"),
                 AICLI_TraceLoggingStringView(m_summary.FailureFile, "FailureFile"),
                 TraceLoggingUInt32(m_summary.FailureLine, "FailureLine"),
-                TraceLoggingHResult(m_summary.CommandTerminationHResult, "CommandTerminationHResult"),
-                AICLI_TraceLoggingStringView(m_summary.CommandTerminationFile, "CommandTerminationFile"),
-                TraceLoggingUInt64(m_summary.CommandTerminationLine, "CommandTerminationLine"),
                 TraceLoggingBool(m_summary.IsCOMCall, "IsCOMCall"),
                 AICLI_TraceLoggingStringView(m_summary.Command, "Command"),
                 TraceLoggingBool(m_summary.CommandSuccess, "CommandSuccess"),
@@ -734,8 +723,6 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(m_summary.PackageVersion, "PackageVersion"),
                 AICLI_TraceLoggingStringView(m_summary.Channel, "Channel"),
                 AICLI_TraceLoggingStringView(m_summary.SourceIdentifier, "SourceIdentifier"),
-                TraceLoggingBool(m_summary.NoAppMatch, "NoAppMatch"),
-                TraceLoggingBool(m_summary.MultipleAppMatch, "MultipleAppMatch"),
                 TraceLoggingInt32(m_summary.InstallerArchitecture, "InstallerArchitecture"),
                 AICLI_TraceLoggingStringView(m_summary.InstallerUrl, "InstallerUrl"),
                 AICLI_TraceLoggingStringView(m_summary.InstallerType, "InstallerType"),
@@ -808,7 +795,7 @@ namespace AppInstaller::Logging
         }
 #endif
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
-        if (pThreadGlobals && pThreadGlobals->ContainsTelemetryLogger())
+        if (pThreadGlobals)
         {
             return pThreadGlobals->GetTelemetryLogger();
         }
@@ -816,12 +803,6 @@ namespace AppInstaller::Logging
         {
             static TelemetryTraceLogger processGlobalTelemetry;
             processGlobalTelemetry.TryInitialize();
-
-            if (s_useGlobalTelemetryActivityId && s_globalTelemetryLoggerActivityId == nullptr)
-            {
-                s_globalTelemetryLoggerActivityId = processGlobalTelemetry.GetActivityId();
-            }
-
             return processGlobalTelemetry;
         }
     }
@@ -834,6 +815,7 @@ namespace AppInstaller::Logging
     void UseGlobalTelemetryLoggerActivityIdOnly()
     {
         s_useGlobalTelemetryActivityId = true;
+        std::ignore = CoCreateGuid(&s_globalTelemetryLoggerActivityId);
     }
 
     DisableTelemetryScope::DisableTelemetryScope()

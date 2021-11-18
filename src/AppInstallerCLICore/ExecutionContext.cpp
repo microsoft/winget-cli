@@ -204,12 +204,17 @@ namespace AppInstaller::CLI::Execution
         }
 
         m_executionStage = stage;
-        Logging::Telemetry().SetExecutionStage(static_cast<uint32_t>(m_executionStage));
+        GetThreadGlobals().GetTelemetryLogger().SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
     AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobals()
     {
         return m_threadGlobals;
+    }
+
+    std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> Context::SetForCurrentThread()
+    {
+        return m_threadGlobals.SetForCurrentThread();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -70,14 +70,8 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
-        Context(
-            std::ostream& out,
-            std::istream& in,
-            std::shared_ptr<AppInstaller::Logging::DiagnosticLogger> diagnosticLogger,
-            std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger>&& telemetryLogger) : Reporter(out, in), m_threadGlobals(diagnosticLogger, std::move(telemetryLogger)) {}
-
         // Constructor for creating a sub-context.
-        Context(Execution::Reporter& reporter, const ThreadLocalStorage::ThreadGlobals& threadGlobals) :
+        Context(Execution::Reporter& reporter, ThreadLocalStorage::ThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),
             m_threadGlobals(threadGlobals, ThreadLocalStorage::ThreadGlobals::create_sub_thread_globals_t{}) {}
 
@@ -135,8 +129,10 @@ namespace AppInstaller::CLI::Execution
 
         virtual void SetExecutionStage(Workflow::ExecutionStage stage);
 
-        // Get Globals for Current Thread
+        // Get Globals for Current Context
         AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobals();
+
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior

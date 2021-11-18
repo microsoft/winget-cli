@@ -48,6 +48,10 @@ namespace AppInstaller::CLI
 
         Logging::UseGlobalTelemetryLoggerActivityIdOnly();
 
+        Execution::Context context{ std::cout, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.EnableCtrlHandler();
+
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Info);
@@ -62,9 +66,6 @@ namespace AppInstaller::CLI
 
         // Initiate the background cleanup of the log file location.
         Logging::BeginLogFileCleanup();
-
-        Execution::Context context{ std::cout, std::cin, nullptr /* Command execution always use global diagnostic logger */, Logging::Telemetry().CreateSubTraceLogger() };
-        context.EnableCtrlHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 

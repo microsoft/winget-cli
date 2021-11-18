@@ -214,7 +214,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto dependencyContextPtr = context.CreateSubContext();
                 Execution::Context& dependencyContext = *dependencyContextPtr;
-                auto previousThreadGlobals = dependencyContext.GetThreadGlobals().SetForCurrentThread();
+                auto previousThreadGlobals = dependencyContext.SetForCurrentThread();
 
                 Logging::Telemetry().LogSelectedInstaller(
                     static_cast<int>(itr->second.Installer.Arch),

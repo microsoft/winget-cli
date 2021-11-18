@@ -193,7 +193,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Show agreements for each package
             Execution::Context& showContext = *packageContext;
-            auto previousThreadGlobals = showContext.GetThreadGlobals().SetForCurrentThread();
+            auto previousThreadGlobals = showContext.SetForCurrentThread();
 
             showContext <<
                 Workflow::ReportManifestIdentityWithVersion <<
@@ -429,7 +429,7 @@ namespace AppInstaller::CLI::Workflow
 
             // We want to do best effort to install all packages regardless of previous failures
             Execution::Context& installContext = *packageContext;
-            auto previousThreadGlobals = installContext.GetThreadGlobals().SetForCurrentThread();
+            auto previousThreadGlobals = installContext.SetForCurrentThread();
 
             installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
             if (!m_ignorePackageDependencies)
