@@ -184,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 	void DependenciesTable::Create(SQLite::Connection& connection)
 	{
 		using namespace SQLite::Builder;
-		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createDependencyTable_v1_3");
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createDependencyTable_v1_4");
 
 		StatementBuilder createTableBuilder;
 		createTableBuilder.CreateTable(TableName()).BeginColumns();
@@ -199,7 +199,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 		for (const DependenciesTableColumnInfo& value : dependenciesColumns)
 		{
-			createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull());
+			createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId).NotNull());
 		}
 
 		createTableBuilder.EndColumns();
@@ -207,7 +207,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		createTableBuilder.Execute(connection);
 
 		StatementBuilder createPKIndexBuilder;
-		createPKIndexBuilder.CreateIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name });
+		createPKIndexBuilder.CreateUniqueIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name, s_DependenciesTable_PackageId_Column_Name });
 		createPKIndexBuilder.Execute(connection);
 
 		savepoint.Commit();
