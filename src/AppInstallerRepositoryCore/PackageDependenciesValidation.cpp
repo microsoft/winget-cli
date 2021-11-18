@@ -214,14 +214,15 @@ namespace AppInstaller::Repository
 
 		if (breakingManifests.size())
 		{
-			std::string dependentPackages;
+			auto itrStart = breakingManifests.begin();
+			std::string dependentPackages{ itrStart->first.Id + "." + itrStart->first.Version};
 
 			std::for_each(
-				breakingManifests.begin(),
+				itrStart + 1,
 				breakingManifests.end(),
 				[&](std::pair<Manifest::Manifest, Utility::Version> current)
 				{
-					dependentPackages.append(current.first.Id + "." + current.first.Version).append(", ");
+					dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
 				});
 
 			std::string error = Manifest::ManifestError::MultiManifestPackageHasDependencies;
