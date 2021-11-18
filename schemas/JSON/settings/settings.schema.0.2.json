@@ -54,6 +54,18 @@
           },
           "minItems": 1,
           "maxItems": 10
+        },
+        "architecture": {
+          "description": "The architecture for a package install",
+          "type": "string",
+          "enum": [
+            "neutral",
+            "x64",
+            "x86",
+            "arm64",
+            "arm"
+          ],
+          "default": "neutral" 
         }
       }
     },

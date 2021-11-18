@@ -962,13 +962,19 @@ namespace AppInstaller::CLI::Workflow
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         IPackageVersion::Metadata installationMetadata;
+        Utility::Architecture requiredArchitecture = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
         if (isUpdate)
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
         if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
         {
+            // arguments override settings.
             context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
+        }
+        else if (requiredArchitecture != Utility::Architecture::Neutral)
+        {
+            context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitecture });
         }
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
