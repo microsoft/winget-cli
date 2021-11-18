@@ -336,11 +336,4 @@ namespace AppInstaller::Repository::Microsoft
         int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
-    
-    std::optional<std::pair<SQLite::rowid_t, Utility::Version>> SQLiteIndex::GetPackageLatestVersion(
-        AppInstaller::Manifest::string_t packageId,
-        std::set<Utility::Version> exclusions) const
-    {
-        return m_interface->GetPackageLatestVersion(m_dbconn, packageId, exclusions);
-    }
 }

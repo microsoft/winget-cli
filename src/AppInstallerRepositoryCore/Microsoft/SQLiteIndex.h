@@ -149,9 +149,6 @@ namespace AppInstaller::Repository::Microsoft
         // Get all the dependencies for a specific manifest.
         std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<Manifest::Manifest, Utility::Version>> GetDependenciesByPackageId(AppInstaller::Manifest::string_t packageId) const;
-
-        // Get the latest version of a package.
-        std::optional<std::pair<SQLite::rowid_t, Utility::Version>> GetPackageLatestVersion(Manifest::string_t packageId, std::set<Utility::Version> versionsToExclude = {}) const;
     private:
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);

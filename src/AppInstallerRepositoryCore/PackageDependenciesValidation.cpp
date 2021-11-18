@@ -36,6 +36,49 @@ namespace AppInstaller::Repository
 
 			return dependencies;
 		}
+
+		std::optional<std::pair<SQLite::rowid_t, Utility::Version>> GetPackageLatestVersion(
+			SQLiteIndex* index, Manifest::string_t packageId, std::set<Utility::Version> exclusions = {})
+		{
+			SearchRequest request;
+			request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, packageId);
+			std::optional<std::pair<SQLite::rowid_t, Utility::Version>> result;
+
+			auto results = index->Search(request);
+
+			if (results.Matches.empty())
+			{
+				return result;
+			}
+
+			auto packageRowId = results.Matches[0].first;
+
+			auto vac = index->GetVersionKeysById(packageRowId);
+
+			Utility::Version maxVersion = Utility::Version::CreateUnknown();
+
+			for (auto& v : vac)
+			{
+				auto currentVersion = v.GetVersion();
+				if (exclusions.find(currentVersion) != exclusions.end())
+				{
+					continue;
+				}
+
+				if (maxVersion.IsUnknown() || currentVersion > maxVersion)
+				{
+					maxVersion = currentVersion;
+				}
+			}
+
+			if (!maxVersion.IsUnknown())
+			{
+				auto manifestRowId = index->GetManifestIdByKey(packageRowId, maxVersion.ToString(), "");
+				result = std::make_pair(manifestRowId.value(), maxVersion);
+			}
+
+			return result;
+		}
 	};
 
 	bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest manifest)
@@ -61,7 +104,7 @@ namespace AppInstaller::Repository
 				return depList;
 			}
 
-			auto packageLatest = index->GetPackageLatestVersion(node.Id);
+			auto packageLatest = GetPackageLatestVersion(index, node.Id);
 			if (!packageLatest.has_value())
 			{
 				std::string error = ManifestError::MissingManifestDependenciesNode;
@@ -119,13 +162,13 @@ namespace AppInstaller::Repository
 			return true;
 		}
 
-		auto packageLatest = index->GetPackageLatestVersion(manifest.Id);
+		auto packageLatest = GetPackageLatestVersion(index, manifest.Id);
 
 		if (!packageLatest.has_value())
 		{
 			// this is a fatal error, a manifest should exists in the very least(including the current manifest being deleted),
 			// since this is a delete operation. 
-			THROW_HR(E_UNEXPECTED);
+			THROW_HR(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE);
 		}
 
 		if (Utility::Version(manifest.Version) < packageLatest.value().second)
@@ -134,7 +177,7 @@ namespace AppInstaller::Repository
 			return true;
 		}
 
-		auto nextLatestAfterDelete = index->GetPackageLatestVersion(manifest.Id, { packageLatest.value().second });
+		auto nextLatestAfterDelete = GetPackageLatestVersion(index, manifest.Id, { packageLatest.value().second });
 
 		if (!nextLatestAfterDelete.has_value())
 		{
