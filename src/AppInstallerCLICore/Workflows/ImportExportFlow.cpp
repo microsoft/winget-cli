@@ -163,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReadImportFile(Execution::Context& context)
     {
-        std::ifstream importFile(std::string(context.Args.GetArg(Execution::Args::Type::ImportFile)));
+        std::ifstream importFile(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ImportFile)));
         THROW_LAST_ERROR_IF(importFile.fail());
 
         Json::Value jsonRoot;
