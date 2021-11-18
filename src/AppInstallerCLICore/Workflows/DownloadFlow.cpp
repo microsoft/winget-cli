@@ -20,8 +20,22 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path GetInstallerBaseDownloadPath(Execution::Context& context)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
+
             std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
             tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+
+            // Get file name from download URI
+            std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
+
+            // Assuming that we find a stem value in the URI, use it
+            if (filename.has_stem())
+            {
+                std::filesystem::create_directories(tempInstallerPath);
+
+                // Name the file the same as it is in the download URI
+                tempInstallerPath /= filename.stem();
+            }
+
             return tempInstallerPath;
         }
 
