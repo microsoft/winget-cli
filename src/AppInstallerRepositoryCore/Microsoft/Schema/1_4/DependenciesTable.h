@@ -10,9 +10,6 @@ using namespace AppInstaller;
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 {
-    // Select a bunch of ids by values.
-    static std::map<std::string, SQLite::rowid_t> SelectIdsByValues(const SQLite::Connection& connection, std::string_view tableName, std::string_view columnName, const std::vector<Utility::NormalizedString>& values);
-
     struct DependenciesTableColumnInfo
     {
         std::string_view Name;

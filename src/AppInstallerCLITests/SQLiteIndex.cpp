@@ -701,7 +701,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureNotBrok
 
     constexpr std::string_view levelOneManifestPublisher = "LevelOneManifest";
     CreateFakeManifest(levelOneManifest, levelOneManifestPublisher);
-    levelOneManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelTwoManifest.Id, ".0.0"));
+    levelOneManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelTwoManifest.Id, "1.0.0"));
     index.AddManifest(levelOneManifest, GetPathFromManifest(levelOneManifest));
 
     constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";

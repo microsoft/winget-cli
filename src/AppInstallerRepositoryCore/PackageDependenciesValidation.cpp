@@ -181,14 +181,15 @@ namespace AppInstaller::Repository
 
 		if (!nextLatestAfterDelete.has_value())
 		{
-			std::string dependentPackages;
+			auto itrStart = dependentsSet.begin();
+			std::string dependentPackages { itrStart->first.Id + "." + itrStart->first.Version };
 
 			std::for_each(
-				dependentsSet.begin(),
+				itrStart + 1,
 				dependentsSet.end(),
 				[&](std::pair<Manifest::Manifest, Utility::Version> current)
 				{
-					dependentPackages.append(current.first.Id + "." + current.first.Version).append("\n");
+					dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
 				});
 
 			std::string error = Manifest::ManifestError::SingleManifestPackageHasDependencies;

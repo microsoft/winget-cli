@@ -70,17 +70,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			savepoint.Commit();
 		}
 
-		void FindMissing(
-			std::map<std::string, SQLite::rowid_t> resultSet, std::vector<Utility::NormalizedString>& searchSpace, std::vector<Utility::NormalizedString>& notFoundIds)
-		{
-			std::copy_if(
-				searchSpace.begin(),
-				searchSpace.end(),
-				std::back_inserter(notFoundIds),
-				[&](Utility::NormalizedString version) { return resultSet.find(version) == resultSet.end(); }
-			);
-		}
-
 		void InsertManifestDependencies(
 			SQLite::Connection& connection,
 			SQLite::rowid_t manifestRowId,
@@ -89,46 +78,50 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			using namespace SQLite::Builder;
 			using namespace Schema::V1_0;
 
-			std::vector<Utility::NormalizedString> minVersions;
-			std::vector<Utility::NormalizedString> packageIds;
-			std::for_each(
-				dependencies.begin(),
-				dependencies.end(),
-				[&](Manifest::Dependency dep) { minVersions.emplace_back(dep.MinVersion.value().ToString()); }
-			);
-
-			std::for_each(
-				dependencies.begin(),
-				dependencies.end(),
-				[&](Manifest::Dependency dep) { packageIds.emplace_back(dep.Id); }
-			);
-
-			ManifestTable::ExistsById(connection, manifestRowId);
-
-			// SELECT FROM ids where id IN (Example.Id1, Example.Id2, .... )
-			auto idResultSet = SelectIdsByValues(connection, IdTable::TableName(), IdTable::ValueName(), packageIds);
-			std::vector<Utility::NormalizedString> notFoundIds;
-			FindMissing(idResultSet, packageIds, notFoundIds);
-
-			if (notFoundIds.size() > 0)
+			std::vector<Manifest::Dependency> missingPackageNodes;
+			std::map<Utility::Version, SQLite::rowid_t> versionsMap;
+			std::map<Manifest::Manifest::string_t, SQLite::rowid_t> idsMap;
+			for (const auto& dep : dependencies)
 			{
-				std::string failedPackages;
-				std::for_each(
-					notFoundIds.begin(),
-					notFoundIds.end(),
-					[&](Utility::NormalizedString& packageId) {failedPackages.append(std::string{ packageId }); });
-				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "%s", failedPackages.c_str());
+				auto depMinVersion = dep.MinVersion.value();
+				auto packageId = dep.Id;
+
+				const auto packageRowId = IdTable::SelectIdByValue(connection, packageId);
+				if (!packageRowId.has_value())
+				{
+					missingPackageNodes.emplace_back(dep);
+					continue;
+				}
+
+				auto manifestVersions = ManifestTable::GetAllValuesById<IdTable, VersionTable>(connection, packageRowId.value());
+
+				auto result = std::find_if(
+					manifestVersions.begin(),
+					manifestVersions.end(),
+					[&](auto& manifestVersion)
+					{
+						return (std::get<0>(manifestVersion) == depMinVersion.ToString());
+					}
+				);
+
+				if (result == manifestVersions.end())
+				{
+					VersionTable::EnsureExists(connection, depMinVersion.ToString());
+				}
+
+				idsMap[packageId] = packageRowId.value();
+				versionsMap[depMinVersion] = VersionTable::SelectIdByValue(connection, depMinVersion.ToString()).value();
 			}
 
-			// SELECT FROM versions where id IN ("1.0.0", "1.1.0" )
-			auto versionsResultSet = SelectIdsByValues(connection, VersionTable::TableName(), VersionTable::ValueName(), minVersions);
-			std::vector<Utility::NormalizedString> notFoundVersion;
-			FindMissing(versionsResultSet, minVersions, notFoundVersion);
-
-			std::for_each(
-				notFoundVersion.begin(),
-				notFoundVersion.end(),
-				[&](Utility::NormalizedString& version) { versionsResultSet[version] = VersionTable::EnsureExists(connection, version); });
+			if (!missingPackageNodes.empty())
+			{
+				std::string missingPackages{ missingPackageNodes.begin()->Id };
+				std::for_each(
+					missingPackageNodes.begin() + 1,
+					missingPackageNodes.end(),
+					[&](auto& dep) { missingPackages.append(", " + dep.Id);  });
+				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages %s", missingPackages.c_str());
+			}
 
 			StatementBuilder insertBuilder;
 			insertBuilder.InsertInto(s_DependenciesTable_Table_Name)
@@ -136,13 +129,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 				.Values(Unbound, Unbound, Unbound);
 			SQLite::Statement insert = insertBuilder.Prepare(connection);
 
-			// TODO: use insert with multiple values, rather than run the query in a loop.
 			for (const auto& dep : dependencies)
 			{
 				insert.Reset();
 				insert.Bind(1, manifestRowId);
-				insert.Bind(2, versionsResultSet[dep.MinVersion.value().ToString()]);
-				insert.Bind(3, idResultSet[dep.Id]);
+				insert.Bind(2, versionsMap[dep.MinVersion.value().ToString()]);
+				insert.Bind(3, idsMap[dep.Id]);
 
 				insert.Execute(true);
 			}
@@ -152,33 +144,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 	std::string_view DependenciesTable::TableName()
 	{
 		return s_DependenciesTable_Table_Name;
-	}
-
-	std::map<std::string, SQLite::rowid_t> SelectIdsByValues(const SQLite::Connection& connection, std::string_view tableName, std::string_view columnName, const std::vector<Utility::NormalizedString>& values)
-	{
-		using namespace Schema::V1_0;
-		using namespace SQLite::Builder;
-		const std::string rowIdColumnName = "rowid";
-
-		std::map<std::string, SQLite::rowid_t> result;
-
-		StatementBuilder selectStatement;
-		selectStatement.Select({ rowIdColumnName, columnName }).From(tableName).Where(columnName).In(values.size());
-
-		SQLite::Statement select = selectStatement.Prepare(connection);
-		int bindIndex = 1;
-		for (const std::string& value : values)
-		{
-			select.Bind(bindIndex, value);
-			bindIndex++;
-		}
-
-		while (select.Step())
-		{
-			result.emplace(select.GetColumn<std::string>(1), select.GetColumn<SQLite::rowid_t>(0));
-		}
-
-		return result;
 	}
 
 	void DependenciesTable::Create(SQLite::Connection& connection)
@@ -207,7 +172,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		createTableBuilder.Execute(connection);
 
 		StatementBuilder createPKIndexBuilder;
-		createPKIndexBuilder.CreateUniqueIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name, s_DependenciesTable_PackageId_Column_Name });
+		createPKIndexBuilder.CreateUniqueIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name, s_DependenciesTable_MinVersion_Column_Name, s_DependenciesTable_PackageId_Column_Name });
 		createPKIndexBuilder.Execute(connection);
 
 		savepoint.Commit();
@@ -216,7 +181,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 	void DependenciesTable::AddDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
 	{
-		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "add_dependencies");
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "add_dependencies_v1_4");
 
 		auto dependencies = GetDependencies(manifest, Manifest::DependencyType::Package);
 		if (!dependencies.size())
@@ -231,7 +196,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 	bool DependenciesTable::UpdateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
 	{
-		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies");
+		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies_v1_4");
 
 		const auto dependencies = GetDependencies(manifest, Manifest::DependencyType::Package);
 		const std::set<Manifest::Dependency> dependenciesSet(dependencies.begin(), dependencies.end());
