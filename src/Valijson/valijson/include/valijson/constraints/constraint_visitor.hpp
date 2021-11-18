@@ -36,7 +36,7 @@ class UniqueItemsConstraint;
 class ConstraintVisitor
 {
 protected:
-    virtual ~ConstraintVisitor() {}
+    virtual ~ConstraintVisitor() = default;
 
     // Shorten type names for derived classes outside of this namespace
     typedef constraints::AllOfConstraint AllOfConstraint;

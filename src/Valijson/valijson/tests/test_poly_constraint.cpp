@@ -17,27 +17,28 @@ using valijson::adapters::RapidJsonAdapter;
 
 class StubPolyConstraint : public valijson::constraints::PolyConstraint
 {
-    bool shouldValidate;
+    bool m_shouldValidate;
 
 public:
-    StubPolyConstraint(bool shouldValidate)
-      : shouldValidate(shouldValidate) { }
+    explicit StubPolyConstraint(bool shouldValidate)
+      : m_shouldValidate(shouldValidate) { }
 
-    virtual Constraint * cloneInto(void *ptr) const
+    Constraint * cloneInto(void *ptr) const override
     {
-        return new (ptr) StubPolyConstraint(shouldValidate);
+        return new (ptr) StubPolyConstraint(m_shouldValidate);
     }
 
-    virtual size_t sizeOf() const
+    size_t sizeOf() const override
     {
         return sizeof(StubPolyConstraint);
     }
 
-    virtual bool validate(const Adapter &target,
+    bool validate(
+            const Adapter &,
             const std::vector<std::string> &context,
-            ValidationResults *results) const
+            ValidationResults *results) const override
     {
-        if (shouldValidate) {
+        if (m_shouldValidate) {
             return true;
         }
 
@@ -92,6 +93,5 @@ TEST_F(TestPolyConstraint, ValidationCanFail)
 
     ValidationResults::Error error;
     EXPECT_TRUE(results.popError(error));
-    EXPECT_STREQ("StubPolyConstraint intentionally failed validation",
-            error.description.c_str());
+    EXPECT_STREQ("StubPolyConstraint intentionally failed validation", error.description.c_str());
 }

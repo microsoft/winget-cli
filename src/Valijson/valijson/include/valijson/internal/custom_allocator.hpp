@@ -29,26 +29,26 @@ public:
     };
 
     CustomAllocator()
-      : allocFn(::operator new),
-        freeFn(::operator delete) { }
+      : m_allocFn(::operator new),
+        m_freeFn(::operator delete) { }
 
     CustomAllocator(CustomAlloc allocFn, CustomFree freeFn)
-      : allocFn(allocFn),
-        freeFn(freeFn) { }
+      : m_allocFn(allocFn),
+        m_freeFn(freeFn) { }
 
     CustomAllocator(const CustomAllocator &other)
-      : allocFn(other.allocFn),
-        freeFn(other.freeFn) { }
+      : m_allocFn(other.m_allocFn),
+        m_freeFn(other.m_freeFn) { }
 
     template<typename U>
     CustomAllocator(CustomAllocator<U> const &other)
-      : allocFn(other.allocFn),
-        freeFn(other.freeFn) { }
+      : m_allocFn(other.m_allocFn),
+        m_freeFn(other.m_freeFn) { }
 
     CustomAllocator & operator=(const CustomAllocator &other)
     {
-        allocFn = other.allocFn;
-        freeFn = other.freeFn;
+        m_allocFn = other.m_allocFn;
+        m_freeFn = other.m_freeFn;
 
         return *this;
     }
@@ -63,14 +63,14 @@ public:
         return &r;
     }
 
-    pointer allocate(size_type cnt, const void * = 0)
+    pointer allocate(size_type cnt, const void * = nullptr)
     {
-        return reinterpret_cast<pointer>(allocFn(cnt * sizeof(T)));
+        return reinterpret_cast<pointer>(m_allocFn(cnt * sizeof(T)));
     }
 
     void deallocate(pointer p, size_type)
     {
-        freeFn(p);
+        m_freeFn(p);
     }
 
     size_type max_size() const
@@ -90,7 +90,7 @@ public:
 
     bool operator==(const CustomAllocator &other) const
     {
-        return other.allocFn == allocFn && other.freeFn == freeFn;
+        return other.m_allocFn == m_allocFn && other.m_freeFn == m_freeFn;
     }
 
     bool operator!=(const CustomAllocator &other) const
@@ -98,9 +98,9 @@ public:
         return !operator==(other);
     }
 
-    CustomAlloc allocFn;
+    CustomAlloc m_allocFn;
 
-    CustomFree freeFn;
+    CustomFree m_freeFn;
 };
 
 } // end namespace internal

@@ -17,6 +17,7 @@
 # include <functional>
 # include <string>
 # include <stdexcept>
+# include <valijson/exceptions.hpp>
 
 # define TR2_OPTIONAL_REQUIRES(...) typename enable_if<__VA_ARGS__::value, bool>::type = false
 
@@ -523,15 +524,15 @@ namespace std{
             }
 
             constexpr T const& value() const& {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (valijson::throwRuntimeError("bad optional access"), contained_val());
             }
 
             OPTIONAL_MUTABLE_CONSTEXPR T& value() & {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (valijson::throwRuntimeError("bad optional access"), contained_val());
             }
 
             OPTIONAL_MUTABLE_CONSTEXPR T&& value() && {
-    if (!initialized()) throw bad_optional_access("bad optional access");
+    if (!initialized()) valijson::throwRuntimeError("bad optional access");
         return std::move(contained_val());
             }
 
@@ -552,11 +553,11 @@ namespace std{
             }
 
             constexpr T const& value() const {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (valijson::throwRuntimeError("bad optional access"), contained_val());
             }
 
             T& value() {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (valijson::throwRuntimeError("bad optional access"), contained_val());
             }
 
 # endif
@@ -685,7 +686,7 @@ namespace std{
             }
 
             constexpr T& value() const {
-    return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
+    return ref ? *ref : (valijson::throwRuntimeError("bad optional access"), *ref);
             }
 
             explicit constexpr operator bool() const noexcept {

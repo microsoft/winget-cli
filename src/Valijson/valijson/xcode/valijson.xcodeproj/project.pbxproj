@@ -57,6 +57,7 @@
 		6A309D2D1C28C1FD00EF761C /* subschema.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = subschema.hpp; sourceTree = "<group>"; };
 		6A34698C1BD109A900C97DA2 /* json_reference.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json_reference.hpp; path = internal/json_reference.hpp; sourceTree = "<group>"; };
 		6A356B0D1C1CFD020007EB8B /* uri.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = uri.hpp; path = internal/uri.hpp; sourceTree = "<group>"; };
+		6A41AD442619697600DC39D2 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		6A477F8417D6BCBB0013571C /* libboost_regex-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_regex-mt.dylib"; path = "/usr/local/lib/libboost_regex-mt.dylib"; sourceTree = "<absolute>"; };
 		6A506D121AF884E100C2C818 /* draft-03.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "draft-03.json"; sourceTree = "<group>"; };
 		6A506D131AF884E100C2C818 /* draft-04.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "draft-04.json"; sourceTree = "<group>"; };
@@ -208,7 +209,6 @@
 		6A8769D4230C1BF1008E1739 /* pointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pointer.h; sourceTree = "<group>"; };
 		6A8769D6230C1BF1008E1739 /* inttypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = inttypes.h; sourceTree = "<group>"; };
 		6A8769D7230C1BF1008E1739 /* stdint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdint.h; sourceTree = "<group>"; };
-		6A8769DB230C1C21008E1739 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		6A8BA11C1CB71163001CA087 /* constraint_builder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = constraint_builder.hpp; sourceTree = "<group>"; };
 		6A9E1855194D486C003F1C4C /* utf8_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = utf8_utils.hpp; sourceTree = "<group>"; };
 		6AA334841AB5102C00F1928B /* assertions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = assertions.h; sourceTree = "<group>"; };
@@ -350,6 +350,14 @@
 				462CB4C31D50940F003DC976 /* optional.hpp */,
 			);
 			name = compat;
+			sourceTree = "<group>";
+		};
+		6A41AD432619697600DC39D2 /* nlohmann */ = {
+			isa = PBXGroup;
+			children = (
+				6A41AD442619697600DC39D2 /* json.hpp */,
+			);
+			path = nlohmann;
 			sourceTree = "<group>";
 		};
 		6A477F8717D6EEF20013571C /* Frameworks */ = {
@@ -731,18 +739,18 @@
 		6A8769DA230C1C21008E1739 /* nlohmann-json-3.1.2 */ = {
 			isa = PBXGroup;
 			children = (
-				6A8769DB230C1C21008E1739 /* json.hpp */,
+				6A41AD432619697600DC39D2 /* nlohmann */,
 			);
 			path = "nlohmann-json-3.1.2";
 			sourceTree = "<group>";
 		};
-		6AA334801AB5100700F1928B /* jsoncpp-0.9.4 */ = {
+		6AA334801AB5100700F1928B /* jsoncpp-1.9.4 */ = {
 			isa = PBXGroup;
 			children = (
 				6AA334811AB5101900F1928B /* include */,
 				6AA334821AB5101E00F1928B /* src */,
 			);
-			name = "jsoncpp-0.9.4";
+			name = "jsoncpp-1.9.4";
 			sourceTree = "<group>";
 		};
 		6AA334811AB5101900F1928B /* include */ = {
@@ -776,7 +784,7 @@
 				6AA3348D1AB5102C00F1928B /* writer.h */,
 			);
 			name = json;
-			path = "jsoncpp-0.9.4/include/json";
+			path = "jsoncpp-1.9.4/include/json";
 			sourceTree = "<group>";
 		};
 		6AA3348E1AB5103C00F1928B /* lib_json */ = {
@@ -789,7 +797,7 @@
 				6AA334941AB5103C00F1928B /* json_writer.cpp */,
 			);
 			name = lib_json;
-			path = "jsoncpp-0.9.4/src/lib_json";
+			path = "jsoncpp-1.9.4/src/lib_json";
 			sourceTree = "<group>";
 		};
 		6AB8FEB417E6E53D0028E147 /* data */ = {
@@ -806,7 +814,7 @@
 			children = (
 				6A8769A0230C1B9C008E1739 /* json11-ec4e452 */,
 				6AF70AC218FE71F600342325 /* gtest-1.7.0 */,
-				6AA334801AB5100700F1928B /* jsoncpp-0.9.4 */,
+				6AA334801AB5100700F1928B /* jsoncpp-1.9.4 */,
 				6A8699E517CD8641006864FA /* JSON-Schema-Test-Suite */,
 				6A8769DA230C1C21008E1739 /* nlohmann-json-3.1.2 */,
 				6A8769AF230C1BF1008E1739 /* rapidjson-1.1.0 */,
@@ -1114,7 +1122,7 @@
 		6AC78AC517C5FBBC00674114 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Tristan Penman";
 				TargetAttributes = {
 					6A5C5D461C5B151F004F40ED = {
@@ -1251,6 +1259,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				HEADER_SEARCH_PATHS = (
 					"../thirdparty/rapidjson-1.0.2/include",
 					../include,
@@ -1270,6 +1279,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				HEADER_SEARCH_PATHS = (
 					"../thirdparty/rapidjson-1.0.2/include",
 					../include,
@@ -1290,6 +1300,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_COMMA = NO;
+				CODE_SIGN_IDENTITY = "-";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					GTEST_USE_OWN_TR1_TUPLE,
@@ -1302,7 +1313,7 @@
 					"../thirdparty/gtest-1.7.0/include",
 					"../thirdparty/gtest-1.7.0",
 					"../thirdparty/json11-ec4e452",
-					"../thirdparty/jsoncpp-0.9.4/include",
+					"../thirdparty/jsoncpp-1.9.4/include",
 					"../thirdparty/nlohmann-json-3.1.2",
 					"../thirdparty/picojson-1.3.0",
 					"../thirdparty/rapidjson-1.1.0/include",
@@ -1312,10 +1323,7 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Werror",
-				);
+				WARNING_CFLAGS = "-Werror";
 			};
 			name = Debug;
 		};
@@ -1324,6 +1332,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_COMMA = NO;
+				CODE_SIGN_IDENTITY = "-";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					GTEST_USE_OWN_TR1_TUPLE,
 					GTEST_HAS_PARAM_TEST,
@@ -1334,7 +1343,7 @@
 					"../thirdparty/gtest-1.7.0/include",
 					"../thirdparty/gtest-1.7.0",
 					"../thirdparty/json11-ec4e452",
-					"../thirdparty/jsoncpp-0.9.4/include",
+					"../thirdparty/jsoncpp-1.9.4/include",
 					"../thirdparty/nlohmann-json-3.1.2",
 					"../thirdparty/picojson-1.3.0",
 					"../thirdparty/rapidjson-1.1.0/include",
@@ -1344,10 +1353,7 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Werror",
-				);
+				WARNING_CFLAGS = "-Werror";
 			};
 			name = Release;
 		};
@@ -1369,6 +1375,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1392,7 +1399,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				VALID_ARCHS = x86_64;
@@ -1417,6 +1424,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1433,7 +1441,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 				VALID_ARCHS = x86_64;
 			};
@@ -1443,6 +1451,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				HEADER_SEARCH_PATHS = (
 					"../thirdparty/rapidjson-1.0.2/include",
 					../include,
@@ -1462,6 +1471,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				HEADER_SEARCH_PATHS = (
 					"../thirdparty/rapidjson-1.0.2/include",
 					../include,
@@ -1491,7 +1501,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"../thirdparty/jsoncpp-0.9.4/include",
+					"../thirdparty/jsoncpp-1.9.4/include",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1513,7 +1523,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"../thirdparty/jsoncpp-0.9.4/include",
+					"../thirdparty/jsoncpp-1.9.4/include",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
