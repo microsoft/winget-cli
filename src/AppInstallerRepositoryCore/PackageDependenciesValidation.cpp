@@ -154,13 +154,26 @@ namespace AppInstaller::Repository
 
 	bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest manifest)
 	{
-		auto dependentsSet = index->GetDependenciesByPackageId(manifest.Id);
-
+		auto dependentsSet = index->GetDependentsById(manifest.Id);
+		
 		if (!dependentsSet.size())
 		{
 			// all good this manifest is not a dependency of any manifest.
 			return true;
 		}
+
+		std::vector<std::pair<Manifest::Manifest, Utility::Version>> manifestToVersionPair;
+		std::for_each(
+			dependentsSet.begin(),
+			dependentsSet.end(),
+			[&](std::pair<SQLite::rowid_t, Utility::Version> current)
+			{
+				Manifest::Manifest manifest;
+				manifest.Id = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Id).value();
+				manifest.Version = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Version).value();
+
+				manifestToVersionPair.emplace_back(std::make_pair(manifest, current.second));
+			});
 
 		auto packageLatest = GetPackageLatestVersion(index, manifest.Id);
 
@@ -181,12 +194,12 @@ namespace AppInstaller::Repository
 
 		if (!nextLatestAfterDelete.has_value())
 		{
-			auto itrStart = dependentsSet.begin();
+			auto itrStart = manifestToVersionPair.begin();
 			std::string dependentPackages { itrStart->first.Id + "." + itrStart->first.Version };
 
 			std::for_each(
 				itrStart + 1,
-				dependentsSet.end(),
+				manifestToVersionPair.end(),
 				[&](std::pair<Manifest::Manifest, Utility::Version> current)
 				{
 					dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
@@ -203,8 +216,8 @@ namespace AppInstaller::Repository
 		std::vector<std::pair<Manifest::Manifest, Utility::Version>> breakingManifests;
 
 		std::copy_if(
-			dependentsSet.begin(),
-			dependentsSet.end(),
+			manifestToVersionPair.begin(),
+			manifestToVersionPair.end(),
 			std::back_inserter(breakingManifests),
 			[&](std::pair<Manifest::Manifest, Utility::Version> current)
 			{

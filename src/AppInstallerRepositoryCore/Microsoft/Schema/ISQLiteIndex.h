@@ -107,7 +107,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Get all the dependencies for a specific manifest.
         virtual std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
 
-        virtual std::vector<std::pair<Manifest::Manifest, Utility::Version>> GetDependenciesByPackageId(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const = 0;
+        virtual std::vector<std::pair<SQLite::rowid_t, Utility::Version>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const = 0;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

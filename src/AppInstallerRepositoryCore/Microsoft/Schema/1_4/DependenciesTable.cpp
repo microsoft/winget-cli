@@ -121,7 +121,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 					missingPackageNodes.begin() + 1,
 					missingPackageNodes.end(),
 					[&](auto& dep) { missingPackages.append(", " + dep.Id);  });
-				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages %s", missingPackages.c_str());
+				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %s", missingPackages.c_str());
 			}
 
 			StatementBuilder insertBuilder;
@@ -200,10 +200,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies_v1_4");
 
 		const auto dependencies = GetDependencies(manifest, Manifest::DependencyType::Package);
-		if (!dependencies.size())
-		{
-			return false;
-		}
 
 		auto existingDependencies = GetDependenciesByManifestRowId(connection, manifestRowId);
 		
@@ -248,7 +244,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		savepoint.Commit();
 	}
 
-	std::vector<std::pair<Manifest::Manifest, Utility::Version>> DependenciesTable::GetDependenciesByPackageId(const SQLite::Connection& connection, Manifest::string_t packageId)
+	std::vector<std::pair<SQLite::rowid_t, Utility::Version>> DependenciesTable::GetDependentsById(const SQLite::Connection& connection, Manifest::string_t packageId)
 	{
 		constexpr std::string_view depTableAlias = "dep";
 		constexpr std::string_view minVersionAlias = "minV";
@@ -275,19 +271,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		SQLite::Statement stmt = builder.Prepare(connection);
 		stmt.Bind(1, std::string{ packageId });
 
-		std::vector<std::pair<Manifest::Manifest, Utility::Version>> resultSet;
+		std::vector<std::pair<SQLite::rowid_t, Utility::Version>> resultSet;
 
 		while (stmt.Step())
-		{
-			Manifest::Manifest manifest;
-			auto [id, version, channel] = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(
-				connection, stmt.GetColumn<SQLite::rowid_t>(0));
-			
-			manifest.Id = id;
-			manifest.Version = version;
-			manifest.Channel = channel;
-			
-			resultSet.emplace_back(std::make_pair(manifest, Utility::Version(stmt.GetColumn<std::string>(2))));
+		{	
+			resultSet.emplace_back(
+				std::make_pair(stmt.GetColumn<SQLite::rowid_t>(0), Utility::Version(stmt.GetColumn<std::string>(2))));
 		}
 
 		return resultSet;

@@ -184,7 +184,7 @@ bool HasExtension(std::string_view extension) const;
 
         bool operator <(const Dependency& rhs) const
         {
-            return Id < rhs.Id;
+            return FoldCase(Id) < FoldCase(rhs.Id);
         }
 
         bool IsVersionOk(Utility::Version version)

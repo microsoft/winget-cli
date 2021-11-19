@@ -21,6 +21,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         void PrepareForPackaging(SQLite::Connection& connection, bool vacuum) override;
 
         std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
-        std::vector<std::pair<Manifest::Manifest, Utility::Version>> GetDependenciesByPackageId(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
+        std::vector<std::pair<SQLite::rowid_t, Utility::Version>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
     };
 }

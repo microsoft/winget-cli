@@ -524,7 +524,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return {};
     }
 
-    std::vector<std::pair<Manifest::Manifest, Utility::Version>> Interface::GetDependenciesByPackageId(const SQLite::Connection&, AppInstaller::Manifest::string_t) const
+    std::vector<std::pair<SQLite::rowid_t, Utility::Version>> Interface::GetDependentsById(const SQLite::Connection&, AppInstaller::Manifest::string_t) const
     {
         return {};
     }
