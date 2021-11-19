@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
+#include <filesystem>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -142,4 +142,7 @@ namespace AppInstaller::Utility
 
     // Converts the candidate path part into one suitable for the actual file system
     std::string MakeSuitablePathPart(std::string_view candidate);
+
+    // Gets the file name part of the given URI.
+    std::filesystem::path GetFileNameFromURI(std::string_view uri);
 }
