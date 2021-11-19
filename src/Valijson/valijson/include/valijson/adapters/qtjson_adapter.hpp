@@ -26,6 +26,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include <QJsonObject>
 #include <QJsonValue>
@@ -34,6 +35,7 @@
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/adapters/basic_adapter.hpp>
 #include <valijson/adapters/frozen_value.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {
@@ -64,7 +66,7 @@ public:
 
     /// Construct a QtJsonArray referencing an empty array.
     QtJsonArray()
-      : value(emptyArray())
+      : m_value(emptyArray())
     {
     }
 
@@ -78,10 +80,10 @@ public:
      * an array.
      */
     explicit QtJsonArray(const QJsonValue &value)
-      : value(value.toArray())
+      : m_value(value.toArray())
     {
         if (!value.isArray()) {
-            throw std::runtime_error("Value is not an array.");
+            throwRuntimeError("Value is not an array.");
         }
     }
 
@@ -104,7 +106,7 @@ public:
     /// Return the number of elements in the array
     size_t size() const
     {
-        return value.size();
+        return m_value.size();
     }
 
 private:
@@ -114,14 +116,14 @@ private:
      *
      * Note that the value returned by this function is a singleton.
      */
-    static const QJsonArray emptyArray()
+    static QJsonArray emptyArray()
     {
         static const QJsonArray array;
         return array;
     }
 
     /// Reference to the contained value
-    const QJsonArray value;
+    const QJsonArray m_value;
 };
 
 /**
@@ -144,7 +146,7 @@ public:
 
     /// Construct a QtJsonObject referencing an empty object singleton.
     QtJsonObject()
-      : value(emptyObject())
+      : m_value(emptyObject())
     {
     }
 
@@ -158,10 +160,10 @@ public:
      * an object.
      */
     QtJsonObject(const QJsonValue &value)
-      : value(value.toObject())
+      : m_value(value.toObject())
     {
         if (!value.isObject()) {
-            throw std::runtime_error("Value is not an object.");
+            throwRuntimeError("Value is not an object.");
         }
     }
 
@@ -196,7 +198,7 @@ public:
     /// Returns the number of members belonging to this object.
     size_t size() const
     {
-        return value.size();
+        return m_value.size();
     }
 
 private:
@@ -213,7 +215,7 @@ private:
     }
 
     /// Reference to the contained object
-    const QJsonObject value;
+    const QJsonObject m_value;
 };
 
 /**
@@ -234,20 +236,20 @@ public:
      *
      * @param  source  the QtJson value to be copied
      */
-    explicit QtJsonFrozenValue(const QJsonValue &source)
-      : value(source) { }
+    explicit QtJsonFrozenValue(QJsonValue source)
+      : m_value(std::move(source)) { }
 
-    virtual FrozenValue * clone() const
+    FrozenValue * clone() const override
     {
-        return new QtJsonFrozenValue(value);
+        return new QtJsonFrozenValue(m_value);
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const;
+    bool equalTo(const Adapter &other, bool strict) const override;
 
 private:
 
     /// Stored QtJson value
-    QJsonValue value;
+    QJsonValue m_value;
 };
 
 /**
@@ -270,11 +272,11 @@ public:
 
     /// Construct a wrapper for the empty object singleton
     QtJsonValue()
-      : value(emptyObject()) { }
+      : m_value(emptyObject()) { }
 
     /// Construct a wrapper for a specific QtJson value
-    QtJsonValue(const QJsonValue &value)
-      : value(value) { }
+    QtJsonValue(QJsonValue value)
+      : m_value(std::move(value)) { }
 
     /**
      * @brief   Create a new QtJsonFrozenValue instance that contains the
@@ -285,7 +287,7 @@ public:
      */
     FrozenValue * freeze() const
     {
-        return new QtJsonFrozenValue(value);
+        return new QtJsonFrozenValue(m_value);
     }
 
     /**
@@ -299,8 +301,8 @@ public:
      */
     opt::optional<QtJsonArray> getArrayOptional() const
     {
-        if (value.isArray()) {
-            return opt::make_optional(QtJsonArray(value));
+        if (m_value.isArray()) {
+            return opt::make_optional(QtJsonArray(m_value));
         }
 
         return opt::optional<QtJsonArray>();
@@ -319,8 +321,8 @@ public:
      */
     bool getArraySize(size_t &result) const
     {
-        if (value.isArray()) {
-            const QJsonArray array = value.toArray();
+        if (m_value.isArray()) {
+            const QJsonArray array = m_value.toArray();
             result = array.size();
             return true;
         }
@@ -330,8 +332,8 @@ public:
 
     bool getBool(bool &result) const
     {
-        if (value.isBool()) {
-            result = value.toBool();
+        if (m_value.isBool()) {
+            result = m_value.toBool();
             return true;
         }
 
@@ -340,8 +342,8 @@ public:
 
     bool getDouble(double &result) const
     {
-        if (value.isDouble()) {
-            result = value.toDouble();
+        if (m_value.isDouble()) {
+            result = m_value.toDouble();
             return true;
         }
 
@@ -350,8 +352,8 @@ public:
 
     bool getInteger(int64_t &result) const
     {
-        if (value.isDouble()) {
-            result = value.toInt();
+        if (m_value.isDouble()) {
+            result = m_value.toInt();
             return true;
         }
 
@@ -369,8 +371,8 @@ public:
      */
     opt::optional<QtJsonObject> getObjectOptional() const
     {
-        if (value.isObject()) {
-            return opt::make_optional(QtJsonObject(value));
+        if (m_value.isObject()) {
+            return opt::make_optional(QtJsonObject(m_value));
         }
 
         return opt::optional<QtJsonObject>();
@@ -389,8 +391,8 @@ public:
      */
     bool getObjectSize(size_t &result) const
     {
-        if (value.isObject()) {
-            const QJsonObject &object = value.toObject();
+        if (m_value.isObject()) {
+            const QJsonObject &object = m_value.toObject();
             result = object.size();
             return true;
         }
@@ -400,8 +402,8 @@ public:
 
     bool getString(std::string &result) const
     {
-        if (value.isString()) {
-            result = value.toString().toStdString();
+        if (m_value.isString()) {
+            result = m_value.toString().toStdString();
             return true;
         }
 
@@ -415,56 +417,56 @@ public:
 
     bool isArray() const
     {
-        return value.isArray();
+        return m_value.isArray();
     }
 
     bool isBool() const
     {
-        return value.isBool();
+        return m_value.isBool();
     }
 
     bool isDouble() const
     {
-        return value.isDouble();
+        return m_value.isDouble();
     }
 
     bool isInteger() const
     {
         //toInt returns the default value (0, 1) if the value is not a whole number
-        return value.isDouble() && (value.toInt(0) == value.toInt(1));
+        return m_value.isDouble() && (m_value.toInt(0) == m_value.toInt(1));
     }
 
     bool isNull() const
     {
-        return value.isNull();
+        return m_value.isNull();
     }
 
     bool isNumber() const
     {
-        return value.isDouble();
+        return m_value.isDouble();
     }
 
     bool isObject() const
     {
-        return value.isObject();
+        return m_value.isObject();
     }
 
     bool isString() const
     {
-        return value.isString();
+        return m_value.isString();
     }
 
 private:
 
     /// Return a reference to an empty object singleton
-    static const QJsonValue emptyObject()
+    static QJsonValue emptyObject()
     {
         static const QJsonValue object;
         return object;
     }
 
     /// Reference to the contained QtJson value.
-    const QJsonValue value;
+    const QJsonValue m_value;
 };
 
 /**
@@ -498,17 +500,18 @@ public:
  * @brief   Class for iterating over values held in a JSON array.
  *
  * This class provides a JSON array iterator that dereferences as an instance of
- * QtJsonAdapter representing a value stored in the array. It has been
- * implemented using the std::iterator template.
+ * QtJsonAdapter representing a value stored in the array.
  *
  * @see QtJsonArray
  */
-class QtJsonArrayValueIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,     // bi-directional iterator
-        QtJsonAdapter>                     // value type
+class QtJsonArrayValueIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = QtJsonAdapter;
+    using difference_type = QtJsonAdapter;
+    using pointer = QtJsonAdapter*;
+    using reference = QtJsonAdapter&;
 
     /**
      * @brief   Construct a new QtJsonArrayValueIterator using an existing
@@ -516,15 +519,14 @@ public:
      *
      * @param   itr  QtJson iterator to store
      */
-    QtJsonArrayValueIterator(
-        const QJsonArray::const_iterator &itr)
-      : itr(itr) { }
+    QtJsonArrayValueIterator(const QJsonArray::const_iterator &itr)
+      : m_itr(itr) { }
 
     /// Returns a QtJsonAdapter that contains the value of the current
     /// element.
     QtJsonAdapter operator*() const
     {
-        return QtJsonAdapter(*itr);
+        return QtJsonAdapter(*m_itr);
     }
 
     DerefProxy<QtJsonAdapter> operator->() const
@@ -545,43 +547,43 @@ public:
      */
     bool operator==(const QtJsonArrayValueIterator &other) const
     {
-        return itr == other.itr;
+        return m_itr == other.m_itr;
     }
 
     bool operator!=(const QtJsonArrayValueIterator &other) const
     {
-        return !(itr == other.itr);
+        return !(m_itr == other.m_itr);
     }
 
     const QtJsonArrayValueIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     QtJsonArrayValueIterator operator++(int)
     {
-        QtJsonArrayValueIterator iterator_pre(itr);
+        QtJsonArrayValueIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const QtJsonArrayValueIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
 
     void advance(std::ptrdiff_t n)
     {
-        itr += n;
+        m_itr += n;
     }
 
 private:
 
-    QJsonArray::const_iterator itr;
+    QJsonArray::const_iterator m_itr;
 };
 
 /**
@@ -594,21 +596,22 @@ private:
  * @see QtJsonObject
  * @see QtJsonObjectMember
  */
-class QtJsonObjectMemberIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,  // bi-directional iterator
-        QtJsonObjectMember>             // value type
+class QtJsonObjectMemberIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = QtJsonObjectMember;
+    using difference_type = QtJsonObjectMember;
+    using pointer = QtJsonObjectMember*;
+    using reference = QtJsonObjectMember&;
 
     /**
      * @brief   Construct an iterator from a QtJson iterator.
      *
      * @param   itr  QtJson iterator to store
      */
-    QtJsonObjectMemberIterator(
-        const QJsonObject::const_iterator &itr)
-      : itr(itr) { }
+    QtJsonObjectMemberIterator(const QJsonObject::const_iterator &itr)
+      : m_itr(itr) { }
 
     /**
      * @brief   Returns a QtJsonObjectMember that contains the key and value
@@ -616,8 +619,8 @@ public:
      */
     QtJsonObjectMember operator*() const
     {
-        std::string key = itr.key().toStdString();
-        return QtJsonObjectMember(key, itr.value());
+        std::string key = m_itr.key().toStdString();
+        return QtJsonObjectMember(key, m_itr.value());
     }
 
     DerefProxy<QtJsonObjectMember> operator->() const
@@ -638,31 +641,30 @@ public:
      */
     bool operator==(const QtJsonObjectMemberIterator &other) const
     {
-        return itr == other.itr;
+        return m_itr == other.m_itr;
     }
 
     bool operator!=(const QtJsonObjectMemberIterator &other) const
     {
-        return !(itr == other.itr);
+        return !(m_itr == other.m_itr);
     }
 
     const QtJsonObjectMemberIterator& operator++()
     {
-        itr++;
-
+        m_itr++;
         return *this;
     }
 
     QtJsonObjectMemberIterator operator++(int)
     {
-        QtJsonObjectMemberIterator iterator_pre(itr);
+        QtJsonObjectMemberIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const QtJsonObjectMemberIterator& operator--(int)
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
@@ -670,7 +672,7 @@ public:
 private:
 
     /// Iternal copy of the original QtJson iterator
-    QJsonObject::const_iterator itr;
+    QJsonObject::const_iterator m_itr;
 };
 
 /// Specialisation of the AdapterTraits template struct for QtJsonAdapter.
@@ -687,33 +689,33 @@ struct AdapterTraits<valijson::adapters::QtJsonAdapter>
 
 inline bool QtJsonFrozenValue::equalTo(const Adapter &other, bool strict) const
 {
-    return QtJsonAdapter(value).equalTo(other, strict);
+    return QtJsonAdapter(m_value).equalTo(other, strict);
 }
 
 inline QtJsonArrayValueIterator QtJsonArray::begin() const
 {
-    return value.begin();
+    return m_value.begin();
 }
 
 inline QtJsonArrayValueIterator QtJsonArray::end() const
 {
-    return value.end();
+    return m_value.end();
 }
 
 inline QtJsonObjectMemberIterator QtJsonObject::begin() const
 {
-    return value.begin();
+    return m_value.begin();
 }
 
 inline QtJsonObjectMemberIterator QtJsonObject::end() const
 {
-    return value.end();
+    return m_value.end();
 }
 
 inline QtJsonObjectMemberIterator QtJsonObject::find(
     const std::string &propertyName) const
 {
-    return value.find(QString::fromStdString(propertyName));
+    return m_value.find(QString::fromStdString(propertyName));
 }
 
 }  // namespace adapters

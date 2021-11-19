@@ -1,6 +1,10 @@
 #pragma once
 
+#include <assert.h>
 #include <stdexcept>
+#include <string>
+
+#include <valijson/exceptions.hpp>
 
 /*
   Basic UTF-8 manipulation routines, adapted from code that was released into
@@ -21,14 +25,14 @@ inline bool isutf(char c) {
 }
 
 /* reads the next utf-8 sequence out of a string, updating an index */
-inline uint32_t u8_nextchar(const char *s, int *i)
+inline uint64_t u8_nextchar(const char *s, uint64_t *i)
 {
-    uint32_t ch = 0;
+    uint64_t ch = 0;
     int sz = 0;
 
     do {
         ch <<= 6;
-        ch += (unsigned char)s[(*i)++];
+        ch += static_cast<unsigned char>(s[(*i)++]);
         sz++;
     } while (s[*i] && !isutf(s[*i]));
     ch -= offsetsFromUTF8[sz-1];
@@ -39,14 +43,13 @@ inline uint32_t u8_nextchar(const char *s, int *i)
 /* number of characters */
 inline uint64_t u8_strlen(const char *s)
 {
-    static const int maxLength = std::numeric_limits<int>::max();
-
+    constexpr auto maxLength = std::numeric_limits<uint64_t>::max();
     uint64_t count = 0;
-    int i = 0;
+    uint64_t i = 0;
 
     while (s[i] != 0 && u8_nextchar(s, &i) != 0) {
         if (i == maxLength) {
-            throw std::runtime_error(
+            throwRuntimeError(
                     "String exceeded maximum size of " +
                     std::to_string(maxLength) + " bytes.");
         }

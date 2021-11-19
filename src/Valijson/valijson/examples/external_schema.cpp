@@ -5,11 +5,8 @@
  *
  */
 
-#include <fstream>
 #include <iostream>
 #include <stdexcept>
-
-#include <rapidjson/document.h>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/utils/rapidjson_utils.hpp>
@@ -68,13 +65,13 @@ int main(int argc, char *argv[])
         ValidationResults::Error error;
         unsigned int errorNum = 1;
         while (results.popError(error)) {
-        
+
             std::string context;
             std::vector<std::string>::iterator itr = error.context.begin();
             for (; itr != error.context.end(); itr++) {
                 context += *itr;
             }
-            
+
             cerr << "Error #" << errorNum << std::endl
                  << "  context: " << context << endl
                  << "  desc:    " << error.description << endl;

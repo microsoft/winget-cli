@@ -36,7 +36,11 @@ TEST_F(TestValidationErrors, AllOfConstraintFailure)
     // Parse schema document
     Schema schema;
     SchemaParser schemaParser;
-    ASSERT_NO_THROW( schemaParser.populateSchema(schemaAdapter, schema) );
+#if VALIJSON_USE_EXCEPTIONS
+    ASSERT_NO_THROW(schemaParser.populateSchema(schemaAdapter, schema));
+#else
+    schemaParser.populateSchema(schemaAdapter, schema);
+#endif
 
     // Load test document
     rapidjson::Document testDocument;

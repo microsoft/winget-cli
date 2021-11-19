@@ -14,14 +14,17 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
-        // Get the base download path for the installer path.
-        // This path does not include the file extension, which will be added
-        // after verifying the file hash to prevent it from being ShellExecute-d
+        // Get the base download directory path for the installer.
+        // Also creates the directory as necessary.
         std::filesystem::path GetInstallerBaseDownloadPath(Execution::Context& context)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
+
             std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
             tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+
+            std::filesystem::create_directories(tempInstallerPath);
+
             return tempInstallerPath;
         }
 
@@ -47,6 +50,35 @@ namespace AppInstaller::CLI::Workflow
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
+        }
+
+        // Gets a file name that should not be able to ShellExecute.
+        std::filesystem::path GetInstallerPreHashValidationFileName(Execution::Context& context)
+        {
+            return { SHA256::ConvertToString(context.Get<Execution::Data::Installer>()->Sha256) };
+        }
+
+        // Gets the file name that can be used to ShellExecute the file.
+        std::filesystem::path GetInstallerPostHashValidationFileName(Execution::Context& context)
+        {
+            // Get file name from download URI
+            std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
+
+            // Assuming that we find a stem value in the URI, use it.
+            // This should be extremely common, but just in case fall back to the older name style.
+            if (filename.has_stem())
+            {
+                filename = filename.stem();
+            }
+            else
+            {
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+                filename = Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+            }
+
+            filename += GetInstallerFileExtension(context);
+
+            return filename;
         }
 
         // Try to remove the installer file, ignoring any errors.
@@ -216,11 +248,12 @@ namespace AppInstaller::CLI::Workflow
 
         // Try looking for the file with and without extension.
         auto installerPath = GetInstallerBaseDownloadPath(context);
+        auto installerFilename = GetInstallerPreHashValidationFileName(context);
         SHA256::HashBuffer fileHash;
-        if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath, fileHash))
+        if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath / installerFilename, fileHash))
         {
-            installerPath += GetInstallerFileExtension(context);
-            if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath, fileHash))
+            installerFilename = GetInstallerPostHashValidationFileName(context);
+            if (!ExistingInstallerFileHasHashMatch(installer.Sha256, installerPath / installerFilename, fileHash))
             {
                 // No match
                 return;
@@ -228,7 +261,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         AICLI_LOG(CLI, Info, << "Existing installer file hash matches. Will use existing installer.");
-        context.Add<Execution::Data::InstallerPath>(installerPath);
+        context.Add<Execution::Data::InstallerPath>(installerPath / installerFilename);
         context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, fileHash));
     }
 
@@ -237,6 +270,7 @@ namespace AppInstaller::CLI::Workflow
         if (!context.Contains(Execution::Data::InstallerPath))
         {
             auto tempInstallerPath = GetInstallerBaseDownloadPath(context);
+            tempInstallerPath /= GetInstallerPreHashValidationFileName(context);
             AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
             context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
         }
@@ -467,15 +501,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        auto installerExtension = GetInstallerFileExtension(context);
-        if (installerPath.extension() == installerExtension)
+        std::filesystem::path renamedDownloadedInstaller = installerPath;
+        renamedDownloadedInstaller.replace_filename(GetInstallerPostHashValidationFileName(context));
+
+        if (installerPath == renamedDownloadedInstaller)
         {
-            // Installer file already has expected extension.
+            // In case we are reusing an existing downloaded file
             return;
         }
-
-        std::filesystem::path renamedDownloadedInstaller(installerPath);
-        renamedDownloadedInstaller += installerExtension;
 
         RenameFile(installerPath, renamedDownloadedInstaller);
 
