@@ -184,6 +184,7 @@ namespace AppInstaller::CLI::Execution
     void Context::SetTerminationHR(HRESULT hr)
     {
         m_terminationHR = hr;
+        m_isTerminated = FAILED(hr);
     }
 
     void Context::Cancel(bool exitIfStuck, bool bypassUser)
