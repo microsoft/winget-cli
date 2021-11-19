@@ -127,9 +127,12 @@ namespace AppInstaller::Repository
 			std::for_each(
 				packageLatestDependencies.begin(),
 				packageLatestDependencies.end(),
-				[&](std::pair<Dependency, SQLite::rowid_t> row)
+				[&](std::pair<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> row)
 				{
-					depList.Add(row.first);
+					auto manifestRowId = index->GetManifestIdByKey(row.first.first, "", "");
+					auto packageId = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::Id);
+					Dependency dep(DependencyType::Package, packageId.value(), row.first.second);
+					depList.Add(dep);
 				});
 
 			return depList;

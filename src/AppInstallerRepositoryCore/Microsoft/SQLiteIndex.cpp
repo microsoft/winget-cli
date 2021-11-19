@@ -314,12 +314,12 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->NormalizeName(name, publisher);
     }
 
-    std::map<Manifest::Dependency, SQLite::rowid_t> SQLiteIndex::GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const
+    std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> SQLiteIndex::GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const
     {
         return m_interface->GetDependenciesByManifestRowId(m_dbconn, manifestRowId);
     }
 
-    std::vector<std::pair<SQLite::rowid_t, Utility::Version>> SQLiteIndex::GetDependentsById(AppInstaller::Manifest::string_t packageId) const
+    std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> SQLiteIndex::GetDependentsById(AppInstaller::Manifest::string_t packageId) const
     {
         return m_interface->GetDependentsById(m_dbconn, packageId);
     }

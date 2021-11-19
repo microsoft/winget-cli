@@ -33,10 +33,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         static void RemoveDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
 
         // Get dependencies the dependencies
-        static std::map<Manifest::Dependency, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
+        static std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
 
         // Get dependencies by package id.
-        static std::vector<std::pair<SQLite::rowid_t, Utility::Version>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId);
+        static std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId);
 
         static void PrepareForPackaging(SQLite::Connection& connection);
     };

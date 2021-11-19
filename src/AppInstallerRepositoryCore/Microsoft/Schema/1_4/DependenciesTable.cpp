@@ -71,6 +71,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			savepoint.Commit();
 		}
 
+		void ThrowOnMissingPackageNodes(std::vector<Manifest::Dependency> missingPackageNodes)
+		{
+			if (!missingPackageNodes.empty())
+			{
+				std::string missingPackages{ missingPackageNodes.begin()->Id };
+				std::for_each(
+					missingPackageNodes.begin() + 1,
+					missingPackageNodes.end(),
+					[&](auto& dep) { missingPackages.append(", " + dep.Id);  });
+				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %s", missingPackages.c_str());
+			}
+		}
+
 		void InsertManifestDependencies(
 			SQLite::Connection& connection,
 			SQLite::rowid_t manifestRowId,
@@ -114,15 +127,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 				versionsMap[depMinVersion] = VersionTable::SelectIdByValue(connection, depMinVersion.ToString()).value();
 			}
 
-			if (!missingPackageNodes.empty())
-			{
-				std::string missingPackages{ missingPackageNodes.begin()->Id };
-				std::for_each(
-					missingPackageNodes.begin() + 1,
-					missingPackageNodes.end(),
-					[&](auto& dep) { missingPackages.append(", " + dep.Id);  });
-				THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %s", missingPackages.c_str());
-			}
+			ThrowOnMissingPackageNodes(missingPackageNodes);
 
 			StatementBuilder insertBuilder;
 			insertBuilder.InsertInto(s_DependenciesTable_Table_Name)
@@ -139,6 +144,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 				insert.Execute(true);
 			}
+		}
+
+		std::optional<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetPackageRowIdAndVersion(SQLite::Connection& connection, const Manifest::Dependency& dependency)
+		{
+			std::optional<std::pair<SQLite::rowid_t, Utility::NormalizedString>> row;
+
+			auto packageId = IdTable::SelectIdByValue(connection, dependency.Id);
+
+			if (packageId.has_value())
+			{
+				row = std::make_pair(packageId.value(), dependency.MinVersion.value().ToString());
+			}
+
+			return row;
 		}
 	}
 
@@ -200,7 +219,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies_v1_4");
 
 		const auto dependencies = GetDependencies(manifest, Manifest::DependencyType::Package);
-
 		auto existingDependencies = GetDependenciesByManifestRowId(connection, manifestRowId);
 		
 		// Get dependencies to add.
@@ -211,19 +229,42 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 			std::inserter(toAddDependencies, toAddDependencies.begin()),
 			[&](Manifest::Dependency dep) 
 			{ 
-				return existingDependencies.find(dep) == existingDependencies.end(); 
+				auto depRow = GetPackageRowIdAndVersion(connection, dep);
+				return existingDependencies.find(depRow.value()) == existingDependencies.end();
 			}
 		);
 
 		// Get dependencies to remove.
 		std::vector<SQLite::rowid_t> toRemoveDependencies;
+		std::vector<Manifest::Dependency> missingPackageNodes;
+		std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> dependenciesPackageIdAndVersion;
+		std::for_each(
+			dependencies.begin(),
+			dependencies.end(),
+			[&](auto& dep) 
+			{ 
+				auto depRow = GetPackageRowIdAndVersion(connection, dep);
+				if (!depRow.has_value())
+				{
+					missingPackageNodes.emplace_back(dep);
+					return;
+				}
+
+				dependenciesPackageIdAndVersion.emplace(depRow.value());
+			}
+		);
+
+		ThrowOnMissingPackageNodes(missingPackageNodes);
+
 		std::for_each(
 			existingDependencies.begin(),
 			existingDependencies.end(),
-			[&](std::pair<Manifest::Dependency, SQLite::rowid_t> row)
-			{ 
-				if (dependencies.find(row.first) == dependencies.end())
-					toRemoveDependencies.emplace_back(row.second);  
+			[&](std::pair<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> row)
+			{
+				if (dependenciesPackageIdAndVersion.find(row.first) == dependenciesPackageIdAndVersion.end())
+				{
+					toRemoveDependencies.emplace_back(row.second);
+				}
 			}
 		);
 		
@@ -244,7 +285,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		savepoint.Commit();
 	}
 
-	std::vector<std::pair<SQLite::rowid_t, Utility::Version>> DependenciesTable::GetDependentsById(const SQLite::Connection& connection, Manifest::string_t packageId)
+	std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> DependenciesTable::GetDependentsById(const SQLite::Connection& connection, Manifest::string_t packageId)
 	{
 		constexpr std::string_view depTableAlias = "dep";
 		constexpr std::string_view minVersionAlias = "minV";
@@ -271,40 +312,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		SQLite::Statement stmt = builder.Prepare(connection);
 		stmt.Bind(1, std::string{ packageId });
 
-		std::vector<std::pair<SQLite::rowid_t, Utility::Version>> resultSet;
+		std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> resultSet;
 
 		while (stmt.Step())
 		{	
 			resultSet.emplace_back(
-				std::make_pair(stmt.GetColumn<SQLite::rowid_t>(0), Utility::Version(stmt.GetColumn<std::string>(2))));
+				std::make_pair(stmt.GetColumn<SQLite::rowid_t>(0), Utility::NormalizedString(stmt.GetColumn<std::string>(2))));
 		}
 
 		return resultSet;
 	}
 
-	std::map<Manifest::Dependency, SQLite::rowid_t> DependenciesTable::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
+	std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> DependenciesTable::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
 	{
 		SQLite::Builder::StatementBuilder builder;
 
 		constexpr std::string_view depTableAlias = "dep";
 		constexpr std::string_view minVersionAlias = "minV";
-		constexpr std::string_view packageIdAlias = "pId";
 
-		std::map<Manifest::Dependency, SQLite::rowid_t> resultSet;
+		std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> resultSet;
 
-		// SELECT [dep].[rowid], [minV].[version], [pId].[id] FROM [dependencies] AS [dep] 
-		// JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version] 
-		// JOIN [ids] AS [pId] ON [pId].[rowid] = [dep].[package_id] 
+		// SELECT [dep].[rowid], [minV].[version], [dep].[id] FROM [dependencies] AS [dep] 
+		// JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version]
 		// WHERE [dep].[manifest] = ?
 		builder.Select().
 			Column(QCol(depTableAlias, SQLite::RowIDName))
 			.Column(QCol(minVersionAlias, VersionTable::ValueName()))
-			.Column(QCol(packageIdAlias, IdTable::ValueName()))
+			.Column(QCol(depTableAlias, s_DependenciesTable_PackageId_Column_Name))
 			.From({ s_DependenciesTable_Table_Name }).As(depTableAlias)
 			.Join({ VersionTable::TableName() }).As(minVersionAlias)
 			.On(QCol(minVersionAlias, SQLite::RowIDName), QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name))
-			.Join({ IdTable::TableName() }).As(packageIdAlias)
-			.On(QCol(packageIdAlias, SQLite::RowIDName), QCol(depTableAlias, s_DependenciesTable_PackageId_Column_Name))
 			.Where(QCol(depTableAlias, s_DependenciesTable_Manifest_Column_Name)).Equals(Unbound);
 
 		SQLite::Statement select = builder.Prepare(connection);
@@ -313,7 +350,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 		while (select.Step())
 		{
 			resultSet.emplace(
-				Manifest::Dependency(Manifest::DependencyType::Package, select.GetColumn<std::string>(2), select.GetColumn<std::string>(1)),
+				std::make_pair(select.GetColumn<SQLite::rowid_t>(2), Utility::NormalizedString(select.GetColumn<std::string>(1))),
 				select.GetColumn<SQLite::rowid_t>(0));
 		}
 
