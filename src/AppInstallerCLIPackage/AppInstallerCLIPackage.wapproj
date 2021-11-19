@@ -151,16 +151,25 @@
   </PropertyGroup>
   <Target Name="IncludeWinMdInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
+      <WindowsPackageManagerPath>$(OutputPath)\..\WindowsPackageManager.dll</WindowsPackageManagerPath>
+      <WindowsPackageManagerPath Condition="!Exists('$(WindowsPackageManagerPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll</WindowsPackageManagerPath>
+      <WindowsPackageManagerFileName>WindowsPackageManager.dll</WindowsPackageManagerFileName>
       <MicrosoftManagementDeploymentPath>$(OutputPath)\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentPath Condition="!Exists('$(MicrosoftManagementDeploymentPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentFileName>Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentFileName>
     </PropertyGroup>
     <ItemGroup>
+      <WindowsPackageManagerItem Include="$(WindowsPackageManagerPath)" />
       <MicrosoftManagementDeploymentWinmd Include="$(MicrosoftManagementDeploymentPath)" />
     </ItemGroup>
+    <Error Condition="!Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) was not found" />
     <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
+    <Message Importance="normal" Condition="Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) -&gt; $(WindowsPackageManagerFileName)" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) -&gt; $(MicrosoftManagementDeploymentFileName)" />
     <ItemGroup>
+      <AppxPackagePayload Include="@(WindowsPackageManagerItem)" KeepDuplicates="false">
+        <TargetPath>$(WindowsPackageManagerFileName)</TargetPath>
+      </AppxPackagePayload>
       <AppxPackagePayload Include="@(MicrosoftManagementDeploymentWinmd)" KeepDuplicates="false">
         <TargetPath>$(MicrosoftManagementDeploymentFileName)</TargetPath>
       </AppxPackagePayload>

@@ -4,6 +4,8 @@
 namespace AppInstallerCLIE2ETests
 {
     using Microsoft.Win32;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using System;
     using System.IO;
@@ -44,7 +46,7 @@ namespace AppInstallerCLIE2ETests
                 }
                 else
                 {
-                    TestCommon.AICLIPath = TestCommon.GetTestFile("AppInstallerCli.exe");
+                    TestCommon.AICLIPath = TestCommon.GetTestFile("winget.exe");
                 }
             }
 
@@ -97,6 +99,8 @@ namespace AppInstallerCLIE2ETests
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();
+
+            InitializeWingetSettings();
         }
 
         [OneTimeTearDown]
@@ -193,6 +197,29 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
+        }
+
+        public void InitializeWingetSettings()
+        {
+            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
+
+            var settingsJson = new
+            {
+                experimentalFeatures = new
+                {
+                    experimentalArg = false,
+                    experimentalCmd = false,
+                    dependencies = false,
+                    directMSI = false,
+                },
+                debugging = new
+                {
+                    enableSelfInitiatedMinidump = true
+                }
+            };
+
+            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
+            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
         }
     }
 }

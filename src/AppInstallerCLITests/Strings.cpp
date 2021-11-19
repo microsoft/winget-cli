@@ -187,3 +187,10 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     REQUIRE_THROWS_HR(MakeSuitablePathPart("COM1"), E_INVALIDARG);
     REQUIRE_THROWS_HR(MakeSuitablePathPart("NUL.txt"), E_INVALIDARG);
 }
+
+TEST_CASE("GetFileNameFromURI", "[strings]")
+{
+    REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/pull/1722").u8string() == "1722");
+    REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/README.md").u8string() == "README.md");
+    REQUIRE(GetFileNameFromURI("https://microsoft.com/").u8string() == "");
+}

@@ -7,6 +7,11 @@
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
+#include "COMContext.h"
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <winget/Debugging.h>
+#endif
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -57,6 +62,13 @@ namespace AppInstaller::CLI
         Logging::Log().SetLevel(Logging::Level::Info);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
@@ -135,5 +147,10 @@ namespace AppInstaller::CLI
     catch (...)
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    void ServerInitialize()
+    {
+        AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }

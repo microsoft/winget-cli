@@ -93,6 +93,7 @@
   <ImportGroup Label="Shared">
     <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
     <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
+    <Import Project="..\COMServer\COMServer.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -277,6 +278,7 @@
   <ItemGroup>
     <ClInclude Include="DODownloader.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
+    <ClInclude Include="Public\winget\Debugging.h" />
     <ClInclude Include="Public\winget\DependenciesGraph.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
@@ -330,6 +332,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
+    <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="GroupPolicy.cpp">

@@ -24,11 +24,13 @@ TEST_F(TestPicoJsonAdapter, BasicArrayIteration)
     // Ensure that wrapping the document preserves the array and does not allow
     // it to be cast to other types
     valijson::adapters::PicoJsonAdapter adapter(document);
+#if VALIJSON_USE_EXCEPTIONS
     ASSERT_NO_THROW( adapter.getArray() );
     ASSERT_ANY_THROW( adapter.getBool() );
     ASSERT_ANY_THROW( adapter.getDouble() );
     ASSERT_ANY_THROW( adapter.getObject() );
     ASSERT_ANY_THROW( adapter.getString() );
+#endif
 
     // Ensure that the array contains the expected number of elements
     EXPECT_EQ( numElements, adapter.getArray().size() );
@@ -61,11 +63,13 @@ TEST_F(TestPicoJsonAdapter, BasicObjectIteration)
     // Ensure that wrapping the document preserves the object and does not
     // allow it to be cast to other types
     valijson::adapters::PicoJsonAdapter adapter(document);
+#if VALIJSON_USE_EXCEPTIONS
     ASSERT_NO_THROW( adapter.getObject() );
     ASSERT_ANY_THROW( adapter.getArray() );
     ASSERT_ANY_THROW( adapter.getBool() );
     ASSERT_ANY_THROW( adapter.getDouble() );
     ASSERT_ANY_THROW( adapter.getString() );
+#endif
 
     // Ensure that the object contains the expected number of members
     EXPECT_EQ( numElements, adapter.getObject().size() );

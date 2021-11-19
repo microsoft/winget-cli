@@ -31,6 +31,7 @@
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/adapters/basic_adapter.hpp>
 #include <valijson/adapters/frozen_value.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {
@@ -61,7 +62,7 @@ public:
 
     /// Construct a PocoJsonArray referencing an empty array.
     PocoJsonArray()
-        : value(emptyArray())
+        : m_value(emptyArray())
     { }
 
     /**
@@ -74,10 +75,10 @@ public:
     * an array.
     */
     PocoJsonArray(const Poco::Dynamic::Var &value)
-        : value(value)
+        : m_value(value)
     {
         if (value.type() != typeid(Poco::JSON::Array::Ptr)) {
-            throw std::runtime_error("Value is not an array.");
+            throwRuntimeError("Value is not an array.");
         }
     }
 
@@ -100,7 +101,7 @@ public:
     /// Return the number of elements in the array
     size_t size() const
     {
-        return value.extract<Poco::JSON::Array::Ptr>()->size();
+        return m_value.extract<Poco::JSON::Array::Ptr>()->size();
     }
 
 private:
@@ -115,7 +116,7 @@ private:
     }
 
     /// Contained value
-    Poco::Dynamic::Var value;
+    Poco::Dynamic::Var m_value;
 };
 
 /**
@@ -138,7 +139,7 @@ public:
 
     /// Construct a PocoJsonObject an empty object.
     PocoJsonObject()
-        : value(emptyObject())
+        : m_value(emptyObject())
     { }
 
     /**
@@ -151,10 +152,10 @@ public:
     * an object.
     */
     PocoJsonObject(const Poco::Dynamic::Var &value)
-        : value(value)
+        : m_value(value)
     {
         if (value.type() != typeid(Poco::JSON::Object::Ptr)) {
-            throw std::runtime_error("Value is not an object.");
+            throwRuntimeError("Value is not an object.");
         }
     }
 
@@ -189,7 +190,7 @@ public:
     /// Returns the number of members belonging to this object.
     size_t size() const
     {
-        return value.extract<Poco::JSON::Object::Ptr>()->size();
+        return m_value.extract<Poco::JSON::Object::Ptr>()->size();
     }
 
 private:
@@ -204,7 +205,7 @@ private:
     }
 
     /// Contained value
-    Poco::Dynamic::Var value;
+    Poco::Dynamic::Var m_value;
 };
 
 /**
@@ -226,12 +227,12 @@ public:
     * @param  source  the PocoJson value to be copied
     */
     explicit PocoJsonFrozenValue(const Poco::Dynamic::Var &source)
-        : value(source)
+        : m_value(source)
     { }
 
     virtual FrozenValue * clone() const
     {
-        return new PocoJsonFrozenValue(value);
+        return new PocoJsonFrozenValue(m_value);
     }
 
     virtual bool equalTo(const Adapter &other, bool strict) const;
@@ -239,7 +240,7 @@ public:
 private:
 
     /// Stored PocoJson value
-    Poco::Dynamic::Var value;
+    Poco::Dynamic::Var m_value;
 };
 
 
@@ -263,12 +264,12 @@ public:
 
     /// Construct a wrapper for the empty object
     PocoJsonValue()
-        : value(emptyObject())
+        : m_value(emptyObject())
     { }
 
     /// Construct a wrapper for a specific PocoJson value
     PocoJsonValue(const Poco::Dynamic::Var& value)
-        : value(value)
+        : m_value(value)
     { }
 
     /**
@@ -280,7 +281,7 @@ public:
     */
     FrozenValue * freeze() const
     {
-        return new PocoJsonFrozenValue(value);
+        return new PocoJsonFrozenValue(m_value);
     }
 
     /**
@@ -294,8 +295,8 @@ public:
     */
     opt::optional<PocoJsonArray> getArrayOptional() const
     {
-        if (value.type() == typeid(Poco::JSON::Array::Ptr)) {
-            return opt::make_optional(PocoJsonArray(value));
+        if (m_value.type() == typeid(Poco::JSON::Array::Ptr)) {
+            return opt::make_optional(PocoJsonArray(m_value));
         }
 
         return opt::optional<PocoJsonArray>();
@@ -314,8 +315,8 @@ public:
     */
     bool getArraySize(size_t &result) const
     {
-        if (value.type() == typeid(Poco::JSON::Array::Ptr)) {
-            result = value.extract<Poco::JSON::Array::Ptr>()->size();
+        if (m_value.type() == typeid(Poco::JSON::Array::Ptr)) {
+            result = m_value.extract<Poco::JSON::Array::Ptr>()->size();
             return true;
         }
 
@@ -324,8 +325,8 @@ public:
 
     bool getBool(bool &result) const
     {
-        if (value.isBoolean()) {
-            result = value.convert<bool>();
+        if (m_value.isBoolean()) {
+            result = m_value.convert<bool>();
             return true;
         }
 
@@ -334,8 +335,8 @@ public:
 
     bool getDouble(double &result) const
     {
-        if (value.isNumeric() && !value.isInteger()) {
-            result = value.convert<double>();
+        if (m_value.isNumeric() && !m_value.isInteger()) {
+            result = m_value.convert<double>();
             return true;
         }
 
@@ -344,8 +345,8 @@ public:
 
     bool getInteger(int64_t &result) const
     {
-        if (value.isInteger()) {
-            result = value.convert<int>();
+        if (m_value.isInteger()) {
+            result = m_value.convert<int>();
             return true;
         }
         return false;
@@ -362,8 +363,8 @@ public:
     */
     opt::optional<PocoJsonObject> getObjectOptional() const
     {
-        if (value.type() == typeid(Poco::JSON::Object::Ptr)) {
-            return opt::make_optional(PocoJsonObject(value));
+        if (m_value.type() == typeid(Poco::JSON::Object::Ptr)) {
+            return opt::make_optional(PocoJsonObject(m_value));
         }
 
         return opt::optional<PocoJsonObject>();
@@ -382,8 +383,8 @@ public:
     */
     bool getObjectSize(size_t &result) const
     {
-        if (value.type() == typeid(Poco::JSON::Object::Ptr)) {
-            result = value.extract<Poco::JSON::Object::Ptr>()->size();
+        if (m_value.type() == typeid(Poco::JSON::Object::Ptr)) {
+            result = m_value.extract<Poco::JSON::Object::Ptr>()->size();
             return true;
         }
 
@@ -392,8 +393,8 @@ public:
 
     bool getString(std::string &result) const
     {
-        if (value.isString()) {
-            result = value.convert<std::string>();
+        if (m_value.isString()) {
+            result = m_value.convert<std::string>();
             return true;
         }
 
@@ -407,42 +408,42 @@ public:
 
     bool isArray() const
     {
-        return value.type() == typeid(Poco::JSON::Array::Ptr);
+        return m_value.type() == typeid(Poco::JSON::Array::Ptr);
     }
 
     bool isBool() const
     {
-        return value.isBoolean();
+        return m_value.isBoolean();
     }
 
     bool isDouble() const
     {
-        return value.isNumeric() && !value.isInteger();
+        return m_value.isNumeric() && !m_value.isInteger();
     }
 
     bool isInteger() const
     {
-        return !isBool() && value.isInteger();
+        return !isBool() && m_value.isInteger();
     }
 
     bool isNull() const
     {
-        return value.isEmpty();
+        return m_value.isEmpty();
     }
 
     bool isNumber() const
     {
-        return value.isNumeric();
+        return m_value.isNumeric();
     }
 
     bool isObject() const
     {
-        return value.type() == typeid(Poco::JSON::Object::Ptr);
+        return m_value.type() == typeid(Poco::JSON::Object::Ptr);
     }
 
     bool isString() const
     {
-        return value.isString();
+        return m_value.isString();
     }
 
 private:
@@ -455,7 +456,7 @@ private:
     }
 
     /// Contained value
-    Poco::Dynamic::Var value;
+    Poco::Dynamic::Var m_value;
 };
 
 /**
@@ -495,12 +496,14 @@ public:
 *
 * @see PocoJsonArray
 */
-class PocoJsonArrayValueIterator :
-    public std::iterator<
-    std::bidirectional_iterator_tag,  // bi-directional iterator
-    PocoJsonAdapter>                 // value type
+class PocoJsonArrayValueIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = PocoJsonAdapter;
+    using difference_type = PocoJsonAdapter;
+    using pointer = PocoJsonAdapter*;
+    using reference = PocoJsonAdapter&;
 
     /**
     * @brief   Construct a new PocoJsonArrayValueIterator using an existing
@@ -509,14 +512,14 @@ public:
     * @param   itr  PocoJson iterator to store
     */
     PocoJsonArrayValueIterator(const Poco::JSON::Array::ConstIterator &itr)
-        : itr(itr)
+        : m_itr(itr)
     { }
 
     /// Returns a PocoJsonAdapter that contains the value of the current
     /// element.
     PocoJsonAdapter operator*() const
     {
-        return PocoJsonAdapter(*itr);
+        return PocoJsonAdapter(*m_itr);
     }
 
     DerefProxy<PocoJsonAdapter> operator->() const
@@ -537,42 +540,42 @@ public:
     */
     bool operator==(const PocoJsonArrayValueIterator &other) const
     {
-        return itr == other.itr;
+        return m_itr == other.m_itr;
     }
 
     bool operator!=(const PocoJsonArrayValueIterator &other) const
     {
-        return !(itr == other.itr);
+        return !(m_itr == other.m_itr);
     }
 
     const PocoJsonArrayValueIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     PocoJsonArrayValueIterator operator++(int)
     {
-        PocoJsonArrayValueIterator iterator_pre(itr);
+        PocoJsonArrayValueIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const PocoJsonArrayValueIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
 
     void advance(std::ptrdiff_t n)
     {
-        itr += n;
+        m_itr += n;
     }
 
 private:
-    Poco::JSON::Array::ConstIterator itr;
+    Poco::JSON::Array::ConstIterator m_itr;
 };
 
 
@@ -586,12 +589,14 @@ private:
 * @see PocoJsonObject
 * @see PocoJsonObjectMember
 */
-class PocoJsonObjectMemberIterator :
-    public std::iterator<
-    std::bidirectional_iterator_tag,     // bi-directional iterator
-    PocoJsonObjectMember>            // value type
+class PocoJsonObjectMemberIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = PocoJsonObjectMember;
+    using difference_type = PocoJsonObjectMember;
+    using pointer = PocoJsonObjectMember*;
+    using reference = PocoJsonObjectMember&;
 
     /**
     * @brief   Construct an iterator from a PocoJson iterator.
@@ -599,7 +604,7 @@ public:
     * @param   itr  PocoJson iterator to store
     */
     PocoJsonObjectMemberIterator(const Poco::JSON::Object::ConstIterator &itr)
-        : itr(itr)
+        : m_itr(itr)
     { }
 
     /**
@@ -608,7 +613,7 @@ public:
     */
     PocoJsonObjectMember operator*() const
     {
-        return PocoJsonObjectMember(itr->first, itr->second);
+        return PocoJsonObjectMember(m_itr->first, m_itr->second);
     }
 
     DerefProxy<PocoJsonObjectMember> operator->() const
@@ -629,31 +634,31 @@ public:
     */
     bool operator==(const PocoJsonObjectMemberIterator &other) const
     {
-        return itr == other.itr;
+        return m_itr == other.m_itr;
     }
 
     bool operator!=(const PocoJsonObjectMemberIterator &other) const
     {
-        return !(itr == other.itr);
+        return !(m_itr == other.m_itr);
     }
 
     const PocoJsonObjectMemberIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     PocoJsonObjectMemberIterator operator++(int)
     {
-        PocoJsonObjectMemberIterator iterator_pre(itr);
+        PocoJsonObjectMemberIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const PocoJsonObjectMemberIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
@@ -661,7 +666,7 @@ public:
 private:
 
     /// Iternal copy of the original PocoJson iterator
-    Poco::JSON::Object::ConstIterator itr;
+    Poco::JSON::Object::ConstIterator m_itr;
 };
 
 /// Specialisation of the AdapterTraits template struct for PocoJsonAdapter.
@@ -678,32 +683,29 @@ struct AdapterTraits<valijson::adapters::PocoJsonAdapter>
 
 inline PocoJsonArrayValueIterator PocoJsonArray::begin() const
 {
-    return value.extract<Poco::JSON::Array::Ptr>()->begin();
+    return m_value.extract<Poco::JSON::Array::Ptr>()->begin();
 }
 
 inline PocoJsonArrayValueIterator PocoJsonArray::end() const
 {
-    return value.extract<Poco::JSON::Array::Ptr>()->end();
+    return m_value.extract<Poco::JSON::Array::Ptr>()->end();
 }
 
 inline PocoJsonObjectMemberIterator PocoJsonObject::begin() const
 {
-    return value.extract<Poco::JSON::Object::Ptr>()->begin();
+    return m_value.extract<Poco::JSON::Object::Ptr>()->begin();
 }
 
 inline PocoJsonObjectMemberIterator PocoJsonObject::end() const
 {
-    return value.extract<Poco::JSON::Object::Ptr>()->end();
+    return m_value.extract<Poco::JSON::Object::Ptr>()->end();
 }
 
-inline PocoJsonObjectMemberIterator PocoJsonObject::find(
-    const std::string &propertyName) const
+inline PocoJsonObjectMemberIterator PocoJsonObject::find(const std::string &propertyName) const
 {
-    auto& ptr = value.extract<Poco::JSON::Object::Ptr>();
+    auto& ptr = m_value.extract<Poco::JSON::Object::Ptr>();
 
-    auto it = std::find_if(ptr->begin(), ptr->end(),
-                            [&propertyName](const Poco::JSON::Object::ValueType& p)
-    {
+    auto it = std::find_if(ptr->begin(), ptr->end(), [&propertyName](const Poco::JSON::Object::ValueType& p) {
         return p.first == propertyName;
     });
     return it;
@@ -711,7 +713,7 @@ inline PocoJsonObjectMemberIterator PocoJsonObject::find(
 
 inline bool PocoJsonFrozenValue::equalTo(const Adapter &other, bool strict) const
 {
-    return PocoJsonAdapter(value).equalTo(other, strict);
+    return PocoJsonAdapter(m_value).equalTo(other, strict);
 }
 
 }  // namespace adapters

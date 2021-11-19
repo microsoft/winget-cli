@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#include <AppInstallerCLICore.h>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <WindowsPackageManager.h>
 
 int wmain(int argc, wchar_t const** argv)
 {
-    return AppInstaller::CLI::CoreMain(argc, argv);
+    return WindowsPackageManagerCLIMain(argc, argv);
 }

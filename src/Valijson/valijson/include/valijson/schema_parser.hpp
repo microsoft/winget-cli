@@ -14,11 +14,7 @@
 #include <valijson/internal/uri.hpp>
 #include <valijson/constraint_builder.hpp>
 #include <valijson/schema.hpp>
-
-#ifdef __clang__
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wunused-local-typedef"
-#endif
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 
@@ -41,23 +37,20 @@ public:
         kDraft7
     };
 
-    /// Version of JSON Schema that should be expected when parsing
-    const Version version;
-
     /**
      * @brief  Construct a new SchemaParser for a given version of JSON Schema
      *
      * @param  version  Version of JSON Schema that will be expected
      */
-    SchemaParser(const Version version = kDraft7)
-      : version(version) { }
+    explicit SchemaParser(const Version version = kDraft7)
+      : m_version(version) { }
 
     /**
      * @brief  Release memory associated with custom ConstraintBuilders
      */
-    ~SchemaParser()
+    virtual ~SchemaParser()
     {
-        for (auto entry : constraintBuilders) {
+        for (const auto& entry : constraintBuilders) {
             delete entry.second;
         }
     }
@@ -68,14 +61,13 @@ public:
     template<typename AdapterType>
     struct FunctionPtrs
     {
-        typedef typename adapters::AdapterTraits<AdapterType>::DocumentType
-                DocumentType;
+        typedef typename adapters::AdapterTraits<AdapterType>::DocumentType DocumentType;
 
         /// Templated function pointer type for fetching remote documents
-        typedef std::function< const DocumentType* (const std::string &uri) >  FetchDoc ;
+        typedef std::function<const DocumentType* (const std::string &uri)> FetchDoc;
 
         /// Templated function pointer type for freeing fetched documents
-        typedef std::function< void (const DocumentType *)> FreeDoc ;
+        typedef std::function<void (const DocumentType *)> FreeDoc;
     };
 
     /**
@@ -96,8 +88,7 @@ public:
      * @todo   Add additional checks for key conflicts, empty keys, and
      *         potential restrictions relating to case sensitivity
      */
-    void addConstraintBuilder(const std::string &key,
-            const ConstraintBuilder *builder)
+    void addConstraintBuilder(const std::string &key, const ConstraintBuilder *builder)
     {
         constraintBuilders.push_back(std::make_pair(key, builder));
     }
@@ -122,28 +113,29 @@ public:
         typename FunctionPtrs<AdapterType>::FreeDoc freeDoc = nullptr )
     {
         if ((fetchDoc == nullptr ) ^ (freeDoc == nullptr)) {
-            throw std::runtime_error(
-                    "Remote document fetching cannot be enabled without both "
-                    "fetch and free functions");
+            throwRuntimeError("Remote document fetching can't be enabled without both fetch and free functions");
         }
 
         typename DocumentCache<AdapterType>::Type docCache;
         SchemaCache schemaCache;
+#if VALIJSON_USE_EXCEPTIONS
         try {
-            resolveThenPopulateSchema(schema, node, node, schema,
-                    opt::optional<std::string>(), "",
-                    fetchDoc, nullptr, nullptr, docCache, schemaCache);
+#endif
+            resolveThenPopulateSchema(schema, node, node, schema, opt::optional<std::string>(), "", fetchDoc, nullptr,
+                    nullptr, docCache, schemaCache);
+#if VALIJSON_USE_EXCEPTIONS
         } catch (...) {
             freeDocumentCache<AdapterType>(docCache, freeDoc);
             throw;
         }
+#endif
 
         freeDocumentCache<AdapterType>(docCache, freeDoc);
     }
 
 private:
 
-    typedef std::vector<std::pair<std::string, const ConstraintBuilder *> >
+    typedef std::vector<std::pair<std::string, const ConstraintBuilder *>>
         ConstraintBuilders;
 
     ConstraintBuilders constraintBuilders;
@@ -151,8 +143,7 @@ private:
     template<typename AdapterType>
     struct DocumentCache
     {
-        typedef typename adapters::AdapterTraits<AdapterType>::DocumentType
-                DocumentType;
+        typedef typename adapters::AdapterTraits<AdapterType>::DocumentType DocumentType;
 
         typedef std::map<std::string, const DocumentType*> Type;
     };
@@ -180,21 +171,21 @@ private:
     }
 
     /**
-     * @brief  Find the absolute URI for a document, within a resolution scope
+     * @brief  Find the complete URI for a document, within a resolution scope
      *
      * This function captures five different cases that can occur when
      * attempting to resolve a document URI within a particular resolution
      * scope:
      *
-     *  - resolution scope not present, but absolute document URI is
+     *  (1) resolution scope not present, but URN or absolute document URI is
      *       => document URI as-is
-     *  - resolution scope not present, and document URI is relative or absent
-     *       => no result
-     *  - resolution scope is present, and document URI is a relative path
+     *  (2) resolution scope not present, and document URI is relative or absent
+     *       => document URI, if present, otherwise no result
+     *  (3) resolution scope is present, and document URI is a relative path
      *       => resolve document URI relative to resolution scope
-     *  - resolution scope is present, and document URI is absolute
+     *  (4) resolution scope is present, and document URI is absolute
      *       => document URI as-is
-     *  - resolution scope is present, but document URI is not
+     *  (5) resolution scope is present, but document URI is not
      *       => resolution scope as-is
      *
      * This function assumes that the resolution scope is absolute.
@@ -203,25 +194,39 @@ private:
      * document URI should be used to replace the path, query and fragment
      * portions of URI provided by the resolution scope.
      */
-    virtual opt::optional<std::string> findAbsoluteDocumentUri(
-            const opt::optional<std::string> resolutionScope,
-            const opt::optional<std::string> documentUri)
+    virtual opt::optional<std::string> resolveDocumentUri(
+            const opt::optional<std::string>& resolutionScope,
+            const opt::optional<std::string>& documentUri)
     {
         if (resolutionScope) {
             if (documentUri) {
-                if (internal::uri::isUriAbsolute(*documentUri)) {
+                if (internal::uri::isUriAbsolute(*documentUri) || internal::uri::isUrn(*documentUri)) {
+                    // (4) resolution scope is present, and document URI is absolute
+                    //      => document URI as-is
                     return *documentUri;
                 } else {
-                    return internal::uri::resolveRelativeUri(
-                            *resolutionScope, *documentUri);
+                    // (3) resolution scope is present, and document URI is a relative path
+                    //      => resolve document URI relative to resolution scope
+                    return internal::uri::resolveRelativeUri(*resolutionScope, *documentUri);
                 }
             } else {
+                // (5) resolution scope is present, but document URI is not
+                //      => resolution scope as-is
                 return *resolutionScope;
             }
         } else if (documentUri && internal::uri::isUriAbsolute(*documentUri)) {
+            // (1a) resolution scope not present, but absolute document URI is
+            //      => document URI as-is
+            return *documentUri;
+        } else if (documentUri && internal::uri::isUrn(*documentUri)) {
+            // (1b) resolution scope not present, but URN is
+            //       => document URI as-is
             return *documentUri;
         } else {
-            return opt::optional<std::string>();
+            // (2) resolution scope not present, and document URI is relative or absent
+            //      => document URI, if present, otherwise no result
+            // documentUri is already std::optional
+            return documentUri;
         }
     }
 
@@ -247,9 +252,8 @@ private:
         const typename AdapterType::Object::const_iterator itr = o.find("$ref");
         if (itr == o.end()) {
             return false;
-        } else if (!itr->second.asString(result)) {
-            throw std::invalid_argument(
-                    "$ref property expected to contain string value.");
+        } else if (!itr->second.getString(result)) {
+            throwRuntimeError("$ref property expected to contain string value.");
         }
 
         return true;
@@ -258,7 +262,7 @@ private:
     /**
      * Sanitise an optional JSON Pointer, trimming trailing slashes
      */
-    std::string sanitiseJsonPointer(const opt::optional<std::string> input)
+    static std::string sanitiseJsonPointer(const opt::optional<std::string>& input)
     {
         if (input) {
             // Trim trailing slash(es)
@@ -310,15 +314,14 @@ private:
      *         usage of the schema cache during development, and is not expected
      *         to occur otherwise, even for malformed schemas.
      */
-    void updateSchemaCache(SchemaCache &schemaCache,
+    static void updateSchemaCache(SchemaCache &schemaCache,
             const std::vector<std::string> &keysToCreate,
             const Subschema *schema)
     {
         for (const std::string &keyToCreate : keysToCreate) {
             const SchemaCache::value_type value(keyToCreate, schema);
             if (!schemaCache.insert(value).second) {
-                throw std::logic_error(
-                        "Key '" + keyToCreate + "' already in schema cache.");
+                throwLogicError("Key '" + keyToCreate + "' already in schema cache.");
             }
         }
     }
@@ -375,16 +378,13 @@ private:
 
             // Construct a key that we can use to search the schema cache for
             // a schema corresponding to the current node
-            const std::string schemaCacheKey =
-                    currentScope ? (*currentScope + nodePath) : nodePath;
+            const std::string schemaCacheKey = currentScope ? (*currentScope + nodePath) : nodePath;
 
             // Retrieve an existing schema from the cache if possible
-            const Subschema *cachedPtr =
-                    querySchemaCache(schemaCache, schemaCacheKey);
+            const Subschema *cachedPtr = querySchemaCache(schemaCache, schemaCacheKey);
 
             // Create a new schema otherwise
-            const Subschema *subschema = cachedPtr ? cachedPtr :
-                    rootSchema.createSubschema();
+            const Subschema *subschema = cachedPtr ? cachedPtr : rootSchema.createSubschema();
 
             // Add cache entries for keys belonging to any $ref nodes that were
             // visited before arriving at the current node
@@ -404,8 +404,7 @@ private:
 
         // Returns a document URI if the reference points somewhere
         // other than the current document
-        const opt::optional<std::string> documentUri =
-                internal::json_reference::getJsonReferenceUri(jsonRef);
+        const opt::optional<std::string> documentUri = internal::json_reference::getJsonReferenceUri(jsonRef);
 
         // Extract JSON Pointer from JSON Reference, with any trailing
         // slashes removed so that keys in the schema cache end
@@ -417,12 +416,10 @@ private:
         // scope. An absolute document URI will take precedence when
         // present, otherwise we need to resolve the URI relative to
         // the current resolution scope
-        const opt::optional<std::string> actualDocumentUri =
-                findAbsoluteDocumentUri(currentScope, documentUri);
+        const opt::optional<std::string> actualDocumentUri = resolveDocumentUri(currentScope, documentUri);
 
         // Construct a key to search the schema cache for an existing schema
-        const std::string queryKey = actualDocumentUri ?
-                (*actualDocumentUri + actualJsonPointer) : actualJsonPointer;
+        const std::string queryKey = actualDocumentUri ? (*actualDocumentUri + actualJsonPointer) : actualJsonPointer;
 
         // Check for the second termination condition (found a $ref node that
         // already has an entry in the schema cache)
@@ -441,8 +438,7 @@ private:
             if (docCacheItr == docCache.end()) {
                 // Resolve reference against remote document
                 if (!fetchDoc) {
-                    throw std::runtime_error(
-                            "Fetching of remote JSON References not enabled.");
+                    throwRuntimeError("Fetching of remote JSON References not enabled.");
                 }
 
                 // Returns a pointer to the remote document that was
@@ -453,9 +449,7 @@ private:
 
                 // Can't proceed without the remote document
                 if (!newDoc) {
-                    throw std::runtime_error(
-                            "Failed to fetch referenced schema document: " +
-                            *actualDocumentUri);
+                    throwRuntimeError("Failed to fetch referenced schema document: " + *actualDocumentUri);
                 }
 
                 typedef typename DocumentCache<AdapterType>::Type::value_type
@@ -579,7 +573,7 @@ private:
         const AdapterType &rootNode,
         const AdapterType &node,
         const Subschema &subschema,
-        const opt::optional<std::string> currentScope,
+        const opt::optional<std::string>& currentScope,
         const std::string &nodePath,
         const typename FunctionPtrs<AdapterType>::FetchDoc fetchDoc,
         const Subschema *parentSubschema,
@@ -593,7 +587,7 @@ private:
             "appropriate Adapter implementation");
 
         if (!node.isObject()) {
-            if (version == kDraft7 && node.maybeBool()) {
+            if (m_version == kDraft7 && node.maybeBool()) {
                 // Boolean schema
                 if (!node.asBool()) {
                     rootSchema.setAlwaysInvalid(&subschema, true);
@@ -603,13 +597,13 @@ private:
                 std::string s;
                 s += "Expected node at ";
                 s += nodePath;
-                if (version == kDraft7) {
+                if (m_version == kDraft7) {
                     s += " to contain schema object or boolean value; actual node type is: ";
                 } else {
                     s += " to contain schema object; actual node type is: ";
                 }
                 s += internal::nodeTypeAsString(node);
-                throw std::runtime_error(s);
+                throwRuntimeError(s);
             }
         }
 
@@ -618,15 +612,13 @@ private:
 
         // Check for 'id' attribute and update current scope
         opt::optional<std::string> updatedScope;
-        if ((itr = object.find("id")) != object.end() &&
-                itr->second.maybeString()) {
+        if ((itr = object.find("id")) != object.end() && itr->second.maybeString()) {
             const std::string id = itr->second.asString();
             rootSchema.setSubschemaId(&subschema, itr->second.asString());
-            if (!currentScope || internal::uri::isUriAbsolute(id)) {
+            if (!currentScope || internal::uri::isUriAbsolute(id) || internal::uri::isUrn(id)) {
                 updatedScope = id;
             } else {
-                updatedScope = internal::uri::resolveRelativeUri(
-                        *currentScope, id);
+                updatedScope = internal::uri::resolveRelativeUri(*currentScope, id);
             }
         } else {
             updatedScope = currentScope;
@@ -673,13 +665,13 @@ private:
                 rootSchema.setSubschemaDescription(&subschema,
                         itr->second.asString());
             } else {
-                throw std::runtime_error(
+                throwRuntimeError(
                         "'description' attribute should have a string value");
             }
         }
 
         if ((itr = object.find("divisibleBy")) != object.end()) {
-            if (version == kDraft3) {
+            if (m_version == kDraft3) {
                 if (itr->second.maybeInteger()) {
                     rootSchema.addConstraintToSubschema(
                             makeMultipleOfIntConstraint(itr->second),
@@ -689,11 +681,11 @@ private:
                             makeMultipleOfDoubleConstraint(itr->second),
                             &subschema);
                 } else {
-                    throw std::runtime_error("Expected an numeric value for "
+                    throwRuntimeError("Expected an numeric value for "
                             " 'divisibleBy' constraint.");
                 }
             } else {
-                throw std::runtime_error(
+                throwRuntimeError(
                         "'divisibleBy' constraint not valid after draft 3");
             }
         }
@@ -720,10 +712,8 @@ private:
                             additionalItemsItr = object.find("additionalItems");
                     rootSchema.addConstraintToSubschema(
                             makeLinearItemsConstraint(rootSchema, rootNode,
-                                    itemsItr != object.end() ?
-                                            &itemsItr->second : nullptr,
-                                    additionalItemsItr != object.end() ?
-                                            &additionalItemsItr->second : nullptr,
+                                    itemsItr != object.end() ? &itemsItr->second : nullptr,
+                                    additionalItemsItr != object.end() ? &additionalItemsItr->second : nullptr,
                                     updatedScope, nodePath + "/items",
                                     nodePath + "/additionalItems", fetchDoc,
                                     docCache, schemaCache),
@@ -738,7 +728,7 @@ private:
             const typename AdapterType::Object::const_iterator elseItr = object.find("else");
 
             if (object.end() != ifItr) {
-                if (version == kDraft7) {
+                if (m_version == kDraft7) {
                     rootSchema.addConstraintToSubschema(
                           makeConditionalConstraint(rootSchema, rootNode,
                                 ifItr->second,
@@ -747,12 +737,12 @@ private:
                                 updatedScope, nodePath, fetchDoc, docCache, schemaCache),
                           &subschema);
                 } else {
-                    throw std::runtime_error("Not supported");
+                    throwRuntimeError("Not supported");
                 }
             }
         }
 
-        if (version == kDraft7) {
+        if (m_version == kDraft7) {
             if ((itr = object.find("exclusiveMaximum")) != object.end()) {
                 rootSchema.addConstraintToSubschema(
                     makeMaximumConstraintExclusive(itr->second),
@@ -773,13 +763,11 @@ private:
                         &subschema);
             } else {
                 rootSchema.addConstraintToSubschema(
-                        makeMaximumConstraint(itr->second,
-                                &exclusiveMaximumItr->second),
+                        makeMaximumConstraint(itr->second, &exclusiveMaximumItr->second),
                         &subschema);
             }
         } else if (object.find("exclusiveMaximum") != object.end()) {
-            throw std::runtime_error(
-                    "'exclusiveMaximum' constraint only valid if a 'maximum' "
+            throwRuntimeError("'exclusiveMaximum' constraint only valid if a 'maximum' "
                     "constraint is also present");
         }
 
@@ -798,11 +786,10 @@ private:
                     makeMaxPropertiesConstraint(itr->second), &subschema);
         }
 
-        if (version == kDraft7) {
+        if (m_version == kDraft7) {
             if ((itr = object.find("exclusiveMinimum")) != object.end()) {
                 rootSchema.addConstraintToSubschema(
-                        makeMinimumConstraintExclusive(itr->second),
-                        &subschema);
+                        makeMinimumConstraintExclusive(itr->second), &subschema);
             }
 
             if ((itr = object.find("minimum")) != object.end()) {
@@ -811,22 +798,18 @@ private:
                         &subschema);
             }
         } else if ((itr = object.find("minimum")) != object.end()) {
-            typename AdapterType::Object::const_iterator exclusiveMinimumItr =
-                    object.find("exclusiveMinimum");
+            typename AdapterType::Object::const_iterator exclusiveMinimumItr = object.find("exclusiveMinimum");
             if (exclusiveMinimumItr == object.end()) {
                 rootSchema.addConstraintToSubschema(
                         makeMinimumConstraint<AdapterType>(itr->second, nullptr),
                         &subschema);
             } else {
                 rootSchema.addConstraintToSubschema(
-                        makeMinimumConstraint<AdapterType>(
-                                itr->second,
-                                &exclusiveMinimumItr->second),
+                        makeMinimumConstraint<AdapterType>(itr->second, &exclusiveMinimumItr->second),
                         &subschema);
             }
         } else if (object.find("exclusiveMinimum") != object.end()) {
-            throw std::runtime_error(
-                    "'exclusiveMinimum' constraint only valid if a 'minimum' "
+            throwRuntimeError("'exclusiveMinimum' constraint only valid if a 'minimum' "
                     "constraint is also present");
         }
 
@@ -846,9 +829,8 @@ private:
         }
 
         if ((itr = object.find("multipleOf")) != object.end()) {
-            if (version == kDraft3) {
-                throw std::runtime_error(
-                        "'multipleOf' constraint not available in draft 3");
+            if (m_version == kDraft3) {
+                throwRuntimeError("'multipleOf' constraint not available in draft 3");
             } else if (itr->second.maybeInteger()) {
                 rootSchema.addConstraintToSubschema(
                         makeMultipleOfIntConstraint(itr->second),
@@ -858,23 +840,20 @@ private:
                         makeMultipleOfDoubleConstraint(itr->second),
                         &subschema);
             } else {
-                throw std::runtime_error("Expected an numeric value for "
-                        " 'divisibleBy' constraint.");
+                throwRuntimeError("Expected an numeric value for 'divisibleBy' constraint.");
             }
         }
 
         if ((itr = object.find("not")) != object.end()) {
             rootSchema.addConstraintToSubschema(
-                    makeNotConstraint(rootSchema, rootNode, itr->second,
-                            updatedScope, nodePath + "/not", fetchDoc, docCache,
-                            schemaCache),
+                    makeNotConstraint(rootSchema, rootNode, itr->second, updatedScope, nodePath + "/not", fetchDoc,
+                            docCache, schemaCache),
                     &subschema);
         }
 
         if ((itr = object.find("oneOf")) != object.end()) {
             rootSchema.addConstraintToSubschema(
-                    makeOneOfConstraint(rootSchema, rootNode, itr->second,
-                            updatedScope, nodePath + "/oneOf", fetchDoc,
+                    makeOneOfConstraint(rootSchema, rootNode, itr->second, updatedScope, nodePath + "/oneOf", fetchDoc,
                             docCache, schemaCache),
                     &subschema);
         }
@@ -896,12 +875,9 @@ private:
                 object.end() != additionalPropertiesItr) {
                 rootSchema.addConstraintToSubschema(
                         makePropertiesConstraint(rootSchema, rootNode,
-                                propertiesItr != object.end() ?
-                                        &propertiesItr->second : nullptr,
-                                patternPropertiesItr != object.end() ?
-                                        &patternPropertiesItr->second : nullptr,
-                                additionalPropertiesItr != object.end() ?
-                                        &additionalPropertiesItr->second : nullptr,
+                                propertiesItr != object.end() ? &propertiesItr->second : nullptr,
+                                patternPropertiesItr != object.end() ? &patternPropertiesItr->second : nullptr,
+                                additionalPropertiesItr != object.end() ? &additionalPropertiesItr->second : nullptr,
                                 updatedScope, nodePath + "/properties",
                                 nodePath + "/patternProperties",
                                 nodePath + "/additionalProperties",
@@ -911,76 +887,69 @@ private:
         }
 
         if ((itr = object.find("propertyNames")) != object.end()) {
-            if (version == kDraft7) {
+            if (m_version == kDraft7) {
                 rootSchema.addConstraintToSubschema(
                       makePropertyNamesConstraint(rootSchema, rootNode, itr->second, updatedScope,
                               nodePath, fetchDoc, docCache, schemaCache),
                       &subschema);
             } else {
-                throw std::runtime_error("Not supported");
+                throwRuntimeError("Not supported");
             }
         }
 
         if ((itr = object.find("required")) != object.end()) {
-            if (version == kDraft3) {
+            if (m_version == kDraft3) {
                 if (parentSubschema && ownName) {
-                    opt::optional<constraints::RequiredConstraint>
-                            constraint = makeRequiredConstraintForSelf(
-                                    itr->second, *ownName);
+                    opt::optional<constraints::RequiredConstraint> constraint =
+                            makeRequiredConstraintForSelf(itr->second, *ownName);
                     if (constraint) {
-                        rootSchema.addConstraintToSubschema(*constraint,
-                                parentSubschema);
+                        rootSchema.addConstraintToSubschema(*constraint, parentSubschema);
                     }
                 } else {
-                    throw std::runtime_error(
-                            "'required' constraint not valid here");
+                    throwRuntimeError("'required' constraint not valid here");
                 }
             } else {
-                rootSchema.addConstraintToSubschema(
-                        makeRequiredConstraint(itr->second), &subschema);
+                rootSchema.addConstraintToSubschema(makeRequiredConstraint(itr->second), &subschema);
             }
         }
 
         if ((itr = object.find("title")) != object.end()) {
             if (itr->second.maybeString()) {
-                rootSchema.setSubschemaTitle(&subschema,
-                        itr->second.asString());
+                rootSchema.setSubschemaTitle(&subschema, itr->second.asString());
             } else {
-                throw std::runtime_error(
-                        "'title' attribute should have a string value");
+                throwRuntimeError("'title' attribute should have a string value");
             }
         }
 
         if ((itr = object.find("type")) != object.end()) {
             rootSchema.addConstraintToSubschema(
-                    makeTypeConstraint(rootSchema, rootNode, itr->second,
-                            updatedScope, nodePath + "/type", fetchDoc,
+                    makeTypeConstraint(rootSchema, rootNode, itr->second, updatedScope, nodePath + "/type", fetchDoc,
                             docCache, schemaCache),
                     &subschema);
         }
 
         if ((itr = object.find("uniqueItems")) != object.end()) {
-            opt::optional<constraints::UniqueItemsConstraint> constraint =
-                    makeUniqueItemsConstraint(itr->second);
+            opt::optional<constraints::UniqueItemsConstraint> constraint = makeUniqueItemsConstraint(itr->second);
             if (constraint) {
                 rootSchema.addConstraintToSubschema(*constraint, &subschema);
             }
         }
 
-        for (ConstraintBuilders::const_iterator
-                builderItr  = constraintBuilders.begin();
-                builderItr != constraintBuilders.end(); ++builderItr) {
-            if ((itr = object.find(builderItr->first)) != object.end()) {
+        for (const auto & constraintBuilder : constraintBuilders) {
+            if ((itr = object.find(constraintBuilder.first)) != object.end()) {
                 constraints::Constraint *constraint = nullptr;
+#if VALIJSON_USE_EXCEPTIONS
                 try {
-                    constraint = builderItr->second->make(itr->second);
-                    rootSchema.addConstraintToSubschema(*constraint,
-                            &subschema);
+#endif
+                    constraint = constraintBuilder.second->make(itr->second);
+                    rootSchema.addConstraintToSubschema(*constraint, &subschema);
                     delete constraint;
+#if VALIJSON_USE_EXCEPTIONS
                 } catch (...) {
                     delete constraint;
                     throw;
                 }
+#endif
             }
         }
     }
@@ -1026,66 +995,53 @@ private:
     {
         std::string jsonRef;
         if (!extractJsonReference(node, jsonRef)) {
-            populateSchema(rootSchema, rootNode, node, subschema, currentScope,
-                    nodePath, fetchDoc, parentSchema, ownName, docCache,
-                    schemaCache);
+            populateSchema(rootSchema, rootNode, node, subschema, currentScope, nodePath, fetchDoc, parentSchema,
+                    ownName, docCache, schemaCache);
             return;
         }
 
         // Returns a document URI if the reference points somewhere
         // other than the current document
-        const opt::optional<std::string> documentUri =
-                internal::json_reference::getJsonReferenceUri(jsonRef);
+        const opt::optional<std::string> documentUri = internal::json_reference::getJsonReferenceUri(jsonRef);
 
         // Extract JSON Pointer from JSON Reference
         const std::string actualJsonPointer = sanitiseJsonPointer(
                 internal::json_reference::getJsonReferencePointer(jsonRef));
 
-        if (documentUri && internal::uri::isUriAbsolute(*documentUri)) {
+        if (documentUri && (internal::uri::isUriAbsolute(*documentUri) || internal::uri::isUrn(*documentUri))) {
             // Resolve reference against remote document
             if (!fetchDoc) {
-                throw std::runtime_error(
-                        "Fetching of remote JSON References not enabled.");
+                throwRuntimeError("Fetching of remote JSON References not enabled.");
             }
 
-            const typename DocumentCache<AdapterType>::DocumentType *newDoc =
-                    fetchDoc(*documentUri);
+            const typename DocumentCache<AdapterType>::DocumentType *newDoc = fetchDoc(*documentUri);
 
             // Can't proceed without the remote document
             if (!newDoc) {
-                throw std::runtime_error(
-                        "Failed to fetch referenced schema document: " +
-                        *documentUri);
+                throwRuntimeError("Failed to fetch referenced schema document: " + *documentUri);
             }
 
             // Add to document cache
-            typedef typename DocumentCache<AdapterType>::Type::value_type
-                    DocCacheValueType;
+            typedef typename DocumentCache<AdapterType>::Type::value_type DocCacheValueType;
 
             docCache.insert(DocCacheValueType(*documentUri, newDoc));
 
             const AdapterType newRootNode(*newDoc);
 
             const AdapterType &referencedAdapter =
-                internal::json_pointer::resolveJsonPointer(
-                        newRootNode, actualJsonPointer);
+                internal::json_pointer::resolveJsonPointer(newRootNode, actualJsonPointer);
 
             // TODO: Need to detect degenerate circular references
-            resolveThenPopulateSchema(rootSchema, newRootNode,
-                    referencedAdapter, subschema, opt::optional<std::string>(),
-                    actualJsonPointer, fetchDoc, parentSchema, ownName,
-                    docCache, schemaCache);
+            resolveThenPopulateSchema(rootSchema, newRootNode, referencedAdapter, subschema, {}, actualJsonPointer,
+                    fetchDoc, parentSchema, ownName, docCache, schemaCache);
 
         } else {
             const AdapterType &referencedAdapter =
-                internal::json_pointer::resolveJsonPointer(
-                        rootNode, actualJsonPointer);
+                    internal::json_pointer::resolveJsonPointer(rootNode, actualJsonPointer);
 
             // TODO: Need to detect degenerate circular references
-            resolveThenPopulateSchema(rootSchema, rootNode, referencedAdapter,
-                    subschema, opt::optional<std::string>(),
-                    actualJsonPointer, fetchDoc,
-                    parentSchema, ownName, docCache, schemaCache);
+            resolveThenPopulateSchema(rootSchema, rootNode, referencedAdapter, subschema, {}, actualJsonPointer,
+                    fetchDoc, parentSchema, ownName, docCache, schemaCache);
         }
     }
 
@@ -1119,15 +1075,14 @@ private:
         SchemaCache &schemaCache)
     {
         if (!node.maybeArray()) {
-            throw std::runtime_error(
-                    "Expected array value for 'allOf' constraint.");
+            throwRuntimeError("Expected array value for 'allOf' constraint.");
         }
 
         constraints::AllOfConstraint constraint;
 
         int index = 0;
         for (const AdapterType schemaNode : node.asArray()) {
-            if (schemaNode.maybeObject() || (version == kDraft7 && schemaNode.isBool())) {
+            if (schemaNode.maybeObject() || (m_version == kDraft7 && schemaNode.isBool())) {
                 const std::string childPath = nodePath + "/" + std::to_string(index);
                 const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                         rootSchema, rootNode, schemaNode, currentScope,
@@ -1135,8 +1090,7 @@ private:
                 constraint.addSubschema(subschema);
                 index++;
             } else {
-                throw std::runtime_error(
-                        "Expected element to be a valid schema in 'allOf' constraint.");
+                throwRuntimeError("Expected element to be a valid schema in 'allOf' constraint.");
             }
         }
 
@@ -1173,15 +1127,14 @@ private:
         SchemaCache &schemaCache)
     {
         if (!node.maybeArray()) {
-            throw std::runtime_error(
-                    "Expected array value for 'anyOf' constraint.");
+            throwRuntimeError("Expected array value for 'anyOf' constraint.");
         }
 
         constraints::AnyOfConstraint constraint;
 
         int index = 0;
         for (const AdapterType schemaNode : node.asArray()) {
-            if (schemaNode.maybeObject() || (version == kDraft7 && schemaNode.isBool())) {
+            if (schemaNode.maybeObject() || (m_version == kDraft7 && schemaNode.isBool())) {
                 const std::string childPath = nodePath + "/" + std::to_string(index);
                 const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                         rootSchema, rootNode, schemaNode, currentScope,
@@ -1189,8 +1142,7 @@ private:
                 constraint.addSubschema(subschema);
                 index++;
             } else {
-                throw std::runtime_error(
-                        "Expected array element to be a valid schema in 'anyOf' constraint.");
+                throwRuntimeError("Expected array element to be a valid schema in 'anyOf' constraint.");
             }
         }
 
@@ -1243,20 +1195,20 @@ private:
 
         const Subschema *ifSubschema = makeOrReuseSchema<AdapterType>(
                 rootSchema, rootNode, ifNode, currentScope,
-                nodePath, fetchDoc, nullptr, nullptr, docCache,
+                nodePath + "/if", fetchDoc, nullptr, nullptr, docCache,
                 schemaCache);
         constraint.setIfSubschema(ifSubschema);
 
         if (thenNode) {
             const Subschema *thenSubschema = makeOrReuseSchema<AdapterType>(
-                    rootSchema, rootNode, *thenNode, currentScope, nodePath, fetchDoc, nullptr,
+                    rootSchema, rootNode, *thenNode, currentScope, nodePath + "/then", fetchDoc, nullptr,
                     nullptr, docCache, schemaCache);
             constraint.setThenSubschema(thenSubschema);
         }
 
         if (elseNode) {
             const Subschema *elseSubschema = makeOrReuseSchema<AdapterType>(
-                    rootSchema, rootNode, *elseNode, currentScope, nodePath, fetchDoc, nullptr,
+                    rootSchema, rootNode, *elseNode, currentScope, nodePath + "/else", fetchDoc, nullptr,
                     nullptr, docCache, schemaCache);
             constraint.setElseSubschema(elseSubschema);
         }
@@ -1316,7 +1268,7 @@ private:
     {
         constraints::ContainsConstraint constraint;
 
-        if (contains.isObject() || (version == kDraft7 && contains.maybeBool())) {
+        if (contains.isObject() || (m_version == kDraft7 && contains.maybeBool())) {
             const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                     rootSchema, rootNode, contains, currentScope, containsPath,
                     fetchDoc, nullptr, nullptr, docCache, schemaCache);
@@ -1329,8 +1281,7 @@ private:
 
         } else {
             // All other formats will result in an exception being thrown.
-            throw std::runtime_error(
-                    "Expected valid schema for 'contains' constraint.");
+            throwRuntimeError("Expected valid schema for 'contains' constraint.");
         }
 
         return constraint;
@@ -1384,7 +1335,7 @@ private:
         SchemaCache &schemaCache)
     {
         if (!node.maybeObject()) {
-            throw std::runtime_error("Expected valid subschema for 'dependencies' constraint.");
+            throwRuntimeError("Expected valid subschema for 'dependencies' constraint.");
         }
 
         constraints::DependenciesConstraint dependenciesConstraint;
@@ -1406,7 +1357,7 @@ private:
                     if (dependencyName.maybeString()) {
                         dependentPropertyNames.push_back(dependencyName.getString());
                     } else {
-                        throw std::runtime_error("Expected string value in dependency list of property '" +
+                        throwRuntimeError("Expected string value in dependency list of property '" +
                             member.first + "' in 'dependencies' constraint.");
                     }
                 }
@@ -1420,7 +1371,7 @@ private:
             // exercised the flexibility by loosely-typed Adapter types. If the
             // value of the dependency mapping is an object, then we'll try to
             // process it as a dependent schema.
-            } else if (member.second.isObject() || (version == kDraft7 && member.second.maybeBool())) {
+            } else if (member.second.isObject() || (m_version == kDraft7 && member.second.maybeBool())) {
                 // Parse dependent subschema
                 const Subschema *childSubschema =
                         makeOrReuseSchema<AdapterType>(rootSchema, rootNode,
@@ -1432,13 +1383,13 @@ private:
             // If we're supposed to be parsing a Draft3 schema, then the value
             // of the dependency mapping can also be a string containing the
             // name of a single dependency.
-            } else if (version == kDraft3 && member.second.isString()) {
+            } else if (m_version == kDraft3 && member.second.isString()) {
                 dependenciesConstraint.addPropertyDependency(member.first,
                         member.second.getString());
 
             // All other types result in an exception being thrown.
             } else {
-                throw std::runtime_error("Invalid dependencies definition.");
+                throwRuntimeError("Invalid dependencies definition.");
             }
         }
 
@@ -1522,8 +1473,7 @@ private:
                 // and is set to true, then additional array items do not need
                 // to satisfy any constraints.
                 if (additionalItems->asBool()) {
-                    constraint.setAdditionalItemsSubschema(
-                            rootSchema.emptySubschema());
+                    constraint.setAdditionalItemsSubschema(rootSchema.emptySubschema());
                 }
             } else if (additionalItems->maybeObject()) {
                 // If the value of the additionalItems property is an object,
@@ -1537,8 +1487,7 @@ private:
             } else {
                 // Any other format for the additionalItems property will result
                 // in an exception being thrown.
-                throw std::runtime_error(
-                        "Expected bool or object value for 'additionalItems'");
+                throwRuntimeError("Expected bool or object value for 'additionalItems'");
             }
         } else {
             // The default value for the additionalItems property is an empty
@@ -1567,9 +1516,7 @@ private:
                     index++;
                 }
             } else {
-                throw std::runtime_error(
-                        "Expected array value for non-singular 'items' "
-                        "constraint.");
+                throwRuntimeError("Expected array value for non-singular 'items' constraint.");
             }
         }
 
@@ -1622,7 +1569,7 @@ private:
         // array is provided, or a single Schema object, in an object value is
         // provided. If the items constraint is not provided, then array items
         // will be validated against the additionalItems schema.
-        if (items.isObject() || (version == kDraft7 && items.maybeBool())) {
+        if (items.isObject() || (m_version == kDraft7 && items.maybeBool())) {
             // If the items constraint contains an object value, then it
             // should contain a Schema that will be used to validate all
             // items in a target array. Any schema defined by the
@@ -1639,8 +1586,7 @@ private:
 
         } else {
             // All other formats will result in an exception being thrown.
-            throw std::runtime_error(
-                    "Expected valid schema for singular 'items' constraint.");
+            throwRuntimeError("Expected valid schema for singular 'items' constraint.");
         }
 
         return constraint;
@@ -1669,8 +1615,7 @@ private:
         const AdapterType *exclusiveMaximum)
     {
         if (!node.maybeDouble()) {
-            throw std::runtime_error(
-                    "Expected numeric value for maximum constraint.");
+            throwRuntimeError("Expected numeric value for maximum constraint.");
         }
 
         constraints::MaximumConstraint constraint;
@@ -1678,9 +1623,7 @@ private:
 
         if (exclusiveMaximum) {
             if (!exclusiveMaximum->maybeBool()) {
-                throw std::runtime_error(
-                        "Expected boolean value for exclusiveMaximum "
-                        "constraint.");
+                throwRuntimeError("Expected boolean value for exclusiveMaximum constraint.");
             }
 
             constraint.setExclusiveMaximum(exclusiveMaximum->asBool());
@@ -1703,7 +1646,7 @@ private:
     constraints::MaximumConstraint makeMaximumConstraintExclusive(const AdapterType &node)
     {
         if (!node.maybeDouble()) {
-            throw std::runtime_error("Expected numeric value for maximum constraint.");
+            throwRuntimeError("Expected numeric value for exclusiveMaximum constraint.");
         }
 
         constraints::MaximumConstraint constraint;
@@ -1733,9 +1676,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected non-negative integer value for 'maxItems' "
-                "constraint.");
+        throwRuntimeError("Expected non-negative integer value for 'maxItems' constraint.");
     }
 
     /**
@@ -1759,9 +1700,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected a non-negative integer value for 'maxLength' "
-                "constraint.");
+        throwRuntimeError("Expected a non-negative integer value for 'maxLength' constraint.");
     }
 
     /**
@@ -1787,9 +1726,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected a non-negative integer for 'maxProperties' "
-                "constraint.");
+        throwRuntimeError("Expected a non-negative integer for 'maxProperties' constraint.");
     }
 
     /**
@@ -1810,8 +1747,7 @@ private:
         const AdapterType *exclusiveMinimum)
     {
         if (!node.maybeDouble()) {
-            throw std::runtime_error(
-                    "Expected numeric value for minimum constraint.");
+            throwRuntimeError("Expected numeric value for minimum constraint.");
         }
 
         constraints::MinimumConstraint constraint;
@@ -1819,9 +1755,7 @@ private:
 
         if (exclusiveMinimum) {
             if (!exclusiveMinimum->maybeBool()) {
-                throw std::runtime_error(
-                        "Expected boolean value for 'exclusiveMinimum' "
-                        "constraint.");
+                throwRuntimeError("Expected boolean value for 'exclusiveMinimum' constraint.");
             }
 
             constraint.setExclusiveMinimum(exclusiveMinimum->asBool());
@@ -1844,7 +1778,7 @@ private:
     constraints::MinimumConstraint makeMinimumConstraintExclusive(const AdapterType &node)
     {
         if (!node.maybeDouble()) {
-            throw std::runtime_error("Expected numeric value for minimum constraint.");
+            throwRuntimeError("Expected numeric value for exclusiveMinimum constraint.");
         }
 
         constraints::MinimumConstraint constraint;
@@ -1862,8 +1796,7 @@ private:
      * @return  pointer to a new MinItemsConstraint that belongs to the caller
      */
     template<typename AdapterType>
-    constraints::MinItemsConstraint makeMinItemsConstraint(
-        const AdapterType &node)
+    constraints::MinItemsConstraint makeMinItemsConstraint(const AdapterType &node)
     {
         if (node.maybeInteger()) {
             const int64_t value = node.asInteger();
@@ -1874,9 +1807,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected a non-negative integer value for 'minItems' "
-                "constraint.");
+        throwRuntimeError("Expected a non-negative integer value for 'minItems' constraint.");
     }
 
     /**
@@ -1888,8 +1819,7 @@ private:
      * @return  pointer to a new MinLengthConstraint that belongs to the caller
      */
     template<typename AdapterType>
-    constraints::MinLengthConstraint makeMinLengthConstraint(
-        const AdapterType &node)
+    constraints::MinLengthConstraint makeMinLengthConstraint(const AdapterType &node)
     {
         if (node.maybeInteger()) {
             const int64_t value = node.asInteger();
@@ -1900,9 +1830,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected a non-negative integer value for 'minLength' "
-                "constraint.");
+        throwRuntimeError("Expected a non-negative integer value for 'minLength' constraint.");
     }
 
 
@@ -1917,8 +1845,7 @@ private:
      *          caller
      */
     template<typename AdapterType>
-    constraints::MinPropertiesConstraint makeMinPropertiesConstraint(
-        const AdapterType &node)
+    constraints::MinPropertiesConstraint makeMinPropertiesConstraint(const AdapterType &node)
     {
         if (node.maybeInteger()) {
             int64_t value = node.asInteger();
@@ -1929,9 +1856,7 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected a non-negative integer for 'minProperties' "
-                "constraint.");
+        throwRuntimeError("Expected a non-negative integer for 'minProperties' constraint.");
     }
 
     /**
@@ -1943,8 +1868,7 @@ private:
      * @return  a MultipleOfConstraint
      */
     template<typename AdapterType>
-    constraints::MultipleOfDoubleConstraint makeMultipleOfDoubleConstraint(
-        const AdapterType &node)
+    constraints::MultipleOfDoubleConstraint makeMultipleOfDoubleConstraint(const AdapterType &node)
     {
         constraints::MultipleOfDoubleConstraint constraint;
         constraint.setDivisor(node.asDouble());
@@ -1960,8 +1884,7 @@ private:
      * @return  a MultipleOfIntConstraint
      */
     template<typename AdapterType>
-    constraints::MultipleOfIntConstraint makeMultipleOfIntConstraint(
-            const AdapterType &node)
+    constraints::MultipleOfIntConstraint makeMultipleOfIntConstraint(const AdapterType &node)
     {
         constraints::MultipleOfIntConstraint constraint;
         constraint.setDivisor(node.asInteger());
@@ -1996,7 +1919,7 @@ private:
         typename DocumentCache<AdapterType>::Type &docCache,
         SchemaCache &schemaCache)
     {
-        if (node.maybeObject() || (version == kDraft7 && node.maybeBool())) {
+        if (node.maybeObject() || (m_version == kDraft7 && node.maybeBool())) {
             const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                     rootSchema, rootNode, node, currentScope, nodePath,
                     fetchDoc, nullptr, nullptr, docCache, schemaCache);
@@ -2005,7 +1928,7 @@ private:
             return constraint;
         }
 
-        throw std::runtime_error("Expected object value for 'not' constraint.");
+        throwRuntimeError("Expected object value for 'not' constraint.");
     }
 
     /**
@@ -2040,8 +1963,7 @@ private:
 
         int index = 0;
         for (const AdapterType schemaNode : node.getArray()) {
-            const std::string childPath = nodePath + "/" +
-                    std::to_string(index);
+            const std::string childPath = nodePath + "/" + std::to_string(index);
             const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                 rootSchema, rootNode, schemaNode, currentScope, childPath,
                 fetchDoc, nullptr, nullptr, docCache, schemaCache);
@@ -2143,8 +2065,7 @@ private:
         if (patternProperties) {
             for (const Member m : patternProperties->getObject()) {
                 const std::string &pattern = m.first;
-                const std::string childPath = patternPropertiesPath + "/" +
-                        pattern;
+                const std::string childPath = patternPropertiesPath + "/" + pattern;
                 const Subschema *subschema = makeOrReuseSchema<AdapterType>(
                         rootSchema, rootNode, m.second, currentScope, childPath,
                         fetchDoc, parentSubschema, &pattern, docCache,
@@ -2167,8 +2088,7 @@ private:
                 // If it has a boolean value that is 'true', then an empty
                 // schema should be used.
                 if (additionalProperties->asBool()) {
-                    constraint.setAdditionalPropertiesSubschema(
-                            rootSchema.emptySubschema());
+                    constraint.setAdditionalPropertiesSubschema(rootSchema.emptySubschema());
                 }
             } else if (additionalProperties->isObject()) {
                 // If additionalProperties is an object, it should be used as
@@ -2180,14 +2100,12 @@ private:
                 constraint.setAdditionalPropertiesSubschema(subschema);
             } else {
                 // All other types are invalid
-                throw std::runtime_error(
-                        "Invalid type for 'additionalProperties' constraint.");
+                throwRuntimeError("Invalid type for 'additionalProperties' constraint.");
             }
         } else {
             // If an additionalProperties constraint is not provided, then the
             // default value is an empty schema.
-            constraint.setAdditionalPropertiesSubschema(
-                    rootSchema.emptySubschema());
+            constraint.setAdditionalPropertiesSubschema(rootSchema.emptySubschema());
         }
 
         return constraint;
@@ -2204,10 +2122,8 @@ private:
         typename DocumentCache<AdapterType>::Type &docCache,
         SchemaCache &schemaCache)
     {
-        const Subschema *subschema = makeOrReuseSchema<AdapterType>(rootSchema, rootNode,
-                currentNode, currentScope, nodePath, fetchDoc, nullptr, nullptr, docCache,
-                schemaCache);
-
+        const Subschema *subschema = makeOrReuseSchema<AdapterType>(rootSchema, rootNode, currentNode, currentScope,
+                nodePath, fetchDoc, nullptr, nullptr, docCache, schemaCache);
         constraints::PropertyNamesConstraint constraint;
         constraint.setSubschema(subschema);
         return constraint;
@@ -2231,7 +2147,7 @@ private:
                     const std::string &name)
     {
         if (!node.maybeBool()) {
-            throw std::runtime_error("Expected boolean value for 'required' attribute.");
+            throwRuntimeError("Expected boolean value for 'required' attribute.");
         }
 
         if (node.asBool()) {
@@ -2262,8 +2178,7 @@ private:
 
         for (const AdapterType v : node.getArray()) {
             if (!v.maybeString()) {
-                throw std::runtime_error("Expected required property name to "
-                        "be a string value");
+                throwRuntimeError("Expected required property name to be a string value");
             }
 
             constraint.addRequiredProperty(v.getString());
@@ -2305,12 +2220,9 @@ private:
         TypeConstraint constraint;
 
         if (node.maybeString()) {
-            const TypeConstraint::JsonType type =
-                    TypeConstraint::jsonTypeFromString(node.getString());
-
-            if (type == TypeConstraint::kAny && version == kDraft4) {
-                throw std::runtime_error(
-                        "'any' type is not supported in version 4 schemas.");
+            const TypeConstraint::JsonType type = TypeConstraint::jsonTypeFromString(node.getString());
+            if (type == TypeConstraint::kAny && m_version == kDraft4) {
+                throwRuntimeError("'any' type is not supported in version 4 schemas.");
             }
 
             constraint.addNamedType(type);
@@ -2319,40 +2231,33 @@ private:
             int index = 0;
             for (const AdapterType v : node.getArray()) {
                 if (v.maybeString()) {
-                    const TypeConstraint::JsonType type =
-                            TypeConstraint::jsonTypeFromString(v.getString());
-
-                    if (type == TypeConstraint::kAny && version == kDraft4) {
-                        throw std::runtime_error(
-                                "'any' type is not supported in version 4 "
-                                "schemas.");
+                    const TypeConstraint::JsonType type = TypeConstraint::jsonTypeFromString(v.getString());
+                    if (type == TypeConstraint::kAny && m_version == kDraft4) {
+                        throwRuntimeError("'any' type is not supported in version 4 schemas.");
                     }
 
                     constraint.addNamedType(type);
 
-                } else if (v.maybeObject() && version == kDraft3) {
-                    const std::string childPath = nodePath + "/" +
-                            std::to_string(index);
-                    const Subschema *subschema = makeOrReuseSchema<AdapterType>(
-                            rootSchema, rootNode, v, currentScope, childPath,
-                            fetchDoc, nullptr, nullptr, docCache, schemaCache);
+                } else if (v.maybeObject() && m_version == kDraft3) {
+                    const std::string childPath = nodePath + "/" + std::to_string(index);
+                    const Subschema *subschema = makeOrReuseSchema<AdapterType>(rootSchema, rootNode, v, currentScope,
+                            childPath, fetchDoc, nullptr, nullptr, docCache, schemaCache);
                     constraint.addSchemaType(subschema);
 
                 } else {
-                    throw std::runtime_error("Type name should be a string.");
+                    throwRuntimeError("Type name should be a string.");
                 }
 
                 index++;
             }
 
-        } else if (node.maybeObject() && version == kDraft3) {
-            const Subschema *subschema = makeOrReuseSchema<AdapterType>(
-                    rootSchema, rootNode, node, currentScope, nodePath,
-                    fetchDoc, nullptr, nullptr, docCache, schemaCache);
+        } else if (node.maybeObject() && m_version == kDraft3) {
+            const Subschema *subschema = makeOrReuseSchema<AdapterType>(rootSchema, rootNode, node, currentScope,
+                    nodePath, fetchDoc, nullptr, nullptr, docCache, schemaCache);
             constraint.addSchemaType(subschema);
 
         } else {
-            throw std::runtime_error("Type name should be a string.");
+            throwRuntimeError("Type name should be a string.");
         }
 
         return constraint;
@@ -2367,8 +2272,7 @@ private:
      *          the caller, or nullptr if the boolean value is false.
      */
     template<typename AdapterType>
-    opt::optional<constraints::UniqueItemsConstraint>
-            makeUniqueItemsConstraint(const AdapterType &node)
+    opt::optional<constraints::UniqueItemsConstraint> makeUniqueItemsConstraint(const AdapterType &node)
     {
         if (node.isBool() || node.maybeBool()) {
             // If the boolean value is true, this function will return a pointer
@@ -2381,14 +2285,13 @@ private:
             }
         }
 
-        throw std::runtime_error(
-                "Expected boolean value for 'uniqueItems' constraint.");
+        throwRuntimeError("Expected boolean value for 'uniqueItems' constraint.");
     }
 
+private:
+
+    /// Version of JSON Schema that should be expected when parsing
+    const Version m_version;
 };
 
 }  // namespace valijson
-
-#ifdef __clang__
-#  pragma clang diagnostic pop
-#endif

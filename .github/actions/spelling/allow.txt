@@ -532,7 +532,7 @@ Testrun
 testsettingname
 TEXTFORMAT
 TEXTINCLUDE
-there're
+Threadpool
 Timeline
 todo
 tokenizer
@@ -575,6 +575,7 @@ UNICODESTRING
 uninstall
 uninstalling
 Unregister
+Unregisters
 untimes
 updatemanifest
 UPLEVEL

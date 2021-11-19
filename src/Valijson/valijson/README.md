@@ -15,24 +15,22 @@ The goal of this project is to support validation of all constraints available i
 The following code snippets show how you might implement a simple validator using RapidJson as the underlying JSON Parser.
 
 Include the necessary headers:
-
-    #include <rapidjson/document.h>
-
+```cpp
     #include <valijson/adapters/rapidjson_adapter.hpp>
     #include <valijson/utils/rapidjson_utils.hpp>
     #include <valijson/schema.hpp>
     #include <valijson/schema_parser.hpp>
     #include <valijson/validator.hpp>
-
+```
 These are the classes that we'll be using:
-
+```cpp
     using valijson::Schema;
     using valijson::SchemaParser;
     using valijson::Validator;
     using valijson::adapters::RapidJsonAdapter;
-
+```
 We are going to use RapidJSON to load the schema and the target document:
-
+```cpp
     // Load JSON document using RapidJSON with Valijson helper function
     rapidjson::Document mySchemaDoc;
     if (!valijson::utils::loadDocument("mySchema.json", mySchemaDoc)) {
@@ -44,21 +42,23 @@ We are going to use RapidJSON to load the schema and the target document:
     SchemaParser parser;
     RapidJsonAdapter mySchemaAdapter(mySchemaDoc);
     parser.populateSchema(mySchemaAdapter, mySchema);
-
+```
 Load a document to validate:
-
+```cpp
     rapidjson::Document myTargetDoc;
     if (!valijson::utils::loadDocument("myTarget.json", myTargetDoc)) {
         throw std::runtime_error("Failed to load target document");
     }
+```
 
 Validate a document:
-
+```cpp
     Validator validator;
     RapidJsonAdapter myTargetAdapter(myTargetDoc);
     if (!validator.validate(mySchema, myTargetAdapter, NULL)) {
-        std::runtime_error("Validation failed.");
+        throw std::runtime_error("Validation failed.");
     }
+```
 
 Note that Valijson's `SchemaParser` and `Validator` classes expect you to pass in a `RapidJsonAdapter` rather than a `rapidjson::Document`. This is due to the fact that `SchemaParser` and `Validator` are template classes that can be used with any of the JSON parsers supported by Valijson.
 
@@ -67,7 +67,7 @@ Note that Valijson's `SchemaParser` and `Validator` classes expect you to pass i
 Valijson has been designed to safely manage, and eventually free, the memory that is allocated while parsing a schema or validating a document. When working with an externally loaded schema (i.e. one that is populated using the `SchemaParser` class) you can rely on RAII semantics.
 
 Things get more interesting when you build a schema using custom code, as illustrated in the following snippet. This code demonstrates how you would create a schema to verify that the value of a 'description' property (if present) is always a string:
-
+```cpp
     {
         // Root schema object that manages memory allocated for
         // constraints or sub-schemas
@@ -101,7 +101,7 @@ Things get more interesting when you build a schema using custom code, as illust
 
         // Root schema goes out of scope and all allocated memory is freed
     }
-
+```
 ## JSON References ##
 
 The library includes support for local JSON References. Remote JSON References are supported only when the appropriate callback functions are provided.
@@ -115,7 +115,7 @@ Valijson's' test suite currently contains several hand-crafted tests and uses th
 ### cmake ###
 
 The examples and test suite can be built using cmake:
-
+```bash
     # Build examples and test suite
     mkdir build
     cd build
@@ -124,6 +124,32 @@ The examples and test suite can be built using cmake:
 
     # Run test suite (from build directory)
     ./test_suite
+```
+#### How to add this library to your cmake target ####
+
+Download this repository into your project
+
+```bash
+git clone https://github.com/tristanpenman/valijson <project-path>/third-party/valijson
+```
+
+If your project is a git repository
+
+```bash
+cd <project-path>
+git submodule add https://github.com/tristanpenman/valijson third-party/valijson
+```
+
+Before the target add the module subdirectory in your CMakeLists.txt
+
+```cmake
+set(valijson_BUILD_TESTS OFF)
+add_subdirectory(third-party/valijson)
+
+add_executable(your-executable ...)
+
+target_link_libraries(your-executable ValiJSON::valijson)
+```
 
 ### Xcode ###
 
@@ -147,6 +173,24 @@ The main exceptions are
 
 Support for JSON References is in development. It is mostly working, however some of the test cases added to [JSON Schema Test Suite](https://github.com/json-schema/JSON-Schema-Test-Suite) for v6/v7 are still failing.
 
+## JSON Inspector
+
+An example application based on Qt is also included under [inspector](./inspector). It can be used to experiment with JSON Schemas and target documents. JSON Inspector is a self-contained CMake project, so it must be built separately:
+
+```bash
+    cd inspector
+    mkdir build
+    cd build
+    cmake ..
+    make
+```
+
+Schemas and target documents can be loaded from file or entered manually. Content is parsed dynamically, so you get rapid feedback.
+
+Here is a screenshot of JSON Inspector in action:
+
+![JSON Inspector in action](./doc/inspector/screenshot.png)
+
 ## Documentation ##
 
 Doxygen documentation can be built by running 'doxygen' from the project root directory. Generated documentation will be placed in 'doc/html'. Other relevant documentation such as schemas and specifications have been included in the 'doc' directory.
@@ -162,19 +206,22 @@ When building the test suite, Boost 1.54, Qt 5 and Poco are optional dependencie
 Valijson supports JSON documents loaded using various JSON parser libraries. It has been tested against the following versions of these libraries:
 
  - [boost::property_tree 1.54](http://www.boost.org/doc/libs/1_54_0/doc/html/boost_propertytree/synopsis.html)
+ - [Boost.JSON 1.75](https://www.boost.org/doc/libs/1_75_0/libs/json/doc/html/index.html)
  - [json11 (commit afcc8d0)](https://github.com/dropbox/json11/tree/afcc8d0d82b1ce2df587a7a0637d05ba493bf5e6)
- - [jsoncpp 0.9.4](https://github.com/open-source-parsers/jsoncpp/archive/0.9.4.tar.gz)
+ - [jsoncpp 1.9.4](https://github.com/open-source-parsers/jsoncpp/archive/1.9.4.tar.gz)
  - [nlohmann/json 1.1.0](https://github.com/nlohmann/json/archive/v1.1.0.tar.gz)
- - [rapidjson 1.1.0](https://github.com/miloyip/rapidjson/releases/tag/v1.1.0)
+ - [rapidjson (commit 48fbd8c)](https://github.com/Tencent/rapidjson/tree/48fbd8cd202ca54031fe799db2ad44ffa8e77c13)
  - [PicoJSON 1.3.0](https://github.com/kazuho/picojson/archive/v1.3.0.tar.gz)
  - [Poco JSON 1.7.8](https://pocoproject.org/docs/Poco.JSON.html)
  - [Qt 5.8](http://doc.qt.io/qt-5/json.html)
 
-Other versions of these libraries may work, but have not been tested. In particular, versions of JsonCpp going back to 0.5.0 should also work correctly, but versions from 1.0 onwards have not yet been tested.
+Other versions of these libraries may work, but have not been tested. In particular, versions of jsoncpp going back to 0.5.0 should also work correctly.
 
 ## Package Managers ##
 
 If you are using [vcpkg](https://github.com/Microsoft/vcpkg) on your project for external dependencies, then you can use the [valijson](https://github.com/microsoft/vcpkg/tree/master/ports/valijson) package. Please see the vcpkg project for any issues regarding the packaging.
+
+You can also use [conan](https://conan.io/) as a package manager to handle [valijson](https://conan.io/center/valijson/0.3/) package. Please see the [conan recipe](https://github.com/conan-io/conan-center-index/tree/master/recipes/valijson) for any issues regarding the packaging via conan.
 
 ## Test Suite Requirements ##
 
@@ -186,13 +233,13 @@ The exceptions to this are boost, Poco and Qt5, which due to their size must be 
 
 When using PicoJSON, it may be necessary to include the `picojson.h` before other headers to ensure that the appropriate macros have been enabled.
 
-When building Valijson using CMake on Mac OS X, with Qt 5 installed via Homebrew, you may need to set `CMAKE_PREFIX_PATH` so that CMake can find your Qt installation, e.g:
-
+When building Valijson using CMake on macOS, with Qt 5 installed via Homebrew, you may need to set `CMAKE_PREFIX_PATH` so that CMake can find your Qt installation, e.g:
+```bash
     mkdir build
     cd build
     cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
     make
-
+```
 ## License ##
 
 Valijson is licensed under the Simplified BSD License.
