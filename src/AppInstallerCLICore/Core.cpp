@@ -51,6 +51,13 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
         Logging::UseGlobalTelemetryLoggerActivityIdOnly();
 
         Execution::Context context{ std::cout, std::cin };
@@ -62,13 +69,6 @@ namespace AppInstaller::CLI
         Logging::Log().SetLevel(Logging::Level::Info);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
-        {
-            Debugging::EnableSelfInitiatedMinidump();
-        }
-#endif
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
