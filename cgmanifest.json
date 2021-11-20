@@ -32,7 +32,7 @@
       "type": "git",
       "git": {
         "repositoryUrl": "https://github.com/tristanpenman/valijson.git",
-        "commitHash": "7a52fc88cdffd6678c009ca2fad700151f7363c6"
+        "commitHash": "2dfc7499a31b84edef71189f4247919268ebc74e"
       }
     }
   },
