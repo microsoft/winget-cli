@@ -1,7 +1,7 @@
 ---
 author: Kaleb Luedtke Trenly/trenlymc@gmail.com
 created on: 2021-11-18
-last updated: 2021-11-18
+last updated: 2021-11-20
 issue id: 147
 ---
 
@@ -19,29 +19,76 @@ Some other package managers have this capability. In the current state, a new pa
 
 ## Solution Design
 
-The Windows Package Manager manifest v1.1.0 schema has provided a key for declaring which channel an installer belongs to. An additional key for identifying the Default Channel should be added to the manifest schema. If `Channel` or `DefaultChannel` is not defined, they are assumed to be `null`. For the purposes of release channels, `null` shall be considered a valid and distinct release channel. A sample of manifest entries is below.
+### Manifest Structure
+The Windows Package Manager manifest v1.1.0 schema has provided a key for declaring which channel an installer belongs to. However, this has the potential to make the installer manifests extremely complex when there are multiple release channels with multiple installers each. This key should be removed from the manifest v1.1.0 schema.
 
-```yaml
-PackageVersion: 1.0.0
-DefaultChannel: Stable
-Installers:
-- Architecture: <...>
-  InstallerUrl: <...>
-  InstallerSha256: <...>
-  Channel: Stable
-- Architecture: <...>
-  InstallerUrl: <...>
-  InstallerSha256: <...>
-  Channel: Dev
-ManifestType: installer
-ManifestVersion: X.X.X
+Instead, the use of multiple installer manifest files will be used to define and manage the various channels available for a package in a way similar to locales. This will ensure that the client remains backwards compatible with old manifest versions, and will make the creation and maintenance of the various channels easier for contributors in the community repository. This will require a `DefaultChannel` key be added to the version manifest schema. Channels shold not be compatible with singleton manifests.
+
+An example of the manifest file structure, with installer channel manifests:
+```raw
+/manifests/g/Google/Chrome/1.0
+  | Google.Chrome.installer.beta.yaml
+  | Google.Chrome.installer.canary.yaml
+  | Google.Crome.installer.dev.yaml
+  | Google.Chrome.installer.Stable.yaml
+  | Google.Chrome.locale.en-US.yaml
+  | Google.Chrome.locale.nb-NO.yaml
+  | Google.Chrome.yaml
+/manifests/g/Google/Chrome/2.0
+  | Google.Chrome.installer.canary.yaml
+  | Google.Crome.installer.dev.yaml
+  | Google.Chrome.locale.en-US.yaml
+  | Google.Chrome.locale.nb-NO.yaml
+  | Google.Chrome.yaml
 ```
-[Comment] Describe behavior for when newer version has only dev channel
+
+To maintain backwards compatability, `null` should be treated as a valid `DefaultChannel`. If the default channel is not specified, `<PackageIdentifier>.installer.yaml` would be treated as the default. Additional channels may still be added to the package, and all functionality would still be present.
+
+An example of the manifest file structure when `DefaultChannel` is unset -
+```raw
+/manifests/7/7zip/7zip/1.0
+  | 7zip.7zip.installer.yaml
+  | 7zip.7zip.installer.Alpha.yaml
+  | 7zip.7zip.locale.en-US.yaml
+  | 7zip.7zip.yaml
+/manifests/7/7zip/7zip/2.0
+  | 7zip.7zip.installer.Alpha.yaml
+  | 7zip.7zip.locale.en-US.yaml
+  | 7zip.7zip.yaml
+```
+
+### CLI Behavior
+Where not specified by the user, the default release channel should be used/shown first or exclusively, then other channels in ASCII sort order. If the package manifest has a default channel specified and no versions of that package have an installer manifest matching the default channel, then the next available channel should be used/shown. Channels should be treated as case-insensitive.
+
+The channel `Default` shall be treated as a reserved token. When used in commands, default should refer to the default channel specified in the version manifest. In command output, when the default channel is named, the name should be shown. If the default channel is null, then `Default` shold be shown.
+
+#### winget search
+In order to avoid package duplication in search results, only the default channel should be shown unless otherwise specified. Users should be able to search for packages by release channel in addition to all other search filters.
+
+Some valid searches:
+```powershell
+PS> winget search --channel <channel> # Return all packages which have a channel matching <channel>
+PS> winget search --channel "" # Return all packages which have a null channel
+PS> winget search <query> --channel <channel> # Return packages matching <query> which have a channel matching <channel>
+PS> winget search --tag <tag> --channel <channel> # Return packages with a tag matching <tag> which have a channel matching <channel>
+...
+```
+
+#### winget show
+When the user specifies `--versions`, the versions for all channels along with the channels should be shown. The versions should be grouped by channel, sorted by channel, then sorted by version descending
+When the user specifies `--channels`, the available channels for the package should be shown. If a package contains a named default channel and unnamed (null) channels, only the named channels should be shown
+
+#### winget install
+[Comment] Install should support --channel
+[Comment] Install should keep track of which channel was installed
+
+#### winget upgrade
+[Comment] If we can't determine channel, ask user. If --all was specified, throw a warning and skip the upgrade
+
+#### winget export/import
+[Comment] When exporting, specify the release channel. When importing, honor the release channel. If release channel cannot be honored on import, use default release channel
 
 ## UI/UX Design
-
-Where not specified, the default release channel should be used/shown first or exclusively, then other channels in ASCII sort order
-
 ### Searching for package version with release channel
 
 ```raw
@@ -57,10 +104,17 @@ PS> winget search Google.Chrome --channel dev
 Name           Id             Version        Channel
 ----------------------------------------------------
 Google Chrome  Google.Chrome  97.0.4692.20   Dev
+
+PS> winget search Google --channel dev
+Name           Id                   Version        Channel
+-----------------------------------------------------------
+Google Chrome  Google.Chrome        97.0.4692.20   Dev
+Android Studio Google.AndroidStudio 2020.3.1       dev
 ```
 
 ### Showing available release channels
 ```raw
+# When all channels have defined names
 PS> winget show Google.Chrome --channels
 Found Google Chrome [Google.Chrome]
 Channel
@@ -69,6 +123,21 @@ Stable
 Beta
 Canary
 Dev
+
+# When the default channel is unnamed
+PS> winget show 7zip.7zip --channels
+Found 7-zip [7zip.7zip]
+Channel
+-------
+Default
+alpha
+
+# When the default channel is named "Stable", but unnamed channels exist
+PS> winget show Badlion.BadlionClient --channels
+Found Badlion Client [Badlion.BadlionClient]
+Channel
+-------
+Stable
 ```
 
 ### Showing available versions
@@ -85,6 +154,7 @@ Version      Channel
 ```
 
 ### Installing with release channel
+
 When the channel is not the default channel, the channel name should be shown after the package identifier when installing or upgrading
 ```raw
 PS> winget install Google.Chrome
