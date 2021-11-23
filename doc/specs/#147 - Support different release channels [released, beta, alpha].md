@@ -24,7 +24,7 @@ The Windows Package Manager manifest v1.1.0 schema has provided a key for declar
 > The `Channel` key should be removed from the manifest v1.1.0 schema.
 
 Instead, the use of multiple installer manifest files will be used to define and manage the various channels available for a package in a way similar to locales. This will ensure that the client remains backwards compatible with old manifest versions, and will make the creation and maintenance of the various channels easier for contributors in the community repository. This will require a key be added to the  manifest schema. Channels should not be compatible with singleton manifests.
-> The `DefaultChannel` key should be added to the manivest v1.1.0 schema for version manifests
+> The `DefaultChannel` key should be added to the manifest v1.1.0 schema for version manifests
 
 An example of the manifest file structure, with installer channel manifests:
 ```raw
