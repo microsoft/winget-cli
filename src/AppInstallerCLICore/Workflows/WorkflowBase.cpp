@@ -962,7 +962,8 @@ namespace AppInstaller::CLI::Workflow
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         IPackageVersion::Metadata installationMetadata;
-        Utility::Architecture requiredArchitecture = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
+        std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
+        std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
         if (isUpdate)
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
@@ -972,9 +973,22 @@ namespace AppInstaller::CLI::Workflow
             // arguments override settings.
             context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
         }
-        else if (requiredArchitecture != Utility::Architecture::Neutral)
+        else 
         {
-            context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitecture });
+            std::set<Utility::Architecture> settingArchitectures;
+            if (!optionalArchitectures.empty())
+            {
+                std::copy(optionalArchitectures.begin(), optionalArchitectures.end(), std::inserter(settingArchitectures, settingArchitectures.begin()));
+            }
+            if (!requiredArchitectures.empty())
+            {
+                std::copy(requiredArchitectures.begin(), requiredArchitectures.end(), std::inserter(settingArchitectures, settingArchitectures.begin()));
+            }
+            else
+            {
+                settingArchitectures.emplace(Utility::Architecture::Unknown);
+            }
+            context.Add<Execution::Data::AllowedArchitectures>({ settingArchitectures.begin(), settingArchitectures.end() });
         }
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());

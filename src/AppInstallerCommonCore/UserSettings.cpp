@@ -230,19 +230,26 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
-            Utility::Architecture arch = Utility::ConvertToArchitectureEnum(value);
-	        if (Utility::IsApplicableArchitecture(arch) != Utility::InapplicableArchitecture)
-	        {
-                return arch;
-	        }
-            return {};
+            std::vector<Utility::Architecture> archs;
+            for (auto const& i : value) {
+                Utility::Architecture arch = Utility::ConvertToArchitectureEnum(i);
+                if (Utility::IsApplicableArchitecture(arch) == Utility::InapplicableArchitecture)
+                {
+                    return {};
+                }
+                archs.emplace_back(arch);
+            }
+            return archs;
         }
+
         WINGET_VALIDATE_SIGNATURE(InstallArchitectureRequirement)
         {
             return SettingMapping<Setting::InstallArchitecturePreference>::Validate(value);
         }
+
         WINGET_VALIDATE_SIGNATURE(InstallScopePreference)
         {
             static constexpr std::string_view s_scope_user = "user";

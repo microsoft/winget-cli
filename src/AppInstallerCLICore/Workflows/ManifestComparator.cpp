@@ -46,11 +46,10 @@ namespace AppInstaller::CLI::Workflow
 
         struct MachineArchitectureComparator : public details::ComparisonField
         {
-            MachineArchitectureComparator(Utility::Architecture preference) :
-        	details::ComparisonField("Machine Architecture"), m_preference(preference) {}
+            MachineArchitectureComparator() : details::ComparisonField("Machine Architecture") {}
 
-            MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures, Utility::Architecture preference) :
-                details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures)), m_preference(preference)
+            MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
+                details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures))
             {
                 AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << GetAllowedArchitecturesString());
             }
@@ -58,7 +57,6 @@ namespace AppInstaller::CLI::Workflow
             // TODO: At some point we can do better about matching the currently installed architecture
             static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata&)
             {
-                Utility::Architecture preference = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
                 if (context.Contains(Execution::Data::AllowedArchitectures))
                 {
                     const std::vector<Utility::Architecture>& allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
@@ -97,11 +95,11 @@ namespace AppInstaller::CLI::Workflow
                             }
                         }
 
-                        return std::make_unique<MachineArchitectureComparator>(std::move(result), preference);
+                        return std::make_unique<MachineArchitectureComparator>(std::move(result));
                     }
                 }
 
-                return std::make_unique<MachineArchitectureComparator>(preference);
+                return std::make_unique<MachineArchitectureComparator>();
             }
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
@@ -131,10 +129,6 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                if (m_preference != Utility::Architecture::Neutral)
-                {
-                    return (first.Arch == m_preference && second.Arch != m_preference);
-                }
                 auto arch1 = CheckAllowedArchitecture(first.Arch);
                 auto arch2 = CheckAllowedArchitecture(second.Arch);
 
@@ -176,7 +170,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::vector<Utility::Architecture> m_allowedArchitectures;
-            Utility::Architecture m_preference;
         };
 
         struct InstalledTypeComparator : public details::ComparisonField
