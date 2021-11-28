@@ -1098,7 +1098,7 @@ Do you agree to the terms?</value>
     <value>One or more of the source agreements were not agreed to. Operation cancelled. Please accept the source agreements or remove the corresponding sources.</value>
   </data>
   <data name="SourceAgreementsMarketMessage" xml:space="preserve">
-    <value>The source requires current machine's geographic region to be sent to function properly.</value>
+    <value>The source requires the current machine's 2-letter geographic region to be sent to the backend service to function properly (ex. "US").</value>
   </data>
   <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
     <value>Successfully installed. Restart the application to complete the upgrade.</value>
