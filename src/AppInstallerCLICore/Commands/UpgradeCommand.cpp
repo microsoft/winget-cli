@@ -20,7 +20,8 @@ namespace AppInstaller::CLI
         bool ShouldListUpgrade(Context& context)
         {
             return context.Args.Empty() ||
-                (context.Args.GetArgsCount() == 1 && context.Args.Contains(Execution::Args::Type::Source));
+                (context.Args.GetArgsCount() == 1 && (context.Args.Contains(Execution::Args::Type::Source) || context.Args.Contains(Execution::Args::Type::IncludeUnknown))) ||
+                (context.Args.GetArgsCount() == 2 && (context.Args.Contains(Execution::Args::Type::Source) && context.Args.Contains(Execution::Args::Type::IncludeUnknown)));
         }
     }
 
@@ -46,6 +47,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag }
         };
     }
 

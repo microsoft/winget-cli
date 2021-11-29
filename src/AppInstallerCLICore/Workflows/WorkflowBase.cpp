@@ -738,6 +738,14 @@ namespace AppInstaller::CLI::Workflow
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
 
+                    if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown()) 
+                    {
+                       // we are only supposed to be printing upgrades and the user did not request that packages with unknown versions be included
+                        updateAvailable = false;
+                        availableUpgradesCount--;
+                        continue;
+                    }
+
                     table.OutputLine({
                         match.Package->GetProperty(PackageProperty::Name),
                         match.Package->GetProperty(PackageProperty::Id),

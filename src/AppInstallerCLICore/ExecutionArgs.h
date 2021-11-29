@@ -85,6 +85,7 @@ namespace AppInstaller::CLI::Execution
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
+            IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
 
             // Used for demonstration purposes
             ExperimentalArg,

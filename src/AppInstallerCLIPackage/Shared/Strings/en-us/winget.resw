@@ -1250,4 +1250,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Select the architecture to install</value>
   </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Upgrade packages even if their current version cannot be determined</value>
+  </data>
 </root>
