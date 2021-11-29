@@ -174,8 +174,8 @@ bool HasExtension(std::string_view extension) const;
         string_t Id;
         std::optional<Utility::Version> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(Utility::Version(minVersion)) {}
-        Dependency(DependencyType type, string_t id) : Type(type), Id(std::move(id)) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(Utility::Version(minVersion)), m_foldedId(FoldCase(Id)) {}
+        Dependency(DependencyType type, string_t id) : Type(type), Id(std::move(id)), m_foldedId(FoldCase(Id)){}
         Dependency(DependencyType type) : Type(type) {}
 
         bool operator==(const Dependency& rhs) const {
@@ -184,13 +184,16 @@ bool HasExtension(std::string_view extension) const;
 
         bool operator <(const Dependency& rhs) const
         {
-            return FoldCase(Id) < FoldCase(rhs.Id);
+            return m_foldedId < rhs.m_foldedId;
         }
 
         bool IsVersionOk(Utility::Version version)
         {
             return MinVersion <= Utility::Version(version);
         }
+
+    private:
+        std::string m_foldedId;
     };
 
     struct DependencyList

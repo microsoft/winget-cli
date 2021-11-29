@@ -80,7 +80,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                     missingPackageNodes.begin() + 1,
                     missingPackageNodes.end(),
                     [&](auto& dep) { missingPackages.append(", " + dep.Id);  });
-                THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %s", missingPackages.c_str());
+                THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %hs", missingPackages.c_str());
             }
         }
 
@@ -107,24 +107,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                     continue;
                 }
 
-                auto manifestVersions = ManifestTable::GetAllValuesById<IdTable, VersionTable>(connection, packageRowId.value());
-
-                auto result = std::find_if(
-                    manifestVersions.begin(),
-                    manifestVersions.end(),
-                    [&](auto& manifestVersion)
-                    {
-                        return (std::get<0>(manifestVersion) == depMinVersion.ToString());
-                    }
-                );
-
-                if (result == manifestVersions.end())
-                {
-                    VersionTable::EnsureExists(connection, depMinVersion.ToString());
-                }
+                auto versionRowId = VersionTable::EnsureExists(connection, depMinVersion.ToString());
 
                 idsMap[packageId] = packageRowId.value();
-                versionsMap[depMinVersion] = VersionTable::SelectIdByValue(connection, depMinVersion.ToString()).value();
+                versionsMap[depMinVersion] = versionRowId;
             }
 
             ThrowOnMissingPackageNodes(missingPackageNodes);
@@ -148,16 +134,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         std::optional<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetPackageRowIdAndVersion(SQLite::Connection& connection, const Manifest::Dependency& dependency)
         {
-            std::optional<std::pair<SQLite::rowid_t, Utility::NormalizedString>> row;
-
             auto packageId = IdTable::SelectIdByValue(connection, dependency.Id);
 
             if (packageId.has_value())
             {
-                row = std::make_pair(packageId.value(), dependency.MinVersion.value().ToString());
+                return std::make_pair(packageId.value(), dependency.MinVersion.value().ToString());
             }
 
-            return row;
+            return {};
         }
     }
 
