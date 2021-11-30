@@ -976,18 +976,17 @@ namespace AppInstaller::CLI::Workflow
         {
             std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
             std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
-            std::set<Utility::Architecture> settingArchitectures;
+
 
             if (!requiredArchitectures.empty())
             {
-                std::copy(requiredArchitectures.begin(), requiredArchitectures.end(), std::inserter(settingArchitectures, settingArchitectures.begin()));
-                context.Add<Execution::Data::AllowedArchitectures>({ settingArchitectures.begin(), settingArchitectures.end() });
+                context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitectures.begin(), requiredArchitectures.end() });
             }
             else if (!optionalArchitectures.empty())
             {
-                settingArchitectures.emplace(Utility::Architecture::Unknown);
-                std::copy(optionalArchitectures.begin(), optionalArchitectures.end(), std::inserter(settingArchitectures, settingArchitectures.begin()));
-                context.Add<Execution::Data::AllowedArchitectures>({ settingArchitectures.begin(), settingArchitectures.end() });
+                optionalArchitectures.emplace_back(Utility::Architecture::Unknown);
+                context.Add<Execution::Data::AllowedArchitectures>({ optionalArchitectures.begin(), optionalArchitectures.end() });
+                
             }
         }
         ManifestComparator manifestComparator(context, installationMetadata);

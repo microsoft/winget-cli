@@ -59,6 +59,7 @@
           "description": "The architecture(s) to use for a package install",
           "type": "array",
           "items": {
+            "uniqueItems": "true",
             "type": "string",
             "enum": [
               "neutral",
