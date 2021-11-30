@@ -18,6 +18,12 @@ namespace AppInstaller::Repository
 
     namespace
     {
+        struct DependentManifestInfo
+        {
+            Utility::NormalizedString Id;
+            Utility::NormalizedString Version;
+        };
+
         std::vector<AppInstaller::Manifest::Dependency> GetDependencies(
             const Manifest::Manifest& manifest, AppInstaller::Manifest::DependencyType dependencyType)
         {
@@ -38,7 +44,7 @@ namespace AppInstaller::Repository
             SQLiteIndex* index, Manifest::string_t packageId, std::set<Utility::Version> exclusions = {})
         {
             SearchRequest request;
-            request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, packageId);
+            request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, packageId);
             std::optional<std::pair<SQLite::rowid_t, Utility::Version>> result;
 
             auto results = index->Search(request);
@@ -62,7 +68,7 @@ namespace AppInstaller::Repository
                     continue;
                 }
 
-                if (maxVersion.IsUnknown() || currentVersion > maxVersion)
+                if (currentVersion > maxVersion)
                 {
                     maxVersion = currentVersion;
                 }
@@ -75,6 +81,26 @@ namespace AppInstaller::Repository
             }
 
             return result;
+        }
+    
+        void ThrowOnManifestValidationFailed(
+            std::vector<std::pair<DependentManifestInfo, Utility::Version>> failedManifests, std::string error)
+        {
+            auto itrStart = failedManifests.begin();
+            std::string dependentPackages{ itrStart->first.Id + "." + itrStart->first.Version };
+
+            std::for_each(
+                itrStart + 1,
+                failedManifests.end(),
+                [&](std::pair<DependentManifestInfo, Utility::Version> current)
+                {
+                    dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
+                });
+
+            error.append("\n" + dependentPackages);
+            THROW_EXCEPTION(
+                Manifest::ManifestException({ Manifest::ValidationError(error) },
+                    APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
         }
     };
 
@@ -124,11 +150,11 @@ namespace AppInstaller::Repository
             std::for_each(
                 packageLatestDependencies.begin(),
                 packageLatestDependencies.end(),
-                [&](std::pair<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> row)
+                [&](std::pair<SQLite::rowid_t, Utility::NormalizedString> row)
                 {
-                    auto manifestRowId = index->GetManifestIdByKey(row.first.first, "", "");
+                    auto manifestRowId = index->GetManifestIdByKey(row.first, "", "");
                     auto packageId = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::Id);
-                    Dependency dep(DependencyType::Package, packageId.value(), row.first.second);
+                    Dependency dep(DependencyType::Package, packageId.value(), row.second);
                     depList.Add(dep);
                 });
 
@@ -162,17 +188,17 @@ namespace AppInstaller::Repository
             return true;
         }
 
-        std::vector<std::pair<Manifest::Manifest, Utility::Version>> manifestToVersionPair;
+        std::vector<std::pair<DependentManifestInfo, Utility::Version>> dependentManifestInfoToVersionPair;
         std::for_each(
             dependentsSet.begin(),
             dependentsSet.end(),
             [&](std::pair<SQLite::rowid_t, Utility::Version> current)
             {
-                Manifest::Manifest manifest;
-                manifest.Id = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Id).value();
-                manifest.Version = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Version).value();
+                DependentManifestInfo dependentManifestInfo;
+                dependentManifestInfo.Id = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Id).value();
+                dependentManifestInfo.Version = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Version).value();
 
-                manifestToVersionPair.emplace_back(std::make_pair(manifest, current.second));
+                dependentManifestInfoToVersionPair.emplace_back(std::make_pair(dependentManifestInfo, current.second));
             });
 
         auto packageLatest = GetPackageLatestVersion(index, manifest.Id);
@@ -194,32 +220,18 @@ namespace AppInstaller::Repository
 
         if (!nextLatestAfterDelete.has_value())
         {
-            auto itrStart = manifestToVersionPair.begin();
-            std::string dependentPackages{ itrStart->first.Id + "." + itrStart->first.Version };
-
-            std::for_each(
-                itrStart + 1,
-                manifestToVersionPair.end(),
-                [&](std::pair<Manifest::Manifest, Utility::Version> current)
-                {
-                    dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
-                });
-
-            std::string error = Manifest::ManifestError::SingleManifestPackageHasDependencies;
-            error.append("\n" + dependentPackages);
-            THROW_EXCEPTION(
-                Manifest::ManifestException({ Manifest::ValidationError(error) },
-                    APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
-
+            ThrowOnManifestValidationFailed(
+                dependentManifestInfoToVersionPair, Manifest::ManifestError::SingleManifestPackageHasDependencies);
         }
 
-        std::vector<std::pair<Manifest::Manifest, Utility::Version>> breakingManifests;
+        std::vector<std::pair<DependentManifestInfo, Utility::Version>> breakingManifests;
 
+        // Gets breaking manifests.
         std::copy_if(
-            manifestToVersionPair.begin(),
-            manifestToVersionPair.end(),
+            dependentManifestInfoToVersionPair.begin(),
+            dependentManifestInfoToVersionPair.end(),
             std::back_inserter(breakingManifests),
-            [&](std::pair<Manifest::Manifest, Utility::Version> current)
+            [&](std::pair<DependentManifestInfo, Utility::Version> current)
             {
                 return current.second > nextLatestAfterDelete.value().second;
             }
@@ -227,22 +239,8 @@ namespace AppInstaller::Repository
 
         if (breakingManifests.size())
         {
-            auto itrStart = breakingManifests.begin();
-            std::string dependentPackages{ itrStart->first.Id + "." + itrStart->first.Version };
-
-            std::for_each(
-                itrStart + 1,
-                breakingManifests.end(),
-                [&](std::pair<Manifest::Manifest, Utility::Version> current)
-                {
-                    dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
-                });
-
-            std::string error = Manifest::ManifestError::MultiManifestPackageHasDependencies;
-            error.append("\n" + dependentPackages);
-            THROW_EXCEPTION(
-                Manifest::ManifestException({ Manifest::ValidationError(error) },
-                    APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
+            ThrowOnManifestValidationFailed(
+                breakingManifests, Manifest::ManifestError::MultiManifestPackageHasDependencies);
         }
 
         return true;

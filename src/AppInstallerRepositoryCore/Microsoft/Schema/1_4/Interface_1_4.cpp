@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         }
     }
 
-    std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> Interface::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const
+    std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const
     {
         return DependenciesTable::GetDependenciesByManifestRowId(connection, manifestRowId);
     }

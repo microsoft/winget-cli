@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
 
         // Version 1.4 Get all the dependencies for a specific manifest.
-        std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
+        std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
     protected:
         // Creates the search results table.

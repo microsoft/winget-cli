@@ -147,7 +147,7 @@ namespace AppInstaller::Repository::Microsoft
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const;
 
         // Get all the dependencies for a specific manifest.
-        std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
+        std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
     private:
         // Constructor used to open an existing index.

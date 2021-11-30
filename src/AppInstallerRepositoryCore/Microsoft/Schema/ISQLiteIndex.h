@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const = 0;
 
         // Get all the dependencies for a specific manifest.
-        virtual std::map<std::pair<SQLite::rowid_t, Utility::NormalizedString>, SQLite::rowid_t> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
+        virtual std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
 
         virtual std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const = 0;
     };
