@@ -85,7 +85,7 @@ The `architectures` behavior affects what architectures will be selected when in
 ```json
     "installBehavior": {
         "preferences": {
-            "architectures": "x64"
+            "architectures": ["x64", "arm64"]
         }
     },
 ```
