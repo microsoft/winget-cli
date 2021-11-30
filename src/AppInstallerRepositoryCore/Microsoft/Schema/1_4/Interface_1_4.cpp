@@ -86,6 +86,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         }
     }
 
+    bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
+    {
+        bool result = V1_3::Interface::CheckConsistency(connection, log);
+
+        // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
+        if (result || log)
+        {
+            result = DependenciesTable::DependenciesTableCheckConsistency(connection, log);
+        }
+
+        return result;
+    }
+
     std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const
     {
         return DependenciesTable::GetDependenciesByManifestRowId(connection, manifestRowId);

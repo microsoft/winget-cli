@@ -24,20 +24,21 @@ namespace AppInstaller::Repository
             Utility::NormalizedString Version;
         };
 
-        std::vector<AppInstaller::Manifest::Dependency> GetDependencies(
+        Manifest::DependencyList GetDependencies(
             const Manifest::Manifest& manifest, AppInstaller::Manifest::DependencyType dependencyType)
         {
+            Manifest::DependencyList depList;
             std::vector<AppInstaller::Manifest::Dependency>  dependencies;
 
             for (const auto& installer : manifest.Installers)
             {
                 installer.Dependencies.ApplyToType(dependencyType, [&](AppInstaller::Manifest::Dependency dependency)
                 {
-                    dependencies.emplace_back(dependency);
+                    depList.Add(dependency);
                 });
             }
 
-            return dependencies;
+            return depList;
         }
 
         std::optional<std::pair<SQLite::rowid_t, Utility::Version>> GetPackageLatestVersion(
@@ -45,20 +46,23 @@ namespace AppInstaller::Repository
         {
             SearchRequest request;
             request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, packageId);
-            std::optional<std::pair<SQLite::rowid_t, Utility::Version>> result;
 
             auto results = index->Search(request);
 
             if (results.Matches.empty())
             {
-                return result;
+                return {};
             }
 
             auto packageRowId = results.Matches[0].first;
-
             auto vac = index->GetVersionKeysById(packageRowId);
 
-            Utility::Version maxVersion = Utility::Version::CreateUnknown();
+            if (vac.empty())
+            {
+                return {};
+            }
+
+            Utility::VersionAndChannel maxVersion(Utility::Version::CreateUnknown(), Utility::Channel(""));
 
             for (auto& v : vac)
             {
@@ -68,19 +72,21 @@ namespace AppInstaller::Repository
                     continue;
                 }
 
-                if (currentVersion > maxVersion)
+                if (currentVersion > maxVersion.GetVersion())
                 {
-                    maxVersion = currentVersion;
+                    maxVersion = v;
                 }
             }
 
-            if (!maxVersion.IsUnknown())
+            if (maxVersion.GetVersion().IsUnknown())
             {
-                auto manifestRowId = index->GetManifestIdByKey(packageRowId, maxVersion.ToString(), "");
-                result = std::make_pair(manifestRowId.value(), maxVersion);
+                return {};
             }
 
-            return result;
+            auto manifestRowId = index->GetManifestIdByKey(
+                packageRowId, maxVersion.GetVersion().ToString(), maxVersion.GetChannel().ToString());
+
+            return std::make_pair(manifestRowId.value(), maxVersion.GetVersion());
         }
     
         void ThrowOnManifestValidationFailed(
@@ -117,14 +123,7 @@ namespace AppInstaller::Repository
             DependencyList depList;
             if (node.Id == rootId.Id)
             {
-                const auto dependencies = GetDependencies(manifest, DependencyType::Package);
-                if (!dependencies.size())
-                {
-                    return depList;
-                }
-
-                std::for_each(dependencies.begin(), dependencies.end(), [&](Dependency dep) { depList.Add(dep); });
-                return depList;
+                return GetDependencies(manifest, DependencyType::Package);
             }
 
             auto packageLatest = GetPackageLatestVersion(index, node.Id);

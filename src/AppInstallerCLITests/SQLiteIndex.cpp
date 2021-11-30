@@ -18,6 +18,7 @@
 #include <Microsoft/Schema/1_0/TagsTable.h>
 #include <Microsoft/Schema/1_0/CommandsTable.h>
 #include <Microsoft/Schema/1_0/SearchResultsTable.h>
+#include <Microsoft/Schema/1_4/DependenciesTable.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -459,6 +460,52 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_EmptyManifestVersion", "[sqli
     index.AddManifest(manifest, GetPathFromManifest(manifest));
 }
 
+TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_1]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+    
+    {
+        Manifest levelOneManifest, levelTwoManifest, levelThreeManifest, topLevelManifest;
+        SQLiteIndex index = SimpleTestSetup(tempFile, levelThreeManifest, Schema::Version::Latest());
+
+        constexpr std::string_view levelTwoManifestPublisher = "LevelTwoManifest";
+        CreateFakeManifest(levelTwoManifest, levelTwoManifestPublisher);
+
+        levelTwoManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelThreeManifest.Id, "1.0.0"));
+        index.AddManifest(levelTwoManifest, GetPathFromManifest(levelTwoManifest));
+
+        constexpr std::string_view levelOneManifestPublisher = "LevelOneManifest";
+        CreateFakeManifest(levelOneManifest, levelOneManifestPublisher);
+        levelOneManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelTwoManifest.Id, "1.0.0"));
+        index.AddManifest(levelOneManifest, GetPathFromManifest(levelOneManifest));
+
+        constexpr std::string_view topLevelManifestPublisher = "TopLevelManifest";
+        CreateFakeManifest(topLevelManifest, topLevelManifestPublisher);
+        topLevelManifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, levelOneManifest.Id, "1.0.0"));
+    }
+
+    {
+        // Open it directly to modify the table
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        SQLite::rowid_t nonExistentRowId = 40;
+        SQLite::rowid_t nonExistentManifest = 41;
+        SQLite::rowid_t nonExistentVersion = 42;
+        SQLite::rowid_t nonExistentPackageId = 43;
+
+        SQLite::Builder::StatementBuilder builder;
+        builder.InsertInto(Schema::V1_4::DependenciesTable::TableName())
+            .Values(nonExistentRowId, nonExistentManifest, nonExistentVersion, nonExistentPackageId);
+        builder.Execute(connection);
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        REQUIRE(!index.CheckConsistency(true));
+    }
+}
+
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 {
     SQLiteIndex index = CreateTestIndex(SQLITE_MEMORY_DB_CONNECTION_TARGET);
@@ -815,9 +862,14 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 
     // Now remove manifest1 and prepare
     index.RemoveManifest(manifest1, manifest1Path);
-    index.PrepareForPackaging();
+    
     // Checking consistency will also uncover issues, but not potentially the same ones as below.
     REQUIRE(index.CheckConsistency(true));
+
+    // This should be before CheckConsistency, 
+    // An unanswered question about whether an operation on the dependency table should be permitted when it does not exists,
+    // and how the resulting failures(for now, all cases with check consistency) from this operation are handled.
+    index.PrepareForPackaging();
 
     // Repeat search to ensure consistent ids
     result = index.Search(request);

@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     using QCol = SQLite::Builder::QualifiedColumn;
 
     static constexpr std::string_view s_DependenciesTable_Table_Name = "dependencies"sv;
-    static constexpr std::string_view s_DependenciesTable_Index_Name = "dependencies_index"sv;
+    static constexpr std::string_view s_DependenciesTable_Index_Name = "dependencies_pkindex"sv;
     static constexpr std::string_view s_DependenciesTable_Manifest_Column_Name = "manifest"sv;
     static constexpr std::string_view s_DependenciesTable_MinVersion_Column_Name = "min_version"sv;
     static constexpr std::string_view s_DependenciesTable_PackageId_Column_Name = "package_id";
@@ -166,12 +166,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         using namespace SQLite::Builder;
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createDependencyTable_v1_4");
+        constexpr std::string_view dependencyIndexByManifestId = "dependencies_manifest_id_index";
+        constexpr std::string_view dependencyIndexByPackageId = "dependencies_package_id_index";
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(TableName()).BeginColumns();
         createTableBuilder.Column(IntegerPrimaryKey());
 
-        std::vector<DependenciesTableColumnInfo> notNullabledependenciesColumns =
+        std::vector<DependenciesTableColumnInfo> notNullableDependenciesColumns =
         {
             { s_DependenciesTable_Manifest_Column_Name },
             { s_DependenciesTable_MinVersion_Column_Name },
@@ -182,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             { s_DependenciesTable_PackageId_Column_Name }
         };
 
-        for (const DependenciesTableColumnInfo& value : notNullabledependenciesColumns)
+        for (const DependenciesTableColumnInfo& value : notNullableDependenciesColumns)
         {
             createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId).NotNull());
         }
@@ -196,13 +198,23 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         createTableBuilder.Execute(connection);
 
+        // Primary key index by package rowid and manifest rowid.
         StatementBuilder createPKIndexBuilder;
-        createPKIndexBuilder.CreateUniqueIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name, s_DependenciesTable_MinVersion_Column_Name, s_DependenciesTable_PackageId_Column_Name });
+        createPKIndexBuilder.CreateUniqueIndex(s_DependenciesTable_Index_Name).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name, s_DependenciesTable_PackageId_Column_Name });
         createPKIndexBuilder.Execute(connection);
+
+        // Index of dependency by Manifest id. 
+        StatementBuilder createIndexByManifestIdBuilder;
+        createIndexByManifestIdBuilder.CreateIndex(dependencyIndexByManifestId).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name });
+        createIndexByManifestIdBuilder.Execute(connection);
+
+        // Index of dependency by package id.
+        StatementBuilder createIndexByPackageIdBuilder;
+        createIndexByPackageIdBuilder.CreateIndex(dependencyIndexByPackageId).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_PackageId_Column_Name });
+        createIndexByPackageIdBuilder.Execute(connection);
 
         savepoint.Commit();
     }
-
 
     void DependenciesTable::AddDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
     {
@@ -374,5 +386,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         dropTableBuilder.Execute(connection);
 
         savepoint.Commit();
+    }
+    
+    bool DependenciesTable::DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log)
+    {
+        StatementBuilder builder;
+
+        builder.Select(QCol(s_DependenciesTable_Table_Name, SQLite::RowIDName))
+            .From(s_DependenciesTable_Table_Name)
+            .LeftOuterJoin(IdTable::TableName())
+            .On(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_PackageId_Column_Name), QCol(IdTable::TableName(), SQLite::RowIDName))
+            .LeftOuterJoin(ManifestTable::TableName())
+            .On(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_Manifest_Column_Name), QCol(ManifestTable::TableName(), SQLite::RowIDName))
+            .LeftOuterJoin(VersionTable::TableName())
+            .On(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_MinVersion_Column_Name), QCol(VersionTable::TableName(), SQLite::RowIDName))
+            .Where(QCol(ManifestTable::TableName(), SQLite::RowIDName)).IsNull()
+            .Or(QCol(VersionTable::TableName(), SQLite::RowIDName)).IsNull()
+            .Or(QCol(IdTable::TableName(), SQLite::RowIDName)).IsNull();
+
+        SQLite::Statement select = builder.Prepare(connection);
+        
+        bool result = true;
+
+        while (select.Step())
+        {
+            result = false;
+
+            if (!log)
+            {
+                break;
+            }
+
+            AICLI_LOG(Repo, Info, << "  [INVALID] rowid [" << select.GetColumn<SQLite::rowid_t>(0) << "]");
+        }
+
+        return result;
     }
 }

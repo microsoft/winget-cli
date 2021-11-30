@@ -6,10 +6,10 @@
 #include "SQLiteStatementBuilder.h"
 #include <winget/Manifest.h>
 
-using namespace AppInstaller;
-
 namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 {
+    using namespace AppInstaller;
+
     struct DependenciesTableColumnInfo
     {
         std::string_view Name;
@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         // Get dependencies by package id.
         static std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId);
+
+        // Check dependencies table consistency.
+        static bool DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log);
 
         static void PrepareForPackaging(SQLite::Connection& connection);
     };

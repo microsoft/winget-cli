@@ -216,6 +216,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Begin a filter clause on the given column.
         StatementBuilder& Where(std::string_view column);
         StatementBuilder& Where(const QualifiedColumn& column);
+        StatementBuilder& Or(const QualifiedColumn& column);
 
         // Indicate the operation of the filter clause.
         template <typename ValueType>

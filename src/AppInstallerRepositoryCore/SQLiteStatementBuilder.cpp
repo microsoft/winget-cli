@@ -313,6 +313,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Or(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " OR ", column);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::LikeWithEscape(std::string_view value)
     {
         AddBindFunctor(AppendOpAndBinder(Op::Like), EscapeStringForLike(value));

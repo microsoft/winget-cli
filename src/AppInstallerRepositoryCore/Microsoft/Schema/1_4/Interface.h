@@ -18,6 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
+        bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         void PrepareForPackaging(SQLite::Connection& connection, bool vacuum) override;
 
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
