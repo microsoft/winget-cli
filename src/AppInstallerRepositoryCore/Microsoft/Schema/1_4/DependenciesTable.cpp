@@ -27,6 +27,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     namespace
     {
+        struct DependencyTableRow 
+        {
+            SQLite::rowid_t m_packageRowId;
+            SQLite::rowid_t m_manifestRowId;
+            std::optional<SQLite::rowid_t> m_versionRowId;
+        };
+
         std::set<Manifest::Dependency> GetDependencies(
             const Manifest::Manifest& manifest, Manifest::DependencyType dependencyType)
         {
@@ -56,17 +63,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_rowid");
 
             SQLite::Builder::StatementBuilder builder;
-            builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(SQLite::RowIDName).In(dependencyRowIds.size());
+            builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(SQLite::RowIDName).Equals(Unbound);
 
             SQLite::Statement deleteStmt = builder.Prepare(connection);
-            int bindIndex = 1;
             for (SQLite::rowid_t rowId : dependencyRowIds)
             {
-                deleteStmt.Bind(bindIndex, rowId);
-                bindIndex++;
+                deleteStmt.Reset();
+                deleteStmt.Bind(1, rowId);
+                deleteStmt.Execute(true);
             }
-
-            deleteStmt.Execute(true);
 
             savepoint.Commit();
         }
@@ -92,12 +97,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             using namespace SQLite::Builder;
             using namespace Schema::V1_0;
 
+            std::vector<DependencyTableRow> dependenciesTableRows;
             std::vector<Manifest::Dependency> missingPackageNodes;
             std::map<Utility::Version, SQLite::rowid_t> versionsMap;
             std::map<Manifest::Manifest::string_t, SQLite::rowid_t> idsMap;
+            std::vector<std::tuple<SQLite::rowid_t, SQLite::rowid_t, SQLite::rowid_t>> dependencyRows;
+
             for (const auto& dep : dependencies)
             {
-                auto depMinVersion = dep.MinVersion.value();
+                auto depMinVersion = dep.MinVersion;
                 auto packageId = dep.Id;
 
                 const auto packageRowId = IdTable::SelectIdByValue(connection, packageId);
@@ -107,10 +115,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                     continue;
                 }
 
-                auto versionRowId = VersionTable::EnsureExists(connection, depMinVersion.ToString());
+                std::optional<SQLite::rowid_t> versionRowId;
+                if (depMinVersion.has_value())
+                {
+                    versionRowId = VersionTable::EnsureExists(connection, dep.MinVersion.value().ToString());
+                }
 
-                idsMap[packageId] = packageRowId.value();
-                versionsMap[depMinVersion] = versionRowId;
+                dependenciesTableRows.emplace_back(DependencyTableRow{ packageRowId.value(), manifestRowId, versionRowId });
             }
 
             ThrowOnMissingPackageNodes(missingPackageNodes);
@@ -121,12 +132,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 .Values(Unbound, Unbound, Unbound);
             SQLite::Statement insert = insertBuilder.Prepare(connection);
 
-            for (const auto& dep : dependencies)
+            for (const auto& dep : dependenciesTableRows)
             {
                 insert.Reset();
-                insert.Bind(1, manifestRowId);
-                insert.Bind(2, versionsMap[dep.MinVersion.value().ToString()]);
-                insert.Bind(3, idsMap[dep.Id]);
+                insert.Bind(1, dep.m_manifestRowId);
+                insert.Bind(2, dep.m_versionRowId.has_value() ? std::to_string(dep.m_versionRowId.value()) : "");
+                insert.Bind(3, dep.m_packageRowId);
 
                 insert.Execute(true);
             }
@@ -159,16 +170,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         createTableBuilder.CreateTable(TableName()).BeginColumns();
         createTableBuilder.Column(IntegerPrimaryKey());
 
-        std::vector<DependenciesTableColumnInfo> dependenciesColumns =
+        std::vector<DependenciesTableColumnInfo> notNullabledependenciesColumns =
         {
             { s_DependenciesTable_Manifest_Column_Name },
             { s_DependenciesTable_MinVersion_Column_Name },
+        };
+
+        for (const DependenciesTableColumnInfo& value : notNullabledependenciesColumns)
+        {
+            createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId).NotNull());
+        }
+
+        std::vector<DependenciesTableColumnInfo> nullableDependenciesColumns =
+        {
             { s_DependenciesTable_PackageId_Column_Name }
         };
 
-        for (const DependenciesTableColumnInfo& value : dependenciesColumns)
+        for (const DependenciesTableColumnInfo& value : nullableDependenciesColumns)
         {
-            createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId).NotNull());
+            createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId));
         }
 
         createTableBuilder.EndColumns();

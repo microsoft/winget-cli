@@ -25,13 +25,10 @@ namespace AppInstaller::Repository
 
             for (const auto& installer : manifest.Installers)
             {
-                installer.Dependencies.ApplyToAll([&](AppInstaller::Manifest::Dependency dependency)
-                    {
-                        if (dependency.Type == dependencyType)
-                        {
-                            dependencies.emplace_back(dependency);
-                        }
-                    });
+                installer.Dependencies.ApplyToType(dependencyType, [&](AppInstaller::Manifest::Dependency dependency)
+                {
+                    dependencies.emplace_back(dependency);
+                });
             }
 
             return dependencies;
@@ -100,7 +97,7 @@ namespace AppInstaller::Repository
                     return depList;
                 }
 
-                std::for_each(dependencies.begin(), dependencies.end(), [&](Dependency dep) { depList.Add(dep);  });
+                std::for_each(dependencies.begin(), dependencies.end(), [&](Dependency dep) { depList.Add(dep); });
                 return depList;
             }
 

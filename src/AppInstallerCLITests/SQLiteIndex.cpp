@@ -439,6 +439,26 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteinde
     index.AddManifest(manifest, GetPathFromManifest(manifest));
 }
 
+TEST_CASE("SQLiteIndex_AddManifestWithDependencies_EmptyManifestVersion", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+}
+
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 {
     SQLiteIndex index = CreateTestIndex(SQLITE_MEMORY_DB_CONNECTION_TARGET);
@@ -960,6 +980,37 @@ TEST_CASE("SQLiteIndex_UpdateManifestWithDependencies", "[sqliteindex][V1_4]")
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
 
     index.AddManifest(manifest, dependencyPath3);
+
+    auto& publisher4 = "Test4";
+    CreateFakeManifest(updateManifest, publisher4);
+    index.AddManifest(updateManifest, GetPathFromManifest(updateManifest));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, updateManifest.Id, "1.0.0"));
+
+    REQUIRE(index.UpdateManifest(manifest, dependencyPath3));
+}
+
+TEST_CASE("SQLiteIndex_UpdateManifestWithDependenciesDeleteAndAdd", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest, updateManifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    const std::string dependencyPath3 = GetPathFromManifest(manifest);
+
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
+
+    index.AddManifest(manifest, dependencyPath3);
+
+    manifest.Installers[0].Dependencies.Clear();
 
     auto& publisher4 = "Test4";
     CreateFakeManifest(updateManifest, publisher4);

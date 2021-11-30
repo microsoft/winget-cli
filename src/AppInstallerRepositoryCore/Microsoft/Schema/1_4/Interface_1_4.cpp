@@ -53,7 +53,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
 
         return { indexModified, manifestId };
-    }
+     }
 
     void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
