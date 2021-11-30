@@ -56,7 +56,7 @@ namespace AppInstaller::CLI::Execution
         void EndProgress(bool) override;
 
         //Execution::Context
-        void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase, bool);
+        void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase);
 
         CLI::Workflow::ExecutionStage GetExecutionStage() const { return m_executionStage; }
 

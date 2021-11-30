@@ -16,7 +16,7 @@ namespace AppInstaller::Logging
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
             Telemetry().GetActivityId(),
-            nullptr,
+            Telemetry().GetParentActivityId(),
             TraceLoggingString(strstr.str().c_str(), "LogMessage"));
     }
     catch (...)
@@ -29,7 +29,7 @@ namespace AppInstaller::Logging
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
             Telemetry().GetActivityId(),
-            nullptr,
+            Telemetry().GetParentActivityId(),
             TraceLoggingCountedUtf8String(message.data(), static_cast<ULONG>(message.size()), "LogMessage"));
     }
     catch (...)
