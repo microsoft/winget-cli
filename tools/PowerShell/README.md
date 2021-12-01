@@ -7,11 +7,11 @@ We started this project as an exploration to design the right set of cmdlets wit
 
 For example, the Windows Package Manager (later referenced as just CLI) CLI was designed for displaying output in the standard width Windows Terminal. As such, long package names and "Id"s are truncated with a single width ellipsis character. Users wanting to use the PowerShell pipeline to pass values to another cmdlet will likely encounter undesired behavior due to this truncation. We have decided to declare the "Microsoft.WinGet" module as an alpha release until these problems have been resolved. We are planning to change the status of "PreRelease" to beta once we believe we have addressed the issues related to piping the output to other cmdlets.
 
-The module and associated cmdlets in the 0.1.0 directory were essentially handcrafted as the Hackathon team came up to speed with PowerShell idioms. The module and associated cmdlets in the crescendo directory were crafted using the "Microsoft.PowerShell.Crescendo" module. Several manual changes were applied to these files as well, but the idea was to leverage crescendo to speed up development.
+The module and associated cmdlets were essentially handcrafted as the Hackathon team came up to speed with PowerShell idioms. The module and associated cmdlets in the Microsoft.WinGet.Client/crescendo directory were crafted using the "Microsoft.PowerShell.Crescendo" module. Several manual changes were applied to these files as well, but the idea was to leverage crescendo to speed up development.
 
 As we continued, we also identified work being done in support of private REST sources. We decided to create separate modules to speed up development in that are of the product as well as standardizing some of the module work.
 
-The "Microsoft.WinGet" module is a top level module to organize the others. They child modules are "Microsoft.WinGet.Client" intended to represent the [native PowerShell module](https://github.com/microsoft/winget-cli/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc) feature request. The "Microsoft.WinGet.Create" module is expected to support building and modifying manifests in private sources (related to the Windows Package Manager Manifest Creator [REST support feature](https://github.com/microsoft/winget-create/issues/3)). The third module "Microsoft.WinGet.Source" is intended to simplify working the private REST sources like the [reference implementation](https://github.com/microsoft/winget-cli-restsource).
+The "Microsoft.WinGet" module is a top level module to organize the others. They child modules are "Microsoft.WinGet.Client" intended to represent the [native PowerShell module](https://github.com/microsoft/winget-cli/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc) feature request. The "Microsoft.WinGet.Create" module in the [winget-cli-restsource repository](https://github.com/microsoft/winget-cli-restsource) is expected to support building and modifying manifests in private sources (related to the Windows Package Manager Manifest Creator [REST support feature](https://github.com/microsoft/winget-create/issues/3)). The third module "Microsoft.WinGet.Source" is intended to simplify working the private REST sources like the [reference implementation](https://github.com/microsoft/winget-cli-restsource). A fourth module may be created for the [winget create tool](https://github.com/microsoft/wingetcreate).
 
 ## Terms and Conventions used
 
@@ -26,7 +26,15 @@ The term "manifest" is used to reference the metadata about an application or pr
 ### Conventions
 We attempted to make use of the approved verbs for PowerShell. In areas where the verb may have been contentious, we decided to at least be consistent with ourselves. The Open verb is used to open a directory in file explorer (Windows Package Manager Manifest Creator installer cache). The Edit verb is used to open the settings.json file for the Windows Package Manager Manifest Creator and the Windows Package Manager.
 
+### Status
+The modules should be treated as experimental at this stage of development. They are essentially calling the Windows Package Manager executable and attempting to parse text output that wasn't designed for PowerShell.
+
+### Future
+We expect to enhance the COM interface to support JSON output in the future so the client module can provide rich PowerShell objects.
+
 ---
+>Drafted in October and preserved for context.
+
 ## WinGet Modules
 * Microsoft.Winget
 * Microsoft.WinGet.Client

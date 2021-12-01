@@ -10,6 +10,7 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
+amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -49,6 +50,7 @@ blogs
 bluetooth
 bomgar
 BOMs
+boundparms
 brk
 Buf
 BUILTINS
@@ -96,6 +98,7 @@ dirs
 diskfull
 dnld
 Dobbeleer
+dsc
 dustojnikhummer
 dvinns
 dw
@@ -137,6 +140,8 @@ GHS
 gity
 Globals
 Google
+hackathon
+hashtable
 helplib
 helplibrary
 hhx
@@ -210,6 +215,7 @@ LTDA
 lw
 lz
 malware
+maxvalue
 MBH
 megamorf
 memcpy
@@ -245,6 +251,7 @@ nonetwork
 normer
 NOSEPARATOR
 NOTAPROPERTY
+notmatch
 npp
 nsis
 nuffing
@@ -254,6 +261,7 @@ objbase
 ofile
 Packagedx
 packageinuse
+parametermap
 pathparts
 pathpaths
 Patil
@@ -267,11 +275,15 @@ pkgmgr
 pkindex
 PMS
 positionals
+powershellgallery
 powertoys
 pri
 processthreads
 productcode
+pscustomobject
 pseudocode
+psm
+psobject
 pvk
 pvm
 pwabuilder
@@ -291,6 +303,7 @@ Redist
 regexes
 REGSAM
 restsource
+rgex
 rhs
 roblox
 rosoft
@@ -342,6 +355,7 @@ Tlg
 tombstoned
 tpl
 transitioning
+trimstart
 UCase
 ucasemap
 UChars
@@ -380,6 +394,7 @@ Webserver
 website
 WERSJA
 wesome
+whatif
 windir
 windowsdeveloper
 winerror
@@ -397,5 +412,6 @@ WZDNCRFJ
 XPLATSTR
 xsi
 yamlcreateps
+ype
 Zanollo
 zy
