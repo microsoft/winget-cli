@@ -59,8 +59,6 @@ The plan for delivering next Windows Package Manager release [is described here]
 The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those tools that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite tool: 
 ```winget install <tool>```
 
-For Preview, the goal is to get something usable in your hands as soon as possible. At preview you can **search**, **show**, and **install** packages.  Soon we will have **uninstall**, **list** and **update**.  These items are available on our [backlog](https://github.com/microsoft/winget-cli/issues), so feel free to upvote the features you want.
-
 ## Overview  
 
 ### Client Repository
