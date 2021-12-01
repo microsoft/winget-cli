@@ -8,7 +8,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ## Installing The Client
 
-> The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server is not supported as the Microsoft Store is not available. It may be possible to install on Windows Server, this should be considered experimental, and requires dependencies to be manually installed as well.
+> The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server 2019 is not supported as the Microsoft Store is not available nor are updated dependencies. It may be possible to install on Windows Server 2022, this should be considered experimental (not supported), and requires dependencies to be manually installed as well.
 
 ### Microsoft Store [Recommended]
 
