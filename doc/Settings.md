@@ -78,6 +78,17 @@ The `locale` behavior affects the choice of installer based on installer locale.
         }
     },
 ```
+### Architectures
+
+The `architectures` behavior affects what architectures will be selected when installing a package. The matching parameter is `--architecture`. Note that only architectures compatible with your system can be selected.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "architectures": ["x64", "arm64"]
+        }
+    },
+```
 
 ## Telemetry
 
