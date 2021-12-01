@@ -1,0 +1,68 @@
+{
+    "$schema": "https://aka.ms/crescendo/schema.json",
+    "Commands": [
+        {
+            "Verb": "Get",
+            "Noun": "WinGetVersion",
+            "OriginalName": "winget",
+            "OriginalCommandElements": [
+                "--version"
+            ],
+            "OutputHandlers": [
+                {
+                    "ParameterSetName": "default",
+                    "StreamOutput": true,
+                    "HandlerType": "Inline",
+                    "Handler": "$Input.trimstart('v') -as [version]"
+                }
+            ]
+        },
+        {
+            "Verb": "Get",
+            "Noun": "WinGetSource",
+            "OriginalName": "winget",
+            "DefaultParameterSetName": "default",
+            "Parameters": [
+                {
+                    "Name": "Export",
+                    "ParameterSetName": ["export"],
+                    "ParameterType": "switch",
+                    "OriginalName": "Export"
+                },
+                {
+                    "Name": "default",
+                    "ParameterSetName": ["default"],
+                    "ParameterType": "switch",
+                    "OriginalName": "default"
+                }
+            ],
+            "OriginalCommandElements": [
+                "source", "export"
+            ],
+            "OutputHandlers": [
+                {
+                    "ParameterSetName": "default",
+                    "StreamOutput": true,
+                    "HandlerType": "Inline",
+                    "Handler": "$Input | ConvertFrom-Json | add-member -pass -typename WinGetSource"
+                }
+            ]
+        },
+        {
+            "Verb": "Get",
+            "Noun": "WinGetSource",
+            "OriginalName": "winget",
+            "OriginalCommandElements": [
+                "source", "export"
+            ],
+            "OutputHandlers": [
+                {
+                    "ParameterSetName": "default",
+                    "StreamOutput": true,
+                    "HandlerType": "Inline",
+                    "Handler": "$Input | ConvertFrom-Json | add-member -pass -typename WinGetSource"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+<Configuration>
+   <ViewDefinitions>
+   <View>
+    <Name>WinGetSourceTable</Name>
+    <ViewSelectedBy>
+     <TypeName>WinGetSource</TypeName>
+
+    </ViewSelectedBy>
+    <TableControl>
+     <TableHeaders>
+      <TableColumnHeader><Label>Name</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Argument</Label></TableColumnHeader>
+     </TableHeaders>
+     <TableRowEntries>
+      <TableRowEntry>
+       <TableColumnItems>
+        <TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>Arg</PropertyName></TableColumnItem>
+       </TableColumnItems>
+      </TableRowEntry>
+     </TableRowEntries>
+    </TableControl>
+   </View>
+
+   </ViewDefinitions>
+</Configuration>
