@@ -6,26 +6,28 @@ This repository contains the source code for the Windows Package Manager Client 
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
-> The Windows Package Manager project is in Preview. We welcome all feedback, and that feedback might lead to big (maybe even breaking) changes.
+## Installing The Client
 
-## Installing the client
-
-> The client requires Windows 10 1809 (build 17763) or later at this time.
+> The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server 2019 is not supported as the Microsoft Store is not available nor are updated dependencies. It may be possible to install on Windows Server 2022, this should be considered experimental (not supported), and requires dependencies to be manually installed as well.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. 
 
-* Install a [Windows 10 Insider](https://insider.windows.com/) build
-* Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
+### Development Releases
 
-Note: it may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next stable release has been added to the Microsoft Store.
+There are two methods to get development releases:
 
-Once you have received the updated App Installer you should be able to execute `winget`. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
+* Install a [Windows 10 or Windows 11 Insider](https://insider.windows.com/) build.
+* Join the Windows Package Manager Insider program by [signing up](http://aka.ms/winget-InsiderProgram).
+
+Note: it may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
+
+Once you have received the updated App Installer from the Microsoft Store you should be able to execute `winget features` to see experimental features. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
 ### Manually Update
 
-The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store.
+The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store if you have not joined the Windows Package Manager Insider program.
 
 > You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
@@ -57,8 +59,6 @@ The plan for delivering next Windows Package Manager release [is described here]
 The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those tools that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite tool: 
 ```winget install <tool>```
 
-For Preview, the goal is to get something usable in your hands as soon as possible. At preview you can **search**, **show**, and **install** packages.  Soon we will have **uninstall**, **list** and **update**.  These items are available on our [backlog](https://github.com/microsoft/winget-cli/issues), so feel free to upvote the features you want.
-
 ## Overview  
 
 ### Client Repository
@@ -82,7 +82,7 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
-   * Or use winget to install it ;)
+   * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
    * .NET Desktop Development
    * Desktop Development with C++
@@ -90,7 +90,6 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 * The following extensions:
    * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects)
 
-(Upon opening the repo in Visual Studio, it will prompt you to install any missing workloads and features.)
 ### Building
 
 We currently only build using the solution; command line methods of building a VS solution should work as well.
