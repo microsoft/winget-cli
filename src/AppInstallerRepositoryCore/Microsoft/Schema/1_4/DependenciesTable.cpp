@@ -137,7 +137,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             {
                 insert.Reset();
                 insert.Bind(1, dep.m_manifestRowId);
-                insert.Bind(2, dep.m_versionRowId.has_value() ? std::to_string(dep.m_versionRowId.value()) : "");
+
+                if (dep.m_versionRowId.has_value())
+                {
+                    insert.Bind(2, dep.m_versionRowId.value());
+                }
+                
                 insert.Bind(3, dep.m_packageRowId);
 
                 insert.Execute(true);
@@ -179,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         using namespace SQLite::Builder;
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createDependencyTable_v1_4");
-        constexpr std::string_view dependencyIndexByManifestId = "dependencies_manifest_id_index";
+        constexpr std::string_view dependencyIndexByVersionId = "dependencies_version_id_index";
         constexpr std::string_view dependencyIndexByPackageId = "dependencies_package_id_index";
 
         StatementBuilder createTableBuilder;
@@ -220,7 +225,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         // Index of dependency by Manifest id. 
         StatementBuilder createIndexByManifestIdBuilder;
-        createIndexByManifestIdBuilder.CreateIndex(dependencyIndexByManifestId).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_Manifest_Column_Name });
+        createIndexByManifestIdBuilder.CreateIndex(dependencyIndexByVersionId).On(s_DependenciesTable_Table_Name).Columns({ s_DependenciesTable_MinVersion_Column_Name });
         createIndexByManifestIdBuilder.Execute(connection);
 
         // Index of dependency by package id.
