@@ -157,6 +157,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         }
     }
 
+    bool DependenciesTable::Exists(const SQLite::Connection& connection)
+    {
+        using namespace SQLite;
+
+        Builder::StatementBuilder builder;
+        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
+            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_DependenciesTable_Table_Name);
+
+        Statement statement = builder.Prepare(connection);
+        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
+        return statement.GetColumn<int64_t>(0) != 0;
+    }
+
     std::string_view DependenciesTable::TableName()
     {
         return s_DependenciesTable_Table_Name;
@@ -173,22 +186,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         createTableBuilder.CreateTable(TableName()).BeginColumns();
         createTableBuilder.Column(IntegerPrimaryKey());
 
-        std::vector<DependenciesTableColumnInfo> notNullableDependenciesColumns =
+        std::array<DependenciesTableColumnInfo, 2> notNullableDependenciesColumns
         {
-            { s_DependenciesTable_Manifest_Column_Name },
-            { s_DependenciesTable_MinVersion_Column_Name },
+            DependenciesTableColumnInfo{ s_DependenciesTable_Manifest_Column_Name },
+            DependenciesTableColumnInfo{ s_DependenciesTable_PackageId_Column_Name }
         };
 
-        std::vector<DependenciesTableColumnInfo> nullableDependenciesColumns =
+        std::array<DependenciesTableColumnInfo, 1> nullableDependenciesColumns
         {
-            { s_DependenciesTable_PackageId_Column_Name }
+            DependenciesTableColumnInfo{ s_DependenciesTable_MinVersion_Column_Name }
         };
 
+        // Add dependencies column tables not null columns.
         for (const DependenciesTableColumnInfo& value : notNullableDependenciesColumns)
         {
             createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId).NotNull());
         }
 
+        // Add dependencies column tables null columns.
         for (const DependenciesTableColumnInfo& value : nullableDependenciesColumns)
         {
             createTableBuilder.Column(ColumnBuilder(value.Name, Type::RowId));
@@ -391,6 +406,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     bool DependenciesTable::DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log)
     {
         StatementBuilder builder;
+
+        if (!Exists(connection))
+        {
+            return true;
+        }
 
         builder.Select(QCol(s_DependenciesTable_Table_Name, SQLite::RowIDName))
             .From(s_DependenciesTable_Table_Name)

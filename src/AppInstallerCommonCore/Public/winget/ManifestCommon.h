@@ -179,7 +179,7 @@ bool HasExtension(std::string_view extension) const;
         Dependency(DependencyType type) : Type(type) {}
 
         bool operator==(const Dependency& rhs) const {
-            return Type == rhs.Type && ICUCaseInsensitiveEquals(Id, rhs.Id) && MinVersion == rhs.MinVersion;
+            return Type == rhs.Type && m_foldedId == rhs.m_foldedId && MinVersion == rhs.MinVersion;
         }
 
         bool operator <(const Dependency& rhs) const

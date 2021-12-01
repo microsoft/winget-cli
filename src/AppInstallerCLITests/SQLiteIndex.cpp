@@ -862,14 +862,12 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 
     // Now remove manifest1 and prepare
     index.RemoveManifest(manifest1, manifest1Path);
-    
+    index.PrepareForPackaging();
+
     // Checking consistency will also uncover issues, but not potentially the same ones as below.
     REQUIRE(index.CheckConsistency(true));
 
-    // This should be before CheckConsistency, 
-    // An unanswered question about whether an operation on the dependency table should be permitted when it does not exists,
-    // and how the resulting failures(for now, all cases with check consistency) from this operation are handled.
-    index.PrepareForPackaging();
+    
 
     // Repeat search to ensure consistent ids
     result = index.Search(request);
