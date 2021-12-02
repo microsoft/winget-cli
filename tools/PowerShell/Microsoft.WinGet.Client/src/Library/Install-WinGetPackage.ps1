@@ -105,7 +105,7 @@ Function Install-WinGetPackage
         IF($Filter){
             $WinGetArgs += "--Manifest", $Filter
         }
-        IF($Name){
+        IF($PSBoundParameters.ContainsKey('Name')){
             $WinGetArgs += "--Name", $Name
         }
         IF($Id){
