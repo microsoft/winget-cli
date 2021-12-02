@@ -39,6 +39,9 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 # schema regex
 "pattern": .*$
 
+# spec parameters
+author: .*$
+
 # doc/ManifestSpecv1.0.md
 ^ShortDescription: Le nouveau.*$
 
@@ -48,5 +51,14 @@ REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
 # URL escaped characters
 \%[0-9A-F]{2}
 
+# URLs
+http(s){0,1}:\/\/.*\b
+
 # Sample store product id for App Installer
 9nblggh4nns1
+
+# Google / google
+[Gg]oogle
+
+# Winget
+[Ww]in[Gg]et(dev|create|bot)*
