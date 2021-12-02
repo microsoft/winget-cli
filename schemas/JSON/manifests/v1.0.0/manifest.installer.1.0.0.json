@@ -252,6 +252,7 @@
     },
     "ProductCode": {
       "type": [ "string", "null" ],
+      "pattern": "^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$",
       "minLength": 1,
       "maxLength": 255,
       "description": "ProductCode could be used for correlation of packages across sources"
