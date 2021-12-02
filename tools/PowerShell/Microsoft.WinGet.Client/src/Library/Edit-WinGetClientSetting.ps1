@@ -17,9 +17,9 @@ Function Edit-WinGetClientSetting
     #>
 
     
-    PARAM {
-        [Parameter()] [switch]                  $VerboseLog
-    }
+    PARAM (
+        [Parameter()] [switch] $VerboseLog
+    )
     BEGIN
     {
         [string[]] $WinGetArgs  = "Settings"

@@ -43,11 +43,11 @@ Function Get-WinGetSource
         [WinGetSource[]] $Result      = @()
         [string[]]       $IndexTitles = @("Name", "Argument")
 
-        if($Filter){
+        if($PSBoundParameters.ContainsKey('Filter')){
             ## Search for the Name
             $WinGetArgs += "--Filter", $Filter.Replace("…", "")
         }
-        if($Name){
+        if($PSBoundParameters.ContainsKey('Name')){
             ## Search for the Name
             $WinGetArgs += "--Name", $Name.Replace("…", "")
         }

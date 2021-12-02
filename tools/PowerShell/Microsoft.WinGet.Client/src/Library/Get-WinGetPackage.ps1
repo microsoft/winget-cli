@@ -37,7 +37,7 @@ Function Get-WinGetPackage{
         .PARAMETER Header
         Used to specify the value to pass as the "Windows-Package-Manager" HTTP header for a REST source.
         
-        .PARAMETER AcceptSourceAgreements
+        .PARAMETER AcceptSourceAgreement
         Used to accept any source agreements required by a REST source.
 
         .EXAMPLE
@@ -67,7 +67,7 @@ Function Get-WinGetPackage{
         [Parameter()]           [ValidateRange(1, [int]::maxvalue)][int]$Count,
         [Parameter()]           [switch]$Exact,
         [Parameter()]           [ValidateLength(1, 1024)]$Header,
-        [Parameter()]           [switch]$AcceptSourceAgreements
+        [Parameter()]           [switch]$AcceptSourceAgreement
     )
     BEGIN
     {
@@ -79,27 +79,27 @@ Function Get-WinGetPackage{
             ## Search across Name, ID, moniker, and tags
             $WinGetArgs += $Filter
         }
-        if($Name){
+        if($PSBoundParameters.ContainsKey('Name')){
             ## Search for the Name
             $WinGetArgs += "--Name", $Name.Replace("…", "")
         }
-        if($Id){
+        if($PSBoundParameters.ContainsKey('Id')){
             ## Search for the ID
             $WinGetArgs += "--Id", $Id.Replace("…", "")
         }
-        if($Moniker){
+        if($PSBoundParameters.ContainsKey('Moniker')){
             ## Search for the Moniker
             $WinGetArgs += "--Moniker", $Moniker.Replace("…", "")
         }
-        if($Tag){
+        if($PSBoundParameters.ContainsKey('Tag')){
             ## Search for the Tag
             $WinGetArgs += "--Tag", $Tag.Replace("…", "")
         }
-        if($Source){
+        if($PSBoundParameters.ContainsKey('Source')){
             ## Search for the Source
             $WinGetArgs += "--Source", $Source.Replace("…", "")
         }
-        if($Count){
+        if($PSBoundParameters.ContainsKey('Count')){
             ## Specify the number of results to return
             $WinGetArgs += "--Count", $Count
         }
@@ -107,11 +107,11 @@ Function Get-WinGetPackage{
             ## Search using exact values specified (case sensitive)
             $WinGetArgs += "--Exact"
         }
-        if($Header){
+        if($PSBoundParameters.ContainsKey('Header')){
             ## Pass the value specified as the Windows-Package-Manager HTTP header
             $WinGetArgs += "--header", $Header
         }
-        if($AcceptSourceAgreements){
+        if($AcceptSourceAgreement){
             ## Accept source agreements
             $WinGetArgs += "--accept-source-agreements"
         }

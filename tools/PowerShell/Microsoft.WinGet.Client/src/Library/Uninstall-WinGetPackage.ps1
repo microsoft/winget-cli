@@ -69,9 +69,9 @@ Function Uninstall-WinGetPackage{
         This example expects the REST source named "Private" with a package containing "Package" as a valid name.
     #>
 
-    PARAM{
+    PARAM(
         
-    }
+    )
     BEGIN
     {
 
@@ -86,4 +86,7 @@ Function Uninstall-WinGetPackage{
     }
 }
 
+New-Alias -Name Remove-WinGetPackage -Value Uninstall-WinGetPackage
+
 Export-ModuleMember -Function Uninstall-WinGetPackage
+Export-ModuleMember -Alias Remove-WinGetPackage

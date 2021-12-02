@@ -70,33 +70,35 @@ Function Find-WinGetPackage{
         [Parameter()] [ValidateRange(1, [int]::maxvalue)][int]$Count,
         [Parameter()] [ValidateLength(1, 1024)]$Header,
         [Parameter()] [switch]  $VerboseLog,
-        [Parameter()] [switch]  $AcceptSourceAgreements
+        [Parameter()] [switch]  $AcceptSourceAgreement
     )
     BEGIN
     {
-        [string[]] $WinGetArgs  = @("Search")
+        [string[]]          $WinGetArgs  = @("Search")
+        [WinGetPackage[]]   $Result      = @()
+        [string[]]          $IndexTitles = @("Name", "Id", "Version", "Available", "Source")
 
-        if($Filter){
+        if($PSBoundParameters.ContainsKey('Filter')){
             ## Search across Name, ID, moniker, and tags
             $WinGetArgs += $Filter
         }
-        if($Id){
+        if($PSBoundParameters.ContainsKey('Id')){
             ## Search for the ID
             $WinGetArgs += "--Id", $Id.Replace("…", "")
         }
-        if($Name){
+        if($PSBoundParameters.ContainsKey('Name')){
             ## Search for the Name
             $WinGetArgs += "--Name", $Name.Replace("…", "")
         }
-        if($Moniker){
+        if($PSBoundParameters.ContainsKey('Moniker')){
             ## Search for the Moniker
             $WinGetArgs += "--Moniker", $Moniker.Replace("…", "")
         }
-        if($Tag){
+        if($PSBoundParameters.ContainsKey('Tag')){
             ## Search for the Tag
             $WinGetArgs += "--Tag", $Tag.Replace("…", "")
         }
-        if($Command){
+        if($PSBoundParameters.ContainsKey('Command')){
             ## Search for the Moniker
             $WinGetArgs += "--Command", $Command.Replace("…", "")
         }
@@ -104,23 +106,23 @@ Function Find-WinGetPackage{
             ## Search using exact values specified (case sensitive)
             $WinGetArgs += "--Exact"
         }
-        if($Source){
+        if($PSBoundParameters.ContainsKey('Source')){
             ## Search for the Source
             $WinGetArgs += "--Source", $Source.Replace("…", "")
         }
-        if($Count){
+        if($PSBoundParameters.ContainsKey('Count')){
             ## Specify the number of results to return
             $WinGetArgs += "--Count", $Count
         }
-        if($Header){
+        if($PSBoundParameters.ContainsKey('Header')){
             ## Pass the value specified as the Windows-Package-Manager HTTP header
             $WinGetArgs += "--header", $Header
         }
-        if($VerboseLog){
+        if($PSBoundParameters.ContainsKey('VerboseLog')){
             ## Search using exact values specified (case sensitive)
             $WinGetArgs += "--VerboseLog", $VerboseLog
         }
-        if($AcceptSourceAgreements){
+        if($AcceptSourceAgreement){
             ## Accept source agreements
             $WinGetArgs += "--accept-source-agreements"
         }

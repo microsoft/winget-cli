@@ -32,11 +32,7 @@ Function Write-LogEntry
         $LogEntry = $MessagePreFix + $LogEntry
 
         ## Indents the message when viewed on the screen.
-        $LogIndent = "  "
-        while ($Indent -gt 0) {
-            $LogEntry = $LogIndent + $LogEntry
-            $Indent -= 1
-        }
+        $LogEntry = $LogEntry.PadLeft($LogEntry.Length + (2 * $Indent) )
     }
     PROCESS
     {

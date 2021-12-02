@@ -15,23 +15,12 @@ Function Disable-WinGetLocalManifest
 
         This cmdlet must be executed in an administrative terminal.
     #>
-    PARAM {
-        [Parameter()] [switch]                  $VerboseLog
+    PARAM (
+        [Parameter()] [switch] $VerboseLog
 
-    }
+    )
     BEGIN
     {
-        ## We might move this code to a utility function rather than duplicate it everywhere it's needed
-        ## We also need to look for a better way to make sure the terminal is elevated
-        function Test-IsAdmin
-            {
-                    
-                $windowsIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
-                $windowsPrincipal = new-object 'Security.Principal.WindowsPrincipal' $windowsIdentity
-                if ($windowsPrincipal.IsInRole("Administrators") -eq 1) { $true } else { $false }
-                   
-            }
-        
         [string[]] $WinGetArgs  = "Settings", "--disable", "LocalManifestFiles"
         $WinGetArgs += "--Verbose-Logs", $VerboseLog
     }

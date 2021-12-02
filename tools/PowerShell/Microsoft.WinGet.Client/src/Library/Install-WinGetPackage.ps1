@@ -65,6 +65,9 @@ Function Install-WinGetPackage
         .PARAMETER AcceptSourceAgreement
         Used to explicitly accept any agreement required by the source.
 
+        .PARAMETER Local
+        Used to install from a local manifest
+
         .EXAMPLE
         Install-WinGetPackage -id "Publisher.Package"
 
@@ -96,28 +99,32 @@ Function Install-WinGetPackage
         [Parameter()] [System.IO.FileInfo]  $Location,
         [Parameter()] [switch]  $Force,
         [Parameter()] [ValidatePattern("^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$")] [string] $Locale,
-        [Parameter()] [string]  $Log, ## This is a path of where to create a log.
-        [Parameter()] [switch]  $AcceptSourceAgreements
+        [Parameter()] [System.IO.FileInfo]  $Log, ## This is a path of where to create a log.
+        [Parameter()] [switch]  $AcceptSourceAgreements,
+        [Parameter()] [switch]  $Local # This is for installing local manifests
     )
     BEGIN
     {
         [string[]] $WinGetArgs  = "Install"
-        IF($Filter){
-            $WinGetArgs += "--Manifest", $Filter
+        IF($PSBoundParameters.ContainsKey('Filter')){
+            IF($Local) {
+                $WinGetArgs += "--Manifest"
+            }
+            $WinGetArgs += $Filter
         }
         IF($PSBoundParameters.ContainsKey('Name')){
             $WinGetArgs += "--Name", $Name
         }
-        IF($Id){
+        IF($PSBoundParameters.ContainsKey('Id')){
             $WinGetArgs += "--Id", $Id
         }
-        IF($Moniker){
+        IF($PSBoundParameters.ContainsKey('Moniker')){
             $WinGetArgs += "--Moniker", $Moniker
         }
-        IF($Source){
+        IF($PSBoundParameters.ContainsKey('Source')){
             $WinGetArgs += "--Source", $Source
         }
-        IF($Scope){
+        IF($PSBoundParameters.ContainsKey('Scope')){
             $WinGetArgs += "--Scope", $Scope
         }
         IF($Interactive){
@@ -126,22 +133,22 @@ Function Install-WinGetPackage
         IF($Silent){
             $WinGetArgs += "--Silent"
         }
-        IF($Locale){
+        IF($PSBoundParameters.ContainsKey('Locale')){
             $WinGetArgs += "--locale", $Locale
         }
-        if($Version){
+        if($PSBoundParameters.ContainsKey('Version')){
             $WinGetArgs += "--Version", $Version
         }
         if($Exact){
             $WinGetArgs += "--Exact"
         }
-        if($Log){
+        if($PSBoundParameters.ContainsKey('Log')){
             $WinGetArgs += "--Log", $Log
         }
-        if($Override){
+        if($PSBoundParameters.ContainsKey('Override')){
             $WinGetArgs += "--override", $Override
         }
-        if($Location){
+        if($PSBoundParameters.ContainsKey('Location')){
             $WinGetArgs += "--Location", $Location
         }
         if($Force){
@@ -151,9 +158,11 @@ Function Install-WinGetPackage
     PROCESS
     {
         ## Exact, ID and Source - Talk with Demitrius tomorrow to better understand this.
-        $Result = Find-WinGetPackage -Filter $Filter -Name $Name -Id $Id -Moniker $Moniker -Tag $Tag -Command $Command -Source $Source
+        IF(!$Local) {
+            $Result = Find-WinGetPackage -Filter $Filter -Name $Name -Id $Id -Moniker $Moniker -Tag $Tag -Command $Command -Source $Source
+        }
 
-        if($Result.count -eq 1) {
+        if($Result.count -eq 1 -or $Local) {
             & "WinGet" $WingetArgs
             $Result = ""
         }
