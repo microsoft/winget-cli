@@ -1,3 +1,8 @@
+filter Assert-WhiteSpaceIsNull {
+    IF ([string]::IsNullOrWhiteSpace($_)){$null}
+    ELSE {$_}
+}
+
 class WinGetSource
 {
     [string] $Name
@@ -11,29 +16,29 @@ class WinGetSource
 
     WinGetSource ([string]$a, [string]$b, [string]$c, [string]$d, [string]$e)
     {
-        $this.Name       = $a.TrimEnd()
-        $this.Argument   = $b.TrimEnd()
-        $this.Data       = $c.TrimEnd()
-        $this.Identifier = $d.TrimEnd()
-        $this.Type       = $e.TrimEnd()
+        $this.Name       = $a.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Argument   = $b.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Data       = $c.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Identifier = $d.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Type       = $e.TrimEnd() | Assert-WhiteSpaceIsNull
     }
 
     WinGetSource ([string[]]$a)
     {
-        $this.name       = $a[0].TrimEnd()
-        $this.Argument   = $a[1].TrimEnd()
-        $this.Data       = $a[2].TrimEnd()
-        $this.Identifier = $a[3].TrimEnd()
-        $this.Type       = $a[4].TrimEnd()
+        $this.name       = $a[0].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Argument   = $a[1].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Data       = $a[2].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Identifier = $a[3].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Type       = $a[4].TrimEnd() | Assert-WhiteSpaceIsNull
     }
     
     WinGetSource ([WinGetSource]$a)
     {
-        $this.Name       = $a.Name.TrimEnd()
-        $this.Argument   = $a.Argument.TrimEnd()
-        $this.Data       = $a.Data.TrimEnd()
-        $this.Identifier = $a.Identifier.TrimEnd()
-        $this.Type       = $a.Type.TrimEnd()
+        $this.Name       = $a.Name.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Argument   = $a.Argument.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Data       = $a.Data.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Identifier = $a.Identifier.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Type       = $a.Type.TrimEnd() | Assert-WhiteSpaceIsNull
 
     }
     
@@ -69,36 +74,36 @@ class WinGetPackage
 
     WinGetPackage ([string] $a, [string]$b, [string]$c, [string]$d, [string]$e)
     {
-        $this.Name    = $a.TrimEnd()
-        $this.Id      = $b.TrimEnd()
-        $this.Version = $c.TrimEnd()
-        $this.Available = $d.TrimEnd()
-        $this.Source  = $e.TrimEnd()
+        $this.Name    = $a.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Id      = $b.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Version = $c.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Available = $d.TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Source  = $e.TrimEnd() | Assert-WhiteSpaceIsNull
     }
     
     WinGetPackage ([WinGetPackage] $a) {
-        $this.Name    = $a.Name
-        $this.Id      = $a.Id
-        $this.Version = $a.Version
-        $this.Available = $a.Available
-        $this.Source  = $a.Source
+        $this.Name    = $a.Name | Assert-WhiteSpaceIsNull
+        $this.Id      = $a.Id | Assert-WhiteSpaceIsNull
+        $this.Version = $a.Version | Assert-WhiteSpaceIsNull
+        $this.Available = $a.Available | Assert-WhiteSpaceIsNull
+        $this.Source  = $a.Source | Assert-WhiteSpaceIsNull
 
     }
     WinGetPackage ([psobject] $a) {
-        $this.Name      = $a.Name
-        $this.Id        = $a.Id
-        $this.Version   = $a.Version
-        $this.Available = $a.Available
-        $this.Source    = $a.Source
+        $this.Name      = $a.Name | Assert-WhiteSpaceIsNull
+        $this.Id        = $a.Id | Assert-WhiteSpaceIsNull
+        $this.Version   = $a.Version | Assert-WhiteSpaceIsNull
+        $this.Available = $a.Available | Assert-WhiteSpaceIsNull
+        $this.Source    = $a.Source | Assert-WhiteSpaceIsNull
     }
     
     WinGetSource ([string[]]$a)
     {
-        $this.name      = $a[0].TrimEnd()
-        $this.Id        = $a[1].TrimEnd()
-        $this.Version   = $a[2].TrimEnd()
-        $this.Available = $a[3].TrimEnd()
-        $this.Source    = $a[4].TrimEnd()
+        $this.name      = $a[0].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Id        = $a[1].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Version   = $a[2].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Available = $a[3].TrimEnd() | Assert-WhiteSpaceIsNull
+        $this.Source    = $a[4].TrimEnd() | Assert-WhiteSpaceIsNull
     }
 
     
