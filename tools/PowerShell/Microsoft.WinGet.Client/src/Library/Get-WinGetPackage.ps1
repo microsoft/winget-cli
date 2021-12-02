@@ -37,7 +37,7 @@ Function Get-WinGetPackage{
         .PARAMETER Header
         Used to specify the value to pass as the "Windows-Package-Manager" HTTP header for a REST source.
         
-        .PARAMETER AcceptSourceAgreements
+        .PARAMETER AcceptSourceAgreement
         Used to accept any source agreements required by a REST source.
 
         .EXAMPLE
@@ -67,7 +67,7 @@ Function Get-WinGetPackage{
         [Parameter()]           [ValidateRange(1, [int]::maxvalue)][int]$Count,
         [Parameter()]           [switch]$Exact,
         [Parameter()]           [ValidateLength(1, 1024)]$Header,
-        [Parameter()]           [switch]$AcceptSourceAgreements
+        [Parameter()]           [switch]$AcceptSourceAgreement
     )
     BEGIN
     {
@@ -111,7 +111,7 @@ Function Get-WinGetPackage{
             ## Pass the value specified as the Windows-Package-Manager HTTP header
             $WinGetArgs += "--header", $Header
         }
-        if($AcceptSourceAgreements){
+        if($AcceptSourceAgreement){
             ## Accept source agreements
             $WinGetArgs += "--accept-source-agreements"
         }

@@ -15,10 +15,10 @@ Function Disable-WinGetLocalManifest
 
         This cmdlet must be executed in an administrative terminal.
     #>
-    PARAM {
+    PARAM (
         [Parameter()] [switch]                  $VerboseLog
 
-    }
+    )
     BEGIN
     {
         ## We might move this code to a utility function rather than duplicate it everywhere it's needed

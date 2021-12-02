@@ -209,14 +209,7 @@ Function Invoke-WinGetCommand
 
                 foreach($item in $Index) {
                     if($Item.Ends) {
-                        #try {
                             $List[$Item.Title] = $row.SubString($item.Start,$Item.Ends)
-                        #}
-                        #catch {
-                        #    Wait-Debugger
-                        #}
-                        #Wait-Debugger
-                        
                     }
                     else {
                         $List[$item.Title] = $row.SubString($item.Start, $row.Length - $Item.Start)
@@ -233,6 +226,4 @@ Function Invoke-WinGetCommand
         return $Result
     }
 }
-
-#winget list --name windows |out-string -stream | %{$_ -replace ([char]0xe2 + [char]0x80 + [char]0xa6)}
 

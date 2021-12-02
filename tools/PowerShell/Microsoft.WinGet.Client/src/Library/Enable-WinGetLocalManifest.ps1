@@ -11,9 +11,9 @@ Function Enable-WinGetLocalManifest
         Used to provide verbose logging for the Windows Package Manager.
     #>
 
-    PARAM {
+    PARAM (
         [Parameter()] [switch]                  $VerboseLog
-    }
+    )
     BEGIN
     {
         ## We might move this code to a utility function rather than duplicate it everywhere it's needed

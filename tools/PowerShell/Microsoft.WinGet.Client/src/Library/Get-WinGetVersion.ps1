@@ -13,14 +13,14 @@ Function Get-WinGetVersion {
     BEGIN
     {
         [string[]]      $WinGetArgs = "--version"
-        [version]$Result = "0.0.0.0"
     }
     PROCESS
     {
         try {
-                $Result = [version](& "winget" $WinGetArgs).trimstart("v")
+            $Result = [version](& "winget" $WinGetArgs).trimstart("v")
         }
         catch {
+            $Result = [version]"0.0.0.0"
         }
     }
     END

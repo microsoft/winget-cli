@@ -70,11 +70,13 @@ Function Find-WinGetPackage{
         [Parameter()] [ValidateRange(1, [int]::maxvalue)][int]$Count,
         [Parameter()] [ValidateLength(1, 1024)]$Header,
         [Parameter()] [switch]  $VerboseLog,
-        [Parameter()] [switch]  $AcceptSourceAgreements
+        [Parameter()] [switch]  $AcceptSourceAgreement
     )
     BEGIN
     {
-        [string[]] $WinGetArgs  = @("Search")
+        [string[]]          $WinGetArgs  = @("Search")
+        [WinGetPackage[]]   $Result      = @()
+        [string[]]          $IndexTitles = @("Name", "Id", "Version", "Available", "Source")
 
         if($Filter){
             ## Search across Name, ID, moniker, and tags
@@ -120,7 +122,7 @@ Function Find-WinGetPackage{
             ## Search using exact values specified (case sensitive)
             $WinGetArgs += "--VerboseLog", $VerboseLog
         }
-        if($AcceptSourceAgreements){
+        if($AcceptSourceAgreement){
             ## Accept source agreements
             $WinGetArgs += "--accept-source-agreements"
         }
