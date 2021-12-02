@@ -43,6 +43,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // Check dependencies table consistency.
         static bool DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log);
 
+        // Checks if the row id is present in the column denoted by the value supplied.
+        static std::optional<SQLite::rowid_t> IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId);
+
         static void PrepareForPackaging(SQLite::Connection& connection);
     };
 }

@@ -123,6 +123,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
+        bool NotNeededInternal(const SQLite::Connection& connection, std::string_view, std::string_view valueName, SQLite::rowid_t id)
+        {
+            return !ManifestTable::IsValueReferenced(connection, valueName, id).has_value();
+        }
+
         // Updates the manifest column and related table based on the given value.
         template <typename Table>
         void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId, bool overwriteLikeMatch = false)
@@ -133,7 +138,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             ManifestTable::UpdateValueIdById<Table>(connection, manifestId, newValueId);
 
-            Table::DeleteIfNotNeededById(connection, oldValueId);
+            if (NotNeededInternal(connection, Table::TableName(), Table::ValueName(), oldValueId))
+            {
+                Table::DeleteById(connection, oldValueId);
+            }
         }
     }
 
@@ -306,11 +314,30 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         ManifestTable::DeleteById(connection, manifestId);
 
         // Remove all of the 1:1 data that is no longer referenced.
-        IdTable::DeleteIfNotNeededById(connection, idId);
-        NameTable::DeleteIfNotNeededById(connection, nameId);
-        MonikerTable::DeleteIfNotNeededById(connection, monikerId);
-        VersionTable::DeleteIfNotNeededById(connection, versionId);
-        ChannelTable::DeleteIfNotNeededById(connection, channelId);
+        if (NotNeeded(connection, IdTable::TableName(), IdTable::ValueName(), idId))
+        {
+            IdTable::DeleteById(connection, idId);
+        }
+        
+        if (NotNeeded(connection, NameTable::TableName(), NameTable::ValueName(), nameId))
+        {
+            NameTable::DeleteById(connection, nameId);
+        }
+
+        if (NotNeeded(connection, MonikerTable::TableName(), MonikerTable::ValueName(), monikerId))
+        {
+            MonikerTable::DeleteById(connection, monikerId);
+        }
+        
+        if (NotNeeded(connection, VersionTable::TableName(), VersionTable::ValueName(), versionId))
+        {
+            VersionTable::DeleteById(connection, versionId);
+        }
+        
+        if (NotNeeded(connection, ChannelTable::TableName(), ChannelTable::ValueName(), versionId))
+        {
+            ChannelTable::DeleteById(connection, channelId);
+        }
 
         // Remove the path
         PathPartTable::RemovePathById(connection, pathLeafId);
@@ -320,6 +347,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         CommandsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
+    }
+
+    bool Interface::NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const
+    {
+        return NotNeededInternal(connection, tableName, valueName, id);
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection)

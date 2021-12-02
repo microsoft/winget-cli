@@ -38,9 +38,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
             bool operator <(const DependencyTableRow& rhs) const
             {
-                return m_packageRowId < rhs.m_packageRowId ||
-                    m_manifestRowId < rhs.m_manifestRowId ||
-                    m_version < rhs.m_version;
+                auto lhsVersion = m_version.has_value() ? m_version.value() : "";
+                auto rhsVersion = rhs.m_version.has_value() ? rhs.m_version.value() : "";
+                return std::tie(m_packageRowId, m_manifestRowId, lhsVersion) < std::tie(rhs.m_packageRowId, rhs.m_manifestRowId, rhsVersion);
             }
         };
 
@@ -421,5 +421,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         }
 
         return result;
+    }
+
+    std::optional<SQLite::rowid_t> DependenciesTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId)
+    {
+        StatementBuilder builder;
+
+        std::array<std::string_view, 3> dependenciesColumns =
+        { s_DependenciesTable_MinVersion_Column_Name,
+            s_DependenciesTable_Manifest_Column_Name,
+            s_DependenciesTable_PackageId_Column_Name };
+
+        auto result = std::find(dependenciesColumns.begin(), dependenciesColumns.end(), valueName);
+        if (result == std::end(dependenciesColumns))
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN);
+        }
+
+        builder.Select(SQLite::RowIDName).From(s_DependenciesTable_Table_Name).Where(valueName).Equals(Unbound).Limit(1);
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        select.Bind(1, valueRowId);
+
+        if (select.Step())
+        {
+            return select.GetColumn<SQLite::rowid_t>(0);
+        }
+
+        return {};
     }
 }

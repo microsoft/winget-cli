@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/1_4/Interface.h"
+#include "Microsoft/Schema/1_0/VersionTable.h"
 #include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_4/DependenciesTable.h"
@@ -66,6 +67,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
 
+    bool Interface::NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const
+    {
+        bool result = V1_0::Interface::NotNeeded(connection, tableName, valueName, id);
+
+        if (tableName == Schema::V1_0::VersionTable::TableName())
+        {
+            result = !DependenciesTable::IsValueReferenced(connection, "min_version", id).has_value() && result;
+        }
+
+        return result;
+    }
+
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_4");
@@ -88,7 +101,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
     {
-        bool result = V1_3::Interface::CheckConsistency(connection, log);
+        bool result = V1_2::Interface::CheckConsistency(connection, log);
 
         // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
         if (result || log)

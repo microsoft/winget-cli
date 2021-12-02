@@ -612,6 +612,31 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_4]")
     index.RemoveManifest(manifest, GetPathFromManifest(manifest));
 }
 
+TEST_CASE("SQLiteIndex_VersionReferencedByDependenciesTableShouldNotBeDeleted", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    std::string dependencyOnlyVersion = "0.0.5";
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, dependencyOnlyVersion));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+    auto dependencyOnlyVersionId = Schema::V1_0::VersionTable::SelectIdByValue(connection, dependencyOnlyVersion).value();
+    REQUIRE(!index.NotNeeded(Schema::V1_0::VersionTable::TableName(), Schema::V1_0::VersionTable::ValueName(), dependencyOnlyVersionId));
+}
+
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };

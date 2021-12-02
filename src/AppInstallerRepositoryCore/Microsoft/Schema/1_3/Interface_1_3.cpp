@@ -87,9 +87,4 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             return V1_2::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
         }
     }
-
-    bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
-    {
-        return V1_2::Interface::CheckConsistency(connection, log);
-    }
 }
