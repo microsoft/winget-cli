@@ -93,7 +93,7 @@ Function Install-WinGetPackage
         [Parameter()] [string]  $Version,
         [Parameter()] [switch]  $Exact,
         [Parameter()] [switch]  $Override,
-        [Parameter()] [string]  $Location,
+        [Parameter()] [System.IO.FileInfo]  $Location,
         [Parameter()] [switch]  $Force,
         [Parameter()] [ValidatePattern("^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$")] [string] $Locale,
         [Parameter()] [string]  $Log, ## This is a path of where to create a log.
