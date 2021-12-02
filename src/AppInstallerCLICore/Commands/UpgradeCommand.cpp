@@ -19,9 +19,19 @@ namespace AppInstaller::CLI
     {
         bool ShouldListUpgrade(Context& context)
         {
-            return context.Args.Empty() ||
-                (context.Args.GetArgsCount() == 1 && (context.Args.Contains(Execution::Args::Type::Source) || context.Args.Contains(Execution::Args::Type::IncludeUnknown))) ||
-                (context.Args.GetArgsCount() == 2 && (context.Args.Contains(Execution::Args::Type::Source) && context.Args.Contains(Execution::Args::Type::IncludeUnknown)));
+            if (!context.Args.Empty())
+            {
+                for (Execution::Args::Type type : context.Args.GetTypes())
+                {
+                    if (type != Execution::Args::Type::Source && type != Execution::Args::Type::IncludeUnknown)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return true;
         }
     }
 

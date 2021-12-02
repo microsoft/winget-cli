@@ -104,7 +104,7 @@ namespace AppInstaller::CLI::Workflow
             // the package has a unknown version and the user did not request to upgrade it anyway.
             if (m_reportUpdateNotFound) 
             {
-                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
             }
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }

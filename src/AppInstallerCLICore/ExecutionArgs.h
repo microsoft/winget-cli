@@ -142,6 +142,18 @@ namespace AppInstaller::CLI::Execution
             return m_parsedArgs.size();
         }
 
+        std::vector<Type> GetTypes()
+        {
+            std::vector<Type> types;
+
+            for (auto const& i : m_parsedArgs)
+            {
+                types.emplace_back(i.first);
+            }
+
+            return types;
+        }
+
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;
     };

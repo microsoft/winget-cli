@@ -1253,4 +1253,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
   </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
+  </data>
 </root>
