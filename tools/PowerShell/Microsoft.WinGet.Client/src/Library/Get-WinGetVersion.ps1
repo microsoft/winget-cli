@@ -12,7 +12,7 @@ Function Get-WinGetVersion {
 
     BEGIN
     {
-        [string[]]      $WinGetArgs = "--version"
+        [string[]] $WinGetArgs = "--version"
     }
     PROCESS
     {

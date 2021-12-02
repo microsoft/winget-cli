@@ -18,7 +18,7 @@ Function Edit-WinGetClientSetting
 
     
     PARAM (
-        [Parameter()] [switch]                  $VerboseLog
+        [Parameter()] [switch] $VerboseLog
     )
     BEGIN
     {

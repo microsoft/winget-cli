@@ -113,22 +113,22 @@ Function Upgrade-WinGetPackage
     BEGIN
     {
         [string[]] $WinGetArgs  = "Install"
-        IF($Filter){
-            $WinGetArgs += "--Manifest", $Filter
+        IF($PSBoundParameters.ContainsKey('Filter')){
+            $WinGetArgs += $Filter
         }
-        IF($Name){
+        IF($PSBoundParameters.ContainsKey('Name')){
             $WinGetArgs += "--Name", $Name
         }
-        IF($Id){
+        IF($PSBoundParameters.ContainsKey('Id')){
             $WinGetArgs += "--Id", $Id
         }
-        IF($Moniker){
+        IF($PSBoundParameters.ContainsKey('Moniker')){
             $WinGetArgs += "--Moniker", $Moniker
         }
-        IF($Source){
+        IF($PSBoundParameters.ContainsKey('Source')){
             $WinGetArgs += "--Source", $Source
         }
-        IF($Scope){
+        IF($PSBoundParameters.ContainsKey('Scope')){
             $WinGetArgs += "--Scope", $Scope
         }
         IF($Interactive){
@@ -137,22 +137,22 @@ Function Upgrade-WinGetPackage
         IF($Silent){
             $WinGetArgs += "--Silent"
         }
-        IF($Locale){
+        IF($PSBoundParameters.ContainsKey('Locale')){
             $WinGetArgs += "--locale", $Locale
         }
-        if($Version){
+        if($PSBoundParameters.ContainsKey('Version')){
             $WinGetArgs += "--Version", $Version
         }
         if($Exact){
             $WinGetArgs += "--Exact"
         }
-        if($Log){
+        if($PSBoundParameters.ContainsKey('Log')){
             $WinGetArgs += "--Log", $Log
         }
-        if($Override){
+        if($PSBoundParameters.ContainsKey('Override')){
             $WinGetArgs += "--override", $Override
         }
-        if($Location){
+        if($PSBoundParameters.ContainsKey('Location')){
             $WinGetArgs += "--Location", $Location
         }
         if($Force){
