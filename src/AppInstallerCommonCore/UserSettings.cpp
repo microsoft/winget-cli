@@ -7,6 +7,8 @@
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+
+#include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
 
 namespace AppInstaller::Settings
@@ -228,6 +230,25 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+
+        WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
+        {
+            std::vector<Utility::Architecture> archs;
+            for (auto const& i : value) {
+                Utility::Architecture arch = Utility::ConvertToArchitectureEnum(i);
+                if (Utility::IsApplicableArchitecture(arch) == Utility::InapplicableArchitecture)
+                {
+                    return {};
+                }
+                archs.emplace_back(arch);
+            }
+            return archs;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallArchitectureRequirement)
+        {
+            return SettingMapping<Setting::InstallArchitecturePreference>::Validate(value);
+        }
 
         WINGET_VALIDATE_SIGNATURE(InstallScopePreference)
         {

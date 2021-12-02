@@ -562,13 +562,6 @@ namespace AppInstaller::CLI::Workflow
             return { {}, std::move(inapplicabilitiesInstallers) };
         }
 
-        Logging::Telemetry().LogSelectedInstaller(
-            static_cast<int>(result->Arch),
-            result->Url,
-            Manifest::InstallerTypeToString(result->InstallerType),
-            Manifest::ScopeToString(result->Scope),
-            result->Locale);
-
         return { *result, std::move(inapplicabilitiesInstallers) };
     }
 

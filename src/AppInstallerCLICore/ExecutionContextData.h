@@ -53,36 +53,7 @@ namespace AppInstaller::CLI::Execution
         Max
     };
 
-    // Contains all the information needed to install a package.
-    // This is used when installing multiple packages to pass all the
-    // data to a sub-context.
-    struct PackageToInstall
-    {
-        PackageToInstall(
-            std::shared_ptr<Repository::IPackageVersion>&& packageVersion,
-            std::shared_ptr<Repository::IPackageVersion>&& installedPackageVersion,
-            Manifest::Manifest&& manifest,
-            Manifest::ManifestInstaller&& installer,
-            Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown,
-            uint32_t packageSubExecutionId = 0)
-            : PackageVersion(std::move(packageVersion)), InstalledPackageVersion(std::move(installedPackageVersion)), Manifest(std::move(manifest)), Installer(std::move(installer)), Scope(scope), PackageSubExecutionId(packageSubExecutionId) { }
-
-        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
-
-        // Used to uninstall the old version if needed.
-        std::shared_ptr<Repository::IPackageVersion> InstalledPackageVersion;
-
-        // Use this instead of the PackageVersion->GetManifest() as the locale was
-        // applied when selecting the installer.
-        Manifest::Manifest Manifest;
-
-        Manifest::ManifestInstaller Installer;
-        Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
-
-        // Use this sub execution id when installing this package so that 
-        // install telemetry is captured with the same sub execution id as other events in Search phase.
-        uint32_t PackageSubExecutionId = 0;
-    };
+    struct Context;
 
     namespace details
     {
@@ -203,7 +174,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {
-            using value_t = std::vector<PackageToInstall>;
+            using value_t = std::vector<std::unique_ptr<Context>>;
         };
 
         template <>

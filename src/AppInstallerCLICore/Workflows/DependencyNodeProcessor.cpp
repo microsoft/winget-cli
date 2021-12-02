@@ -9,8 +9,8 @@ using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
-	DependencyNodeProcessor::DependencyNodeProcessor(Execution::Context& context)
-		: m_context(context) {}
+    DependencyNodeProcessor::DependencyNodeProcessor(Execution::Context& context)
+        : m_context(context) {}
 
     DependencyNodeProcessorResult DependencyNodeProcessor::EvaluateDependencies(Dependency& dependencyNode)
     {

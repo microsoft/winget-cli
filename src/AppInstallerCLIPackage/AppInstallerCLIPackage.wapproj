@@ -72,68 +72,14 @@
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
     <None Include="Register-WingetdevAutoComplete.ps1" />
     <PRIResource Include="Shared\Strings\en-us\winget.resw" />
-    <PRIResource Include="shared\strings\af-ZA\winget.resw" Condition="Exists('shared\strings\af-ZA\winget.resw')" />
-    <PRIResource Include="shared\strings\am-ET\winget.resw" Condition="Exists('shared\strings\am-ET\winget.resw')" />
-    <PRIResource Include="shared\strings\ar-SA\winget.resw" Condition="Exists('shared\strings\ar-SA\winget.resw')" />
-    <PRIResource Include="shared\strings\az-Latn-AZ\winget.resw" Condition="Exists('shared\strings\az-Latn-AZ\winget.resw')" />
-    <PRIResource Include="shared\strings\be-BY\winget.resw" Condition="Exists('shared\strings\be-BY\winget.resw')" />
-    <PRIResource Include="shared\strings\bg-BG\winget.resw" Condition="Exists('shared\strings\bg-BG\winget.resw')" />
-    <PRIResource Include="shared\strings\bn-BD\winget.resw" Condition="Exists('shared\strings\bn-BD\winget.resw')" />
-    <PRIResource Include="shared\strings\ca-ES\winget.resw" Condition="Exists('shared\strings\ca-ES\winget.resw')" />
-    <PRIResource Include="shared\strings\cs-CZ\winget.resw" Condition="Exists('shared\strings\cs-CZ\winget.resw')" />
-    <PRIResource Include="shared\strings\da-DK\winget.resw" Condition="Exists('shared\strings\da-DK\winget.resw')" />
     <PRIResource Include="shared\strings\de-DE\winget.resw" Condition="Exists('shared\strings\de-DE\winget.resw')" />
-    <PRIResource Include="shared\strings\el-GR\winget.resw" Condition="Exists('shared\strings\el-GR\winget.resw')" />
-    <PRIResource Include="shared\strings\en-GB\winget.resw" Condition="Exists('shared\strings\en-GB\winget.resw')" />
     <PRIResource Include="shared\strings\es-ES\winget.resw" Condition="Exists('shared\strings\es-ES\winget.resw')" />
-    <PRIResource Include="shared\strings\es-MX\winget.resw" Condition="Exists('shared\strings\es-MX\winget.resw')" />
-    <PRIResource Include="shared\strings\et-EE\winget.resw" Condition="Exists('shared\strings\et-EE\winget.resw')" />
-    <PRIResource Include="shared\strings\eu-ES\winget.resw" Condition="Exists('shared\strings\eu-ES\winget.resw')" />
-    <PRIResource Include="shared\strings\fa-IR\winget.resw" Condition="Exists('shared\strings\fa-IR\winget.resw')" />
-    <PRIResource Include="shared\strings\fi-FI\winget.resw" Condition="Exists('shared\strings\fi-FI\winget.resw')" />
-    <PRIResource Include="shared\strings\fil-PH\winget.resw" Condition="Exists('shared\strings\fil-PH\winget.resw')" />
-    <PRIResource Include="shared\strings\fr-CA\winget.resw" Condition="Exists('shared\strings\fr-CA\winget.resw')" />
     <PRIResource Include="shared\strings\fr-FR\winget.resw" Condition="Exists('shared\strings\fr-FR\winget.resw')" />
-    <PRIResource Include="shared\strings\gl-ES\winget.resw" Condition="Exists('shared\strings\gl-ES\winget.resw')" />
-    <PRIResource Include="shared\strings\ha-Latn-NG\winget.resw" Condition="Exists('shared\strings\ha-Latn-NG\winget.resw')" />
-    <PRIResource Include="shared\strings\he-IL\winget.resw" Condition="Exists('shared\strings\he-IL\winget.resw')" />
-    <PRIResource Include="shared\strings\hi-IN\winget.resw" Condition="Exists('shared\strings\hi-IN\winget.resw')" />
-    <PRIResource Include="shared\strings\hr-HR\winget.resw" Condition="Exists('shared\strings\hr-HR\winget.resw')" />
-    <PRIResource Include="shared\strings\hu-HU\winget.resw" Condition="Exists('shared\strings\hu-HU\winget.resw')" />
-    <PRIResource Include="shared\strings\id-ID\winget.resw" Condition="Exists('shared\strings\id-ID\winget.resw')" />
-    <PRIResource Include="shared\strings\is-IS\winget.resw" Condition="Exists('shared\strings\is-IS\winget.resw')" />
     <PRIResource Include="shared\strings\it-IT\winget.resw" Condition="Exists('shared\strings\it-IT\winget.resw')" />
     <PRIResource Include="shared\strings\ja-JP\winget.resw" Condition="Exists('shared\strings\ja-JP\winget.resw')" />
-    <PRIResource Include="shared\strings\kk-KZ\winget.resw" Condition="Exists('shared\strings\kk-KZ\winget.resw')" />
-    <PRIResource Include="shared\strings\km-KH\winget.resw" Condition="Exists('shared\strings\km-KH\winget.resw')" />
-    <PRIResource Include="shared\strings\kn-IN\winget.resw" Condition="Exists('shared\strings\kn-IN\winget.resw')" />
     <PRIResource Include="shared\strings\ko-KR\winget.resw" Condition="Exists('shared\strings\ko-KR\winget.resw')" />
-    <PRIResource Include="shared\strings\lo-LA\winget.resw" Condition="Exists('shared\strings\lo-LA\winget.resw')" />
-    <PRIResource Include="shared\strings\lt-LT\winget.resw" Condition="Exists('shared\strings\lt-LT\winget.resw')" />
-    <PRIResource Include="shared\strings\lv-LV\winget.resw" Condition="Exists('shared\strings\lv-LV\winget.resw')" />
-    <PRIResource Include="shared\strings\mk-MK\winget.resw" Condition="Exists('shared\strings\mk-MK\winget.resw')" />
-    <PRIResource Include="shared\strings\ml-IN\winget.resw" Condition="Exists('shared\strings\ml-IN\winget.resw')" />
-    <PRIResource Include="shared\strings\ms-MY\winget.resw" Condition="Exists('shared\strings\ms-MY\winget.resw')" />
-    <PRIResource Include="shared\strings\nb-NO\winget.resw" Condition="Exists('shared\strings\nb-NO\winget.resw')" />
-    <PRIResource Include="shared\strings\nl-NL\winget.resw" Condition="Exists('shared\strings\nl-NL\winget.resw')" />
-    <PRIResource Include="shared\strings\pl-PL\winget.resw" Condition="Exists('shared\strings\pl-PL\winget.resw')" />
     <PRIResource Include="shared\strings\pt-BR\winget.resw" Condition="Exists('shared\strings\pt-BR\winget.resw')" />
-    <PRIResource Include="shared\strings\pt-PT\winget.resw" Condition="Exists('shared\strings\pt-PT\winget.resw')" />
-    <PRIResource Include="shared\strings\ro-RO\winget.resw" Condition="Exists('shared\strings\ro-RO\winget.resw')" />
     <PRIResource Include="shared\strings\ru-RU\winget.resw" Condition="Exists('shared\strings\ru-RU\winget.resw')" />
-    <PRIResource Include="shared\strings\sk-SK\winget.resw" Condition="Exists('shared\strings\sk-SK\winget.resw')" />
-    <PRIResource Include="shared\strings\sl-SI\winget.resw" Condition="Exists('shared\strings\sl-SI\winget.resw')" />
-    <PRIResource Include="shared\strings\sq-AL\winget.resw" Condition="Exists('shared\strings\sq-AL\winget.resw')" />
-    <PRIResource Include="shared\strings\sr-Latn-RS\winget.resw" Condition="Exists('shared\strings\sr-Latn-RS\winget.resw')" />
-    <PRIResource Include="shared\strings\sv-SE\winget.resw" Condition="Exists('shared\strings\sv-SE\winget.resw')" />
-    <PRIResource Include="shared\strings\sw-KE\winget.resw" Condition="Exists('shared\strings\sw-KE\winget.resw')" />
-    <PRIResource Include="shared\strings\ta-IN\winget.resw" Condition="Exists('shared\strings\ta-IN\winget.resw')" />
-    <PRIResource Include="shared\strings\te-IN\winget.resw" Condition="Exists('shared\strings\te-IN\winget.resw')" />
-    <PRIResource Include="shared\strings\th-TH\winget.resw" Condition="Exists('shared\strings\th-TH\winget.resw')" />
-    <PRIResource Include="shared\strings\tr-TR\winget.resw" Condition="Exists('shared\strings\tr-TR\winget.resw')" />
-    <PRIResource Include="shared\strings\uk-UA\winget.resw" Condition="Exists('shared\strings\uk-UA\winget.resw')" />
-    <PRIResource Include="shared\strings\uz-Latn-UZ\winget.resw" Condition="Exists('shared\strings\uz-Latn-UZ\winget.resw')" />
-    <PRIResource Include="shared\strings\vi-VN\winget.resw" Condition="Exists('shared\strings\vi-VN\winget.resw')" />
     <PRIResource Include="shared\strings\zh-CN\winget.resw" Condition="Exists('shared\strings\zh-CN\winget.resw')" />
     <PRIResource Include="shared\strings\zh-TW\winget.resw" Condition="Exists('shared\strings\zh-TW\winget.resw')" />
     <PRIResource Include="Shared\Strings\en-us\Resources.resw" />
