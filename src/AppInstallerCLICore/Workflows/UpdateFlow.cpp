@@ -101,7 +101,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // the package has a unknown version and the user did not request to upgrade it anyway.
+            // the package has an unknown version and the user did not request to upgrade it anyway.
             if (m_reportUpdateNotFound) 
             {
                 context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
