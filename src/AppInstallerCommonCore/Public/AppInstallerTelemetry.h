@@ -8,8 +8,122 @@
 #include <vector>
 #include <cguid.h>
 
+namespace AppInstaller::Settings
+{
+    struct UserSettings;
+}
+
 namespace AppInstaller::Logging
 {
+    enum class FailureTypeEnum : UINT32
+    {
+        None = 0x0,
+
+        // Failure type from FailureInfo in result_macros.h
+        ResultException = 0x1, // THROW_...
+        ResultReturn = 0x2, // RETURN_..._LOG or RETURN_..._MSG
+        ResultLog = 0x3, // LOG_...
+        ResultFailFast = 0x4, // FAIL_FAST_...
+
+        // Other failure types from LogException()
+        Unknown = 0x10000,
+        WinrtHResultError = 0x10001,
+        ResourceOpen = 0x10002,
+        StdException = 0x10003,
+
+        // Command termination
+        CommandTermination = 0x20000,
+    };
+
+    // Contains all fields logged through the TelemetryTraceLogger. Last write wins.
+    // This will be used to report a summary event upon destruction of the TelemetryTraceLogger.
+    struct TelemetrySummary
+    {
+        TelemetrySummary() = default;
+
+        // Selectively copy member fields for copy constructor;
+        TelemetrySummary(const TelemetrySummary& other);
+        TelemetrySummary& operator=(const TelemetrySummary&) = default;
+
+        TelemetrySummary(TelemetrySummary&&) = default;
+        TelemetrySummary& operator=(TelemetrySummary&&) = default;
+
+        // Log wil failure, exception, command termination
+        HRESULT FailureHResult = S_OK;
+        std::wstring FailureMessage;
+        std::string FailureModule;
+        UINT32 FailureThreadId = 0;
+        FailureTypeEnum FailureType = FailureTypeEnum::None;
+        std::string FailureFile;
+        UINT32 FailureLine = 0;
+
+        // LogStartup
+        bool IsCOMCall = false;
+
+        // LogCommand
+        std::string Command;
+
+        // LogCommandSuccess
+        bool CommandSuccess = false;
+
+        // LogIsManifestLocal
+        bool IsManifestLocal = false;
+
+        // LogManifestFields, LogAppFound
+        std::string PackageIdentifier;
+        std::string PackageName;
+        std::string PackageVersion;
+        std::string Channel;
+        std::string SourceIdentifier;
+
+        // LogSelectedInstaller
+        INT32 InstallerArchitecture = -1;
+        std::string InstallerUrl;
+        std::string InstallerType;
+        std::string InstallerScope;
+        std::string InstallerLocale;
+
+        // LogSearchRequest
+        std::string SearchType;
+        std::string SearchQuery;
+        std::string SearchId;
+        std::string SearchName;
+        std::string SearchMoniker;
+        std::string SearchTag;
+        std::string SearchCommand;
+        UINT64 SearchMaximum = 0;
+        std::string SearchRequest;
+
+        // LogSearchResultCount
+        UINT64 SearchResultCount = 0;
+
+        // LogInstallerHashMismatch
+        std::vector<uint8_t> HashMismatchExpected;
+        std::vector<uint8_t> HashMismatchActual;
+        bool HashMismatchOverride = false;
+
+        // LogInstallerFailure
+        std::string InstallerExecutionType;
+        UINT32 InstallerErrorCode = 0;
+
+        // LogUninstallerFailure
+        std::string UninstallerExecutionType;
+        UINT32 UninstallerErrorCode = 0;
+
+        // LogSuccessfulInstallARPChange
+        UINT64 ChangesToARP = 0;
+        UINT64 MatchesInARP = 0;
+        UINT64 ChangesThatMatch = 0;
+        UINT64 ARPLanguage = 0;
+        std::string ARPName;
+        std::string ARPVersion;
+        std::string ARPPublisher;
+
+        // LogNonFatalDOError
+        std::string DOUrl;
+        HRESULT DOHResult = S_OK;
+    };
+
     // This type contains the registration lifetime of the telemetry trace logging provider.
     // Due to the nature of trace logging, specific methods should be added per desired trace.
     // As there should not be a significantly large number of individual telemetry events,
@@ -18,7 +132,7 @@ namespace AppInstaller::Logging
     {
         TelemetryTraceLogger();
 
-        ~TelemetryTraceLogger() = default;
+        ~TelemetryTraceLogger();
 
         TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
         TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
@@ -33,14 +147,24 @@ namespace AppInstaller::Logging
         // Return address of m_activityId
         const GUID* GetActivityId() const;
 
+        // Return address of m_parentActivityId
+        const GUID* GetParentActivityId() const;
+
         // Capture if UserSettings is enabled and set user profile path
         void Initialize();
+
+        // Try to capture if UserSettings is enabled and set user profile path, returns whether the action is successfully completed.
+        bool TryInitialize();
 
         // Store the passed in name of the Caller for COM calls
         void SetCaller(const std::string& caller);
 
         // Store the passed in Telemetry Correlation Json for COM calls
         void SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept;
+
+        void SetExecutionStage(uint32_t stage) noexcept;
+
+        std::unique_ptr<TelemetryTraceLogger> CreateSubTraceLogger() const;
 
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
@@ -58,7 +182,7 @@ namespace AppInstaller::Logging
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view type, std::string_view message) const noexcept;
+        void LogException(FailureTypeEnum type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
         void LogIsManifestLocal(bool isLocalManifest) const noexcept;
@@ -131,27 +255,31 @@ namespace AppInstaller::Logging
     protected:
         bool IsTelemetryEnabled() const noexcept;
 
+        void InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings);
+
         // Used to anonymize a string to the best of our ability.
         // Should primarily be used on failure messages or paths if needed.
         std::wstring AnonymizeString(const wchar_t* input) const noexcept;
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
         bool m_isSettingEnabled = true;
-        std::atomic_bool m_isRuntimeEnabled{ true };
+        CopyConstructibleAtomic<bool> m_isRuntimeEnabled{ true };
+        CopyConstructibleAtomic<bool> m_isInitialized{ false };
+
+        CopyConstructibleAtomic<uint32_t> m_executionStage{ 0 };
 
         GUID m_activityId = GUID_NULL;
+        GUID m_parentActivityId = GUID_NULL;
         std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
 
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
-    };
 
-    struct GlobalTelemetryTraceLogger : TelemetryTraceLogger
-    {
-        GlobalTelemetryTraceLogger() { Initialize(); }
+        mutable TelemetrySummary m_summary;
 
-        ~GlobalTelemetryTraceLogger() = default;
+        // TODO: This and all related code could be removed after transition to summary event in back end.
+        uint32_t m_subExecutionId;
     };
 
     // Helper to make the call sites look clean.
@@ -159,6 +287,9 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
+
+    // TODO: Temporary code to keep existing telemetry behavior for command execution cases.
+    void UseGlobalTelemetryLoggerActivityIdOnly();
 
     // An RAII object to disable telemetry during its lifetime.
     // Primarily used by the complete command to prevent messy input from spamming us.
@@ -176,30 +307,5 @@ namespace AppInstaller::Logging
 
     private:
         DestructionToken m_token;
-    };
-
-    // Sets an execution stage to be reported when failures occur.
-    void SetExecutionStage(uint32_t stage);
-
-    // An RAII object to log telemetry as sub execution.
-    // Does not support nested sub execution.
-    struct SubExecutionTelemetryScope
-    {
-        SubExecutionTelemetryScope();
-
-        SubExecutionTelemetryScope(uint32_t sessionId);
-
-        SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
-        SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
-
-        SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
-        SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
-
-        uint32_t GetCurrentSubExecutionId() const;
-
-        ~SubExecutionTelemetryScope();
-
-    private:
-        static std::atomic_uint32_t m_sessionId;
     };
 }

@@ -1,0 +1,24 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="InstallerExpectedReturnCode.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Microsoft.WinGetUtil.Models.V1
+{
+    /// <summary>
+    /// Class that contains installer expected return code.
+    /// </summary>
+    public class InstallerExpectedReturnCode
+    {
+        /// <summary>
+        /// Gets or sets the installer return code.
+        /// </summary>
+        public long InstallerReturnCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the corresponding response category.
+        /// </summary>
+        public string ReturnResponse { get; set; }
+    }
+}

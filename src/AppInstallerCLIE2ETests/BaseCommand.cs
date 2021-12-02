@@ -12,11 +12,6 @@ namespace AppInstallerCLIE2ETests
 
     public class BaseCommand
     {
-        public string SettingsJsonFilePath => TestCommon.PackagedContext ?
-            @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
-            @"Microsoft\WinGet\Settings\settings.json";
-        public readonly string LocalAppData = "LocalAppData";
-
         [OneTimeSetUp]
         public void BaseSetup()
         {
@@ -40,31 +35,20 @@ namespace AppInstallerCLIE2ETests
 
         public void ConfigureFeature(string featureName, bool status)
         {
-            string localAppDataPath = Environment.GetEnvironmentVariable(LocalAppData);
-            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, SettingsJsonFilePath)));
+            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
+            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
             JObject experimentalFeatures = (JObject)settingsJson["experimentalFeatures"];
             experimentalFeatures[featureName] = status;
 
-            File.WriteAllText(Path.Combine(localAppDataPath, SettingsJsonFilePath), settingsJson.ToString());
+            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
         }
 
         public void InitializeAllFeatures(bool status)
         {
-            string localAppDataPath = Environment.GetEnvironmentVariable(LocalAppData);
-
-            var settingsJson = new
-            {
-                experimentalFeatures = new
-                {
-                    experimentalArg = status,
-                    experimentalCmd = status,
-                    dependencies = status,
-                    directMSI = status,
-                }
-            };
-
-            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
-            File.WriteAllText(Path.Combine(localAppDataPath, SettingsJsonFilePath), serializedSettingsJson);
+            ConfigureFeature("experimentalArg", status);
+            ConfigureFeature("experimentalCmd", status);
+            ConfigureFeature("dependencies", status);
+            ConfigureFeature("directMSI", status);
         }
     }
 }

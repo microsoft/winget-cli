@@ -61,10 +61,10 @@ public:
     typedef PropertyTreeArrayValueIterator const_iterator;
     typedef PropertyTreeArrayValueIterator iterator;
 
-    /// Construct a PropertyTreeArra7 referencing an empty property tree
+    /// Construct a PropertyTreeArray referencing an empty property tree
     /// singleton.
     PropertyTreeArray()
-      : array(emptyTree()) { }
+      : m_array(emptyTree()) { }
 
     /**
      * @brief   Construct PropertyTreeArray referencing a specific Boost
@@ -76,7 +76,7 @@ public:
      * checked due to runtime cost.
      */
     explicit PropertyTreeArray(const boost::property_tree::ptree &array)
-      : array(array) { }
+      : m_array(array) { }
 
     /// Return an iterator for the first element in the array.
     PropertyTreeArrayValueIterator begin() const;
@@ -87,7 +87,7 @@ public:
     /// Return the number of elements in the array
     size_t size() const
     {
-        return array.size();
+        return m_array.size();
     }
 
 private:
@@ -105,7 +105,7 @@ private:
     }
 
     /// Reference to the contained value
-    const boost::property_tree::ptree &array;
+    const boost::property_tree::ptree &m_array;
 };
 
 /**
@@ -129,7 +129,7 @@ public:
 
     /// Construct a PropertyTreeObject referencing an empty property tree.
     PropertyTreeObject()
-      : object(emptyTree()) { }
+      : m_object(emptyTree()) { }
 
     /**
      * @brief   Construct a PropertyTreeObject referencing a specific property
@@ -141,7 +141,7 @@ public:
      * runtime cost of doing so.
      */
     PropertyTreeObject(const boost::property_tree::ptree &object)
-      : object(object) { }
+      : m_object(object) { }
 
     /**
      * @brief   Return an iterator for this first object member
@@ -176,7 +176,7 @@ public:
     /// Returns the number of members belonging to this object.
     size_t size() const
     {
-        return object.size();
+        return m_object.size();
     }
 
 private:
@@ -193,7 +193,7 @@ private:
     }
 
     /// Reference to the contained object
-    const boost::property_tree::ptree &object;
+    const boost::property_tree::ptree &m_object;
 
 };
 
@@ -215,30 +215,28 @@ public:
      *
      * @param  source  string containing the POD vlaue
      */
-    explicit PropertyTreeFrozenValue(
-            const boost::property_tree::ptree::data_type &source)
-      : value(source) { }
+    explicit PropertyTreeFrozenValue(const boost::property_tree::ptree::data_type &source)
+      : m_value(source) { }
 
     /**
      * @brief  Make a copy of a Boost property tree object or array value
      *
      * @param  source  the property tree to be copied
      */
-    explicit PropertyTreeFrozenValue(
-            const boost::property_tree::ptree &source)
-      : value(source) { }
+    explicit PropertyTreeFrozenValue(const boost::property_tree::ptree &source)
+      : m_value(source) { }
 
-    virtual FrozenValue * clone() const
+    FrozenValue * clone() const override
     {
-        return new PropertyTreeFrozenValue(value);
+        return new PropertyTreeFrozenValue(m_value);
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const;
+    bool equalTo(const Adapter &other, bool strict) const override;
 
 private:
 
     /// Stored value
-    boost::property_tree::ptree value;
+    boost::property_tree::ptree m_value;
 };
 
 /**
@@ -261,7 +259,7 @@ public:
 
     /// Construct a wrapper for an empty property tree
     PropertyTreeValue()
-      : object(emptyTree()) { }
+      : m_object(emptyTree()) { }
 
     /**
      * @brief  Construct a PropertyTreeValue from a tree object
@@ -279,11 +277,11 @@ public:
     PropertyTreeValue(const boost::property_tree::ptree &tree)
     {
         if (tree.data().empty()) {    // No string content
-            if (tree.size() == 0) {   // No children
-                array.emplace(tree);         // Treat as empty array
+            if (tree.empty()) {   // No children
+                m_array.emplace(tree);         // Treat as empty array
             } else {
                 bool isArray = true;
-                for (const auto node : tree) {
+                for (const auto &node : tree) {
                     if (!node.first.empty()) {
                         isArray = false;
                         break;
@@ -291,13 +289,13 @@ public:
                 }
 
                 if (isArray) {
-                    array.emplace(tree);
+                    m_array.emplace(tree);
                 } else {
-                    object.emplace(tree);
+                    m_object.emplace(tree);
                 }
             }
         } else {
-            value = tree.data();
+            m_value = tree.data();
         }
     }
 
@@ -310,12 +308,12 @@ public:
      */
     FrozenValue* freeze() const
     {
-        if (array) {
-            return new PropertyTreeFrozenValue(*array);
-        } else if (object) {
-            return new PropertyTreeFrozenValue(*object);
+        if (m_array) {
+            return new PropertyTreeFrozenValue(*m_array);
+        } else if (m_object) {
+            return new PropertyTreeFrozenValue(*m_object);
         } else {
-            return new PropertyTreeFrozenValue(*value);
+            return new PropertyTreeFrozenValue(*m_value);
         }
     }
 
@@ -330,11 +328,11 @@ public:
      */
     opt::optional<PropertyTreeArray> getArrayOptional() const
     {
-        if (array) {
-            return opt::make_optional(PropertyTreeArray(*array));
+        if (m_array) {
+            return opt::make_optional(PropertyTreeArray(*m_array));
         }
 
-        return opt::optional<PropertyTreeArray>();
+        return {};
     }
 
     /**
@@ -350,25 +348,25 @@ public:
      */
     bool getArraySize(size_t &result) const
     {
-        if (array) {
-            result = array->size();
+        if (m_array) {
+            result = m_array->size();
             return true;
         }
 
         return false;
     }
 
-    bool getBool(bool &) const
+    static bool getBool(bool &)
     {
         return false;
     }
 
-    bool getDouble(double &) const
+    static bool getDouble(double &)
     {
         return false;
     }
 
-    bool getInteger(int64_t &) const
+    static bool getInteger(int64_t &)
     {
         return false;
     }
@@ -384,11 +382,11 @@ public:
      */
     opt::optional<PropertyTreeObject> getObjectOptional() const
     {
-        if (object) {
-            return opt::make_optional(PropertyTreeObject(*object));
+        if (m_object) {
+            return opt::make_optional(PropertyTreeObject(*m_object));
         }
 
-        return opt::optional<PropertyTreeObject>();
+        return {};
     }
 
     /**
@@ -404,8 +402,8 @@ public:
      */
     bool getObjectSize(size_t &result) const
     {
-        if (object) {
-            result = object->size();
+        if (m_object) {
+            result = m_object->size();
             return true;
         }
 
@@ -414,8 +412,8 @@ public:
 
     bool getString(std::string &result) const
     {
-        if (value) {
-            result = *value;
+        if (m_value) {
+            result = *m_value;
             return true;
         }
 
@@ -429,42 +427,42 @@ public:
 
     bool isArray() const
     {
-        return static_cast<bool>(array);
+        return static_cast<bool>(m_array);
     }
 
-    bool isBool() const
+    static bool isBool()
     {
         return false;
     }
 
-    bool isDouble() const
+    static bool isDouble()
     {
         return false;
     }
 
-    bool isInteger() const
+    static bool isInteger()
     {
         return false;
     }
 
-    bool isNull() const
+    static bool isNull()
     {
         return false;
     }
 
-    bool isNumber() const
+    static bool isNumber()
     {
         return false;
     }
 
     bool isObject() const
     {
-        return static_cast<bool>(object);
+        return static_cast<bool>(m_object);
     }
 
     bool isString() const
     {
-        return static_cast<bool>(value);
+        return static_cast<bool>(m_value);
     }
 
 private:
@@ -476,13 +474,13 @@ private:
     }
 
     /// Reference used if the value is known to be an array
-    opt::optional<const boost::property_tree::ptree &> array;
+    opt::optional<const boost::property_tree::ptree &> m_array;
 
     /// Reference used if the value is known to be an object
-    opt::optional<const boost::property_tree::ptree &> object;
+    opt::optional<const boost::property_tree::ptree &> m_object;
 
     /// Reference used if the value is known to be a POD type
-    opt::optional<std::string> value;
+    opt::optional<std::string> m_value;
 };
 
 /**
@@ -522,12 +520,14 @@ public:
  *
  * @see PropertyTreeArray
  */
-class PropertyTreeArrayValueIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,    // bi-directional iterator
-        PropertyTreeAdapter>                // value type
+class PropertyTreeArrayValueIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = PropertyTreeAdapter;
+    using difference_type = PropertyTreeAdapter;
+    using pointer = PropertyTreeAdapter*;
+    using reference = PropertyTreeAdapter&;
 
     /**
      * @brief   Construct a new PropertyTreeArrayValueIterator using an existing
@@ -537,13 +537,13 @@ public:
      */
     PropertyTreeArrayValueIterator(
         const boost::property_tree::ptree::const_iterator &itr)
-      : itr(itr) { }
+      : m_itr(itr) { }
 
     /// Returns a PropertyTreeAdapter that contains the value of the current
     /// element.
     PropertyTreeAdapter operator*() const
     {
-        return PropertyTreeAdapter(itr->second);
+        return PropertyTreeAdapter(m_itr->second);
     }
 
     DerefProxy<PropertyTreeAdapter> operator->() const
@@ -564,31 +564,31 @@ public:
      */
     bool operator==(const PropertyTreeArrayValueIterator &rhs) const
     {
-        return itr == rhs.itr;
+        return m_itr == rhs.m_itr;
     }
 
     bool operator!=(const PropertyTreeArrayValueIterator &rhs) const
     {
-        return !(itr == rhs.itr);
+        return !(m_itr == rhs.m_itr);
     }
 
     const PropertyTreeArrayValueIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     PropertyTreeArrayValueIterator operator++(int)
     {
-        PropertyTreeArrayValueIterator iterator_pre(itr);
+        PropertyTreeArrayValueIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const PropertyTreeArrayValueIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
@@ -597,18 +597,18 @@ public:
     {
         if (n > 0) {
             while (n-- > 0) {
-                itr++;
+                m_itr++;
             }
         } else {
             while (n++ < 0) {
-                itr--;
+                m_itr--;
             }
         }
     }
 
 private:
 
-    boost::property_tree::ptree::const_iterator itr;
+    boost::property_tree::ptree::const_iterator m_itr;
 };
 
 /**
@@ -621,12 +621,14 @@ private:
  * @see PropertyTreeObject
  * @see PropertyTreeObjectMember
  */
-class PropertyTreeObjectMemberIterator:
-    public std::iterator<
-        std::bidirectional_iterator_tag,     // bi-directional iterator
-        PropertyTreeObjectMember>            // value type
+class PropertyTreeObjectMemberIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = PropertyTreeObjectMember;
+    using difference_type = PropertyTreeObjectMember;
+    using pointer = PropertyTreeObjectMember*;
+    using reference = PropertyTreeObjectMember&;
 
     /**
      * @brief   Construct an iterator from a PropertyTree iterator.
@@ -635,7 +637,7 @@ public:
      */
     PropertyTreeObjectMemberIterator(
         boost::property_tree::ptree::const_assoc_iterator itr)
-      : itr(itr) { }
+      : m_itr(itr) { }
 
     /**
      * @brief   Returns a PropertyTreeObjectMember that contains the key and
@@ -643,7 +645,7 @@ public:
      */
     PropertyTreeObjectMember operator*() const
     {
-        return PropertyTreeObjectMember(itr->first, itr->second);
+        return PropertyTreeObjectMember(m_itr->first, m_itr->second);
     }
 
     DerefProxy<PropertyTreeObjectMember> operator->() const
@@ -664,38 +666,38 @@ public:
      */
     bool operator==(const PropertyTreeObjectMemberIterator &rhs) const
     {
-        return itr == rhs.itr;
+        return m_itr == rhs.m_itr;
     }
 
     bool operator!=(const PropertyTreeObjectMemberIterator &rhs) const
     {
-        return !(itr == rhs.itr);
+        return !(m_itr == rhs.m_itr);
     }
 
     const PropertyTreeObjectMemberIterator& operator++()
     {
-        itr++;
+        m_itr++;
 
         return *this;
     }
 
     PropertyTreeObjectMemberIterator operator++(int)
     {
-        PropertyTreeObjectMemberIterator iterator_pre(itr);
+        PropertyTreeObjectMemberIterator iterator_pre(m_itr);
         ++(*this);
         return iterator_pre;
     }
 
     const PropertyTreeObjectMemberIterator& operator--()
     {
-        itr--;
+        m_itr--;
 
         return *this;
     }
 
 private:
 
-    boost::property_tree::ptree::const_assoc_iterator itr;
+    boost::property_tree::ptree::const_assoc_iterator m_itr;
 };
 
 /// Specialisation of the AdapterTraits template struct for PropertyTreeAdapter.
@@ -712,40 +714,39 @@ struct AdapterTraits<valijson::adapters::PropertyTreeAdapter>
 
 inline bool PropertyTreeFrozenValue::equalTo(const Adapter &other, bool strict) const
 {
-    return PropertyTreeAdapter(value).equalTo(other, strict);
+    return PropertyTreeAdapter(m_value).equalTo(other, strict);
 }
 
 inline PropertyTreeArrayValueIterator PropertyTreeArray::begin() const
 {
-    return array.begin();
+    return m_array.begin();
 }
 
 inline PropertyTreeArrayValueIterator PropertyTreeArray::end() const
 {
-    return array.end();
+    return m_array.end();
 }
 
 inline PropertyTreeObjectMemberIterator PropertyTreeObject::begin() const
 {
-    return object.ordered_begin();
+    return m_object.ordered_begin();
 }
 
 inline PropertyTreeObjectMemberIterator PropertyTreeObject::end() const
 {
-    return object.not_found();
+    return m_object.not_found();
 }
 
 inline PropertyTreeObjectMemberIterator PropertyTreeObject::find(
     const std::string &propertyName) const
 {
-    const boost::property_tree::ptree::const_assoc_iterator
-        itr = object.find(propertyName);
+    const boost::property_tree::ptree::const_assoc_iterator itr = m_object.find(propertyName);
 
-    if (itr != object.not_found()) {
+    if (itr != m_object.not_found()) {
         return itr;
     }
 
-    return object.not_found();
+    return m_object.not_found();
 }
 
 }  // namespace adapters

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <string>
+#include <memory>
 
 #include <json/json.h>
 
@@ -18,14 +20,14 @@ inline bool loadDocument(const std::string &path, Json::Value &document)
         return false;
     }
 
-    Json::Reader reader;
-    bool parsingSuccessful = reader.parse(file, document);
-    if (!parsingSuccessful) {
-        std::cerr << "Jsoncpp parser failed to parse the document:" << std::endl
-                  << reader.getFormattedErrorMessages();
+    const auto fileLength = static_cast<int>(file.length());
+    Json::CharReaderBuilder builder;
+    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    std::string err;
+    if (!reader->parse(file.c_str(), file.c_str() + fileLength, &document, &err)) {
+        std::cerr << "Jsoncpp parser failed to parse the document:" << std::endl << err;
         return false;
     }
-
     return true;
 }
 

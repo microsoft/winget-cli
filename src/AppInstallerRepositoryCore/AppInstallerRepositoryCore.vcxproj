@@ -54,6 +54,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -231,6 +232,7 @@
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
+    <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
@@ -265,7 +267,11 @@
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
+    <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
+    <ClInclude Include="Public\winget\RepositorySearch.h" />
+    <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />
     <ClInclude Include="Rest\RestSource.h" />
     <ClInclude Include="Rest\RestSourceFactory.h" />
@@ -286,8 +292,6 @@
     <ClInclude Include="SourceList.h" />
     <ClInclude Include="SourcePolicy.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
-    <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
-    <ClInclude Include="Public\AppInstallerRepositorySource.h" />
     <ClInclude Include="SQLiteTempTable.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
@@ -324,9 +328,11 @@
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RepositorySearch.cpp" />
     <ClCompile Include="RepositorySource.cpp" />
     <ClCompile Include="Rest\RestClient.cpp" />
     <ClCompile Include="Rest\RestSource.cpp" />

@@ -122,7 +122,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 
     // Stream hash
-    std::ifstream stream(manifestFile, std::ios_base::in | std::ios_base::binary);
+    std::ifstream stream(manifestFile.GetPath(), std::ios_base::in | std::ios_base::binary);
     REQUIRE(!stream.fail());
     auto manifestHash = SHA256::ComputeHash(stream);
     REQUIRE(manifestHash.size() == manifest.StreamSha256.size());
@@ -220,6 +220,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum.yaml" },
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
+        { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -269,9 +270,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Failed to validate against schema associated with property name 'Version'" },
         { "Manifest-Bad-VersionMissing.yaml", "Missing required property 'Version'" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Failed to validate against schema associated with property name 'ManifestVersion'" },
-        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
-        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
-        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
+        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: msstore" },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: msi" },
+        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: msix" },
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },

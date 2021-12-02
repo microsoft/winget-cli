@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(2)]
+    [contractversion(3)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -76,7 +76,7 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode{ get; };
     }
 
-    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstallerRepositorySource.h
+    /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h
     /// Defines the origin of the package catalog details.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageCatalogOrigin
@@ -87,7 +87,7 @@ namespace Microsoft.Management.Deployment
         User,
     };
 
-    /// IMPLEMENTATION NOTE: SourceTrustLevel from AppInstallerRepositorySource.h
+    /// IMPLEMENTATION NOTE: SourceTrustLevel from winget/RepositorySource.h
     /// Defines the trust level of the package catalog.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageCatalogTrustLevel
@@ -96,7 +96,7 @@ namespace Microsoft.Management.Deployment
         Trusted,
     };
 
-    /// IMPLEMENTATION NOTE: SourceDetails from AppInstallerRepositorySource.h
+    /// IMPLEMENTATION NOTE: SourceDetails from winget/RepositorySource.h
     /// Interface for retrieving information about an package catalog without acting on it.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogInfo
@@ -158,25 +158,25 @@ namespace Microsoft.Management.Deployment
         Greater,
     };
 
-    /// IMPLEMENTATION NOTE: IPackageVersion from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: IPackageVersion from winget/RepositorySearch.h
     /// A single package version.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageVersionInfo
     {
-        /// IMPLEMENTATION NOTE: PackageVersionMetadata fields from AppInstallerRepositorySearch.h
+        /// IMPLEMENTATION NOTE: PackageVersionMetadata fields from winget/RepositorySearch.h
         /// Gets any metadata associated with this package version.
         /// Primarily stores data on installed packages.
         /// Metadata fields may have no value (e.g. packages that aren't installed will not have an InstalledLocation).
         String GetMetadata(PackageVersionMetadataField metadataField);
-        /// IMPLEMENTATION NOTE: PackageVersionProperty fields from AppInstallerRepositorySearch.h
+        /// IMPLEMENTATION NOTE: PackageVersionProperty fields from winget/RepositorySearch.h
         String Id { get; };
         String DisplayName { get; };
         String Version { get; };
         String Channel { get; };
-        /// DESIGN NOTE: RelativePath from AppInstallerRepositorySearch.h is excluded as not needed.
+        /// DESIGN NOTE: RelativePath from winget/RepositorySearch.h is excluded as not needed.
         /// String RelativePath;
 
-        /// IMPLEMENTATION NOTE: PackageVersionMultiProperty fields from AppInstallerRepositorySearch.h
+        /// IMPLEMENTATION NOTE: PackageVersionMultiProperty fields from winget/RepositorySearch.h
         /// PackageFamilyName and ProductCode can have multiple values.
         Windows.Foundation.Collections.IVectorView<String> PackageFamilyNames { get; };
         Windows.Foundation.Collections.IVectorView<String> ProductCodes { get; };
@@ -196,13 +196,13 @@ namespace Microsoft.Management.Deployment
         }
 
         /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
+        /// GetManifest from IPackageVersion in winget/RepositorySearch is not implemented in V1. That class has 
         /// a lot of fields and no one requesting it.
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
     }
 
-    /// IMPLEMENTATION NOTE: PackageVersionKey from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: PackageVersionKey from winget/RepositorySearch.h
     /// A key to identify a package version within a package.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageVersionId
@@ -215,12 +215,12 @@ namespace Microsoft.Management.Deployment
         String Channel { get; };
     };
 
-    /// IMPLEMENTATION NOTE: IPackage from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: IPackage from winget/RepositorySearch.h
     /// A package, potentially containing information about it's local state and the available versions.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass CatalogPackage
     {
-        /// IMPLEMENTATION NOTE: PackageProperty fields from AppInstallerRepositorySearch.h
+        /// IMPLEMENTATION NOTE: PackageProperty fields from winget/RepositorySearch.h
         /// Gets a property of this package.
         String Id { get; };
         String Name { get; };
@@ -241,12 +241,12 @@ namespace Microsoft.Management.Deployment
         Boolean IsUpdateAvailable { get; };
 
         /// DESIGN NOTE:
-        /// IsSame from IPackage in AppInstallerRepositorySearch is not implemented in V1.
+        /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
         /// Determines if the given IPackage refers to the same package as this one.
         /// virtual bool IsSame(const IPackage*) const = 0;
     }
 
-    /// IMPLEMENTATION NOTE: CompositeSearchBehavior from AppInstallerRepositorySource.h
+    /// IMPLEMENTATION NOTE: CompositeSearchBehavior from winget/RepositorySource.h
     /// Search behavior for composite catalogs.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum CompositeSearchBehavior
@@ -261,7 +261,7 @@ namespace Microsoft.Management.Deployment
         AllCatalogs,
     };
 
-    /// IMPLEMENTATION NOTE: PackageFieldMatchOption from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: PackageFieldMatchOption from winget/RepositorySearch.h
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageFieldMatchOption
     {
@@ -271,7 +271,7 @@ namespace Microsoft.Management.Deployment
         ContainsCaseInsensitive,
     };
 
-    /// IMPLEMENTATION NOTE: PackageFieldMatchOption from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: PackageFieldMatchOption from winget/RepositorySearch.h
     /// The field to match on.
     /// The values must be declared in order of preference in search results.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -283,13 +283,16 @@ namespace Microsoft.Management.Deployment
         Moniker,
         Command,
         Tag,
-        /// DESIGN NOTE: The following PackageFieldMatchOption from AppInstallerRepositorySearch.h are not implemented in V1.
-        /// PackageFamilyName,
-        /// ProductCode,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 3)]
+        {
+            PackageFamilyName,
+            ProductCode,
+        }
+        /// DESIGN NOTE: The following PackageFieldMatchOption from winget/RepositorySearch.h are not implemented in V1.
         /// NormalizedNameAndPublisher,
     };
 
-    /// IMPLEMENTATION NOTE: PackageMatchFilter from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: PackageMatchFilter from winget/RepositorySearch.h
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageMatchFilter
     {
@@ -300,10 +303,10 @@ namespace Microsoft.Management.Deployment
         PackageMatchField Field;
         /// The value to match
         String Value;
-        /// DESIGN NOTE: "Additional" from RequestMatch AppInstallerRepositorySearch.h is not implemented here.
+        /// DESIGN NOTE: "Additional" from RequestMatch winget/RepositorySearch.h is not implemented here.
     }
 
-    /// IMPLEMENTATION NOTE: MatchResult from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: MatchResult from winget/RepositorySearch.h
     /// A single result from the search.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass MatchResult
@@ -326,7 +329,7 @@ namespace Microsoft.Management.Deployment
         InvalidOptions
     };
 
-    /// IMPLEMENTATION NOTE: SearchResult from AppInstallerRepositorySearch.h
+    /// IMPLEMENTATION NOTE: SearchResult from winget/RepositorySearch.h
     /// Search result data returned from FindPackages
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass FindPackagesResult
@@ -350,7 +353,7 @@ namespace Microsoft.Management.Deployment
         FindPackagesOptions();
 
         /// DESIGN NOTE: 
-        /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h 
+        /// This class maps to SearchRequest from  winget/RepositorySearch.h 
         /// That class is a container for data used to filter the available manifests in an package catalog.
         /// Its properties can be thought of as:
         /// (Query || Inclusions...) && Filters...
@@ -371,7 +374,7 @@ namespace Microsoft.Management.Deployment
         UInt32 ResultLimit;
     }
 
-    /// IMPLEMENTATION NOTE: ISource from AppInstallerRepositorySource.h
+    /// IMPLEMENTATION NOTE: Source from winget/RepositorySource.h
     /// A catalog for searching for packages
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalog

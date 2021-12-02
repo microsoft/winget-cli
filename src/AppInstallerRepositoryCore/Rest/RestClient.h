@@ -6,7 +6,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
 #include "cpprest/json.h"
-#include "AppInstallerRepositorySource.h"
+#include "ISource.h"
 
 namespace AppInstaller::Repository::Rest
 {

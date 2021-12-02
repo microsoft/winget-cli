@@ -152,9 +152,6 @@
     <ClInclude Include="ExecutionContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="COMContext.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="ContextOrchestrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,6 +166,15 @@
     </ClInclude>
     <ClInclude Include="Workflows\SettingsFlow.h">
       <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\DownloadFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\DependencyNodeProcessor.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\COMContext.h">
+      <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -295,9 +301,6 @@
     <ClCompile Include="ContextOrchestrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\DependenciesFlow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Commands\COMInstallCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
@@ -305,6 +308,15 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\SettingsFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\DependencyNodeProcessor.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\DependenciesFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\DownloadFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

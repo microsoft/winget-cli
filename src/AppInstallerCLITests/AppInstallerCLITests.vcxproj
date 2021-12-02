@@ -38,6 +38,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -174,6 +175,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DependenciesTestSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
     <ClInclude Include="TestRestRequestHandler.h" />
@@ -187,6 +189,7 @@
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="CustomHeader.cpp" />
+    <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
@@ -198,6 +201,7 @@
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
+    <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="Regex.cpp" />
@@ -466,6 +470,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders> 
     <CopyFileToFolders Include="TestData\Manifest-Encoding-ANSI.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

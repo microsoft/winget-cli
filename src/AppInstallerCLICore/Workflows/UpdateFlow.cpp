@@ -18,6 +18,21 @@ namespace AppInstaller::CLI::Workflow
         {
             return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
+
+        void AddToPackagesToInstallIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packagesToInstall, std::unique_ptr<Execution::Context> packageContext)
+        {
+            for (auto const& existing : packagesToInstall)
+            {
+                if (existing->Get<Execution::Data::Manifest>().Id == packageContext->Get<Execution::Data::Manifest>().Id &&
+                    existing->Get<Execution::Data::Manifest>().Version == packageContext->Get<Execution::Data::Manifest>().Version &&
+                    existing->Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier) == packageContext->Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier))
+                {
+                    return;
+                }
+            }
+
+            packagesToInstall.emplace_back(std::move(packageContext));
+        }
     }
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
@@ -27,6 +42,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
         bool updateFound = false;
+        bool installedTypeInapplicable = false;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -39,11 +55,30 @@ namespace AppInstaller::CLI::Workflow
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
-                auto installer = manifestComparator.GetPreferredInstaller(manifest);
+                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    // If there is at least one installer whose only reason is InstalledType.
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    if (onlyInstalledType != inapplicabilities.end())
+                    {
+                        installedTypeInapplicable = true;
+                    }
+
                     continue;
                 }
+
+                Logging::Telemetry().LogSelectedInstaller(
+                    static_cast<int>(installer->Arch),
+                    installer->Url,
+                    Manifest::InstallerTypeToString(installer->InstallerType),
+                    Manifest::ScopeToString(installer->Scope),
+                    installer->Locale);
+
+                Logging::Telemetry().LogManifestFields(
+                    manifest.Id,
+                    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    manifest.Version);
 
                 // Since we already did installer selection, just populate the context Data
                 manifest.ApplyLocale(installer->Locale);
@@ -65,8 +100,16 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_reportUpdateNotFound)
             {
-                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                if (installedTypeInapplicable)
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                }
             }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -87,16 +130,15 @@ namespace AppInstaller::CLI::Workflow
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
-        std::vector<Execution::PackageToInstall> packagesToInstall;
+        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool updateAllFoundUpdate = false;
 
         for (const auto& match : matches)
         {
-            Logging::SubExecutionTelemetryScope subExecution;
-
             // We want to do best effort to update all applicable updates regardless on previous update failure
-            auto updateContextPtr = context.Clone();
+            auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
+            auto previousThreadGlobals = updateContext.SetForCurrentThread();
 
             updateContext.Add<Execution::Data::Package>(match.Package);
 
@@ -112,14 +154,7 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            Execution::PackageToInstall package{
-                std::move(updateContext.Get<Execution::Data::PackageVersion>()),
-                std::move(updateContext.Get<Execution::Data::InstalledPackageVersion>()),
-                std::move(updateContext.Get<Execution::Data::Manifest>()),
-                std::move(updateContext.Get<Execution::Data::Installer>().value()) };
-            package.PackageSubExecutionId = subExecution.GetCurrentSubExecutionId();
-
-            packagesToInstall.emplace_back(std::move(package));
+            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(updateContextPtr));
         }
 
         if (!updateAllFoundUpdate)

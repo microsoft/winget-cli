@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallFlow.h"
+#include "DownloadFlow.h"
 #include "UninstallFlow.h"
 #include "ShowFlow.h"
 #include "Resources.h"
@@ -10,21 +11,21 @@
 #include "MsiInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
-
 #include <AppInstallerDeployment.h>
-#include <AppInstallerMsixInfo.h>
+
+using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Foundation::Collections;
+using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
+
 
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
-    using namespace winrt::Windows::Foundation;
-    using namespace winrt::Windows::Foundation::Collections;
-    using namespace winrt::Windows::Management::Deployment;
-    using namespace AppInstaller::Utility;
-    using namespace AppInstaller::Manifest;
-    using namespace AppInstaller::Repository;
-    using namespace AppInstaller::Settings;
-
     namespace
     {
         bool MightWriteToARP(InstallerTypeEnum type)
@@ -122,7 +123,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (installerType == InstallerTypeEnum::MSStore)
         {
-            context.Reporter.Info() << Resource::String::InstallationDisclaimerMSStore << std::endl;
+            context.Reporter.Info() << Execution::PromptEmphasis << Resource::String::InstallationDisclaimerMSStore << std::endl;
         }
         else
         {
@@ -188,13 +189,11 @@ namespace AppInstaller::CLI::Workflow
     void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context)
     {
         bool hasPackageAgreements = false;
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            // Show agreements for each package in a sub-context
-            auto showContextPtr = context.Clone();
-            Execution::Context& showContext = *showContextPtr;
-
-            showContext.Add<Execution::Data::Manifest>(package.Manifest);
+            // Show agreements for each package
+            Execution::Context& showContext = *packageContext;
+            auto previousThreadGlobals = showContext.SetForCurrentThread();
 
             showContext <<
                 Workflow::ReportManifestIdentityWithVersion <<
@@ -204,232 +203,13 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
             }
 
-            hasPackageAgreements |= !package.Manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+            hasPackageAgreements |= !showContext.Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
         }
 
         // If any package has agreements, ensure they are accepted
         if (hasPackageAgreements)
         {
             context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ false);
-        }
-    }
-
-    void DownloadInstaller(Execution::Context& context)
-    {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-        switch (installer.InstallerType)
-        {
-        case InstallerTypeEnum::Exe:
-        case InstallerTypeEnum::Burn:
-        case InstallerTypeEnum::Inno:
-        case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::Nullsoft:
-        case InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-            break;
-        case InstallerTypeEnum::Msix:
-            if (installer.SignatureSha256.empty())
-            {
-                context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-            }
-            else
-            {
-                // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-            }
-            break;
-        case InstallerTypeEnum::MSStore:
-            // Nothing to do here
-            break;
-        default:
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-    }
-
-    void DownloadInstallerFile(Execution::Context& context)
-    {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-        std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-        tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-
-        Utility::DownloadInfo downloadInfo{};
-        downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
-        // Use the SHA256 hash of the installer as the identifier for the download
-        downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
-
-        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
-
-        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
-
-        std::optional<std::vector<BYTE>> hash;
-
-        const int MaxRetryCount = 2;
-        for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
-        {
-            bool success = false;
-            try
-            {
-                hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
-                    installer.Url,
-                    tempInstallerPath,
-                    Utility::DownloadType::Installer,
-                    std::placeholders::_1,
-                    true,
-                    downloadInfo));
-
-                success = true;
-            }
-            catch (...)
-            {
-                if (retryCount < MaxRetryCount - 1)
-                {
-                    AICLI_LOG(CLI, Info, << "Failed to download, waiting a bit and retry. Url: " << installer.Url);
-                    Sleep(500);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            if (success)
-            {
-                break;
-            }
-        }
-
-        if (!hash)
-        {
-            context.Reporter.Info() << "Package download canceled." << std::endl;
-            AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-
-        context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, hash.value()));
-        context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
-    }
-
-    void GetMsixSignatureHash(Execution::Context& context)
-    {
-        // We use this when the server won't support streaming install to swap to download.
-        bool downloadInstead = false;
-
-        try
-        {
-            const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-            Msix::MsixInfo msixInfo(installer.Url);
-            auto signature = msixInfo.GetSignature();
-
-            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
-
-            context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
-        }
-        catch (const winrt::hresult_error& e)
-        {
-            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
-            {
-                // Failed to get signature hash through HttpStream, use download
-                downloadInstead = true;
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        if (downloadInstead)
-        {
-            context << DownloadInstallerFile;
-        }
-    }
-
-    void VerifyInstallerHash(Execution::Context& context)
-    {
-        const auto& hashPair = context.Get<Execution::Data::HashPair>();
-
-        if (!std::equal(
-            hashPair.first.begin(),
-            hashPair.first.end(),
-            hashPair.second.begin()))
-        {
-            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
-
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
-
-            // If running as admin, do not allow the user to override the hash failure.
-            if (Runtime::IsRunningAsAdmin())
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
-            }
-            else if (overrideHashMismatch)
-            {
-                context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
-                return;
-            }
-            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
-            }
-            else
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
-        }
-        else
-        {
-            AICLI_LOG(CLI, Info, << "Installer hash verified");
-            context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
-
-            context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
-
-            if (context.Contains(Execution::Data::PackageVersion) &&
-                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                WI_IsFlagSet(context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel, SourceTrustLevel::Trusted))
-            {
-                context.SetFlags(Execution::ContextFlag::InstallerTrusted);
-            }
-        }
-    }
-
-    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
-    {
-        if (context.Contains(Execution::Data::InstallerPath))
-        {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
-            {
-                Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
-            }
-            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
-            {
-                const auto& installer = context.Get<Execution::Data::Installer>();
-                HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url, URLZONE_INTERNET);
-
-                // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
-                if (hr != S_OK)
-                {
-                    switch (hr)
-                    {
-                    case INET_E_SECURITY_PROBLEM:
-                        context.Reporter.Error() << Resource::String::InstallerBlockedByPolicy << std::endl;
-                        break;
-                    case E_FAIL:
-                        context.Reporter.Error() << Resource::String::InstallerFailedVirusScan << std::endl;
-                        break;
-                    default:
-                        context.Reporter.Error() << Resource::String::InstallerFailedSecurityCheck << std::endl;
-                    }
-
-                    AICLI_LOG(Fail, Error, << "Installer failed security check. Url: " << installer.value().Url << " Result: " << WINGET_OSTREAM_FORMAT_HRESULT(hr));
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED);
-                }
-            }
         }
     }
 
@@ -480,7 +260,6 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             GetInstallerArgs <<
-            RenameDownloadedInstaller <<
             ShellExecuteInstallImpl <<
             ReportInstallerResult("ShellExecute"sv, APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
     }
@@ -489,7 +268,6 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             GetInstallerArgs <<
-            RenameDownloadedInstaller <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
     }
@@ -576,30 +354,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void RemoveInstaller(Execution::Context& context)
-    {
-        // Path may not be present if installed from a URL for MSIX
-        if (context.Contains(Execution::Data::InstallerPath))
-        {
-            const auto& path = context.Get<Execution::Data::InstallerPath>();
-            AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-
-            try
-            {
-                // best effort
-                std::filesystem::remove(path);
-            }
-            catch (const std::exception& e)
-            {
-                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason: " << e.what());
-            }
-            catch (...)
-            {
-                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
-            }
-        }
-    }
-
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
@@ -610,31 +364,42 @@ namespace AppInstaller::CLI::Workflow
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
+            Workflow::RecordInstall <<
             Workflow::RemoveInstaller;
+    }
+
+    void DownloadSinglePackage(Execution::Context& context)
+    {
+        context <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::DownloadInstaller;
     }
 
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
-            Workflow::GetDependenciesFromInstaller << 
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
-        // Show all license agreements before installing anything
-        context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
+        if (m_ensurePackageAgreements)
+        {
+            // Show all license agreements before installing anything
+            context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
+        }
+
         if (context.IsTerminated())
         {
             return;
@@ -644,9 +409,9 @@ namespace AppInstaller::CLI::Workflow
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             DependencyList allDependencies;
-            for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+            for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
             {
-                allDependencies.Add(package.Installer.Dependencies);
+                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
 
             context.Add<Execution::Data::Dependencies>(allDependencies);
@@ -654,23 +419,25 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool allSucceeded = true;
-        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
+        size_t packagesProgress = 0;
+        
+        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            Logging::SubExecutionTelemetryScope subExecution{ package.PackageSubExecutionId };
+            packagesProgress++;
+            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
 
             // We want to do best effort to install all packages regardless of previous failures
-            auto installContextPtr = context.Clone();
-            Execution::Context& installContext = *installContextPtr;
+            Execution::Context& installContext = *packageContext;
+            auto previousThreadGlobals = installContext.SetForCurrentThread();
 
-            // Extract the data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
-            installContext.Add<Execution::Data::Manifest>(package.Manifest);
-            installContext.Add<Execution::Data::InstalledPackageVersion>(package.InstalledPackageVersion);
-            installContext.Add<Execution::Data::Installer>(package.Installer);
-
-            installContext <<
-                Workflow::ReportIdentityAndInstallationDisclaimer <<
-                Workflow::InstallPackageInstaller;
+            installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
+            if (!m_ignorePackageDependencies)
+            {
+                installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
+            }
+            installContext << Workflow::DownloadInstaller;
+            installContext << Workflow::InstallPackageInstaller;
 
             installContext.Reporter.Info() << std::endl;
 
@@ -703,15 +470,17 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && MightWriteToARP(installer->InstallerType))
         {
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress);
+                    return result;
                 }, true);
 
             std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
 
-            for (const auto& entry : arpSource->Search({}).Matches)
+            for (const auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
                 if (installed)
@@ -737,15 +506,17 @@ namespace AppInstaller::CLI::Workflow
             const auto& entries = context.Get<Execution::Data::ARPSnapshot>();
 
             // Open it again to get the (potentially) changed ARP entries
-            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+            Source arpSource = context.Reporter.ExecuteWithProgress(
                 [](IProgressCallback& progress)
                 {
-                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
+                    result.Open(progress);
+                    return result;
                 }, true);
 
             std::vector<ResultMatch> changes;
 
-            for (auto& entry : arpSource->Search({}).Matches)
+            for (auto& entry : arpSource.Search({}).Matches)
             {
                 auto installed = entry.Package->GetInstalledVersion();
 
@@ -810,7 +581,7 @@ namespace AppInstaller::CLI::Workflow
             // Don't execute this search if it would just find everything
             if (!nameAndPublisherRequest.IsForEverything())
             {
-                findByManifest = arpSource->Search(nameAndPublisherRequest);
+                findByManifest = arpSource.Search(nameAndPublisherRequest);
             }
 
             // Cross reference the changes with the search results
@@ -841,45 +612,24 @@ namespace AppInstaller::CLI::Workflow
             //  1 package   ::  Golden path; this should be what we installed.
             //  2+ packages ::  The data in the manifest is either too broad or we have
             //                  a problem with our name normalization.
-            //
-            //                           ARP Package changes
-            //                0                  1                     N
-            //      +------------------+--------------------+--------------------+
-            // M    |                  |                    |                    |
-            // a    | Package does not | Manifest data does | Manifest data does |
-            // n  0 |   write to ARP   |   not match ARP    |   not match ARP    |
-            // i    |  Log this fact   |   Log for fixup    |   Log for fixup    |
-            // f    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // t    |   Reinstall of   |    Golden Path!    | Treat manifest as  |
-            //    1 | existing version |  (assuming match)  |   main if common   |
-            // r    |                  |                    |                    |
-            // e    +------------------+--------------------+--------------------+
-            // s    |                  |                    |                    |
-            // u    |   Not expected   | Treat ARP as main  |    Not expected    |
-            // l  N |   Log this for   |                    |    Log this for    |
-            // t    |   investigation  |                    |    investigation   |
-            // s    |                  |                    |                    |
-            //      +------------------+--------------------+--------------------+
 
             // Find the package that we are going to log
             std::shared_ptr<IPackageVersion> toLog;
 
-            // If no changes found, only log if a single matching package was found by the manifest
-            if (changes.empty() && findByManifest.Matches.size() == 1)
+            // If there is only a single common package (changed and matches), it is almost certainly the correct one.
+            if (packagesInBoth.size() == 1)
+            {
+                toLog = packagesInBoth[0]->GetInstalledVersion();
+            }
+            // If it wasn't changed but we still find a match, that is the best thing to report.
+            else if (findByManifest.Matches.size() == 1)
             {
                 toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
             }
-            // If only a single ARP entry was changed, always log that
-            else if (changes.size() == 1)
+            // If only a single ARP entry was changed and we found no matches, report that.
+            else if (findByManifest.Matches.empty() && changes.size() == 1)
             {
                 toLog = changes[0].Package->GetInstalledVersion();
-            }
-            // Finally, if there is only a single common package, log that one
-            else if (packagesInBoth.size() == 1)
-            {
-                toLog = packagesInBoth[0]->GetInstalledVersion();
             }
 
             IPackageVersion::Metadata toLogMetadata;
@@ -910,5 +660,23 @@ namespace AppInstaller::CLI::Workflow
             );
         }
     }
-    CATCH_LOG()
+    CATCH_LOG();
+
+    void RecordInstall(Context& context)
+    {
+        // Local manifest installs won't have a package version, and tracking them doesn't provide much
+        // value currently. If we ever do use our own database as a primary source of packages that we
+        // maintain, this decision will probably have to be reconsidered.
+        if (!context.Contains(Data::PackageVersion))
+        {
+            return;
+        }
+
+        auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
+
+        trackingCatalog.RecordInstall(
+            context.Get<Data::Manifest>(),
+            context.Get<Data::Installer>().value(),
+            WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+    }
 }

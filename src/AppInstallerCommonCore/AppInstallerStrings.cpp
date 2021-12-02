@@ -4,6 +4,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerSHA256.h"
 
 namespace AppInstaller::Utility
 {
@@ -511,5 +512,83 @@ namespace AppInstaller::Utility
         std::string result{ message };
         FindAndReplace(result, s_MessageReplacementToken, value);
         return result;
+    }
+
+    // Follow the rules at https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file to replace
+    // invalid characters in a candidate path part.
+    // Additionally, based on https://docs.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison#limits
+    // limit the number of characters to 255.
+    std::string MakeSuitablePathPart(std::string_view candidate)
+    {
+        constexpr char replaceChar = '_';
+        constexpr std::string_view illegalChars = R"(<>:"/\|?*)";
+        constexpr size_t pathLengthLimit = 255;
+
+        // First, walk the string and replace illegal characters
+        std::string result;
+        result.reserve(candidate.size());
+
+        ICUBreakIterator itr{ candidate, UBRK_CHARACTER };
+        size_t resultBreakCount = 0;
+
+        while (itr.CurrentBreak() != UBRK_DONE && itr.CurrentOffset() < candidate.size() && resultBreakCount <= pathLengthLimit)
+        {
+            UChar32 current = itr.CurrentCodePoint();
+            bool isIllegal = current < 32 || (current < 256 && illegalChars.find(static_cast<char>(current)) != std::string::npos);
+
+            int32_t offset = itr.CurrentBreak();
+            int32_t nextOffset = itr.Next();
+
+            // Don't allow a . at the end of a name
+            if (static_cast<size_t>(nextOffset) >= candidate.size())
+            {
+                if (current == static_cast<UChar32>('.'))
+                {
+                    isIllegal = true;
+                }
+            }
+
+            if (isIllegal)
+            {
+                result.append(1, replaceChar);
+            }
+            else
+            {
+                size_t count = (nextOffset == UBRK_DONE ? std::string::npos : static_cast<size_t>(nextOffset) - static_cast<size_t>(offset));
+                result.append(candidate.substr(static_cast<size_t>(offset), count));
+            }
+
+            ++resultBreakCount;
+        }
+
+        // If there are too many characters for a single path; switch to a hash.
+        // This should basically never happen, but if it does it will prevent collisions better.
+        if (resultBreakCount > pathLengthLimit)
+        {
+            return SHA256::ConvertToString(SHA256::ComputeHash(candidate));
+        }
+
+        // Second, look for any newly formed illegal names.
+        // For now just error on these cases; they should not happen often.
+        for (const auto& illegalName : {
+            "."sv, "CON"sv, "PRN"sv, "AUX"sv, "NUL"sv, "COM1"sv, "COM2"sv, "COM3"sv, "COM4"sv, "COM5"sv, "COM6"sv, "COM7"sv, "COM8"sv, "COM9"sv,
+            "LPT1"sv, "LPT2"sv, "LPT3"sv, "LPT4"sv, "LPT5"sv, "LPT6"sv, "LPT7"sv, "LPT8"sv, "LPT9"sv })
+        {
+            // Either equals the illegal name (starts with and same length) or starts with and the first character after is a .
+            if (CaseInsensitiveStartsWith(result, illegalName) && (result.size() == illegalName.size() || result[illegalName.size()] == '.'))
+            {
+                THROW_HR(E_INVALIDARG);
+            }
+        }
+
+        return result;
+    }
+
+    std::filesystem::path GetFileNameFromURI(std::string_view uri)
+    {
+        winrt::Windows::Foundation::Uri winrtUri{ winrt::hstring{ ConvertToUTF16(uri) } };
+        std::filesystem::path path{ static_cast<std::wstring_view>(winrtUri.Path()) };
+
+        return path.filename();
     }
 }

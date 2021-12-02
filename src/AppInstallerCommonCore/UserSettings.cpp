@@ -7,6 +7,8 @@
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+
+#include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
 
 namespace AppInstaller::Settings
@@ -227,6 +229,26 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
+        WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+
+        WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
+        {
+            std::vector<Utility::Architecture> archs;
+            for (auto const& i : value) {
+                Utility::Architecture arch = Utility::ConvertToArchitectureEnum(i);
+                if (Utility::IsApplicableArchitecture(arch) == Utility::InapplicableArchitecture)
+                {
+                    return {};
+                }
+                archs.emplace_back(arch);
+            }
+            return archs;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallArchitectureRequirement)
+        {
+            return SettingMapping<Setting::InstallArchitecturePreference>::Validate(value);
+        }
 
         WINGET_VALIDATE_SIGNATURE(InstallScopePreference)
         {
@@ -305,18 +327,48 @@ namespace AppInstaller::Settings
     }
 #endif
 
+    static std::atomic_bool s_userSettingsInitialized{ false };
+    static std::atomic_bool s_userSettingsInInitialization{ false };
+
     UserSettings const& UserSettings::Instance()
     {
-        static UserSettings userSettings;
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_UserSettings_Override)
         {
             return *s_UserSettings_Override;
         }
 #endif
+        if (!s_userSettingsInitialized)
+        {
+            s_userSettingsInInitialization = true;
+        }
+
+        static UserSettings userSettings;
+        s_userSettingsInitialized = true;
+        s_userSettingsInInitialization = false;
 
         return userSettings;
+    }
+
+    const UserSettings* TryGetUser()
+    {
+        if (s_userSettingsInitialized)
+        {
+            return &UserSettings::Instance();
+        }
+
+        // Try to initialize UserSettings, return nullptr if it's already in initialization.
+        if (s_userSettingsInInitialization)
+        {
+            return nullptr;
+        }
+
+        return &UserSettings::Instance();
+    }
+
+    UserSettings const& User()
+    {
+        return UserSettings::Instance();
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

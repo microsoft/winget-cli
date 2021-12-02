@@ -183,6 +183,12 @@
     <ClInclude Include="Public\winget\MsiExecArguments.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\DependenciesGraph.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Debugging.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -312,6 +318,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AdminSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DependenciesGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

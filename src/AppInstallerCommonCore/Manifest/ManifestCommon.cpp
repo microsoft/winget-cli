@@ -356,26 +356,26 @@ namespace AppInstaller::Manifest
         switch (installerType)
         {
         case InstallerTypeEnum::Exe:
-            return "Exe"sv;
+            return "exe"sv;
         case InstallerTypeEnum::Inno:
-            return "Inno"sv;
+            return "inno"sv;
         case InstallerTypeEnum::Msi:
-            return "Msi"sv;
+            return "msi"sv;
         case InstallerTypeEnum::Msix:
-            return "Msix"sv;
+            return "msix"sv;
         case InstallerTypeEnum::Nullsoft:
-            return "Nullsoft"sv;
+            return "nullsoft"sv;
         case InstallerTypeEnum::Wix:
-            return "Wix"sv;
+            return "wix"sv;
         case InstallerTypeEnum::Zip:
-            return "Zip"sv;
+            return "zip"sv;
         case InstallerTypeEnum::Burn:
-            return "Burn"sv;
+            return "burn"sv;
         case InstallerTypeEnum::MSStore:
-            return "MSStore"sv;
+            return "msstore"sv;
         }
 
-        return "Unknown"sv;
+        return "unknown"sv;
     }
 
     std::string_view ScopeToString(ScopeEnum scope)
@@ -523,4 +523,110 @@ namespace AppInstaller::Manifest
             return {};
         }
     }
+
+    void DependencyList::Add(const Dependency& newDependency)
+    {
+        Dependency* existingDependency = this->HasDependency(newDependency);
+
+        if (existingDependency != NULL) {
+            if (newDependency.MinVersion)
+            {
+                if (existingDependency->MinVersion)
+                {
+                    const auto& newDependencyVersion = Utility::Version(newDependency.MinVersion.value());
+                    const auto& existingDependencyVersion = Utility::Version(existingDependency->MinVersion.value());
+                    if (newDependencyVersion > existingDependencyVersion)
+                    {
+                        existingDependency->MinVersion.value() = newDependencyVersion.ToString();
+                    }
+                }
+                else
+                {
+                    existingDependency->MinVersion.value() = newDependency.MinVersion.value();
+                }
+            }
+        }
+        else
+        {
+            m_dependencies.push_back(newDependency);
+        }
+    }
+
+    void DependencyList::Add(const DependencyList& otherDependencyList)
+    {
+        for (const auto& dependency : otherDependencyList.m_dependencies)
+        {
+            this->Add(dependency);
+        }
+    }
+
+    bool DependencyList::HasAny() const { return !m_dependencies.empty(); }
+    bool DependencyList::HasAnyOf(DependencyType type) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type) return true;
+        };
+        return false;
+    }
+
+    Dependency* DependencyList::HasDependency(const Dependency& dependencyToSearch)
+    {
+        for (auto& dependency : m_dependencies) {
+            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+            {
+                return &dependency;
+            }
+        }
+        return nullptr;
+    }
+
+    // for testing purposes
+    bool DependencyList::HasExactDependency(DependencyType type, string_t id, string_t minVersion)
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
+            {
+                if (dependency.MinVersion) {
+                    if (dependency.MinVersion.value() == minVersion)
+                    {
+                        return true;
+                    }
+                }
+                else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    size_t DependencyList::Size()
+    {
+        return m_dependencies.size();
+    }
+
+    void DependencyList::ApplyToType(DependencyType type, std::function<void(const Dependency&)> func) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == type) func(dependency);
+        }
+    }
+
+    void DependencyList::ApplyToAll(std::function<void(const Dependency&)> func) const
+    {
+        for (const auto& dependency : m_dependencies)
+        {
+            func(dependency);
+        }
+    }
+
+    bool DependencyList::Empty() const
+    {
+        return m_dependencies.empty();
+    }
+
+    void DependencyList::Clear() { m_dependencies.clear(); }
 }

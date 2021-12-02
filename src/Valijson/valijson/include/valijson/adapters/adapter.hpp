@@ -35,7 +35,7 @@ public:
      * @brief   Virtual destructor defined to ensure deletion via base-class
      *          pointers is safe.
      */
-    virtual ~Adapter() { };
+    virtual ~Adapter() = default;
 
     /**
      * @brief   Apply a callback function to each value in an array.

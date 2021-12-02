@@ -131,7 +131,7 @@ namespace AppInstaller::CLI::Execution
         // Cancels the in progress task.
         void CancelInProgressTask(bool force);
 
-        void CloseOutputStream();
+        void CloseOutputStream(bool forceDisable = false);
 
         void SetProgressSink(IProgressSink* sink)
         {
@@ -140,8 +140,6 @@ namespace AppInstaller::CLI::Execution
 
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
-        // Gets whether VT is enabled for this reporter.
-        bool IsVTEnabled() const;
 
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
@@ -149,7 +147,6 @@ namespace AppInstaller::CLI::Execution
         Channel m_channel = Channel::Output;
         std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
-        bool m_isVTEnabled = true;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
         std::optional<IndefiniteSpinner> m_spinner;
         std::optional<ProgressBar> m_progressBar;

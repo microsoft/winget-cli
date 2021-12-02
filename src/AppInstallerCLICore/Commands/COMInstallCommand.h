@@ -6,9 +6,20 @@
 namespace AppInstaller::CLI
 {
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
+    struct COMDownloadCommand final : public Command
+    {
+        constexpr static std::string_view CommandName = "download"sv;
+        COMDownloadCommand(std::string_view parent) : Command(CommandName, parent) {}
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
     struct COMInstallCommand final : public Command
     {
-        COMInstallCommand(std::string_view parent) : Command("install", parent) {}
+        constexpr static std::string_view CommandName = "install"sv;
+        COMInstallCommand(std::string_view parent) : Command(CommandName, parent) {}
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;

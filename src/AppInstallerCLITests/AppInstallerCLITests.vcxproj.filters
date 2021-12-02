@@ -42,6 +42,9 @@
     <ClInclude Include="TestRestRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DependenciesTestSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -174,6 +177,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RestInterface_1_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageTrackingCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -502,6 +511,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">

@@ -152,3 +152,13 @@ std::enable_if_t<std::is_enum_v<E>, std::ostream&> operator<<(std::ostream& out,
 {
     return out << AppInstaller::ToIntegral(e);
 }
+
+template <typename T>
+struct CopyConstructibleAtomic : public std::atomic<T>
+{
+    using std::atomic<T>::atomic;
+    using std::atomic<T>::operator=;
+
+    CopyConstructibleAtomic(const CopyConstructibleAtomic& other) :
+        std::atomic<T>(other.load()) {}
+};

@@ -62,36 +62,6 @@ namespace AppInstaller::CLI::Workflow
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
-    // Inputs: Manifest, Installer
-    // Outputs: None
-    void DownloadInstaller(Execution::Context& context);
-
-    // Downloads the file referenced by the Installer.
-    // Required Args: None
-    // Inputs: Installer
-    // Outputs: HashPair, InstallerPath
-    void DownloadInstallerFile(Execution::Context& context);
-
-    // Computes the hash of the MSIX signature file.
-    // Required Args: None
-    // Inputs: Installer
-    // Outputs: HashPair
-    void GetMsixSignatureHash(Execution::Context& context);
-
-    // Gets the source list, filtering it if SourceName is present.
-    // Required Args: None
-    // Inputs: HashPair
-    // Outputs: SourceList
-    void VerifyInstallerHash(Execution::Context& context);
-
-    // Update Motw of the downloaded installer if applicable
-    // Required Args: None
-    // Inputs: HashPair, InstallerPath?, SourceId?
-    // Outputs: None
-    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context);
-
-    // Composite flow that chooses what to do based on the installer type.
-    // Required Args: None
     // Inputs: Installer, InstallerPath
     // Outputs: None
     void ExecuteInstaller(Execution::Context& context);
@@ -121,7 +91,10 @@ namespace AppInstaller::CLI::Workflow
     struct ReportInstallerResult : public WorkflowTask
     {
         ReportInstallerResult(std::string_view installerType, HRESULT hr, bool isHResult = false) :
-            WorkflowTask("ReportInstallerResult"), m_installerType(installerType), m_hr(hr), m_isHResult(isHResult) {}
+            WorkflowTask("ReportInstallerResult"),
+            m_installerType(installerType),
+            m_hr(hr),
+            m_isHResult(isHResult) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -134,13 +107,6 @@ namespace AppInstaller::CLI::Workflow
         bool m_isHResult;
     };
 
-
-    // Deletes the installer file.
-    // Required Args: None
-    // Inputs: InstallerPath
-    // Outputs: None
-    void RemoveInstaller(Execution::Context& context);
-
     // Reports manifest identity and shows installation disclaimer
     // Required Args: None
     // Inputs: Manifest
@@ -149,11 +115,17 @@ namespace AppInstaller::CLI::Workflow
 
     // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
     // Required Args: None
-    // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
+    // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Installs a single package. This also does the reporting and user interaction
+    // Downloads the installer for a single package. This also does all the reporting and user interaction needed.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: InstallerPath
+    void DownloadSinglePackage(Execution::Context& context);
+
+    // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
     // RequiredArgs: None
     // Inputs: Manifest, Installer, PackageVersion, InstalledPackageVersion?
@@ -166,11 +138,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InstallMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(StringResource::StringId dependenciesReportMessage, HRESULT resultOnFailure, std::vector<HRESULT>&& ignorableInstallResults = {}) :
+        InstallMultiplePackages(
+            StringResource::StringId dependenciesReportMessage,
+            HRESULT resultOnFailure,
+            std::vector<HRESULT>&& ignorableInstallResults = {},
+            bool ensurePackageAgreements = true,
+            bool ignoreDependencies = false) :
             WorkflowTask("InstallMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
-            m_ignorableInstallResults(std::move(ignorableInstallResults)) {}
+            m_ignorableInstallResults(std::move(ignorableInstallResults)),
+            m_ignorePackageDependencies(ignoreDependencies),
+            m_ensurePackageAgreements(ensurePackageAgreements) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -178,6 +157,8 @@ namespace AppInstaller::CLI::Workflow
         HRESULT m_resultOnFailure;
         std::vector<HRESULT> m_ignorableInstallResults;
         StringResource::StringId m_dependenciesReportMessage;
+        bool m_ignorePackageDependencies;
+        bool m_ensurePackageAgreements;
     };
 
     // Stores the existing set of packages in ARP.
@@ -191,4 +172,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
     // Outputs: None
     void ReportARPChanges(Execution::Context& context);
+
+    // Records the installation to the tracking catalog.
+    // Required Args: None
+    // Inputs: PackageVersion?, Manifest, Installer
+    // Outputs: None
+    void RecordInstall(Execution::Context& context);
 }

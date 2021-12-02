@@ -193,7 +193,7 @@ namespace AppInstaller::Repository
 
         bool ShouldBeHidden(const SourceDetailsInternal& details)
         {
-            return details.IsTombstone || details.Origin == SourceOrigin::Metadata;
+            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible;
         }
     }
 
@@ -287,11 +287,7 @@ namespace AppInstaller::Repository
             details.Data = s_Source_DesktopFrameworks_Data;
             details.Identifier = s_Source_DesktopFrameworks_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
-            // Cheat the system and call this a tombstone.  This effectively hides it from everything outside
-            // of this file, while still allowing it to properly save metadata.  There might be problems
-            // if someone chooses the exact same name as this, which is why its name is very long.
-            // TODO: When refactoring the source interface, handle this with Visibility or similar.
-            details.IsTombstone = true;
+            details.IsVisible = false;
             return details;
         }
         }
@@ -352,14 +348,9 @@ namespace AppInstaller::Repository
 
         for (size_t i = 0; !sourcesSet && i < 10; ++i)
         {
-            auto currentSource = GetCurrentSource(details.Name);
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, currentSource != nullptr && !DoSourceDetailsInternalMatch(details, *currentSource));
-
-            // Check for a hidden source data that we don't want to collide.
-            // TODO: Refactor the source interface so that we don't do this
             auto itr = FindSource(details.Name, true);
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS,
-                itr != m_sourceList.end() && itr->Origin != SourceOrigin::User && itr->Origin != SourceOrigin::Metadata);
+                itr != m_sourceList.end() && itr->Origin != SourceOrigin::Metadata && !itr->IsTombstone);
 
             // Erase the source's entry if applicable
             if (itr != m_sourceList.end())
@@ -451,17 +442,15 @@ namespace AppInstaller::Repository
         SaveMetadataInternal(details);
     }
 
-    bool SourceList::CheckSourceAgreements(const SourceDetails& details)
+    bool SourceList::CheckSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields)
     {
-        auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
-
-        if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+        if (agreementFields == ImplicitAgreementFieldEnum::None && agreementsIdentifier.empty())
         {
             // No agreements to be accepted.
             return true;
         }
 
-        auto detailsInternal = GetCurrentSource(details.Name);
+        auto detailsInternal = GetCurrentSource(sourceName);
         if (!detailsInternal)
         {
             // Source not found.
@@ -469,20 +458,18 @@ namespace AppInstaller::Repository
         }
 
         return static_cast<int>(agreementFields) == detailsInternal->AcceptedAgreementFields &&
-            details.Information.SourceAgreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
+            agreementsIdentifier == detailsInternal->AcceptedAgreementsIdentifier;
     }
 
-    void SourceList::SaveAcceptedSourceAgreements(const SourceDetails& details)
+    void SourceList::SaveAcceptedSourceAgreements(std::string_view sourceName, std::string_view agreementsIdentifier, ImplicitAgreementFieldEnum agreementFields)
     {
-        auto agreementFields = GetAgreementFieldsFromSourceInformation(details.Information);
-
-        if (agreementFields == ImplicitAgreementFieldEnum::None && details.Information.SourceAgreementsIdentifier.empty())
+        if (agreementFields == ImplicitAgreementFieldEnum::None && agreementsIdentifier.empty())
         {
             // No agreements to be accepted.
             return;
         }
 
-        auto detailsInternal = GetCurrentSource(details.Name);
+        auto detailsInternal = GetCurrentSource(sourceName);
         if (!detailsInternal)
         {
             // No source to update.
@@ -490,9 +477,9 @@ namespace AppInstaller::Repository
         }
 
         detailsInternal->AcceptedAgreementFields = static_cast<int>(agreementFields);
-        detailsInternal->AcceptedAgreementsIdentifier = details.Information.SourceAgreementsIdentifier;
+        detailsInternal->AcceptedAgreementsIdentifier = agreementsIdentifier;
 
-        SaveMetadataInternal(details);
+        SaveMetadataInternal(*detailsInternal);
     }
 
     void SourceList::RemoveSettingsStreams()
@@ -562,7 +549,7 @@ namespace AppInstaller::Repository
                 result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
             }
 
-            // Since we are using the tombstone trick, this is added just to have the source in the internal
+            // Since the source is not visible outside, this is added just to have the source in the internal
             // list for tracking updates.  Thus there is no need to check a policy.
             result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::DesktopFrameworks));
         }

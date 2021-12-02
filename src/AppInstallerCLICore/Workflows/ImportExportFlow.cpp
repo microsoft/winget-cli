@@ -6,7 +6,7 @@
 #include "UpdateFlow.h"
 #include "PackageCollection.h"
 #include "WorkflowBase.h"
-#include "AppInstallerRepositorySearch.h"
+#include <winget/RepositorySearch.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -24,9 +24,9 @@ namespace AppInstaller::CLI::Workflow
             return source.Details;
         }
 
-        SourceDetails GetSourceDetails(const std::shared_ptr<ISource>& source)
+        SourceDetails GetSourceDetails(const Repository::Source& source)
         {
-            return source->GetDetails();
+            return source.GetDetails();
         }
 
         // Creates a predicate that determines whether a source matches a description in a SourceDetails.
@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
-            const auto& sourceDetails = availablePackageVersion->GetSource()->GetDetails();
+            const auto& sourceDetails = availablePackageVersion->GetSource().GetDetails();
             AICLI_LOG(CLI, Info,
                 << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceDetails.Identifier << "]");
 
@@ -163,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReadImportFile(Execution::Context& context)
     {
-        std::ifstream importFile{ context.Args.GetArg(Execution::Args::Type::ImportFile) };
+        std::ifstream importFile(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ImportFile)));
         THROW_LAST_ERROR_IF(importFile.fail());
 
         Json::Value jsonRoot;
@@ -218,7 +218,7 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenSourcesForImport(Execution::Context& context)
     {
-        auto availableSources = Repository::GetSources();
+        auto availableSources = Repository::Source::GetCurrentSources();
         for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
             // Find the installed source matching the one described in the collection.
@@ -246,7 +246,7 @@ namespace AppInstaller::CLI::Workflow
     void SearchPackagesForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<Execution::PackageToInstall> packagesToInstall = {};
+        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool foundAll = true;
 
         // Look for the packages needed from each source independently.
@@ -262,21 +262,22 @@ namespace AppInstaller::CLI::Workflow
 
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
-            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr, CompositeSearchBehavior::AllPackages);
+            Repository::Source source{ context.Get<Execution::Data::Source>(), *sourceItr, CompositeSearchBehavior::AllPackages };
             AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
-                Logging::SubExecutionTelemetryScope subExecution;
                 AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
 
                 // Search for the current package
                 SearchRequest searchRequest;
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
-                auto searchContextPtr = context.Clone();
+                auto searchContextPtr = context.CreateSubContext();
                 Execution::Context& searchContext = *searchContextPtr;
+                auto previousThreadGlobals = searchContext.SetForCurrentThread();
+
                 searchContext.Add<Execution::Data::Source>(source);
-                searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
+                searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
 
                 // TODO: In the future, it would be better to not have to convert back and forth from a string
                 searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
@@ -320,13 +321,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.emplace_back(
-                    std::move(searchContext.Get<Execution::Data::PackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::Manifest>()),
-                    std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope,
-                    subExecution.GetCurrentSubExecutionId());
+                packagesToInstall.emplace_back(std::move(searchContextPtr));
             }
         }
 
@@ -348,7 +343,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallImportedPackages(Execution::Context& context)
     {
-        context << Workflow::InstallMultiplePackages(Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
+        context << Workflow::InstallMultiplePackages(
+            Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
 
         if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
         {

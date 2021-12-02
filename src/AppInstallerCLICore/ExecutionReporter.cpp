@@ -19,7 +19,7 @@ namespace AppInstaller::CLI::Execution
     const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
-        Reporter(std::make_shared<BaseStream>(outStream, true, IsVTEnabled()), inStream)
+        Reporter(std::make_shared<BaseStream>(outStream, true, ConsoleModeRestore::Instance().IsVTEnabled()), inStream)
     {
         SetProgressSink(this);
     }
@@ -27,8 +27,8 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_progressBar(std::in_place, *m_out, IsVTEnabled()),
-        m_spinner(std::in_place, *m_out, IsVTEnabled())
+        m_progressBar(std::in_place, *m_out, ConsoleModeRestore::Instance().IsVTEnabled()),
+        m_spinner(std::in_place, *m_out, ConsoleModeRestore::Instance().IsVTEnabled())
     {
         SetProgressSink(this);
     }
@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
-        return {*m_out, m_channel == Channel::Output, IsVTEnabled() };
+        return {*m_out, m_channel == Channel::Output };
     }
 
     void Reporter::SetChannel(Channel channel)
@@ -102,7 +102,7 @@ namespace AppInstaller::CLI::Execution
         }
         if (style == VisualStyle::NoVT)
         {
-            m_isVTEnabled = false;
+            m_out->SetVTEnabled(false);
         }
     }
 
@@ -213,13 +213,12 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::IsVTEnabled() const
+    void Reporter::CloseOutputStream(bool forceDisable)
     {
-        return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
-    }
-
-    void Reporter::CloseOutputStream()
-    {
-        m_out->Close();
+        if (forceDisable)
+        {
+            m_out->Disable();
+        }
+        m_out->RestoreDefault();
     }
 }

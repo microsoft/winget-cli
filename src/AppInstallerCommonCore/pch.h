@@ -12,6 +12,7 @@
 #include <wow64apiset.h>
 #include <icu.h>
 #include <msi.h>
+#include <DbgHelp.h>
 
 #include "TraceLogging.h"
 

@@ -3,7 +3,7 @@
 #pragma once
 #include "ExecutionArgs.h"
 #include <winget/ExperimentalFeature.h>
-#include <AppInstallerRepositorySearch.h>
+#include <winget/RepositorySearch.h>
 
 #include <string>
 #include <string_view>
@@ -63,7 +63,15 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: Source
-    void OpenSource(Execution::Context& context);
+    struct OpenSource : public WorkflowTask
+    {
+        OpenSource(bool forDependencies = false) : WorkflowTask("OpenSource"), m_forDependencies(forDependencies) {}
+
+        void operator()(Execution::Context& context) const override;
+    
+    private:
+        bool m_forDependencies;
+    };
 
     // Creates a source object for a source specified by name, and adds it to the list of open sources.
     // Required Args: None
@@ -85,12 +93,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     struct OpenPredefinedSource : public WorkflowTask
     {
-        OpenPredefinedSource(Repository::PredefinedSource source) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source) {}
+        OpenPredefinedSource(Repository::PredefinedSource source, bool forDependencies = false) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source), m_forDependencies(forDependencies) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Repository::PredefinedSource m_predefinedSource;
+        bool m_forDependencies;
     };
 
     // Creates a composite source from the given predefined source and the existing source.
@@ -99,12 +108,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     struct OpenCompositeSource : public WorkflowTask
     {
-        OpenCompositeSource(Repository::PredefinedSource source) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source) {}
+        OpenCompositeSource(Repository::PredefinedSource source, bool forDependencies = false) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source), m_forDependencies(forDependencies) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Repository::PredefinedSource m_predefinedSource;
+        bool m_forDependencies;
     };
 
     // Performs a search on the source.
@@ -310,10 +320,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureRunningAsAdmin(Execution::Context& context);
 
-    // Gets the custom header from Arguments.
-    // Returns: Custom header if provided and applicable.
-    std::optional<std::string> GetCustomHeaderFromArg(Execution::Context& context, const AppInstaller::Repository::SourceDetails& sourceDetails);
-
     // Ensures that the feature is enabled.
     // Required Args: the desired feature
     // Inputs: None
@@ -346,13 +352,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ExecutionStage
     struct ReportExecutionStage : public WorkflowTask
     {
-        ReportExecutionStage(ExecutionStage stage, bool allowBackward = false) : WorkflowTask("ReportExecutionStage"), m_stage(stage), m_allowBackward(allowBackward) {}
+        ReportExecutionStage(ExecutionStage stage) : WorkflowTask("ReportExecutionStage"), m_stage(stage) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         ExecutionStage m_stage;
-        bool m_allowBackward;
     };
 
     // Handles all opened source(s) agreements if needed.
@@ -361,12 +366,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct HandleSourceAgreements : public WorkflowTask
     {
-        HandleSourceAgreements(std::shared_ptr<Repository::ISource> source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
+        HandleSourceAgreements(Repository::Source source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        std::shared_ptr<Repository::ISource> m_source;
+        Repository::Source m_source;
     };
 }
 

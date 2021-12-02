@@ -70,8 +70,10 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
-        // Clone the reporter for this constructor.
-        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
+        // Constructor for creating a sub-context.
+        Context(Execution::Reporter& reporter, ThreadLocalStorage::ThreadGlobals& threadGlobals) :
+            Reporter(reporter, Execution::Reporter::clone_t{}),
+            m_threadGlobals(threadGlobals, ThreadLocalStorage::ThreadGlobals::create_sub_thread_globals_t{}) {}
 
         virtual ~Context();
 
@@ -81,8 +83,8 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
-        // Creates a copy of this context as it was at construction.
-        virtual std::unique_ptr<Context> Clone();
+        // Creates a child of this context.
+        virtual std::unique_ptr<Context> CreateSubContext();
 
         // Enables reception of CTRL signals.
         void EnableCtrlHandler(bool enabled = true);
@@ -125,10 +127,12 @@ namespace AppInstaller::CLI::Execution
             WI_ClearAllFlags(m_flags, flags);
         }
 
-        virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage);
 
-        // Get Globals for Current Thread
+        // Get Globals for Current Context
         AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobals();
+
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior

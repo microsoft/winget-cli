@@ -92,7 +92,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SearchWithSingleSourceFailure()
         {
-            TestCommon.RunAICLICommand("source add", "failSearch \"{ \"\"CreateHR\"\": \"\"0x80070002\"\" }\" Microsoft.Test.Configurable --header \"{}\"");
+            TestCommon.RunAICLICommand("source add", "failSearch \"{ \"\"OpenHR\"\": \"\"0x80070002\"\" }\" Microsoft.Test.Configurable --header \"{}\"");
 
             var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

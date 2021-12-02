@@ -13,7 +13,7 @@
       "type": [ "string", "null" ],
       "minLength": 1,
       "maxLength": 40,
-      "description": "Package moniker or tag"
+      "description": "Package tag"
     }
   },
   "type": "object",
@@ -32,7 +32,7 @@
     },
     "PackageLocale": {
       "type": "string",
-      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+      "pattern": "^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
       "maxLength": 20,
       "description": "The package meta-data locale"
     },
@@ -101,10 +101,6 @@
       "minLength": 3,
       "maxLength": 10000,
       "description": "The full package description"
-    },
-    "Moniker": {
-      "$ref": "#/definitions/Tag",
-      "description": "The most common package term"
     },
     "Tags": {
       "type": [ "array", "null" ],

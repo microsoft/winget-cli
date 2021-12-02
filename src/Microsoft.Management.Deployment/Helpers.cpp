@@ -50,9 +50,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
         status = capability.CheckAccess();
-        RETURN_HR_IF(E_ACCESSDENIED, status != winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed);
 
-        return S_OK;
+        return (status != winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed ? E_ACCESSDENIED : S_OK);
     }
 
     HRESULT EnsureComCallerHasCapability(Capability requiredCapability)
@@ -64,9 +63,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // and packageQuery does not need to be declared separately.
         if (FAILED(hr) && requiredCapability == Capability::PackageQuery)
         {
-            return EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId);
+            hr = EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId);
         }
-        return hr;
+        RETURN_HR(hr);
     }
 
     // Best effort at getting caller info. This should only be used for logging.
