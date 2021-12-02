@@ -720,6 +720,12 @@ namespace AppInstaller::CLI::Workflow
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
                 bool updateAvailable = match.Package->IsUpdateAvailable();
 
+                if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+                {
+                    // We are only showing upgrades, and the user did not request to include packages with unknown versions.
+                    continue;
+                }
+
                 // The only time we don't want to output a line is when filtering and no update is available.
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
@@ -735,14 +741,6 @@ namespace AppInstaller::CLI::Workflow
 
                         // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
-                    }
-
-                    if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown()) 
-                    {
-                       // we are only supposed to be printing upgrades and the user did not request that packages with unknown versions be included
-                        updateAvailable = false;
-                        availableUpgradesCount--;
-                        continue;
                     }
 
                     table.OutputLine({
