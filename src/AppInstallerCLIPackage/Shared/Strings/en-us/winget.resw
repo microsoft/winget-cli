@@ -1257,4 +1257,12 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>package's version numbers cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>package's version number cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
 </root>
