@@ -46,7 +46,6 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installedVersion.IsUnknown() || context.Args.Contains(Execution::Args::Type::IncludeUnknown)) 
         {
-
             // The version keys should have already been sorted by version
             const auto& versionKeys = package->GetAvailableVersionKeys();
             for (const auto& key : versionKeys)
@@ -144,6 +143,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool updateAllFoundUpdate = false;
+        int unknownPackagesCount = 0;
 
         for (const auto& match : matches)
         {
@@ -151,12 +151,19 @@ namespace AppInstaller::CLI::Workflow
             auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
             auto previousThreadGlobals = updateContext.SetForCurrentThread();
+            auto installedVersion = match.Package->GetInstalledVersion();
 
             updateContext.Add<Execution::Data::Package>(match.Package);
             
             if (context.Args.Contains(Execution::Args::Type::IncludeUnknown))
             {
                 updateContext.Args.AddArg(Execution::Args::Type::IncludeUnknown);
+            }
+            else if (Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+            {
+                // we don't know what the package's version is and the user didn't ask to upgrade it anyway.
+                unknownPackagesCount++;
+                continue;
             }
 
             updateContext <<
@@ -177,14 +184,19 @@ namespace AppInstaller::CLI::Workflow
         if (!updateAllFoundUpdate)
         {
             context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
-            return;
         }
-
-        context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
-        context <<
-            InstallMultiplePackages(
-                Resource::String::InstallAndUpgradeCommandsReportDependencies,
-                APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
-                { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
+        else
+        {
+            context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+            context <<
+                InstallMultiplePackages(
+                    Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                    APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
+                    { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
+        }
+        if (unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        {
+            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
+        }
     }
 }
