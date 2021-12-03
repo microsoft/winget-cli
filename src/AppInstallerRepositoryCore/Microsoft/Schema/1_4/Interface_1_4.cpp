@@ -66,7 +66,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // Removes dependences for the manifest id.
         DependenciesTable::RemoveDependencies(connection, manifestId);
 
-        // Remvoes the manifest.
+        // Removes the manifest.
         V1_2::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove the versions that are not needed.
