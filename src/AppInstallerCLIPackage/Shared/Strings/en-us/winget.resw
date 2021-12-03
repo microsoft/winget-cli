@@ -1258,11 +1258,11 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
   <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>package's version numbers cannot be determined. Use "--include-unknown" to see all results.</value>
-    <comment>{Locked="--include-unknown"}</comment>
+    <value>packages have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package's version number cannot be determined. Use "--include-unknown" to see all results.</value>
-    <comment>{Locked="--include-unknown"}</comment>
+    <value>package has a version number that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
 </root>
