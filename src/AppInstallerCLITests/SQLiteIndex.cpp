@@ -380,6 +380,55 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     REQUIRE_THROWS_HR(index.AddManifest(manifest, relativePath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 }
 
+TEST_CASE("SQLiteIndex_VersionReferencedByDependenciesClearsUnusedVersionAndKeepUsedVersion", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest, isolatedManifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
+
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    std::string dependencyOnlyVersion = "0.0.5";
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, dependencyOnlyVersion));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+    
+    // Create a new manifest that depends on v0.0.5
+    auto& publisher4 = "Test4";
+    CreateFakeManifest(isolatedManifest, publisher4);
+    isolatedManifest.Version = dependencyOnlyVersion;
+    index.AddManifest(isolatedManifest);
+
+    index.RemoveManifest(isolatedManifest);
+    // After deletion that the version(v0.0.5) must be present because it still referenced via dependencies table.
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, dependencyOnlyVersion).has_value());
+    }
+
+    index.RemoveManifest(manifest);
+    // Now, that we've deleted the manifest depending on version(v0.0.5), it should be absent.
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(!Schema::V1_0::VersionTable::SelectIdByValue(connection, dependencyOnlyVersion).has_value());
+    }
+    index.RemoveManifest(dependencyManifest1);
+    index.RemoveManifest(dependencyManifest2);
+    
+    // Final sanity check, nothing should be in the version table.
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    }
+}
+
 TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
@@ -610,31 +659,6 @@ TEST_CASE("SQLiteIndex_RemoveManifestWithDependencies", "[sqliteindex][V1_4]")
     index.AddManifest(manifest, GetPathFromManifest(manifest));
 
     index.RemoveManifest(manifest, GetPathFromManifest(manifest));
-}
-
-TEST_CASE("SQLiteIndex_VersionReferencedByDependenciesTableShouldNotBeDeleted", "[sqliteindex][V1_4]")
-{
-    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
-    INFO("Using temporary file named: " << tempFile.GetPath());
-
-    Manifest dependencyManifest1, dependencyManifest2, manifest;
-    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, Schema::Version::Latest());
-
-    auto& publisher2 = "Test2";
-    CreateFakeManifest(dependencyManifest2, publisher2);
-    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
-
-    auto& publisher3 = "Test3";
-    CreateFakeManifest(manifest, publisher3);
-    std::string dependencyOnlyVersion = "0.0.5";
-    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
-    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, dependencyOnlyVersion));
-
-    index.AddManifest(manifest, GetPathFromManifest(manifest));
-
-    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
-    auto dependencyOnlyVersionId = Schema::V1_0::VersionTable::SelectIdByValue(connection, dependencyOnlyVersion).value();
-    REQUIRE(!index.NotNeeded(Schema::V1_0::VersionTable::TableName(), Schema::V1_0::VersionTable::ValueName(), dependencyOnlyVersionId));
 }
 
 TEST_CASE("SQLiteIndex_ValidateManifestWithDependencies", "[sqliteindex][V1_4]")

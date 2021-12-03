@@ -488,9 +488,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
-    std::optional<SQLite::rowid_t> ManifestTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId)
+    bool ManifestTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId)
     {
-        return details::ManifestTableSelectByValueIds(connection, { valueName }, { valueRowId });
+        return details::ManifestTableSelectByValueIds(connection, { valueName }, { valueRowId }).has_value();
     }
 
     bool ManifestTable::IsEmpty(SQLite::Connection& connection)

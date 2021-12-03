@@ -58,11 +58,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
+        // Get all versions that need cleaning from the version table.
+        auto minVersions = DependenciesTable::GetDependenciesMinVersionsRowIdByManifestId(connection, manifestId);
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_4");
 
+        // Removes dependences for the manifest id.
+        DependenciesTable::RemoveDependencies(connection, manifestId);
+
+        // Remvoes the manifest.
         V1_2::Interface::RemoveManifestById(connection, manifestId);
 
-        DependenciesTable::RemoveDependencies(connection, manifestId);
+        // Remove the versions that are not needed.
+        for (auto minVersion : minVersions)
+        {
+            if (NotNeeded(connection, Schema::V1_0::VersionTable::TableName(), Schema::V1_0::VersionTable::ValueName(), minVersion))
+            {
+                Schema::V1_0::VersionTable::DeleteById(connection, minVersion);
+            }
+        }
 
         savepoint.Commit();
     }
@@ -71,12 +85,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         bool result = V1_0::Interface::NotNeeded(connection, tableName, valueName, id);
 
-        if (tableName == Schema::V1_0::VersionTable::TableName())
-        {
-            result = !DependenciesTable::IsValueReferenced(connection, "min_version", id).has_value() && result;
-        }
-
-        return result;
+        return !DependenciesTable::IsValueReferenced(connection, tableName, id) && result;
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)

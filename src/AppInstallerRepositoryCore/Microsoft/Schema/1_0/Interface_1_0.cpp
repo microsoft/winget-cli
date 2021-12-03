@@ -125,7 +125,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         bool NotNeededInternal(const SQLite::Connection& connection, std::string_view, std::string_view valueName, SQLite::rowid_t id)
         {
-            return !ManifestTable::IsValueReferenced(connection, valueName, id).has_value();
+            return !ManifestTable::IsValueReferenced(connection, valueName, id);
         }
 
         // Updates the manifest column and related table based on the given value.
@@ -334,7 +334,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             VersionTable::DeleteById(connection, versionId);
         }
         
-        if (NotNeeded(connection, ChannelTable::TableName(), ChannelTable::ValueName(), versionId))
+        if (NotNeeded(connection, ChannelTable::TableName(), ChannelTable::ValueName(), channelId))
         {
             ChannelTable::DeleteById(connection, channelId);
         }

@@ -149,8 +149,6 @@ namespace AppInstaller::Repository::Microsoft
         // Get all the dependencies for a specific manifest.
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
-
-        bool NotNeeded(std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const;
     private:
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);

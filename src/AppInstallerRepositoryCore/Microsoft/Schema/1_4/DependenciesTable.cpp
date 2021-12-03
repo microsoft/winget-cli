@@ -423,32 +423,61 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         return result;
     }
 
-    std::optional<SQLite::rowid_t> DependenciesTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId)
+    bool DependenciesTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t valueRowId)
     {
         StatementBuilder builder;
 
-        std::array<std::string_view, 3> dependenciesColumns =
-        { s_DependenciesTable_MinVersion_Column_Name,
-            s_DependenciesTable_Manifest_Column_Name,
-            s_DependenciesTable_PackageId_Column_Name };
-
-        auto result = std::find(dependenciesColumns.begin(), dependenciesColumns.end(), valueName);
-        if (result == std::end(dependenciesColumns))
+        if (tableName != V1_0::VersionTable::TableName())
         {
-            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN);
+            return false;
         }
 
-        builder.Select(SQLite::RowIDName).From(s_DependenciesTable_Table_Name).Where(valueName).Equals(Unbound).Limit(1);
+        std::array<std::string_view, 1> columns = { s_DependenciesTable_MinVersion_Column_Name };
+        bool referenced = false;
 
-        SQLite::Statement select = builder.Prepare(connection);
-
-        select.Bind(1, valueRowId);
-
-        if (select.Step())
+        for(auto column: columns)
         {
-            return select.GetColumn<SQLite::rowid_t>(0);
+            builder.Select(SQLite::RowIDName).From(s_DependenciesTable_Table_Name).Where(column).Equals(Unbound).Limit(1);
+
+            SQLite::Statement select = builder.Prepare(connection);
+
+            select.Bind(1, valueRowId);
+            if (select.Step())
+            {
+                referenced = true;
+                break;
+            }
         }
 
-        return {};
+        return referenced;
+    }
+
+    std::vector<SQLite::rowid_t> DependenciesTable::GetDependenciesMinVersionsRowIdByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
+    {
+        StatementBuilder builder;
+
+        std::vector<SQLite::rowid_t> result;
+
+        // Find all versions for manifest row.
+        // SELECT [min_version] FROM [dependencies]  
+        // WHERE [manifest] = ?
+        builder.Select()
+            .Column(s_DependenciesTable_MinVersion_Column_Name)
+            .From({ s_DependenciesTable_Table_Name })
+            .Where(s_DependenciesTable_Manifest_Column_Name).Equals(Unbound);
+
+        auto select = builder.Prepare(connection);
+
+        select.Bind(1, manifestRowId);
+
+        while (select.Step())
+        {
+            if (!select.GetColumnIsNull(0))
+            {
+                result.emplace_back(select.GetColumn<SQLite::rowid_t>(0));
+            }
+        }
+
+        return result;
     }
 }
