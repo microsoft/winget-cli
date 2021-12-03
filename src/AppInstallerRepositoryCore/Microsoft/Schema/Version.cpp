@@ -8,6 +8,7 @@
 #include "1_1/Interface.h"
 #include "1_2/Interface.h"
 #include "1_3/Interface.h"
+#include "1_4/Interface.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
@@ -44,11 +45,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
         {
             return std::make_unique<V1_2::Interface>();
         }
-        else if (*this == Version{ 1, 3 } ||
+        else if (*this == Version{ 1, 3 })
+        {
+            return std::make_unique<V1_3::Interface>();
+        }
+        else if (*this == Version{ 1, 4 } ||
             this->MajorVersion == 1 ||
             this->IsLatest())
         {
-            return std::make_unique<V1_3::Interface>();
+            return std::make_unique<V1_4::Interface>();
         }
 
         // We do not have the capacity to operate on this schema version
