@@ -11,6 +11,8 @@
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
 #include "DODownloader.h"
+#include <wil/win32_helpers.h>
+#include <wil/stl.h>
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
@@ -29,10 +31,31 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
+        auto proxy = User().Get<Setting::NetworkProxy>();
+        if (proxy.empty())
+        {
+            std::wstring allProxy;
+            wil::GetEnvironmentVariableW(L"ALL_PROXY", allProxy);
+            proxy = Utility::ConvertToUTF8(allProxy);
+            if (proxy.empty())
+            {
+                std::wstring httpProxy, httpsProxy, ftpProxy;
+                wil::GetEnvironmentVariableW(L"HTTP_PROXY", httpProxy);
+                wil::GetEnvironmentVariableW(L"HTTPS_PROXY", httpsProxy);
+                wil::GetEnvironmentVariableW(L"FTP_PROXY", ftpProxy);
+                if (!httpProxy.empty())
+                    proxy = "HTTP=" + Utility::ConvertToUTF8(httpProxy);
+                if (!httpsProxy.empty())
+                    proxy += (proxy.empty() ? "HTTPS=" : " HTTPS=") + Utility::ConvertToUTF8(httpsProxy);
+                if (!ftpProxy.empty())
+                    proxy += (proxy.empty() ? "FTP=" : " FTP=") + Utility::ConvertToUTF8(ftpProxy);
+            }
+        }
+
         wil::unique_hinternet session(InternetOpenA(
             "winget-cli",
-            INTERNET_OPEN_TYPE_PRECONFIG,
-            NULL,
+            proxy.empty() ? INTERNET_OPEN_TYPE_PRECONFIG : INTERNET_OPEN_TYPE_PROXY,
+            proxy.empty() ? NULL : proxy.c_str(),
             NULL,
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");

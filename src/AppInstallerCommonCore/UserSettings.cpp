@@ -316,6 +316,8 @@ namespace AppInstaller::Settings
         {
             return std::chrono::seconds(value);
         }
+
+        WINGET_VALIDATE_PASS_THROUGH(NetworkProxy)
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
