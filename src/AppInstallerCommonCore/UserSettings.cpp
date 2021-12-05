@@ -10,6 +10,7 @@
 
 #include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
+#include <numeric>
 
 namespace AppInstaller::Settings
 {
@@ -318,6 +319,13 @@ namespace AppInstaller::Settings
         }
 
         WINGET_VALIDATE_PASS_THROUGH(NetworkProxy)
+
+        WINGET_VALIDATE_SIGNATURE(NetworkProxyOverride)
+        {
+            if (value.empty())
+                return {};
+            return std::accumulate(std::next(value.begin()), value.end(), value[0], [](auto& a, auto& b) { return a + ';' + b; });
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

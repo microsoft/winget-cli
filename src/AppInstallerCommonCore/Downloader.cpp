@@ -36,8 +36,7 @@ namespace AppInstaller::Utility
         {
             std::wstring allProxy;
             wil::GetEnvironmentVariableW(L"ALL_PROXY", allProxy);
-            proxy = Utility::ConvertToUTF8(allProxy);
-            if (proxy.empty())
+            if ((proxy = Utility::ConvertToUTF8(allProxy)).empty())
             {
                 std::wstring httpProxy, httpsProxy, ftpProxy;
                 wil::GetEnvironmentVariableW(L"HTTP_PROXY", httpProxy);
@@ -51,12 +50,19 @@ namespace AppInstaller::Utility
                     proxy += (proxy.empty() ? "FTP=" : " FTP=") + Utility::ConvertToUTF8(ftpProxy);
             }
         }
+        auto proxyOverride = User().Get<Setting::NetworkProxyOverride>();
+        if (proxyOverride.empty())
+        {
+            std::wstring noProxy;
+            wil::GetEnvironmentVariableW(L"NO_PROXY", noProxy);
+            proxyOverride = Utility::ConvertToUTF8(noProxy);
+        }
 
         wil::unique_hinternet session(InternetOpenA(
             "winget-cli",
             proxy.empty() ? INTERNET_OPEN_TYPE_PRECONFIG : INTERNET_OPEN_TYPE_PROXY,
             proxy.empty() ? NULL : proxy.c_str(),
-            NULL,
+            proxyOverride.empty() ? NULL : proxyOverride.c_str(),
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
