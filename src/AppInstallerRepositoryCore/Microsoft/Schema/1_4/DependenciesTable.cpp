@@ -93,12 +93,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             return dependencies;
         }
 
-        void RemoveDependenciesByRowIds(SQLite::Connection& connection, std::vector<DependencyTableRow> dependencyTableRows)
+        bool RemoveDependenciesByRowIds(SQLite::Connection& connection, std::vector<DependencyTableRow> dependencyTableRows)
         {
             using namespace SQLite::Builder;
+            bool tableUpdated = false;
             if (dependencyTableRows.empty())
             {
-                return;
+                return tableUpdated;
             }
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_rowid");
 
@@ -108,6 +109,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 .Where(s_DependenciesTable_PackageId_Column_Name).Equals(Unbound)
                 .And(s_DependenciesTable_Manifest_Column_Name).Equals(Unbound);
 
+            
             SQLite::Statement deleteStmt = builder.Prepare(connection);
             for (auto row : dependencyTableRows)
             {
@@ -115,17 +117,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 deleteStmt.Bind(1, row.m_packageRowId);
                 deleteStmt.Bind(2, row.m_manifestRowId);
                 deleteStmt.Execute(true);
+                tableUpdated = true;
             }
 
             savepoint.Commit();
+            return tableUpdated;
         }
 
-        void InsertManifestDependencies(
+        bool InsertManifestDependencies(
             SQLite::Connection& connection,
             std::set<DependencyTableRow>& dependenciesTableRows)
         {
             using namespace SQLite::Builder;
             using namespace Schema::V1_0;
+            bool tableUpdated = false;
 
             StatementBuilder insertBuilder;
             insertBuilder.InsertInto(s_DependenciesTable_Table_Name)
@@ -133,6 +138,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 .Values(Unbound, Unbound, Unbound);
             SQLite::Statement insert = insertBuilder.Prepare(connection);
 
+            
             for (const auto& dep : dependenciesTableRows)
             {
                 insert.Reset();
@@ -150,7 +156,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 insert.Bind(3, dep.m_packageRowId);
 
                 insert.Execute(true);
+                tableUpdated = true;
             }
+
+            return tableUpdated;
         }
     }
 
@@ -230,6 +239,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     void DependenciesTable::AddDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
     {
+        if (!Exists(connection))
+        {
+            return;
+        }
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "add_dependencies_v1_4");
 
         auto dependencies = GetAndLinkDependencies(connection, manifest, manifestRowId, Manifest::DependencyType::Package);
@@ -245,6 +259,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool DependenciesTable::UpdateDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
     {
+        if (!Exists(connection))
+        {
+            return false;
+        }
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "update_dependencies_v1_4");
 
         const auto dependencies = GetAndLinkDependencies(connection, manifest, manifestRowId, Manifest::DependencyType::Package);
@@ -277,16 +296,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             }
         );
 
-        InsertManifestDependencies(connection, toAddDependencies);
-        RemoveDependenciesByRowIds(connection, toRemoveDependencies);
+        bool tableUpdated = InsertManifestDependencies(connection, toAddDependencies);
+        tableUpdated = RemoveDependenciesByRowIds(connection, toRemoveDependencies) || tableUpdated;
         savepoint.Commit();
 
-        return true;
+        return tableUpdated;
     }
 
     void DependenciesTable::RemoveDependencies(SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
     {
+        if (!Exists(connection))
+        {
+            return;
+        }
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ s_DependenciesTable_Table_Name } + "remove_dependencies_by_manifest_v1_4");
+
         SQLite::Builder::StatementBuilder builder;
         builder.DeleteFrom(s_DependenciesTable_Table_Name).Where(s_DependenciesTable_Manifest_Column_Name).Equals(manifestRowId);
 
@@ -425,6 +450,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool DependenciesTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t valueRowId)
     {
+        if (!Exists(connection))
+        {
+            return false;
+        }
+
         StatementBuilder builder;
 
         if (tableName != V1_0::VersionTable::TableName())
@@ -454,6 +484,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     std::vector<SQLite::rowid_t> DependenciesTable::GetDependenciesMinVersionsRowIdByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId)
     {
+        if (!Exists(connection))
+        {
+            return {};
+        }
+
         StatementBuilder builder;
 
         std::vector<SQLite::rowid_t> result;

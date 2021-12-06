@@ -18,7 +18,7 @@ namespace
 {
     static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
     {
-        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
 
         TestDataFile testManifest("Manifest-Good.yaml");
         manifest = YamlParser::CreateFromPath(testManifest);

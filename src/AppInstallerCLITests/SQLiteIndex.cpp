@@ -509,7 +509,7 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_EmptyManifestVersion", "[sqli
     index.AddManifest(manifest, GetPathFromManifest(manifest));
 }
 
-TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_1]")
+TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -965,7 +965,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
-TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
+TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -981,8 +981,10 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
     manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
     manifest.Installers[0].Commands = { "test1", "test2" };
 
+    
     {
-        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+        auto version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version::Latest());
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, version);
 
         index.AddManifest(manifest, manifestPath);
     }
