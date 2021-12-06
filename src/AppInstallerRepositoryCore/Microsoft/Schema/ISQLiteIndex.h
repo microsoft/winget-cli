@@ -42,7 +42,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         enum class CreateOptions
         {
             // Standard
-            None = 0,
+            None = 0x0,
             // Enable support for passing in nullopt values to Add/UpdateManifest
             SupportPathless = 0x1,
             // Disable support for dependencies
