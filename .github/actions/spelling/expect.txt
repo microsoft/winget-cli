@@ -81,6 +81,7 @@ contractversion
 count'th
 countof
 countryregion
+convertto
 createmanifestmetadata
 CSharp
 cstdint
@@ -97,6 +98,8 @@ dirs
 diskfull
 dnld
 Dobbeleer
+doctordns
+DSL
 dustojnikhummer
 dvinns
 dw
@@ -109,6 +112,7 @@ EQU
 ERANGE
 errno
 ESRB
+etail
 etest
 execustom
 EXEHASH
@@ -179,7 +183,9 @@ itr
 IVector
 IWeb
 IZone
+Jaifroid
 jdk
+JDKs
 jfearn
 JObject
 jp
@@ -218,6 +224,7 @@ megamorf
 memcpy
 middleware
 midl
+mikefrobbins
 minidump
 minexample
 minschema
@@ -244,6 +251,7 @@ mytool
 NETFX
 netlify
 Newtonsoft
+Nieto
 NOEXPAND
 nonetwork
 normer
@@ -273,6 +281,7 @@ pkgmgr
 pkindex
 PMS
 positionals
+powershellexplained
 powertoys
 pri
 processthreads
@@ -403,6 +412,7 @@ wsv
 wto
 wwinmain
 WZDNCRFJ
+xbox
 XPLATSTR
 xsi
 yamlcreateps
