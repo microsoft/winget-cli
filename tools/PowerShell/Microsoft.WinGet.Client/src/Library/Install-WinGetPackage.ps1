@@ -53,9 +53,6 @@ Function Install-WinGetPackage
         .PARAMETER Version
         Used to specify the Version of the package
 
-        .PARAMETER Channel
-        Used to specify the Channel for the package. Note the Windows Package Manager as of version 1.1.0 does not support channels.
-
         .PARAMETER VerboseLog
         Used to provide verbose logging for the Windows Package Manager.
         
@@ -81,7 +78,7 @@ Function Install-WinGetPackage
         .EXAMPLE
         Install-WinGetPackage -Name "Package"
 
-        This example expects the source named "Private" contains a package with "Package" as a valid name.
+        This example expects a configured source contains a package with "Package" as a valid name.
     #>
 
     PARAM(

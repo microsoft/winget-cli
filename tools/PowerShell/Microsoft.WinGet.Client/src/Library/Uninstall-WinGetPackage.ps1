@@ -25,20 +25,14 @@ Function Uninstall-WinGetPackage{
         .PARAMETER Exact
         Used to specify an exact match for any parameters provided. Many of the other parameters may be used for case insensitive substring matches if Exact is not specified.
 
-        .PARAMETER Channel
-        Used to specify the Channel for the package. Note the Windows Package Manager as of version 1.1.0 does not support channels.
-
         .PARAMETER Source
         Name of the Windows Package Manager private source. Can be identified by running: "Get-WinGetSource" and using the source Name
 
-        .PARAMETER Manifest
-        Used to specify the Manifest of the package
-
         .PARAMETER Interactive
-        Used to specify the installer should be run in interactive mode.
+        Used to specify the uninstaller should be run in interactive mode.
 
         .PARAMETER Silent
-        Used to specify the installer should be run in silent mode with no user input.
+        Used to specify the uninstaller should be run in silent mode with no user input.
 
         .PARAMETER Log
         Used to specify the location for the log location if it is supported by the package uninstaller.
@@ -49,41 +43,112 @@ Function Uninstall-WinGetPackage{
         .PARAMETER Header
         Used to specify the value to pass as the "Windows-Package-Manager" HTTP header for a REST source.
         
-        
         .PARAMETER AcceptSourceAgreement
         Used to explicitly accept any agreement required by the source.
 
+        .PARAMETER Local
+        Used to uninstall from a local manifest
+
         .EXAMPLE
-        Get-WinGetManifest -id "Publisher.Package"
+        Uninstall-WinGetPackage -id "Publisher.Package"
 
         This example expects only a single configured REST source with a package containing "Publisher.Package" as a valid identifier.
 
         .EXAMPLE
-        Get-WinGetManifest -id "Publisher.Package" -source "Private"
+        Uninstall-WinGetPackage -id "Publisher.Package" -source "Private"
 
         This example expects the REST source named "Private" with a package containing "Publisher.Package" as a valid identifier.
 
         .EXAMPLE
-        Get-WinGetManifest -Name "Package"
+        Uninstall-WinGetPackage -Name "Package"
 
-        This example expects the REST source named "Private" with a package containing "Package" as a valid name.
+        This example expects a configured source contains a package with "Package" as a valid name.
     #>
 
     PARAM(
-        
+        [Parameter(Position=0)] $Filter,
+        [Parameter()]           $Name,
+        [Parameter()]           $Id,
+        [Parameter()]           $Moniker,
+        [Parameter()]           $Source,
+        [Parameter()] [switch]  $Interactive,
+        [Parameter()] [switch]  $Silent,
+        [Parameter()] [string]  $Version,
+        [Parameter()] [switch]  $Exact,
+        [Parameter()] [switch]  $Override,
+        [Parameter()] [System.IO.FileInfo]  $Location,
+        [Parameter()] [switch]  $Force,
+        [Parameter()] [System.IO.FileInfo]  $Log, ## This is a path of where to create a log.
+        [Parameter()] [switch]  $AcceptSourceAgreements,
+        [Parameter()] [switch]  $Local # This is for installing local manifests
     )
     BEGIN
     {
-
+        [string[]] $WinGetArgs  = "Uninstall"
+        IF($PSBoundParameters.ContainsKey('Filter')){
+            IF($Local) {
+                $WinGetArgs += "--Manifest"
+            }
+            $WinGetArgs += $Filter
+        }
+        IF($PSBoundParameters.ContainsKey('Name')){
+            $WinGetArgs += "--Name", $Name
+        }
+        IF($PSBoundParameters.ContainsKey('Id')){
+            $WinGetArgs += "--Id", $Id
+        }
+        IF($PSBoundParameters.ContainsKey('Moniker')){
+            $WinGetArgs += "--Moniker", $Moniker
+        }
+        IF($PSBoundParameters.ContainsKey('Source')){
+            $WinGetArgs += "--Source", $Source
+        }
+        IF($Interactive){
+            $WinGetArgs += "--Interactive"
+        }
+        IF($Silent){
+            $WinGetArgs += "--Silent"
+        }
+        if($PSBoundParameters.ContainsKey('Version')){
+            $WinGetArgs += "--Version", $Version
+        }
+        if($Exact){
+            $WinGetArgs += "--Exact"
+        }
+        if($PSBoundParameters.ContainsKey('Log')){
+            $WinGetArgs += "--Log", $Log
+        }
+        if($PSBoundParameters.ContainsKey('Location')){
+            $WinGetArgs += "--Location", $Location
+        }
+        if($Force){
+            $WinGetArgs += "--Force"
+        }
     }
     PROCESS
     {
+        ## Exact, ID and Source - Talk with tomorrow to better understand this.
+        IF(!$Local) {
+            $Result = Find-WinGetPackage -Filter $Filter -Name $Name -Id $Id -Moniker $Moniker -Tag $Tag -Command $Command -Source $Source
+        }
 
+        if($Result.count -eq 1 -or $Local) {
+            & "WinGet" $WingetArgs
+            $Result = ""
+        }
+        elseif($Result.count -lt 1){
+            Write-Host "Unable to locate package for installation"
+            $Result = ""
+        }
+        else {
+            Write-Host "Multiple packages found matching input criteria. Please refine the input."
+        }
     }
     END
     {
-
+        return $Result
     }
+}
 }
 
 New-Alias -Name Remove-WinGetPackage -Value Uninstall-WinGetPackage
