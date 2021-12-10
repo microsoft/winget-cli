@@ -352,13 +352,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ExecutionStage
     struct ReportExecutionStage : public WorkflowTask
     {
-        ReportExecutionStage(ExecutionStage stage, bool allowBackward = false) : WorkflowTask("ReportExecutionStage"), m_stage(stage), m_allowBackward(allowBackward) {}
+        ReportExecutionStage(ExecutionStage stage) : WorkflowTask("ReportExecutionStage"), m_stage(stage) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         ExecutionStage m_stage;
-        bool m_allowBackward;
     };
 
     // Handles all opened source(s) agreements if needed.

@@ -16,9 +16,14 @@ namespace AppInstaller::CLI::Execution
 {
     enum class OrchestratorQueueItemState
     {
+        // Created but not yet queued
         NotQueued,
+        // Queued and waiting to be run
         Queued,
-        Running
+        // Running in the thread pool
+        Running,
+        // Cancelled before it was run; will be deleted when we try to run it
+        Cancelled
     };
 
     struct OrchestratorQueueItemId
@@ -33,29 +38,43 @@ namespace AppInstaller::CLI::Execution
         std::wstring m_sourceId;
     };
 
+    struct OrchestratorQueue;
+
     struct OrchestratorQueueItem
     {
         OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context) : m_id(std::move(id)), m_context(std::move(context)) {}
 
         OrchestratorQueueItemState GetState() const { return m_state; }
         void SetState(OrchestratorQueueItemState state) { m_state = state; }
+
+        OrchestratorQueue* GetCurrentQueue() const { return m_currentQueue; }
+        void SetCurrentQueue(OrchestratorQueue* currentQueue) { m_currentQueue = currentQueue; }
+
         COMContext& GetContext() const { return *m_context; }
         const wil::unique_event& GetCompletedEvent() const { return m_completedEvent; }
         const OrchestratorQueueItemId& GetId() const { return m_id; }
+
         void AddCommand(std::unique_ptr<Command> command) { m_commands.push_back(std::move(command)); }
+        const Command& GetNextCommand() const { return *m_commands.front(); }
         std::unique_ptr<Command> PopNextCommand()
         {
+            m_isOnFirstCommand = false;
             std::unique_ptr<Command> command = std::move(m_commands.front());
             m_commands.pop_front();
             return command;
         }
+
+        bool IsOnFirstCommand() const { return m_isOnFirstCommand; }
         bool IsComplete() const { return m_commands.empty(); }
+
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
         std::unique_ptr<COMContext> m_context;
         wil::unique_event m_completedEvent{ wil::EventOptions::ManualReset };
         OrchestratorQueueItemId m_id;
         std::deque<std::unique_ptr<Command>> m_commands;
+        bool m_isOnFirstCommand = true;
+        OrchestratorQueue* m_currentQueue = nullptr;
     };
 
     struct OrchestratorQueueItemFactory
@@ -73,20 +92,68 @@ namespace AppInstaller::CLI::Execution
 
         std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId& queueItemId);
 
+        void AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem);
+        void RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem);
+
     private:
         std::mutex m_queueLock;
-        void RunItems();
-        std::shared_ptr<OrchestratorQueueItem> GetNextItem();
-        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
-        void RequeueItem(OrchestratorQueueItem& item);
+        void AddCommandQueue(std::string_view commandName, UINT32 allowedThreads);
         void RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state);
 
-        _Requires_lock_held_(m_queueLock)
-        std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& queueItemId);
         _Requires_lock_held_(m_queueLock)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
         Repository::Source m_installingWriteableSource;
+        std::map<std::string, std::unique_ptr<OrchestratorQueue>> m_commandQueues;
+    };
+
+    // One of the queues used by the orchestrator.
+    // All items in the queue execute the same command.
+    // The queue allows multiple items to run at the same time, up to a limit.
+    struct OrchestratorQueue
+    {
+        OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads);
+        ~OrchestratorQueue();
+
+        // Name of the command this queue can execute
+        std::string_view CommandName() const { return m_commandName; }
+
+        // Enqueues an item to be run when there are threads available.
+        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item);
+
+        // Removes an item by id, provided that it is in the given state.
+        // Returns true if an item was removed.
+        // The item can be removed globally from the orchestrator, or from just this queue.
+        bool RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove);
+
+        // Finds an item by id, if it is in the queue.
+        _Requires_lock_held_(m_queueLock)
+        std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
+
+        // Runs a single item from the queue.
+        void RunItem(const OrchestratorQueueItemId& itemId);
+
+    private:
+        // Enqueues an item.
+        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
+
+        _Requires_lock_held_(m_queueLock)
+        std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId);
+
+        std::string_view m_commandName;
+
+        // Number of threads allowed to run items in this queue.
+        const UINT32 m_allowedThreads;
+
+        // Thread pool for this queue, and associated objects.
+        // All work items will be added to the callback environment, and the cleanup group
+        // will manage their closing.
+        // See https://docs.microsoft.com/windows/win32/procthread/using-the-thread-pool-functions
+        TP_CALLBACK_ENVIRON m_threadPoolCallbackEnviron;
+        wil::unique_any<PTP_POOL, decltype(CloseThreadpool), CloseThreadpool> m_threadPool;
+        wil::unique_any<PTP_CLEANUP_GROUP, decltype(CloseThreadpoolCleanupGroup), CloseThreadpoolCleanupGroup> m_threadPoolCleanupGroup;
+
+        std::mutex m_queueLock;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
     };
 }

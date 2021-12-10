@@ -14,6 +14,10 @@ namespace AppInstaller::ThreadLocalStorage
         ThreadGlobals() = default;
         ~ThreadGlobals() = default;
 
+        // Request that a sub ThreadGlobals be constructed from the given parent.
+        struct create_sub_thread_globals_t {};
+        ThreadGlobals(ThreadGlobals& parent, create_sub_thread_globals_t);
+
         AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger();
 
         AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger();
@@ -26,13 +30,12 @@ namespace AppInstaller::ThreadLocalStorage
         static ThreadGlobals* GetForCurrentThread();
 
     private:
-        
+
         void Initialize();
 
-        std::unique_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
+        std::shared_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
         std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger> m_pTelemetryLogger;
-        std::once_flag loggerInitOnceFlag;
-        
+        std::once_flag m_loggerInitOnceFlag;
     };
 
     struct PreviousThreadGlobals

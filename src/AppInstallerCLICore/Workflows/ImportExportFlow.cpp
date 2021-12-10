@@ -163,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReadImportFile(Execution::Context& context)
     {
-        std::ifstream importFile{ context.Args.GetArg(Execution::Args::Type::ImportFile) };
+        std::ifstream importFile(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ImportFile)));
         THROW_LAST_ERROR_IF(importFile.fail());
 
         Json::Value jsonRoot;
@@ -246,7 +246,7 @@ namespace AppInstaller::CLI::Workflow
     void SearchPackagesForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<Execution::PackageToInstall> packagesToInstall = {};
+        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool foundAll = true;
 
         // Look for the packages needed from each source independently.
@@ -266,15 +266,16 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
-                Logging::SubExecutionTelemetryScope subExecution;
                 AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
 
                 // Search for the current package
                 SearchRequest searchRequest;
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
-                auto searchContextPtr = context.Clone();
+                auto searchContextPtr = context.CreateSubContext();
                 Execution::Context& searchContext = *searchContextPtr;
+                auto previousThreadGlobals = searchContext.SetForCurrentThread();
+
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
 
@@ -320,13 +321,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                packagesToInstall.emplace_back(
-                    std::move(searchContext.Get<Execution::Data::PackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::InstalledPackageVersion>()),
-                    std::move(searchContext.Get<Execution::Data::Manifest>()),
-                    std::move(searchContext.Get<Execution::Data::Installer>().value()),
-                    packageRequest.Scope,
-                    subExecution.GetCurrentSubExecutionId());
+                packagesToInstall.emplace_back(std::move(searchContextPtr));
             }
         }
 

@@ -103,7 +103,7 @@ namespace AppInstaller::Repository::Microsoft
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
-
+        
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         void RemoveManifest(const Manifest::Manifest& manifest);
 
@@ -146,6 +146,9 @@ namespace AppInstaller::Repository::Microsoft
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const;
 
+        // Get all the dependencies for a specific manifest.
+        std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
+        std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
     private:
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);
@@ -163,5 +166,6 @@ namespace AppInstaller::Repository::Microsoft
         SQLite::Connection m_dbconn;
         Schema::Version m_version;
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
+        std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
     };
 }

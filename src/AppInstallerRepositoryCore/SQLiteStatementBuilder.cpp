@@ -363,6 +363,19 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::In(size_t count)
+    {
+        m_stream << " IN (";
+        for (size_t i = 0; i < count; ++i)
+        {
+            m_stream << (i == 0 ? "?" : ", ?");
+        }
+        m_stream << ')';
+
+        m_bindIndex += static_cast<int>(count);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::IsNull(bool isNull)
     {
         m_stream << " IS " << (isNull ? "" : "NOT ") << "NULL";
@@ -378,6 +391,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::And(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " AND ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Or(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " OR ", column);
         return *this;
     }
 

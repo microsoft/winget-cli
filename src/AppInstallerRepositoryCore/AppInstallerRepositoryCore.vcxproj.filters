@@ -58,6 +58,9 @@
     <Filter Include="Public\winget">
       <UniqueIdentifier>{aa7315bc-4eb0-4280-9572-f5a25f6e73ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_4">
+      <UniqueIdentifier>{dcae9c55-cdd7-4381-8acd-3554896608a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -249,6 +252,18 @@
     <ClInclude Include="ISource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_4\DependenciesTable.h">
+      <Filter>Microsoft\Schema\1_4</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_4\Interface.h">
+      <Filter>Microsoft\Schema\1_4</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageTrackingCatalogSourceFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageDependenciesValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -387,6 +402,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RepositorySearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_4\DependenciesTable.cpp">
+      <Filter>Microsoft\Schema\1_4</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp">
+      <Filter>Microsoft\Schema\1_4</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

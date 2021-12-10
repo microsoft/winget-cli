@@ -247,7 +247,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException("wil::ResultException", re.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(re) << std::endl;
@@ -256,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const winrt::hresult_error& hre)
         {
             std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException("winrt::hresult_error", message);
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 message << std::endl;
@@ -270,13 +270,13 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const Resource::ResourceOpenException& e)
         {
-            Logging::Telemetry().LogException("ResourceOpenException", e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResourceOpen, e.what());
             context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
             return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
         }
         catch (const std::exception& e)
         {
-            Logging::Telemetry().LogException("std::exception", e.what());
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(e) << std::endl;
@@ -285,7 +285,7 @@ namespace AppInstaller::CLI::Workflow
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException("unknown", {});
+            Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
             context.Reporter.Error() <<
                 Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
@@ -545,7 +545,6 @@ namespace AppInstaller::CLI::Workflow
     void ReportSearchResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
         bool sourceIsComposite = context.Get<Execution::Data::Source>().IsComposite();
         Execution::TableOutput<5> table(context.Reporter,
@@ -621,7 +620,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                AICLI_TERMINATE_CONTEXT(overallHR);
+                context.SetTerminationHR(overallHR);
             }
         }
     }
@@ -709,6 +708,7 @@ namespace AppInstaller::CLI::Workflow
             });
 
         int availableUpgradesCount = 0;
+        int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
@@ -720,6 +720,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
                 bool updateAvailable = match.Package->IsUpdateAvailable();
+
+                if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+                {
+                    // We are only showing upgrades, and the user did not request to include packages with unknown versions.
+                    unknownPackagesCount++;
+                    continue;
+                }
 
                 // The only time we don't want to output a line is when filtering and no update is available.
                 if (updateAvailable || !m_onlyShowUpgrades)
@@ -767,12 +774,18 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
             }
         }
+        if (m_onlyShowUpgrades && unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        {
+            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
+        }
 
     }
 
     void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
         if (searchResult.Matches.size() == 0)
         {
@@ -962,13 +975,57 @@ namespace AppInstaller::CLI::Workflow
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         IPackageVersion::Metadata installationMetadata;
+        
         if (isUpdate)
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
+        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            // arguments override settings.
+            context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
+        }
+        else 
+        {
+            std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
+            std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
 
+
+            if (!requiredArchitectures.empty())
+            {
+                context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitectures.begin(), requiredArchitectures.end() });
+            }
+            else if (!optionalArchitectures.empty())
+            {
+                optionalArchitectures.emplace_back(Utility::Architecture::Unknown);
+                context.Add<Execution::Data::AllowedArchitectures>({ optionalArchitectures.begin(), optionalArchitectures.end() });
+                
+            }
+        }
         ManifestComparator manifestComparator(context, installationMetadata);
-        context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
+        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+
+        if (!installer.has_value())
+        {
+            auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+            if (onlyInstalledType != inapplicabilities.end())
+            {
+                context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            }
+        }
+
+        if (installer.has_value())
+        {
+            Logging::Telemetry().LogSelectedInstaller(
+                static_cast<int>(installer->Arch),
+                installer->Url,
+                Manifest::InstallerTypeToString(installer->InstallerType),
+                Manifest::ScopeToString(installer->Scope),
+                installer->Locale);
+        }
+
+        context.Add<Execution::Data::Installer>(installer);
     }
 
     void EnsureRunningAsAdmin(Execution::Context& context)
@@ -1024,7 +1081,7 @@ namespace AppInstaller::CLI::Workflow
         // If we cannot find a package using PackageFamilyName or ProductId, try manifest Id and Name pair
         SearchRequest searchRequest;
         searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
-        // In case there're same Ids from different sources, filter the result using package name
+        // In case there are same Ids from different sources, filter the result using package name
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>()));
 
         context.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
@@ -1037,7 +1094,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
-        context.SetExecutionStage(m_stage, m_allowBackward);
+        context.SetExecutionStage(m_stage);
     }
 
     void HandleSourceAgreements::operator()(Execution::Context& context) const

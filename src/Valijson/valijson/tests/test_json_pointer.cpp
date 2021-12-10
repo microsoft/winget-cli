@@ -9,8 +9,7 @@
 using valijson::adapters::RapidJsonAdapter;
 using valijson::internal::json_pointer::resolveJsonPointer;
 
-typedef rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>
-        RapidJsonCrtAllocator;
+typedef rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> RapidJsonCrtAllocator;
 
 class TestJsonPointer : public testing::Test
 {
@@ -19,9 +18,6 @@ class TestJsonPointer : public testing::Test
 
 struct JsonPointerTestCase
 {
-    JsonPointerTestCase(const std::string &description)
-      : description(description) { }
-
     /// Description of test case
     std::string description;
 
@@ -43,77 +39,77 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
 
     std::vector<TestCase> testCases;
 
-    TestCase testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolving '#' should cause an exception to be thrown");
+    TestCase testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolving '#' should cause an exception to be thrown";
     testCase->value.SetNull();
     testCase->jsonPointer = "#";
-    testCase->expectedValue = NULL;
+    testCase->expectedValue = nullptr;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolving an empty string should return the root node");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolving an empty string should return the root node";
     testCase->value.SetNull();
     testCase->jsonPointer = "";
     testCase->expectedValue = &testCase->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolving '/' should return the root node");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolving '/' should return the root node";
     testCase->value.SetNull();
     testCase->jsonPointer = "/";
     testCase->expectedValue = &testCase->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolving '//' should return the root node");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolving '//' should return the root node";
     testCase->value.SetNull();
     testCase->jsonPointer = "//";
     testCase->expectedValue = &testCase->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolve '/test' in object containing one member named 'test'");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolve '/test' in object containing one member named 'test'";
     testCase->value.SetObject();
     testCase->value.AddMember("test", "test", allocator);
     testCase->jsonPointer = "/test";
     testCase->expectedValue = &testCase->value.FindMember("test")->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolve '/test/' in object containing one member named 'test'");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolve '/test/' in object containing one member named 'test'";
     testCase->value.SetObject();
     testCase->value.AddMember("test", "test", allocator);
     testCase->jsonPointer = "/test/";
     testCase->expectedValue = &testCase->value.FindMember("test")->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolve '//test//' in object containing one member named 'test'");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolve '//test//' in object containing one member named 'test'";
     testCase->value.SetObject();
     testCase->value.AddMember("test", "test", allocator);
     testCase->jsonPointer = "//test//";
     testCase->expectedValue = &testCase->value.FindMember("test")->value;
     testCases.push_back(testCase);
 
-    testCase = std::make_shared<JsonPointerTestCase>(
-            "Resolve '/missing' in object containing one member name 'test'");
+    testCase = std::make_shared<JsonPointerTestCase>();
+    testCase->description = "Resolve '/missing' in object containing one member name 'test'";
     testCase->value.SetObject();
     testCase->value.AddMember("test", "test", allocator);
     testCase->jsonPointer = "/missing";
-    testCase->expectedValue = NULL;
+    testCase->expectedValue = nullptr;
     testCases.push_back(testCase);
 
     {
         rapidjson::Value nonemptyString;
         nonemptyString.SetString("hello, world");
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolve '/value/foo' fails because 'value' is not an object (but a non empty string)");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolve '/value/foo' fails because 'value' is not an object (but a non empty string)";
         testCase->value.SetObject();
         testCase->value.AddMember("value", nonemptyString, allocator);
         testCase->jsonPointer = "/value/bar";
         testCase->expectedValue = &testCase->value;
-        testCase->expectedValue = NULL;
+        testCase->expectedValue = nullptr;
         testCases.push_back(testCase);
     }
 
@@ -121,12 +117,12 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         rapidjson::Value emptyString;
         emptyString.SetString("");
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolve '/empty/after_empty' fails because 'empty' is an empty string");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolve '/empty/after_empty' fails because 'empty' is an empty string";
         testCase->value.SetObject();
         testCase->value.AddMember("empty", emptyString, allocator);
         testCase->jsonPointer = "/empty/after_empty";
-        testCase->expectedValue = NULL;
+        testCase->expectedValue = nullptr;
         testCases.push_back(testCase);
     }
 
@@ -137,9 +133,8 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         testArray.PushBack("test1", allocator);
         testArray.PushBack("test2", allocator);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolve '/test/0' in object containing one member containing "
-                "an array with 3 elements");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolve '/test/0' in object containing one member containing an array with 3 elements";
         testCase->value.SetObject();
         testCase->value.AddMember("test", testArray, allocator);
         testCase->jsonPointer = "/test/0";
@@ -154,9 +149,8 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         testArray.PushBack("test1", allocator);
         testArray.PushBack("test2", allocator);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolve '/test/1' in object containing one member containing "
-                "an array with 3 elements");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolve '/test/1' in object containing one member containing an array with 3 elements";
         testCase->value.SetObject();
         testCase->value.AddMember("test", testArray, allocator);
         testCase->jsonPointer = "/test/1";
@@ -171,9 +165,8 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         testArray.PushBack("test1", allocator);
         testArray.PushBack("test2", allocator);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolve '/test/2' in object containing one member containing "
-                "an array with 3 elements");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolve '/test/2' in object containing one member containing an array with 3 elements";
         testCase->value.SetObject();
         testCase->value.AddMember("test", testArray, allocator);
         testCase->jsonPointer = "/test/2";
@@ -188,13 +181,13 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         testArray.PushBack("test1", allocator);
         testArray.PushBack("test2", allocator);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolving '/test/3' in object containing one member containing "
-                "an array with 3 elements should throw an exception");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolving '/test/3' in object containing one member containing "
+                "an array with 3 elements should throw an exception";
         testCase->value.SetObject();
         testCase->value.AddMember("test", testArray, allocator);
         testCase->jsonPointer = "/test/3";
-        testCase->expectedValue = NULL;
+        testCase->expectedValue = nullptr;
         testCases.push_back(testCase);
     }
 
@@ -219,12 +212,12 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         testArray.PushBack("test1", allocator);
         testArray.PushBack("test2", allocator);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolving '/test/-' in object containing one member containing "
-                "an array with 3 elements should throw an exception");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolving '/test/-' in object containing one member containing "
+                "an array with 3 elements should throw an exception";
         testCase->value.SetNull();
         testCase->jsonPointer = "/test/-";
-        testCase->expectedValue = NULL;
+        testCase->expectedValue = nullptr;
         testCases.push_back(testCase);
     }
 
@@ -247,9 +240,9 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         rapidjson::Value value;
         value.SetDouble(10.);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolving '/hello~1world' in object containing one member named "
-                "'hello/world' should return the associated value");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolving '/hello~1world' in object containing one member named "
+                "'hello/world' should return the associated value";
         testCase->value.SetObject();
         testCase->value.AddMember("hello/world", value, allocator);
         testCase->jsonPointer = "/hello~1world";
@@ -261,9 +254,9 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         rapidjson::Value value;
         value.SetDouble(10.);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolving '/hello~0world' in object containing one member named "
-                "'hello~world' should return the associated value");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolving '/hello~0world' in object containing one member named "
+                "'hello~world' should return the associated value";
         testCase->value.SetObject();
         testCase->value.AddMember("hello~world", value, allocator);
         testCase->jsonPointer = "/hello~0world";
@@ -275,9 +268,9 @@ std::vector<std::shared_ptr<JsonPointerTestCase> >
         rapidjson::Value value;
         value.SetDouble(10.);
 
-        testCase = std::make_shared<JsonPointerTestCase>(
-                "Resolving '/hello~01world' in object containing one member named "
-                "'hello~1world' should return the associated value");
+        testCase = std::make_shared<JsonPointerTestCase>();
+        testCase->description = "Resolving '/hello~01world' in object containing one member named "
+                "'hello~1world' should return the associated value";
         testCase->value.SetObject();
         testCase->value.AddMember("hello~1world", value, allocator);
         testCase->jsonPointer = "/hello~01world";
@@ -297,21 +290,20 @@ TEST_F(TestJsonPointer, JsonPointerTestCases)
 
     TestCases testCases = testCasesForSingleLevelObjectPointers(allocator);
 
-    for (TestCases::const_iterator itr = testCases.begin();
-            itr != testCases.end(); ++itr) {
-        const std::string &jsonPointer = (*itr)->jsonPointer;
-        const RapidJsonAdapter valueAdapter((*itr)->value);
-        if ((*itr)->expectedValue) {
-            const RapidJsonAdapter expectedAdapter(*((*itr)->expectedValue));
-            const RapidJsonAdapter actualAdapter =
-                    resolveJsonPointer(valueAdapter, jsonPointer);
-            EXPECT_TRUE(actualAdapter.equalTo(expectedAdapter, true)) <<
-                    (*itr)->description;
+    for (const auto & testCase : testCases) {
+        const std::string &jsonPointer = testCase->jsonPointer;
+        const RapidJsonAdapter valueAdapter(testCase->value);
+        if (testCase->expectedValue) {
+            const RapidJsonAdapter expectedAdapter(*(testCase->expectedValue));
+            const RapidJsonAdapter actualAdapter = resolveJsonPointer(valueAdapter, jsonPointer);
+            EXPECT_TRUE(actualAdapter.equalTo(expectedAdapter, true)) << testCase->description;
         } else {
-            EXPECT_THROW(
-                    resolveJsonPointer(valueAdapter, jsonPointer),
-                    std::runtime_error) <<
-                    (*itr)->description;
+            // Since the tests with throwing disabled will abort, we can't
+            // do anything here.
+
+#if VALIJSON_USE_EXCEPTIONS
+            EXPECT_THROW(resolveJsonPointer(valueAdapter, jsonPointer), std::runtime_error) << testCase->description;
+#endif
         }
     }
 }

@@ -10,6 +10,7 @@
 #include "Microsoft/PredefinedWriteableSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
+#include "PackageTrackingCatalogSourceFactory.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "Microsoft/ConfigurableTestSourceFactory.h"
@@ -28,56 +29,16 @@ namespace AppInstaller::Repository
         static std::map<std::string, std::function<std::unique_ptr<ISourceFactory>()>> s_Sources_TestHook_SourceFactories;
 #endif
 
-        std::unique_ptr<ISourceFactory> GetFactoryForType(std::string_view type)
-        {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-            // Tests can ensure case matching
-            auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
-            if (itr != s_Sources_TestHook_SourceFactories.end())
-            {
-                return itr->second();
-            }
-
-            if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
-            {
-                return Microsoft::ConfigurableTestSourceFactory::Create();
-            }
-#endif
-
-            // For now, enable an empty type to represent the only one we have.
-            if (type.empty() ||
-                Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
-            {
-                return Microsoft::PreIndexedPackageSourceFactory::Create();
-            }
-            // Should always come from code, so no need for case insensitivity
-            else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
-            {
-                return Microsoft::PredefinedInstalledSourceFactory::Create();
-            }
-            // Should always come from code, so no need for case insensitivity
-            else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
-            {
-                return Microsoft::PredefinedWriteableSourceFactory::Create();
-            }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
-            {
-                return Rest::RestSourceFactory::Create();
-            }
-
-            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
-        }
-
         std::shared_ptr<ISourceReference> CreateSourceFromDetails(const SourceDetails& details)
         {
-            return GetFactoryForType(details.Type)->Create(details);
+            return ISourceFactory::GetForType(details.Type)->Create(details);
         }
 
         template <typename MemberFunc>
         bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
             bool result = false;
-            auto factory = GetFactoryForType(details.Type);
+            auto factory = ISourceFactory::GetForType(details.Type);
 
             // Attempt; if it fails, wait a short time and retry.
             try
@@ -120,7 +81,7 @@ namespace AppInstaller::Repository
 
         bool RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
-            auto factory = GetFactoryForType(details.Type);
+            auto factory = ISourceFactory::GetForType(details.Type);
 
             return factory->Remove(details, progress);
         }
@@ -211,6 +172,51 @@ namespace AppInstaller::Repository
         };
     }
 
+    std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(std::string_view type)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Tests can ensure case matching
+        auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
+        if (itr != s_Sources_TestHook_SourceFactories.end())
+        {
+            return itr->second();
+        }
+
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+        {
+            return Microsoft::ConfigurableTestSourceFactory::Create();
+        }
+#endif
+
+        // For now, enable an empty type to represent the only one we have.
+        if (type.empty() ||
+            Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
+        {
+            return Microsoft::PreIndexedPackageSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
+        {
+            return Microsoft::PredefinedInstalledSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
+        {
+            return Microsoft::PredefinedWriteableSourceFactory::Create();
+        }
+        // Should always come from code, so no need for case insensitivity
+        else if (PackageTrackingCatalogSourceFactory::Type() == type)
+        {
+            return PackageTrackingCatalogSourceFactory::Create();
+        }
+        else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
+        {
+            return Rest::RestSourceFactory::Create();
+        }
+
+        THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
+    }
+
     std::string_view ToString(SourceOrigin origin)
     {
         switch (origin)
@@ -270,11 +276,12 @@ namespace AppInstaller::Repository
         }
 
         m_source = compositeSource;
+        m_isComposite = true;
     }
 
     Source::Source(const Source& installedSource, const Source& availableSource, CompositeSearchBehavior searchBehavior)
     {
-        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_source->IsComposite() || !availableSource.m_source);
+        THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_isComposite || !availableSource.m_source);
 
         std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
 
@@ -284,9 +291,10 @@ namespace AppInstaller::Repository
             compositeSource->AddAvailableSource(availableSource.m_source);
         }
 
-        compositeSource->SetInstalledSource(installedSource.m_source, searchBehavior);
+        compositeSource->SetInstalledSource(installedSource, searchBehavior);
 
         m_source = compositeSource;
+        m_isComposite = true;
     }
 
     Source::Source(std::shared_ptr<ISource> source) : m_source(std::move(source)) {}
@@ -315,13 +323,14 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, adding all to source references.");
-                //auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
 
                 for (auto& source : currentSources)
                 {
                     AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
                     m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
                 }
+
+                m_isComposite = true;
             }
         }
         else
@@ -373,7 +382,7 @@ namespace AppInstaller::Repository
 
     SourceInformation Source::GetInformation() const
     {
-        if (m_source && !m_source->IsComposite())
+        if (m_source && !m_isComposite)
         {
             return m_source->GetInformation();
         }
@@ -441,31 +450,17 @@ namespace AppInstaller::Repository
 
     bool Source::IsComposite() const
     {
-        if (m_source)
-        {
-            return m_source->IsComposite();
-        }
-        else if (m_sourceReferences.size() > 0)
-        {
-            return m_sourceReferences.size() > 1;
-        }
-        else
-        {
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
-        }
+        return m_isComposite;
     }
 
     std::vector<Source> Source::GetAvailableSources() const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_source->IsComposite());
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_isComposite);
 
-        std::vector<Source> result;
-        for (auto const& availableSource : m_source->GetAvailableSources())
-        {
-            result.emplace_back(availableSource);
-        }
+        auto compositeSource = std::dynamic_pointer_cast<CompositeSource>(m_source);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !compositeSource);
 
-        return result;
+        return compositeSource->GetAvailableSources();
     }
 
     void Source::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
@@ -554,7 +549,7 @@ namespace AppInstaller::Repository
                 // Place all of the proxies into the source to be searched later
                 for (auto& proxy : openExceptionProxies)
                 {
-                    aggregatedSource->AddAvailableSource(std::move(proxy));
+                    aggregatedSource->AddAvailableSource(Source{ std::move(proxy) });
                 }
 
                 m_source = aggregatedSource;
@@ -662,6 +657,16 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    PackageTrackingCatalog Source::GetTrackingCatalog() const
+    {
+        if (!m_trackingCatalog)
+        {
+            m_trackingCatalog = PackageTrackingCatalog::CreateForSource(*this);
+        }
+
+        return m_trackingCatalog;
     }
 
     std::vector<SourceDetails> Source::GetCurrentSources()

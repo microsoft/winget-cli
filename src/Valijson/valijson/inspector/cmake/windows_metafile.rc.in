@@ -1,0 +1,28 @@
+#include "winver.h"
+
+IDI_ICON1               ICON    DISCARDABLE     "@ICON_FILE@"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@
+ PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@
+ FILEFLAGS 0x0L
+ FILEFLAGSMASK 0x3fL
+ FILEOS 0x00040004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "@COMPANY@"
+            VALUE "FileDescription", "@PROJECT_NAME@"
+            VALUE "FileVersion", "@PROJECT_VERSION@"
+            VALUE "LegalCopyright", "@COPYRIGHT@"
+            VALUE "InternalName", "@PROJECT_NAME@"
+            VALUE "OriginalFilename", "@PROJECT_NAME@.exe"
+            VALUE "ProductName", "@PROJECT_NAME@"
+            VALUE "ProductVersion", "@PROJECT_VERSION@"
+        END
+    END
+END

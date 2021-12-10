@@ -4,6 +4,7 @@
 #include <set>
 
 #include <valijson/subschema.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 
@@ -35,27 +36,37 @@ public:
       : Subschema(allocFn, freeFn),
         sharedEmptySubschema(newSubschema()) { }
 
+    // Disable copy construction
+    Schema(const Schema &) = delete;
+
+    // Disable copy assignment
+    Schema & operator=(const Schema &) = delete;
+
     /**
      * @brief  Clean up and free all memory managed by the Schema
      *
      * Note that any Subschema pointers created and returned by this Schema
      * should be considered invalid.
      */
-    virtual ~Schema()
+    ~Schema() override
     {
         sharedEmptySubschema->~Subschema();
-        freeFn(const_cast<Subschema *>(sharedEmptySubschema));
-        sharedEmptySubschema = NULL;
+        m_freeFn(const_cast<Subschema *>(sharedEmptySubschema));
+        sharedEmptySubschema = nullptr;
 
+#if VALIJSON_USE_EXCEPTIONS
         try {
+#endif
             for (auto subschema : subschemaSet) {
                 subschema->~Subschema();
-                freeFn(subschema);
+                m_freeFn(subschema);
             }
+#if VALIJSON_USE_EXCEPTIONS
         } catch (const std::exception &e) {
             fprintf(stderr, "Caught an exception while destroying Schema: %s",
                     e.what());
         }
+#endif
     }
 
     /**
@@ -86,17 +97,20 @@ public:
     {
         Subschema *subschema = newSubschema();
 
+#if VALIJSON_USE_EXCEPTIONS
         try {
+#endif
             if (!subschemaSet.insert(subschema).second) {
-                throw std::runtime_error(
+                throwRuntimeError(
                         "Failed to store pointer for new sub-schema");
             }
+#if VALIJSON_USE_EXCEPTIONS
         } catch (...) {
             subschema->~Subschema();
-            freeFn(subschema);
+            m_freeFn(subschema);
             throw;
         }
-
+#endif
         return subschema;
     }
 
@@ -160,26 +174,24 @@ public:
 
 private:
 
-    // Disable copy construction
-    Schema(const Schema &);
-
-    // Disable copy assignment
-    Schema & operator=(const Schema &);
-
     Subschema *newSubschema()
     {
-        void *ptr = allocFn(sizeof(Subschema));
+        void *ptr = m_allocFn(sizeof(Subschema));
         if (!ptr) {
-            throw std::runtime_error(
+            throwRuntimeError(
                     "Failed to allocate memory for shared empty sub-schema");
         }
 
+#if VALIJSON_USE_EXCEPTIONS
         try {
+#endif
             return new (ptr) Subschema();
+#if VALIJSON_USE_EXCEPTIONS
         } catch (...) {
-            freeFn(ptr);
+            m_freeFn(ptr);
             throw;
         }
+#endif
     }
 
     Subschema * mutableSubschema(const Subschema *subschema)
@@ -189,13 +201,13 @@ private:
         }
 
         if (subschema == sharedEmptySubschema) {
-            throw std::runtime_error(
+            throwRuntimeError(
                     "Cannot modify the shared empty sub-schema");
         }
 
-        Subschema *noConst = const_cast<Subschema*>(subschema);
+        auto *noConst = const_cast<Subschema*>(subschema);
         if (subschemaSet.find(noConst) == subschemaSet.end()) {
-            throw std::runtime_error(
+            throwRuntimeError(
                     "Subschema pointer is not owned by this Schema instance");
         }
 

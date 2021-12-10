@@ -142,20 +142,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return connection.GetLastInsertRowID();
         }
 
-        void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
-        {
-            // If a manifest is found that references this id, then we are done.
-            if (ManifestTableSelectByValueIds(connection, { valueName }, { id }))
-            {
-                return;
-            }
-
-            SQLite::Builder::StatementBuilder builder;
-            builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
-
-            builder.Execute(connection);
-        }
-
         void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex)
         {
             if (useNamedIndices && !preserveValuesIndex)
@@ -181,6 +167,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
         {
             return (OneToOneTableGetCount(connection, tableName) == 0);
+        }
+
+        void OneToOneTableDeleteById(SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t id)
+        {
+            SQLite::Builder::StatementBuilder builder;
+            builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
+
+            builder.Execute(connection);
         }
     }
 }

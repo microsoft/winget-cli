@@ -1098,7 +1098,7 @@ Do you agree to the terms?</value>
     <value>One or more of the source agreements were not agreed to. Operation cancelled. Please accept the source agreements or remove the corresponding sources.</value>
   </data>
   <data name="SourceAgreementsMarketMessage" xml:space="preserve">
-    <value>The source requires current machine's geographic region to be sent to function properly.</value>
+    <value>The source requires the current machine's 2-letter geographic region to be sent to the backend service to function properly (ex. "US").</value>
   </data>
   <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
     <value>Successfully installed. Restart the application to complete the upgrade.</value>
@@ -1229,11 +1229,40 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
     <value>Windows Package Manager</value>
+    <comment>The product name.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions in import file</value>
   </data>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>A newer version was found, but the install technology is different from the current version installed. Please uninstall the package and install the newer version.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>The install technology of the newer version specified is different from the current version installed. Please uninstall the package and install the newer version.</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Windows Package Manager (Preview)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Select the architecture to install</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Upgrade packages even if their current version cannot be determined</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>packages have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>package has a version number that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
 </root>

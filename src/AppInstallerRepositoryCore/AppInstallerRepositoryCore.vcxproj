@@ -54,6 +54,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -260,12 +261,16 @@
     <ClInclude Include="Microsoft\Schema\1_2\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_3\HashVirtualTable.h" />
     <ClInclude Include="Microsoft\Schema\1_3\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_4\DependenciesTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_4\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
+    <ClInclude Include="PackageDependenciesValidation.h" />
+    <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
@@ -322,10 +327,13 @@
     <ClCompile Include="Microsoft\Schema\1_2\Interface_1_2.cpp" />
     <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp" />
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_4\DependenciesTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

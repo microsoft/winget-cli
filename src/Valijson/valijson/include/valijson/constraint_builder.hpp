@@ -13,7 +13,7 @@ namespace constraints {
 class ConstraintBuilder
 {
 public:
-    virtual ~ConstraintBuilder() {}
+    virtual ~ConstraintBuilder() = default;
 
     virtual constraints::Constraint * make(const adapters::Adapter &) const = 0;
 };

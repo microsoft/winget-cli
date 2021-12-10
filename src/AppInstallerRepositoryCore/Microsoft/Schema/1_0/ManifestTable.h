@@ -177,6 +177,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging_deprecated(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
 
+        // Checks if the row id is present in the column denoted by the value supplied.
+        static bool IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId);
+
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
         template <typename Table>

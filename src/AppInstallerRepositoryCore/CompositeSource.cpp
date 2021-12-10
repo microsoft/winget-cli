@@ -30,6 +30,138 @@ namespace AppInstaller::Repository
             return false;
         }
 
+        // Move returns if there is only one package in the matches that is strong; otherwise returns an empty value.
+        std::shared_ptr<IPackage> FindOnlyStrongMatchFieldResult(std::vector<ResultMatch>& matches)
+        {
+            std::shared_ptr<IPackage> result;
+
+            for (auto&& match : matches)
+            {
+                AICLI_LOG(Repo, Info, << "  Checking match with package id: " << match.Package->GetProperty(PackageProperty::Id));
+
+                if (IsStrongMatchField(match.MatchCriteria.Field))
+                {
+                    if (!result)
+                    {
+                        result = std::move(match.Package);
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
+                        result.reset();
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Gets a single matching package from the results
+        template <typename MultipleIntro, typename Indeterminate>
+        std::shared_ptr<IPackage> GetMatchingPackage(std::vector<ResultMatch>& matches, MultipleIntro&& multipleIntro, Indeterminate&& indeterminate)
+        {
+            if (matches.empty())
+            {
+                return {};
+            }
+            else if (matches.size() == 1)
+            {
+                return std::move(matches[0].Package);
+            }
+            else
+            {
+                multipleIntro();
+
+                auto result = FindOnlyStrongMatchFieldResult(matches);
+
+                if (!result)
+                {
+                    indeterminate();
+                }
+
+                return result;
+            }
+        }
+
+        // For a given package from a tracking catalog, get the latest write time.
+        // Look at all versions rather than just the latest to account for the potential of downgrading.
+        std::chrono::system_clock::time_point GetLatestTrackingPackageWriteTime(const std::shared_ptr<IPackage>& trackingPackage)
+        {
+            std::chrono::system_clock::time_point result{};
+
+            for (const auto& key : trackingPackage->GetAvailableVersionKeys())
+            {
+                auto version = trackingPackage->GetAvailableVersion(key);
+                if (version)
+                {
+                    auto metadata = version->GetMetadata();
+                    auto itr = metadata.find(PackageVersionMetadata::TrackingWriteTime);
+                    if (itr != metadata.end())
+                    {
+                        std::int64_t unixEpoch = 0;
+                        try
+                        {
+                            unixEpoch = std::stoll(itr->second);
+                        }
+                        CATCH_LOG();
+
+                        std::chrono::system_clock::time_point versionTime = Utility::ConvertUnixEpochToSystemClock(unixEpoch);
+
+                        if (versionTime > result)
+                        {
+                            result = versionTime;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // A composite package installed version that allows us to override the source of the version.
+        struct CompositeInstalledVersion : public IPackageVersion
+        {
+            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource) :
+                m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource))
+            {}
+
+            Utility::LocIndString GetProperty(PackageVersionProperty property) const override
+            {
+                return m_baseInstalledVersion->GetProperty(property);
+            }
+
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
+            {
+                return m_baseInstalledVersion->GetMultiProperty(property);
+            }
+
+            Manifest::Manifest GetManifest() override
+            {
+                return m_baseInstalledVersion->GetManifest();
+            }
+
+            Source GetSource() const override
+            {
+                // If there is a tracking source, use it instead to indicate that it came from there.
+                if (m_trackingSource)
+                {
+                    return m_trackingSource;
+                }
+
+                return m_baseInstalledVersion->GetSource();
+            }
+
+            Metadata GetMetadata() const override
+            {
+                return m_baseInstalledVersion->GetMetadata();
+            }
+
+        private:
+            std::shared_ptr<IPackageVersion> m_baseInstalledVersion;
+            Source m_trackingSource;
+        };
+
         // A composite package for the CompositeSource.
         struct CompositePackage : public IPackage
         {
@@ -50,6 +182,10 @@ namespace AppInstaller::Repository
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
                 std::shared_ptr<IPackageVersion> truth = GetLatestAvailableVersion();
+                if (!truth && m_trackingPackage)
+                {
+                    truth = m_trackingPackage->GetLatestAvailableVersion();
+                }
                 if (!truth)
                 {
                     truth = GetInstalledVersion();
@@ -70,7 +206,14 @@ namespace AppInstaller::Repository
             {
                 if (m_installedPackage)
                 {
-                    return m_installedPackage->GetInstalledVersion();
+                    if (m_trackingSource)
+                    {
+                        return std::make_shared<CompositeInstalledVersion>(m_installedPackage->GetInstalledVersion(), m_trackingSource);
+                    }
+                    else
+                    {
+                        return m_installedPackage->GetInstalledVersion();
+                    }
                 }
 
                 return {};
@@ -149,15 +292,28 @@ namespace AppInstaller::Repository
                 return m_availablePackage;
             }
 
+            const std::shared_ptr<IPackage>& GetTrackingPackage()
+            {
+                return m_trackingPackage;
+            }
+
             void SetAvailablePackage(std::shared_ptr<IPackage> availablePackage)
             {
                 m_availablePackage = std::move(availablePackage);
+            }
+
+            void SetTracking(Source trackingSource, std::shared_ptr<IPackage> trackingPackage)
+            {
+                m_trackingSource = std::move(trackingSource);
+                m_trackingPackage = std::move(trackingPackage);
             }
 
         private:
             std::shared_ptr<IPackage> m_installedPackage;
             Utility::LocIndString m_installedChannel;
             std::shared_ptr<IPackage> m_availablePackage;
+            Source m_trackingSource;
+            std::shared_ptr<IPackage> m_trackingPackage;
         };
 
         // The comparator compares the ResultMatch by MatchType first, then Field in a predefined order.
@@ -260,6 +416,16 @@ namespace AppInstaller::Repository
                         SystemReferenceStrings.emplace(std::move(srs));
                     }
                 }
+
+                SearchRequest CreateInclusionsSearchRequest() const
+                {
+                    SearchRequest result;
+                    for (const auto& srs : SystemReferenceStrings)
+                    {
+                        srs.AddToFilters(result.Inclusions);
+                    }
+                    return result;
+                }
             };
 
             // For a given package version, prepares the results for it.
@@ -293,6 +459,34 @@ namespace AppInstaller::Repository
                 for (auto const& versionKey : availableMatch.Package->GetAvailableVersionKeys())
                 {
                     auto packageVersion = availableMatch.Package->GetAvailableVersion(versionKey);
+                    AddSystemReferenceStrings(packageVersion.get(), result);
+                }
+                return result;
+            }
+
+            // Check for a package already in the result that should have been correlated already.
+            // If we find one, see if we should upgrade it's match criteria.
+            // If we don't, return package data for further use.
+            std::optional<PackageData> CheckForExistingResultFromTrackingPackageMatch(const ResultMatch& trackingMatch)
+            {
+                for (auto& match : Matches)
+                {
+                    const std::shared_ptr<IPackage>& trackingPackage = match.Package->GetTrackingPackage();
+                    if (trackingPackage && trackingPackage->IsSame(trackingMatch.Package.get()))
+                    {
+                        if (ResultMatchComparator{}(trackingMatch, match))
+                        {
+                            match.MatchCriteria = trackingMatch.MatchCriteria;
+                        }
+
+                        return {};
+                    }
+                }
+
+                PackageData result;
+                for (auto const& versionKey : trackingMatch.Package->GetAvailableVersionKeys())
+                {
+                    auto packageVersion = trackingMatch.Package->GetAvailableVersion(versionKey);
                     AddSystemReferenceStrings(packageVersion.get(), result);
                 }
                 return result;
@@ -347,6 +541,32 @@ namespace AppInstaller::Repository
                 return false;
             }
 
+            SearchResult SearchAndHandleFailures(const Source& source, const SearchRequest& request)
+            {
+                SearchResult result;
+
+                try
+                {
+                    result = source.Search(request);
+                }
+                catch (...)
+                {
+                    if (AddFailureIfSourceNotPresent({ source.GetDetails().Name, std::current_exception() }))
+                    {
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source.GetDetails().Name);
+                    }
+                }
+
+                // Move failures into the result
+                for (SearchResult::Failure& failure : result.Failures)
+                {
+                    AddFailureIfSourceNotPresent(std::move(failure));
+                }
+
+                return result;
+            }
+
             std::vector<CompositeResultMatch> Matches;
             bool Truncated = false;
             std::vector<SearchResult::Failure> Failures;
@@ -399,6 +619,29 @@ namespace AppInstaller::Repository
                 }
             }
         };
+
+        std::shared_ptr<IPackage> GetTrackedPackageFromAvailableSource(CompositeResult& result, const Source& source, const Utility::LocIndString& identifier)
+        {
+            SearchRequest directRequest;
+            directRequest.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, identifier.get());
+
+            SearchResult directResult = result.SearchAndHandleFailures(source, directRequest);
+
+            if (directResult.Matches.empty())
+            {
+                AICLI_LOG(Repo, Warning, << "Did not find Id [" << identifier << "] in tracked source: " << source.GetDetails().Name);
+            }
+            else if (directResult.Matches.size() == 1)
+            {
+                return std::move(directResult.Matches[0].Package);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Warning, << "Found multiple results for Id [" << identifier << "] in tracked source: " << source.GetDetails().Name);
+            }
+
+            return {};
+        }
     }
 
     CompositeSource::CompositeSource(std::string identifier)
@@ -435,12 +678,12 @@ namespace AppInstaller::Repository
         }
     }
 
-    void CompositeSource::AddAvailableSource(std::shared_ptr<ISource> source)
+    void CompositeSource::AddAvailableSource(const Source& source)
     {
-        m_availableSources.emplace_back(std::move(source));
+        m_availableSources.emplace_back(source);
     }
 
-    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior)
+    void CompositeSource::SetInstalledSource(Source source, CompositeSearchBehavior searchBehavior)
     {
         m_installedSource = std::move(source);
         m_searchBehavior = searchBehavior;
@@ -450,6 +693,26 @@ namespace AppInstaller::Repository
     // Next the search is performed against the available sources and correlated with the installed source. A result will only
     // be added if there exists an installed package that was not found by the initial search.
     // This allows for search terms to find installed packages by their available metadata, as well as the local values.
+    //
+    // Search flow:
+    //  Installed :: Search incoming request
+    //  For each result
+    //      For each available source
+    //          Tracking :: Search system references
+    //      If tracking found
+    //          Available :: Search tracking ID
+    //      If no available, for each available source
+    //          Available :: Search system references
+    // 
+    //  For each available source
+    //      Tracking :: Search incoming request
+    //      For each result
+    //          Installed :: Search system references
+    //          If found
+    //              Available :: Search tracking ID
+    //      Available :: Search incoming request
+    //      For each result
+    //          Installed :: Search system references
     SearchResult CompositeSource::SearchInstalled(const SearchRequest& request) const
     {
         CompositeResult result;
@@ -459,105 +722,97 @@ namespace AppInstaller::Repository
         if (m_searchBehavior == CompositeSearchBehavior::AllPackages || m_searchBehavior == CompositeSearchBehavior::Installed)
         {
             // Search installed source (allow exceptions out as we own the installed source)
-            SearchResult installedResult = m_installedSource->Search(request);
+            SearchResult installedResult = m_installedSource.Search(request);
             result.Truncated = installedResult.Truncated;
 
             for (auto&& match : installedResult.Matches)
             {
                 auto compositePackage = std::make_shared<CompositePackage>(std::move(match.Package));
 
-                // Create a search request to run against all available sources
-                SearchRequest systemReferenceSearch;
-
                 auto installedVersion = compositePackage->GetInstalledVersion();
                 auto installedPackageData = result.GetSystemReferenceStrings(installedVersion.get());
 
+                // Create a search request to run against all available sources
                 if (!installedPackageData.SystemReferenceStrings.empty())
                 {
-                    for (const auto& srs : installedPackageData.SystemReferenceStrings)
-                    {
-                        srs.AddToFilters(systemReferenceSearch.Inclusions);
-                    }
+                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest();
 
+                    Source trackedSource;
+                    std::shared_ptr<IPackage> trackingPackage;
+                    std::chrono::system_clock::time_point trackingPackageTime;
                     std::shared_ptr<IPackage> availablePackage;
 
-                    // Search sources and add to result
+                    // Check the tracking catalog first to see if there is a correlation there.
+                    // TODO: When the issue with support for multiple available packages is fixed, this should move into
+                    //       the below available sources loop as we will check all sources at that point.
                     for (const auto& source : m_availableSources)
                     {
-                        // Do not attempt to correlate local packages against this source
-                        if (!source->GetDetails().SupportInstalledSearchCorrelation)
-                        {
-                            continue;
-                        }
+                        auto trackingCatalog = source.GetTrackingCatalog();
+                        SearchResult trackingResult = trackingCatalog.Search(systemReferenceSearch);
 
-                        SearchResult availableResult;
+                        std::shared_ptr<IPackage> candidatePackage = GetMatchingPackage(trackingResult.Matches,
+                            [&]() {
+                                AICLI_LOG(Repo, Info,
+                                    << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                    "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                            }, [&] {
+                                AICLI_LOG(Repo, Warning, << "  Appropriate tracking package could not be determined");
+                            });
 
-                        try
+                        // Determine the candidate package with the latest install time
+                        if (candidatePackage)
                         {
-                            availableResult = source->Search(systemReferenceSearch);
-                        }
-                        catch (...)
-                        {
-                            if (result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() }))
+                            std::chrono::system_clock::time_point candidateTime = GetLatestTrackingPackageWriteTime(candidatePackage);
+
+                            if (!trackingPackage || candidateTime > trackingPackageTime)
                             {
-                                LOG_CAUGHT_EXCEPTION();
-                                AICLI_LOG(Repo, Warning, << "Failed to search source for correlation: " << source->GetDetails().Name);
+                                trackedSource = source;
+                                trackingPackage = std::move(candidatePackage);
+                                trackingPackageTime = candidateTime;
                             }
                         }
+                    }
 
-                        // Move failures into the single result
-                        for (SearchResult::Failure& failure : availableResult.Failures)
-                        {
-                            result.AddFailureIfSourceNotPresent(std::move(failure));
-                        }
+                    // Directly search for the available package from tracking information.
+                    if (trackingPackage)
+                    {
+                        availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
+                    }
 
-                        if (availableResult.Matches.empty())
+                    if (!availablePackage)
+                    {
+                        // Search sources and add to result
+                        for (const auto& source : m_availableSources)
                         {
-                            continue;
-                        }
-
-                        if (availableResult.Matches.size() == 1)
-                        {
-                            availablePackage = std::move(availableResult.Matches[0].Package);
-                        }
-                        else // availableResult.Matches.size() > 1
-                        {
-                            AICLI_LOG(Repo, Info,
-                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
-
-                            // More than one match found for the system reference; run some heuristics to check for a match
-                            for (auto&& availableMatch : availableResult.Matches)
+                            // Do not attempt to correlate local packages against this source
+                            if (!source.GetDetails().SupportInstalledSearchCorrelation)
                             {
-                                AICLI_LOG(Repo, Info, << "  Checking match with package id: " <<
-                                    availableMatch.Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Id));
-
-                                if (IsStrongMatchField(availableMatch.MatchCriteria.Field))
-                                {
-                                    if (!availablePackage)
-                                    {
-                                        availablePackage = std::move(availableMatch.Package);
-                                    }
-                                    else
-                                    {
-                                        AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
-                                        availablePackage.reset();
-                                        break;
-                                    }
-                                }
+                                continue;
                             }
 
-                            if (!availablePackage)
-                            {
-                                AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
-                            }
-                        }
+                            SearchResult availableResult = result.SearchAndHandleFailures(source, systemReferenceSearch);
 
-                        // We found some matching packages here, don't keep going
-                        break;
+                            if (availableResult.Matches.empty())
+                            {
+                                continue;
+                            }
+
+                            availablePackage = GetMatchingPackage(availableResult.Matches,
+                                [&]() {
+                                    AICLI_LOG(Repo, Info,
+                                        << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                        "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                }, [&] {
+                                    AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
+                                });
+
+                            // We found some matching packages here, don't keep going
+                            break;
+                        }
                     }
 
                     compositePackage->SetAvailablePackage(std::move(availablePackage));
+                    compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage));
                 }
 
                 // Move the installed result into the composite result
@@ -574,30 +829,60 @@ namespace AppInstaller::Repository
         // Search available sources
         for (const auto& source : m_availableSources)
         {
+            // Search the tracking catalog as it can potentially get better correlations
+            auto trackingCatalog = source.GetTrackingCatalog();
+            SearchResult trackingResult = trackingCatalog.Search(request);
+
+            for (auto&& match : trackingResult.Matches)
+            {
+                // Check for a package already in the result that should have been correlated already.
+                auto packageData = result.CheckForExistingResultFromTrackingPackageMatch(match);
+
+                // If found existing package in the result, continue
+                if (!packageData)
+                {
+                    continue;
+                }
+
+                // If no package was found that was already in the results, do a correlation lookup with the installed
+                // source to create a new composite package entry if we find any packages there.
+                if (packageData && !packageData->SystemReferenceStrings.empty())
+                {
+                    // Create a search request to run against the installed source
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+
+                    // Correlate against installed (allow exceptions out as we own the installed source)
+                    SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
+
+                    std::shared_ptr<IPackage> installedPackage = GetMatchingPackage(installedCrossRef.Matches,
+                        [&]() {
+                            AICLI_LOG(Repo, Info,
+                                << "Found multiple matches for tracking package [" << match.Package->GetProperty(PackageProperty::Id) <<
+                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                        }, [&] {
+                            AICLI_LOG(Repo, Warning, << "  Appropriate installed package could not be determined");
+                        });
+
+                    if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
+                    {
+                        auto compositePackage = std::make_shared<CompositePackage>(
+                            std::move(installedPackage),
+                            GetTrackedPackageFromAvailableSource(result, source, match.Package->GetProperty(PackageProperty::Id)));
+
+                        compositePackage->SetTracking(source, std::move(match.Package));
+
+                        result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
+                    }
+                }
+            }
+
             // Do not attempt to correlate local packages against this source.
-            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source->GetDetails().SupportInstalledSearchCorrelation)
+            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source.GetDetails().SupportInstalledSearchCorrelation)
             {
                 continue;
             }
 
-            SearchResult availableResult;
-
-            try
-            {
-                availableResult = source->Search(request);
-            }
-            catch (...)
-            {
-                LOG_CAUGHT_EXCEPTION();
-                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.AddFailureIfSourceNotPresent({ source->GetDetails().Name, std::current_exception() });
-            }
-
-            // Move failures into the single result
-            for (auto& failure : availableResult.Failures)
-            {
-                result.AddFailureIfSourceNotPresent(std::move(failure));
-            }
+            SearchResult availableResult = result.SearchAndHandleFailures(source, request);
 
             for (auto&& match : availableResult.Matches)
             {
@@ -616,45 +901,19 @@ namespace AppInstaller::Repository
                 if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
                     // Create a search request to run against the installed source
-                    SearchRequest systemReferenceSearch;
-                    for (const auto& srs : packageData->SystemReferenceStrings)
-                    {
-                        srs.AddToFilters(systemReferenceSearch.Inclusions);
-                    }
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
 
                     // Correlate against installed (allow exceptions out as we own the installed source)
-                    SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
+                    SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
-                    std::shared_ptr<IPackage> installedPackage;
-                    if (installedCrossRef.Matches.size() == 1)
-                    {
-                        installedPackage = std::move(installedCrossRef.Matches[0].Package);
-                    }
-                    else if (installedCrossRef.Matches.size() > 1)
-                    {
-                        AICLI_LOG(Repo, Info,
-                            << "Found multiple matches for available package [" << match.Package->GetProperty(PackageProperty::Id) <<
-                            "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
-
-                        // More than one match found for the system reference; run some heuristics to check for a match
-                        for (auto&& crossRef : installedCrossRef.Matches)
-                        {
-                            AICLI_LOG(Repo, Info, << "  Checking match with package id: " << crossRef.Package->GetProperty(PackageProperty::Id));
-                            if (IsStrongMatchField(crossRef.MatchCriteria.Field))
-                            {
-                                if (!installedPackage)
-                                {
-                                    installedPackage = std::move(crossRef.Package);
-                                }
-                                else
-                                {
-                                    AICLI_LOG(Repo, Info, << "  Found multiple packages with strong match fields");
-                                    installedPackage.reset();
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    std::shared_ptr<IPackage> installedPackage = GetMatchingPackage(installedCrossRef.Matches,
+                        [&]() {
+                            AICLI_LOG(Repo, Info,
+                                << "Found multiple matches for available package [" << match.Package->GetProperty(PackageProperty::Id) <<
+                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                        }, [&] {
+                            AICLI_LOG(Repo, Warning, << "  Appropriate installed package could not be determined");
+                        });
 
                     if (installedPackage && !result.ContainsInstalledPackage(installedPackage.get()))
                     {
@@ -695,13 +954,13 @@ namespace AppInstaller::Repository
 
             try
             {
-                oneSourceResult = source->Search(request);
+                oneSourceResult = source.Search(request);
             }
             catch (...)
             {
                 LOG_CAUGHT_EXCEPTION();
-                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source->GetDetails().Name);
-                result.Failures.emplace_back(SearchResult::Failure{ source->GetDetails().Name, std::current_exception() });
+                AICLI_LOG(Repo, Warning, << "Failed to search source: " << source.GetDetails().Name);
+                result.Failures.emplace_back(SearchResult::Failure{ source.GetDetails().Name, std::current_exception() });
             }
 
             // Move into the single result

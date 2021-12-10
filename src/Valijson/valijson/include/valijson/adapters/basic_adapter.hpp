@@ -1,10 +1,11 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
 
 #include <valijson/adapters/adapter.hpp>
 #include <valijson/internal/optional.hpp>
+#include <valijson/exceptions.hpp>
 
 namespace valijson {
 namespace adapters {
@@ -28,7 +29,7 @@ struct DerefProxy
         return std::addressof(m_ref);
     }
 
-    operator Value*()
+    explicit operator Value*()
     {
         return std::addressof(m_ref);
     }
@@ -109,9 +110,9 @@ protected:
          * @param   strict  Flag to use strict type comparison
          */
         ArrayComparisonFunctor(const ArrayType &array, bool strict)
-          : itr(array.begin()),
-            end(array.end()),
-            strict(strict) { }
+          : m_itr(array.begin()),
+            m_end(array.end()),
+            m_strict(strict) { }
 
         /**
          * @brief   Compare a value against the current element in the array.
@@ -122,23 +123,23 @@ protected:
          */
         bool operator()(const Adapter &adapter)
         {
-            if (itr == end) {
+            if (m_itr == m_end) {
                 return false;
             }
 
-            return AdapterType(*itr++).equalTo(adapter, strict);
+            return AdapterType(*m_itr++).equalTo(adapter, m_strict);
         }
 
     private:
 
         /// Iterator for current element in the array
-        typename ArrayType::const_iterator itr;
+        typename ArrayType::const_iterator m_itr;
 
         /// Iterator for one-past the last element of the array
-        typename ArrayType::const_iterator end;
+        typename ArrayType::const_iterator m_end;
 
         /// Flag to use strict type comparison
-        const bool strict;
+        const bool m_strict;
     };
 
     /**
@@ -166,10 +167,9 @@ protected:
          * @param   object  object to use as comparison baseline
          * @param   strict  flag to use strict type-checking
          */
-        ObjectComparisonFunctor(
-            const ObjectType &object, bool strict)
-          : object(object),
-            strict(strict) { }
+        ObjectComparisonFunctor(const ObjectType &object, bool strict)
+          : m_object(object),
+            m_strict(strict) { }
 
         /**
          * @brief   Find a key in the object and compare its value.
@@ -181,21 +181,21 @@ protected:
          */
         bool operator()(const std::string &key, const Adapter &value)
         {
-            const typename ObjectType::const_iterator itr = object.find(key);
-            if (itr == object.end()) {
+            const typename ObjectType::const_iterator itr = m_object.find(key);
+            if (itr == m_object.end()) {
                 return false;
             }
 
-            return (*itr).second.equalTo(value, strict);
+            return (*itr).second.equalTo(value, m_strict);
         }
 
     private:
 
         /// Object to be used as a comparison baseline
-        const ObjectType &object;
+        const ObjectType &m_object;
 
         /// Flag to use strict type-checking
-        bool strict;
+        bool m_strict;
     };
 
 
@@ -216,7 +216,7 @@ public:
      * This constructor relies on the default constructor of the ValueType
      * class provided as a template argument.
      */
-    BasicAdapter() { }
+    BasicAdapter() = default;
 
     /**
      * @brief   Construct an Adapter using a specified ValueType object.
@@ -224,10 +224,10 @@ public:
      * This constructor relies on the copy constructor of the ValueType
      * class provided as template argument.
      */
-    BasicAdapter(const ValueType &value)
-      : value(value) { }
+    explicit BasicAdapter(const ValueType &value)
+      : m_value(value) { }
 
-    virtual bool applyToArray(ArrayValueCallback fn) const
+    bool applyToArray(ArrayValueCallback fn) const override
     {
         if (!maybeArray()) {
             return false;
@@ -237,8 +237,8 @@ public:
         // if it is an empty string or empty object, we only need to go to
         // effort of constructing an ArrayType instance if the value is
         // definitely an array.
-        if (value.isArray()) {
-            const opt::optional<Array> array = value.getArrayOptional();
+        if (m_value.isArray()) {
+            const opt::optional<Array> array = m_value.getArrayOptional();
             for (const AdapterType element : *array) {
                 if (!fn(element)) {
                     return false;
@@ -249,14 +249,14 @@ public:
         return true;
     }
 
-    virtual bool applyToObject(ObjectMemberCallback fn) const
+    bool applyToObject(ObjectMemberCallback fn) const override
     {
         if (!maybeObject()) {
             return false;
         }
 
-        if (value.isObject()) {
-            const opt::optional<Object> object = value.getObjectOptional();
+        if (m_value.isObject()) {
+            const opt::optional<Object> object = m_value.getObjectOptional();
             for (const ObjectMemberType member : *object) {
                 if (!fn(member.first, AdapterType(member.second))) {
                     return false;
@@ -284,44 +284,44 @@ public:
      */
     ArrayType asArray() const
     {
-        if (value.isArray()) {
-            return *value.getArrayOptional();
-        } else if (value.isObject()) {
+        if (m_value.isArray()) {
+            return *m_value.getArrayOptional();
+        } else if (m_value.isObject()) {
             size_t objectSize;
-            if (value.getObjectSize(objectSize) && objectSize == 0) {
+            if (m_value.getObjectSize(objectSize) && objectSize == 0) {
                 return ArrayType();
             }
-        } else if (value.isString()) {
+        } else if (m_value.isString()) {
             std::string stringValue;
-            if (value.getString(stringValue) && stringValue.empty()) {
+            if (m_value.getString(stringValue) && stringValue.empty()) {
                 return ArrayType();
             }
         }
 
-        throw std::runtime_error("JSON value cannot be cast to an array.");
+        throwRuntimeError("JSON value cannot be cast to an array.");
     }
 
-    virtual bool asBool() const
+    bool asBool() const override
     {
         bool result;
         if (asBool(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value cannot be cast to a boolean.");
+        throwRuntimeError("JSON value cannot be cast to a boolean.");
     }
 
-    virtual bool asBool(bool &result) const
+    bool asBool(bool &result) const override
     {
-        if (value.isBool()) {
-            return value.getBool(result);
-        } else if (value.isString()) {
+        if (m_value.isBool()) {
+            return m_value.getBool(result);
+        } else if (m_value.isString()) {
             std::string s;
-            if (value.getString(s)) {
-                if (s.compare("true") == 0) {
+            if (m_value.getString(s)) {
+                if (s == "true") {
                     result = true;
                     return true;
-                } else if (s.compare("false") == 0) {
+                } else if (s == "false") {
                     result = false;
                     return true;
                 }
@@ -331,31 +331,31 @@ public:
         return false;
     }
 
-    virtual double asDouble() const
+    double asDouble() const override
     {
         double result;
         if (asDouble(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value cannot be cast to a double.");
+        throwRuntimeError("JSON value cannot be cast to a double.");
     }
 
-    virtual bool asDouble(double &result) const
+    bool asDouble(double &result) const override
     {
-        if (value.isDouble()) {
-            return value.getDouble(result);
-        } else if (value.isInteger()) {
+        if (m_value.isDouble()) {
+            return m_value.getDouble(result);
+        } else if (m_value.isInteger()) {
             int64_t i;
-            if (value.getInteger(i)) {
+            if (m_value.getInteger(i)) {
                 result = double(i);
                 return true;
             }
-        } else if (value.isString()) {
+        } else if (m_value.isString()) {
             std::string s;
-            if (value.getString(s)) {
+            if (m_value.getString(s)) {
                 const char *b = s.c_str();
-                char *e = NULL;
+                char *e = nullptr;
                 double x = strtod(b, &e);
                 if (e == b || e != b + s.length()) {
                     return false;
@@ -368,23 +368,23 @@ public:
         return false;
     }
 
-    virtual int64_t asInteger() const
+    int64_t asInteger() const override
     {
         int64_t result;
         if (asInteger(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value cannot be cast as an integer.");
+        throwRuntimeError("JSON value cannot be cast as an integer.");
     }
 
-    virtual bool asInteger(int64_t &result) const
+    bool asInteger(int64_t &result) const override
     {
-        if (value.isInteger()) {
-            return value.getInteger(result);
-        } else if (value.isString()) {
+        if (m_value.isInteger()) {
+            return m_value.getInteger(result);
+        } else if (m_value.isString()) {
             std::string s;
-            if (value.getString(s)) {
+            if (m_value.getString(s)) {
                 std::istringstream i(s);
                 int64_t x;
                 char c;
@@ -412,67 +412,67 @@ public:
      */
     ObjectType asObject() const
     {
-        if (value.isObject()) {
-            return *value.getObjectOptional();
-        } else if (value.isArray()) {
+        if (m_value.isObject()) {
+            return *m_value.getObjectOptional();
+        } else if (m_value.isArray()) {
             size_t arraySize;
-            if (value.getArraySize(arraySize) && arraySize == 0) {
+            if (m_value.getArraySize(arraySize) && arraySize == 0) {
                 return ObjectType();
             }
-        } else if (value.isString()) {
+        } else if (m_value.isString()) {
             std::string stringValue;
-            if (value.getString(stringValue) && stringValue.empty()) {
+            if (m_value.getString(stringValue) && stringValue.empty()) {
                 return ObjectType();
             }
         }
 
-        throw std::runtime_error("JSON value cannot be cast to an object.");
+        throwRuntimeError("JSON value cannot be cast to an object.");
     }
 
-    virtual std::string asString() const
+    std::string asString() const override
     {
         std::string result;
         if (asString(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value cannot be cast to a string.");
+        throwRuntimeError("JSON value cannot be cast to a string.");
     }
 
-    virtual bool asString(std::string &result) const
+    bool asString(std::string &result) const override
     {
-        if (value.isString()) {
-            return value.getString(result);
-        } else if (value.isNull()) {
+        if (m_value.isString()) {
+            return m_value.getString(result);
+        } else if (m_value.isNull()) {
             result.clear();
             return true;
-        } else if (value.isArray()) {
+        } else if (m_value.isArray()) {
             size_t arraySize;
-            if (value.getArraySize(arraySize) && arraySize == 0) {
+            if (m_value.getArraySize(arraySize) && arraySize == 0) {
                 result.clear();
                 return true;
             }
-        } else if (value.isObject()) {
+        } else if (m_value.isObject()) {
             size_t objectSize;
-            if (value.getObjectSize(objectSize) && objectSize == 0) {
+            if (m_value.getObjectSize(objectSize) && objectSize == 0) {
                 result.clear();
                 return true;
             }
-        } else if (value.isBool()) {
+        } else if (m_value.isBool()) {
             bool boolValue;
-            if (value.getBool(boolValue)) {
+            if (m_value.getBool(boolValue)) {
                 result = boolValue ? "true" : "false";
                 return true;
             }
-        } else if (value.isInteger()) {
+        } else if (m_value.isInteger()) {
             int64_t integerValue;
-            if (value.getInteger(integerValue)) {
+            if (m_value.getInteger(integerValue)) {
                 result = std::to_string(integerValue);
                 return true;
             }
-        } else if (value.isDouble()) {
+        } else if (m_value.isDouble()) {
             double doubleValue;
-            if (value.getDouble(doubleValue)) {
+            if (m_value.getDouble(doubleValue)) {
                 result = std::to_string(doubleValue);
                 return true;
             }
@@ -481,27 +481,24 @@ public:
         return false;
     }
 
-    virtual bool equalTo(const Adapter &other, bool strict) const
+    bool equalTo(const Adapter &other, bool strict) const override
     {
         if (isNull() || (!strict && maybeNull())) {
             return other.isNull() || (!strict && other.maybeNull());
         } else if (isBool() || (!strict && maybeBool())) {
-            return (other.isBool() || (!strict && other.maybeBool())) &&
-                other.asBool() == asBool();
+            return (other.isBool() || (!strict && other.maybeBool())) && other.asBool() == asBool();
         } else if (isNumber() && strict) {
             return other.isNumber() && other.getNumber() == getNumber();
         } else if (!strict && maybeDouble()) {
-            return (other.maybeDouble() &&
-                    other.asDouble() == asDouble());
+            return (other.maybeDouble() && other.asDouble() == asDouble());
         } else if (!strict && maybeInteger()) {
-            return (other.maybeInteger() &&
-                    other.asInteger() == asInteger());
+            return (other.maybeInteger() && other.asInteger() == asInteger());
         } else if (isString() || (!strict && maybeString())) {
             return (other.isString() || (!strict && other.maybeString())) &&
                 other.asString() == asString();
         } else if (isArray()) {
             if (other.isArray() && getArraySize() == other.getArraySize()) {
-                const opt::optional<ArrayType> array = value.getArrayOptional();
+                const opt::optional<ArrayType> array = m_value.getArrayOptional();
                 if (array) {
                     ArrayComparisonFunctor fn(*array, strict);
                     return other.applyToArray(fn);
@@ -511,7 +508,7 @@ public:
             }
         } else if (isObject()) {
             if (other.isObject() && other.getObjectSize() == getObjectSize()) {
-                const opt::optional<ObjectType> object = value.getObjectOptional();
+                const opt::optional<ObjectType> object = m_value.getObjectOptional();
                 if (object) {
                     ObjectComparisonFunctor fn(*object, strict);
                     return other.applyToObject(fn);
@@ -540,85 +537,85 @@ public:
      */
     ArrayType getArray() const
     {
-        opt::optional<ArrayType> arrayValue = value.getArrayOptional();
+        opt::optional<ArrayType> arrayValue = m_value.getArrayOptional();
         if (arrayValue) {
             return *arrayValue;
         }
 
-        throw std::runtime_error("JSON value is not an array.");
+        throwRuntimeError("JSON value is not an array.");
     }
 
-    virtual size_t getArraySize() const
+    size_t getArraySize() const override
     {
         size_t result;
-        if (value.getArraySize(result)) {
+        if (m_value.getArraySize(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not an array.");
+        throwRuntimeError("JSON value is not an array.");
     }
 
-    virtual bool getArraySize(size_t &result) const
+    bool getArraySize(size_t &result) const override
     {
-        return value.getArraySize(result);
+        return m_value.getArraySize(result);
     }
 
-    virtual bool getBool() const
+    bool getBool() const override
     {
         bool result;
         if (getBool(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not a boolean.");
+        throwRuntimeError("JSON value is not a boolean.");
     }
 
-    virtual bool getBool(bool &result) const
+    bool getBool(bool &result) const override
     {
-        return value.getBool(result);
+        return m_value.getBool(result);
     }
 
-    virtual double getDouble() const
+    double getDouble() const override
     {
         double result;
         if (getDouble(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not a double.");
+        throwRuntimeError("JSON value is not a double.");
     }
 
-    virtual bool getDouble(double &result) const
+    bool getDouble(double &result) const override
     {
-        return value.getDouble(result);
+        return m_value.getDouble(result);
     }
 
-    virtual int64_t getInteger() const
+    int64_t getInteger() const override
     {
         int64_t result;
         if (getInteger(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not an integer.");
+        throwRuntimeError("JSON value is not an integer.");
     }
 
-    virtual bool getInteger(int64_t &result) const
+    bool getInteger(int64_t &result) const override
     {
-        return value.getInteger(result);
+        return m_value.getInteger(result);
     }
 
-    virtual double getNumber() const
+    double getNumber() const override
     {
         double result;
         if (getNumber(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not a number.");
+        throwRuntimeError("JSON value is not a number.");
     }
 
-    virtual bool getNumber(double &result) const
+    bool getNumber(double &result) const override
     {
         if (isDouble()) {
             return getDouble(result);
@@ -649,101 +646,101 @@ public:
      */
     ObjectType getObject() const
     {
-        opt::optional<ObjectType> objectValue = value.getObjectOptional();
+        opt::optional<ObjectType> objectValue = m_value.getObjectOptional();
         if (objectValue) {
             return *objectValue;
         }
 
-        throw std::runtime_error("JSON value is not an object.");
+        throwRuntimeError("JSON value is not an object.");
     }
 
-    virtual size_t getObjectSize() const
+    size_t getObjectSize() const override
     {
         size_t result;
         if (getObjectSize(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not an object.");
+        throwRuntimeError("JSON value is not an object.");
     }
 
-    virtual bool getObjectSize(size_t &result) const
+    bool getObjectSize(size_t &result) const override
     {
-        return value.getObjectSize(result);
+        return m_value.getObjectSize(result);
     }
 
-    virtual std::string getString() const
+    std::string getString() const override
     {
         std::string result;
         if (getString(result)) {
             return result;
         }
 
-        throw std::runtime_error("JSON value is not a string.");
+        throwRuntimeError("JSON value is not a string.");
     }
 
-    virtual bool getString(std::string &result) const
+    bool getString(std::string &result) const override
     {
-        return value.getString(result);
+        return m_value.getString(result);
     }
 
-    virtual FrozenValue * freeze() const
+    FrozenValue * freeze() const override
     {
-        return value.freeze();
+        return m_value.freeze();
     }
 
-    virtual bool hasStrictTypes() const
+    bool hasStrictTypes() const override
     {
         return ValueType::hasStrictTypes();
     }
 
-    virtual bool isArray() const
+    bool isArray() const override
     {
-        return value.isArray();
+        return m_value.isArray();
     }
 
-    virtual bool isBool() const
+    bool isBool() const override
     {
-        return value.isBool();
+        return m_value.isBool();
     }
 
-    virtual bool isDouble() const
+    bool isDouble() const override
     {
-        return value.isDouble();
+        return m_value.isDouble();
     }
 
-    virtual bool isInteger() const
+    bool isInteger() const override
     {
-        return value.isInteger();
+        return m_value.isInteger();
     }
 
-    virtual bool isNull() const
+    bool isNull() const override
     {
-        return value.isNull();
+        return m_value.isNull();
     }
 
-    virtual bool isNumber() const
+    bool isNumber() const override
     {
-        return value.isInteger() || value.isDouble();
+        return m_value.isInteger() || m_value.isDouble();
     }
 
-    virtual bool isObject() const
+    bool isObject() const override
     {
-        return value.isObject();
+        return m_value.isObject();
     }
 
-    virtual bool isString() const
+    bool isString() const override
     {
-        return value.isString();
+        return m_value.isString();
     }
 
-    virtual bool maybeArray() const
+    bool maybeArray() const override
     {
-        if (value.isArray()) {
+        if (m_value.isArray()) {
             return true;
-        } else if (value.isObject()) {
+        } else if (m_value.isObject()) {
             size_t objectSize;
-            if (value.getObjectSize(objectSize) && objectSize == 0) {
+            if (m_value.getObjectSize(objectSize) && objectSize == 0) {
                 return true;
             }
         }
@@ -751,14 +748,14 @@ public:
         return false;
     }
 
-    virtual bool maybeBool() const
+    bool maybeBool() const override
     {
-        if (value.isBool()) {
+        if (m_value.isBool()) {
             return true;
         } else if (maybeString()) {
             std::string stringValue;
-            if (value.getString(stringValue)) {
-                if (stringValue.compare("true") == 0 || stringValue.compare("false") == 0) {
+            if (m_value.getString(stringValue)) {
+                if (stringValue == "true" || stringValue == "false") {
                     return true;
                 }
             }
@@ -767,15 +764,15 @@ public:
         return false;
     }
 
-    virtual bool maybeDouble() const
+    bool maybeDouble() const override
     {
-        if (value.isNumber()) {
+        if (m_value.isNumber()) {
             return true;
         } else if (maybeString()) {
             std::string s;
-            if (value.getString(s)) {
+            if (m_value.getString(s)) {
                 const char *b = s.c_str();
-                char *e = NULL;
+                char *e = nullptr;
                 strtod(b, &e);
                 return e != b && e == b + s.length();
             }
@@ -784,13 +781,13 @@ public:
         return false;
     }
 
-    virtual bool maybeInteger() const
+    bool maybeInteger() const override
     {
-        if (value.isInteger()) {
+        if (m_value.isInteger()) {
             return true;
         } else if (maybeString()) {
             std::string s;
-            if (value.getString(s)) {
+            if (m_value.getString(s)) {
                 std::istringstream i(s);
                 int64_t x;
                 char c;
@@ -804,13 +801,13 @@ public:
         return false;
     }
 
-    virtual bool maybeNull() const
+    bool maybeNull() const override
     {
-        if (value.isNull()) {
+        if (m_value.isNull()) {
             return true;
         } else if (maybeString()) {
             std::string stringValue;
-            if (value.getString(stringValue)) {
+            if (m_value.getString(stringValue)) {
                 if (stringValue.empty()) {
                     return true;
                 }
@@ -820,13 +817,13 @@ public:
         return false;
     }
 
-    virtual bool maybeObject() const
+    bool maybeObject() const override
     {
-        if (value.isObject()) {
+        if (m_value.isObject()) {
             return true;
         } else if (maybeArray()) {
             size_t arraySize;
-            if (value.getArraySize(arraySize) && arraySize == 0) {
+            if (m_value.getArraySize(arraySize) && arraySize == 0) {
                 return true;
             }
         }
@@ -834,19 +831,18 @@ public:
         return false;
     }
 
-    virtual bool maybeString() const
+    bool maybeString() const override
     {
-        if (value.isString() || value.isBool() || value.isInteger() ||
-            value.isDouble()) {
+        if (m_value.isString() || m_value.isBool() || m_value.isInteger() || m_value.isDouble()) {
             return true;
-        } else if (value.isObject()) {
+        } else if (m_value.isObject()) {
             size_t objectSize;
-            if (value.getObjectSize(objectSize) && objectSize == 0) {
+            if (m_value.getObjectSize(objectSize) && objectSize == 0) {
                 return true;
             }
-        } else if (value.isArray()) {
+        } else if (m_value.isArray()) {
             size_t arraySize;
-            if (value.getArraySize(arraySize) && arraySize == 0) {
+            if (m_value.getArraySize(arraySize) && arraySize == 0) {
                 return true;
             }
         }
@@ -856,8 +852,7 @@ public:
 
 private:
 
-    const ValueType value;
-
+    const ValueType m_value;
 };
 
 }  // namespace adapters

@@ -9,6 +9,7 @@
 #include "CreateCompositePackageCatalogOptions.h"
 #pragma warning( pop )
 #include "CreateCompositePackageCatalogOptions.g.cpp"
+#include "Helpers.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -24,5 +25,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_compositeSearchBehavior = value;
     }
-    CoCreatableCppWinRtClass(CreateCompositePackageCatalogOptions);
+
+    CoCreatableMicrosoftManagementDeploymentClass(CreateCompositePackageCatalogOptions);
 }

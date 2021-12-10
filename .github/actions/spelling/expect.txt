@@ -91,6 +91,7 @@ ctc
 Ctx
 curated
 CYRL
+Dbg
 debian
 deigh
 deleteifnotneeded
@@ -156,6 +157,7 @@ htm
 IAttachment
 IConfiguration
 idx
+IFACEMETHODIMP
 IGlobal
 IHelp
 IHost
@@ -218,10 +220,12 @@ lz
 malware
 maxvalue
 MBH
+mdmp
 megamorf
 memcpy
 middleware
 midl
+minidump
 minexample
 minschema
 missingdependency
@@ -259,7 +263,9 @@ nuffing
 nullopt
 NX
 objbase
+objidl
 ofile
+Outptr
 Packagedx
 packageinuse
 parametermap
@@ -301,11 +307,13 @@ rebootrequiredforinstall
 rebootrequiredtofinish
 redirector
 Redist
+REFIID
 regexes
 REGSAM
 restsource
 rgex
 rhs
+riid
 roblox
 rosoft
 rowids
@@ -347,6 +355,7 @@ SYD
 SYG
 sysrefcomp
 Tagit
+TCpp
 Templating
 temppath
 testexampleinstaller
@@ -374,13 +383,13 @@ unparsable
 UNSCOPED
 UParse
 UPSERT
-URIs
+uris
 URLs
 URLZONE
 userfilesetting
 userprofile
 USHORT
-Utils
+utils
 uuid
 UWP
 VERSI

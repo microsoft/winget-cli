@@ -58,6 +58,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -93,6 +94,7 @@
   <ImportGroup Label="Shared">
     <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
     <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
+    <Import Project="..\COMServer\COMServer.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -269,9 +271,15 @@
       <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DODownloader.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
+    <ClInclude Include="Public\winget\Debugging.h" />
     <ClInclude Include="Public\winget\DependenciesGraph.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
@@ -325,6 +333,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
+    <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="GroupPolicy.cpp">

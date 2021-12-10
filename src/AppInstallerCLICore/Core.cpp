@@ -7,6 +7,11 @@
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
+#include "COMContext.h"
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <winget/Debugging.h>
+#endif
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -46,6 +51,19 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
+        Logging::UseGlobalTelemetryLoggerActivityIdOnly();
+
+        Execution::Context context{ std::cout, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.EnableCtrlHandler();
+
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Info);
@@ -60,9 +78,6 @@ namespace AppInstaller::CLI
 
         // Initiate the background cleanup of the log file location.
         Logging::BeginLogFileCleanup();
-
-        Execution::Context context{ std::cout, std::cin };
-        context.EnableCtrlHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
@@ -132,5 +147,10 @@ namespace AppInstaller::CLI
     catch (...)
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    void ServerInitialize()
+    {
+        AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }

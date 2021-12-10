@@ -10,9 +10,12 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
+#include <PackageDependenciesValidation.h>
+#include <winget/ThreadGlobals.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
@@ -21,8 +24,13 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        static std::once_flag s_initLogging;
-        std::call_once(s_initLogging, []() {
+        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals threadGlobals;
+        thread_local std::once_flag initLogging;
+
+        std::call_once(initLogging, []() {
+            std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> previous = threadGlobals.SetForCurrentThread();
+            // Intentionally release to leave the local ThreadGlobals.
+            previous.release();
             // Enable all logs for now.
             AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
             AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
@@ -223,6 +231,48 @@ extern "C"
             validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
 
             (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
+
+            *succeeded = TRUE;
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = e.IsWarningOnly();
+            if (message)
+            {
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetValidateManifestDependencies(
+        WINGET_STRING inputPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message,
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetValidateManifestDependenciesOption validationOption) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        try
+        {
+            Manifest manifest = YamlParser::CreateFromPath(inputPath);
+            SQLiteIndex* sqliteIndex(reinterpret_cast<SQLiteIndex*>(index));
+            
+            switch (validationOption)
+            {
+                case WinGetValidateManifestDependenciesOption::DefaultValidation:
+                    PackageDependenciesValidation::ValidateManifestDependencies(sqliteIndex, manifest);
+                    break;
+                case WinGetValidateManifestDependenciesOption::ForDelete:
+                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(sqliteIndex, manifest);
+                    break;
+                default:
+                    THROW_HR(E_INVALIDARG);
+            }
 
             *succeeded = TRUE;
         }

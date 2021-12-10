@@ -271,11 +271,6 @@ namespace TestCommon
         }
     }
 
-    bool TestSource::IsComposite() const
-    {
-        return Composite;
-    }
-
     std::shared_ptr<ISourceReference> TestSourceFactory::Create(const SourceDetails& details)
     {
         if (OnOpenWithCustomHeader)

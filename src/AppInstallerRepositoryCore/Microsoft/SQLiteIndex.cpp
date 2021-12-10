@@ -151,6 +151,7 @@ namespace AppInstaller::Repository::Microsoft
 
     SQLiteIndex::IdType SQLiteIndex::AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
@@ -184,6 +185,7 @@ namespace AppInstaller::Repository::Microsoft
 
     bool SQLiteIndex::UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
@@ -216,6 +218,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifest");
 
         m_interface->RemoveManifest(m_dbconn, manifest);
@@ -238,6 +241,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::PrepareForPackaging()
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Preparing index for packaging");
 
         m_interface->PrepareForPackaging(m_dbconn);
@@ -245,6 +249,7 @@ namespace AppInstaller::Repository::Microsoft
 
     bool SQLiteIndex::CheckConsistency(bool log) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Checking index consistency...");
 
         bool result = m_interface->CheckConsistency(m_dbconn, log);
@@ -256,6 +261,7 @@ namespace AppInstaller::Repository::Microsoft
 
     Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Performing search: " << request.ToString());
 
         return m_interface->Search(m_dbconn, request);
@@ -263,16 +269,19 @@ namespace AppInstaller::Repository::Microsoft
 
     std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
     std::vector<std::string> SQLiteIndex::GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetMultiPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
     std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetManifestIdByKey(m_dbconn, id, version, channel);
     }
 
@@ -283,22 +292,36 @@ namespace AppInstaller::Repository::Microsoft
 
     std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetVersionKeysById(m_dbconn, id);
     }
 
     SQLiteIndex::MetadataResult SQLiteIndex::GetMetadataByManifestId(SQLite::rowid_t manifestId) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetMetadataByManifestId(m_dbconn, manifestId);
     }
 
     void SQLiteIndex::SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value)
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
     }
 
     Utility::NormalizedName SQLiteIndex::NormalizeName(std::string_view name, std::string_view publisher) const
     {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->NormalizeName(name, publisher);
+    }
+
+    std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> SQLiteIndex::GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const
+    {
+        return m_interface->GetDependenciesByManifestRowId(m_dbconn, manifestRowId);
+    }
+
+    std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> SQLiteIndex::GetDependentsById(AppInstaller::Manifest::string_t packageId) const
+    {
+        return m_interface->GetDependentsById(m_dbconn, packageId);
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

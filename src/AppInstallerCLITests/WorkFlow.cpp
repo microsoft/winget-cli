@@ -269,6 +269,41 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestInstallerWithLicenseAgreement")));
             }
 
+            if (input == "TestUpgradeAllWithDuplicateUpgradeItems")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Exe_2_LicenseAgreement.yaml" : "UpdateFlowTest_Exe_2.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest2,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            shared_from_this()
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
             return result;
         }
 
@@ -280,16 +315,18 @@ namespace
 
     struct WorkflowTaskOverride
     {
-        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o) :
-            Target(f), Override(o) {}
+        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(f), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o) :
-            Target(n), Override(o) {}
+        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(n), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o) :
-            Target(t), Override(o) {}
+        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o, int expectedUseCount = -1) :
+            Target(t), Override(o), ExpectedUseCount(expectedUseCount) {}
 
-        bool Used = false;
+        // -1 means no check on actual use count, as long as it's used.
+        int ExpectedUseCount = -1;
+        int UseCount = 0;
         WorkflowTask Target;
         std::function<void(TestContext&)> Override;
     };
@@ -306,7 +343,7 @@ namespace
             } };
 
             // Mark this one as used so that it doesn't anger the destructor.
-            wto.Used = true;
+            wto.UseCount++;
 
             Override(wto);
         }
@@ -324,7 +361,7 @@ namespace
                 }
                 else
                 {
-                    itr->Used = true;
+                    itr->UseCount++;
                     itr->Override(*this);
                     return false;
                 }
@@ -337,9 +374,13 @@ namespace
             {
                 for (const auto& wto : *m_overrides)
                 {
-                    if (!wto.Used)
+                    if (wto.UseCount == 0)
                     {
                         FAIL_CHECK("Unused override " + wto.Target.GetName());
+                    }
+                    else if (wto.ExpectedUseCount != -1 && wto.ExpectedUseCount != wto.UseCount)
+                    {
+                        FAIL_CHECK("Used override count does not match expected " + wto.Target.GetName());
                     }
                 }
             }
@@ -350,7 +391,7 @@ namespace
             m_overrides->emplace_back(wto);
         }
 
-        std::unique_ptr<Context> Clone() override
+        std::unique_ptr<Context> CreateSubContext() override
         {
             auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
             clone->SetFlags(this->GetFlags());
@@ -434,7 +475,7 @@ void OverrideForCheckExistingInstaller(TestContext& context)
     } });
 }
 
-void OverrideForShellExecute(TestContext& context)
+void OverrideForShellExecute(TestContext& context, int expectedUseCount = -1)
 {
     OverrideForCheckExistingInstaller(context);
 
@@ -442,11 +483,11 @@ void OverrideForShellExecute(TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-    } });
+    }, expectedUseCount });
 
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
     {
-    } });
+    }, expectedUseCount });
 
     OverrideForUpdateInstallerMotw(context);
 }
@@ -631,6 +672,7 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
 
@@ -654,6 +696,7 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_NonZeroExitCode.yaml").GetPath().u8string());
 
@@ -678,6 +721,7 @@ TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Override, "/ExitCode 8"sv);
@@ -698,6 +742,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_NoApplicableArchitecture.yaml").GetPath().u8string());
 
     InstallCommand install({});
@@ -716,6 +761,7 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForMSStore(context, false);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
 
@@ -738,6 +784,7 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForMSIX(context);
     OverrideForUpdateInstallerMotw(context);
     // Todo: point to files from our repo when the repo goes public
@@ -763,6 +810,7 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForMSIX(context);
     OverrideForCheckExistingInstaller(context);
     // Todo: point to files from our repo when the repo goes public
@@ -791,6 +839,7 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForDirectMsi(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Silent);
@@ -813,6 +862,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Default Msi type with no args passed in, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Add<Data::Manifest>(manifest);
@@ -829,6 +879,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Msi type with /silent and /log and /custom and /installlocation, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -846,6 +897,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Msi type with /silent and /log and /custom and /installlocation, switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -864,6 +916,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Default Inno type with no args passed in, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Add<Data::Manifest>(manifest);
@@ -880,6 +933,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -897,6 +951,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -915,6 +970,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Override switch specified. The whole arg passed to installer is overridden.
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -935,6 +991,7 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
@@ -957,6 +1014,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero"sv);
 
@@ -972,6 +1030,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo"sv);
 
@@ -989,6 +1048,7 @@ TEST_CASE("InstallFlow_LicenseAgreement", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
@@ -1016,6 +1076,7 @@ TEST_CASE("InstallFlow_LicenseAgreement_Prompt", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, installInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
 
@@ -1045,6 +1106,7 @@ TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, installInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_LicenseAgreement.yaml").GetPath().u8string());
 
     InstallCommand install({});
@@ -1067,6 +1129,7 @@ TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
 
@@ -1085,6 +1148,7 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
     context.Args.AddArg(Execution::Args::Type::ListVersions);
@@ -1103,6 +1167,7 @@ TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
     TestUserSettings settings;
@@ -1129,6 +1194,7 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
 
     Manifest manifest = CreateFakeManifestWithDependencies("DependenciesInstalled");
     OverrideOpenDependencySource(context);
@@ -1143,9 +1209,9 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 0);
+    REQUIRE(dependencyPackages.size() == 0);
 }
 
 TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependencyGraph][dependencies]")
@@ -1154,6 +1220,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     Manifest manifest = CreateFakeManifestWithDependencies("DependenciesValidMinVersions");
     OverrideOpenDependencySource(context);
     OverrideForInstallMultiplePackages(context);
@@ -1167,13 +1234,13 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
-    REQUIRE(installers.size() == 1);
-    REQUIRE(installers.at(0).Manifest.Id == "minVersion");
+    REQUIRE(dependencyPackages.size() == 1);
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Id == "minVersion");
     // minVersion 1.5 is available but this requires 1.0 so that version is installed
-    REQUIRE(installers.at(0).Manifest.Version == "1.0");
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Version == "1.0");
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
@@ -1182,6 +1249,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     Manifest manifest = CreateFakeManifestWithDependencies("PathBetweenBranchesButNoLoop");
     OverrideOpenDependencySource(context);
     OverrideForInstallMultiplePackages(context);
@@ -1195,16 +1263,16 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    std::vector<Execution::PackageToInstall> installers = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
 
     // Verify installers are called in order
-    REQUIRE(installers.size() == 4);
-    REQUIRE(installers.at(0).Manifest.Id == "B");
-    REQUIRE(installers.at(1).Manifest.Id == "C");
-    REQUIRE(installers.at(2).Manifest.Id == "G");
-    REQUIRE(installers.at(3).Manifest.Id == "H");
+    REQUIRE(dependencyPackages.size() == 4);
+    REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Id == "B");
+    REQUIRE(dependencyPackages.at(1)->Get<Execution::Data::Manifest>().Id == "C");
+    REQUIRE(dependencyPackages.at(2)->Get<Execution::Data::Manifest>().Id == "G");
+    REQUIRE(dependencyPackages.at(3)->Get<Execution::Data::Manifest>().Id == "H");
 }
 
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
@@ -1213,6 +1281,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Exe.yaml").GetPath().u8string());
@@ -1237,6 +1306,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
@@ -1260,6 +1330,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow][workflow
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml").GetPath().u8string());
 
@@ -1279,6 +1350,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
 
@@ -1298,6 +1370,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
@@ -1324,6 +1397,7 @@ TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForMSIX(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
@@ -1342,6 +1416,7 @@ TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
@@ -1365,6 +1440,7 @@ TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow][workflow]"
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithLatestInstalled"sv);
 
@@ -1384,6 +1460,7 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workfl
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
 
@@ -1393,7 +1470,28 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workfl
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+}
+
+TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicableSpecificVersion", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
+    context.Args.AddArg(Execution::Args::Type::Version, "2.0.0.0"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify Installer is not called.
+    REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeDifferentInstallTechnology).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
@@ -1403,6 +1501,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
     context.Args.AddArg(Execution::Args::Type::Version, "1.2.3.4"sv);
@@ -1423,6 +1522,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
     context.Args.AddArg(Execution::Args::Type::Version, "1.0.0.0"sv);
@@ -1445,6 +1545,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
@@ -1461,12 +1562,34 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
 }
 
+TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    // Installer should only be run once since the 2 upgrade items are same.
+    OverrideForShellExecute(context, 1);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestUpgradeAllWithDuplicateUpgradeItems"sv);
+    context.Args.AddArg(Execution::Args::Type::All);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify installers are called.
+    REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+}
+
 TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
@@ -1492,6 +1615,7 @@ TEST_CASE("UpdateFlow_LicenseAgreement", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
@@ -1518,6 +1642,7 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, updateInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
 
@@ -1543,6 +1668,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, /* upgradeUsesLicenses */ true);
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
@@ -1577,6 +1703,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, updateInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, /* upgradeUsesLicenses */ true);
     context.Args.AddArg(Execution::Args::Type::All);
 
@@ -1603,6 +1730,7 @@ TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
 
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForExeUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
@@ -1628,6 +1756,7 @@ TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
 
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForMSIXUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
@@ -1651,6 +1780,7 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
 
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForMSIXUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
@@ -1674,6 +1804,7 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
 
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.MissingApp"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
@@ -1694,6 +1825,7 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
 
     std::ostringstream exportOutput;
     TestContext context{ exportOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
 
@@ -1728,6 +1860,7 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
 
     std::ostringstream exportOutput;
     TestContext context{ exportOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
     context.Args.AddArg(Execution::Args::Type::IncludeVersions);
@@ -1764,6 +1897,7 @@ TEST_CASE("ImportFlow_Successful", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForMSIX(context);
     OverrideForShellExecute(context);
@@ -1784,6 +1918,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context, true);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
 
@@ -1802,6 +1937,7 @@ TEST_CASE("ImportFlow_IgnoreVersions", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
@@ -1821,6 +1957,7 @@ TEST_CASE("ImportFlow_MissingSource", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownSource.json").GetPath().string());
 
     ImportCommand importCommand({});
@@ -1839,6 +1976,7 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackage.json").GetPath().string());
 
@@ -1858,6 +1996,7 @@ TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackage.json").GetPath().string());
@@ -1878,6 +2017,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackageVersion.json").GetPath().string());
 
@@ -1895,6 +2035,7 @@ TEST_CASE("ImportFlow_MalformedJsonFile", "[ImportFlow][workflow]")
 {
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Malformed.json").GetPath().string());
 
     ImportCommand importCommand({});
@@ -1909,6 +2050,7 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
 {
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Invalid.json").GetPath().string());
 
     ImportCommand importCommand({});
@@ -1925,6 +2067,7 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-MachineScope.json").GetPath().string());
@@ -1949,6 +2092,7 @@ TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForMSIX(context);
     OverrideForShellExecute(context);
@@ -1974,6 +2118,7 @@ TEST_CASE("ImportFlow_LicenseAgreement", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithLicenseAgreement.json").GetPath().string());
@@ -1998,6 +2143,7 @@ TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
 
     std::ostringstream importOutput;
     TestContext context{ importOutput, importInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithLicenseAgreement.json").GetPath().string());
 
@@ -2038,6 +2184,7 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
 
     std::ostringstream updateMotwOutput;
     TestContext context{ updateMotwOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Add<Data::HashPair>({ {}, {} });
     context.Add<Data::InstallerPath>(testInstallerPath);
     auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
@@ -2068,6 +2215,7 @@ TEST_CASE("InstallFlowMultiLocale_RequirementNotSatisfied", "[InstallFlow][workf
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
 
@@ -2087,6 +2235,7 @@ TEST_CASE("InstallFlowMultiLocale_RequirementSatisfied", "[InstallFlow][workflow
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Locale, "fr-FR"sv);
@@ -2110,6 +2259,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceNoBetterLocale", "[InstallFlow][work
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
 
@@ -2135,6 +2285,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-MultiLocale.yaml").GetPath().u8string());
 
@@ -2163,6 +2314,7 @@ TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
 {
     std::ostringstream sourceAddOutput;
     TestContext context{ sourceAddOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
     context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
@@ -2189,6 +2341,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
     std::istringstream sourceAddInput{ "y" };
     std::ostringstream sourceAddOutput;
     TestContext context{ sourceAddOutput, sourceAddInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
     context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
@@ -2214,6 +2367,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     std::istringstream sourceAddInput{ "n" };
     std::ostringstream sourceAddOutput;
     TestContext context{ sourceAddOutput, sourceAddInput };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context, false);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
     context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
@@ -2237,6 +2391,7 @@ TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
 {
     std::ostringstream validateOutput;
     TestContext context{ validateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
     TestUserSettings settings;
@@ -2264,6 +2419,7 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context, installationOrder);
 
@@ -2291,6 +2447,7 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     OverrideDependencySource(context);
 
@@ -2314,6 +2471,7 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     OverrideDependencySource(context);
 
@@ -2339,6 +2497,7 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     OverrideDependencySource(context);
 
@@ -2383,6 +2542,7 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 
     std::ostringstream output;
     TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Query, "TestQuery"sv);
     context.Args.AddArg(Execution::Args::Type::CustomHeader, customHeader);
     context.Args.AddArg(Execution::Args::Type::Source, details.Name);
@@ -2395,39 +2555,51 @@ TEST_CASE("AdminSetting_LocalManifestFiles", "[LocalManifests][workflow]")
 {
     RemoveSetting(Stream::AdminSettings);
 
-    // If there's no admin setting, using local manifest should fail.
-    Execution::Args args;
-    args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
-    InstallCommand installCommand({});
-    REQUIRE_THROWS(installCommand.ValidateArguments(args));
+    {
+        // If there's no admin setting, using local manifest should fail.
+        Execution::Args args;
+        args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+        InstallCommand installCommand({});
+        REQUIRE_THROWS(installCommand.ValidateArguments(args));
+    }
 
-    // Using settings command to enable local manifests
-    std::ostringstream settingsOutput;
-    TestContext context{ settingsOutput, std::cin };
-    context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
-    context.Override({ EnsureRunningAsAdmin, [](TestContext&){} });
-    SettingsCommand settings({});
-    settings.Execute(context);
-    INFO(settingsOutput.str());
+    {
+        // Using settings command to enable local manifests
+        std::ostringstream settingsOutput;
+        TestContext context{ settingsOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+        context.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+        SettingsCommand settings({});
+        settings.Execute(context);
+        INFO(settingsOutput.str());
+    }
 
-    // Now using local manifests should succeed
-    Execution::Args args2;
-    args2.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
-    InstallCommand installCommand2({});
-    REQUIRE_NOTHROW(installCommand2.ValidateArguments(args2));
+    {
+        // Now using local manifests should succeed
+        Execution::Args args2;
+        args2.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+        InstallCommand installCommand2({});
+        REQUIRE_NOTHROW(installCommand2.ValidateArguments(args2));
+    }
 
-    // Using settings command to disable local manifests
-    std::ostringstream settingsOutput2;
-    TestContext context2{ settingsOutput2, std::cin };
-    context2.Args.AddArg(Execution::Args::Type::AdminSettingDisable, "LocalManifestFiles"sv);
-    context2.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
-    SettingsCommand settings2({});
-    settings2.Execute(context2);
-    INFO(settingsOutput2.str());
+    {
+        // Using settings command to disable local manifests
+        std::ostringstream settingsOutput2;
+        TestContext context2{ settingsOutput2, std::cin };
+        auto previousThreadGlobals = context2.SetForCurrentThread();
+        context2.Args.AddArg(Execution::Args::Type::AdminSettingDisable, "LocalManifestFiles"sv);
+        context2.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+        SettingsCommand settings2({});
+        settings2.Execute(context2);
+        INFO(settingsOutput2.str());
+    }
 
-    // Now using local manifests should fail
-    Execution::Args args3;
-    args3.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
-    InstallCommand installCommand3({});
-    REQUIRE_THROWS(installCommand3.ValidateArguments(args3));
+    {
+        // Now using local manifests should fail
+        Execution::Args args3;
+        args3.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+        InstallCommand installCommand3({});
+        REQUIRE_THROWS(installCommand3.ValidateArguments(args3));
+    }
 }

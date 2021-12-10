@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines our aspirational roadmap to deliver next release ofWindows Package Manager. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
+This document outlines our aspirational roadmap to deliver next release of Windows Package Manager. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
 
 ## Milestones
 

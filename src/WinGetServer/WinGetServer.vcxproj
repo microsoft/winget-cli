@@ -57,6 +57,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -100,7 +101,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <SDLCheck>true</SDLCheck>
       <EnablePREfast>true</EnablePREfast>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerCLICore;$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\WindowsPackageManager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,23 +142,8 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppInstallerCommonCore\AppInstallerCommonCore.vcxproj">
-      <Project>{5890d6ed-7c3b-40f3-b436-b54f640d9e65}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
-      <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
-      <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
-      <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
-      <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
-      <Project>{1cc41a9a-ae66-459d-9210-1e572dd7be69}</Project>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <Project>{2046b5af-666d-4ce8-8d3e-c32c57908a56}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

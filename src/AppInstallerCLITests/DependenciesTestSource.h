@@ -3,11 +3,13 @@
 #include "pch.h"
 #include "TestSource.h"
 #include "TestCommon.h"
+#include "AppInstallerVersions.h"
 #include <Public/winget/RepositorySource.h>
 #include <winget/ManifestYamlParser.h>
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Utility;
 
 namespace TestCommon
 {
@@ -22,6 +24,8 @@ namespace TestCommon
             auto& installer = manifest.Installers.at(0);
             installer.ProductId = input;
             installer.Dependencies.Clear();
+
+            string_t defaultFakeVersion("0.0.1-defaultFakeVersion");
 
             if (input == "withoutInstallers")
             {
@@ -50,32 +54,32 @@ namespace TestCommon
             //-- predefined
             if (input == "C")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B", defaultFakeVersion));
             }
             if (input == "D")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "E"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "E", defaultFakeVersion));
             }
             if (input == "E")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "D", defaultFakeVersion));
             }
             if (input == "F")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B", defaultFakeVersion));
             }
             if (input == "G")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C", defaultFakeVersion));
             }
             if (input == "H")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "G"));
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "G", defaultFakeVersion));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B", defaultFakeVersion));
             }
             if (input == "installed1")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1Dep"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1Dep", defaultFakeVersion));
             }
             if (input == "minVersion1.0")
             {
@@ -95,30 +99,30 @@ namespace TestCommon
             // depends on test
             if (input == "StackOrderIsOk")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C", defaultFakeVersion));
             }
             if (input == "NeedsToInstallBFirst")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "B"));
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "B", defaultFakeVersion));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C", defaultFakeVersion));
             }
             if (input == "EasyToSeeLoop")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "D"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "D", defaultFakeVersion));
             }
             if (input == "DependencyAlreadyInStackButNoLoop")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "F"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C", defaultFakeVersion));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "F", defaultFakeVersion));
             }
             if (input == "PathBetweenBranchesButNoLoop")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "C"));
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "H"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "C", defaultFakeVersion));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "H", defaultFakeVersion));
             }
             if (input == "DependenciesInstalled")
             {
-                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1"));
+                installer.Dependencies.Add(Dependency(DependencyType::Package, "installed1", defaultFakeVersion));
             }
             if (input == "DependenciesValidMinVersions")
             {

@@ -583,4 +583,12 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    std::filesystem::path GetFileNameFromURI(std::string_view uri)
+    {
+        winrt::Windows::Foundation::Uri winrtUri{ winrt::hstring{ ConvertToUTF16(uri) } };
+        std::filesystem::path path{ static_cast<std::wstring_view>(winrtUri.Path()) };
+
+        return path.filename();
+    }
 }

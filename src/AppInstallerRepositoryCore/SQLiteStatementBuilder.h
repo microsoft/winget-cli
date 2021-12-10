@@ -249,6 +249,9 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         StatementBuilder& Not();
         StatementBuilder& In();
+        
+        //Appends a set of value binders for the In clause.
+        StatementBuilder& In(size_t count);
 
         // IsNull(true) means the value is null; IsNull(false) means the value is not null.
         StatementBuilder& IsNull(bool isNull = true);
@@ -257,6 +260,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Operators for combining filter clauses.
         StatementBuilder& And(std::string_view column);
         StatementBuilder& And(const QualifiedColumn& column);
+        StatementBuilder& Or(const QualifiedColumn& column);
 
         // Begin a join clause.
         // The initializer_list form enables the table name to be constructed from multiple parts.
