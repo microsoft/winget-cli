@@ -24,7 +24,7 @@ GUID = '79355747-76a0-4d6d-b182-4a8715b8fc59'
 Author = 'denelon'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
 Copyright = 'Copyright Microsoft Corporation. All rights reserved.'
