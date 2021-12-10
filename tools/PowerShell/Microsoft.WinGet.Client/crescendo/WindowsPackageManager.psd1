@@ -27,7 +27,7 @@ Author = 'denelon'
 CompanyName = 'Unknown'
 
 # Copyright statement for this module
-Copyright = '(c) denelon. All rights reserved.'
+Copyright = 'Copyright Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
 # Description = ''
