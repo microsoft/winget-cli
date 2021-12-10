@@ -137,7 +137,7 @@ Function Uninstall-WinGetPackage{
             $Result = ""
         }
         elseif($Result.count -lt 1){
-            Write-Host "Unable to locate package for installation"
+            Write-Host "Unable to locate package for uninstallation"
             $Result = ""
         }
         else {
