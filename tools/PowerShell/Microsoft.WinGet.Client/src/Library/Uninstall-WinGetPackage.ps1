@@ -149,7 +149,6 @@ Function Uninstall-WinGetPackage{
         return $Result
     }
 }
-}
 
 New-Alias -Name Remove-WinGetPackage -Value Uninstall-WinGetPackage
 
