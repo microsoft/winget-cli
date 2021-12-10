@@ -318,7 +318,6 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        
         context << HandleSourceAgreements(source);
         if (context.IsTerminated())
         {

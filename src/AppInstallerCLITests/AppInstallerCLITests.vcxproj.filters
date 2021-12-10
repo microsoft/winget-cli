@@ -192,10 +192,16 @@
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchMissing.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-DifferentCase-camelCase.yaml">
@@ -267,13 +273,22 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidManifestVersionValue.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidUpdateBehavior.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-LicenseMissing.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NameMissing.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-PackageFamilyNameOnMSI.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-PublisherMissing.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ProductCodeOnMSIX.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-Sha256Invalid.yaml">
@@ -301,6 +316,36 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-VersionMissing.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-ANSI.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE-BOM.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8-BOM.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE-BOM.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeExeRoot-Silent.yaml">
@@ -333,7 +378,13 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-MultiLocale.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Switches.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SystemReferenceComplex.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\index.1.0.0.0.msix">
@@ -343,9 +394,6 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
@@ -384,52 +432,16 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-ANSI.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE-BOM.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8-BOM.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE-BOM.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-SystemReferenceComplex.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-PackageFamilyNameOnMSI.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-ProductCodeOnMSIX.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidUpdateBehavior.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
@@ -447,6 +459,15 @@
     <CopyFileToFolders Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Malformed.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -457,9 +478,6 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-UnknownSource.json">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputNames.txt">
@@ -490,39 +508,18 @@
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-DefaultLocale.yaml">
-      <Filter>TestData\MultiFileManifestV1</Filter>
+      <Filter>TestData\MultiFileManifestV1_1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Installer.yaml">
-      <Filter>TestData\MultiFileManifestV1</Filter>
+      <Filter>TestData\MultiFileManifestV1_1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Locale.yaml">
-      <Filter>TestData\MultiFileManifestV1</Filter>
+      <Filter>TestData\MultiFileManifestV1_1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_1\ManifestV1_1-MultiFile-Version.yaml">
-      <Filter>TestData\MultiFileManifestV1</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-AllDependencyTypes.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
-      <Filter>TestData</Filter>
+      <Filter>TestData\MultiFileManifestV1_1</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Msix_WFDependency.yaml">

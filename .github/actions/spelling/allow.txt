@@ -22,6 +22,7 @@ appxmanifest
 appxrecipe
 appxsdk
 APSTUDIO
+archs
 argc
 args
 argv

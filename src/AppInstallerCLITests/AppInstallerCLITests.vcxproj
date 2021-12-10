@@ -472,7 +472,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders> 
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Encoding-ANSI.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
