@@ -44,29 +44,31 @@ namespace AppInstaller::CLI::Workflow
         bool updateFound = false;
         bool installedTypeInapplicable = false;
 
-        // The version keys should have already been sorted by version
-        const auto& versionKeys = package->GetAvailableVersionKeys();
-        for (const auto& key : versionKeys)
+        if (!installedVersion.IsUnknown() || context.Args.Contains(Execution::Args::Type::IncludeUnknown)) 
         {
-            // Check Update Version
-            if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
+            // The version keys should have already been sorted by version
+            const auto& versionKeys = package->GetAvailableVersionKeys();
+            for (const auto& key : versionKeys)
             {
-                auto packageVersion = package->GetAvailableVersion(key);
-                auto manifest = packageVersion->GetManifest();
-
-                // Check applicable Installer
-                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
-                if (!installer.has_value())
+                // Check Update Version
+                if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
                 {
-                    // If there is at least one installer whose only reason is InstalledType.
-                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
-                    if (onlyInstalledType != inapplicabilities.end())
-                    {
-                        installedTypeInapplicable = true;
-                    }
+                    auto packageVersion = package->GetAvailableVersion(key);
+                    auto manifest = packageVersion->GetManifest();
 
-                    continue;
-                }
+                    // Check applicable Installer
+                    auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
+                    if (!installer.has_value())
+                    {
+                        // If there is at least one installer whose only reason is InstalledType.
+                        auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                        if (onlyInstalledType != inapplicabilities.end())
+                        {
+                            installedTypeInapplicable = true;
+                        }
+
+                        continue;
+                    }
 
                 Logging::Telemetry().LogSelectedInstaller(
                     static_cast<int>(installer->Arch),
@@ -86,16 +88,25 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
                 context.Add<Execution::Data::Installer>(std::move(installer));
 
-                updateFound = true;
-                break;
-            }
-            else
-            {
-                // Any following versions are not applicable
-                break;
+                    updateFound = true;
+                    break;
+                }
+                else
+                {
+                    // Any following versions are not applicable
+                    break;
+                }
             }
         }
-
+        else
+        {
+            // the package has an unknown version and the user did not request to upgrade it anyway.
+            if (m_reportUpdateNotFound) 
+            {
+                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
+            }
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+        }
         if (!updateFound)
         {
             if (m_reportUpdateNotFound)
@@ -132,6 +143,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool updateAllFoundUpdate = false;
+        int unknownPackagesCount = 0;
 
         for (const auto& match : matches)
         {
@@ -139,8 +151,20 @@ namespace AppInstaller::CLI::Workflow
             auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
             auto previousThreadGlobals = updateContext.SetForCurrentThread();
+            auto installedVersion = match.Package->GetInstalledVersion();
 
             updateContext.Add<Execution::Data::Package>(match.Package);
+            
+            if (context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+            {
+                updateContext.Args.AddArg(Execution::Args::Type::IncludeUnknown);
+            }
+            else if (Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+            {
+                // we don't know what the package's version is and the user didn't ask to upgrade it anyway.
+                unknownPackagesCount++;
+                continue;
+            }
 
             updateContext <<
                 Workflow::GetInstalledPackageVersion <<
@@ -160,14 +184,19 @@ namespace AppInstaller::CLI::Workflow
         if (!updateAllFoundUpdate)
         {
             context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
-            return;
         }
-
-        context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
-        context <<
-            InstallMultiplePackages(
-                Resource::String::InstallAndUpgradeCommandsReportDependencies,
-                APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
-                { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
+        else
+        {
+            context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+            context <<
+                InstallMultiplePackages(
+                    Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                    APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
+                    { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
+        }
+        if (unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        {
+            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
+        }
     }
 }

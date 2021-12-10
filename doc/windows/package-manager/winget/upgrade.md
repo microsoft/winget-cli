@@ -18,15 +18,6 @@ The **upgrade** command requires that you specify the exact string to upgrade. I
 
 ![upgrade command](images/upgrade.png)
 
-## Arguments
-
-The following arguments are available.
-
-| Argument | Description |
-|-------------|-------------|  
-| **-q,--query**  |  The query used to search for an app. |
-| **-?, --help** |  Get additional help on this command. |
-
 ## Options
 
 The options allow you to customize the upgrade experience to meet your needs.
@@ -47,6 +38,7 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **-l, --location** | Location to upgrade to (if supported). |
 | **--force** | When a hash mismatch is discovered will ignore the error and attempt to install the package. |
 | **--all** | Updates all available packages to the latest application. |
+| **--include-unknown** | Attempt to upgrade a package even if the package's current version is unknown. | 
 ### Example queries
 
 The following example upgrades a specific version of an application.

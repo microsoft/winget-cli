@@ -5,9 +5,8 @@
 #include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_0/ManifestTable.h"
-
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
-
+#include <winget/ManifestValidation.h>
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_3
 {

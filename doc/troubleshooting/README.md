@@ -125,3 +125,7 @@ Install failed: error 0x80070490: Opening the package from location appxbundle_N
 ```
 
 A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/en-us/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.
+
+#### Updating Microsoft.DesktopAppInstaller from version 1.0.42251.0 doesn't render package name on Windows 11 Pro image in Azure
+
+Launching the Microsoft.DesktopAppInstaller update on Windows 11 Pro image in Azure to update from version 1.0.42251.0 might not render the correct package name title. The workaround to this issue is to install the latest Microsoft.DesktopAppInstaller with Windows Package Manager.

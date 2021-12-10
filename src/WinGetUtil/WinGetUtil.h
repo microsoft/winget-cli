@@ -24,6 +24,12 @@ extern "C"
         ErrorOnVerifiedPublisherFields = 0x2,
     };
 
+    enum WinGetValidateManifestDependenciesOption
+    {
+        DefaultValidation = 0,
+        ForDelete = 0x1,
+    };
+
     DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
 
     // Initializes the logging infrastructure.
@@ -99,6 +105,17 @@ extern "C"
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
         WinGetValidateManifestOption option);
+
+    // Validates a given manifest with dependencies. Returns a bool for validation result and
+    // a string representing validation errors if validation failed.
+    // If mergedManifestPath is provided, this method will write a merged manifest
+    // to the location specified by mergedManifestPath
+    WINGET_UTIL_API WinGetValidateManifestDependencies(
+        WINGET_STRING inputPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message,
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetValidateManifestDependenciesOption dependenciesValidationOption);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(

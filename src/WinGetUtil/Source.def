@@ -14,3 +14,4 @@ EXPORTS
     WinGetDownload
     WinGetCompareVersions
     WinGetValidateManifestV2
+    WinGetValidateManifestDependencies
