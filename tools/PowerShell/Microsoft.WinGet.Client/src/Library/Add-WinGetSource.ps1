@@ -53,7 +53,6 @@ Function Add-WinGetSource
     }
     PROCESS
     {
-        #[string[]]$WinGetSourceListRaw = & "WinGet" $WingetArgs | out-string -stream | foreach-object{$_ -replace ("$([char]915)$([char]199)$([char]170)", "$([char]199)")}
         & "WinGet" $WingetArgs
     }
     END
