@@ -104,6 +104,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallAndUpgradeCommandsReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
@@ -342,6 +343,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnologyInNewerVersions);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownCount);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownCountSingle);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandReportDependencies);

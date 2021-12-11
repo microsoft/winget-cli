@@ -708,6 +708,7 @@ namespace AppInstaller::CLI::Workflow
             });
 
         int availableUpgradesCount = 0;
+        int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
@@ -719,6 +720,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
                 bool updateAvailable = match.Package->IsUpdateAvailable();
+
+                if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+                {
+                    // We are only showing upgrades, and the user did not request to include packages with unknown versions.
+                    unknownPackagesCount++;
+                    continue;
+                }
 
                 // The only time we don't want to output a line is when filtering and no update is available.
                 if (updateAvailable || !m_onlyShowUpgrades)
@@ -765,6 +773,10 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
             }
+        }
+        if (m_onlyShowUpgrades && unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        {
+            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
         }
 
     }

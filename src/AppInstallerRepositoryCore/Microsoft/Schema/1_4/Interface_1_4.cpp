@@ -24,7 +24,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         V1_3::Interface::CreateTables(connection, options);
 
-        DependenciesTable::Create(connection);
+        if (WI_IsFlagClear(options, CreateOptions::DisableDependenciesSupport))
+        {
+            DependenciesTable::Create(connection);
+        }
 
         savepoint.Commit();
     }
