@@ -167,8 +167,9 @@ namespace AppInstaller::Utility
             std::wstring noProxy;
             wil::GetEnvironmentVariableW(L"NO_PROXY", noProxy);
             info.ProxyOverride = Utility::ConvertToUTF8(noProxy);
+            std::replace_if(info.ProxyOverride.begin(), info.ProxyOverride.end(), [](char ch) { return ch == ','; }, ';');
         }
-        return std::move(info);
+        return info;
     }
 
     std::optional<std::vector<BYTE>> DownloadToStream(
