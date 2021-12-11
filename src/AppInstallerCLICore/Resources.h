@@ -181,6 +181,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NetworkProxyArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NetworkProxyOverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);

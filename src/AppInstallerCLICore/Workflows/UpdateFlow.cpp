@@ -6,6 +6,7 @@
 #include "DependenciesFlow.h"
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
+#include "DownloadFlow.h"
 #include "ManifestComparator.h"
 
 using namespace AppInstaller::Repository;
@@ -129,6 +130,8 @@ namespace AppInstaller::CLI::Workflow
 
     void UpdateAllApplicable(Execution::Context& context)
     {
+        context << GetProxyInfo;
+
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
         bool updateAllFoundUpdate = false;

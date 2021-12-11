@@ -1250,4 +1250,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Select the architecture to install</value>
   </data>
+  <data name="NetworkProxyArgumentDescription" xml:space="preserve">
+    <value>Use the specified proxy</value>
+  </data>
+  <data name="NetworkProxyOverrideArgumentDescription" xml:space="preserve">
+    <value>Comma-separated list of hosts where proxy should not be used</value>
+  </data>
 </root>

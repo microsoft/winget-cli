@@ -388,6 +388,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            GetProxyInfo <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

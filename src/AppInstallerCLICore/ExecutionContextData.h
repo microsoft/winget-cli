@@ -6,6 +6,7 @@
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"
+#include "AppInstallerDownloader.h"
 
 #include <filesystem>
 #include <map>
@@ -50,6 +51,7 @@ namespace AppInstaller::CLI::Execution
         Dependencies,
         DependencySource,
         AllowedArchitectures,
+        NetworkProxyInfo,
         Max
     };
 
@@ -206,6 +208,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::AllowedArchitectures>
         {
             using value_t = std::vector<Utility::Architecture>;
+        };
+
+        template <>
+        struct DataMapping<Data::NetworkProxyInfo>
+        {
+            using value_t = Utility::ProxyInfo;
         };
     }
 }
