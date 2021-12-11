@@ -113,6 +113,17 @@
           "default": 60,
           "minimum": 1,
           "maximum": 600
+        },
+        "proxy": {
+          "description": "Proxy server used for download packages",
+          "type": "string"
+        },
+        "proxyOverride": {
+          "description": "List of hosts where no proxy should be used",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
