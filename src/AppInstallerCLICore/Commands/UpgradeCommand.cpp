@@ -169,14 +169,7 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
-        // TODO: Message
-        if (HasArgumentsForSinglePackage(execArgs) && HasArgumentsForMultiplePackages(execArgs))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
-        }
-
-
-        else if (!ShouldListUpgrade(execArgs) 
+        if (!ShouldListUpgrade(execArgs) 
                 && !HasSearchQueryArguments(execArgs) 
                 && (execArgs.Contains(Args::Type::Log) ||
                     execArgs.Contains(Args::Type::Override) ||
@@ -185,6 +178,11 @@ namespace AppInstaller::CLI
                     execArgs.Contains(Args::Type::AcceptPackageAgreements)))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
+        }
+
+        if (HasArgumentsForSinglePackage(execArgs) && HasArgumentsForMultiplePackages(execArgs))
+        {
+            throw CommandException(Resource::String::IncompatibleArgumentsProvided);
         }
     }
 

@@ -79,23 +79,23 @@ namespace AppInstaller::CLI::Workflow
                     continue;
                 }
 
-            Logging::Telemetry().LogSelectedInstaller(
-                static_cast<int>(installer->Arch),
-                installer->Url,
-                Manifest::InstallerTypeToString(installer->InstallerType),
-                Manifest::ScopeToString(installer->Scope),
-                installer->Locale);
+                Logging::Telemetry().LogSelectedInstaller(
+                    static_cast<int>(installer->Arch),
+                    installer->Url,
+                    Manifest::InstallerTypeToString(installer->InstallerType),
+                    Manifest::ScopeToString(installer->Scope),
+                    installer->Locale);
 
-            Logging::Telemetry().LogManifestFields(
-                manifest.Id,
-                manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
-                manifest.Version);
+                Logging::Telemetry().LogManifestFields(
+                    manifest.Id,
+                    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    manifest.Version);
 
-            // Since we already did installer selection, just populate the context Data
-            manifest.ApplyLocale(installer->Locale);
-            context.Add<Execution::Data::Manifest>(std::move(manifest));
-            context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
-            context.Add<Execution::Data::Installer>(std::move(installer));
+                // Since we already did installer selection, just populate the context Data
+                manifest.ApplyLocale(installer->Locale);
+                context.Add<Execution::Data::Manifest>(std::move(manifest));
+                context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
+                context.Add<Execution::Data::Installer>(std::move(installer));
 
                 updateFound = true;
                 break;
