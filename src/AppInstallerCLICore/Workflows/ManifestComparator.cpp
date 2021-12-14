@@ -214,8 +214,20 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installed package type is not compatible with ";
-                result += Manifest::InstallerTypeToString(installer.InstallerType);
+                std::string result = "Installed package type '" + std::string{ Manifest::InstallerTypeToString(m_installedType) } +
+                    "' is not compatible with installer type " + std::string{ Manifest::InstallerTypeToString(installer.InstallerType) };
+
+                std::string arpInstallerTypes;
+                for (const auto& entry : installer.AppsAndFeaturesEntries)
+                {
+                    arpInstallerTypes += " " + std::string{ Manifest::InstallerTypeToString(entry.InstallerType) };
+                }
+
+                if (!arpInstallerTypes.empty())
+                {
+                    result += ", or with accepted type(s)" + arpInstallerTypes;
+                }
+
                 return result;
             }
 
