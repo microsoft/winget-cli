@@ -329,6 +329,7 @@ SRL
 srs
 standalone
 startswith
+stl
 streambuf
 strtoull
 subdir
