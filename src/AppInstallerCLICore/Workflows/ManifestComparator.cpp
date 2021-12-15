@@ -252,7 +252,7 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installer scope does not matched currently installed scope: ";
+                std::string result = "Installer scope does not match currently installed scope: ";
                 result += Manifest::ScopeToString(installer.Scope);
                 result += " != ";
                 result += Manifest::ScopeToString(m_requirement);
@@ -508,12 +508,99 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
         };
+
+        struct MarketFilter : public details::FilterField
+        {
+            MarketFilter(Manifest::string_t market) : details::FilterField("Market"), m_market(market)
+            {
+                AICLI_LOG(CLI, Verbose, << "Market Comparator created with market: " << m_market);
+            }
+
+            static std::unique_ptr<MarketFilter> Create()
+            {
+                return std::make_unique<MarketFilter>(GetCurrentMarket());
+            }
+
+            InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                // If both allowed and excluded lists are provided, we only need to check the allowed markets.
+                if (!installer.Markets.AllowedMarkets.empty())
+                {
+                    // Inapplicable if NOT found
+                    if (installer.Markets.AllowedMarkets.end() == std::find(installer.Markets.AllowedMarkets.begin(), installer.Markets.AllowedMarkets.end(), m_market))
+                    {
+                        return InapplicabilityFlags::Market;
+                    }
+                }
+                else if (!installer.Markets.ExcludedMarkets.empty())
+                {
+                    // Inapplicable if found
+                    if (installer.Markets.ExcludedMarkets.end() != std::find(installer.Markets.ExcludedMarkets.begin(), installer.Markets.ExcludedMarkets.end(), m_market))
+                    {
+                        return InapplicabilityFlags::Market;
+                    }
+                }
+
+                return InapplicabilityFlags::None;
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "Current market '" + m_market + "' does not match installer markets." +
+                    " Allowed markets: " + GetMarketsListAsString(installer.Markets.AllowedMarkets) +
+                    " Excluded markets: " + GetMarketsListAsString(installer.Markets.ExcludedMarkets);
+                return result;
+            }
+
+        private:
+            Manifest::string_t m_market;
+
+            static Manifest::string_t GetCurrentMarket()
+            {
+                // TODO: Manifest uses 2-letter codes (ISO 3166?) but GetUserDefaultGeoName can return
+                // either a 2-letter ISO-3166 code or a numeric UN M.49 code.
+                auto geoNameSize = GetUserDefaultGeoName(nullptr, 0);
+                THROW_LAST_ERROR_IF(geoNameSize == 0);
+
+                std::vector<wchar_t> geoName(geoNameSize);
+                geoNameSize = GetUserDefaultGeoName(geoName.data(), geoNameSize);
+                THROW_LAST_ERROR_IF(geoNameSize == 0);
+
+                return Manifest::string_t{ geoName.data() };
+            }
+
+            std::string GetMarketsListAsString(const std::vector<Manifest::string_t>& markets)
+            {
+                // TODO: Refactor to merge with GetLocalesListAsString and GetAllowedArchitecturesString
+                std::string result = "[";
+
+                bool first = true;
+                for (auto const& market : markets)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        result += ", ";
+                    }
+
+                    result += market;
+                }
+
+                result += ']';
+
+                return result;
+            }
+        };
     }
 
     ManifestComparator::ManifestComparator(const Execution::Context& context, const Repository::IPackageVersion::Metadata& installationMetadata)
     {
         AddFilter(std::make_unique<OSVersionFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
+        AddFilter(MarketFilter::Create());
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
