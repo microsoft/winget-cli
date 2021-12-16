@@ -104,11 +104,12 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                if (CheckAllowedArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
+                if (CheckAllowedArchitecture(installer.Arch) == Utility::InapplicableArchitecture ||
+                    IsSystemArchitectureUnsupportedByInstaller(installer))
                 {
                     return InapplicabilityFlags::MachineArchitecture;
                 }
-                
+
                 return InapplicabilityFlags::None;
             }
 
@@ -118,12 +119,18 @@ namespace AppInstaller::CLI::Workflow
                 if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
                 {
                     result = "Machine is not compatible with ";
+                    result += Utility::ToString(installer.Arch);
+                }
+                else if (IsSystemArchitectureUnsupportedByInstaller(installer))
+                {
+                    result = "System architecture is unsupported by installer";
                 }
                 else
                 {
                     result = "Architecture was excluded by caller : ";
+                    result += Utility::ToString(installer.Arch);
                 }
-                result += Utility::ToString(installer.Arch);
+
                 return result;
             }
 
@@ -151,6 +158,15 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return Utility::IsApplicableArchitecture(architecture, m_allowedArchitectures);
                 }
+            }
+
+            bool IsSystemArchitectureUnsupportedByInstaller(const ManifestInstaller& installer)
+            {
+                auto unsupportedItr = std::find(
+                    installer.UnsupportedOSArchitectures.begin(),
+                    installer.UnsupportedOSArchitectures.end(),
+                    Utility::GetSystemArchitecture());
+                return unsupportedItr != installer.UnsupportedOSArchitectures.end();
             }
 
             std::string GetAllowedArchitecturesString()
