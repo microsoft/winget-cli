@@ -10,7 +10,7 @@ pool:
 
 variables:
   solution: "src/AppInstallerCLI.sln"
-  buildConfiguration: "Release"
+  buildConfiguration: "WinGetUtilRelease"
   packageName: Microsoft.WindowsPackageManager.Utils
 
 jobs:

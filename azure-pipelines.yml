@@ -16,12 +16,13 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: 'src/AppInstallerCLI.sln'
+  solution: 'src\AppInstallerCLI.sln'
   buildPlatform: 'x86|x64'
   buildConfiguration: 'Release'
+  wingetUtilBuildConfiguration: 'WinGetUtilRelease'
   testBuildPlatform: 'x86'
   testBuildConfiguration: 'TestRelease'
-  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\'
 
 # Do not set the build version for a PR build.
 
@@ -99,6 +100,13 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: VSBuild@1
+    displayName: Build WinGet Util
+    inputs:
+      platform: '$(buildPlatform)'
+      solution: '$(solution)'
+      configuration: '$(wingetUtilBuildConfiguration)'
 
   - task: VSBuild@1
     displayName: Build Test Project

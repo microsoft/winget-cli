@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Microsoft/SQLiteIndex.h>
-#include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
-#include <SQLiteWrapper.h>
 
 namespace AppInstaller::Repository
 {

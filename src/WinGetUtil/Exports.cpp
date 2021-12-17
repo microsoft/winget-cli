@@ -5,13 +5,10 @@
 
 #include <AppInstallerDownloader.h>
 #include <AppInstallerFileLogger.h>
-#include <AppInstallerLogging.h>
-#include <AppInstallerStrings.h>
-#include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
-#include <PackageDependenciesValidation.h>
 #include <winget/ThreadGlobals.h>
+#include <PackageDependenciesValidation.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;

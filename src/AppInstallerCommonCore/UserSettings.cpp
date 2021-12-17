@@ -373,6 +373,11 @@ namespace AppInstaller::Settings
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
     {
+// When building WinGetUtil, we don't want to use user settings so we don't do anything here.
+// Some OS APIs related to architecture that we use when reading the settings are not
+// available on Windows 10 1607, which is where we use the util. We avoid compiling that
+// to prevent errors.
+#ifndef WINGETUTIL_RELEASE
         Json::Value settingsRoot = Json::Value::nullSingleton();
 
         // Settings can be loaded from settings.json or settings.json.backup files.
@@ -416,6 +421,7 @@ namespace AppInstaller::Settings
         {
             AICLI_LOG(Core, Info, << "Valid settings file not found. Using default values.");
         }
+#endif
     }
 
     void UserSettings::PrepareToShellExecuteFile() const
