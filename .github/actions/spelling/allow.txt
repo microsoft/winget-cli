@@ -620,6 +620,7 @@ wildcards
 WINAPI
 WINEVENT
 winget
+WINGETUTIL
 wininet
 winmeta
 winres
