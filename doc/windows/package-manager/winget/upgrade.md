@@ -69,7 +69,7 @@ In the example below you will see [**list**](list.md) identifies that an update 
 
 ## **upgrade** --all
 
-**upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the.
+**upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the upgrade.
 
 ## Related topics
 
