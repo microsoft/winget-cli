@@ -102,9 +102,16 @@ jobs:
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
   - task: VSBuild@1
-    displayName: Build WinGet Util
+    displayName: Build WinGet Util x86
     inputs:
-      platform: '$(buildPlatform)'
+      platform: 'x86'
+      solution: '$(solution)'
+      configuration: '$(wingetUtilBuildConfiguration)'
+
+  - task: VSBuild@1
+    displayName: Build WinGet Util x64
+    inputs:
+      platform: 'x64'
       solution: '$(solution)'
       configuration: '$(wingetUtilBuildConfiguration)'
 
