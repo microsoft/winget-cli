@@ -101,12 +101,13 @@ jobs:
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
-  - task: VSBuild@1
-    displayName: Build WinGet Util x86
-    inputs:
-      platform: 'x86'
-      solution: '$(solution)'
-      configuration: '$(wingetUtilBuildConfiguration)'
+# TODO Reduce build size by only building x64 until a dedicated machine is acquired.
+#  - task: VSBuild@1
+#    displayName: Build WinGet Util x86
+#    inputs:
+#      platform: 'x86'
+#      solution: '$(solution)'
+#      configuration: '$(wingetUtilBuildConfiguration)'
 
   - task: VSBuild@1
     displayName: Build WinGet Util x64
