@@ -95,7 +95,7 @@ These errors most commonly occur for one of following reasons. Please try out th
     >`Get-AppxPackage microsoft.desktopappinstaller`
 
 2. The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to `App execution aliases` option in `Apps & features Settings` to enable it.
-3. The App Installer did not automatically add the PATH environment variable. You should add the path environment variable. The value to add is "%userprofile%\AppData\Local\Microsoft\WindowsApps". You can verify this by running `%LOCALAPPDATA%\Microsoft\WindowsApps\winget` from an administrator powershell. If the command runs then, but not before, then you very likely have a missing PATH environment component.
+3. The App Installer did not automatically add the PATH environment variable. You should add the path environment variable. The value to add is "%userprofile%\AppData\Local\Microsoft\WindowsApps". You can verify this by running `%LOCALAPPDATA%\Microsoft\WindowsApps\winget` from an administrator command-prompt or  `& "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"` from an administrator powershell. If the command runs then, but not before, then you very likely have a missing PATH environment component.
 4. Apps deployed on the machine are registered per user by default. If App Installer was installed on a different user account than the one you are trying to run it on, you will have to reinstall it again on this account and try again.
 
 If the above guidelines do not resolve the problem, please open an issue with details of the Windows version and App Installer version you are using.
