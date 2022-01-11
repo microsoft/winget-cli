@@ -66,4 +66,7 @@ namespace AppInstaller::Runtime
 
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild();
+
+    // Gets the default user agent string for the Windows Package Manager.
+    Utility::LocIndString GetDefaultUserAgent();
 }

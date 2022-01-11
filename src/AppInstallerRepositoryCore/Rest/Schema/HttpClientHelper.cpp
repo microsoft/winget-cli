@@ -7,16 +7,10 @@ namespace AppInstaller::Repository::Rest::Schema
 {
     namespace
     {
-        // Using "standard" user agent format and WPM == Windows Package Manager
-        utility::string_t GetDefaultUserAgent()
-        {
-            return utility::string_t{ L"WPM/" } + Utility::ConvertToUTF16(Runtime::GetClientVersion());
-        }
-
         // If the caller does not pass in a user agent header, put the default one on the request.
         void EnsureDefaultUserAgent(web::http::http_request& request)
         {
-            static utility::string_t c_defaultUserAgent = GetDefaultUserAgent();
+            static utility::string_t c_defaultUserAgent = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent());
 
             if (!request.headers().has(web::http::header_names::user_agent))
             {

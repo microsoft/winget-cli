@@ -30,7 +30,7 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
-            "winget-cli",
+            Runtime::GetDefaultUserAgent().get().c_str(),
             INTERNET_OPEN_TYPE_PRECONFIG,
             NULL,
             NULL,

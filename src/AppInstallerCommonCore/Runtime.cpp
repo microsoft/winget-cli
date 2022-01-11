@@ -459,6 +459,12 @@ namespace AppInstaller::Runtime
 #endif
     }
 
+    // Using "standard" user agent format and WPM == Windows Package Manager
+    Utility::LocIndString GetDefaultUserAgent()
+    {
+        return Utility::LocIndString{ std::string{ "WPM/" } + Runtime::GetClientVersion().get() };
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path)
     {
