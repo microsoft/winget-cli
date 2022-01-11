@@ -64,9 +64,9 @@ namespace AppInstaller::CLI::Workflow
             // Get file name from download URI
             std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
 
-            // Assuming that we find a stem value in the URI, use it.
+            // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
-            if (filename.has_stem())
+            if (filename.has_stem() && filename.string().size() < MAX_PATH)
             {
                 filename = filename.stem();
             }
