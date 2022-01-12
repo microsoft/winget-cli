@@ -1031,6 +1031,45 @@ Die Konfiguration ist aufgrund der Gruppenrichtlinie deaktiviert.</value>
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
     <value>Fehler beim Verarbeiten von Paketabhängigkeiten, wird beendet...</value>
   </data>
+  <data name="DependenciesFlowInstall" xml:space="preserve">
+    <value>Abhängigkeiten werden installiert:</value>
+  </data>
+  <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
+    <value>Abhängigkeitsquelle nicht gefunden</value>
+  </data>
+  <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
+    <value>Die Paketsuche ergibt mehr als ein Ergebnis.</value>
+    <comment>When node package id search yield too many matches</comment>
+  </data>
+  <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
+    <value>Die neueste Version für das Paket wurde nicht gefunden</value>
+    <comment>When no suitable version found for the specific package.</comment>
+  </data>
+  <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
+    <value>Keine Installationsprogramme gefunden</value>
+  </data>
+  <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
+    <value>Die mindestens erforderliche Version ist für das Paket nicht verfügbar</value>
+  </data>
+  <data name="DependenciesFlowNoMatches" xml:space="preserve">
+    <value>Keine Übereinstimmungen</value>
+    <comment>When package search yields no matches</comment>
+  </data>
+  <data name="DependenciesFlowContainsLoop" xml:space="preserve">
+    <value>Hat Schleife</value>
+    <comment>Dependency graph has loop</comment>
+  </data>
+  <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
+    <value>Kein geeignetes Installationsprogramm für das Manifest gefunden</value>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
+  </data>
+  <data name="DependenciesManagementError" xml:space="preserve">
+    <value>Fehler beim Verarbeiten der Paketabhängigkeiten. Möchten Sie die Installation fortsetzen?</value>
+    <comment>Prompt message shown when dependencies processing yields errors.</comment>
+  </data>
+  <data name="DependenciesManagementExitMessage" xml:space="preserve">
+    <value>Fehler beim Verarbeiten von Paketabhängigkeiten, wird beendet...</value>
+  </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>Pakete</value>
   </data>
@@ -3044,5 +3083,32 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>Die angegebene Konfiguration wurde nicht gefunden.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Dies ist eine stabile Version des Windows-Paket-Managers. Wenn Sie experimentelle Features ausprobieren möchten, installieren Sie bitte eine Vorabversion. Anweisungen finden Sie auf GitHub unter https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Windows-Paket-Manager</value>
+    <comment>The product name.</comment>
+  </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketversionen in Importdatei ignorieren</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>Die angeforderte Anzahl von Ergebnissen muss zwischen 1 und 1000 betragen.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>Es wurde eine neuere Version gefunden, die Installationstechnologie unterscheidet sich jedoch von der aktuellen installierten Version. Deinstallieren Sie das Paket, und installieren Sie die neuere Version.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>Die Installationstechnologie der angegebenen neueren Version unterscheidet sich von der aktuellen installierten Version. Deinstallieren Sie das Paket, und installieren Sie die neuere Version.</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Windows-Paket-Manager (Vorschau)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Wählen Sie die zu installierende Architektur aus</value>
   </data>
 </root>
