@@ -167,7 +167,7 @@
     <value>Habilita a conclusão da linha de comando sensível ao contexto</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Mostrar não mais do que o número especificado de resultados</value>
+    <value>Não mostrar mais do que o número especificado de resultados (entre 1 e 1000)</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Concluído</value>
@@ -939,6 +939,45 @@ A configuração está desabilitada devido à política de grupo.</value>
     <value>Este pacote requer as seguintes dependências:</value>
     <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
   </data>
+  <data name="DependenciesFlowInstall" xml:space="preserve">
+    <value>Instalando dependências:</value>
+  </data>
+  <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
+    <value>Origem da dependência não encontrada</value>
+  </data>
+  <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
+    <value>A pesquisa de pacotes produz mais de um resultado.</value>
+    <comment>When node package id search yield too many matches</comment>
+  </data>
+  <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
+    <value>Versão mais recente não encontrada para o pacote</value>
+    <comment>When no suitable version found for the specific package.</comment>
+  </data>
+  <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
+    <value>Nenhum instalador encontrado</value>
+  </data>
+  <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
+    <value>Versão mínima exigida não disponível para o pacote</value>
+  </data>
+  <data name="DependenciesFlowNoMatches" xml:space="preserve">
+    <value>Nenhuma correspondência</value>
+    <comment>When package search yields no matches</comment>
+  </data>
+  <data name="DependenciesFlowContainsLoop" xml:space="preserve">
+    <value>Tem loop</value>
+    <comment>Dependency graph has loop</comment>
+  </data>
+  <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
+    <value>Nenhum instalador adequado encontrado para o manifesto</value>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
+  </data>
+  <data name="DependenciesManagementError" xml:space="preserve">
+    <value>Erro ao processar dependências de pacote. Deseja continuar a instalação?</value>
+    <comment>Prompt message shown when dependencies processing yields errors.</comment>
+  </data>
+  <data name="DependenciesManagementExitMessage" xml:space="preserve">
+    <value>Erro ao processar as dependências do pacote, saindo...</value>
+  </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>Pacotes</value>
   </data>
@@ -955,6 +994,10 @@ A configuração está desabilitada devido à política de grupo.</value>
   </data>
   <data name="WindowsLibrariesDependencies" xml:space="preserve">
     <value>Bibliotecas do Windows</value>
+  </data>
+  <data name="DependencySourceArgumentDescription" xml:space="preserve">
+    <value>Encontre as dependências de pacotes usando a origem especificada</value>
+    <comment>For getting package type dependencies when installing from a local manifest</comment>
   </data>
   <data name="WindowsStoreTerms" xml:space="preserve">
     <value>Termos da Windows Store</value>
@@ -1017,6 +1060,21 @@ Você concorda com os termos?</value>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Versão:</value>
   </data>
+  <data name="ShowLabelDependencies" xml:space="preserve">
+    <value>Dependências:</value>
+  </data>
+  <data name="ShowLabelWindowsFeaturesDependencies" xml:space="preserve">
+    <value>Recursos do Windows:</value>
+  </data>
+  <data name="ShowLabelWindowsLibrariesDependencies" xml:space="preserve">
+    <value>Bibliotecas do Windows:</value>
+  </data>
+  <data name="ShowLabelPackageDependencies" xml:space="preserve">
+    <value>Dependências do pacote:</value>
+  </data>
+  <data name="ShowLabelExternalDependencies" xml:space="preserve">
+    <value>Dependências externas:</value>
+  </data>
   <data name="PromptOptionNo" xml:space="preserve">
     <value>Não</value>
   </data>
@@ -1040,7 +1098,7 @@ Você concorda com os termos?</value>
     <value>Um ou mais contratos de origem não foram concordados. Operação cancelada. Aceite os contratos de origem ou remova as fontes correspondentes.</value>
   </data>
   <data name="SourceAgreementsMarketMessage" xml:space="preserve">
-    <value>A origem requer que a região geográfica do computador atual seja enviada para funcionar corretamente.</value>
+    <value>A origem requer que a região geográfica de duas letras do computador atual seja enviada ao serviço de back-end para funcionar corretamente (por exemplo, "EUA").</value>
   </data>
   <data name="InstallFlowRegistrationDeferred" xml:space="preserve">
     <value>Instalado com êxito. Reinicie o aplicativo para concluir a atualização.</value>
@@ -1164,5 +1222,32 @@ Especifique um deles usando a opção '--source' para continuar.</value>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>Nenhum pacote foi encontrado entre as fontes de trabalho.</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>Esta é uma versão estável do Gerenciador de Pacotes do Windows. Se quiser experimentar os recursos experimentais, instale uma versão de pré-lançamento. As instruções estão disponíveis no GitHub em https://github.com/microsoft/winget-cli.</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Gerenciador de Pacotes do Windows</value>
+    <comment>The product name.</comment>
+  </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorar versões do pacote no arquivo de importação</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>O número solicitado de resultados deve estar entre 1 e 1000.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>Uma versão mais recente foi encontrada, mas a tecnologia de instalação é diferente da versão atual instalada. Desinstale o pacote e instale a versão mais recente.</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>A tecnologia de instalação da versão mais recente especificada é diferente da versão atual instalada. Desinstale o pacote e instale a versão mais recente.</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Gerenciador de Pacotes do Windows (Visualização)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>Selecione a arquitetura a ser instalada</value>
   </data>
 </root>
