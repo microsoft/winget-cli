@@ -1031,6 +1031,45 @@
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
     <value>处理包依赖项时出错，正在退出...</value>
   </data>
+  <data name="DependenciesFlowInstall" xml:space="preserve">
+    <value>正在安装依赖项:</value>
+  </data>
+  <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
+    <value>找不到依赖项源</value>
+  </data>
+  <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
+    <value>包搜索生成多个结果。</value>
+    <comment>When node package id search yield too many matches</comment>
+  </data>
+  <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
+    <value>找不到包的最新版本</value>
+    <comment>When no suitable version found for the specific package.</comment>
+  </data>
+  <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
+    <value>找不到安装程序</value>
+  </data>
+  <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
+    <value>包所需的最低版本不可用</value>
+  </data>
+  <data name="DependenciesFlowNoMatches" xml:space="preserve">
+    <value>没有匹配项</value>
+    <comment>When package search yields no matches</comment>
+  </data>
+  <data name="DependenciesFlowContainsLoop" xml:space="preserve">
+    <value>具有循环</value>
+    <comment>Dependency graph has loop</comment>
+  </data>
+  <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
+    <value>找不到适用于清单的安装程序</value>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
+  </data>
+  <data name="DependenciesManagementError" xml:space="preserve">
+    <value>处理包依赖项时出错，是否要继续安装？</value>
+    <comment>Prompt message shown when dependencies processing yields errors.</comment>
+  </data>
+  <data name="DependenciesManagementExitMessage" xml:space="preserve">
+    <value>处理包依赖项时出错，正在退出...</value>
+  </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>程序包</value>
   </data>
@@ -3044,5 +3083,32 @@
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>找不到指定的配置。</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>这是 Windows 程序包管理器的稳定版本。如果要尝试实验性功能，请安装预发布版本。请前往 https://github.com/microsoft/winget-cli 查看 GitHub 说明。</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Windows 程序包管理器</value>
+    <comment>The product name.</comment>
+  </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>忽略导入文件中的程序包版本</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>请求的结果数必须介于 1 和 1000 之间。</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>找到了较新的版本，但安装技术与当前安装的版本不同。请卸载包并安装较新的版本。</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>指定的较新版本的安装技术与当前安装的版本不同。请卸载包并安装较新的版本。</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Windows 程序包管理器(预览)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>选择要安装的体系结构</value>
   </data>
 </root>
