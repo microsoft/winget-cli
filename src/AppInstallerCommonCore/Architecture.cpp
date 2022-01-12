@@ -10,15 +10,55 @@ namespace AppInstaller::Utility
 {
     namespace
     {
+        // IsWow64GuestMachineSupported() is available starting on Windows 10, version 1709 (RS3).
+        // We generally target a later version (version 1809, RS5), but the WinGetUtil is used in
+        // Azure Functions that run on version 1607 (RS1) where it is not available. So, we load and
+        // call this function only if available.
+        using IsWow64GuestMachineSupportedPtr = decltype(&IsWow64GuestMachineSupported);
+
+        struct IsWow64GuestMachineSupportedHelper
+        {
+            IsWow64GuestMachineSupportedHelper()
+            {
+                m_module.reset(LoadLibraryEx(L"api-ms-win-core-wow64-l1-1-2.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+                if (!m_module)
+                {
+                    AICLI_LOG(Core, Verbose, << "Could not load api-ms-win-core-wow64-l1-1-2.dll");
+                    return;
+                }
+
+                m_isWow64GuestMachineSupported =
+                    reinterpret_cast<IsWow64GuestMachineSupportedPtr>(GetProcAddress(m_module.get(), "IsWow64GuestMachineSupported"));
+                if (!m_isWow64GuestMachineSupported)
+                {
+                    AICLI_LOG(Core, Verbose, << "Could not get proc address of IsWow64GuestMachineSupported");
+                    return;
+                }
+            }
+
+            void AddArchitectureIfGuestMachineSupported(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+            {
+                if (m_isWow64GuestMachineSupported)
+                {
+                    BOOL supported = FALSE;
+                    LOG_IF_FAILED(m_isWow64GuestMachineSupported(guestMachine, &supported));
+
+                    if (supported)
+                    {
+                        target.push_back(architecture);
+                    }
+                }
+            }
+
+        private:
+            wil::unique_hmodule m_module;
+            IsWow64GuestMachineSupportedPtr m_isWow64GuestMachineSupported = nullptr;
+        };
+
         void AddArchitectureIfGuestMachineSupported(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
         {
-            BOOL supported = FALSE;
-            LOG_IF_FAILED(IsWow64GuestMachineSupported(guestMachine, &supported));
-            
-            if (supported)
-            {
-                target.push_back(architecture);
-            }
+            IsWow64GuestMachineSupportedHelper helper;
+            helper.AddArchitectureIfGuestMachineSupported(target, architecture, guestMachine);
         }
 
         // These types are defined in a future SDK and can be removed when we actually have them available.
@@ -75,6 +115,12 @@ namespace AppInstaller::Utility
             GetMachineTypeAttributesPtr m_getMachineTypeAttributes = nullptr;
         };
 
+        void AddArchitectureIfMachineTypeAttributesUserEnabled(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+        {
+            GetMachineTypeAttributesHelper helper;
+            helper.AddArchitectureIfMachineTypeAttributesUserEnabled(target, architecture, guestMachine);
+        }
+
         // Gets the applicable architectures for the current machine.
         std::vector<Architecture> CreateApplicableArchitecturesVector()
         {
@@ -84,11 +130,9 @@ namespace AppInstaller::Utility
             {
             case Architecture::Arm64:
             {
-                GetMachineTypeAttributesHelper helper;
-
                 applicableArchs.push_back(Architecture::Arm64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
-                helper.AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
+                AddArchitectureIfMachineTypeAttributesUserEnabled(applicableArchs, Architecture::X64, IMAGE_FILE_MACHINE_AMD64);
                 AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
             }
