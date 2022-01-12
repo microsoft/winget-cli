@@ -10,6 +10,10 @@ namespace AppInstaller::Utility
 {
     namespace
     {
+        // IsWow64GuestMachineSupported() is available starting on Windows 10, version 1709 (RS3).
+        // We generally target a later version (version 1809, RS5), but the WinGetUtil is used in
+        // Azure Functions that run on version 1607 (RS1) where it is not available. So, we load and
+        // call this function only if available.
         using IsWow64GuestMachineSupportedPtr = decltype(&IsWow64GuestMachineSupported);
 
         struct IsWow64GuestMachineSupportedHelper
