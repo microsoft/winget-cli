@@ -105,11 +105,11 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="x86|x64"
+      msbuildArgs: '-bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog
+                    /p:AppxBundlePlatforms="x86|x64"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload
-                    -bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog'
+                    /p:UapAppxPackageBuildMode=StoreUpload'
 
   - task: PublishBuildArtifacts@1
     displayName: Publish MSBuild binlog
