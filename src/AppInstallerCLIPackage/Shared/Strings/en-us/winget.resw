@@ -261,7 +261,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installs the given package</value>
@@ -472,13 +472,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Open settings or set administrator settings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
+    <value>Unexpected error while loading settings. Please verify your settings by running the 'settings' command.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Channel</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. The match must be for any of them, with comparison ignoring case.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Shows information about a package</value>
@@ -665,7 +666,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
     <value>Upgrades the given package</value>
@@ -741,6 +742,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Uninstalls the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Uninstalls the given package</value>
@@ -1218,10 +1220,11 @@ Do you agree to the terms?</value>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
 Please specify one of them using the `--source` option to proceed.</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>No packages were found among the working sources.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>This is a stable release of the Windows Package Manager. If you would like to try experimental features, please install a pre-release build. Instructions are available on GitHub at https://github.com/microsoft/winget-cli.</value>
