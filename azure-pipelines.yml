@@ -105,10 +105,17 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
+      msbuildArgs: '/bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish MSBuild logs
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\msbuild.binlog'
+      ArtifactName: '$(buildPlatform)\msbuild.binlog'
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -136,25 +143,25 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  - task: CmdLine@2
-    displayName: Run Unit Tests Unpackaged
-    inputs:
-      script: |
-        AppInstallerCLITests.exe -logto $(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log -s -r junit -o $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    continueOnError: true
+  # - task: CmdLine@2
+  #   displayName: Run Unit Tests Unpackaged
+  #   inputs:
+  #     script: |
+  #       AppInstallerCLITests.exe -logto $(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log -s -r junit -o $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml
+  #     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+  #   continueOnError: true
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Unpackaged Log
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log'
-      ArtifactName: '$(buildPlatform)\TestPassUnpackagedLog'
+  # - task: PublishBuildArtifacts@1
+  #   displayName: Publish Unit Tests Unpackaged Log
+  #   inputs:
+  #     PathtoPublish: '$(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log'
+  #     ArtifactName: '$(buildPlatform)\TestPassUnpackagedLog'
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Unpackaged Output
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml'
-      ArtifactName: 'TestPassUnpackagedOutput'
+  # - task: PublishBuildArtifacts@1
+  #   displayName: Publish Unit Tests Unpackaged Output
+  #   inputs:
+  #     PathtoPublish: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml'
+  #     ArtifactName: 'TestPassUnpackagedOutput'
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
