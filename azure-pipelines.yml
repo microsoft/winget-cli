@@ -17,7 +17,7 @@ pool:
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
-  appxPackageDir: '$(Build.ArtifactStagingDirectory)\AppxPackages\'
+  appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
 
 # Do not set the build version for a PR build.
 
@@ -106,7 +106,7 @@ jobs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '-bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog
-                    /p:AppxBundlePlatforms="x86|x64"
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload'
@@ -148,7 +148,7 @@ jobs:
     inputs:
       script: |
         AppInstallerCLITests.exe -logto $(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log -s -r junit -o $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests\'
+      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     continueOnError: true
 
   - task: PublishBuildArtifacts@1
