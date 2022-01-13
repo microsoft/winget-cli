@@ -200,7 +200,7 @@ jobs:
     name: HTTPSDevCert
     displayName: 'Download Kestrel Certificate'
     inputs:
-      secureFile: 'AppInstallerTest.pfx'
+      secureFile: 'HTTPSDevCertV2.pfx'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
