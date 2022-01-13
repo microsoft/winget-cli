@@ -155,8 +155,6 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        info << Resource::String::DependenciesFlowInstall << std::endl;
-
         context << OpenDependencySource;
         if (context.IsTerminated())
         {
@@ -236,6 +234,11 @@ namespace AppInstaller::CLI::Workflow
 
                 dependencyPackageContexts.emplace_back(std::move(dependencyContextPtr));
             }
+        }
+
+        if (!dependencyPackageContexts.empty())
+        {
+            info << Resource::String::DependenciesFlowInstall << std::endl;
         }
 
         // Install dependencies in the correct order
