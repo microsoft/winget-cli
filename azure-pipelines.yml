@@ -109,12 +109,12 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload
-                    /bl:$(Build.ArtifactStagingDirectory)\binlog'
+                    -bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog'
 
   - task: PublishBuildArtifacts@1
     displayName: Publish MSBuild binlog
     inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\binlog
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\msbuild.binlog
       ArtifactName: '$(buildPlatform)\msbuild.binlog'
     condition: succeededOrFailed()
   - task: VSBuild@1
