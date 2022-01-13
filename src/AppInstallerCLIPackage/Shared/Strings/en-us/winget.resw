@@ -479,7 +479,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Channel</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. The match must be for any of them, with comparison ignoring case.</value>
+    <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Shows information about a package</value>
