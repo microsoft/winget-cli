@@ -99,7 +99,6 @@ jobs:
       workingDirectory: 'src'
 
   # Build all solutions in the root directory.
-  #
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
@@ -109,8 +108,15 @@ jobs:
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=StoreUpload
+                    /bl $(Build.ArtifactStagingDirectory)\binlog'
 
+  - task: PublishBuildArtifacts@1
+    displayName: Publish MSBuild binlog
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\binlog
+      ArtifactName: '$(buildPlatform)\msbuild.binlog'
+    condition: succeededOrFailed()
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -141,47 +147,47 @@ jobs:
     displayName: Run Unit Tests Unpackaged
     inputs:
       script: |
-        AppInstallerCLITests.exe -logto AICLI-Unpackaged.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged.xml
+        AppInstallerCLITests.exe -logto $(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log -s -r junit -o $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests\'
     continueOnError: true
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Unpackaged Log
     inputs:
-      PathtoPublish: '$(buildOutDir)\AppInstallerCLITests\AICLI-Unpackaged.log'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log'
       ArtifactName: '$(buildPlatform)\TestPassUnpackagedLog'
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Unpackaged Output
     inputs:
-      PathtoPublish: '$(buildOutDir)\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged.xml'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml'
       ArtifactName: 'TestPassUnpackagedOutput'
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(buildOutDir)\AICLI-Packaged.log -TestResultsTarget $(buildOutDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(Build.ArtifactStagingDirectory)\AICLI-Packaged.log -TestResultsTarget $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
     continueOnError: true
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Packaged Log
     inputs:
-      PathtoPublish: '$(buildOutDir)\AICLI-Packaged.log'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\AICLI-Packaged.log'
       ArtifactName: '$(buildPlatform)\TestPassPackagedLog'
 
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Packaged Output
     inputs:
-      PathtoPublish: '$(buildOutDir)\TEST-AppInstallerCLI-Packaged.xml'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml'
       ArtifactName: '$(buildPlatfom)\TestPassPackagedOutput'
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
-      testResultsFiles: '$(buildOutDir)\TEST-*.xml'
+      testResultsFiles: '$(Build.ArtifactStagingDirectory)\TEST-*.xml'
       failTaskOnFailedTests: true
 
   - task: DownloadSecureFile@1
@@ -236,21 +242,20 @@ jobs:
       testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
       runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
+                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
                                   -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(System.DefaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
-    condition: succeededOrFailed()
 
   - task: PublishBuildArtifacts@1
-    displayName: Publish E2E Tests Packaged x64 Log
+    displayName: Publish E2E Tests Packaged Log
     inputs:
       PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
-      ArtifactName: 'E2ETestPackagedx64Log'
+      ArtifactName: '$(buildPlatform)\E2ETestPackagedLog'
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
