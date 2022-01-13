@@ -181,7 +181,7 @@ jobs:
     displayName: Publish Unit Tests Packaged Output
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml'
-      ArtifactName: '$(buildPlatfom)\TestPassPackagedOutput'
+      ArtifactName: '$(buildPlatform)\TestPassPackagedOutput'
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
@@ -271,7 +271,7 @@ jobs:
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
-      TargetFolder:  '$(Build.ArtifactStagingDiretory)\WinGetUtilInterop.UnitTests\'
+      TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
 
