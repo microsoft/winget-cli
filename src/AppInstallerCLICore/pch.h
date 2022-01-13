@@ -53,12 +53,12 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
-#include <winget/RepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Locale.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
-#include <winget/Locale.h>
+#include <winget/RepositorySource.h>
