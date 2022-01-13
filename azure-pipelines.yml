@@ -105,22 +105,15 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '-bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog
-                    /p:AppxBundlePlatforms="$(buildPlatform)"
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish MSBuild binlog
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\msbuild.binlog
-      ArtifactName: '$(buildPlatform)\msbuild.binlog'
-    condition: succeededOrFailed()
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
-      platform: '$(buildConfiguration)'
+      platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(testBuildConfiguration)'
 
