@@ -105,7 +105,7 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
+      msbuildArgs: '/p:AppxBundlePlatforms="x86|x64"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload
