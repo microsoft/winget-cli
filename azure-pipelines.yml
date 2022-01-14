@@ -55,6 +55,7 @@ jobs:
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
 
   steps:
   - task: NuGetToolInstaller@1
@@ -105,7 +106,7 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/bl:$(Build.ArtifactStagingDirectory)\msbuild.binlog
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
@@ -117,20 +118,13 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(testBuildConfiguration)'
-      msbuildArgs: '/bl:$(Build.ArtifactStagingDirectory)\msbuild-testProject.binlog'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog'
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish MSBuild logs
+  - task: CopyFiles@2
+    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
     inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)\msbuild*.binlog'
-      artifactName: '$(buildPlatform)_MSBuild'
-    condition: succeededOrFailed()
-
-  - task: PublishPipelineArtifact@1
-    displayName: Publish WindowsPackageManager.dll Symbols
-    inputs:
-      targetPath: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
-      artifactName: '$(buildPlatform)_WindowsPackageManager.pdb'
+      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      TargetFolder: '$(artifactsDir)'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
@@ -149,41 +143,17 @@ jobs:
   #   displayName: Run Unit Tests Unpackaged
   #   inputs:
   #     script: |
-  #       AppInstallerCLITests.exe -logto $(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log -s -r junit -o $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml
+  #       AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged.xml
   #     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
   #   continueOnError: true
-
-  # - task: PublishPipelineArtifact@1
-  #   displayName: Publish Unit Tests Unpackaged Log
-  #   inputs:
-  #     targetPath: '$(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log'
-  #     artifactName: '$(buildPlatform)_TestPassUnpackagedLog'
-
-  # - task: PublishPipelineArtifact@1
-  #   displayName: Publish Unit Tests Unpackaged Output
-  #   inputs:
-  #     targetPath: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml'
-  #     artifactName: '$(buildPlatform)_TestPassUnpackagedOutput'
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(Build.ArtifactStagingDirectory)\AICLI-Packaged.log -TestResultsTarget $(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
     continueOnError: true
-
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Unit Tests Packaged Log
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)\AICLI-Packaged.log'
-      artifactName: '$(buildPlatform)_TestPassPackagedLog'
-
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Unit Tests Packaged Output
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml'
-      artifactName: '$(buildPlatform)_TestPassPackagedOutput'
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
@@ -253,11 +223,11 @@ jobs:
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish E2E Tests Packaged Log
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
-      targetPath: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
-      artifactName: '$(buildPlatform)_E2ETestPackagedLog'
+      SourceFolder: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
+      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
@@ -287,17 +257,18 @@ jobs:
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Util Binary
+  - task: CopyFiles@2
+    displayName: 'Copy Util to artifacts folder'
     inputs:
-      targetPath: '$(buildOutDir)\WinGetUtil\WinGetUtil.dll'
-      artifactName: '$(buildPlatform)_WinGetUtil.dll'
+      Contents: '$(buildOutDir)\WinGetUtil\WinGetUtil.dll
+                 $(buildOutDir)\WinGetUtil\WinGetUtil.pdb'
+      TargetFolder: '$(artifactsDir)'
 
   - task: PublishPipelineArtifact@1
-    displayName: Publish Util Symbols
+    displayName: Publish Pipeline Artifacts
     inputs:
-      targetPath: '$(buildOutDir)\WinGetUtil\WinGetUtil.pdb'
-      artifactName: '$(buildPlatform)_WinGetUtil.pdb'
+      targetPath: '$(artifactsDir)'
+    condition: always()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
