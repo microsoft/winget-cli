@@ -341,6 +341,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, context.get());
 
+        // If the installer has dependencies, DependencySource needs to be set.
+        context->Args.AddArg(Execution::Args::Type::DependencySource, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
+
         // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         return context;
     }
@@ -402,7 +405,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItemParam,
         winrt::Microsoft::Management::Deployment::CatalogPackage package = nullptr,
         winrt::Microsoft::Management::Deployment::InstallOptions options = nullptr,
-        std::wstring callerProcessInfoString = {})
+        std::wstring callerProcessInfoString = {},
+        bool isUpgrade = false)
     {
         winrt::hresult terminationHR = S_OK;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
@@ -422,6 +426,30 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
                 std::unique_ptr<COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
+
+                if (isUpgrade)
+                {
+                    AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
+                    AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
+
+                    if (installedVersion.IsUpdatedBy(upgradeVersion) ||
+                        (options.AllowUpgradeToUnknownVersion() &&
+                         AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString()) &&
+                         upgradeVersion.GetVersion().IsUnknown()))
+                    {
+                        // Set upgrade flag
+                        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
+                        // Add installed version
+                        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(package.InstalledVersion());
+                        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
+                        comContext->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
+                    }
+                    else
+                    {
+                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE, correlationData, false);
+                    }
+                }
+
                 queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
@@ -550,6 +578,32 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
 
         return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::UpgradePackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
+    {
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+        // the package should have an installed version to be upgraded.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
+
+        HRESULT hr = S_OK;
+        std::wstring callerProcessInfoString;
+        try
+        {
+            // Check for permissions and get caller info for telemetry.
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), true /* isUpgrade */);
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)

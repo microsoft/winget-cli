@@ -90,4 +90,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
+    bool InstallOptions::AllowUpgradeToUnknownVersion()
+    {
+        throw hresult_not_implemented();
+    }
+    void InstallOptions::AllowUpgradeToUnknownVersion(bool)
+    {
+        throw hresult_not_implemented();
+    }
 }
