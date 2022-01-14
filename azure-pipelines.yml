@@ -227,12 +227,13 @@ jobs:
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
 
+  # TODO: This does not seem to be matching the logs for x86
   - task: CopyFiles@2
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
-      SourceFolder: '$(temp)\E2ETestLogs'
+      SourceFolder: '$(temp)'
+      Contents: 'E2ETestLogs\**'
       TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
-    continueOnError: true
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
