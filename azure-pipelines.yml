@@ -123,14 +123,14 @@ jobs:
     displayName: Publish MSBuild logs
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)\msbuild*.binlog'
-      artifactName: '$(buildPlatform)\MSBuild'
+      artifactName: '$(buildPlatform)_MSBuild'
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish WindowsPackageManager.dll Symbols
     inputs:
       targetPath: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
-      artifactName: '$(buildPlatform)\WindowsPackageManager.pdb'
+      artifactName: '$(buildPlatform)_WindowsPackageManager.pdb'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
@@ -157,13 +157,13 @@ jobs:
   #   displayName: Publish Unit Tests Unpackaged Log
   #   inputs:
   #     targetPath: '$(Build.ArtifactStagingDirectory)\AICLI-Unpackaged.log'
-  #     artifactName: '$(buildPlatform)\TestPassUnpackagedLog'
+  #     artifactName: '$(buildPlatform)_TestPassUnpackagedLog'
 
   # - task: PublishPipelineArtifact@1
   #   displayName: Publish Unit Tests Unpackaged Output
   #   inputs:
   #     targetPath: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Unpackaged.xml'
-  #     artifactName: '$(buildPlatform)\TestPassUnpackagedOutput'
+  #     artifactName: '$(buildPlatform)_TestPassUnpackagedOutput'
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
@@ -177,13 +177,13 @@ jobs:
     displayName: Publish Unit Tests Packaged Log
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)\AICLI-Packaged.log'
-      artifactName: '$(buildPlatform)\TestPassPackagedLog'
+      artifactName: '$(buildPlatform)_TestPassPackagedLog'
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Unit Tests Packaged Output
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)\TEST-AppInstallerCLI-Packaged.xml'
-      artifactName: '$(buildPlatform)\TestPassPackagedOutput'
+      artifactName: '$(buildPlatform)_TestPassPackagedOutput'
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
@@ -257,7 +257,7 @@ jobs:
     displayName: Publish E2E Tests Packaged Log
     inputs:
       targetPath: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
-      artifactName: '$(buildPlatform)\E2ETestPackagedLog'
+      artifactName: '$(buildPlatform)_E2ETestPackagedLog'
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
@@ -291,13 +291,13 @@ jobs:
     displayName: Publish Util Binary
     inputs:
       targetPath: '$(buildOutDir)\WinGetUtil\WinGetUtil.dll'
-      artifactName: '$(buildPlatform)\WinGetUtil.dll'
+      artifactName: '$(buildPlatform)_WinGetUtil.dll'
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Util Symbols
     inputs:
       targetPath: '$(buildOutDir)\WinGetUtil\WinGetUtil.pdb'
-      artifactName: '$(buildPlatform)\WinGetUtil.pdb'
+      artifactName: '$(buildPlatform)_WinGetUtil.pdb'
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
