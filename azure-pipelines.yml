@@ -118,7 +118,11 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(testBuildConfiguration)'
-      msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
+                    /p:AppxPackageDir="$(appxPackageDir)"
+                    /p:AppxBundle=Always
+                    /p:UapAppxPackageBuildMode=StoreUpload'
 
   - task: CopyFiles@2
     displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
