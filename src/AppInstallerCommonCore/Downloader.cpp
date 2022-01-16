@@ -248,14 +248,19 @@ namespace AppInstaller::Utility
 
         return false;
     }
+    
+    static inline bool FileSupportsMotw(const std::filesystem::path& path)
+    {
+        return SupportsNamedStreams(path);
+    }
 
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath, URLZONE zone)
     {
         AICLI_LOG(Core, Info, << "Started applying motw to " << filePath << " with zone: " << zone);
 
-        if (!IsNTFS(filePath))
+        if (!FileSupportsMotw(filePath))
         {
-            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            AICLI_LOG(Core, Info, << "File system does not support ADS. Skipped applying motw");
             return;
         }
 
@@ -274,9 +279,9 @@ namespace AppInstaller::Utility
     {
         AICLI_LOG(Core, Info, << "Started removing motw to " << filePath);
 
-        if (!IsNTFS(filePath))
+        if (!FileSupportsMotw(filePath))
         {
-            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped removing motw");
+            AICLI_LOG(Core, Info, << "File system does not support ADS. Skipped removing motw");
             return;
         }
 
@@ -307,9 +312,9 @@ namespace AppInstaller::Utility
     {
         AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
 
-        if (!IsNTFS(filePath))
+        if (!FileSupportsMotw(filePath))
         {
-            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            AICLI_LOG(Core, Info, << "File system does not support ADS. Skipped applying motw");
             return S_OK;
         }
 
