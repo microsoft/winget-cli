@@ -35,7 +35,9 @@ TEST_CASE("EnsureDefaultUserAgent", "[RestSource]")
     HttpClientHelper helper{ GetTestRestRequestHandler([](const web::http::http_request& request)
         {
             auto itr = request.headers().find(web::http::header_names::user_agent);
-            if (itr != request.headers().end() && itr->second.find(ConvertToUTF16(GetClientVersion())) != utility::string_t::npos)
+            if (itr != request.headers().end() &&
+                itr->second.find(ConvertToUTF16(GetClientVersion())) != utility::string_t::npos &&
+                itr->second.find(ConvertToUTF16(GetPackageVersion())) != utility::string_t::npos)
             {
                 return web::http::status_codes::OK;
             }

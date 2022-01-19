@@ -459,10 +459,16 @@ namespace AppInstaller::Runtime
 #endif
     }
 
-    // Using "standard" user agent format and WPM == Windows Package Manager
+    // Using "standard" user agent format
+    // Keeping `winget-cli` for historical reasons
     Utility::LocIndString GetDefaultUserAgent()
     {
-        return Utility::LocIndString{ std::string{ "WPM/" } + Runtime::GetClientVersion().get() };
+        std::ostringstream strstr;
+        strstr <<
+            "winget-cli"
+            " WindowsPackageManager/" << GetClientVersion() <<
+            " DesktopAppInstaller/" << GetPackageVersion();
+        return Utility::LocIndString{ strstr.str() };
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
