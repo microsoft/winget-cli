@@ -155,6 +155,7 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "object",
+        "title": "ExpectedReturnCode",
         "properties": {
           "InstallerReturnCode": {
             "$ref": "#/definitions/InstallerReturnCode"
@@ -373,6 +374,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
+        "title": "UnsupportedOSArchitecture",
         "enum": [
           "x86",
           "x64",
