@@ -16,12 +16,8 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: 'src/AppInstallerCLI.sln'
-  buildPlatform: 'x86|x64'
-  buildConfiguration: 'Release'
-  testBuildPlatform: 'x86'
-  testBuildConfiguration: 'TestRelease'
-  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+  solution: 'src\AppInstallerCLI.sln'
+  appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
 
 # Do not set the build version for a PR build.
 
@@ -44,25 +40,40 @@ jobs:
   timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
   condition: always()
+
+  strategy:
+    matrix:
+      x86_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x86'
+        testBuildConfiguration: 'TestRelease'
+      x64_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x64'
+        testBuildConfiguration: 'TestRelease'
+
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
+    buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
-  
+
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
-  
+
   # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
   # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
   - task: NuGetCommand@2
     displayName: Restore AppInstallerCLIPackage
     inputs:
       restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
-  
+
   - task: NuGetCommand@2
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
@@ -72,14 +83,14 @@ jobs:
     displayName: Restore PackagedTests
     inputs:
       restoreSolution: 'src\PackagedTests\PackagedTests.csproj'
-  
+
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
     displayName: DotNet Restore
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
-  
+
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
@@ -87,44 +98,44 @@ jobs:
       filePath: 'src\binver\Update-BinVer.ps1'
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
-  
+
   # Build all solutions in the root directory.
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
-      platform: 'x86'
+      platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
-                    /p:AppxPackageDir="$(appxPackageDir)" 
-                    /p:AppxBundle=Always 
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
+                    /p:AppxPackageDir="$(appxPackageDir)"
+                    /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
-      platform: 'x86'
+      platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(testBuildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(testBuildPlatform)" 
-                    /p:AppxPackageDir="$(appxPackageDir)" 
-                    /p:AppxBundle=Always 
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
+                    /p:AppxPackageDir="$(appxPackageDir)"
+                    /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish WindowsPackageManager.dll Symbols
+  - task: CopyFiles@2
+    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
     inputs:
-      PathtoPublish: 'src\x64\Release\WindowsPackageManager\WindowsPackageManager.pdb'
-      ArtifactName: 'WindowsPackageManager.pdb'
-      publishLocation: 'Container'
+      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      TargetFolder: '$(artifactsDir)'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
-        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
 
   - task: VisualStudioTestPlatformInstaller@1
@@ -132,111 +143,28 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-# TODO: Convert tests to run based on the whether things have worked up to this point
+  # - task: CmdLine@2
+  #   displayName: Run Unit Tests Unpackaged
+  #   inputs:
+  #     script: |
+  #       AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged.xml
+  #     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+  #   continueOnError: true
 
-#  - task: CmdLine@2
-#    displayName: Run Unit Tests Unpackaged x64
-#    inputs:
-#      script: |
-#        AppInstallerCLITests.exe -logto AICLI-Unpackaged-x64.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x64.xml
-#      workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
-#    condition: succeededOrFailed()
-  
-#  - task: PublishBuildArtifacts@1
-#    displayName: Publish Unit Tests Unpackaged Log x64
-#    inputs:
-#      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI-Unpackaged-x64.log'
-#      ArtifactName: 'TestPassUnpackagedLog'
-#     publishLocation: 'Container'
-#    condition: succeededOrFailed()
-  
-#  - task: PublishBuildArtifacts@1
-#    displayName: Publish Unit Tests Unpackaged Output x64
-#    inputs:
-#      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged-x64.xml'
-#      ArtifactName: 'TestPassUnpackagedOutput'
-#      publishLocation: 'Container'
-#    condition: succeededOrFailed()
-  
   - task: PowerShell@2
-    displayName: Run Unit Tests Packaged x64
+    displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged-x64.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged-x64.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
-    condition: succeededOrFailed()
-  
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Packaged Log x64
-    inputs:
-      PathtoPublish: 'src\x64\Release\AICLI-Packaged-x64.log'
-      ArtifactName: 'TestPassPackagedLog'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
-  
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Packaged Output x64
-    inputs:
-      PathtoPublish: 'src\x64\Release\TEST-AppInstallerCLI-Packaged-x64.xml'
-      ArtifactName: 'TestPassPackagedOutput'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
+    continueOnError: true
 
-#  - task: CmdLine@2
-#    displayName: Run Unit Tests Unpackaged x86
-#    inputs:
-#      script: |
-#        AppInstallerCLITests.exe -logto AICLI-Unpackaged-x86.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x86.xml
-#      workingDirectory: 'src\x86\Release\AppInstallerCLITests\'
-#    condition: succeededOrFailed()
-  
-#  - task: PublishBuildArtifacts@1
-#    displayName: Publish Unit Tests Unpackaged Log x86
-#    inputs:
-#      PathtoPublish: 'src\x86\Release\AppInstallerCLITests\AICLI-Unpackaged-x86.log'
-#      ArtifactName: 'TestPassUnpackagedLog'
-#      publishLocation: 'Container'
-#    condition: succeededOrFailed()
-  
-#  - task: PublishBuildArtifacts@1
-#    displayName: Publish Unit Tests Unpackaged Output x86
-#    inputs:
-#      PathtoPublish: 'src\x86\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged-x86.xml'
-#      ArtifactName: 'TestPassUnpackagedOutput'
-#      publishLocation: 'Container'
-#    condition: succeededOrFailed()
-  
-  - task: PowerShell@2
-    displayName: Run Unit Tests Packaged x86
-    inputs:
-      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot x86\Release -PackageRoot AppInstallerCLIPackage\bin\x86\Release -LogTarget x86\Release\AICLI-Packaged-x86.log -TestResultsTarget x86\Release\TEST-AppInstallerCLI-Packaged-x86.xml -ScriptWait'
-      workingDirectory: 'src'
-    condition: succeededOrFailed()
-  
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Packaged Log x86
-    inputs:
-      PathtoPublish: 'src\x86\Release\AICLI-Packaged-x86.log'
-      ArtifactName: 'TestPassPackagedLog'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
-  
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Unit Tests Packaged Output x86
-    inputs:
-      PathtoPublish: 'src\x86\Release\TEST-AppInstallerCLI-Packaged-x86.xml'
-      ArtifactName: 'TestPassPackagedOutput'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
-  
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
-      testResultsFiles: '**/TEST-*.xml'
+      testResultsFiles: '$(Build.ArtifactStagingDirectory)\TEST-*.xml'
       failTaskOnFailedTests: true
-    condition: succeededOrFailed()
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
@@ -253,145 +181,98 @@ jobs:
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
     inputs:
-      platform: 'x86'
-      solution: 'src/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.wapproj'
+      platform: '$(buildPlatform)'
+      solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
-                         /p:AppxBundle=Never 
-                         /p:UapAppxPackageBuildMode=SideLoadOnly 
+                         /p:AppxBundle=Never
+                         /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
-    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Install Root Certificate
     inputs:
       filePath: 'src\LocalhostWebServer\InstallDevCert.ps1'
       arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
-    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Launch LocalhostWebServer
     inputs:
       filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
-    condition: succeededOrFailed()
+      arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
 
   - task: CopyFiles@2
-    displayName: 'Copy x64 Files to Package Output'
+    displayName: 'Copy Files to Package Output'
     inputs:
-      SourceFolder: '$(system.defaultWorkingDirectory)\src\x64\Release\WindowsPackageManager'
-      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release'
+      SourceFolder: '$(buildOutDir)\WindowsPackageManager'
+      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: WindowsPackageManager.dll
       CleanTargetFolder: false
       OverWrite: true
-    condition: succeededOrFailed()
 
   - task: VSTest@2
-    displayName: Run E2E Tests Packaged x64
+    displayName: Run E2E Tests Packaged
     inputs:
-      testRunTitle: 'E2E Packaged x64'
+      testRunTitle: 'E2E Packaged'
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
+                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
                                   -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
-    condition: succeededOrFailed()
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish E2E Tests Packaged x64 Log
-    inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
-      ArtifactName: 'E2ETestPackagedx64Log'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
-    displayName: 'Copy x86 Files to Package Output'
+    displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
-      SourceFolder: '$(system.defaultWorkingDirectory)\src\x86\Release\WindowsPackageManager'
-      TargetFolder:  '$(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release'
-      Contents: WindowsPackageManager.dll
-      CleanTargetFolder: false
-      OverWrite: true
-    condition: succeededOrFailed()
-
-  - task: VSTest@2
-    displayName: Run E2E Tests Packaged x86
-    inputs:
-      testRunTitle: 'E2E Packaged x86'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
-                                  -AICLIPath AppInstallerCLI\winget.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
-    condition: succeededOrFailed()
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish E2E Tests Packaged x86 Log
-    inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
-      ArtifactName: 'E2ETestPackagedx86Log'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()  
+      SourceFolder: '$(temp)\E2ETestLogs'
+      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
     inputs:
       testRunTitle: 'Com Interface Tests'
-      platform: 'x86'
+      platform: '$(buildPlatform)'
       testSelector: 'testAssemblies'
       testAssemblyVer2: |
-        src\x86\Release\PackagedTests\PackagedTests.build.appxrecipe
-      runSettingsFile: 'src\x86\Release\PackagedTests\Test.runsettings'
-    condition: succeededOrFailed()
+        $(buildOutDir)\PackagedTests\PackagedTests.build.appxrecipe
+      runSettingsFile: '$(buildOutDir)\PackagedTests\Test.runsettings'
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\netcoreapp3.1'
-      TargetFolder:  '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests\'
+      TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
-    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
     inputs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
-      searchFolder: '$(build.artifactstagingdirectory)\WinGetUtilInterop.UnitTests'
+      searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
-    condition: succeededOrFailed()
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Util Binary
+  - task: CopyFiles@2
+    displayName: 'Copy Util to artifacts folder'
     inputs:
-      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.dll'
-      ArtifactName: 'WinGetUtil.dll'
-      publishLocation: 'Container'
+      Contents: '$(buildOutDir)\WinGetUtil\WinGetUtil.dll
+                 $(buildOutDir)\WinGetUtil\WinGetUtil.pdb'
+      TargetFolder: '$(artifactsDir)'
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Util Symbols
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Pipeline Artifacts
     inputs:
-      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
-      ArtifactName: 'WinGetUtil.pdb'
-      publishLocation: 'Container'
+      targetPath: '$(artifactsDir)'
+    condition: always()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
@@ -404,7 +285,7 @@ jobs:
   - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
-      arguments: 'analyze "$(system.defaultWorkingDirectory)\src\AppInstaller*CLI.exe" "$(system.defaultWorkingDirectory)\src\WinGet*Util.dll" --config default --recurse' 
+      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\AppInstaller*CLI.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
