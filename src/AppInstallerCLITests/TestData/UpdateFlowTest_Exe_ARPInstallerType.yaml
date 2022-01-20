@@ -1,0 +1,22 @@
+# Similar content to UpdateFlowTest_Exe.yaml, but with an AppsAndFeaturesEntry specifying installer type
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestExe
+License: Test
+AppsAndFeaturesEntries:
+  - InstallerType: msix
+InstallerSwitches:
+  Custom: /custom /ver2.0.0.0
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Update: /update
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerType: exe
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+ManifestType: singleton
+ManifestVersion: 1.1.0
