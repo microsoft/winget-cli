@@ -116,12 +116,25 @@ The `downloader` setting controls which code is used when downloading packages. 
 `wininet` uses the [WinINet](https://docs.microsoft.com/windows/win32/wininet/about-wininet) APIs, while `do` uses the
 [Delivery Optimization](https://support.microsoft.com/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
 
-The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600. 
+The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600.
 
 ```json
    "network": {
        "downloader": "do",
        "doProgressTimeoutInSeconds": 60
+   }
+```
+
+### Proxy
+
+The `proxy` setting specifies the proxy server used for download packages. If not specified, winget will retrieve current proxy settings from the registry.
+
+The `proxyOverride` setting specifies a list of host names or IP addresses, or both, where no proxy should be used. Local hosts are always bypassed as if the list is extended by `["localhost", "loopback", "127.0.0.1", "[::1]"]`.
+
+```json
+   "network": {
+       "proxy": "http://127.0.0.1:7890",
+       "proxyOverride": ["192.168.*", "github.com"]
    }
 ```
 

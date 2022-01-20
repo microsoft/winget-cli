@@ -76,6 +76,8 @@ namespace AppInstaller::Settings
         InstallScopeRequirement,
         NetworkDownloader,
         NetworkDOProgressTimeoutInSeconds,
+        NetworkProxy,
+        NetworkProxyOverride,
         InstallArchitecturePreference,
         InstallArchitectureRequirement,
         InstallLocalePreference,
@@ -127,6 +129,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkProxy, std::string, std::string, {}, ".network.proxy"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkProxyOverride, std::vector<std::string>, std::string, {}, ".network.proxyOverride"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);

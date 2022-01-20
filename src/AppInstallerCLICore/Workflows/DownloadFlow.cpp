@@ -186,6 +186,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void GetProxyInfo(Execution::Context& context)
+    {
+        auto proxy = context.Args.GetArg(Execution::Args::Type::NetworkProxy);
+        auto proxyOverride = context.Args.GetArg(Execution::Args::Type::NetworkProxyOverride);
+        if (!proxy.empty() || !proxyOverride.empty())
+            context.Add<Execution::Data::NetworkProxyInfo>({std::string{proxy}, std::string{proxyOverride}});
+        else
+            context.Add<Execution::Data::NetworkProxyInfo>(Utility::GetProxyInfo());
+    }
+
     void DownloadInstaller(Execution::Context& context)
     {
         // Check if file was already downloaded.
@@ -309,7 +319,8 @@ namespace AppInstaller::CLI::Workflow
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
                     true,
-                    downloadInfo));
+                    downloadInfo,
+                    context.Get<Execution::Data::NetworkProxyInfo>()));
 
                 success = true;
             }

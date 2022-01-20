@@ -60,6 +60,10 @@ namespace AppInstaller::CLI
             return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:
             return Argument{ "msix", 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
+        case Args::Type::NetworkProxy:
+            return Argument{ "proxy", NoAlias, Args::Type::NetworkProxy, Resource::String::NetworkProxyArgumentDescription, ArgumentType::Standard, Visibility::Help };
+        case Args::Type::NetworkProxyOverride:
+            return Argument{ "no-proxy", NoAlias, Args::Type::NetworkProxyOverride, Resource::String::NetworkProxyOverrideArgumentDescription, ArgumentType::Standard, Visibility::Help };
         case Args::Type::ListVersions:
             return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:

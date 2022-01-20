@@ -73,6 +73,10 @@ namespace AppInstaller::CLI::Execution
             AdminSettingEnable,
             AdminSettingDisable,
 
+            // Network Behavior
+            NetworkProxy,
+            NetworkProxyOverride,
+
             // Other
             All, // Used in Update command to update all installed packages to latest
             ListVersions, // Used in Show command to list all available versions of an app

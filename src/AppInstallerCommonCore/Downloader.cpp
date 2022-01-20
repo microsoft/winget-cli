@@ -11,6 +11,8 @@
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
 #include "DODownloader.h"
+#include <wil/win32_helpers.h>
+#include <wil/stl.h>
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
@@ -21,19 +23,22 @@ namespace AppInstaller::Utility
         const std::string& url,
         std::ostream& dest,
         IProgressCallback& progress,
-        bool computeHash)
+        bool computeHash,
+        ProxyInfo info)
     {
         // For AICLI_LOG usages with string literals.
         #pragma warning(push)
         #pragma warning(disable:26449)
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
+        AICLI_LOG(Core, Info, << "Proxy: " << info.Proxy);
+        AICLI_LOG(Core, Info, << "Proxy Bypass: " << info.ProxyOverride);
 
         wil::unique_hinternet session(InternetOpenA(
             "winget-cli",
-            INTERNET_OPEN_TYPE_PRECONFIG,
-            NULL,
-            NULL,
+            info.Proxy.empty() ? INTERNET_OPEN_TYPE_PRECONFIG : INTERNET_OPEN_TYPE_PROXY,
+            info.Proxy.empty() ? NULL : info.Proxy.data(),
+            info.ProxyOverride.empty() ? NULL : info.ProxyOverride.data(),
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
@@ -136,6 +141,37 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    ProxyInfo GetProxyInfo()
+    {
+        ProxyInfo info;
+        if ((info.Proxy = Settings::User().Get<Settings::Setting::NetworkProxy>()).empty())
+        {
+            std::wstring allProxy;
+            wil::GetEnvironmentVariableW(L"ALL_PROXY", allProxy);
+            if ((info.Proxy = Utility::ConvertToUTF8(allProxy)).empty())
+            {
+                std::wstring httpProxy, httpsProxy, ftpProxy;
+                wil::GetEnvironmentVariableW(L"HTTP_PROXY", httpProxy);
+                wil::GetEnvironmentVariableW(L"HTTPS_PROXY", httpsProxy);
+                wil::GetEnvironmentVariableW(L"FTP_PROXY", ftpProxy);
+                if (!httpProxy.empty())
+                    info.Proxy = "HTTP=" + Utility::ConvertToUTF8(httpProxy);
+                if (!httpsProxy.empty())
+                    info.Proxy += (info.Proxy.empty() ? "HTTPS=" : " HTTPS=") + Utility::ConvertToUTF8(httpsProxy);
+                if (!ftpProxy.empty())
+                    info.Proxy += (info.Proxy.empty() ? "FTP=" : " FTP=") + Utility::ConvertToUTF8(ftpProxy);
+            }
+        }
+        if ((info.ProxyOverride = Settings::User().Get<Settings::Setting::NetworkProxyOverride>()).empty())
+        {
+            std::wstring noProxy;
+            wil::GetEnvironmentVariableW(L"NO_PROXY", noProxy);
+            info.ProxyOverride = Utility::ConvertToUTF8(noProxy);
+            std::replace_if(info.ProxyOverride.begin(), info.ProxyOverride.end(), [](char ch) { return ch == ','; }, ';');
+        }
+        return info;
+    }
+
     std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
         std::ostream& dest,
@@ -145,7 +181,7 @@ namespace AppInstaller::Utility
         std::optional<DownloadInfo>)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
-        return WinINetDownloadToStream(url, dest, progress, computeHash);
+        return WinINetDownloadToStream(url, dest, progress, computeHash, GetProxyInfo());
     }
 
     std::optional<std::vector<BYTE>> Download(
@@ -154,7 +190,8 @@ namespace AppInstaller::Utility
         DownloadType type,
         IProgressCallback& progress,
         bool computeHash,
-        std::optional<DownloadInfo> info)
+        std::optional<DownloadInfo> downloadInfo,
+        std::optional<ProxyInfo> proxyInfo)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
@@ -177,7 +214,7 @@ namespace AppInstaller::Utility
             {
                 try
                 {
-                    auto result = DODownload(url, dest, progress, computeHash, info);
+                    auto result = DODownload(url, dest, progress, computeHash, downloadInfo);
                     // Since we cannot pre-apply to the file with DO, post-apply the MotW to the file.
                     // Only do so if the file exists, because cancellation will not throw here.
                     if (std::filesystem::exists(dest))
@@ -219,7 +256,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return WinINetDownloadToStream(url, outfile, progress, computeHash);
+        return WinINetDownloadToStream(url, outfile, progress, computeHash, proxyInfo ? *proxyInfo : GetProxyInfo());
     }
 
     using namespace std::string_view_literals;

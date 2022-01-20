@@ -1269,4 +1269,10 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Use "--include-unknown" to see all results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="NetworkProxyArgumentDescription" xml:space="preserve">
+    <value>Use the specified proxy server</value>
+  </data>
+  <data name="NetworkProxyOverrideArgumentDescription" xml:space="preserve">
+    <value>Semicolon-separated list of hosts where proxy should not be used</value>
+  </data>
 </root>
