@@ -27,3 +27,18 @@ std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
             return pplx::task_from_result(response);
         });
 }
+
+std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
+    std::function<web::http::status_code(const web::http::http_request& request)> handler)
+{
+    return std::make_shared<TestRestRequestHandler>([handler = std::move(handler)](web::http::http_request request) ->
+        pplx::task<web::http::http_response>
+        {
+            web::http::http_response response;
+            response.set_body(utf16string{});
+
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.set_status_code(handler(request));
+            return pplx::task_from_result(response);
+        });
+}

@@ -473,6 +473,18 @@ namespace AppInstaller::Runtime
 #endif
     }
 
+    // Using "standard" user agent format
+    // Keeping `winget-cli` for historical reasons
+    Utility::LocIndString GetDefaultUserAgent()
+    {
+        std::ostringstream strstr;
+        strstr <<
+            "winget-cli"
+            " WindowsPackageManager/" << GetClientVersion() <<
+            " DesktopAppInstaller/" << GetPackageVersion();
+        return Utility::LocIndString{ strstr.str() };
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path)
     {

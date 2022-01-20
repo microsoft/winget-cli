@@ -35,7 +35,8 @@ namespace AppInstaller::Utility
 
         bool empty() const { return m_value.empty(); }
 
-        const std::string& get() const { return m_value; }
+        const std::string& get() const & { return m_value; }
+        std::string&& get() && { return std::move(m_value); }
 
         operator const std::string& () const { return m_value; }
         operator std::string_view() const { return m_value; }
