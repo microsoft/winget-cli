@@ -341,9 +341,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, context.get());
 
-        // If the installer has dependencies, DependencySource needs to be set.
-        context->Args.AddArg(Execution::Args::Type::DependencySource, ::AppInstaller::Utility::ConvertToUTF8(packageVersionInfo.PackageCatalog().Info().Name()));
-
         // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         return context;
     }
@@ -432,22 +429,26 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
                     AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
 
-                    if (installedVersion.IsUpdatedBy(upgradeVersion) ||
-                        (options.AllowUpgradeToUnknownVersion() &&
-                         AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString()) &&
-                         upgradeVersion.GetVersion().IsUnknown()))
+                    // Perform upgrade version check
+                    if (upgradeVersion.GetVersion().IsUnknown())
                     {
-                        // Set upgrade flag
-                        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
-                        // Add installed version
-                        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(package.InstalledVersion());
-                        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
-                        comContext->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
+                        if (!(options.AllowUpgradeToUnknownVersion() &&
+                            AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
+                        {
+                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, correlationData, false);
+                        }
                     }
-                    else
+                    else if (!installedVersion.IsUpdatedBy(upgradeVersion))
                     {
-                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE, correlationData, false);
+                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, correlationData, false);
                     }
+
+                    // Set upgrade flag
+                    comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
+                    // Add installed version
+                    winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(package.InstalledVersion());
+                    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
+                    comContext->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
                 }
 
                 queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
