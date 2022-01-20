@@ -188,6 +188,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+            context.Reporter.Info() << std::endl;
             context <<
                 InstallMultiplePackages(
                     Resource::String::InstallAndUpgradeCommandsReportDependencies,

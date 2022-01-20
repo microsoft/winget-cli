@@ -155,6 +155,7 @@ namespace AppInstaller::CLI
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
                 EnsureMatchesFromSearchResult(true) <<
+                ReportListResult(true) <<
                 UpdateAllApplicable;
         }
         else if (context.Args.Contains(Execution::Args::Type::Manifest))
