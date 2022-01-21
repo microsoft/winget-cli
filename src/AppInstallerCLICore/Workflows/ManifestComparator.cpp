@@ -513,7 +513,7 @@ namespace AppInstaller::CLI::Workflow
         {
             MarketFilter(Manifest::string_t market) : details::FilterField("Market"), m_market(market)
             {
-                AICLI_LOG(CLI, Verbose, << "Market Comparator created with market: " << m_market);
+                AICLI_LOG(CLI, Verbose, << "Market Filter created with market: " << m_market);
             }
 
             static std::unique_ptr<MarketFilter> Create()
