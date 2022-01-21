@@ -104,11 +104,12 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                if (CheckAllowedArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
+                if (CheckAllowedArchitecture(installer.Arch) == Utility::InapplicableArchitecture ||
+                    IsSystemArchitectureUnsupportedByInstaller(installer))
                 {
                     return InapplicabilityFlags::MachineArchitecture;
                 }
-                
+
                 return InapplicabilityFlags::None;
             }
 
@@ -118,12 +119,18 @@ namespace AppInstaller::CLI::Workflow
                 if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
                 {
                     result = "Machine is not compatible with ";
+                    result += Utility::ToString(installer.Arch);
+                }
+                else if (IsSystemArchitectureUnsupportedByInstaller(installer))
+                {
+                    result = "System architecture is unsupported by installer";
                 }
                 else
                 {
                     result = "Architecture was excluded by caller : ";
+                    result += Utility::ToString(installer.Arch);
                 }
-                result += Utility::ToString(installer.Arch);
+
                 return result;
             }
 
@@ -151,6 +158,15 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return Utility::IsApplicableArchitecture(architecture, m_allowedArchitectures);
                 }
+            }
+
+            bool IsSystemArchitectureUnsupportedByInstaller(const ManifestInstaller& installer)
+            {
+                auto unsupportedItr = std::find(
+                    installer.UnsupportedOSArchitectures.begin(),
+                    installer.UnsupportedOSArchitectures.end(),
+                    Utility::GetSystemArchitecture());
+                return unsupportedItr != installer.UnsupportedOSArchitectures.end();
             }
 
             std::string GetAllowedArchitecturesString()
@@ -194,7 +210,17 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
+                // The installer is applicable if it's type or any of its ARP entries' type matches the installed type
                 if (Manifest::IsInstallerTypeCompatible(installer.InstallerType, m_installedType))
+                {
+                    return InapplicabilityFlags::None;
+                }
+
+                auto itr = std::find_if(
+                    installer.AppsAndFeaturesEntries.begin(),
+                    installer.AppsAndFeaturesEntries.end(),
+                    [=](AppsAndFeaturesEntry arpEntry) { return Manifest::IsInstallerTypeCompatible(arpEntry.InstallerType, m_installedType); });
+                if (itr != installer.AppsAndFeaturesEntries.end())
                 {
                     return InapplicabilityFlags::None;
                 }
@@ -204,8 +230,20 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installed package type is not compatible with ";
-                result += Manifest::InstallerTypeToString(installer.InstallerType);
+                std::string result = "Installed package type '" + std::string{ Manifest::InstallerTypeToString(m_installedType) } +
+                    "' is not compatible with installer type " + std::string{ Manifest::InstallerTypeToString(installer.InstallerType) };
+
+                std::string arpInstallerTypes;
+                for (const auto& entry : installer.AppsAndFeaturesEntries)
+                {
+                    arpInstallerTypes += " " + std::string{ Manifest::InstallerTypeToString(entry.InstallerType) };
+                }
+
+                if (!arpInstallerTypes.empty())
+                {
+                    result += ", or with accepted type(s)" + arpInstallerTypes;
+                }
+
                 return result;
             }
 

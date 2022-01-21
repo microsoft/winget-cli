@@ -63,10 +63,11 @@ namespace AppInstaller::CLI::Workflow
         {
             // Get file name from download URI
             std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
+            std::wstring_view installerExtension = GetInstallerFileExtension(context);
 
-            // Assuming that we find a stem value in the URI, use it.
+            // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
-            if (filename.has_stem())
+            if (filename.has_stem() && ((filename.string().size() + installerExtension.size()) < MAX_PATH))
             {
                 filename = filename.stem();
             }
@@ -76,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
                 filename = Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
             }
 
-            filename += GetInstallerFileExtension(context);
+            filename += installerExtension;
 
             return filename;
         }
@@ -462,7 +463,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetInstallerHash(Execution::Context& context)
+    void ReverifyInstallerHash(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
@@ -490,6 +491,8 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << "Installer file not found.");
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
+
+        context << VerifyInstallerHash;
     }
 
     void RenameDownloadedInstaller(Execution::Context& context)

@@ -37,6 +37,7 @@ auxdata
 azureedge
 backend
 bcrypt
+binlog
 binver
 Bitmask
 Blog

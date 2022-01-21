@@ -435,6 +435,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_ARPInstallerType.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

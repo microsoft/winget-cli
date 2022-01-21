@@ -415,15 +415,35 @@ namespace AppInstaller::Runtime
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
     }
 
-    // TODO: Replace this function with proper checks for supported functionality rather
-    //       than simply relying on "is it NTFS?", even if those functions delegate to
-    //       this one for the answer.
-    bool IsNTFS(const std::filesystem::path& filePath)
+    DWORD GetVolumeInformationFlagsByHandle(HANDLE anyFileHandle)
+    {
+        DWORD flags = 0;
+        wchar_t fileSystemName[MAX_PATH];
+        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
+            anyFileHandle, /*hFile*/
+            NULL, /*lpVolumeNameBuffer*/
+            0, /*nVolumeNameSize*/
+            NULL, /*lpVolumeSerialNumber*/
+            NULL, /*lpMaximumComponentLength*/
+            &flags, /*lpFileSystemFlags*/
+            fileSystemName, /*lpFileSystemNameBuffer*/
+            MAX_PATH /*nFileSystemNameSize*/));
+
+        // Vista and older does not report all flags, fix them up here
+        if (!(flags & FILE_SUPPORTS_HARD_LINKS) && !_wcsicmp(fileSystemName, L"NTFS"))
+        {
+            flags |= FILE_SUPPORTS_HARD_LINKS|FILE_SUPPORTS_EXTENDED_ATTRIBUTES|FILE_SUPPORTS_OPEN_BY_FILE_ID|FILE_SUPPORTS_USN_JOURNAL;
+        }
+
+        return flags;
+    }
+
+    DWORD GetVolumeInformationFlags(const std::filesystem::path& anyPath)
     {
         wil::unique_hfile fileHandle{ CreateFileW(
-            filePath.c_str(), /*lpFileName*/
-            FILE_READ_ATTRIBUTES, /*dwDesiredAccess*/
-            0, /*dwShareMode*/
+            anyPath.c_str(), /*lpFileName*/
+            0, /*dwDesiredAccess*/
+            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, /*dwShareMode*/
             NULL, /*lpSecurityAttributes*/
             OPEN_EXISTING, /*dwCreationDisposition*/
             FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
@@ -431,23 +451,17 @@ namespace AppInstaller::Runtime
 
         THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
 
-        wchar_t fileSystemName[MAX_PATH];
-        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
-            fileHandle.get(), /*hFile*/
-            NULL, /*lpVolumeNameBuffer*/
-            0, /*nVolumeNameSize*/
-            NULL, /*lpVolumeSerialNumber*/
-            NULL, /*lpMaximumComponentLength*/
-            NULL, /*lpFileSystemFlags*/
-            fileSystemName, /*lpFileSystemNameBuffer*/
-            MAX_PATH /*nFileSystemNameSize*/));
+        return GetVolumeInformationFlagsByHandle(fileHandle.get());
+    }
 
-        return _wcsicmp(fileSystemName, L"NTFS") == 0;
+    bool SupportsNamedStreams(const std::filesystem::path& path)
+    {
+        return (GetVolumeInformationFlags(path) & FILE_NAMED_STREAMS) != 0;
     }
 
     bool SupportsHardLinks(const std::filesystem::path& path)
     {
-        return IsNTFS(path);
+        return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_HARD_LINKS) != 0;
     }
 
     constexpr bool IsReleaseBuild()
@@ -457,6 +471,18 @@ namespace AppInstaller::Runtime
 #else
         return false;
 #endif
+    }
+
+    // Using "standard" user agent format
+    // Keeping `winget-cli` for historical reasons
+    Utility::LocIndString GetDefaultUserAgent()
+    {
+        std::ostringstream strstr;
+        strstr <<
+            "winget-cli"
+            " WindowsPackageManager/" << GetClientVersion() <<
+            " DesktopAppInstaller/" << GetPackageVersion();
+        return Utility::LocIndString{ strstr.str() };
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

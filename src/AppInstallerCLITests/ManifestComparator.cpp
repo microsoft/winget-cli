@@ -29,8 +29,9 @@ const ManifestInstaller& AddInstaller(
     Architecture architecture,
     InstallerTypeEnum installerType,
     ScopeEnum scope = ScopeEnum::Unknown,
-    std::string minOSVersion = {}, 
+    std::string minOSVersion = {},
     std::string locale = {},
+    std::vector<Architecture> unsupportedOSArchitectures = {},
     MarketsInfo markets = {})
 {
     ManifestInstaller toAdd;
@@ -39,6 +40,7 @@ const ManifestInstaller& AddInstaller(
     toAdd.Scope = scope;
     toAdd.MinOSVersion = minOSVersion;
     toAdd.Locale = locale;
+    toAdd.UnsupportedOSArchitectures = unsupportedOSArchitectures;
     toAdd.Markets = markets;
 
     manifest.Installers.emplace_back(std::move(toAdd));
@@ -525,6 +527,46 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
 
         RequireInstaller(result, x86);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
+    }
+}
+
+TEST_CASE("ManifestComparator_UnsupportedOSArchitecture", "[manifest_comparator]")
+{
+    auto systemArchitecture = GetSystemArchitecture();
+    auto applicableArchitectures = GetApplicableArchitectures();
+
+    // Try to find an applicable architecture that is not the system architecture
+    auto itr = std::find_if(applicableArchitectures.begin(), applicableArchitectures.end(), [&](const auto& arch) { return arch != systemArchitecture; });
+    if (itr == applicableArchitectures.end())
+    {
+        // This test requires having an applicable architecture different from the system one.
+        // TODO: Does this actually happen in any arch we use?
+        return;
+    }
+
+    auto applicableArchitecture = *itr;
+
+    Manifest manifest;
+
+    SECTION("System is unsupported")
+    {
+        ManifestInstaller installer = AddInstaller(manifest, applicableArchitecture, InstallerTypeEnum::Msi, {}, {}, {}, { systemArchitecture });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture });
+    }
+    SECTION("Other is unsupported")
+    {
+        ManifestInstaller installer = AddInstaller(manifest, applicableArchitecture, InstallerTypeEnum::Msi, {}, {}, {}, { applicableArchitecture });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, installer);
+        REQUIRE(inapplicabilities.empty());
     }
 }
 

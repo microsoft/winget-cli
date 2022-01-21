@@ -146,8 +146,6 @@ namespace AppInstaller
                 return "Package agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR:
                 return "Error reading input in prompt";
-            case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
-                return "Arguments for msiexec are invalid";
             case APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST:
                 return "The search request is not supported by one or more sources";
             case APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND:
@@ -160,6 +158,20 @@ namespace AppInstaller
                 return "Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.";
             case APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED:
                 return "Running MSI install failed";
+            case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
+                return "Arguments for msiexec are invalid";
+            case APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES:
+                return "Failed to open one or more sources";
+            case APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED:
+                return "Failed to validate dependencies";
+            case APPINSTALLER_CLI_ERROR_MISSING_PACKAGE:
+                return "One or more package is missing";
+            case APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN:
+                return "Invalid table column";
+            case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER:
+                return "The upgrade version is not newer than the installed version";
+            case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN:
+                return "Upgrade version is unknown and override is not specified";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:

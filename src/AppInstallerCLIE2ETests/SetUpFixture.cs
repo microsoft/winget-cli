@@ -143,7 +143,7 @@ namespace AppInstallerCLIE2ETests
             else
             {
                 var value = appModelUnlockKey.GetValue("AllowDevelopmentWithoutDevLicense");
-                if (value != null && ((UInt32)value) != 0)
+                if (value != null && ((Int32)value) != 0)
                 {
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 0, RegistryValueKind.DWord);
                     return true;

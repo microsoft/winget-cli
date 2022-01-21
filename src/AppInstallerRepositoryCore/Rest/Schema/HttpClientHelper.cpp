@@ -5,6 +5,20 @@
 
 namespace AppInstaller::Repository::Rest::Schema
 {
+    namespace
+    {
+        // If the caller does not pass in a user agent header, put the default one on the request.
+        void EnsureDefaultUserAgent(web::http::http_request& request)
+        {
+            static utility::string_t c_defaultUserAgent = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent());
+
+            if (!request.headers().has(web::http::header_names::user_agent))
+            {
+                request.headers().add(web::http::header_names::user_agent, c_defaultUserAgent);
+            }
+        }
+    }
+
     HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
@@ -21,6 +35,7 @@ namespace AppInstaller::Repository::Rest::Schema
         {
             request.headers().add(pair.first, pair.second);
         }
+        EnsureDefaultUserAgent(request);
 
         AICLI_LOG(Repo, Verbose, << "Http POST request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
@@ -52,6 +67,7 @@ namespace AppInstaller::Repository::Rest::Schema
         {
             request.headers().add(pair.first, pair.second);
         }
+        EnsureDefaultUserAgent(request);
 
         AICLI_LOG(Repo, Verbose, << "Http GET request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
