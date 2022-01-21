@@ -59,7 +59,11 @@ namespace Microsoft.Management.Deployment
         InstallError,
         ManifestError,
         NoApplicableInstallers,
-        NoApplicableUpgrade,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            NoApplicableUpgrade,
+        }
+        
     };
 
     /// Result of the install
