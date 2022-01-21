@@ -63,7 +63,6 @@ namespace Microsoft.Management.Deployment
         {
             NoApplicableUpgrade,
         }
-        
     };
 
     /// Result of the install
