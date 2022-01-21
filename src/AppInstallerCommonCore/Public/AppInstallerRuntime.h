@@ -24,6 +24,7 @@ namespace AppInstaller::Runtime
     Utility::LocIndString GetOSVersion();
 
     // Gets the OS region.
+    // This can be used as the current market.
     std::string GetOSRegion();
 
     // A path to be retrieved based on the runtime.

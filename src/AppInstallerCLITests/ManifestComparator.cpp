@@ -597,9 +597,8 @@ TEST_CASE("ManifestComparator_MarketFilter", "[manifest_comparator]")
     Manifest manifest;
 
     // Get current market.
-    wchar_t geoName[4]; // All names have two or three chars
-    REQUIRE(GetUserDefaultGeoName(geoName, ARRAYSIZE(geoName)) != 0);
-    Manifest::string_t currentMarket{ geoName };
+    winrt::Windows::Globalization::GeographicRegion region;
+    Manifest::string_t currentMarket{ region.CodeTwoLetter() };
 
     SECTION("Applicable")
     {
@@ -613,7 +612,7 @@ TEST_CASE("ManifestComparator_MarketFilter", "[manifest_comparator]")
             markets.ExcludedMarkets = { "XX" };
         }
 
-        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, markets);
+        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, {}, markets);
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
@@ -633,7 +632,7 @@ TEST_CASE("ManifestComparator_MarketFilter", "[manifest_comparator]")
             markets.AllowedMarkets = { "XX" };
         }
 
-        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, markets);
+        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, {}, markets);
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 

@@ -51,7 +51,7 @@ namespace AppInstaller::CLI::Workflow
             MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
                 details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures))
             {
-                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << GetAllowedArchitecturesString());
+                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << Utility::ConvertContainerToString(m_allowedArchitectures, Utility::ToString));
             }
 
             // TODO: At some point we can do better about matching the currently installed architecture
@@ -167,22 +167,6 @@ namespace AppInstaller::CLI::Workflow
                     installer.UnsupportedOSArchitectures.end(),
                     Utility::GetSystemArchitecture());
                 return unsupportedItr != installer.UnsupportedOSArchitectures.end();
-            }
-
-            std::string GetAllowedArchitecturesString()
-            {
-                std::stringstream result;
-                bool prependComma = false;
-                for (Utility::Architecture architecture : m_allowedArchitectures)
-                {
-                    if (prependComma)
-                    {
-                        result << ", ";
-                    }
-                    result << Utility::ToString(architecture);
-                    prependComma = true;
-                }
-                return result.str();
             }
 
             std::vector<Utility::Architecture> m_allowedArchitectures;
@@ -429,8 +413,8 @@ namespace AppInstaller::CLI::Workflow
             LocaleComparator(std::vector<std::string> preference, std::vector<std::string> requirement) :
                 details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
             {
-                m_requirementAsString = GetLocalesListAsString(m_requirement);
-                m_preferenceAsString = GetLocalesListAsString(m_preference);
+                m_requirementAsString = Utility::ConvertContainerToString(m_requirement);
+                m_preferenceAsString = Utility::ConvertContainerToString(m_preference);
                 AICLI_LOG(CLI, Verbose, << "Locale Comparator created with Required Locales: " << m_requirementAsString << " , Preferred Locales: " << m_preferenceAsString);
             }
 
@@ -521,30 +505,6 @@ namespace AppInstaller::CLI::Workflow
             std::vector<std::string> m_requirement;
             std::string m_requirementAsString;
             std::string m_preferenceAsString;
-
-            std::string GetLocalesListAsString(const std::vector<std::string>& locales)
-            {
-                std::string result = "[";
-
-                bool first = true;
-                for (auto const& locale : locales)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        result += ", ";
-                    }
-
-                    result += locale;
-                }
-
-                result += ']';
-
-                return result;
-            }
         };
 
         struct MarketFilter : public details::FilterField
@@ -556,7 +516,7 @@ namespace AppInstaller::CLI::Workflow
 
             static std::unique_ptr<MarketFilter> Create()
             {
-                return std::make_unique<MarketFilter>(GetCurrentMarket());
+                return std::make_unique<MarketFilter>(Runtime::GetOSRegion());
             }
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
@@ -565,7 +525,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!installer.Markets.AllowedMarkets.empty())
                 {
                     // Inapplicable if NOT found
-                    if (installer.Markets.AllowedMarkets.end() == std::find(installer.Markets.AllowedMarkets.begin(), installer.Markets.AllowedMarkets.end(), m_market))
+                    if (!IsMarketInList(installer.Markets.AllowedMarkets))
                     {
                         return InapplicabilityFlags::Market;
                     }
@@ -573,7 +533,7 @@ namespace AppInstaller::CLI::Workflow
                 else if (!installer.Markets.ExcludedMarkets.empty())
                 {
                     // Inapplicable if found
-                    if (installer.Markets.ExcludedMarkets.end() != std::find(installer.Markets.ExcludedMarkets.begin(), installer.Markets.ExcludedMarkets.end(), m_market))
+                    if (IsMarketInList(installer.Markets.ExcludedMarkets))
                     {
                         return InapplicabilityFlags::Market;
                     }
@@ -585,52 +545,21 @@ namespace AppInstaller::CLI::Workflow
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
                 std::string result = "Current market '" + m_market + "' does not match installer markets." +
-                    " Allowed markets: " + GetMarketsListAsString(installer.Markets.AllowedMarkets) +
-                    " Excluded markets: " + GetMarketsListAsString(installer.Markets.ExcludedMarkets);
+                    " Allowed markets: " + Utility::ConvertContainerToString(installer.Markets.AllowedMarkets) +
+                    " Excluded markets: " + Utility::ConvertContainerToString(installer.Markets.ExcludedMarkets);
                 return result;
             }
 
         private:
+            bool IsMarketInList(const std::vector<Manifest::string_t> markets)
+            {
+                return markets.end() != std::find_if(
+                    markets.begin(),
+                    markets.end(),
+                    [&](const auto& m) { return Utility::CaseInsensitiveEquals(m, m_market); });
+            }
+
             Manifest::string_t m_market;
-
-            static Manifest::string_t GetCurrentMarket()
-            {
-                // TODO: Manifest uses 2-letter codes (ISO 3166?) but GetUserDefaultGeoName can return
-                // either a 2-letter ISO-3166 code or a numeric UN M.49 code.
-                auto geoNameSize = GetUserDefaultGeoName(nullptr, 0);
-                THROW_LAST_ERROR_IF(geoNameSize == 0);
-
-                std::vector<wchar_t> geoName(geoNameSize);
-                geoNameSize = GetUserDefaultGeoName(geoName.data(), geoNameSize);
-                THROW_LAST_ERROR_IF(geoNameSize == 0);
-
-                return Manifest::string_t{ geoName.data() };
-            }
-
-            std::string GetMarketsListAsString(const std::vector<Manifest::string_t>& markets)
-            {
-                // TODO: Refactor to merge with GetLocalesListAsString and GetAllowedArchitecturesString
-                std::string result = "[";
-
-                bool first = true;
-                for (auto const& market : markets)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        result += ", ";
-                    }
-
-                    result += market;
-                }
-
-                result += ']';
-
-                return result;
-            }
         };
     }
 

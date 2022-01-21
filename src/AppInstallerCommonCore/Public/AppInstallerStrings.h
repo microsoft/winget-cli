@@ -145,4 +145,36 @@ namespace AppInstaller::Utility
 
     // Gets the file name part of the given URI.
     std::filesystem::path GetFileNameFromURI(std::string_view uri);
+
+    // Converts a container to a string representation of it.
+    template <typename T, typename U>
+    std::string ConvertContainerToString(const T& container, U toString)
+    {
+        std::ostringstream strstr;
+        strstr << '[';
+
+        bool firstItem = true;
+        for (const auto& item : container)
+        {
+            if (firstItem)
+            {
+                firstItem = false;
+            }
+            else
+            {
+                strstr << ", ";
+            }
+
+            strstr << toString(item);
+        }
+
+        strstr << ']';
+        return strstr.str();  // We need C++20 to get std::move(strstr).str() to extract the string from inside the stream
+    }
+
+    template <typename T>
+    std::string ConvertContainerToString(const T& container)
+    {
+        return ConvertContainerToString(container, [](const auto& item) { return item; });
+    }
 }
