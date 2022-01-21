@@ -27,8 +27,7 @@ namespace AppInstaller::CLI
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::GetInstallerHash <<
-            Workflow::VerifyInstallerHash <<
+            Workflow::ReverifyInstallerHash <<
             Workflow::InstallPackageInstaller;
     }
 }

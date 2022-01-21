@@ -142,6 +142,12 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_MISSING_RESOURCE_FILE = unchecked((int)0x8A150048);
             public const int ERROR_MSI_INSTALL_FAILED = unchecked((int)0x8A150049);
             public const int ERROR_INVALID_MSIEXEC_ARGUMENT = unchecked((int)0x8A15004A);
+            public const int ERROR_FAILED_TO_OPEN_ALL_SOURCES = unchecked((int)0x8A15004B);
+            public const int ERROR_DEPENDENCIES_VALIDATION_FAILED = unchecked((int)0x8A15004C);
+            public const int ERROR_MISSING_PACKAGE = unchecked((int)0x8A15004D);
+            public const int ERROR_INVALID_TABLE_COLUMN = unchecked((int)0x8A15004E);
+            public const int ERROR_UPGRADE_VERSION_NOT_NEWER = unchecked((int)0x8A15004F);
+            public const int ERROR_UPGRADE_VERSION_UNKNOWN = unchecked((int)0x8A150050);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

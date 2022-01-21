@@ -198,6 +198,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::NoApplicableInstallers;
             break;
+        case APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE:
+        case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN:
+        case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::NoApplicableUpgrade;
+            break;
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
         case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:

@@ -35,12 +35,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: HashPair
     void GetMsixSignatureHash(Execution::Context& context);
 
-    // Gets the hash of the downloaded installer.
-    // Downloading already computes the hash, so this is only needed to re-verify the installer hash.
+    // Re-verify the installer hash. This is used in Com install commands where download and install are in separate phases.
     // Required Args: None
     // Inputs: InstallerPath, Installer
     // Outputs: HashPair
-    void GetInstallerHash(Execution::Context& context);
+    void ReverifyInstallerHash(Execution::Context& context);
 
     // Verifies that the downloaded installer hash matches the hash in the manifest.
     // Required Args: None

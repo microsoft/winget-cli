@@ -104,6 +104,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_allowedArchitectures;
     }
+    bool InstallOptions::AllowUpgradeToUnknownVersion()
+    {
+        return m_allowUpgradeToUnknownVersion;
+    }
+    void InstallOptions::AllowUpgradeToUnknownVersion(bool value)
+    {
+        m_allowUpgradeToUnknownVersion = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

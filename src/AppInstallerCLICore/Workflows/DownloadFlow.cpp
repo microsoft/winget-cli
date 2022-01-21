@@ -463,7 +463,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetInstallerHash(Execution::Context& context)
+    void ReverifyInstallerHash(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
@@ -491,6 +491,8 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << "Installer file not found.");
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
+
+        context << VerifyInstallerHash;
     }
 
     void RenameDownloadedInstaller(Execution::Context& context)

@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo DefaultInstallVersion();
         winrt::Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
         bool IsUpdateAvailable();
-        
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Repository::Source m_source;

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(3)]
+    [contractversion(4)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install.
@@ -59,6 +59,10 @@ namespace Microsoft.Management.Deployment
         InstallError,
         ManifestError,
         NoApplicableInstallers,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            NoApplicableUpgrade,
+        }
     };
 
     /// Result of the install
@@ -525,6 +529,12 @@ namespace Microsoft.Management.Deployment
             // architecture after the first will simply be ignored.
             Windows.Foundation.Collections.IVector<Windows.System.ProcessorArchitecture> AllowedArchitectures { get; };
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            /// Allow the upgrade to continue for upgrade packages with manifest versions Unknown.
+            Boolean AllowUpgradeToUnknownVersion;
+        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -553,6 +563,12 @@ namespace Microsoft.Management.Deployment
         {
             /// Get install progress
             Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> GetInstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            /// Upgrade the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> UpgradePackageAsync(CatalogPackage package, InstallOptions options);
         }
     }
 
