@@ -191,7 +191,12 @@ namespace AppInstaller::CLI::Workflow
         bool hasPackageAgreements = false;
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
-            // Show agreements for each package
+            // Show agreements for each package that has one
+            auto agreements = packageContext->Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
+            if (agreements.empty())
+            {
+                continue;
+            }
             Execution::Context& showContext = *packageContext;
             auto previousThreadGlobals = showContext.SetForCurrentThread();
 
@@ -203,7 +208,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
             }
 
-            hasPackageAgreements |= !showContext.Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>().empty();
+            hasPackageAgreements |= true;
         }
 
         // If any package has agreements, ensure they are accepted
