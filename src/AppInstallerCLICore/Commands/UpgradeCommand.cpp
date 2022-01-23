@@ -17,9 +17,9 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        bool ShouldListUpgrade(Context& context)
+        bool ShouldListUpgrade(Execution::Args& execArgs)
         {
-            for (Execution::Args::Type type : context.Args.GetTypes())
+            for (Execution::Args::Type type : execArgs.GetTypes())
             {
                 if (type != Execution::Args::Type::Source && type != Execution::Args::Type::IncludeUnknown)
                 {
@@ -121,6 +121,16 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
         }
+
+        else if (!ShouldListUpgrade(execArgs) &&
+                 (!execArgs.Contains(Execution::Args::Type::Query) && 
+                 !execArgs.Contains(Execution::Args::Type::All) &&
+                 !execArgs.Contains(Execution::Args::Type::Name) &&
+                 !execArgs.Contains(Execution::Args::Type::Id) &&
+                 !execArgs.Contains(Execution::Args::Type::Moniker)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
+        }
     }
 
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
@@ -129,7 +139,7 @@ namespace AppInstaller::CLI
 
         // Only allow for source failures when doing a list of available upgrades.
         // We have to set it now to allow for source open failures to also just warn.
-        if (ShouldListUpgrade(context))
+        if (ShouldListUpgrade(context.Args))
         {
             context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
         }
@@ -139,7 +149,7 @@ namespace AppInstaller::CLI
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
-        if (ShouldListUpgrade(context))
+        if (ShouldListUpgrade(context.Args))
         {
             // Upgrade with no args list packages with updates available
             context <<
