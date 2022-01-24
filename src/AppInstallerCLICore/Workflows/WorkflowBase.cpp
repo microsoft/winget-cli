@@ -999,6 +999,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::AllowedArchitectures>({ optionalArchitectures.begin(), optionalArchitectures.end() });
             }
         }
+
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
 

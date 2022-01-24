@@ -51,7 +51,7 @@ namespace AppInstaller::CLI::Workflow
             MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
                 details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures))
             {
-                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << GetAllowedArchitecturesString());
+                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << Utility::ConvertContainerToString(m_allowedArchitectures, Utility::ToString));
             }
 
             // TODO: At some point we can do better about matching the currently installed architecture
@@ -169,22 +169,6 @@ namespace AppInstaller::CLI::Workflow
                 return unsupportedItr != installer.UnsupportedOSArchitectures.end();
             }
 
-            std::string GetAllowedArchitecturesString()
-            {
-                std::stringstream result;
-                bool prependComma = false;
-                for (Utility::Architecture architecture : m_allowedArchitectures)
-                {
-                    if (prependComma)
-                    {
-                        result << ", ";
-                    }
-                    result << Utility::ToString(architecture);
-                    prependComma = true;
-                }
-                return result.str();
-            }
-
             std::vector<Utility::Architecture> m_allowedArchitectures;
         };
 
@@ -290,7 +274,7 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installer scope does not matched currently installed scope: ";
+                std::string result = "Installer scope does not match currently installed scope: ";
                 result += Manifest::ScopeToString(installer.Scope);
                 result += " != ";
                 result += Manifest::ScopeToString(m_requirement);
@@ -429,8 +413,8 @@ namespace AppInstaller::CLI::Workflow
             LocaleComparator(std::vector<std::string> preference, std::vector<std::string> requirement) :
                 details::ComparisonField("Locale"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
             {
-                m_requirementAsString = GetLocalesListAsString(m_requirement);
-                m_preferenceAsString = GetLocalesListAsString(m_preference);
+                m_requirementAsString = Utility::ConvertContainerToString(m_requirement);
+                m_preferenceAsString = Utility::ConvertContainerToString(m_preference);
                 AICLI_LOG(CLI, Verbose, << "Locale Comparator created with Required Locales: " << m_requirementAsString << " , Preferred Locales: " << m_preferenceAsString);
             }
 
@@ -521,30 +505,61 @@ namespace AppInstaller::CLI::Workflow
             std::vector<std::string> m_requirement;
             std::string m_requirementAsString;
             std::string m_preferenceAsString;
+        };
 
-            std::string GetLocalesListAsString(const std::vector<std::string>& locales)
+        struct MarketFilter : public details::FilterField
+        {
+            MarketFilter(Manifest::string_t market) : details::FilterField("Market"), m_market(market)
             {
-                std::string result = "[";
+                AICLI_LOG(CLI, Verbose, << "Market Filter created with market: " << m_market);
+            }
 
-                bool first = true;
-                for (auto const& locale : locales)
+            static std::unique_ptr<MarketFilter> Create()
+            {
+                return std::make_unique<MarketFilter>(Runtime::GetOSRegion());
+            }
+
+            InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                // If both allowed and excluded lists are provided, we only need to check the allowed markets.
+                if (!installer.Markets.AllowedMarkets.empty())
                 {
-                    if (first)
+                    // Inapplicable if NOT found
+                    if (!IsMarketInList(installer.Markets.AllowedMarkets))
                     {
-                        first = false;
+                        return InapplicabilityFlags::Market;
                     }
-                    else
+                }
+                else if (!installer.Markets.ExcludedMarkets.empty())
+                {
+                    // Inapplicable if found
+                    if (IsMarketInList(installer.Markets.ExcludedMarkets))
                     {
-                        result += ", ";
+                        return InapplicabilityFlags::Market;
                     }
-
-                    result += locale;
                 }
 
-                result += ']';
+                return InapplicabilityFlags::None;
+            }
 
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "Current market '" + m_market + "' does not match installer markets." +
+                    " Allowed markets: " + Utility::ConvertContainerToString(installer.Markets.AllowedMarkets) +
+                    " Excluded markets: " + Utility::ConvertContainerToString(installer.Markets.ExcludedMarkets);
                 return result;
             }
+
+        private:
+            bool IsMarketInList(const std::vector<Manifest::string_t> markets)
+            {
+                return markets.end() != std::find_if(
+                    markets.begin(),
+                    markets.end(),
+                    [&](const auto& m) { return Utility::CaseInsensitiveEquals(m, m_market); });
+            }
+
+            Manifest::string_t m_market;
         };
     }
 
@@ -552,6 +567,7 @@ namespace AppInstaller::CLI::Workflow
     {
         AddFilter(std::make_unique<OSVersionFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
+        AddFilter(MarketFilter::Create());
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.

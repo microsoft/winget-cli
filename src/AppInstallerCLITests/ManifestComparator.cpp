@@ -31,7 +31,8 @@ const ManifestInstaller& AddInstaller(
     ScopeEnum scope = ScopeEnum::Unknown,
     std::string minOSVersion = {},
     std::string locale = {},
-    std::vector<Architecture> unsupportedOSArchitectures = {})
+    std::vector<Architecture> unsupportedOSArchitectures = {},
+    MarketsInfo markets = {})
 {
     ManifestInstaller toAdd;
     toAdd.Arch = architecture;
@@ -40,10 +41,22 @@ const ManifestInstaller& AddInstaller(
     toAdd.MinOSVersion = minOSVersion;
     toAdd.Locale = locale;
     toAdd.UnsupportedOSArchitectures = unsupportedOSArchitectures;
+    toAdd.Markets = markets;
 
     manifest.Installers.emplace_back(std::move(toAdd));
 
     return manifest.Installers.back();
+}
+
+template<typename T>
+void RequireVectorsEqual(const std::vector<T>& actual, const std::vector<T>& expected)
+{
+    REQUIRE(actual.size() == expected.size());
+
+    for (std::size_t i = 0; i < actual.size(); ++i)
+    {
+        REQUIRE(actual[i] == expected[i]);
+    }
 }
 
 void RequireInstaller(const std::optional<ManifestInstaller>& actual, const ManifestInstaller& expected)
@@ -54,16 +67,14 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
     REQUIRE(actual->Scope == expected.Scope);
     REQUIRE(actual->MinOSVersion == expected.MinOSVersion);
     REQUIRE(actual->Locale == expected.Locale);
+
+    RequireVectorsEqual(actual->Markets.AllowedMarkets, expected.Markets.AllowedMarkets);
+    RequireVectorsEqual(actual->Markets.ExcludedMarkets, expected.Markets.ExcludedMarkets);
 }
 
 void RequireInapplicabilities(const std::vector<InapplicabilityFlags>& inapplicabilities, const std::vector<InapplicabilityFlags>& expected)
 {
-    REQUIRE(inapplicabilities.size() == expected.size());
-
-    for (std::size_t  i = 0; i < inapplicabilities.size(); i++)
-    {
-        REQUIRE(inapplicabilities[i] == expected[i]);
-    }
+    RequireVectorsEqual(inapplicabilities, expected);
 }
 
 TEST_CASE("ManifestComparator_OSFilter_Low", "[manifest_comparator]")
@@ -579,4 +590,53 @@ TEST_CASE("ManifestComparator_Inapplicabilities", "[manifest_comparator]")
     RequireInapplicabilities(
         inapplicabilities,
         { InapplicabilityFlags::OSVersion | InapplicabilityFlags::InstalledType | InapplicabilityFlags::Locale | InapplicabilityFlags::Scope | InapplicabilityFlags::MachineArchitecture });
+}
+
+TEST_CASE("ManifestComparator_MarketFilter", "[manifest_comparator]")
+{
+    Manifest manifest;
+
+    // Get current market.
+    winrt::Windows::Globalization::GeographicRegion region;
+    Manifest::string_t currentMarket{ region.CodeTwoLetter() };
+
+    SECTION("Applicable")
+    {
+        MarketsInfo markets;
+        SECTION("Allowed")
+        {
+            markets.AllowedMarkets = { currentMarket };
+        }
+        SECTION("Not excluded")
+        {
+            markets.ExcludedMarkets = { "XX" };
+        }
+
+        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, {}, markets);
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, installer);
+        REQUIRE(inapplicabilities.empty());
+    }
+
+    SECTION("Inapplicable")
+    {
+        MarketsInfo markets;
+        SECTION("Excluded")
+        {
+            markets.ExcludedMarkets = { currentMarket };
+        }
+        SECTION("Not allowed")
+        {
+            markets.AllowedMarkets = { "XX" };
+        }
+
+        ManifestInstaller installer = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Exe, {}, {}, {}, {}, markets);
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Market});
+    }
 }
