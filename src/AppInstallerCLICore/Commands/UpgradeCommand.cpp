@@ -17,16 +17,66 @@ namespace AppInstaller::CLI
 {
     namespace
     {
+        // Determines whether there are any arguments only used in search queries,
+        // as opposed to listing available upgrades
+        bool HasSearchQueryArguments(Execution::Args& execArgs)
+        {
+            // Note that this does not include Manifest (no search) or source related args (used for listing)
+            return execArgs.Contains(Args::Type::Query) ||
+                execArgs.Contains(Args::Type::Id) ||
+                execArgs.Contains(Args::Type::Name) ||
+                execArgs.Contains(Args::Type::Moniker) ||
+                execArgs.Contains(Args::Type::Version) ||
+                execArgs.Contains(Args::Type::Channel) ||
+                execArgs.Contains(Args::Type::Exact);
+        }
+
+        // Determines whether there are any arguments only used when upgrading a single package,
+        // as opposed to upgrading multiple packages or listing all available upgrades
+        bool HasArgumentsForSinglePackage(Execution::Args& execArgs)
+        {
+            return HasSearchQueryArguments(execArgs) ||
+                execArgs.Contains(Args::Type::Manifest);
+        }
+
+        // Determines whether there are any arguments only used when dealing with multiple packages,
+        // either for upgrading or for listing available upgrades.
+        bool HasArgumentsForMultiplePackages(Execution::Args& execArgs)
+        {
+            return execArgs.Contains(Args::Type::All) ||
+                execArgs.Contains(Args::Type::IncludeUnknown);
+        }
+
+        // Determines whether there are any arguments only used as options during an upgrade,
+        // as opposed to listing available upgrades or selecting the packages.
+        bool HasArgumentsForInstallOptions(Execution::Args& execArgs)
+        {
+            return execArgs.Contains(Args::Type::Interactive) ||
+                execArgs.Contains(Args::Type::Silent) ||
+                execArgs.Contains(Args::Type::Log) ||
+                execArgs.Contains(Args::Type::Override) ||
+                execArgs.Contains(Args::Type::InstallLocation) ||
+                execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::AcceptPackageAgreements);
+        }
+
+        // Determines whether there are any arguments related to the source.
+        bool HasArgumentsForSource(Execution::Args& execArgs)
+        {
+            return execArgs.Contains(Args::Type::Source) ||
+                execArgs.Contains(Args::Type::CustomHeader) ||
+                execArgs.Contains(Args::Type::AcceptSourceAgreements);
+        }
+
+        // Determines whether we should list available upgrades, instead
+        // of performing an upgrade
         bool ShouldListUpgrade(Execution::Args& execArgs)
         {
-            for (Execution::Args::Type type : execArgs.GetTypes())
-            {
-                if (type != Execution::Args::Type::Source && type != Execution::Args::Type::IncludeUnknown)
-                {
-                    return false;
-                }
-            }
-            return true;
+            // Valid arguments for list are only those related to the sources and which packages to include.
+            // Instead of checking for them, we check that there aren't any other arguments present.
+            return !execArgs.Contains(Args::Type::All) &&
+                !HasArgumentsForSinglePackage(execArgs) &&
+                !HasArgumentsForInstallOptions(execArgs);
         }
     }
 
@@ -109,25 +159,17 @@ namespace AppInstaller::CLI
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (execArgs.Contains(Execution::Args::Type::Query) ||
-             execArgs.Contains(Execution::Args::Type::Id) ||
-             execArgs.Contains(Execution::Args::Type::Name) ||
-             execArgs.Contains(Execution::Args::Type::Moniker) ||
-             execArgs.Contains(Execution::Args::Type::Version) ||
-             execArgs.Contains(Execution::Args::Type::Channel) ||
-             execArgs.Contains(Execution::Args::Type::Source) ||
-             execArgs.Contains(Execution::Args::Type::Exact) ||
-             execArgs.Contains(Execution::Args::Type::All)))
+            (HasSearchQueryArguments(execArgs) ||
+                HasArgumentsForMultiplePackages(execArgs) ||
+                HasArgumentsForSource(execArgs)))
         {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
-        else if (!ShouldListUpgrade(execArgs) &&
-                 (!execArgs.Contains(Execution::Args::Type::Query) && 
-                 !execArgs.Contains(Execution::Args::Type::All) &&
-                 !execArgs.Contains(Execution::Args::Type::Name) &&
-                 !execArgs.Contains(Execution::Args::Type::Id) &&
-                 !execArgs.Contains(Execution::Args::Type::Moniker)))
+
+        else if (!ShouldListUpgrade(execArgs) 
+                && !HasSearchQueryArguments(execArgs) 
+                && HasArgumentsForInstallOptions(execArgs))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
         }
