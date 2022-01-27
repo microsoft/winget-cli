@@ -93,6 +93,16 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
+        if (!execArgs.Contains(Args::Type::Manifest) &&
+            !execArgs.Contains(Args::Type::Query) &&
+            !execArgs.Contains(Args::Type::Id) &&
+            !execArgs.Contains(Args::Type::Name) &&
+            !execArgs.Contains(Args::Type::Moniker) &&
+            !execArgs.Contains(Args::Type::Version))
+        {
+            throw CommandException(Resource::String::NoInstallPackageSpecified);
+        }
+
         if (execArgs.Contains(Args::Type::Manifest) &&
             (execArgs.Contains(Args::Type::Query) ||
              execArgs.Contains(Args::Type::Id) ||

@@ -66,6 +66,18 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-search";
     }
 
+    void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        if (!execArgs.Contains(Args::Type::Query) &&
+            !execArgs.Contains(Args::Type::Id) &&
+            !execArgs.Contains(Args::Type::Name) &&
+            !execArgs.Contains(Args::Type::Moniker) &&
+            !execArgs.Contains(Args::Type::Tag) &&
+            !execArgs.Contains(Args::Type::Command))
+        {
+            throw CommandException(Resource::String::NoSearchPackageSpecified);
+        }
+    }
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
