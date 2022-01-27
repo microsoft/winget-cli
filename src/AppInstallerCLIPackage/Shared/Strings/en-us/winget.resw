@@ -1270,9 +1270,9 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
   <data name="NoSearchPackageSpecified" xml:space="preserve">
-    <value>No options specified. Please specify atleast one of the following options: Query, Id, Name, Moniker, Tag and Command. </value>
+    <value>No options specified. Please specify at least one of the following options: Query, Id, Name, Moniker, Tag and Command. </value>
   </data>
   <data name="NoInstallPackageSpecified" xml:space="preserve">
-    <value>No options specified. Please specify atleast one of the following options: Manifest, Query, Id, Name, Moniker and Version. </value>
+    <value>No options specified. Please specify at least one of the following options: Manifest, Query, Id, Name, Moniker and Version. </value>
   </data>
 </root>
