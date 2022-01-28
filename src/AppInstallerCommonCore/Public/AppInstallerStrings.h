@@ -177,4 +177,17 @@ namespace AppInstaller::Utility
     {
         return ConvertContainerToString(container, [](const auto& item) { return item; });
     }
+
+    template <typename CharType>
+    std::basic_string<CharType> StringOrEmptyIfNull(const CharType* string)
+    {
+        if (string)
+        {
+            return { string };
+        }
+        else
+        {
+            return {};
+        }
+    }
 }
