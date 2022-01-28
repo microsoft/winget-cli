@@ -145,4 +145,17 @@ namespace AppInstaller::Utility
 
     // Gets the file name part of the given URI.
     std::filesystem::path GetFileNameFromURI(std::string_view uri);
+
+    template <typename CharType>
+    std::basic_string<CharType> StringOrEmptyIfNull(const CharType* string)
+    {
+        if (string)
+        {
+            return { string };
+        }
+        else
+        {
+            return {};
+        }
+    }
 }
