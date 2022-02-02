@@ -569,6 +569,9 @@ namespace Microsoft.Management.Deployment
         {
             /// Upgrade the specified package
             Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> UpgradePackageAsync(CatalogPackage package, InstallOptions options);
+
+            /// Uninstall the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> UninstallPackageAsync(CatalogPackage package, InstallOptions options);
         }
     }
 

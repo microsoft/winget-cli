@@ -135,6 +135,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
         context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
     }
+    void AddInstalledVersionToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
+    {
+        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(installedVersionInfo);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
+        context->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
+    }
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
         if (!options)
@@ -337,10 +343,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
         }
 
-        // If the version of the package is specified use that, otherwise use the default.
-        Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
-        AddPackageManifestToContext(packageVersionInfo, context.get());
-
         // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         return context;
     }
@@ -354,7 +356,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // If the caller has passed in the catalog they expect the package to have come from, then only look for an install from that catalog.
             // Fail if they've used a catalog that doesn't have an Id. This can currently happen for Info objects that come from PackageCatalogReference objects for REST catalogs.
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, catalogInfo.Id().empty());
-            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ catalogInfo.Id() }, std::move(context));
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring{ package.Id() }, std::wstring{ catalogInfo.Id() }, std::move(context));
             queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             return queueItem;
         }
@@ -365,7 +367,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo = package.InstalledVersion();
         if (installedVersionInfo)
         {
-            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ installedVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring{ package.Id() }, std::wstring{ installedVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
             queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
@@ -377,7 +379,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo defaultInstallVersionInfo = package.DefaultInstallVersion();
         if (defaultInstallVersionInfo)
         {
-            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ defaultInstallVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring{ package.Id() }, std::wstring{ defaultInstallVersionInfo.PackageCatalog().Info().Id() }, std::move(context));
             queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
@@ -397,13 +399,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return nullptr;
     }
+
+    enum class PackageOperationType
+    {
+        Install,
+        Upgrade,
+        Uninstall,
+    };
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallOperation(
         bool canCancelQueueItem,
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItemParam,
         winrt::Microsoft::Management::Deployment::CatalogPackage package = nullptr,
         winrt::Microsoft::Management::Deployment::InstallOptions options = nullptr,
         std::wstring callerProcessInfoString = {},
-        bool isUpgrade = false)
+        PackageOperationType operationType = PackageOperationType::Install)
     {
         winrt::hresult terminationHR = S_OK;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
@@ -421,37 +430,49 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             if (queueItem == nullptr)
             {
-                Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
                 std::unique_ptr<COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
 
-                if (isUpgrade)
+                if (operationType == PackageOperationType::Install || operationType == PackageOperationType::Upgrade)
                 {
-                    AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
-                    AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
+                    // Add manifest and PackageVersion to context for install/upgrade.
+                    // If the version of the package is specified use that, otherwise use the default.
+                    Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
+                    AddPackageManifestToContext(packageVersionInfo, comContext.get());
 
-                    // Perform upgrade version check
-                    if (upgradeVersion.GetVersion().IsUnknown())
+                    if (operationType == PackageOperationType::Upgrade)
                     {
-                        if (!(options.AllowUpgradeToUnknownVersion() &&
-                            AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
+                        AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
+                        AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
+
+                        // Perform upgrade version check
+                        if (upgradeVersion.GetVersion().IsUnknown())
                         {
-                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, correlationData, false);
+                            if (!(options.AllowUpgradeToUnknownVersion() &&
+                                AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
+                            {
+                                co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, correlationData, false);
+                            }
                         }
-                    }
-                    else if (!installedVersion.IsUpdatedBy(upgradeVersion))
-                    {
-                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, correlationData, false);
+                        else if (!installedVersion.IsUpdatedBy(upgradeVersion))
+                        {
+                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, correlationData, false);
+                        }
+
+                        // Set upgrade flag
+                        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
+                        // Add installed version
+                        AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
                     }
 
-                    // Set upgrade flag
-                    comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
-                    // Add installed version
-                    winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(package.InstalledVersion());
-                    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
-                    comContext->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
+                    queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
+                }
+                else if (operationType == PackageOperationType::Uninstall)
+                {
+                    AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+
+                    queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForUninstall(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
                 }
 
-                queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
                 InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
@@ -604,7 +625,33 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
         WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
 
-        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), true /* isUpgrade */);
+        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), PackageOperationType::Upgrade);
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::UninstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
+    {
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+        // the package should have an installed version to be uninstalled.
+        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
+
+        HRESULT hr = S_OK;
+        std::wstring callerProcessInfoString;
+        try
+        {
+            // Check for permissions and get caller info for telemetry.
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), PackageOperationType::Uninstall);
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)

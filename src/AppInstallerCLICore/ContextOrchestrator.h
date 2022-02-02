@@ -79,7 +79,12 @@ namespace AppInstaller::CLI::Execution
 
     struct OrchestratorQueueItemFactory
     {
+        // Create queue item for install/upgrade
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
+        // Create queue item for uninstall
+        static std::unique_ptr<OrchestratorQueueItem> CreateItemForUninstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
+        // Create queue item for finding existing entry from the orchestrator queue
+        static std::unique_ptr<OrchestratorQueueItem> CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
     };
 
     struct ContextOrchestrator
