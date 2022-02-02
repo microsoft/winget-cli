@@ -5,9 +5,9 @@ last updated: 2022-02-02
 issue id: 476
 ---
 
-# Pinning a package.
+# Pinning a package
 
-[comment]: # Link to issue: "For [#476](https://github.com/microsoft/winget-cli/issues/476)"
+For [#476](https://github.com/microsoft/winget-cli/issues/476)
 
 ## Abstract
 
@@ -24,8 +24,6 @@ A table of packages (by Name, Version and Product Code if available) that are cu
 
 ## UI/UX Design
 
-[comment]: # What will this fix/feature look like? How will it affect the end user?
-
 The main interface for the pinning feature will be a new command, `winget pin`, with a couple of options:
 
 
@@ -36,7 +34,8 @@ winget pin
 Running `winget pin` with no arguments will show a table of currently pinned packages:
 
 ```
-Name                                                 Id                                Version    ------------------------------------------------------------------------------------------------
+Name                                                 Id                                Version    
+------------------------------------------------------------------------------------------------
 Microsoft Bob                                        Microsoft.Bob                     2.35.0
 iTunes                                               Apple.iTunes                      12.0.199.4
 
@@ -70,7 +69,7 @@ Upgrades to pinned packages:
 
 Name                                                 Id                                Version       Available     Source
 -------------------------------------------------------------------------------------------------------------------------
-Clippy for Azure 2008 Datacenter                     Microsoft.Clippy.2008.Datacenter  2.35.0        2.35.1.2      winget
+Clippy for Azure 2011 Datacenter                     Microsoft.Clippy.2011.Datacenter  2.35.0        2.35.1.2      winget
 ```
 
 
@@ -78,7 +77,7 @@ Clippy for Azure 2008 Datacenter                     Microsoft.Clippy.2008.Datac
 winget <upgrade/install> --include-pinned <package>
 ```
 
-Upgrade and Install will now require arguments to bypass the pin for a package temporarily, in which case the pin is updated to pin the new version after the installation completes.
+Upgrade and Install will now need to use the same argument to bypass the pin for a package temporarily, in which case the pin is updated to pin the new version after the installation completes.
 
 ```
 winget install --pin <package>
@@ -134,56 +133,44 @@ This package requires the following dependencies:
   - Packages
       Microsoft.Bob, version 2.39.0.
 
-Microsoft Bob is currently pinned at version 2.32.0, but Rover the Dog 5.1 requires at least version 2.39.0. To upgrade Microsoft Bob and other pinned dependencies, add the argument `--include-pinned` to your previous command.
+Microsoft Bob is currently pinned at version 2.32.0, but Rover the Dog 5.1 requires at least version 2.39.0. 
+To upgrade Microsoft Bob and other pinned dependencies, add the argument --include-pinned to your previous command.
 ```
 
 ## Capabilities
 
-[comment]: # Discuss how the proposed fixes/features impact the following key considerations:
-
 ### Accessibility
-
-[comment]: # How will the proposed change impact accessibility for users of screen readers, assistive input devices, etc.
 
 Accessibility should not be impacted by this change. There will be a few more tables printed to the terminal in certain cases, but they should use the current table implementation used by `winget upgrade` and `winget list`.
 
 ### Security
 
-[comment]: # How will the proposed change impact security?
-
 Security of the Windows Package Manager should not be impacted by this change. However, security of user's software may be, as if they pin a insecure version of a package they currently will not be notified of important security updates within the Windows Package Manager.
 
 ### Reliability
-
-[comment]: # Will the proposed change improve reliability? If not, why make the change?
 
 The change will improve reliability, as users will be able to have fine grained control of the Windows Package Manager's upgrade functionality to ensure their workflow is not disrupted. 
 
 ### Compatibility
 
-[comment]: # Will the proposed change break existing code/behaviors? If so, how, and is the breaking change "worth it"?
-
 There should not be any breaking changes to the code. Although there could be a mild breaking change to the behavior of `upgrade --all` (not all packages are upgraded anymore since pinned ones are skipped), this is purely opt-in from the user's perspective at this time (if they do not pin software, there should not be a change).
 
 ### Performance, Power, and Efficiency
 
-## Potential Issues
+There should not be any noticible performance changes.
 
-[comment]: # What are some of the things that might cause problems with the fixes/features proposed? Consider how the user might be negatively impacted.
+
+## Potential Issues
 
 Outside of missing security updates and having possible dependency resolution failures due to pins, there should not be any other impacts. Considering the opt-in nature of pinning, it should not affect users unless they want to use it.
 
 ## Future considerations
-
-[comment]: # What are some of the things that the fixes/features might unlock in the future? Does the implementation of this spec enable scenarios?
 
 - Group Policy or MDM control of pinned packages would be a natural addition to the defined functionality. Administrators may want to restrict upgrades for certain pieces of conflicting software if it will cause issues for some or all of their users.
 
 - Packages may want to define pins for their dependencies, if they can't use anything above a certain version of a dependency. These pins could be merged into the user's current pins, making sure that the packages currently installed keep working.
 
 ## Resources
-
-[comment]: # Be sure to add links to references, resources, footnotes, etc.
 
 - [Brew - How do I stop certain formulae from being upgraded?](https://docs.brew.sh/FAQ#how-do-i-stop-certain-formulae-from-being-updated)
 
