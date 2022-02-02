@@ -4,7 +4,7 @@
 #include "ExecutionContext.h"
 #include "ContextOrchestrator.h"
 #include "COMContext.h"
-#include "Commands/COMInstallCommand.h"
+#include "Commands/COMCommand.h"
 #include "winget/UserSettings.h"
 #include <Commands/RootCommand.h>
 

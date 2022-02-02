@@ -9,7 +9,7 @@
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include <winget/Manifest.h>
-#include "Commands/COMInstallCommand.h"
+#include "Commands/COMCommand.h"
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #pragma warning( push )

@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "COMInstallCommand.h"
+#include "COMCommand.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::CLI::Execution;
@@ -29,5 +30,12 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReverifyInstallerHash <<
             Workflow::InstallPackageInstaller;
+    }
+
+    // IMPORTANT: To use this command, the caller should have already retrieved the InstalledPackageVersion and added it to the Context Data
+    void COMUninstallCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::UninstallSinglePackage;
     }
 }
