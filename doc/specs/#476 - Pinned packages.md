@@ -157,7 +157,7 @@ There should not be any breaking changes to the code. Although there could be a 
 
 ### Performance, Power, and Efficiency
 
-There should not be any noticible performance changes.
+There should not be any notable performance changes.
 
 
 ## Potential Issues

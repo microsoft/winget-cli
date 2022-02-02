@@ -1,6 +1,5 @@
 abcd
 adjacents
-activatable
 adml
 admx
 affle
@@ -10,7 +9,7 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
-amd
+Amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -19,7 +18,6 @@ apicontract
 apiset
 appinstallertest
 appname
-Archs
 arget
 argumentlist
 ARMNT
@@ -43,6 +41,7 @@ Beigi
 bfd
 BFirst
 bght
+billg
 bitmask
 bkup
 blargle
@@ -72,6 +71,7 @@ chcp
 ci
 cinq
 CLIE
+Clippy
 cloudapp
 clsid
 COINIT
@@ -91,6 +91,7 @@ ctc
 Ctx
 curated
 CYRL
+Datacenter
 Dbg
 debian
 deigh
@@ -100,10 +101,11 @@ dirs
 diskfull
 dnld
 Dobbeleer
-dsc
+Dsc
 dustojnikhummer
 dvinns
 dw
+easton
 ecfr
 ecfrbrowse
 endian
@@ -140,9 +142,8 @@ GES
 GESMBH
 GHS
 gity
-Globals
 Google
-hackathon
+Hackathon
 hashtable
 helplib
 helplibrary
@@ -151,6 +152,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Howto
 hre
 hresults
 htm
@@ -164,6 +166,7 @@ IHost
 IID
 IISOn
 img
+importantsystemdependencies
 IMutable
 IName
 inet
@@ -186,6 +189,7 @@ IVector
 IWeb
 IZone
 jdk
+jedieaston
 jfearn
 JObject
 jp
@@ -220,13 +224,14 @@ lz
 malware
 maxvalue
 MBH
+MDM
 mdmp
 megamorf
 memcpy
 middleware
 midl
-minidump
 minexample
+minidump
 minschema
 missingdependency
 MMmmbbbb
@@ -247,7 +252,6 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
 NETFX
 netlify
 Newtonsoft
@@ -257,6 +261,8 @@ normer
 NOSEPARATOR
 NOTAPROPERTY
 notmatch
+npm
+npmjs
 npp
 nsis
 nuffing
@@ -266,9 +272,8 @@ objbase
 objidl
 ofile
 Outptr
-Packagedx
 packageinuse
-parametermap
+PARAMETERMAP
 pathparts
 pathpaths
 Patil
@@ -278,8 +283,10 @@ PEGI
 pfn
 pfxpath
 Pherson
+Pillay
 pkgmgr
 pkindex
+planeteaston
 PMS
 positionals
 powershellgallery
@@ -366,6 +373,7 @@ tombstoned
 tpl
 transitioning
 trimstart
+ubuntu
 UCase
 ucasemap
 UChars
@@ -404,7 +412,7 @@ Webserver
 website
 WERSJA
 wesome
-whatif
+Whatif
 windir
 windowsdeveloper
 winerror
