@@ -11,7 +11,7 @@ For [#476](https://github.com/microsoft/winget-cli/issues/476)
 
 ## Abstract
 
-This spec describes the functionality behind "pinning" a package (freezing a package at a certain version so that it will be not be automatically upgraded).
+This spec describes the functionality behind "pinning" a package (freezing a package at a certain version so that it will be not be automatically upgraded via `winget upgrade --all`).
 
 ## Inspiration
 
@@ -98,7 +98,7 @@ In addition to commands, there should be a new `Pinned` key in exported package 
         {
           "PackageIdentifier": "Microsoft.Bob",
           "PackageVersion" : 2.35.0,
-          "Pinned" : "true"
+          "Pinned" : true
         },
       ],
     }
