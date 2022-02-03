@@ -24,11 +24,14 @@ A table of packages (by Name, Version and Product Code if available) that are cu
 
 ## UI/UX Design
 
+Several commands will need to be added to support pinning packages. Where applicable, equivalent names (or new arguments) for PowerShell cmdlets will also be given.
+
 The main interface for the pinning feature will be a new command, `winget pin`, with a couple of options:
 
 
 ```
 winget pin
+PowerShell: Get-WinGetPinnedPackage
 ```
 
 Running `winget pin` with no arguments will show a table of currently pinned packages:
@@ -42,7 +45,8 @@ iTunes                                               Apple.iTunes               
 ```
 
 ```
-winget pin --set <package> 
+winget pin --set <package>
+PowerShell: Set-WinGetPinnedPackage
 ```
 
 `<package>` correlates to a query, similar to `winget list`. When running this command, the package information will be stored in the table in the tracking catalog. This command should be able to accept Package Identifers (checked against all repositories) as well as names, tags, etc. If the package does not have a version number locally but is available from a source, then the version number from the source should be used.
@@ -51,6 +55,7 @@ If there is no package directly available for software a user wants to pin, but 
 
 ```
 winget pin --clear <package>
+PowerShell: Remove-WinGetPinnedPackage
 ```
 
 It functions similarly to `winget pin --set`, but it clears the pin. This should automatically happen on `winget uninstall`, or if it is detected the package is no longer present on the system.
@@ -59,6 +64,7 @@ Enhancements will also need to be made to other commands in the Windows Package 
 
 ```
 winget upgrade --include-pinned
+PowerShell: Get-WinGetPackage -UpgradeAvailable -Pinned
 ```
 
 With the new `--include-pinned` argument, Upgrade should show a separate table in addition to the regular table which shows possible upgrades to pinned packages.
@@ -75,6 +81,7 @@ Clippy for Azure 2011 Datacenter                     Microsoft.Clippy.2011.Datac
 
 ```
 winget <upgrade/install> --include-pinned <package>
+PowerShell: Install-WinGetPackage -Pinned / Upgrade-WinGetPackage -Pinned
 ```
 
 Upgrade and Install will now need to use the same argument to bypass the pin for a package temporarily, in which case the pin is updated to pin the new version after the installation completes.
@@ -84,7 +91,6 @@ winget install --pin <package>
 ```
 
 Install should also be extended to allow the user to pin a package at install time.
-
 
 
 
