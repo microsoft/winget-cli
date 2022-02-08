@@ -203,6 +203,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER:
             resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::NoApplicableUpgrade;
             break;
+        case APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND:
+        case APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED:
+            resultStatus = winrt::Microsoft::Management::Deployment::InstallResultStatus::UninstallError;
+            break;
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
         case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:

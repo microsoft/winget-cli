@@ -62,6 +62,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
         {
             NoApplicableUpgrade,
+            UninstallError,
         }
     };
 
