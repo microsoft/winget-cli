@@ -20,6 +20,7 @@
 #include "PackageManager.h"
 #pragma warning( pop )
 #include "PackageManager.g.cpp"
+#include "CatalogPackage.h"
 #include "InstallResult.h"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalogReference.h"
@@ -468,7 +469,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
                 else if (operationType == PackageOperationType::Uninstall)
                 {
+                    // Add installed version
                     AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+                    // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
+                    winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
+                    std::shared_ptr<::AppInstaller::Repository::IPackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
+                    comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
 
                     queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForUninstall(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
                 }

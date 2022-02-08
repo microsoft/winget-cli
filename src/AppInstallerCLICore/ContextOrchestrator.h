@@ -42,7 +42,8 @@ namespace AppInstaller::CLI::Execution
 
     struct OrchestratorQueueItem
     {
-        OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context) : m_id(std::move(id)), m_context(std::move(context)) {}
+        OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context, bool isApplicableForInstallingSource = false) :
+            m_id(std::move(id)), m_context(std::move(context)), m_isApplicableForInstallingSource(isApplicableForInstallingSource) {}
 
         OrchestratorQueueItemState GetState() const { return m_state; }
         void SetState(OrchestratorQueueItemState state) { m_state = state; }
@@ -66,6 +67,7 @@ namespace AppInstaller::CLI::Execution
 
         bool IsOnFirstCommand() const { return m_isOnFirstCommand; }
         bool IsComplete() const { return m_commands.empty(); }
+        bool IsApplicableForInstallingSource() const { return m_isApplicableForInstallingSource; }
 
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
@@ -75,6 +77,7 @@ namespace AppInstaller::CLI::Execution
         std::deque<std::unique_ptr<Command>> m_commands;
         bool m_isOnFirstCommand = true;
         OrchestratorQueue* m_currentQueue = nullptr;
+        bool m_isApplicableForInstallingSource = false;
     };
 
     struct OrchestratorQueueItemFactory
