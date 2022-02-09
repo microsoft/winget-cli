@@ -46,7 +46,7 @@ iTunes                                               Apple.iTunes               
 
 ```
 
-The "Reason" field serves to explain why a application was pinned. If a package designates the `RequiresExplictUpgrade` property in their manifest, it should be explained here so that the user has a way to diagnose why it isn't automatically upgraded during `winget upgrade --all`.
+The "Reason" field serves to explain why a application was pinned. If a package designates the `RequiresExplicitUpgrade` property in their manifest, it should be explained here so that the user has a way to diagnose why it isn't automatically upgraded during `winget upgrade --all`.
 
 ```
 winget pin <package>
