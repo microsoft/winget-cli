@@ -90,7 +90,7 @@ PowerShell: Install-WinGetPackage / Upgrade-WinGetPackage
 
 Upgrade and Install should work as normal if a pinned package is requested, but print a warning to remind the user that it was previously pinned.
 
-```
+
 ```
 PS C:\Users\billg> winget upgrade Microsoft.Bob
 WARNING: This package was previously pinned at version 2.32.0. The pin will be updated to represent the new version number.
