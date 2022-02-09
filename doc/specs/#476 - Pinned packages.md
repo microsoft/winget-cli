@@ -21,6 +21,8 @@ This functionality is inspired by functionality in other package managers, as we
 
 A table of packages (by Name, Version and Product Code if available) that are currently pinned will be kept in the local tracking catalog. To be repository independent, these values should be correlated from local sources (Add and Remove Programs, Appx, etc). This also means that the user should be able to pin packages that were not installed via the Windows Package Manager, so that they won't be upgraded via `winget upgrade --all`. 
 
+Some applications would also like to opt-out of `winget upgrade --all` if they manage their own upgrades or often make breaking changes. As such, the `RequiresExplicitUpgrade` key was added in manifest schema v1.1. Given that this creates the same end result for the user, packages that opt-out of upgrades in this manner should behave like pinned packages to the user, and they should be able to override the behavior listed in the manifest if they choose.
+
 
 ## UI/UX Design
 
@@ -37,15 +39,17 @@ PowerShell: Get-WinGetPinnedPackage
 Running `winget pin` with no arguments will show a table of currently pinned packages:
 
 ```
-Name                                                 Id                                Version    
-------------------------------------------------------------------------------------------------
-Microsoft Bob                                        Microsoft.Bob                     2.35.0
-iTunes                                               Apple.iTunes                      12.0.199.4
+Name                                                 Id                                Version     Reason
+-------------------------------------------------------------------------------------------------------------
+Microsoft Bob                                        Microsoft.Bob                     2.35.0      Manual
+iTunes                                               Apple.iTunes                      12.0.199.4  Via manifest
 
 ```
 
+The "Reason" field serves to explain why a application was pinned. If a package designates the `RequiresExplictUpgrade` property in their manifest, it should be explained here so that the user has a way to diagnose why it isn't automatically upgraded during `winget upgrade --all`.
+
 ```
-winget pin --set <package>
+winget pin <package>
 PowerShell: Set-WinGetPinnedPackage
 ```
 
@@ -58,7 +62,7 @@ winget pin --clear <package>
 PowerShell: Remove-WinGetPinnedPackage
 ```
 
-It functions similarly to `winget pin --set`, but it clears the pin. This should automatically happen on `winget uninstall`, or if it is detected the package is no longer present on the system.
+It functions similarly to `winget pin <package>`, but it clears the pin. This should automatically happen on `winget uninstall`.
 
 Enhancements will also need to be made to other commands in the Windows Package Manager, including:
 
@@ -80,11 +84,27 @@ Clippy for Azure 2011 Datacenter                     Microsoft.Clippy.2011.Datac
 
 
 ```
-winget <upgrade/install> --include-pinned <package>
-PowerShell: Install-WinGetPackage -Pinned / Upgrade-WinGetPackage -Pinned
+winget <upgrade/install> <package>
+PowerShell: Install-WinGetPackage / Upgrade-WinGetPackage
 ```
 
-Upgrade and Install will now need to use the same argument to bypass the pin for a package temporarily, in which case the pin is updated to pin the new version after the installation completes.
+Upgrade and Install should work as normal if a pinned package is requested, but print a warning to remind the user that it was previously pinned.
+
+```
+```
+PS C:\Users\billg> winget upgrade Microsoft.Bob
+WARNING: This package was previously pinned at version 2.32.0. The pin will be updated to represent the new version number.
+If you would like to remove the pin, use "winget pin --clear Microsoft.Bob".
+Found Microsoft Bob [Microsoft.Bob] Version 2.39.0
+This application is licensed to you by its owner.
+Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Downloading https://aka.ms/importantsystemdependencies/bob.exe
+██████████████████████████████ 2.08 MB / 2.08 MB
+Successfully verified installer hash
+Starting package install...
+Successfully installed
+Microsoft.Bob has been pinned at version 2.39.0.
+```
 
 ```
 winget install --pin <package>
@@ -175,6 +195,8 @@ Outside of missing security updates and having possible dependency resolution fa
 - Group Policy or MDM control of pinned packages would be a natural addition to the defined functionality. Administrators may want to restrict upgrades for certain pieces of conflicting software if it will cause issues for some or all of their users.
 
 - Packages may want to define pins for their dependencies, if they can't use anything above a certain version of a dependency. These pins could be merged into the user's current pins, making sure that the packages currently installed keep working.
+
+- If a user uninstalls or upgrades a pinned package without using the Windows Package Manager, the local tracking catalog (given the definitions in this spec) will become out of sync with the "reality" of the packages's current status. The pinned packages table should have a method of staying in sync.
 
 ## Resources
 
