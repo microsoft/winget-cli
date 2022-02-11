@@ -584,6 +584,11 @@
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesMultideclaration.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="TestData\ManifestV1_2-Singleton.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-DefaultLocale.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Installer.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Locale.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

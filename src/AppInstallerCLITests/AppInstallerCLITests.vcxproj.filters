@@ -190,6 +190,11 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-DefaultLocale.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Installer.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Locale.yaml" />
+    <None Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml" />
+    <None Include="TestData\ManifestV1_2-Singleton.yaml" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
