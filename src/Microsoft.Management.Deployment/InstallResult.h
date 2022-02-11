@@ -12,7 +12,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
             winrt::Microsoft::Management::Deployment::InstallResultStatus status,
-            winrt::hresult extendedErrorCode, 
+            winrt::hresult extendedErrorCode,
+            uint32_t installerErrorCode,
             hstring const& correlationData, 
             bool rebootRequired);
 #endif
@@ -21,6 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool RebootRequired();
         winrt::Microsoft::Management::Deployment::InstallResultStatus Status();
         winrt::hresult ExtendedErrorCode();
+        uint32_t InstallerErrorCode();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -28,6 +30,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_rebootRequired = false;
         winrt::Microsoft::Management::Deployment::InstallResultStatus m_status = winrt::Microsoft::Management::Deployment::InstallResultStatus::Ok;
         winrt::hresult m_extendedErrorCode = S_OK;
+        uint32_t m_installerErrorCode = 0;
 #endif
     };
 }

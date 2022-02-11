@@ -157,11 +157,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *packageCatalogImpl;
     }
 
-    winrt::Microsoft::Management::Deployment::InstallResult GetInstallResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, winrt::hstring correlationData, bool rebootRequired)
+    winrt::Microsoft::Management::Deployment::InstallResult GetInstallResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t installerError, winrt::hstring correlationData, bool rebootRequired)
     {
         winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(executionStage, terminationHR);
         auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
-        installResult->Initialize(installResultStatus, terminationHR, correlationData, rebootRequired);
+        installResult->Initialize(installResultStatus, terminationHR, installerError, correlationData, rebootRequired);
         return *installResult;
     }
 
@@ -406,6 +406,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool isUpgrade = false)
     {
         winrt::hresult terminationHR = S_OK;
+        uint32_t installerError = 0;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
         ::Workflow::ExecutionStage executionStage = ::Workflow::ExecutionStage::Initial;
 
@@ -435,12 +436,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                         if (!(options.AllowUpgradeToUnknownVersion() &&
                             AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
                         {
-                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, correlationData, false);
+                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, 0, correlationData, false);
                         }
                     }
                     else if (!installedVersion.IsUpdatedBy(upgradeVersion))
                     {
-                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, correlationData, false);
+                        co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, 0, correlationData, false);
                     }
 
                     // Set upgrade flag
@@ -537,12 +538,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // The install command has finished, check for success/failure and how far it got.
                 terminationHR = queueItem->GetContext().GetTerminationHR();
                 executionStage = queueItem->GetContext().GetExecutionStage();
+                if (queueItem->GetContext().Contains(Data::InstallerReturnCode))
+                {
+                    installerError = static_cast<uint32_t>(queueItem->GetContext().Get<Data::InstallerReturnCode>());
+                }
             }
         }
         WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
-        co_return GetInstallResult(executionStage, terminationHR, correlationData, false);
+        co_return GetInstallResult(executionStage, terminationHR, installerError, correlationData, false);
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetEmptyAsynchronousResultForInstallOperation(
@@ -551,7 +556,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         // If a function uses co_await or co_return (i.e. if it is a co_routine), it cannot use return directly.
         // This helper helps a function that is not a coroutine itself to return errors asynchronously.
-        co_return GetInstallResult(::Workflow::ExecutionStage::Initial, hr, correlationData, false);
+        co_return GetInstallResult(::Workflow::ExecutionStage::Initial, hr, 0, correlationData, false);
     }
 
 #define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForInstallOperation(hr, correlationData); }}

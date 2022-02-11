@@ -230,8 +230,10 @@ namespace winrt::AppInstallerCaller::implementation
         }
         else
         {
+            std::wostringstream failText;
+            failText << L"Install failed: " << installResult.ExtendedErrorCode() << L" [" << installResult.InstallerErrorCode() << L"]";
             installButton.Content(box_value(L"Install"));
-            statusText.Text(L"Install failed.");
+            statusText.Text(failText.str());
         }
     }
 
