@@ -131,7 +131,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocation, std::vector<std::string>, std::vector<std::string>, {}, ".installLocation.requirements.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocation, std::vector<std::string>, std::vector<std::string>, {}, ".installLocation"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::AddToPath, bool, bool, true, ".addToPath"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
