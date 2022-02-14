@@ -1272,4 +1272,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
+  <data name="Architecture" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
 </root>
