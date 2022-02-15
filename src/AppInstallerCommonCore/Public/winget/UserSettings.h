@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerStrings.h"
+#include "AppInstallerRuntime.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
 
@@ -80,8 +81,8 @@ namespace AppInstaller::Settings
         InstallArchitectureRequirement,
         InstallLocalePreference,
         InstallLocaleRequirement,
-        InstallLocation,
-        AddToPath,
+        BinaryFilesInstallLocation,
+        AddToPathEnvironmentVariable,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         Max
@@ -131,8 +132,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocation, std::vector<std::string>, std::vector<std::string>, {}, ".installLocation"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AddToPath, bool, bool, true, ".addToPath"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::BinaryFilesInstallLocation, std::string, std::filesystem::path, Runtime::GetPathTo(Runtime::PathName::DefaultBinaryFilesInstallLocation), ".installBehavior.binaryFilesInstallLocation"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathEnvironmentVariable, bool, bool, true, ".installBehavior.addToPathEnvironmentVariable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
 

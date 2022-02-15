@@ -99,8 +99,31 @@ namespace AppInstaller::Manifest::YamlParser
     Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType)
     {
         std::string schemaStr;
-
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            switch (manifestType)
+            {
+            case AppInstaller::Manifest::ManifestTypeEnum::Singleton:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_2_SINGLETON), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Version:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_2_VERSION), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Installer:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_2_INSTALLER), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::DefaultLocale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_2_DEFAULTLOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            case AppInstaller::Manifest::ManifestTypeEnum::Locale:
+                schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_2_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
         {
             switch (manifestType)
             {

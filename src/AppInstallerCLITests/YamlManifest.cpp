@@ -253,6 +253,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. Field: InstallerType" },
         { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerTypePortable-MultipleCommands.yaml", "Only zero or one Command value can be specified for InstallerType portable."},
         { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
@@ -541,6 +542,13 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
             REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
             REQUIRE(installer2.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            ManifestInstaller installer3 = manifest.Installers.at(2);
+            REQUIRE(installer2.Arch == Architecture::X64);
+            REQUIRE(installer2.InstallerType == InstallerTypeEnum::Portable);
         }
 
         // Localization

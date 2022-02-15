@@ -74,12 +74,12 @@
         }
       }
     },
-    "InstallLocation": {
+    "BinaryFilesInstallLocation": {
       "description": "The location where the binary files are copied to. Applies to the portable installer type. By default, binaries are copied to %LOCALAPPDATA%/WinGet.",
       "type": "string"
     },
-    "AddToPath": {
-      "description": "Boolean value indicating whether the installed location should be added to PATH.",
+    "AddToPathEnvironmentVariable": {
+      "description": "Boolean value indicating whether the installed location should be added to the PATH environment variable. Applies to the portable installer type.",
       "type": "boolean",
       "default": true
     },
@@ -88,7 +88,9 @@
       "type": "object",
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
-        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" },
+        "binaryFilesInstallLocation": { "$ref": "#/definitions/BinaryFilesInstallLocation" },
+        "addToPathEnvironmentVariable": { "$ref": "#/definitions/AddToPathEnvironmentVariable" }
       }
     },
     "Telemetry": {

@@ -155,6 +155,7 @@ int main(int argc, char** argv)
     Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettings, Runtime::GetPathTo(Runtime::PathName::Temp) / "WinGet_SecureSettings_Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::DefaultBinaryFilesInstallLocation, Runtime::GetPathTo(Runtime::PathName::DefaultBinaryFilesInstallLocation) / "Tests");
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

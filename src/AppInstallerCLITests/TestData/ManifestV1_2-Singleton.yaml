@@ -155,6 +155,11 @@ Installers:
     ExpectedReturnCodes:
       - InstallerReturnCode: 2
         ReturnResponse: contactSupport
-
+  - Architecture: x64
+    InstallerType: portable
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    Commands: 
+        - portable
 ManifestType: singleton
 ManifestVersion: 1.2.0

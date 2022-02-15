@@ -309,6 +309,10 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
+            case PathName::DefaultBinaryFilesInstallLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_DefaultTempDirectory;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -348,6 +352,10 @@ namespace AppInstaller::Runtime
             case PathName::UserProfile:
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
+                break;
+            case PathName::DefaultBinaryFilesInstallLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_DefaultTempDirectory;
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

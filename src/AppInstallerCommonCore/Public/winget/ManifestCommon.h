@@ -75,6 +75,7 @@ bool HasExtension(std::string_view extension) const;
         Exe,
         Burn,
         MSStore,
+        Portable,
     };
 
     enum class UpdateBehaviorEnum

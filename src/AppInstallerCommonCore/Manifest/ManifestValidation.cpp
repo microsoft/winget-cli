@@ -152,6 +152,12 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }
 
+            if (installer.InstallerType == InstallerTypeEnum::Portable &&
+                installer.Commands.size() > 1)
+            {
+                resultErrors.emplace_back(ManifestError::PortableInstallerMultipleCommands, ValidationError::Level::Error);
+            }
+
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {
