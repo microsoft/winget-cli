@@ -86,6 +86,12 @@ namespace AppInstaller::CLI
             return Argument{ "accept-source-agreements", NoAlias, Args::Type::AcceptSourceAgreements, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ExperimentalArg:
             return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
+        case Args::Type::Rename:
+            return Argument{ "rename", NoAlias, Args::Type::Rename, Resource::String::RenameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::AddPath:
+            return Argument{ "add-path", NoAlias, Args::Type::AddPath, Resource::String::AddPathArgumentDescription, ArgumentType::Flag };
+        case Args::Type::NoPath:
+            return Argument{ "no-path", NoAlias, Args::Type::NoPath, Resource::String::NoPathArgumentDescription, ArgumentType::Flag };
         default:
             THROW_HR(E_UNEXPECTED);
         }

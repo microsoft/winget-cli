@@ -1272,4 +1272,13 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
+  <data name="AddPathArgumentDescription" xml:space="preserve">
+    <value>Adds to the PATH environment variable</value>
+  </data>
+  <data name="NoPathArgumentDescription" xml:space="preserve">
+    <value>Does not add to the PATH environment variable</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>Rename the executable file</value>
+  </data>
 </root>

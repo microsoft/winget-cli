@@ -41,6 +41,9 @@ namespace AppInstaller::CLI::Execution
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
             AcceptPackageAgreements, // Accept all license agreements for packages
+            Rename, // Renames the binary file
+            AddPath, // Adds the install location to the PATH environment variable (overrides settings)
+            NoPath,
 
             //Source Command
             SourceName,
