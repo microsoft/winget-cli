@@ -106,6 +106,18 @@ See [details on telemetry](../README.md#datatelemetry), and our [primary privacy
 
 If set to true, the `telemetry.disable` setting will prevent any event from being written by the program.
 
+## Logging
+
+The `logging` settings control the level of detail in log files. `--verbose-logs` will override this setting and always creates a verbose log.
+
+### level
+
+```json
+    "logging": {
+        "level": ["verbose", "info", "warning", "error", "critical"]
+    },
+```
+
 ## Network
 
 The `network` settings influence how winget uses the network to retrieve packages and metadata.
