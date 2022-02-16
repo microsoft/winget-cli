@@ -77,8 +77,15 @@ namespace Microsoft.Management.Deployment
 
         /// Batched error code, example APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED
         InstallResultStatus Status{ get; };
-        /// Specific error if known, from downloader or installer itself, example ERROR_INSTALL_PACKAGE_REJECTED
+        /// The error code of the overall operation.
         HRESULT ExtendedErrorCode{ get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            /// The error code from the install attempt. Only valid if the Status is InstallError.
+            /// This value's meaning will require knowledge of the specific installer or install technology.
+            UInt32 InstallerErrorCode{ get; };
+        }
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h

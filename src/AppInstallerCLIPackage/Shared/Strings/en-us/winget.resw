@@ -1269,4 +1269,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Use "--include-unknown" to see all results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>The arguments provided can only be used with a query.</value>
+  </data>
 </root>
