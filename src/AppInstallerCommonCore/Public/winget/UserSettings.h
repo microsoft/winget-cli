@@ -132,7 +132,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::BinaryFilesInstallLocation, std::string, std::filesystem::path, Runtime::GetPathTo(Runtime::PathName::DefaultBinaryFilesInstallLocation), ".installBehavior.binaryFilesInstallLocation"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::BinaryFilesInstallLocation, std::string, std::filesystem::path, {}, ".installBehavior.binaryFilesInstallLocation"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathEnvironmentVariable, bool, bool, true, ".installBehavior.addToPathEnvironmentVariable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
@@ -191,6 +191,18 @@ namespace AppInstaller::Settings
             }
 
             return std::get<details::SettingIndex(S)>(itr->second);
+        }
+
+        // Gets setting value for BinaryFilesInstallLocation by overriding default empty value.
+        typename details::SettingMapping<Setting::BinaryFilesInstallLocation>::value_t Get() const
+        {
+            auto itr = m_settings.find(Setting::BinaryFilesInstallLocation);
+            if (itr == m_settings.end())
+            {
+                return Runtime::GetPathTo(Runtime::PathName::DefaultBinaryFilesInstallLocation);
+            }
+
+            return std::get<details::SettingIndex(Setting::BinaryFilesInstallLocation)>(itr->second);
         }
 
     protected:

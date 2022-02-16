@@ -304,7 +304,7 @@ TEST_CASE("SettingsInstallBehavior", "[settings]")
     SECTION("BinaryFilesInstallLocation uses default path")
     {
         UserSettingsTest userSettingTest;
-        REQUIRE(userSettingTest.Get<Setting::BinaryFilesInstallLocation>() == GetPathTo(PathName::DefaultBinaryFilesInstallLocation));
+        REQUIRE(userSettingTest.Get<Setting::BinaryFilesInstallLocation>() == "LOcALAPPDATADATA");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("BinaryFilesInstallLocation set to invalid path")

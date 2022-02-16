@@ -230,10 +230,14 @@ namespace AppInstaller::Settings
 
             if (!std::filesystem::exists(binaryFilesInstallLocation))
             {
-                if (!std::filesystem::create_directories(binaryFilesInstallLocation))
+                try
                 {
-                    return {};
+                    if (!std::filesystem::create_directories(binaryFilesInstallLocation)) // this can throw an exception if a bad path is provided, how to handle?
+                    {
+                        return {};
+                    }
                 }
+                catch (...) {}
             }
 
             return binaryFilesInstallLocation;
