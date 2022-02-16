@@ -281,6 +281,43 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     }
 }
 
+TEST_CASE("SettingsInstallBehavior", "[settings]")
+{
+    DeleteUserSettingsFiles();
+
+    SECTION("AddToPathVariable true by default")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AddToPathVariable>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("AddToPathVariable set to false")
+    {
+        std::string_view json = R"({ "installBehavior": { "addToPathVariable": false } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(!userSettingTest.Get<Setting::AddToPathVariable>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("InstallRoot uses default path")
+    {
+        UserSettingsTest userSettingTest;
+        std::filesystem::path defaultPath = AppInstaller::Runtime::GetPathTo(PathName::DefaultInstallRoot);
+        REQUIRE(userSettingTest.Get<Setting::InstallRoot>() == defaultPath);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("InstallRoot set to invalid path")
+    {
+        std::string_view json = R"({ "installBehavior": { "installRoot": "<bad*path>" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+        REQUIRE(!userSettingTest.Get<Setting::InstallRoot>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
     DeleteUserSettingsFiles();

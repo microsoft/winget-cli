@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerStrings.h"
+#include "AppInstallerRuntime.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
 
@@ -80,6 +81,8 @@ namespace AppInstaller::Settings
         InstallArchitectureRequirement,
         InstallLocalePreference,
         InstallLocaleRequirement,
+        InstallRoot,
+        AddToPathVariable,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         Max
@@ -129,6 +132,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallRoot, std::string, std::filesystem::path, {}, ".installBehavior.installRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathVariable, bool, bool, true, ".installBehavior.addToPathVariable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
 
@@ -187,6 +192,22 @@ namespace AppInstaller::Settings
 
             return std::get<details::SettingIndex(S)>(itr->second);
         }
+
+        // Specialization for InstallRoot setting value to handle default value.
+        template <>
+        details::SettingMapping<Setting::InstallRoot>::value_t Get<Setting::InstallRoot>() const
+        {
+            // May need to modify this code to make it better.
+            auto itr = m_settings.find(Setting::InstallRoot);
+            if (itr == m_settings.end())
+            {
+                // return default path instead of default value.
+                return Runtime::GetPathTo(Runtime::PathName::DefaultInstallRoot);
+            }
+
+            return std::get<details::SettingIndex(Setting::InstallRoot)>(itr->second);
+        }
+
 
     protected:
         UserSettingsType m_type = UserSettingsType::Default;

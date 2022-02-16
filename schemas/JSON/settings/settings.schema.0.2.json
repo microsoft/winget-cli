@@ -74,12 +74,24 @@
         }
       }
     },
+    "InstallRoot": {
+      "description": "The root directory where packages are installed to. Applies to the portable installer type.",
+      "type": "string",
+      "default":  "%LOCALAPPDATA%/WinGet"
+    },
+    "AddToPathVariable": {
+      "description": "Boolean value indicating whether the installed location should be added to the PATH environment variable. Applies to the portable installer type.",
+      "type": "boolean",
+      "default": true
+    },
     "InstallBehavior": {
       "description": "Install settings",
       "type": "object",
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
-        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" },
+        "binaryFilesInstallLocation": { "$ref": "#/definitions/BinaryFilesInstallLocation" },
+        "addToPathEnvironmentVariable": { "$ref": "#/definitions/AddToPathEnvironmentVariable" }
       }
     },
     "Telemetry": {

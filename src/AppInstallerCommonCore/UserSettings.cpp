@@ -228,8 +228,31 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
+        WINGET_VALIDATE_PASS_THROUGH(AddToPathVariable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+
+        WINGET_VALIDATE_SIGNATURE(InstallRoot)
+        {
+            const std::filesystem::path installRoot = value;
+
+            if (!std::filesystem::exists(installRoot))
+            {
+                try
+                {
+                    if (!std::filesystem::create_directories(installRoot))
+                    {
+                        return {};
+                    }
+                }
+                catch (...)
+                {
+                    return {};
+                }
+            }
+
+            return installRoot;
+        }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {

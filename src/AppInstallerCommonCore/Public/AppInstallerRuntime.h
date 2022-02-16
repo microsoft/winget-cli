@@ -47,6 +47,8 @@ namespace AppInstaller::Runtime
         SecureSettings,
         // The value of %USERPROFILE%.
         UserProfile,
+        // The default location where packages are installed to for the portable installerType.
+        DefaultInstallRoot,
     };
 
     // Gets the path to the requested location.
