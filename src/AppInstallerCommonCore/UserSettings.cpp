@@ -224,30 +224,10 @@ namespace AppInstaller::Settings
             return {};
         }
 
-        WINGET_VALIDATE_SIGNATURE(BinaryFilesInstallLocation)
-        {
-            const std::filesystem::path binaryFilesInstallLocation = value;
-
-            if (!std::filesystem::exists(binaryFilesInstallLocation))
-            {
-                try
-                {
-                    if (!std::filesystem::create_directories(binaryFilesInstallLocation)) // this can throw an exception if a bad path is provided, how to handle?
-                    {
-                        return {};
-                    }
-                }
-                catch (...) {}
-            }
-
-            return binaryFilesInstallLocation;
-        }
-
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
-        WINGET_VALIDATE_PASS_THROUGH(AddToPathEnvironmentVariable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
 

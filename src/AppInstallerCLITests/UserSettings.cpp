@@ -281,42 +281,6 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     }
 }
 
-TEST_CASE("SettingsInstallBehavior", "[settings]")
-{
-    DeleteUserSettingsFiles();
-
-    SECTION("AddToPathEnvironmentVariable true by default")
-    {
-        UserSettingsTest userSettingTest;
-
-        REQUIRE(userSettingTest.Get<Setting::AddToPathEnvironmentVariable>());
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
-    }
-    SECTION("AddToPathEnvironmentVariable set to false")
-    {
-        std::string_view json = R"({ "installBehavior": { "addToPathEnvironmentVariable": false } })";
-        SetSetting(Stream::PrimaryUserSettings, json);
-        UserSettingsTest userSettingTest;
-
-        REQUIRE(!userSettingTest.Get<Setting::AddToPathEnvironmentVariable>());
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
-    }
-    SECTION("BinaryFilesInstallLocation uses default path")
-    {
-        UserSettingsTest userSettingTest;
-        REQUIRE(userSettingTest.Get<Setting::BinaryFilesInstallLocation>() == "LOcALAPPDATADATA");
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
-    }
-    SECTION("BinaryFilesInstallLocation set to invalid path")
-    {
-        std::string_view json = R"({ "installBehavior": { "binaryFilesInstallLocation": "<bad*path>" } })";
-        SetSetting(Stream::PrimaryUserSettings, json);
-        UserSettingsTest userSettingTest;
-        REQUIRE(!userSettingTest.Get<Setting::BinaryFilesInstallLocation>().empty());
-        REQUIRE(userSettingTest.GetWarnings().size() == 1);
-    }
-}
-
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
     DeleteUserSettingsFiles();

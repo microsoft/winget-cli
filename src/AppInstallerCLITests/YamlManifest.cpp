@@ -457,7 +457,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        REQUIRE(manifest.Installers.size() == 2);
+        REQUIRE(manifest.Installers.size() == 3);
     }
 
     ManifestInstaller installer1 = manifest.Installers.at(0);
@@ -516,8 +516,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
-        REQUIRE(installer2.Arch == Architecture::X64);
         REQUIRE(installer2.InstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(installer2.Arch == Architecture::X64);
         REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
         REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
         REQUIRE(installer2.ProductCode == "{Bar}");
@@ -547,8 +547,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
         {
             ManifestInstaller installer3 = manifest.Installers.at(2);
-            REQUIRE(installer2.Arch == Architecture::X64);
-            REQUIRE(installer2.InstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(installer3.InstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(installer3.Arch == Architecture::X86);
+            REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
+            REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer3.Commands == MultiValue{ "standalone" });
         }
 
         // Localization
