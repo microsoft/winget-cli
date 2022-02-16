@@ -109,6 +109,7 @@ If set to true, the `telemetry.disable` setting will prevent any event from bein
 ## Logging
 
 The `logging` settings control the level of detail in log files. `--verbose-logs` will override this setting and always creates a verbose log.
+Defaults to `info` if value is not set or is invalid
 
 ### level
 
