@@ -316,6 +316,38 @@ namespace AppInstaller::Settings
         {
             return std::chrono::seconds(value);
         }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingLevelPreference)
+        {
+            // logging preference possible values
+            static constexpr std::string_view s_logging_verbose = "verbose";
+            static constexpr std::string_view s_logging_info = "info";
+            static constexpr std::string_view s_logging_warning = "warning";
+            static constexpr std::string_view s_logging_error = "error";
+            static constexpr std::string_view s_logging_critical = "critical";
+
+            if (Utility::CaseInsensitiveEquals(value, s_logging_verbose))
+            {
+                return LoggingLevel::Verbose;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_info))
+            {
+                return LoggingLevel::Info;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_warning))
+            {
+                return LoggingLevel::Warning;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_error))
+            {
+                return LoggingLevel::Error;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_critical))
+            {
+                return LoggingLevel::Crit;
+            }
+            return {};
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -56,6 +56,16 @@ namespace AppInstaller::Settings
         DeliveryOptimization,
     };
 
+    // The level to use when logging command output
+    enum class LoggingLevel
+    {
+        Verbose,
+        Info,
+        Warning,
+        Error,
+        Crit,
+    };
+
 
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
@@ -80,6 +90,7 @@ namespace AppInstaller::Settings
         InstallArchitectureRequirement,
         InstallLocalePreference,
         InstallLocaleRequirement,
+        LoggingLevelPreference,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         Max
@@ -131,6 +142,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, LoggingLevel, LoggingLevel::Info, ".logging.level"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

@@ -202,6 +202,82 @@ TEST_CASE("SettingProgressBar", "[settings]")
     }
 }
 
+TEST_CASE("SettingLoggingLevelPreference", "[settings]")
+{
+    DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Info")
+    {
+        std::string_view json = R"({ "logging": { "level": "info" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Verbose")
+    {
+        std::string_view json = R"({ "logging": { "level": "verbose" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Verbose);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Warning")
+    {
+        std::string_view json = R"({ "logging": { "level": "warning" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Warning);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Error")
+    {
+        std::string_view json = R"({ "logging": { "level": "error" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Error);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Critical")
+    {
+        std::string_view json = R"({ "logging": { "level": "critical" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Crit);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Bad value")
+    {
+        std::string_view json = R"({ "logging": { "level": "fake" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Bad value type")
+    {
+        std::string_view json = R"({ "logging": { "level": 5 } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
     DeleteUserSettingsFiles();
