@@ -5,6 +5,7 @@
 #include "TestSettings.h"
 #include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
+#include "AppInstallerLogging.h"
 
 #include <AppInstallerErrors.h>
 
@@ -13,6 +14,7 @@
 #include <chrono>
 
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Logging;
 using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 using namespace std::string_literals;
@@ -210,7 +212,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
     {
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Info);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Info")
@@ -219,7 +221,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Info);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Verbose")
@@ -228,7 +230,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Verbose);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Verbose);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Warning")
@@ -237,7 +239,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Warning);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Warning);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Error")
@@ -246,7 +248,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Error);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Error);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Critical")
@@ -255,7 +257,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Crit);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Crit);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Bad value")
@@ -264,7 +266,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Info);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Bad value type")
@@ -273,7 +275,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == LoggingLevel::Info);
+        REQUIRE(userSettingTest.Get<Setting::LoggingLevelPreference>() == Level::Info);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }

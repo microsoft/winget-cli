@@ -16,6 +16,7 @@ namespace AppInstaller::Settings
     using namespace std::string_view_literals;
     using namespace Runtime;
     using namespace Utility;
+    using namespace Logging;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -328,23 +329,23 @@ namespace AppInstaller::Settings
 
             if (Utility::CaseInsensitiveEquals(value, s_logging_verbose))
             {
-                return LoggingLevel::Verbose;
+                return Level::Verbose;
             }
             else if (Utility::CaseInsensitiveEquals(value, s_logging_info))
             {
-                return LoggingLevel::Info;
+                return Level::Info;
             }
             else if (Utility::CaseInsensitiveEquals(value, s_logging_warning))
             {
-                return LoggingLevel::Warning;
+                return Level::Warning;
             }
             else if (Utility::CaseInsensitiveEquals(value, s_logging_error))
             {
-                return LoggingLevel::Error;
+                return Level::Error;
             }
             else if (Utility::CaseInsensitiveEquals(value, s_logging_critical))
             {
-                return LoggingLevel::Crit;
+                return Level::Crit;
             }
             return {};
         }
