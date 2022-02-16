@@ -79,8 +79,8 @@
       "type": "string",
       "default":  "%LOCALAPPDATA%/WinGet"
     },
-    "AddToPathVariable": {
-      "description": "Boolean value indicating whether the installed location should be added to the PATH environment variable. Applies to the portable installer type.",
+    "AddToPathEnvironment": {
+      "description": "Boolean value indicating whether the installed location should be added to the PATH environment. Applies to the portable installer type.",
       "type": "boolean",
       "default": true
     },
@@ -90,8 +90,8 @@
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
         "requirements": { "$ref": "#/definitions/InstallPrefReq" },
-        "binaryFilesInstallLocation": { "$ref": "#/definitions/BinaryFilesInstallLocation" },
-        "addToPathEnvironmentVariable": { "$ref": "#/definitions/AddToPathEnvironmentVariable" }
+        "binaryFilesInstallLocation": { "$ref": "#/definitions/InstallRoot" },
+        "addToPathEnvironmentVariable": { "$ref": "#/definitions/AddToPathEnvironment" }
       }
     },
     "Telemetry": {

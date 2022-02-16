@@ -82,7 +82,7 @@ namespace AppInstaller::Settings
         InstallLocalePreference,
         InstallLocaleRequirement,
         InstallRoot,
-        AddToPathVariable,
+        AddToPathEnvironment,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         Max
@@ -133,7 +133,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallRoot, std::string, std::filesystem::path, {}, ".installBehavior.installRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathVariable, bool, bool, true, ".installBehavior.addToPathVariable"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathEnvironment, bool, bool, true, ".installBehavior.addToPathEnvironment"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
 
@@ -197,7 +197,6 @@ namespace AppInstaller::Settings
         template <>
         details::SettingMapping<Setting::InstallRoot>::value_t Get<Setting::InstallRoot>() const
         {
-            // May need to modify this code to make it better.
             auto itr = m_settings.find(Setting::InstallRoot);
             if (itr == m_settings.end())
             {

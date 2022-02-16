@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <AppInstallerRuntime.h>
+#include <AppInstallerStrings.h>
 #include <winget/Settings.h>
 
 #include <AppInstallerErrors.h>
@@ -285,26 +286,27 @@ TEST_CASE("SettingsInstallBehavior", "[settings]")
 {
     DeleteUserSettingsFiles();
 
-    SECTION("AddToPathVariable true by default")
+    SECTION("AddToPathEnvironment true by default")
     {
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AddToPathVariable>());
+        REQUIRE(userSettingTest.Get<Setting::AddToPathEnvironment>());
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
-    SECTION("AddToPathVariable set to false")
+    SECTION("AddToPathEnvironment set to false")
     {
-        std::string_view json = R"({ "installBehavior": { "addToPathVariable": false } })";
+        std::string_view json = R"({ "installBehavior": { "addToPathEnvironment": false } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(!userSettingTest.Get<Setting::AddToPathVariable>());
+        REQUIRE(!userSettingTest.Get<Setting::AddToPathEnvironment>());
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("InstallRoot uses default path")
     {
-        UserSettingsTest userSettingTest;
         std::filesystem::path defaultPath = AppInstaller::Runtime::GetPathTo(PathName::DefaultInstallRoot);
+        UserSettingsTest userSettingTest;
+
         REQUIRE(userSettingTest.Get<Setting::InstallRoot>() == defaultPath);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
@@ -313,8 +315,27 @@ TEST_CASE("SettingsInstallBehavior", "[settings]")
         std::string_view json = R"({ "installBehavior": { "installRoot": "<bad*path>" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
+
         REQUIRE(!userSettingTest.Get<Setting::InstallRoot>().empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("InstallRoot set to valid path")
+    {
+        std::filesystem::path testPath = AppInstaller::Runtime::GetPathTo(PathName::Temp);
+        testPath /= "InstallRootTestFolder";
+        std::string testPathRawString = testPath.string();
+        AppInstaller::Utility::FindAndReplace(testPathRawString, "\\", "\\\\");
+
+        std::string json = R"({ "installBehavior": { "installRoot": ")" + testPathRawString + R"(" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallRoot>() == testPathRawString);
+        REQUIRE(std::filesystem::exists(testPathRawString));
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+
+        // Cleanup test directory.
+        REQUIRE(std::filesystem::remove_all(testPathRawString));
     }
 }
 
