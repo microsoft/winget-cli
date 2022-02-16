@@ -47,8 +47,6 @@ namespace AppInstaller::Runtime
         SecureSettings,
         // The value of %USERPROFILE%.
         UserProfile,
-        // The default location where binary files are installed to (Portable installerType).
-        DefaultBinaryFilesInstallLocation,
     };
 
     // Gets the path to the requested location.
