@@ -27,7 +27,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(Architecture);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableHeader);
@@ -319,6 +318,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
