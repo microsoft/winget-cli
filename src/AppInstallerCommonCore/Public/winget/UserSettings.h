@@ -3,6 +3,7 @@
 #pragma once
 #include "AppInstallerStrings.h"
 #include "AppInstallerRuntime.h"
+#include "AppInstallerLogging.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
 
@@ -57,7 +58,6 @@ namespace AppInstaller::Settings
         DeliveryOptimization,
     };
 
-
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -85,6 +85,7 @@ namespace AppInstaller::Settings
         AddToPathEnvironment,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
+        LoggingLevelPreference,
         Max
     };
 
@@ -136,6 +137,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::AddToPathEnvironment, bool, bool, true, ".installBehavior.addToPathEnvironment"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

@@ -16,6 +16,7 @@ namespace AppInstaller::Settings
     using namespace std::string_view_literals;
     using namespace Runtime;
     using namespace Utility;
+    using namespace Logging;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -338,6 +339,38 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(NetworkDOProgressTimeoutInSeconds)
         {
             return std::chrono::seconds(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingLevelPreference)
+        {
+            // logging preference possible values
+            static constexpr std::string_view s_logging_verbose = "verbose";
+            static constexpr std::string_view s_logging_info = "info";
+            static constexpr std::string_view s_logging_warning = "warning";
+            static constexpr std::string_view s_logging_error = "error";
+            static constexpr std::string_view s_logging_critical = "critical";
+
+            if (Utility::CaseInsensitiveEquals(value, s_logging_verbose))
+            {
+                return Level::Verbose;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_info))
+            {
+                return Level::Info;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_warning))
+            {
+                return Level::Warning;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_error))
+            {
+                return Level::Error;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_logging_critical))
+            {
+                return Level::Crit;
+            }
+            return {};
         }
     }
 
