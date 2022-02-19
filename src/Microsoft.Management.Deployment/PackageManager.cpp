@@ -22,6 +22,7 @@
 #include "PackageManager.g.cpp"
 #include "CatalogPackage.h"
 #include "InstallResult.h"
+#include "UninstallResult.h"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
@@ -166,13 +167,45 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::InstallResult GetInstallResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t installerError, winrt::hstring correlationData, bool rebootRequired)
     {
-        winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetInstallResultStatus(executionStage, terminationHR);
+        winrt::Microsoft::Management::Deployment::InstallResultStatus installResultStatus = GetOperationResultStatus<InstallResultStatus>(executionStage, terminationHR);
         auto installResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::InstallResult>>();
         installResult->Initialize(installResultStatus, terminationHR, installerError, correlationData, rebootRequired);
         return *installResult;
     }
 
-    std::optional<winrt::Microsoft::Management::Deployment::InstallProgress> GetProgress(
+    winrt::Microsoft::Management::Deployment::UninstallResult GetUninstallResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t uninstallerError, winrt::hstring correlationData, bool rebootRequired)
+    {
+        winrt::Microsoft::Management::Deployment::UninstallResultStatus uninstallResultStatus = GetOperationResultStatus<UninstallResultStatus>(executionStage, terminationHR);
+        auto uninstallResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::UninstallResult>>();
+        uninstallResult->Initialize(uninstallResultStatus, terminationHR, uninstallerError, correlationData, rebootRequired);
+        return *uninstallResult;
+    }
+
+    template <typename TResult>
+    TResult GetOperationResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t operationError, winrt::hstring correlationData, bool rebootRequired)
+    {
+        if constexpr (std::is_same_v<TResult, winrt::Microsoft::Management::Deployment::InstallResult>)
+        {
+            return GetInstallResult(executionStage, terminationHR, operationError, correlationData, rebootRequired);
+        }
+        else if constexpr (std::is_same_v<TResult, winrt::Microsoft::Management::Deployment::UninstallResult>)
+        {
+            return GetUninstallResult(executionStage, terminationHR, operationError, correlationData, rebootRequired);
+        }
+    }
+
+#define WINGET_GET_PROGRESS_STATE(_installState_, _uninstallState_) \
+    if constexpr (std::is_same_v<TState, winrt::Microsoft::Management::Deployment::PackageInstallProgressState>) \
+    { \
+        progressState = TState::_installState_; \
+    } \
+    else if constexpr (std::is_same_v<TState, winrt::Microsoft::Management::Deployment::PackageUninstallProgressState>) \
+    { \
+        progressState = TState::_uninstallState_; \
+    }
+
+    template <typename TProgress, typename TState>
+    std::optional<TProgress> GetProgress(
         ReportType reportType,
         uint64_t current,
         uint64_t maximum,
@@ -180,9 +213,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::Workflow::ExecutionStage executionPhase)
     {
         bool reportProgress = false;
-        PackageInstallProgressState progressState = PackageInstallProgressState::Queued;
+        TState progressState = TState::Queued;
         double downloadProgress = 0;
-        double installProgress = 0;
+        double operationProgress = 0;
         uint64_t downloadBytesDownloaded = 0;
         uint64_t downloadBytesRequired = 0;
         switch (executionPhase)
@@ -193,46 +226,49 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // We already reported queued progress up front.
             break;
         case ::Workflow::ExecutionStage::Download:
-            progressState = PackageInstallProgressState::Downloading;
-            if (reportType == ReportType::BeginProgress)
+            if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::InstallProgress>)
             {
-                reportProgress = true;
-            }
-            else if (progressType == ::AppInstaller::ProgressType::Bytes)
-            {
-                downloadBytesDownloaded = current;
-                downloadBytesRequired = maximum;
-                if (maximum > 0 && maximum >= current)
+                progressState = PackageInstallProgressState::Downloading;
+                if (reportType == ReportType::BeginProgress)
                 {
                     reportProgress = true;
-                    downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                }
+                else if (progressType == ::AppInstaller::ProgressType::Bytes)
+                {
+                    downloadBytesDownloaded = current;
+                    downloadBytesRequired = maximum;
+                    if (maximum > 0 && maximum >= current)
+                    {
+                        reportProgress = true;
+                        downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                    }
                 }
             }
             break;
         case ::Workflow::ExecutionStage::PreExecution:
-            // Wait until installer starts to report Installing.
+            // Wait until installer starts to report operation.
             break;
         case ::Workflow::ExecutionStage::Execution:
-            progressState = PackageInstallProgressState::Installing;
+            WINGET_GET_PROGRESS_STATE(Installing, Uninstalling);
             downloadProgress = 1;
             if (reportType == ReportType::ExecutionPhaseUpdate)
             {
-                // Install is starting. Send progress so callers know the AsyncOperation can't be cancelled.
+                // Operation is starting. Send progress so callers know the AsyncOperation can't be cancelled.
                 reportProgress = true;
             }
             else if (reportType == ReportType::EndProgress)
             {
-                // Install is "finished". May not have succeeded.
+                // Operation is "finished". May not have succeeded.
                 reportProgress = true;
-                installProgress = 1;
+                operationProgress = 1;
             }
             else if (progressType == ::AppInstaller::ProgressType::Percent)
             {
                 if (maximum > 0 && maximum >= current)
                 {
-                    // Install is progressing
+                    // Operation is progressing
                     reportProgress = true;
-                    installProgress = static_cast<double>(current) / static_cast<double>(maximum);
+                    operationProgress = static_cast<double>(current) / static_cast<double>(maximum);
                 }
             }
             break;
@@ -241,16 +277,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 // Send PostInstall progress when it switches to PostExecution phase.
                 reportProgress = true;
-                progressState = PackageInstallProgressState::PostInstall;
+                WINGET_GET_PROGRESS_STATE(PostInstall, PostUninstall);
                 downloadProgress = 1;
-                installProgress = 1;
+                operationProgress = 1;
             }
             break;
         }
         if (reportProgress)
         {
-            winrt::Microsoft::Management::Deployment::InstallProgress contextProgress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress, installProgress };
-            return contextProgress;
+            if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::InstallProgress>)
+            {
+                TProgress progress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress, operationProgress };
+                return progress;
+            }
+            else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::UninstallProgress>)
+            {
+                TProgress progress{ progressState, operationProgress };
+                return progress;
+            }
         }
         else
         {
@@ -278,16 +322,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return packageVersionInfo;
     }
 
-    std::unique_ptr<COMContext> CreateContextFromInstallOptions(
-        winrt::Microsoft::Management::Deployment::CatalogPackage package,
-        winrt::Microsoft::Management::Deployment::InstallOptions options,
-        std::wstring callerProcessInfoString)
+    void PopulateContextFromInstallOptions(
+        ::AppInstaller::CLI::Execution::Context* context,
+        winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
-        std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
-        hstring correlationData = (options) ? options.CorrelationData() : L"";
-        context->SetContextLoggers(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
-
-        // Convert the options to arguments for the installer.
         if (options)
         {
             if (!options.LogOutputPath().empty())
@@ -342,9 +380,53 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
                 context->Add<Data::AllowedArchitectures>(std::move(allowedArchitectures));
             }
+
+            // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
+        }
+    }
+
+    void PopulateContextFromUninstallOptions(
+        ::AppInstaller::CLI::Execution::Context* context,
+        winrt::Microsoft::Management::Deployment::UninstallOptions options)
+    {
+        if (options)
+        {
+            if (!options.LogOutputPath().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
+                context->Args.AddArg(Execution::Args::Type::VerboseLogs);
+            }
+
+            if (options.PackageUninstallMode() == PackageUninstallMode::Interactive)
+            {
+                context->Args.AddArg(Execution::Args::Type::Interactive);
+            }
+            else if (options.PackageUninstallMode() == PackageUninstallMode::Silent)
+            {
+                context->Args.AddArg(Execution::Args::Type::Silent);
+            }
+        }
+    }
+
+    template <typename TOptions>
+    std::unique_ptr<COMContext> CreateContextFromOperationOptions(
+        TOptions options,
+        std::wstring callerProcessInfoString)
+    {
+        std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+        context->SetContextLoggers(correlationData, ::AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString));
+
+        // Convert the options to arguments for the installer.
+        if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
+        {
+            PopulateContextFromInstallOptions(context.get(), options);
+        }
+        else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::UninstallOptions>)
+        {
+            PopulateContextFromUninstallOptions(context.get(), options);
         }
 
-        // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         return context;
     }
 
@@ -391,7 +473,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Finally check all catalogs in AvailableVersions.
         for (Microsoft::Management::Deployment::PackageVersionId versionId : package.AvailableVersions())
         {
-            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ package.GetPackageVersionInfo(versionId).PackageCatalog().Info().Id() }, std::move(context));
+            auto searchItem = Execution::OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring{ package.Id() }, std::wstring{ package.GetPackageVersionInfo(versionId).PackageCatalog().Info().Id() }, std::move(context));
             queueItem = Execution::ContextOrchestrator::Instance().GetQueueItem(searchItem->GetId());
             if (queueItem)
             {
@@ -401,19 +483,67 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return nullptr;
     }
 
-    enum class PackageOperationType
+    std::unique_ptr<Execution::OrchestratorQueueItem> CreateQueueItemForInstall(
+        std::unique_ptr<::AppInstaller::CLI::Execution::COMContext> comContext,
+        winrt::Microsoft::Management::Deployment::CatalogPackage package,
+        winrt::Microsoft::Management::Deployment::InstallOptions options,
+        bool isUpgrade)
     {
-        Install,
-        Upgrade,
-        Uninstall,
-    };
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetInstallOperation(
+        // Add manifest and PackageVersion to context for install/upgrade.
+        // If the version of the package is specified use that, otherwise use the default.
+        Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
+        AddPackageManifestToContext(packageVersionInfo, comContext.get());
+
+        if (isUpgrade)
+        {
+            AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
+            AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
+
+            // Perform upgrade version check
+            if (upgradeVersion.GetVersion().IsUnknown())
+            {
+                if (!(options.AllowUpgradeToUnknownVersion() &&
+                    AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN);
+                }
+            }
+            else if (!installedVersion.IsUpdatedBy(upgradeVersion))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER);
+            }
+
+            // Set upgrade flag
+            comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
+            // Add installed version
+            AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+        }
+
+        return Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext), isUpgrade);
+    }
+
+    std::unique_ptr<Execution::OrchestratorQueueItem> CreateQueueItemForUninstall(
+        std::unique_ptr<::AppInstaller::CLI::Execution::COMContext> comContext,
+        winrt::Microsoft::Management::Deployment::CatalogPackage package)
+    {
+        // Add installed version
+        AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+        // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
+        winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
+        std::shared_ptr<::AppInstaller::Repository::IPackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
+        comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
+
+        return Execution::OrchestratorQueueItemFactory::CreateItemForUninstall(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
+    }
+
+    template <typename TResult, typename TProgress, typename TOptions, typename TProgressState>
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<TResult, TProgress> GetPackageOperation(
         bool canCancelQueueItem,
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItemParam,
         winrt::Microsoft::Management::Deployment::CatalogPackage package = nullptr,
-        winrt::Microsoft::Management::Deployment::InstallOptions options = nullptr,
+        TOptions options = nullptr,
         std::wstring callerProcessInfoString = {},
-        PackageOperationType operationType = PackageOperationType::Install)
+        bool isUpgrade = false)
     {
         winrt::hresult terminationHR = S_OK;
         uint32_t installerError = 0;
@@ -432,58 +562,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             if (queueItem == nullptr)
             {
-                std::unique_ptr<COMContext> comContext = CreateContextFromInstallOptions(package, options, callerProcessInfoString);
+                std::unique_ptr<COMContext> comContext = CreateContextFromOperationOptions<TOptions>(options, callerProcessInfoString);
 
-                if (operationType == PackageOperationType::Install || operationType == PackageOperationType::Upgrade)
+                if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
                 {
-                    // Add manifest and PackageVersion to context for install/upgrade.
-                    // If the version of the package is specified use that, otherwise use the default.
-                    Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
-                    AddPackageManifestToContext(packageVersionInfo, comContext.get());
-
-                    if (operationType == PackageOperationType::Upgrade)
-                    {
-                        AppInstaller::Utility::VersionAndChannel installedVersion{ winrt::to_string(package.InstalledVersion().Version()), winrt::to_string(package.InstalledVersion().Channel()) };
-                        AppInstaller::Utility::VersionAndChannel upgradeVersion{ winrt::to_string(packageVersionInfo.Version()), winrt::to_string(packageVersionInfo.Channel()) };
-
-                        // Perform upgrade version check
-                        if (upgradeVersion.GetVersion().IsUnknown())
-                        {
-                            if (!(options.AllowUpgradeToUnknownVersion() &&
-                                AppInstaller::Utility::ICUCaseInsensitiveEquals(installedVersion.GetChannel().ToString(), upgradeVersion.GetChannel().ToString())))
-                            {
-                                co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN, 0, correlationData, false);
-                            }
-                        }
-                        else if (!installedVersion.IsUpdatedBy(upgradeVersion))
-                        {
-                            co_return GetInstallResult(executionStage, APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER, 0, correlationData, false);
-                        }
-
-                        // Set upgrade flag
-                        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
-                        // Add installed version
-                        AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
-                    }
-
-                    queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
+                    queueItem = CreateQueueItemForInstall(std::move(comContext), package, options, isUpgrade);
                 }
-                else if (operationType == PackageOperationType::Uninstall)
+                else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::UninstallOptions>)
                 {
-                    // Add installed version
-                    AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
-                    // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
-                    winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
-                    std::shared_ptr<::AppInstaller::Repository::IPackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
-                    comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
-
-                    queueItem = Execution::OrchestratorQueueItemFactory::CreateItemForUninstall(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
+                    queueItem = CreateQueueItemForUninstall(std::move(comContext), package);
                 }
 
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
-                InstallProgress queuedProgress{ PackageInstallProgressState::Queued, 0, 0, 0 };
-                report_progress(queuedProgress);
+                if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageInstallProgressState>)
+                {
+                    TProgress queuedProgress{ TProgressState::Queued, 0, 0, 0 };
+                    report_progress(queuedProgress);
+                }
+                else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageUninstallProgressState>)
+                {
+                    TProgress queuedProgress{ TProgressState::Queued, 0};
+                    report_progress(queuedProgress);
+                }
             }
             {
                 // correlation data is not passed in when retrieving an existing queue item, so get it from the existing context.
@@ -492,18 +593,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             wil::unique_event progressEvent{ wil::EventOptions::None };
 
-            std::atomic<winrt::Microsoft::Management::Deployment::InstallProgress> installProgress;
-            queueItem->GetContext().AddProgressCallbackFunction([&installProgress, &progressEvent](
+            std::atomic<TProgress> operationProgress;
+            queueItem->GetContext().AddProgressCallbackFunction([&operationProgress, &progressEvent](
                 ReportType reportType,
                 uint64_t current,
                 uint64_t maximum,
                 ::AppInstaller::ProgressType progressType,
                 ::Workflow::ExecutionStage executionPhase)
                 {
-                    std::optional<winrt::Microsoft::Management::Deployment::InstallProgress> installProgressOptional = GetProgress(reportType, current, maximum, progressType, executionPhase);
-                    if (installProgressOptional.has_value())
+                    std::optional<TProgress> operationProgressOptional = GetProgress<TProgress, TProgressState>(reportType, current, maximum, progressType, executionPhase);
+                    if (operationProgressOptional.has_value())
                     {
-                        installProgress = installProgressOptional.value();
+                        operationProgress = operationProgressOptional.value();
                         progressEvent.SetEvent();
                     }
                     return;
@@ -546,7 +647,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     // while the report_progress call is hung\in progress.
                     // Duplicate progress events can be fired if another progress event comes from the ComContext to the callback after the listener
                     // has been awaked, but before it has gotten the installProgress.
-                    report_progress(installProgress);
+                    report_progress(operationProgress);
                     break;
 
                     // operationEvents[1] was signaled, operation completed
@@ -574,19 +675,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
-        co_return GetInstallResult(executionStage, terminationHR, installerError, correlationData, false);
+        co_return GetOperationResult<TResult>(executionStage, terminationHR, installerError, correlationData, false);
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> GetEmptyAsynchronousResultForInstallOperation(
+    template <typename TResult, typename TProgress>
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<TResult, TProgress> GetEmptyAsynchronousResultForOperation(
         HRESULT hr,
         hstring correlationData)
     {
         // If a function uses co_await or co_return (i.e. if it is a co_routine), it cannot use return directly.
         // This helper helps a function that is not a coroutine itself to return errors asynchronously.
-        co_return GetInstallResult(::Workflow::ExecutionStage::Initial, hr, 0, correlationData, false);
+        co_return GetOperationResult<TResult>(::Workflow::ExecutionStage::Initial, hr, 0, correlationData, false);
     }
 
-#define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForInstallOperation(hr, correlationData); }}
+#define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForOperation<Deployment::InstallResult, Deployment::InstallProgress>(hr, correlationData); }}
 #define WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::InstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
@@ -610,7 +712,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
         WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
 
-        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
+        return GetPackageOperation<Deployment::InstallResult, Deployment::InstallProgress, Deployment::InstallOptions, Deployment::PackageInstallProgressState>(
+            true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::UpgradePackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
@@ -636,33 +739,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
         WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
 
-        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), PackageOperationType::Upgrade);
-    }
-
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::UninstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::InstallOptions options)
-    {
-        hstring correlationData = (options) ? options.CorrelationData() : L"";
-
-        // options and catalog can both be null, package must be set.
-        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
-        // the package should have an installed version to be uninstalled.
-        WINGET_RETURN_INSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
-
-        HRESULT hr = S_OK;
-        std::wstring callerProcessInfoString;
-        try
-        {
-            // Check for permissions and get caller info for telemetry.
-            // This must be done before any co_awaits since it requires info from the rpc caller thread.
-            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
-            WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
-            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
-        }
-        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
-        WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
-
-        return GetInstallOperation(true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), PackageOperationType::Uninstall);
+        return GetPackageOperation<Deployment::InstallResult, Deployment::InstallProgress, Deployment::InstallOptions, Deployment::PackageInstallProgressState>(
+            true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString), true /* isUpgrade */);
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress> PackageManager::GetInstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
@@ -687,7 +765,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             // Get the queueItem synchronously.
             queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
-            if (queueItem == nullptr)
+            if (queueItem == nullptr ||
+                (queueItem->GetPackageOperationType() != PackageOperationType::Install && queueItem->GetPackageOperationType() != PackageOperationType::Upgrade))
             {
                 return nullptr;
             }
@@ -695,7 +774,73 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
         WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr);
 
-        return GetInstallOperation(canCancelQueueItem, std::move(queueItem));
+        return GetPackageOperation<Deployment::InstallResult, Deployment::InstallProgress, Deployment::InstallOptions, Deployment::PackageInstallProgressState>(
+            canCancelQueueItem, std::move(queueItem));
+    }
+
+#define WINGET_RETURN_UNINSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForOperation<Deployment::UninstallResult, Deployment::UninstallProgress>(hr, correlationData); }}
+#define WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_UNINSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UninstallResult, winrt::Microsoft::Management::Deployment::UninstallProgress> PackageManager::UninstallPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::UninstallOptions options)
+    {
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_UNINSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+        // the package should have an installed version to be uninstalled.
+        WINGET_RETURN_UNINSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
+
+        HRESULT hr = S_OK;
+        std::wstring callerProcessInfoString;
+        try
+        {
+            // Check for permissions and get caller info for telemetry.
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetPackageOperation<Deployment::UninstallResult, Deployment::UninstallProgress, Deployment::UninstallOptions, Deployment::PackageUninstallProgressState>(
+            true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UninstallResult, winrt::Microsoft::Management::Deployment::UninstallProgress> PackageManager::GetUninstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
+    {
+        hstring correlationData;
+        WINGET_RETURN_UNINSTALL_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+
+        HRESULT hr = S_OK;
+        std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
+        bool canCancelQueueItem = false;
+        try
+        {
+            // Check for permissions
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(hrGetCallerId);
+            canCancelQueueItem = SUCCEEDED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            if (!canCancelQueueItem)
+            {
+                WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
+            }
+
+            // Get the queueItem synchronously.
+            queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
+            if (queueItem == nullptr ||
+                queueItem->GetPackageOperationType() != PackageOperationType::Uninstall)
+            {
+                return nullptr;
+            }
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_UNINSTALL_RESULT_HR_IF_FAILED(hr);
+
+        return GetPackageOperation<Deployment::UninstallResult, Deployment::UninstallProgress, Deployment::UninstallOptions, Deployment::PackageUninstallProgressState>(
+            canCancelQueueItem, std::move(queueItem));
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);

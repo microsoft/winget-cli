@@ -40,10 +40,18 @@ namespace AppInstaller::CLI::Execution
 
     struct OrchestratorQueue;
 
+    enum class PackageOperationType
+    {
+        None,
+        Install,
+        Upgrade,
+        Uninstall,
+    };
+
     struct OrchestratorQueueItem
     {
-        OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context, bool isApplicableForInstallingSource = false) :
-            m_id(std::move(id)), m_context(std::move(context)), m_isApplicableForInstallingSource(isApplicableForInstallingSource) {}
+        OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context, PackageOperationType operationType) :
+            m_id(std::move(id)), m_context(std::move(context)), m_operationType(operationType) {}
 
         OrchestratorQueueItemState GetState() const { return m_state; }
         void SetState(OrchestratorQueueItemState state) { m_state = state; }
@@ -67,7 +75,8 @@ namespace AppInstaller::CLI::Execution
 
         bool IsOnFirstCommand() const { return m_isOnFirstCommand; }
         bool IsComplete() const { return m_commands.empty(); }
-        bool IsApplicableForInstallingSource() const { return m_isApplicableForInstallingSource; }
+        bool IsApplicableForInstallingSource() const { return m_operationType == PackageOperationType::Install || m_operationType == PackageOperationType::Upgrade; }
+        PackageOperationType GetPackageOperationType() const { return m_operationType; }
 
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
@@ -77,13 +86,13 @@ namespace AppInstaller::CLI::Execution
         std::deque<std::unique_ptr<Command>> m_commands;
         bool m_isOnFirstCommand = true;
         OrchestratorQueue* m_currentQueue = nullptr;
-        bool m_isApplicableForInstallingSource = false;
+        PackageOperationType m_operationType = PackageOperationType::None;
     };
 
     struct OrchestratorQueueItemFactory
     {
         // Create queue item for install/upgrade
-        static std::unique_ptr<OrchestratorQueueItem> CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
+        static std::unique_ptr<OrchestratorQueueItem> CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context, bool isUpgrade);
         // Create queue item for uninstall
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForUninstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
         // Create queue item for finding existing entry from the orchestrator queue

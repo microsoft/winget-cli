@@ -48,6 +48,8 @@
               </com:Class>
               <com:Class Id ="3F85B9F4-487A-4C48-9035-2903F8A6D9E8" DisplayName="PackageMatchFilter Server">
               </com:Class>
+              <com:Class Id ="AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C" DisplayName="UninstallOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
