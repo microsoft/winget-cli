@@ -363,9 +363,14 @@ thiscouldbeapc
 threehundred
 Tlg
 tombstoned
+TOptions
 tpl
+TProgress
 transitioning
+TResult
 trimstart
+TState
+TStatus
 UCase
 ucasemap
 UChars
