@@ -170,7 +170,16 @@ namespace AppInstaller::CLI::Workflow
             }
 
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+            try
+            {
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+            }
+            catch (const wil::ResultException& re)
+            {
+                context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
+                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << re.GetErrorCode() << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+            }
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;

@@ -546,7 +546,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool isUpgrade = false)
     {
         winrt::hresult terminationHR = S_OK;
-        uint32_t installerError = 0;
+        uint32_t operationError = 0;
         hstring correlationData = (options) ? options.CorrelationData() : L"";
         ::Workflow::ExecutionStage executionStage = ::Workflow::ExecutionStage::Initial;
 
@@ -666,16 +666,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // The install command has finished, check for success/failure and how far it got.
                 terminationHR = queueItem->GetContext().GetTerminationHR();
                 executionStage = queueItem->GetContext().GetExecutionStage();
-                if (queueItem->GetContext().Contains(Data::InstallerReturnCode))
+                if (queueItem->GetContext().Contains(Data::OperationReturnCode))
                 {
-                    installerError = static_cast<uint32_t>(queueItem->GetContext().Get<Data::InstallerReturnCode>());
+                    operationError = static_cast<uint32_t>(queueItem->GetContext().Get<Data::OperationReturnCode>());
                 }
             }
         }
         WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
         // TODO - RebootRequired not yet populated, msi arguments not returned from Execute.
-        co_return GetOperationResult<TResult>(executionStage, terminationHR, installerError, correlationData, false);
+        co_return GetOperationResult<TResult>(executionStage, terminationHR, operationError, correlationData, false);
     }
 
     template <typename TResult, typename TProgress>
