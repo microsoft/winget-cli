@@ -974,7 +974,7 @@ namespace AppInstaller::CLI::Workflow
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         IPackageVersion::Metadata installationMetadata;
-        
+
         if (isUpdate)
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
