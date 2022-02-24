@@ -720,7 +720,7 @@ namespace AppInstaller::CLI::Workflow
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
                 bool updateAvailable = match.Package->IsUpdateAvailable();
 
-                if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+                if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
                 {
                     // We are only showing upgrades, and the user did not request to include packages with unknown versions.
                     unknownPackagesCount++;
