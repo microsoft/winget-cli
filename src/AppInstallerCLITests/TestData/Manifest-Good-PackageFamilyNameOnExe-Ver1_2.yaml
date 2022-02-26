@@ -1,0 +1,24 @@
+PackageIdentifier: Microsoft.WinAppSdk
+Publisher: Microsoft
+PackageName: WinAppSdk
+PackageVersion: 1.0
+License: Microsoft Software License
+MinimumOSVersion: 10.0.17763.0
+Tags:
+- WinAppSdk
+ShortDescription: WinAppSdk
+PackageUrl: https://github.com/microsoft/WindowsAppSDK
+Installers:
+- Architecture: x86
+  InstallerType: exe
+  InstallerUrl: https://ThisIsTest.com/TestIndex/installer/WindowsAppRuntimeInstall.exe
+  InstallerSha256: b565f45da868b637686d4c098e9e4c3e16424cff1ed2f19d5665602fdd8dfba6
+  PackageFamilyName: MicrosoftCorporationII.WindowsAppRuntime.Main.1.0_8wekyb3d8bbwe
+  AppsAndFeaturesEntries:
+  - InstallerType: msix
+  InstallerSwitches:
+    Silent: /s
+    SilentWithProgress: /s
+PackageLocale: en-US
+ManifestType: singleton
+ManifestVersion: 1.2.0
