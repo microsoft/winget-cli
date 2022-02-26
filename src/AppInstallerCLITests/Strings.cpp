@@ -86,7 +86,7 @@ TEST_CASE("Normalize", "[strings]")
 
 TEST_CASE("NormalizedString", "[strings]")
 {
-    REQUIRE(NormalizedString("test") == "test");
+    REQUIRE(NormalizedString("test") == "no-test");
     std::string input = "test";
     REQUIRE(NormalizedString(input) == input);
 
