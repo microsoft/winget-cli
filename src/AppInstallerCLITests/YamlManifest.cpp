@@ -254,7 +254,6 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. Field: InstallerType" },
         { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. Field: InstallerType" },
-        { "Manifest-Bad-InstallerTypePortable-MultipleCommands.yaml", "Only zero or one Command value can be specified for InstallerType portable."},
         { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
@@ -458,7 +457,14 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        REQUIRE(manifest.Installers.size() == 3);
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(manifest.Installers.size() == 3);
+        }
+        else
+        {
+            REQUIRE(manifest.Installers.size() == 2);
+        }
     }
 
     ManifestInstaller installer1 = manifest.Installers.at(0);

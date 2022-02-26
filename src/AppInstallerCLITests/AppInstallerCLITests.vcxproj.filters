@@ -24,7 +24,7 @@
     </Filter>
     <Filter Include="TestData\MultiFileManifestV1_2">
       <UniqueIdentifier>{0215df7f-7a73-4cc0-9589-adf401329e59}</UniqueIdentifier>
-    </Filter>    
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -252,9 +252,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-MultipleCommands.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeInvalid.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -509,7 +506,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -545,7 +542,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_2</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

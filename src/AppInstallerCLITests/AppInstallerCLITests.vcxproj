@@ -371,9 +371,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-MultipleCommands.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -556,7 +553,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

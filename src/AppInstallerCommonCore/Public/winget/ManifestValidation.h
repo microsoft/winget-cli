@@ -26,7 +26,6 @@ namespace AppInstaller::Manifest
         const char* const RequiredFieldMissing = "Required field missing.";
         const char* const InvalidFieldValue = "Invalid field value.";
         const char* const ExeInstallerMissingSilentSwitches = "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended.";
-        const char* const PortableInstallerMultipleCommands = "Only zero or one Command value can be specified for InstallerType portable.";
         const char* const FieldNotSupported = "Field is not supported.";
         const char* const FieldValueNotSupported = "Field value is not supported.";
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
