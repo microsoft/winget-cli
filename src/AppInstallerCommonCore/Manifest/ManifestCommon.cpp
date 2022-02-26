@@ -158,6 +158,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::MSStore;
         }
+        else if (inStrLower == "portable") 
+        {
+            result = InstallerTypeEnum::Portable;
+        }
 
         return result;
     }
@@ -373,6 +377,8 @@ namespace AppInstaller::Manifest
             return "burn"sv;
         case InstallerTypeEnum::MSStore:
             return "msstore"sv;
+        case InstallerTypeEnum::Portable:
+            return "portable"sv;
         }
 
         return "unknown"sv;
