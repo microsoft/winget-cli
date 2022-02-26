@@ -66,7 +66,7 @@ namespace AppInstaller::CLI
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
-        Logging::Log().SetLevel(Logging::Level::Info);
+        Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
 

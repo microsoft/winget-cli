@@ -97,7 +97,8 @@ namespace AppInstaller::Manifest
             }
 
             // Validate system reference strings if they are set at the installer level
-            if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
+            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
