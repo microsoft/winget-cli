@@ -195,9 +195,5 @@ namespace AppInstaller::CLI::Workflow
                     APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
                     { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
         }
-        if (unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
-        {
-            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
-        }
     }
 }
