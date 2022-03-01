@@ -181,11 +181,7 @@ namespace AppInstaller::CLI::Workflow
             AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(updateContextPtr));
         }
 
-        if (!updateAllFoundUpdate)
-        {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
-        }
-        else
+        if (updateAllFoundUpdate)
         {
             context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
             context.Reporter.Info() << std::endl;

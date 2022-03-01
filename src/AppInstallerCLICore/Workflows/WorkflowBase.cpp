@@ -759,7 +759,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (table.IsEmpty())
         {
-            context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
         }
         else
         {
