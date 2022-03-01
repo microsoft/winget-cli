@@ -30,7 +30,7 @@ namespace AppInstaller::CLI::Execution
         // Get command queue name based on command name.
         std::string_view GetCommandQueueName(std::string_view commandName)
         {
-            if (commandName == "install" || commandName == "uninstall")
+            if (commandName == COMInstallCommand::CommandName || commandName == COMUninstallCommand::CommandName)
             {
                 return OperationCommandQueueName;
             }

@@ -5,7 +5,7 @@ namespace Microsoft.Management.Deployment
     [contractversion(4)]
     apicontract WindowsPackageManagerContract{};
 
-    /// State of the install.
+    /// State of the install
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageInstallProgressState
     {
@@ -87,12 +87,12 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    /// State of the uninstall.
+    /// State of the uninstall
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
     enum PackageUninstallProgressState
     {
         /// The uninstall is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
-        /// state will prevent the package from downloading or installing.
+        /// state will prevent the package from uninstalling.
         Queued,
         /// The uninstall is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
         /// stop the installation or the post uninstall steps.
@@ -105,8 +105,6 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Progress object for the uninstall
-    /// DESIGN NOTE: percentage for the uninstall as a whole is purposefully not included as there is no way to 
-    /// estimate progress when the uninstaller is running.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
     struct UninstallProgress
     {
