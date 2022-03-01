@@ -63,6 +63,12 @@
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
+    "InstallerUrl": {
+      "type": "string",
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+      "maxLength": 2048,
+      "description": "The installer Url"
+    },    
     "InstallerSha256": {
       "type": "string",
       "pattern": "^[A-Fa-f0-9]{64}$",
@@ -72,6 +78,17 @@
       "type": [ "string", "null" ],
       "pattern": "^[A-Fa-f0-9]{64}$",
       "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
+    },   
+    "Architecture": {
+      "type": "string",
+      "enum": [
+        "x86",
+        "x64",
+        "arm",
+        "arm64",
+        "neutral"
+      ],
+      "description": "The installer target architecture"
     },   
     "Scope": {
       "type": [ "string", "null" ],
@@ -463,23 +480,15 @@
           "$ref": "#/definitions/MinimumOSVersion"
         },
         "Architecture": {
-          "type": "string",
-          "enum": [
-            "x86",
-            "x64",
-            "arm",
-            "arm64",
-            "neutral"
-          ],
-          "description": "The installer target architecture"
+          "$ref": "#/definitions/Architecture"
         },
         "InstallerType": {
           "$ref": "#/definitions/InstallerType"
         },
-        "NestedInstallers": {
+        "ArchiveInstallers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/NestedInstaller"
+            "$ref": "#/definitions/ArchiveInstaller"
           },
           "minItems": 1,
           "maxItems": 1024
@@ -491,10 +500,7 @@
           "$ref": "#/definitions/Scope"
         },
         "InstallerUrl": {
-          "type": "string",
-          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
-          "maxLength": 2048,
-          "description": "The installer Url"
+          "$ref": "#/definitions/InstallerUrl"
         },
         "InstallerSha256": {
           "$ref": "#/definitions/InstallerSha256"
@@ -572,30 +578,19 @@
         "InstallerSha256"
       ]
     },
-    "NestedInstaller": {
+    "ArchiveInstaller": {
       "type": "object",
       "properties": {
-        "InstallerLocale": {
-          "$ref": "#/definitions/Locale"
+        "allOf": {
+          "$ref": "#/definitions/Installer"
         },
-        "Platform": {
-          "$ref": "#/definitions/Platform"
+        "InstallerUrl": {
+          "not": {}
         },
-        "MinimumOSVersion": {
-          "$ref": "#/definitions/MinimumOSVersion"
+        "InstallerType": {
+          "not": {}
         },
-        "Architecture": {
-          "type": "string",
-          "enum": [
-            "x86",
-            "x64",
-            "arm",
-            "arm64",
-            "neutral"
-          ],
-          "description": "The installer target architecture"
-        },
-        "NestedInstallerType": {
+        "ArchiveInstallerType": {
           "type": [ "string", "null" ],
           "enum": [
             "msix",
@@ -610,90 +605,15 @@
           ],
           "description": "Enumeration of supported nested installer types that could be contained in a zip or archive file."
         },
-        "AppendPathAtProcessStart": {
-          "$ref": "#/definitions/AppendPathAtProcessStart"
-        },
         "RelativeFilePath": {
           "type": [ "string", "null" ],
           "description": "Relative path to the installer file or portable executable. Only applies to the nested installer within a Zip. "
-        },  
-        "Scope": {
-          "$ref": "#/definitions/Scope"
-        },
-        "InstallerSha256": {
-          "$ref": "#/definitions/InstallerSha256"
-        },
-        "SignatureSha256": {
-          "$ref": "#/definitions/SignatureSha256"
-        },
-        "InstallModes": {
-          "$ref": "#/definitions/InstallModes"
-        },
-        "InstallerSwitches": {
-          "$ref": "#/definitions/InstallerSwitches"
-        },
-        "InstallerSuccessCodes": {
-          "$ref": "#/definitions/InstallerSuccessCodes"
-        },
-        "ExpectedReturnCodes": {
-          "$ref": "#/definitions/ExpectedReturnCodes"
-        },
-        "UpgradeBehavior": {
-          "$ref": "#/definitions/UpgradeBehavior"
-        },
-        "Commands": {
-          "$ref": "#/definitions/Commands"
-        },
-        "Protocols": {
-          "$ref": "#/definitions/Protocols"
-        },
-        "FileExtensions": {
-          "$ref": "#/definitions/FileExtensions"
-        },
-        "Dependencies": {
-          "$ref": "#/definitions/Dependencies"
-        },
-        "PackageFamilyName": {
-          "$ref": "#/definitions/PackageFamilyName"
-        },
-        "ProductCode": {
-          "$ref": "#/definitions/ProductCode"
-        },
-        "Capabilities": {
-          "$ref": "#/definitions/Capabilities"
-        },
-        "RestrictedCapabilities": {
-          "$ref": "#/definitions/RestrictedCapabilities"
-        },
-        "Markets": {
-          "$ref": "#/definitions/Markets"
-        },
-        "InstallerAbortsTerminal": {
-          "$ref": "#/definitions/InstallerAbortsTerminal"
-        },
-        "ReleaseDate": {
-          "$ref": "#/definitions/ReleaseDate"
-        },
-        "InstallLocationRequired": {
-          "$ref": "#/definitions/InstallLocationRequired"
-        },
-        "RequireExplicitUpgrade": {
-          "$ref": "#/definitions/RequireExplicitUpgrade"
-        },
-        "UnsupportedOSArchitectures": {
-          "$ref": "#/definitions/UnsupportedOSArchitectures"
-        },
-        "AppsAndFeaturesEntries": {
-          "$ref": "#/definitions/AppsAndFeaturesEntries"
-        },
-        "ElevationRequirement": {
-          "$ref": "#/definitions/ElevationRequirement"
         }
       },
       "required": [
         "Architecture",
         "InstallerSha256",
-        "NestedInstallerType"
+        "ArchiveInstallerType"
       ]
     }
   },
