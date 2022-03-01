@@ -91,6 +91,16 @@
         }
       }
     },
+    "WinGetInstallerUserRoot": {
+      "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
+      "type": "string",
+      "default":  "%LOCALAPPDATA%/WPM_Packages/User"
+    },
+    "WinGetInstallerMachineRoot": {
+      "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
+      "type": "string",
+      "default":  "%LOCALAPPDATA%/WPM_Packages/Machine"
+    },
     "InstallBehavior": {
       "description": "Install settings",
       "type": "object",
