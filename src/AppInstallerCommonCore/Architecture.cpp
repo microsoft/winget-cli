@@ -8,6 +8,7 @@
 
 namespace AppInstaller::Utility
 {
+    using namespace literals;
     namespace
     {
         // IsWow64GuestMachineSupported() is available starting on Windows 10, version 1709 (RS3).
@@ -186,23 +187,23 @@ namespace AppInstaller::Utility
         return Architecture::Unknown;
     }
 
-    std::string_view ToString(Architecture architecture)
+    LocIndView ToString(Architecture architecture)
     {
         switch (architecture)
         {
         case Architecture::Neutral:
-            return "Neutral"sv;
+            return "Neutral"_liv;
         case Architecture::X86:
-            return "X86"sv;
+            return "X86"_liv;
         case Architecture::X64:
-            return "X64"sv;
+            return "X64"_liv;
         case Architecture::Arm:
-            return "Arm"sv;
+            return "Arm"_liv;
         case Architecture::Arm64:
-            return "Arm64"sv;
+            return "Arm64"_liv;
         }
 
-        return "Unknown"sv;
+        return "Unknown"_liv;
     }
 
     Architecture GetSystemArchitecture()

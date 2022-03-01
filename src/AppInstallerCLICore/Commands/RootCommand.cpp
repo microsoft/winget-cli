@@ -173,6 +173,8 @@ namespace AppInstaller::CLI
             info << std::endl <<
                 "Windows: "_liv << Runtime::GetOSVersion() << std::endl;
 
+            info << Resource::String::SystemArchitecture << ": "_liv << Utility::ToString(Utility::GetSystemArchitecture()) << std::endl;
+
             if (Runtime::IsRunningInPackagedContext())
             {
                 info << Resource::String::Package << ": "_liv << Runtime::GetPackageVersion() << std::endl;

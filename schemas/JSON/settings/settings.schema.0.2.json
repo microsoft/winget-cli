@@ -31,6 +31,23 @@
         }
       }
     },
+    "Logging": {
+      "description": "Logging settings",
+      "type": "object",
+      "properties": {
+        "level": {
+          "description": "Preferred logging level",
+          "type": "string",
+          "enum": [
+            "verbose",
+            "info",
+            "warning",
+            "error",
+            "critical"
+          ]
+        }
+      }
+    },
     "InstallPrefReq": {
       "description": "Shared schema for preferences and requirements",
       "type": "object",
@@ -147,6 +164,12 @@
     {
       "properties": {
         "visual": { "$ref": "#/definitions/Visual" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "logging": { "$ref": "#/definitions/Logging" }
       },
       "additionalItems": true
     },

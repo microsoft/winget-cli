@@ -266,6 +266,12 @@ namespace Microsoft.Management.Deployment
             CompareResult CompareToVersion(String versionString);
         }
 
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            /// Checks if this package version has at least one applicable installer.
+            Boolean HasApplicableInstaller { get; };
+        }
+
         /// DESIGN NOTE:
         /// GetManifest from IPackageVersion in winget/RepositorySearch is not implemented in V1. That class has 
         /// a lot of fields and no one requesting it.
