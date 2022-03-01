@@ -67,7 +67,12 @@
       "type": "string",
       "pattern": "^[A-Fa-f0-9]{64}$",
       "description": "Sha256 is required. Sha256 of the installer"
-    },    
+    }, 
+    "SignatureSha256": {
+      "type": [ "string", "null" ],
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
+    },   
     "Scope": {
       "type": [ "string", "null" ],
       "enum": [
@@ -495,9 +500,7 @@
           "$ref": "#/definitions/InstallerSha256"
         },
         "SignatureSha256": {
-          "type": [ "string", "null" ],
-          "pattern": "^[A-Fa-f0-9]{64}$",
-          "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
+          "$ref": "#/definitions/SignatureSha256"
         },
         "InstallModes": {
           "$ref": "#/definitions/InstallModes"
@@ -595,7 +598,9 @@
         "NestedInstallerType": {
           "type": [ "string", "null" ],
           "enum": [
+            "msix",
             "msi",
+            "appx",
             "exe",
             "inno",
             "nullsoft",
@@ -608,11 +613,18 @@
         "AppendPathAtProcessStart": {
           "$ref": "#/definitions/AppendPathAtProcessStart"
         },
+        "RelativeFilePath": {
+          "type": [ "string", "null" ],
+          "description": "Relative path to the installer file or portable executable. Only applies to the nested installer within a Zip. "
+        },  
         "Scope": {
           "$ref": "#/definitions/Scope"
         },
         "InstallerSha256": {
           "$ref": "#/definitions/InstallerSha256"
+        },
+        "SignatureSha256": {
+          "$ref": "#/definitions/SignatureSha256"
         },
         "InstallModes": {
           "$ref": "#/definitions/InstallModes"
@@ -641,8 +653,17 @@
         "Dependencies": {
           "$ref": "#/definitions/Dependencies"
         },
+        "PackageFamilyName": {
+          "$ref": "#/definitions/PackageFamilyName"
+        },
         "ProductCode": {
           "$ref": "#/definitions/ProductCode"
+        },
+        "Capabilities": {
+          "$ref": "#/definitions/Capabilities"
+        },
+        "RestrictedCapabilities": {
+          "$ref": "#/definitions/RestrictedCapabilities"
         },
         "Markets": {
           "$ref": "#/definitions/Markets"
