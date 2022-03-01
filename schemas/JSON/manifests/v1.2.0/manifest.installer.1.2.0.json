@@ -63,6 +63,11 @@
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
+    "InstallerSha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Sha256 is required. Sha256 of the installer"
+    },    
     "Scope": {
       "type": [ "string", "null" ],
       "enum": [
@@ -370,6 +375,10 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer should be pinned by default from upgrade"
     },
+    "AppendPathAtProcessStart": {
+      "type": ["boolean", "null"],
+      "description": "Boolean value to indicate whether to append the install location to the PATH environment variable when the application is launched. Only applies to the Portable installerType."
+    },
     "UnsupportedOSArchitectures": {
       "type": [ "array", "null" ],
       "uniqueItems": true,
@@ -471,8 +480,7 @@
           "maxItems": 1024
         },
         "AppendPathAtProcessStart": {
-          "type": ["boolean", "null"],
-          "description": "Boolean value to indicate whether to append the install location to the PATH environment variable when the application is launched. Only applies to the Portable installerType."
+          "$ref": "#/definitions/AppendPathAtProcessStart"
         },
         "Scope": {
           "$ref": "#/definitions/Scope"
@@ -484,9 +492,7 @@
           "description": "The installer Url"
         },
         "InstallerSha256": {
-          "type": "string",
-          "pattern": "^[A-Fa-f0-9]{64}$",
-          "description": "Sha256 is required. Sha256 of the installer"
+          "$ref": "#/definitions/InstallerSha256"
         },
         "SignatureSha256": {
           "type": [ "string", "null" ],
@@ -595,21 +601,18 @@
             "nullsoft",
             "wix",
             "burn",
-            "pwa"
+            "portable"
           ],
           "description": "Enumeration of supported nested installer types that could be contained in a zip or archive file."
         },
         "AppendPathAtProcessStart": {
-          "type": ["boolean", "null"],
-          "description": "Boolean value to indicate whether to append the install location to the PATH environment variable when the application is launched. Only applies to the Portable installerType."
+          "$ref": "#/definitions/AppendPathAtProcessStart"
         },
         "Scope": {
           "$ref": "#/definitions/Scope"
         },
         "InstallerSha256": {
-          "type": "string",
-          "pattern": "^[A-Fa-f0-9]{64}$",
-          "description": "Sha256 is required. Sha256 of the installer"
+          "$ref": "#/definitions/InstallerSha256"
         },
         "InstallModes": {
           "$ref": "#/definitions/InstallModes"
@@ -638,17 +641,8 @@
         "Dependencies": {
           "$ref": "#/definitions/Dependencies"
         },
-        "PackageFamilyName": {
-          "$ref": "#/definitions/PackageFamilyName"
-        },
         "ProductCode": {
           "$ref": "#/definitions/ProductCode"
-        },
-        "Capabilities": {
-          "$ref": "#/definitions/Capabilities"
-        },
-        "RestrictedCapabilities": {
-          "$ref": "#/definitions/RestrictedCapabilities"
         },
         "Markets": {
           "$ref": "#/definitions/Markets"
