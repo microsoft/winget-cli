@@ -14,13 +14,13 @@ namespace AppInstaller::CLI::Workflow
     // Install is done through invoking ShellExecute on downloaded installer.
     // Required Args: None
     // Inputs: Manifest?, InstallerPath, InstallerArgs
-    // Outputs: InstallerReturnCode
+    // Outputs: OperationReturnCode
     void ShellExecuteInstallImpl(Execution::Context& context);
 
     // Uninstall is done through invoking ShellExecute on uninstall string.
     // Required Args: None
     // Inputs: UninstallString
-    // Outputs: None
+    // Outputs: OperationReturnCode
     void ShellExecuteUninstallImpl(Execution::Context& context);
 
     // Removes the MSI

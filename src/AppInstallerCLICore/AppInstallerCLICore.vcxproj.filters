@@ -158,7 +158,7 @@
     <ClInclude Include="Workflows\DependenciesFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\COMInstallCommand.h">
+    <ClInclude Include="Commands\COMCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\MsiInstallFlow.h">
@@ -301,7 +301,7 @@
     <ClCompile Include="ContextOrchestrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\COMInstallCommand.cpp">
+    <ClCompile Include="Commands\COMCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\MsiInstallFlow.cpp">

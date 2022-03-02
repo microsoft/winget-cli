@@ -154,6 +154,8 @@
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="UninstallOptions.h" />
+    <ClInclude Include="UninstallResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
@@ -177,6 +179,8 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="UninstallOptions.cpp" />
+    <ClCompile Include="UninstallResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Deployment.def" />

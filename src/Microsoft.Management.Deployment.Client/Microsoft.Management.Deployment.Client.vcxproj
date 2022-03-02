@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Client.UninstallOptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Client.CreateCompositePackageCatalogOptions.h" />
     <ClInclude Include="Client.FindPackagesOptions.h" />
@@ -146,6 +147,7 @@
     </ClCompile>
     <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="UninstallOptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="..\Microsoft.Management.Deployment\PackageManager.idl" />

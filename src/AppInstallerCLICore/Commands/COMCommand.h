@@ -24,4 +24,14 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // IMPORTANT: To use this command, the caller should have already retrieved the InstalledPackageVersion and added it to the Context Data
+    struct COMUninstallCommand final : public Command
+    {
+        constexpr static std::string_view CommandName = "uninstall"sv;
+        COMUninstallCommand(std::string_view parent) : Command(CommandName, parent) {}
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }

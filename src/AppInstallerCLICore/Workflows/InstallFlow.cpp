@@ -302,7 +302,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const wil::ResultException& re)
         {
-            context.Add<Execution::Data::InstallerReturnCode>(re.GetErrorCode());
+            context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
             context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
             return;
         }
@@ -319,7 +319,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstallerResult::operator()(Execution::Context& context) const
     {
-        DWORD installResult = context.Get<Execution::Data::InstallerReturnCode>();
+        DWORD installResult = context.Get<Execution::Data::OperationReturnCode>();
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
         if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
         {

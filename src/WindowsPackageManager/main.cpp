@@ -17,6 +17,7 @@ CoCreatableClassWrlCreatorMapInclude(PackageManager);
 CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
+CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 
 extern "C"

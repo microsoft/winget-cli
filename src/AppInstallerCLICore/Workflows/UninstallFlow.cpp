@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "UninstallFlow.h"
 #include "WorkflowBase.h"
+#include "DependenciesFlow.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
 
@@ -49,6 +50,19 @@ namespace AppInstaller::CLI::Workflow
 
             std::vector<Item> Items;
         };
+    }
+
+    void UninstallSinglePackage(Execution::Context& context)
+    {
+        context <<
+            Workflow::GetInstalledPackageVersion <<
+            Workflow::GetUninstallInfo <<
+            Workflow::GetDependenciesInfoForUninstall <<
+            Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
+            Workflow::ExecuteUninstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::RecordUninstall;
     }
 
     void GetUninstallInfo(Execution::Context& context)
@@ -156,7 +170,16 @@ namespace AppInstaller::CLI::Workflow
             }
 
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+            try
+            {
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+            }
+            catch (const wil::ResultException& re)
+            {
+                context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
+                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << re.GetErrorCode() << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+            }
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;

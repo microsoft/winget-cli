@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Add<Execution::Data::InstallerReturnCode>(installResult.value());
+            context.Add<Execution::Data::OperationReturnCode>(installResult.value());
         }
     }
 }

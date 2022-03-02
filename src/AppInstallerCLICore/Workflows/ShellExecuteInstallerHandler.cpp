@@ -202,7 +202,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Add<Execution::Data::InstallerReturnCode>(installResult.value());
+            context.Add<Execution::Data::OperationReturnCode>(installResult.value());
         }
     }
 
@@ -253,6 +253,7 @@ namespace AppInstaller::CLI::Workflow
                 "UninstallString",
                 uninstallResult.value());
 
+            context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
             context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
         }
@@ -293,6 +294,7 @@ namespace AppInstaller::CLI::Workflow
                     "MsiExec",
                     uninstallResult.value());
 
+                context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
                 context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             }
