@@ -128,7 +128,7 @@ namespace Microsoft.Management.Deployment
         ManifestError,
     };
 
-    /// Result of the install
+    /// Result of the uninstall
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
     runtimeclass UninstallResult
     {
