@@ -207,8 +207,18 @@ namespace AppInstaller::Settings
 
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
+            // This policy used to have another name in the registry.
+            // Try to read first with the current name, and if it's not present
+            // check if the old name is present.
             using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
-            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
+            auto registryValue = GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
+
+            if (!registryValue.has_value())
+            {
+                registryValue = GetRegistryValue<Mapping::ValueType>(policiesKey, "SourceAutoUpdateIntervalInMinutes"sv);
+            }
+
+            return registryValue;
         }
 
         std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidateItem(const Registry::Value& item)
