@@ -89,18 +89,23 @@ TEST_CASE("GroupPolicy_UpdateInterval_OldName", "[groupPolicy]")
         SECTION("When new name has invalid data")
         {
             SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Wrong type");
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 20);
+            GroupPolicy groupPolicy{ policiesKey.get() };
+
+            // We should not fall back on this case
+            auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+            REQUIRE(!policy.has_value());
         }
         SECTION("When new name is missing")
         {
-            // Don't add the registry key
+            // Don't add the registry value with the new name
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 20);
+            GroupPolicy groupPolicy{ policiesKey.get() };
+
+            auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+            REQUIRE(policy.has_value());
+            REQUIRE(*policy == 20);
         }
-
-        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 20);
-        GroupPolicy groupPolicy{ policiesKey.get() };
-
-        auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
-        REQUIRE(policy.has_value());
-        REQUIRE(*policy == 20);
     }
 }
 
