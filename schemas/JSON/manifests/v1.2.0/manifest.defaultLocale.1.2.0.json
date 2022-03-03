@@ -35,6 +35,21 @@
           "description": "The agreement URL."
         }
       }
+    },
+    "Documentation": {
+      "type": "object",
+      "properties": {
+        "DocumentDescription": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "The document description."
+        },
+        "DocumentUrl": {
+          "$ref": "#/definitions/Url",
+          "description": "The documentation URL."          
+        }
+      }
     }
   },
   "type": "object",
@@ -153,6 +168,19 @@
     "ReleaseNotesUrl": {
       "$ref": "#/definitions/Url",
       "description": "The package release notes url"
+    },
+    "InstallationNotes": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 240,
+      "description": "The notes displayed to the user upon completion of a package installation."      
+    },
+    "Documentations": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/Documentation"
+      },
+      "maxItems": 128
     },
     "ManifestType": {
       "type": "string",

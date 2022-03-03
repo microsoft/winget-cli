@@ -46,6 +46,12 @@
       "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$",
       "description": "The installer minimum operating system version"
     },
+    "Url": {
+      "type": [ "string", "null" ],
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+      "maxLength": 2048,
+      "description": "Url type"
+    },
     "InstallerType": {
       "type": [ "string", "null" ],
       "enum": [
@@ -63,6 +69,17 @@
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
+    "Architecture": {
+      "type": "string",
+      "enum": [
+        "x86",
+        "x64",
+        "arm",
+        "arm64",
+        "neutral"
+      ],
+      "description": "The installer target architecture"
+    },   
     "Scope": {
       "type": [ "string", "null" ],
       "enum": [
@@ -178,8 +195,13 @@
               "cancelledByUser",
               "alreadyInstalled",
               "downgrade",
-              "blockedByPolicy"
+              "blockedByPolicy",
+              "custom"
             ]
+          },
+          "ReturnResponseUrl": {
+            "$ref": "#/definitions/Url",
+            "description": "The return response url to provide additional guidance for expected return codes"            
           }
         }
       },
@@ -209,7 +231,7 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "string",
-        "pattern": "^[a-z][-a-z0-9\\.\\+]*$",
+        "pattern": "^[a-z0-9][-a-z0-9\\.\\+]*$",
         "maxLength": 2048
       },
       "maxItems": 16,
@@ -223,7 +245,7 @@
         "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
         "maxLength": 64
       },
-      "maxItems": 256,
+      "maxItems": 512,
       "uniqueItems": true,
       "description": "List of file extensions the package could support"
     },
@@ -262,6 +284,12 @@
               },
               "MinimumVersion": {
                 "$ref": "#/definitions/PackageVersion"
+              },
+              "Architecture": {
+                "$ref": "#/definitions/Architecture"
+              },
+              "Scope": {
+                "$ref": "#/definitions/Scope"
               }
             },
             "required": [ "PackageIdentifier" ]
@@ -385,6 +413,19 @@
       },
       "description": "List of OS architectures the installer does not support"
     },
+    "UnsupportedArguments": {
+      "type": [ "array", "null" ],
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "title": "UnsupportedArgument",
+        "enum": [
+          "log",
+          "location"
+        ]
+      },
+      "description": "List of winget arguments the installer does not support"
+    },
     "AppsAndFeaturesEntry": {
       "type": "object",
       "properties": {
@@ -449,15 +490,7 @@
           "$ref": "#/definitions/MinimumOSVersion"
         },
         "Architecture": {
-          "type": "string",
-          "enum": [
-            "x86",
-            "x64",
-            "arm",
-            "arm64",
-            "neutral"
-          ],
-          "description": "The installer target architecture"
+          "$ref": "#/definitions/Architecture"
         },
         "InstallerType": {
           "$ref": "#/definitions/InstallerType"
@@ -466,9 +499,7 @@
           "$ref": "#/definitions/Scope"
         },
         "InstallerUrl": {
-          "type": "string",
-          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
-          "maxLength": 2048,
+          "$ref": "#/definitions/Url",
           "description": "The installer Url"
         },
         "InstallerSha256": {
