@@ -177,7 +177,9 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::SetCaller(const std::string& caller)
     {
-        m_caller = caller;
+        auto callerUTF16 = Utility::ConvertToUTF16(caller);
+        auto anonCaller = AnonymizeString(callerUTF16);
+        m_caller = Utility::ConvertToUTF8(anonCaller);
     }
 
     void TelemetryTraceLogger::SetExecutionStage(uint32_t stage) noexcept
