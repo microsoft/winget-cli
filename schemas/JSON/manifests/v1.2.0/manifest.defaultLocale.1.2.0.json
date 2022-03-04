@@ -43,7 +43,7 @@
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 100,
-          "description": "The document description."
+          "description": "The description of the documentation for providing software guides such as manuals and troubleshooting URLs."
         },
         "DocumentUrl": {
           "$ref": "#/definitions/Url",
