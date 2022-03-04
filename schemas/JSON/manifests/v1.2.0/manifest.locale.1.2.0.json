@@ -43,7 +43,7 @@
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 100,
-          "description": "The document description."
+          "description": "The description of the documentation for providing software guides such as manuals and troubleshooting URLs."
         },
         "DocumentUrl": {
           "$ref": "#/definitions/Url",
@@ -163,6 +163,10 @@
     "ReleaseNotesUrl": {
       "$ref": "#/definitions/Url",
       "description": "The package release notes url"
+    },
+    "PurchaseUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The purchase url for acquiring entitlement for the package."
     },
     "InstallationNotes": {
       "type": [ "string", "null" ],

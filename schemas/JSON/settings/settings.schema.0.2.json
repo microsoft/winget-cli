@@ -96,7 +96,12 @@
       "type": "object",
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
-        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" },
+        "ignoreWarnings": {
+          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
+          "type": "boolean",
+          "default": false          
+        }
       }
     },
     "Telemetry": {

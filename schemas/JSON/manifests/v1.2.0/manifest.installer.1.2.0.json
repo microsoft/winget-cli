@@ -284,12 +284,6 @@
               },
               "MinimumVersion": {
                 "$ref": "#/definitions/PackageVersion"
-              },
-              "Architecture": {
-                "$ref": "#/definitions/Architecture"
-              },
-              "Scope": {
-                "$ref": "#/definitions/Scope"
               }
             },
             "required": [ "PackageIdentifier" ]
@@ -397,6 +391,10 @@
     "RequireExplicitUpgrade": {
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer should be pinned by default from upgrade"
+    },
+    "DisplayInstallWarnings": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether winget should display a warning message if the install or upgrade is known to interfere with running applications."
     },
     "UnsupportedOSArchitectures": {
       "type": [ "array", "null" ],
