@@ -32,20 +32,23 @@ namespace AppInstaller::Repository::SQLite
 
     namespace details
     {
+        template<typename>
+        constexpr bool dependent_false = false;
+
         template <typename T, typename = void>
         struct ParameterSpecificsImpl
         {
             static T& ToLog(T&&)
             {
-                static_assert(false, "No type specific override has been supplied");
+                static_assert(dependent_false<T>, "No type specific override has been supplied");
             }
             static void Bind(sqlite3_stmt*, int, T&&)
             {
-                static_assert(false, "No type specific override has been supplied");
+                static_assert(dependent_false<T>, "No type specific override has been supplied");
             }
             static T GetColumn(sqlite3_stmt*, int)
             {
-                static_assert(false, "No type specific override has been supplied");
+                static_assert(dependent_false<T>, "No type specific override has been supplied");
             }
         };
 
