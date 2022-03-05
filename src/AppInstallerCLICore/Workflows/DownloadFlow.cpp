@@ -210,6 +210,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Inno:
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
                 context << DownloadInstallerFile;
                 break;

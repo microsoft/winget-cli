@@ -256,6 +256,9 @@ namespace AppInstaller::CLI::Workflow
                 EnsureStorePolicySatisfied <<
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
+        case InstallerTypeEnum::Portable:
+            context << PortableInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -275,6 +278,14 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
+    }
+
+    void PortableInstall(Execution::Context& context) 
+    {
+        context <<
+            GetInstallerArgs <<
+            PortableInstallImpl <<
+            ReportInstallerResult("PORTABLE"sv, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
     }
 
     void MsixInstall(Execution::Context& context)
