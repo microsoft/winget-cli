@@ -652,6 +652,7 @@ namespace AppInstaller::Manifest
 
         ValidationErrors resultErrors;
         std::map<DWORD, ExpectedReturnCodeEnum> returnCodes;
+        std::map<DWORD, string_t> returnResponseUrls;
 
         for (auto const& entry : returnCodesNode.Sequence())
         {
@@ -660,13 +661,15 @@ namespace AppInstaller::Manifest
             auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
-            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second)
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second &&
+                !returnResponseUrls.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponseUrl }).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
             }
         }
 
         m_p_installer->ExpectedReturnCodes = returnCodes;
+        m_p_installer->ReturnResponseUrls = returnResponseUrls;
 
         return resultErrors;
     }

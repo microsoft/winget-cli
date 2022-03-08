@@ -395,6 +395,15 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default installation notes");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentDescription == "Default document description");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com ");
+    }
+
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -449,6 +458,14 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
         REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+    }
+
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 2);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
     }
 
     if (isSingleton)
@@ -520,6 +537,13 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.ExpectedReturnCodes.at(2) == ExpectedReturnCodeEnum::ContactSupport);
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE_FALSE(installer1.DisplayInstallWarnings);
+        REQUIRE(installer1.ExpectedReturnCodes.at(3) == ExpectedReturnCodeEnum::Custom);
+        REQUIRE(installer1.ReturnResponseUrls.at(3) == "https://defaultReturnResponseUrl.com");
+    }
+
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
@@ -559,6 +583,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
             REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
             REQUIRE(installer3.Commands == MultiValue{ "standalone" });
+            REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
+            REQUIRE(installer3.ExpectedReturnCodes.at(11) == ExpectedReturnCodeEnum::Custom);
+            REQUIRE(installer3.ReturnResponseUrls.at(11) == "https://defaultReturnResponseUrl.com");
+            REQUIRE_FALSE(installer3.DisplayInstallWarnings);
         }
 
         // Localization
@@ -588,6 +616,15 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(localization1.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+            REQUIRE(localization1.Get<Localization::InstallationNotes>() == "Default installation notes");
+            REQUIRE(localization1.Get<Localization::Documentations>().size() == 1);
+            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentDescription == "Default document description");
+            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com ");
         }
     }
 }

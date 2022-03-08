@@ -130,12 +130,14 @@ bool HasExtension(std::string_view extension) const;
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
+        Custom
     };
 
     struct ExpectedReturnCode
     {
         DWORD InstallerReturnCode;
         ExpectedReturnCodeEnum ReturnResponse;
+        string_t ReturnResponseUrl;
     };
 
     enum class PlatformEnum
@@ -151,6 +153,13 @@ bool HasExtension(std::string_view extension) const;
         ElevationRequired,
         ElevationProhibited,
         ElevatesSelf,
+    };
+
+    enum class UnsupportedArgumentEnum
+    {
+        Unknown,
+        Log,
+        Location
     };
 
     enum class ManifestTypeEnum

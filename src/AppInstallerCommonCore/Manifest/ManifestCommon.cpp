@@ -254,6 +254,22 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    UnsupportedArgumentEnum ConvertToUnsupportedArgumentEnum(const std::string& in)
+    {
+        UnsupportedArgumentEnum result = UnsupportedArgumentEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "log"))
+        {
+            result = UnsupportedArgumentEnum::Log;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "location"))
+        {
+            result = UnsupportedArgumentEnum::Location;
+        }
+
+        return result;
+    }
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in)
     {
         if (in == "singleton")
@@ -350,6 +366,10 @@ namespace AppInstaller::Manifest
         else if (inStrLower == "blockedbypolicy")
         {
             result = ExpectedReturnCodeEnum::BlockedByPolicy;
+        }
+        else if (inStrLower == "custom")
+        {
+            result = ExpectedReturnCodeEnum::Custom;
         }
 
         return result;

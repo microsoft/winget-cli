@@ -53,6 +53,8 @@ namespace AppInstaller::Manifest
 
         std::map<DWORD, ExpectedReturnCodeEnum> ExpectedReturnCodes;
 
+        std::map<DWORD, string_t> ReturnResponseUrls;
+
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 
         std::vector<string_t> Commands;
@@ -82,6 +84,10 @@ namespace AppInstaller::Manifest
         bool InstallLocationRequired = false;
 
         bool RequireExplicitUpgrade = false;
+
+        bool DisplayInstallWarnings = false;
+
+        std::vector<UnsupportedArgumentEnum> UnsupportedArguments;
 
         std::vector<AppInstaller::Utility::Architecture> UnsupportedOSArchitectures;
 

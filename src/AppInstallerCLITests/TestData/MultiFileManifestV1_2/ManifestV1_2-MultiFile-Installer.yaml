@@ -54,6 +54,7 @@ ReleaseDate: 2021-01-01
 InstallerAbortsTerminal: true
 InstallLocationRequired: true
 RequireExplicitUpgrade: true
+DisplayInstallWarnings: true
 ElevationRequirement: elevatesSelf
 UnsupportedOSArchitectures:
   - arm
@@ -122,6 +123,7 @@ Installers:
     InstallerAbortsTerminal: false
     InstallLocationRequired: false
     RequireExplicitUpgrade: false
+    DisplayInstallWarnings: false
     ElevationRequirement: elevationRequired
     UnsupportedOSArchitectures:
       - arm64
@@ -142,5 +144,9 @@ Installers:
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     Commands:
       - standalone
+    ExpectedReturnCodes:
+     - InstallerReturnCode: 11
+       ReturnResponse: custom
+       ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 ManifestType: installer
 ManifestVersion: 1.2.0

@@ -564,6 +564,9 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },

@@ -19,10 +19,14 @@ Tags:
   - "msixsdkUK"
 ReleaseNotes: Release notes
 ReleaseNotesUrl: https://ReleaseNotes.net
+PurchaseUrl: https://DefaultPurchaseUrl.com
+InstallationNotes: Default installation notes
 Agreements:
   - AgreementLabel: Label
     Agreement: Text
     AgreementUrl: https://AgreementUrl.net
-
+Documentations:
+  - DocumentDescription: Default document description
+    DocumentUrl: https://DefaultDocumentUrl.com 
 ManifestType: locale
 ManifestVersion: 1.2.0
