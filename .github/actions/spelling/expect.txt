@@ -139,6 +139,7 @@ gcpi
 GES
 GESMBH
 GHS
+gitlab
 gity
 Globals
 Google
