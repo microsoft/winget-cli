@@ -15,13 +15,13 @@ Several packages do not have an installer. They are simply a binary executable. 
 
 ## Inspiration
 
-Just because an installer doesn't exist for a particular package, that doesn't mean you shouldn't be able to install it with the Windows Package Manager.
+Just because an installer doesn't exist for a particular package doesn't mean you shouldn't be able to install it with the Windows Package Manager.
 
 ## Solution Design
 
 The installer type “portable” will be added to the enumerated list of installer types to support these types of packages.
 
-When one of these packages is encountered there are several aspects to “installing” these packages and supporting the “upgrade” behavior. Notable concerns include the location of the package, creating or updating an entry in Windows Apps & Features.
+When one of these packages is encountered, there are several aspects to “installing” these packages and supporting the “upgrade” behavior. Notable concerns include the location of the package, creating or updating an entry in Windows Apps & Features.
 
 ### Command Line Arguments
 
@@ -29,7 +29,7 @@ Users should be able to specify the location for where the program is “install
 
 Some packages like GitLab Runner have a file name including extra metadata (gitlab-runner-windows-386.exe). The installation instructions suggest renaming the file after it has been downloaded. In that vein, portable / standalone executables should have their “command” value specified so the Windows Package Manager can perform a default rename behavior. In addition, a “--rename” argument should be added so the user can choose a value they prefer. To have the upgrade scenario honor the custom name, this information should be recorded in the installed packages data store.
 
-Some portable applications generate or consume other files. An additional argument "--purge" will be added for the uninstall scenario to remove all files and subsequently the directory if the user wishes. The corrolary "--preserve" will be used to preserve files if the default setting has been modified.
+Some portable applications generate or consume other files. An additional argument "--purge" will be added for the uninstall scenario to remove all files and subsequently the directory if the user wishes. The corollary argument "--preserve" will be used to preserve files if the default setting has been modified.
 
 ### Settings
 
@@ -39,19 +39,18 @@ The default path for installing these packages is "%LOCALAPPDATA%/WinGet_Package
 
 The corresponding settings are "PortablePackageUserRoot" and "PortablePackageUserRoot".
 
->Note: The "packageIdetifier" will be used to generate subdirectories for these binaries to be installed.
+>Note: The "packageIdentifier" will be used to generate subdirectories for these binaries to be installed to.
 
 Using Gitlab.gitlab runner as an example would result in the .exe being placed in "%LOCALAPPDATA%/WinGet_Packages/User/Gitlab.gitlab-runner/"
-If a user has configured a path to be used for portable applications that path should be honored. The user should also be able to specify if they want all portable packages placed in the same directory, or in a directory per package.
-There will be settings for specifying a default behavior related to whether the path environment variable should or should not be modified.
+If a user has configured a path to be used for portable applications, that path should be honored. The user should also be able to specify if they want all portable packages placed in the same directory, or in a directory per package.
 
 A related setting for the uninstall scenario will be able to specify the default behavior for either "--clean" or "--purge".
 
 ### Install
 
-When the portable application is being installed by the Windows Package manager, an entry will be created in Windows Apps & Features so the user will be able to see the application is installed.
+When the portable application is being installed by the Windows Package Manager, an entry will be created in Windows Apps & Features so the user will be able to see that the application is installed.
 
-The "AppPath" subkey will identify the path to the application so the user will be able to execute the program from any path via command prompt.
+The "AppPath" registry subkey will identify the path to the application so the user will be able to execute the program from any path via command prompt.
 
 The data from “AppsAndFeaturesEntry” in the manifest will be used to specify the name of the package in Windows Apps & Features.  Constraints for manifests with portable packages are covered below in the section on validating manifests. If the “AppsAndFeaturesEntry” doesn’t have a “DisplayName” value, then we will use the “PackageName”.
 The Product Code will be populated with the "PackageIdentifier" if it is not specified in the “AppsAndFeaturesEntry”.
@@ -74,7 +73,7 @@ The executable should be removed along with the entry in Apps & Features. The us
 
 >Note: the default behavior for uninstalling a portable application with Windows Apps & Features will be to execute uninstall with "--purge" so any files created by the portable application will be removed if they are located in the portable applications directory.
 
-If the directory is empty after removing the portable application, the directory should also deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed.
+If the directory is empty after removing the portable application, the directory should also be deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed.
 
 ### Manifest Validation
 
@@ -134,7 +133,7 @@ Starting package uninstall...
 Successfully uninstalled
 ```
 
-If the portable application created files in the portable application's directory the user will be informed.
+If the portable application created files in the portable application's directory, the user will be informed.
 
 ```text
 winget uninstall NuGet 
@@ -157,7 +156,7 @@ Any description or output text that is added by consequence of this feature will
 
 This feature will not add any new security risks. All risks associated with this feature have been resolved with the core install, import, upgrade, and uninstall features.
 
->Note: We reccommend users leverage the Windows Sandbox when testing manifests on their local machines as the programs may not have been validated from a security perspective prior to being submitted to the Windows Package Manager Community App Repository.
+>Note: We recommend users leverage the Windows Sandbox when testing manifests on their local machines as the programs may not have been validated from a security perspective prior to being submitted to the Windows Package Manager Community App Repository.
 
 ### Reliability
 
@@ -171,7 +170,7 @@ An update to the Windows Package Manager is required to use this feature with th
 
 ### Performance, Power, and Efficiency
 
-This should not introduce any new performande, power, or efficiency concerns in the Windows Package Manager.
+This should not introduce any new performance, power, or efficiency concerns in the Windows Package Manager.
 
 ## Potential Issues
 
@@ -186,3 +185,6 @@ If a user performs uninstall via Windows Apps & Features the default behavior wi
 ## Resources
 
 [Portable / Standalone Executables · Discussion #44183 · microsoft/winget-pkgs (github.com)](https://github.com/microsoft/winget-pkgs/discussions/44183)
+
+[Application Registration - Win32 Apps](https://docs.microsoft.com/en-us/windows/win32/shell/app-registration)
+
