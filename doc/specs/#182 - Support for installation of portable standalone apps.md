@@ -1,5 +1,5 @@
 ---
-author: Demitrius Nelon @denelonms
+author: Demitrius Nelon @denelon
 created on: 2022-03-09
 last updated: 2022-03-09
 issue id: 182
