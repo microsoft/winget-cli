@@ -19,7 +19,8 @@ namespace TestCommon
     const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
     const std::wstring AllowedSourcesPolicyValueName = L"EnableAllowedSources";
 
-    const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateIntervalInMinutes";
+    const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
+    const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";
 
     const std::wstring AdditionalSourcesPolicyKeyName = L"AdditionalSources";
     const std::wstring AllowedSourcesPolicyKeyName = L"AllowedSources";

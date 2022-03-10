@@ -60,6 +60,55 @@ TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
     }
 }
 
+
+TEST_CASE("GroupPolicy_UpdateInterval_OldName", "[groupPolicy]")
+{
+    auto policiesKey = RegCreateVolatileTestRoot();
+
+    SECTION("New name shadows old")
+    {
+        SECTION("When old is valid")
+        {
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 3);
+        }
+        SECTION("When old is invalid")
+        {
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, L"Invalid type");
+        }
+
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, 1);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+        REQUIRE(policy.has_value());
+        REQUIRE(*policy == 1);
+    }
+
+    SECTION("Fallback to old name")
+    {
+        SECTION("When new name has invalid data")
+        {
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Wrong type");
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 20);
+            GroupPolicy groupPolicy{ policiesKey.get() };
+
+            // We should not fall back on this case
+            auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+            REQUIRE(!policy.has_value());
+        }
+        SECTION("When new name is missing")
+        {
+            // Don't add the registry value with the new name
+            SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyOldValueName, 20);
+            GroupPolicy groupPolicy{ policiesKey.get() };
+
+            auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
+            REQUIRE(policy.has_value());
+            REQUIRE(*policy == 20);
+        }
+    }
+}
+
 TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
 {
     auto policiesKey = RegCreateVolatileTestRoot();

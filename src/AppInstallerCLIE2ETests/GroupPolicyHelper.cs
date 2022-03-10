@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableMicrosoftStoreSource = new GroupPolicyHelper("EnableMicrosoftStoreSource");
         public static GroupPolicyHelper EnableAdditionalSources = new GroupPolicyHelper("EnableAdditionalSources", "AdditionalSources");
         public static GroupPolicyHelper EnableAllowedSources = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
-        public static GroupPolicyHelper SourceAutoUpdateInterval = new GroupPolicyHelper("SourceAutoUpdateIntervalInMinutes", "SourceAutoUpdateIntervalInMinutes");
+        public static GroupPolicyHelper SourceAutoUpdateInterval = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
 
         private static GroupPolicyHelper[] AllPolicies = new GroupPolicyHelper[]
         {
