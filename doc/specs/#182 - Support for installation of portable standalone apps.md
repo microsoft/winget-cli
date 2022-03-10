@@ -178,7 +178,7 @@ Users may not be aware that there is no support for multiple versions of the sam
 
 Users may not be aware that the uninstall behavior by default may leave files on their systems if they were created by a portable application.
 
-If a user performs uninstall via Windows Apps & Features the default behavior will be to run `winget uninstall package --purge`.
+If a user performs uninstall via Windows Apps & Features the default behavior will be to run `winget uninstall package --purge`. If a user removes the "App Installer" they would not be able to perform uninstall.
 
 ## Future considerations
 
