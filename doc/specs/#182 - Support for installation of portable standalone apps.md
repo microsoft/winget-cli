@@ -37,7 +37,7 @@ Users should have settings to be able to specify a new default location other th
 
 The default path for installing these packages is "%LOCALAPPDATA%/WinGet_Packages/User" for user based installs. The default path for installing these packages is "%LOCALAPPDATA%/WinGet_Packages/Machine"for machine wide installs.
 
-The corresponding settings are "PortablePackageUserRoot" and "PortablePackageUserRoot".
+The corresponding settings are "PortablePackageUserRoot" and "PortablePackageMachineRoot".
 
 >Note: The "packageIdentifier" will be used to generate subdirectories for these binaries to be installed to.
 
