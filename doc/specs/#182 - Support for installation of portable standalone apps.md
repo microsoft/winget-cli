@@ -180,6 +180,8 @@ Users may not be aware that the uninstall behavior by default may leave files on
 
 If a user performs uninstall via Windows Apps & Features the default behavior will be to run `winget uninstall package --purge`. If a user removes the "App Installer" they would not be able to perform uninstall.
 
+Displaying a path may be improved with detecting the shell the Windows Package Manager is being executed in. An [Issue](https://github.com/microsoft/winget-cli/issues/1977) was already raised covering the differences in how CMD and PowerShell render or support file system paths.
+
 ## Future considerations
 
 Some portable applications have icons. The options for creating shortcuts with icons could be considered in the future.
