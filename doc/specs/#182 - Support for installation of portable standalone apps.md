@@ -184,6 +184,8 @@ If a user performs uninstall via Windows Apps & Features the default behavior wi
 
 Some portable applications have icons. The options for creating shortcuts with icons could be considered in the future.
 
+Support for channels has not yet been implemented. Some portable applications may have "beta" and "stable" releases. Users may want to have support for both in the future.
+
 ## Resources
 
 [Portable / Standalone Executables · Discussion #44183 · microsoft/winget-pkgs (github.com)](https://github.com/microsoft/winget-pkgs/discussions/44183)
