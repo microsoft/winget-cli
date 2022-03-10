@@ -182,6 +182,8 @@ If a user performs uninstall via Windows Apps & Features the default behavior wi
 
 ## Future considerations
 
+Some portable applications have icons. The options for creating shortcuts with icons could be considered in the future.
+
 ## Resources
 
 [Portable / Standalone Executables · Discussion #44183 · microsoft/winget-pkgs (github.com)](https://github.com/microsoft/winget-pkgs/discussions/44183)
