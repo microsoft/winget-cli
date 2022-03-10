@@ -109,7 +109,7 @@ Starting package install...
 Successfully installed
 ```
 
-If the portable application is running when the user performs an upgrade, the user will be informed and given options.
+If the portable application is running when the user performs an upgrade, the user will be informed.
 
 ```text
 winget upgrade Microsoft.NuGet
