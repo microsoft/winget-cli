@@ -5,7 +5,7 @@ namespace Microsoft.Management.Deployment
     [contractversion(4)]
     apicontract WindowsPackageManagerContract{};
 
-    /// State of the install.
+    /// State of the install
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageInstallProgressState
     {
@@ -85,6 +85,66 @@ namespace Microsoft.Management.Deployment
             /// This value's meaning will require knowledge of the specific installer or install technology.
             UInt32 InstallerErrorCode{ get; };
         }
+    }
+
+    /// State of the uninstall
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    enum PackageUninstallProgressState
+    {
+        /// The uninstall is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// state will prevent the package from uninstalling.
+        Queued,
+        /// The uninstall is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
+        /// stop the installation or the post uninstall steps.
+        Uninstalling,
+        /// The uninstaller has completed and cleanup actions are in progress. Cancellation of the 
+        /// IAsyncOperationWithProgress in this state will not stop cleanup or roll back the uninstall.
+        PostUninstall,
+        /// The operation has completed.
+        Finished,
+    };
+
+    /// Progress object for the uninstall
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    struct UninstallProgress
+    {
+        /// State of the uninstall
+        PackageUninstallProgressState State;
+        /// Uninstall percentage if known.
+        Double UninstallationProgress;
+    };
+
+    /// Status of the uninstall call
+    /// Implementation Note: Errors mapped from AppInstallerErrors.h
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    enum UninstallResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
+        InvalidOptions,
+        UninstallError,
+        ManifestError,
+    };
+
+    /// Result of the uninstall
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    runtimeclass UninstallResult
+    {
+        /// Used by a caller to correlate the install with a caller's data.
+        String CorrelationData{ get; };
+        /// Whether a restart is required to complete the install.
+        Boolean RebootRequired{ get; };
+
+        /// Batched error code, example APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED
+        UninstallResultStatus Status{ get; };
+        /// The error code of the overall operation.
+        HRESULT ExtendedErrorCode{ get; };
+
+        /// The error code from the uninstall attempt. Only valid if the Status is UninstallError.
+        /// This value's meaning will require knowledge of the specific uninstaller or install technology.
+        UInt32 UninstallerErrorCode{ get; };
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h
@@ -204,6 +264,12 @@ namespace Microsoft.Management.Deployment
             /// IE if PackageVersionInfo::Version returns "2", then CompareToVersion("1") will return Greater.
             /// Passing in an empty string will result in Unknown.
             CompareResult CompareToVersion(String versionString);
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+        {
+            /// Checks if this package version has at least one applicable installer.
+            Boolean HasApplicableInstaller { get; };
         }
 
         /// DESIGN NOTE:
@@ -544,6 +610,39 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    enum PackageUninstallMode
+    {
+        /// The default experience for the installer. Installer may show some UI.
+        Default,
+        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent 
+        /// possible (installer may still show some required UI).
+        Silent,
+        /// Runs the installer in interactive mode.
+        Interactive,
+    };
+
+    /// Options when uninstalling a package.
+    /// Intended to allow full compatibility with the "winget uninstall" command line interface.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    runtimeclass UninstallOptions
+    {
+        UninstallOptions();
+
+        /// Optionally specifies the version from the package to uninstall. If unspecified the version matching 
+        /// CatalogPackage.GetLatestVersion() is used.
+        PackageVersionId PackageVersionId;
+
+        /// Silent, Interactive, or Default
+        PackageUninstallMode PackageUninstallMode;
+        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        String LogOutputPath;
+
+        /// Used by a caller to correlate the install with a caller's data.
+        /// The string must be JSON encoded.
+        String CorrelationData;
+    }
+
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageManager
     {
@@ -576,6 +675,12 @@ namespace Microsoft.Management.Deployment
         {
             /// Upgrade the specified package
             Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> UpgradePackageAsync(CatalogPackage package, InstallOptions options);
+
+            /// Uninstall the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<UninstallResult, UninstallProgress> UninstallPackageAsync(CatalogPackage package, UninstallOptions options);
+
+            /// Get uninstall progress
+            Windows.Foundation.IAsyncOperationWithProgress<UninstallResult, UninstallProgress> GetUninstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
     }
 
@@ -600,6 +705,10 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<InstallOptions>;
         interface Windows.Foundation.Collections.IVector<InstallResult>;
         interface Windows.Foundation.Collections.IVectorView<InstallResult>;
+        interface Windows.Foundation.Collections.IVector<UninstallOptions>;
+        interface Windows.Foundation.Collections.IVectorView<UninstallOptions>;
+        interface Windows.Foundation.Collections.IVector<UninstallResult>;
+        interface Windows.Foundation.Collections.IVectorView<UninstallResult>;
         interface Windows.Foundation.Collections.IVector<MatchResult>;
         interface Windows.Foundation.Collections.IVectorView<MatchResult>;
         interface Windows.Foundation.Collections.IVector<PackageMatchFilter>;

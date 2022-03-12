@@ -13,7 +13,7 @@ pr:
     - src/*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2019'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
@@ -163,7 +163,7 @@ jobs:
     displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
-      testResultsFiles: '$(Build.ArtifactStagingDirectory)\TEST-*.xml'
+      testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
 
   - task: DownloadSecureFile@1

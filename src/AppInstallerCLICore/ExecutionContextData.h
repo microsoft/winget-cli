@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Execution
         InstallerPath,
         LogPath,
         InstallerArgs,
-        InstallerReturnCode,
+        OperationReturnCode,
         CompletionData,
         InstalledPackageVersion,
         UninstallString,
@@ -130,7 +130,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::InstallerReturnCode>
+        struct DataMapping<Data::OperationReturnCode>
         {
             using value_t = DWORD;
         };

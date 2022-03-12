@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     struct InstallResult : InstallResultT<InstallResult>
     {
         InstallResult() = default;
-        
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
             winrt::Microsoft::Management::Deployment::InstallResultStatus status,

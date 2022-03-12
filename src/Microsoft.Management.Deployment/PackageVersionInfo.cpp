@@ -8,7 +8,10 @@
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
 #include "CatalogPackage.h"
+#include "ComContext.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/ManifestComparator.h"
+#include "winget/RepositorySearch.h"
 #include "AppInstallerVersions.h"
 #include "Converters.h"
 #include <wil\cppwinrt_wrl.h>
@@ -111,6 +114,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             return CompareResult::Equal;
         }
+    }
+    bool PackageVersionInfo::HasApplicableInstaller()
+    {
+        AppInstaller::CLI::Execution::COMContext context;
+        AppInstaller::Repository::IPackageVersion::Metadata installationMetadata;
+        AppInstaller::CLI::Workflow::ManifestComparator manifestComparator{ context, installationMetadata };
+        AppInstaller::Manifest::Manifest manifest = m_packageVersion->GetManifest();
+        auto result = manifestComparator.GetPreferredInstaller(manifest);
+        return result.installer.has_value();
     }
     std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
     { 

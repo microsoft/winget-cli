@@ -551,7 +551,7 @@ void OverrideForDirectMsi(TestContext& context)
         file << context.Get<Execution::Data::InstallerArgs>();
         file.close();
 
-        context.Add<Execution::Data::InstallerReturnCode>(0);
+        context.Add<Execution::Data::OperationReturnCode>(0);
     } });
 }
 

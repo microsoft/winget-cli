@@ -309,6 +309,14 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
+            case PathName::ProgramFiles:
+                result = GetKnownFolderPath(FOLDERID_ProgramFiles);
+                create = false;
+                break;
+            case PathName::ProgramFilesX86:
+                result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                create = false;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -347,6 +355,14 @@ namespace AppInstaller::Runtime
                 break;
             case PathName::UserProfile:
                 result = GetKnownFolderPath(FOLDERID_Profile);
+                create = false;
+                break;
+            case PathName::ProgramFiles:
+                result = GetKnownFolderPath(FOLDERID_ProgramFiles);
+                create = false;
+                break;
+            case PathName::ProgramFilesX86:
+                result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
                 create = false;
                 break;
             default:

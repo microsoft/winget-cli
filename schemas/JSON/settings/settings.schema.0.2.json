@@ -31,6 +31,23 @@
         }
       }
     },
+    "Logging": {
+      "description": "Logging settings",
+      "type": "object",
+      "properties": {
+        "level": {
+          "description": "Preferred logging level",
+          "type": "string",
+          "enum": [
+            "verbose",
+            "info",
+            "warning",
+            "error",
+            "critical"
+          ]
+        }
+      }
+    },
     "InstallPrefReq": {
       "description": "Shared schema for preferences and requirements",
       "type": "object",
@@ -79,7 +96,22 @@
       "type": "object",
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
-        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" },
+        "ignoreWarnings": {
+          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
+          "type": "boolean",
+          "default": false
+        },
+        "PortableAppUserRoot": {
+          "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
+          "type": "string",
+          "default": "%LOCALAPPDATA%/WinGet_Packages/User"
+        },
+        "PortableAppMachineRoot": {
+          "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
+          "type": "string",
+          "default": "%LOCALAPPDATA%/WinGet_Packages/Machine"
+        }
       }
     },
     "Telemetry": {
@@ -147,6 +179,12 @@
     {
       "properties": {
         "visual": { "$ref": "#/definitions/Visual" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "logging": { "$ref": "#/definitions/Logging" }
       },
       "additionalItems": true
     },

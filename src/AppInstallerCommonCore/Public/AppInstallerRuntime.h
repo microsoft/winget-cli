@@ -47,6 +47,10 @@ namespace AppInstaller::Runtime
         SecureSettings,
         // The value of %USERPROFILE%.
         UserProfile,
+        // The location of the x64 program files.
+        ProgramFiles,
+        // The location of the x86 program files.
+        ProgramFilesX86,
     };
 
     // Gets the path to the requested location.

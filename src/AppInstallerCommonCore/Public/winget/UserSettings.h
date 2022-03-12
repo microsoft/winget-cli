@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerStrings.h"
+#include "AppInstallerLogging.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
 
@@ -56,7 +57,6 @@ namespace AppInstaller::Settings
         DeliveryOptimization,
     };
 
-
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -80,8 +80,11 @@ namespace AppInstaller::Settings
         InstallArchitectureRequirement,
         InstallLocalePreference,
         InstallLocaleRequirement,
+        PortableAppUserRoot,
+        PortableAppMachineRoot,
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
+        LoggingLevelPreference,
         Max
     };
 
@@ -129,8 +132,11 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::string, {}, ".installBehavior.portableAppUserRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::string, {}, ".installBehavior.portableAppMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

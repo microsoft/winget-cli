@@ -13,6 +13,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Initialize(
             ::AppInstaller::Repository::Source source,
             std::shared_ptr<::AppInstaller::Repository::IPackage> package);
+        std::shared_ptr<::AppInstaller::Repository::IPackage> GetRepositoryPackage();
 #endif
 
         hstring Id();

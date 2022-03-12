@@ -221,6 +221,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -456,7 +457,14 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        REQUIRE(manifest.Installers.size() == 2);
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(manifest.Installers.size() == 3);
+        }
+        else
+        {
+            REQUIRE(manifest.Installers.size() == 2);
+        }
     }
 
     ManifestInstaller installer1 = manifest.Installers.at(0);
@@ -515,8 +523,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
-        REQUIRE(installer2.Arch == Architecture::X64);
         REQUIRE(installer2.InstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(installer2.Arch == Architecture::X64);
         REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
         REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
         REQUIRE(installer2.ProductCode == "{Bar}");
@@ -541,6 +549,16 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
             REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
             REQUIRE(installer2.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            ManifestInstaller installer3 = manifest.Installers.at(2);
+            REQUIRE(installer3.InstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(installer3.Arch == Architecture::X86);
+            REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
+            REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer3.Commands == MultiValue{ "standalone" });
         }
 
         // Localization
@@ -622,6 +640,31 @@ TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_1 });
+}
+
+TEST_CASE("ValidateV1_2GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_2-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_2 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_2-MultiFile-Version.yaml",
+        "ManifestV1_2-MultiFile-Installer.yaml",
+        "ManifestV1_2-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_2-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_2 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_2 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

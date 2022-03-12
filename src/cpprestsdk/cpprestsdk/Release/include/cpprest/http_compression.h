@@ -118,7 +118,8 @@ _ASYNCRTIMP bool supported();
 namespace algorithm
 {
 #if defined(_MSC_VER) && _MSC_VER < 1900
-const utility::char_t* const GZIP = _XPLATSTR("gzip");
+const utility::char_t* const G
+= _XPLATSTR("gzip");
 const utility::char_t* const DEFLATE = _XPLATSTR("deflate");
 const utility::char_t* const BROTLI = _XPLATSTR("br");
 #else // ^^^ VS2013 and before ^^^ // vvv VS2015+, and everything else vvv

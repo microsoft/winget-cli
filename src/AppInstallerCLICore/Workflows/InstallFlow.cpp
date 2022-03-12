@@ -9,6 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
+#include "PortableInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -256,6 +257,9 @@ namespace AppInstaller::CLI::Workflow
                 EnsureStorePolicySatisfied <<
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
+        case InstallerTypeEnum::Portable:
+            context << PortableInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -275,6 +279,14 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
+    }
+
+    void PortableInstall(Execution::Context& context) 
+    {
+        context <<
+            GetInstallerArgs <<
+            PortableInstallImpl <<
+            ReportInstallerResult("PORTABLE"sv, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -302,7 +314,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const wil::ResultException& re)
         {
-            context.Add<Execution::Data::InstallerReturnCode>(re.GetErrorCode());
+            context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
             context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
             return;
         }
@@ -319,7 +331,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstallerResult::operator()(Execution::Context& context) const
     {
-        DWORD installResult = context.Get<Execution::Data::InstallerReturnCode>();
+        DWORD installResult = context.Get<Execution::Data::OperationReturnCode>();
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
         if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
         {

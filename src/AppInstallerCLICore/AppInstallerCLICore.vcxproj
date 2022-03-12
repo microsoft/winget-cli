@@ -9,7 +9,7 @@
     <ProjectGuid>{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AppInstallerCLICore</RootNamespace>
-    <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)' == '' ">10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
     <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
@@ -241,7 +241,7 @@
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
     <ClInclude Include="Command.h" />
-    <ClInclude Include="Commands\COMInstallCommand.h" />
+    <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
@@ -260,6 +260,7 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ContextOrchestrator.h" />
+    <ClInclude Include="PortableInstallFlow.h" />
     <ClInclude Include="Public\COMContext.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
@@ -293,9 +294,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
-    <ClCompile Include="Commands\COMInstallCommand.cpp" />
+    <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
+    <ClCompile Include="PortableInstallFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />

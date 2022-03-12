@@ -181,11 +181,7 @@ namespace AppInstaller::CLI::Workflow
             AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(updateContextPtr));
         }
 
-        if (!updateAllFoundUpdate)
-        {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
-        }
-        else
+        if (updateAllFoundUpdate)
         {
             context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
             context.Reporter.Info() << std::endl;
@@ -194,10 +190,6 @@ namespace AppInstaller::CLI::Workflow
                     Resource::String::InstallAndUpgradeCommandsReportDependencies,
                     APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
                     { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
-        }
-        if (unknownPackagesCount > 0 && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
-        {
-            context.Reporter.Info() << unknownPackagesCount << " " << (unknownPackagesCount == 1 ? Resource::String::UpgradeUnknownCountSingle : Resource::String::UpgradeUnknownCount) << std::endl;
         }
     }
 }

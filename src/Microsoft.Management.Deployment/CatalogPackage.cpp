@@ -96,4 +96,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_package->IsUpdateAvailable();
     }
+    std::shared_ptr<::AppInstaller::Repository::IPackage> CatalogPackage::GetRepositoryPackage()
+    {
+        return m_package;
+    }
 }
