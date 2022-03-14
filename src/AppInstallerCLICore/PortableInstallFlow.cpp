@@ -25,7 +25,7 @@ namespace AppInstaller::CLI::Workflow
         PROCESSENTRY32 pe32 = { 0 };
         HANDLE hSnap;
         int iDone;
-        bool bProcessFound;
+        bool isProcessFound;
         bool isExeRunning = false;
 
         while (true)
@@ -34,10 +34,10 @@ namespace AppInstaller::CLI::Workflow
             pe32.dwSize = sizeof(PROCESSENTRY32);
             Process32First(hSnap, &pe32);     // Can throw away, never an actual app
 
-            bProcessFound = false;   //init values
+            isProcessFound = false;   //init values
             iDone = 1;
 
-            while (iDone)    // go until out of Processes
+            while (iDone)   
             {
                 iDone = Process32Next(hSnap, &pe32);
                 std::wstring fileName{ pe32.szExeFile };
@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
                 if (fileName.compare(applicationName) == 0)    // Did we find our process?
                 {
                     isExeRunning = true;
-                    bProcessFound = true;
+                    isProcessFound = true;
                     if (shouldEndProcess)
                     {
                         TerminateProcess(hSnap, 0);
@@ -82,29 +82,12 @@ namespace AppInstaller::CLI::Workflow
             Registry::Value value = subKey[defaultValueWString].value();
             std::string defaultStringValue = value.GetValue<Registry::Value::Type::String>();
             std::string base_filename = defaultStringValue.substr(defaultStringValue.find_last_of("/\\") + 1);
-            IsExeRunning(base_filename, false);
-        }
-        else
-        {
-            //create the key if it doesn't exist
-            lReg = RegCreateKeyEx(
-                HKEY_CURRENT_USER,
-                fullRegistryKey.c_str(),
-                0,
-                NULL,
-                REG_OPTION_NON_VOLATILE,
-                KEY_ALL_ACCESS,
-                NULL,
-                &hkey,
-                NULL);
 
-
+            bool shouldWarn = IsExeRunning(base_filename, false);
+            out.Info() << shouldWarn << std::endl;
         }
 
-
-
-
-        //LONG lOpenKeyResult = RegOpenKeyEx(HKEY_CURRENT_USER, fullRegistryKey.c_str(), 0, KEY_READ, &hkey);
+        //create the key if it doesn't exist
         lReg = RegCreateKeyEx(
             HKEY_CURRENT_USER,
             fullRegistryKey.c_str(),
@@ -115,31 +98,6 @@ namespace AppInstaller::CLI::Workflow
             NULL,
             &hkey,
             NULL);
-
-        // check if the key already exists, if so then verify that the executable isn't running anymore.
-        //if (lOpenKeyResult == ERROR_SUCCESS)
-        //{
-        //    //out.Info() << "Existing registry key found" << std::endl;
-        //    //if (LONG res = RegGetValueW(hkey, NULL, L"(Default)", NULL, RRF_RT_REG_SZ, nullptr, &data, &datasize))
-        //    //{
-
-        //    //}
-        //    //AppInstaller::Registry::Key key;
-        //    //key.Values()
-        //}
-        //else
-        //{
-        //    lReg = RegCreateKeyEx(
-        //        HKEY_CURRENT_USER,
-        //        fullRegistryKey.c_str(),
-        //        0,
-        //        NULL,
-        //        REG_OPTION_NON_VOLATILE,
-        //        KEY_ALL_ACCESS,
-        //        NULL,
-        //        &hkey,
-        //        NULL);
-        //}
 
         if (lReg == ERROR_SUCCESS)
         {

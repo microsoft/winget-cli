@@ -86,15 +86,6 @@ namespace AppInstaller::Registry
 
         Type GetType() const { return m_type; }
 
-        //template <Type T>
-        //bool SetValue(typename details::ValueTypeSpecifics<static_cast<DWORD>(T)> value, REGSAM access)
-        //{
-        //    if (LONG res = RegSetValueEx(hkey, L"(Default)", NULL, REG_SZ, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-        //    {
-        //        out.Error() << "Failed to write (Default) value. Error Code: " << res << std::endl;
-        //    }
-        //}
-
         template <Type T>
         typename details::ValueTypeSpecifics<static_cast<DWORD>(T)>::value_t GetValue() const
         {
