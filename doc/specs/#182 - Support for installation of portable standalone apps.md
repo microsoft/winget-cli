@@ -37,7 +37,7 @@ Some portable applications generate or consume other files. An additional argume
 
 Users should have settings to be able to specify a new default location other than the system default for the Windows Package Manager.
 
-The default path for installing these packages is "%LOCALAPPDATA%/Microsoft/WinGet/Packages/" for user based installs. The default path for installing these packages is "Program Files/Microsoft/WinGet/Packages/"for machine wide x64 installs and "Program Files (x86)/Microsoft/WinGet/Packages/" for machine wide x86 installs.
+The default path for installing these packages is "%LOCALAPPDATA%/Microsoft/WinGet/Packages/" for user based installs. The default path for installing these packages is "Program Files/WinGet/Packages/"for machine wide x64 installs and "Program Files (x86)/WinGet/Packages/" for machine wide x86 installs.
 
 The corresponding settings are "PortablePackageUserRoot" and "PortablePackageMachineRoot".
 
@@ -72,7 +72,7 @@ If the user chooses to install the same package but from a secondary source, the
 
 ### Upgrade
 
-The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the App Paths registry and the entry in Apps & Features will be updated accordingly.
+The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the "App Paths" registry and the entry in "Apps & Features" will be updated accordingly.
 
 If the "UninstallPrevious" field is specified in the manifest, then the Windows Package Manager will perform an uninstall of the previous version of the package prior to installing the newer version. 
 
