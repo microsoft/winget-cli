@@ -27,7 +27,9 @@ When one of these packages is encountered, there are several aspects to “insta
 
 Users should be able to specify the location for where the program is “installed” on their machine with the “--location” argument.
 
-Some packages like GitLab Runner have a file name including extra metadata (gitlab-runner-windows-386.exe). The installation instructions suggest renaming the file after it has been downloaded. In that vein, portable / standalone executables should have their “command” value specified so the Windows Package Manager can perform a default rename behavior. In addition, a “--rename” argument should be added so the user can choose a value they prefer. To have the upgrade scenario honor the custom name, this information should be recorded in the installed packages data store.
+Some packages like GitLab Runner have a file name including extra metadata (gitlab-runner-windows-386.exe). The installation instructions suggest renaming the file after it has been downloaded. In that vein, a "--rename" argument should be added so the user can choose a value they prefer. To have the upgrade scenario honor the custom name, this information should be recorded in the installed packages data store.
+
+Portable / standalone executables should have their “command” value specified so the Windows Package Manager can determine the default value to use when creating a new entry in the "App Paths" registry during installation. If no command value is provided, then the entry will use the filename of the exe. 
 
 Some portable applications generate or consume other files. An additional argument "--purge" will be added for the uninstall scenario to remove all files and subsequently the directory if the user wishes. The corollary argument "--preserve" will be used to preserve files if the default setting has been modified.
 
@@ -35,13 +37,13 @@ Some portable applications generate or consume other files. An additional argume
 
 Users should have settings to be able to specify a new default location other than the system default for the Windows Package Manager.
 
-The default path for installing these packages is "%LOCALAPPDATA%/WinGet_Packages/User" for user based installs. The default path for installing these packages is "%LOCALAPPDATA%/WinGet_Packages/Machine"for machine wide installs.
+The default path for installing these packages is "%LOCALAPPDATA%/Microsoft/WinGet/Packages/" for user based installs. The default path for installing these packages is "Program Files/Microsoft/WinGet/Packages/"for machine wide x64 installs and "Program Files (x86)/Microsoft/WinGet/Packages/" for machine wide x86 installs.
 
 The corresponding settings are "PortablePackageUserRoot" and "PortablePackageMachineRoot".
 
 >Note: The "packageIdentifier" will be used to generate subdirectories for these binaries to be installed to.
 
-Using Gitlab.gitlab runner as an example would result in the .exe being placed in "%LOCALAPPDATA%/WinGet_Packages/User/Gitlab.gitlab-runner/"
+Using Gitlab.gitlab runner as an example would result in the .exe being placed in "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.gitlab-runner/"
 If a user has configured a path to be used for portable applications, that path should be honored. The user should also be able to specify if they want all portable packages placed in the same directory, or in a directory per package.
 
 A related setting for the uninstall scenario will be able to specify the default behavior for either "--clean" or "--purge".
@@ -59,9 +61,20 @@ No shortcuts or icons will be created for the package.
 
 >Note: Some portable programs may require dependencies. Dependencies are not covered in this specification and are not yet supported as of the writing of this specification.
 
+#### Scope Behavior
+
+By default, portable apps will be installed with the "User" scope unless specified otherwise by the user through the "--scope" argument or in their settings. This also means that the "scope" field in the manifest will be ignored when installing portable apps. Since portable apps are unique in that they are simply standalone executables that are copied to a specific install location based on scope, it does not seem reasonable to have the manifest enforce an install behavior that is not required. Manifest validation would also need to be updated to show an error to the user that the "scope" field does not apply if a portable installer type is specified.
+
+#### Installation from multiple sources:
+
+If the user chooses to install the same package but from a secondary source, the Windows Package Manager will create an additional subdirectory to indicate the source that the package came from. Since entries in the registry must be unique, if the entry in the "App Paths" registry conflicts with an existing entry, then the user will be notified of the conflict and the subkey value will be updated to reflect the change in executable path. In other words, the latest installed package will take precedence. This will require utilizing the installed packages data store to determine whether a package is being installed from two different sources.
+
+
 ### Upgrade
 
-The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is an uninstall of the previous version of the package. If the file is in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade.
+The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the App Paths registry and the entry in Apps & Features will be updated accordingly.
+
+If the "UninstallPrevious" field is specified in the manifest, then the Windows Package Manager will perform an uninstall of the previous version of the package prior to installing the newer version. 
 
 A new Windows Apps & Features entry is created to correctly report the upgraded version for future potential upgrades.
 
@@ -71,13 +84,17 @@ There will be no support for installing multiple “side by side” versions of 
 
 The executable should be removed along with the entry in Apps & Features. The user should also be able to uninstall the package from Apps & Features.
 
->Note: the default behavior for uninstalling a portable application with Windows Apps & Features will be to execute uninstall with "--purge" so any files created by the portable application will be removed if they are located in the portable applications directory.
+>Note: The default behavior for uninstalling a portable application with Windows Apps & Features will be to execute uninstall without "--purge" so any files created by the portable application will be remain if they are located in the portable applications directory. An additional argument for "--wait" will be added that will prompt the user to press any key to exit. This is intended to support this scenario so that the user is aware of any remaining files if they choose to uninstall through Windows Apps & Features.
 
-If the directory is empty after removing the portable application, the directory should also be deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed.
+If the directory is empty after removing the portable application, the directory should also be deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed. 
 
 ### Manifest Validation
 
-Portable package manifests will only support zero or one "command" value to be specified. In the absence of the "--rename" argument, the value specified in "command" will define the default value for renaming the portable application and subsequently the value specified in the "AppPath" subkey.
+Portable package manifests will only support zero or one "command" value to be specified. In the absence of the "--rename" argument, the value specified in "command" will define the default value for renaming the entry in the "App Path" subkey for the portable application.
+
+If a value for "scope" is specified for a portable installer, the user should be shown an error that the "scope" field is not supported for portable installers.
+
+Only zero or one entry for "Apps & Features" can be specified for a portable installer.
 
 ## UI/UX Design
 
