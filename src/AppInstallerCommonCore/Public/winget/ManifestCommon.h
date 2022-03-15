@@ -135,9 +135,10 @@ bool HasExtension(std::string_view extension) const;
 
     struct ExpectedReturnCode
     {
-        DWORD InstallerReturnCode;
-        ExpectedReturnCodeEnum ReturnResponse;
-        string_t ReturnResponseUrl;
+        DWORD InstallerReturnCode{};
+        ExpectedReturnCodeEnum ReturnResponse{};
+        string_t ReturnResponseUrl{};
+        ExpectedReturnCode() {};
     };
 
     enum class PlatformEnum
