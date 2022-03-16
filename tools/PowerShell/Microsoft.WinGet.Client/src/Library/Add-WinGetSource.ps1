@@ -32,7 +32,7 @@ Function Add-WinGetSource
         This example adds a new source to the Windows Package Manager named "custom"
 
         .EXAMPLE
-        Add-WinGetSource -Name "custom" -Argument "https://contoso.com/" -Type "Microsoft.Rest" -Header "string"
+        Add-WinGetSource -Name "custom" -Argument "https://contoso.com/" -Type "Microsoft.Rest" -Header "string" -AcceptSourceAgreement:$true
 
         This example adds a new source to the Windows Package Manager named "custom" and passes the value "string" in the Windows-Package-Manager HTTP header to the source.
     #>
@@ -40,24 +40,23 @@ Function Add-WinGetSource
     PARAM(
         [Parameter(Mandatory=$true)] [string]   $Name,
         [Parameter(Mandatory=$true)] [string]   $Argument,
-        [Parameter(Mandatory=$true)] [ValidateSet("Microsoft.Rest", "Microsoft.PreIndexed.Package")] [string]   $Type,
+        [Parameter(Mandatory=$true)] [ValidateSet("Microsoft.Rest", "Microsoft.PreIndexed.Package")] [string]$Type,
         [Parameter()] [ValidateLength(1, 1024)] $Header,
-        [Parameter()] [switch]                  $AcceptSourceAgreement
+        [Parameter()] [bool]                    $AcceptSourceAgreement
     )
     BEGIN
     {
-        [string[]] $WinGetArgs  = "Source", "Add"
-        $WinGetArgs += "--Name", $Name
-        $WinGetArgs += "--Arg",  $Argument
-        $WinGetArgs += "--Type", $Type
+        if ($AcceptSourceAgreement) {$acceptOption = '--accept-source-agreements'}
+        [string] $WinGetArgs  = "Source Add --Name {0} --Arg {1} --Type {2} {3}" -f $Name, $Argument, $Type, $acceptOption 
     }
     PROCESS
     {
-        & "WinGet" $WingetArgs
+       Start-Process  -FilePath "winget.exe" -ArgumentList $WinGetArgs -Wait       
     }
     END
     {
-        return
+        #Don't do this unless you are in a class 
+        #return
     }
 }
 
