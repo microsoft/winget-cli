@@ -134,11 +134,13 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
+FWW
 fzanollo
 gcpi
 GES
 GESMBH
 GHS
+gitlab
 gity
 Globals
 Google
@@ -216,6 +218,7 @@ LPWSTR
 LSTATUS
 LTDA
 lw
+lww
 lz
 malware
 maxvalue
