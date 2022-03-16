@@ -73,7 +73,7 @@ Function Get-WinGetPackage{
     {
         [string[]]       $WinGetArgs  = @("List")
         [WinGetPackage[]]$Result      = @()
-        [string[]]       $IndexTitles = @("Name", "Id", "Version", "Available", "Source")
+        [string[]]       $IndexTitles = @("SearchName", "SearchID", "SearchVersion", "AvailableHeader", "SearchSource")
 
         if($Filter){
             ## Search across Name, ID, moniker, and tags
