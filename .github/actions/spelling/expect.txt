@@ -134,6 +134,7 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
+FWW
 fzanollo
 gcpi
 GES
@@ -217,6 +218,7 @@ LPWSTR
 LSTATUS
 LTDA
 lw
+lww
 lz
 malware
 maxvalue
