@@ -67,8 +67,9 @@ By default, portable apps will be installed with the "User" scope unless specifi
 
 #### Installation from multiple sources:
 
-If the user chooses to install the same package but from a secondary source, the Windows Package Manager will create an additional subdirectory to indicate the source that the package came from. Since entries in the registry must be unique, if the entry in the "App Paths" registry conflicts with an existing entry, then the user will be notified of the conflict and the subkey value will be updated to reflect the change in executable path. In other words, the latest installed package will take precedence. This will require utilizing the installed packages data store to determine whether a package is being installed from two different sources.
+If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.GitLabRunner_msstore/". 
 
+Since entries in the registry must be unique, if the entry in the "App Paths" registry conflicts with an existing entry, then the user will be notified of the conflict and the subkey value will remain unchanged. By default we will have "first writer wins (FWW)" behavior, but the user can include the --lww argument ("last writer wins") to have the client replace the subkey value to point to the path of the executable last installed from the second source. 
 
 ### Upgrade
 
