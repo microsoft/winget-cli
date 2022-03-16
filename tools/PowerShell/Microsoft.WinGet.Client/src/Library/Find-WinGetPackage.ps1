@@ -76,7 +76,7 @@ Function Find-WinGetPackage{
     {
         [string[]]          $WinGetArgs  = @("Search")
         [WinGetPackage[]]   $Result      = @()
-        [string[]]          $IndexTitles = @("Name", "Id", "Version", "Available", "Source")
+        [string[]]          $IndexTitles = @("SearchName", "SearchID", "SearchVersion", "AvailableHeader", "SearchSource")
 
         if($PSBoundParameters.ContainsKey('Filter')){
             ## Search across Name, ID, moniker, and tags
