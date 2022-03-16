@@ -142,16 +142,12 @@ Function Invoke-WinGetCommand
         $IndexTitlesCount = $IndexTitles.Count
         $Offset = 0
         $Found = $false
-        # Get localization data based on current language
-        [PSObject] $LanguageDataCurrent = Get-LanguageData -Language ((Get-UICulture).Name)
-        # Get localization data based on english language (for building PSObject result)
-        [PSObject] $LanguageDataENUS = Get-LanguageData -Language "en-US"
         $IndexTitlesCurrent  = @()
-        $IndexTitlesENUS  = @()
+        $IndexTitlesDefault  = @()
 
         ForEach ($IndexTitle in $IndexTitles) {
-            $IndexTitlesCurrent += @($LanguageDataCurrent.$IndexTitle)
-            $IndexTitlesENUS  += @($LanguageDataENUS.$IndexTitle)
+            $IndexTitlesCurrent += @($global:LanguageDataCurrent.$IndexTitle)
+            $IndexTitlesDefault += @($global:LanguageDataDefault.$IndexTitle)
         }
 
         ## Remove two characters from the string length and add "..." to the end (only if there is the three below characters present).
@@ -225,10 +221,10 @@ Function Invoke-WinGetCommand
 
                 foreach($item in $Index) {
                     if($Item.Ends) {
-                            $List[$IndexTitlesENUS[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start,$Item.Ends)
+                            $List[$IndexTitlesDefault[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start,$Item.Ends)
                     }
                     else {
-                        $List[$IndexTitlesENUS[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start, $row.Length - $Item.Start)
+                        $List[$IndexTitlesDefault[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start, $row.Length - $Item.Start)
                     }
                 }
 
