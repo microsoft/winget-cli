@@ -142,7 +142,18 @@ Function Invoke-WinGetCommand
         $IndexTitlesCount = $IndexTitles.Count
         $Offset = 0
         $Found = $false
-        
+        # Get localization data based on current language
+        [PSObject] $LanguageDataCurrent = Get-LanguageData -Language ((Get-UICulture).Name)
+        # Get localization data based on english language (for building PSObject result)
+        [PSObject] $LanguageDataENUS = Get-LanguageData -Language "en-US"
+        $IndexTitlesCurrent  = @()
+        $IndexTitlesENUS  = @()
+
+        ForEach ($IndexTitle in $IndexTitles) {
+            $IndexTitlesCurrent += @($LanguageDataCurrent.$IndexTitle)
+            $IndexTitlesENUS  += @($LanguageDataENUS.$IndexTitle)
+        }
+
         ## Remove two characters from the string length and add "..." to the end (only if there is the three below characters present).
         [string[]]$WinGetSourceListRaw = & "WinGet" $WingetArgs | out-string -stream | foreach-object{$_ -replace ("$([char]915)$([char]199)$([char]170)", "$([char]199)")}
     }
@@ -154,7 +165,7 @@ Function Invoke-WinGetCommand
         }
 
         ## Gets the indexing of each title
-        $rgex = $IndexTitles -join "|"
+        $rgex = $IndexTitlesCurrent -join "|"
         for ($Offset=0; $Offset -lt $WinGetSourceListRaw.Length; $Offset++) {
             if($WinGetSourceListRaw[$Offset].Split(" ")[0].Trim() -match $rgex) {
                 $Found = $true
@@ -166,7 +177,7 @@ Function Invoke-WinGetCommand
             return
         }
         
-        foreach ($IndexTitle in $IndexTitles) {
+        foreach ($IndexTitle in $IndexTitlesCurrent) {
             ## Creates an array of titles and their string location
             $IndexStart = $WinGetSourceListRaw[$Offset].IndexOf($IndexTitle)
             $IndexEnds  = ""
@@ -210,14 +221,14 @@ Function Invoke-WinGetCommand
 
             ## If this is the first pass containing titles or the table line, skip.
             if($TestNotTitles -and $TestNotHyphenLine -and $TestNotNoResults) {
-                $List = @{}
+                $List = [ordered]@{}
 
                 foreach($item in $Index) {
                     if($Item.Ends) {
-                            $List[$Item.Title] = $row.SubString($item.Start,$Item.Ends)
+                            $List[$IndexTitlesENUS[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start,$Item.Ends)
                     }
                     else {
-                        $List[$item.Title] = $row.SubString($item.Start, $row.Length - $Item.Start)
+                        $List[$IndexTitlesENUS[$IndexTitlesCurrent.IndexOf($item.Title)]] = $row.SubString($item.Start, $row.Length - $Item.Start)
                     }
                 }
 
@@ -228,6 +239,7 @@ Function Invoke-WinGetCommand
     }
     END
     {
+        
         return $Result
     }
 }
