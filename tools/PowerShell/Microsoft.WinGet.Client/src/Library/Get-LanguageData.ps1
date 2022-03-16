@@ -1,6 +1,6 @@
 Function Get-LanguageData {
     PARAM(
-        [Parameter(Position=0)] $Language = (Get-UICulture).Name
+        [Parameter(Position=0)] $Language = (Get-UICulture).Name.Substring(0,2)
     )
 
     $languageData = $(
@@ -8,7 +8,8 @@ Function Get-LanguageData {
 
         $(try {
             # We have to trim the leading BOM for .NET's XML parser to correctly read Microsoft's own files - go figure
-            ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/master/Localization/Resources/$Language/winget.resw" -ErrorAction Stop ).Content -replace "\uFEFF", ""))).root.data
+            $LgFolder = ((Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/tree/master/Localization/Resources").Links | ? {$_.innerText -like "$Language-[A-Z][A-Z]"})[0]            
+            ([xml](((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/winget-cli/master/Localization/Resources/$($LgFolder.title)/winget.resw" -ErrorAction Stop).Content -replace "\uFEFF", ""))).root.data
         } catch {
             # Fall back to English if a locale file doesn't exist
             (
