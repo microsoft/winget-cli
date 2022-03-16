@@ -14,3 +14,9 @@ Get-ChildItem -Path $PSScriptRoot\Library -Filter *.ps1 | foreach-object { . $_.
 class WinGetVersionMismatch : Exception {
 	WinGetVersionMismatch([string] $message) : base($message) {}
 }
+
+# Localization
+# Get localization data based on current language
+[PSObject] $global:LanguageDataCurrent = Get-LanguageData -Language ((Get-UICulture).Name).Substring(0,2)
+# Get localization data based on english language (for building PSObject result)
+[PSObject] $global:LanguageDataDefault = Get-LanguageData -Language "en"
