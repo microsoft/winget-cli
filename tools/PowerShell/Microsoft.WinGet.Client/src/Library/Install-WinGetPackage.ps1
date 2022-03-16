@@ -156,7 +156,16 @@ Function Install-WinGetPackage
     {
         ## Exact, ID and Source - Talk with Demitrius tomorrow to better understand this.
         IF(!$Local) {
-            $Result = Find-WinGetPackage -Filter $Filter -Name $Name -Id $Id -Moniker $Moniker -Tag $Tag -Command $Command -Source $Source
+            $oParams = @{}
+            If (-not ([String]::IsNullOrEmpty($Filter))) { $oParams += @{Filter = $Filter} }
+            If (-not ([String]::IsNullOrEmpty($Name))) { $oParams += @{Name = $Name} }
+            If (-not ([String]::IsNullOrEmpty($Id))) { $oParams += @{Id = $Id} }
+            If (-not ([String]::IsNullOrEmpty($Moniker))) { $oParams += @{Moniker = $Moniker} }
+            If (-not ([String]::IsNullOrEmpty($Tag))) { $oParams += @{Tag = $Tag} }
+            If (-not ([String]::IsNullOrEmpty($Command))) { $oParams += @{Command = $Command} }
+            If (-not ([String]::IsNullOrEmpty($Source))) { $oParams += @{Source = $Source} }
+            If ($Exact) { $oParams += @{Exact = $true} }
+            $Result = Find-WinGetPackage @oParams
         }
 
         if($Result.count -eq 1 -or $Local) {
