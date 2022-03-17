@@ -48,7 +48,7 @@ bugfix
 BUILDNUMBER
 bytearray
 cdecl
-CDN
+cdn
 cer
 certutil
 cguid
