@@ -100,6 +100,10 @@ Markets:
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
+    ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+UnsupportedArguments:
+  - log
+  - location
 
 Installers:
   - Architecture: x86

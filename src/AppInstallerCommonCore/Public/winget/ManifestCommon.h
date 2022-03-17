@@ -256,6 +256,8 @@ bool HasExtension(std::string_view extension) const;
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
 
+    UnsupportedArgumentEnum ConvertToUnsupportedArgumentEnum(const std::string& in);
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 
     ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in);

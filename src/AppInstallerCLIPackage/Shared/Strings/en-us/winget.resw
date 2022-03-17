@@ -1275,4 +1275,16 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>System Architecture</value>
   </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>Retains all files and directories created by the package (portable)</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>Deletes all files and directories created by the package (portable)</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>The value to rename the executable file (portable)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>Prompts the user to press any key before exiting</value>
+  </data>
 </root>

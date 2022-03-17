@@ -86,6 +86,10 @@ namespace AppInstaller::CLI::Execution
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
+            Rename, // Renames the file of the executable. Only applies to the portable installerType
+            Purge, // 
+            Preserve, // 
+            Wait,
 
             // Used for demonstration purposes
             ExperimentalArg,

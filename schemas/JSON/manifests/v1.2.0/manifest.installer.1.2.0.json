@@ -673,6 +673,9 @@
     "ElevationRequirement": {
       "$ref": "#/definitions/ElevationRequirement"
     },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
+    },
     "Installers": {
       "type": "array",
       "items": {

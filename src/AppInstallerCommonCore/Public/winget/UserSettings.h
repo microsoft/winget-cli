@@ -71,6 +71,7 @@ namespace AppInstaller::Settings
         EFExperimentalCmd,
         EFExperimentalArg,
         EFDependencies,
+        EFPortableInstall,
         TelemetryDisable,
         InstallScopePreference,
         InstallScopeRequirement,
@@ -83,6 +84,9 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         LoggingLevelPreference,
+        PortableAppUserRoot,
+        PortableAppMachineRoot,
+        UninstallPurge,
         Max
     };
 
@@ -130,7 +134,11 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::string, {}, ".installBehavior.portableAppUserRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::string, {}, ".installBehavior.portableAppMachineRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurge, bool, bool, false, ".uninstallBehavior.purge"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFPortableInstall, bool, bool, false, ".experimentalFeatures.portableInstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
 

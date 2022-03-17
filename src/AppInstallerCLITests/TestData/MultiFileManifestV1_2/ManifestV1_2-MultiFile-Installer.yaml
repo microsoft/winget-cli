@@ -71,6 +71,10 @@ Markets:
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
+    ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+UnsupportedArguments:
+  - log
+  - location
 
 Installers:
   - Architecture: x86
@@ -133,6 +137,9 @@ Installers:
     ExpectedReturnCodes:
       - InstallerReturnCode: 2
         ReturnResponse: contactSupport
+      - InstallerReturnCode: 3
+        ReturnResponse: custom
+        ReturnResponseUrl: https://defaultReturnResponseUrl.com
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
@@ -142,11 +149,12 @@ Installers:
     InstallerType: portable
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.exe
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    DisplayInstallWarnings: false
     Commands:
       - standalone
     ExpectedReturnCodes:
      - InstallerReturnCode: 11
        ReturnResponse: custom
-       ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+       ReturnResponseUrl: https://defaultReturnResponseUrl.com
 ManifestType: installer
 ManifestVersion: 1.2.0
