@@ -87,9 +87,9 @@ namespace AppInstaller::CLI::Execution
             AcceptSourceAgreements, // Accept all source agreements
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
             Rename, // Renames the file of the executable. Only applies to the portable installerType
-            Purge, // 
-            Preserve, // 
-            Wait,
+            Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
+            Preserve, // Retains any files and directories created by the portable exe.
+            Wait, // Prompts the user to press any key before exiting.
 
             // Used for demonstration purposes
             ExperimentalArg,

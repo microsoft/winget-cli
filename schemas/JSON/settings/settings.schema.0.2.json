@@ -105,7 +105,7 @@
         "PortableAppUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",
-          "default": "%LOCALAPPDATA%/WinGet/Microsoft/Packages/"
+          "default": "%LOCALAPPDATA%/Microsoft/WinGet/Packages/"
         },
         "PortableAppMachineRoot": {
           "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",

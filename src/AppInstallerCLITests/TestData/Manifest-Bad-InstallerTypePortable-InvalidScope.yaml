@@ -1,4 +1,4 @@
-# Bad manifest. Installer Type portable cannot have a defined scope.
+# Bad manifest. Installer Type portable does not support scope and should show a warning.
 PackageIdentifier: TestInstaller.WithLicenseAgreement
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
