@@ -28,7 +28,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
         constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
-        constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
+        constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
@@ -37,7 +37,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
 
         constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
-        constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://winget.azureedge.net/platform"sv;
+        constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://cdn.winget.microsoft.com/platform"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
 
