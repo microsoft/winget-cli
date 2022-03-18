@@ -3,43 +3,46 @@
 #include "pch.h"
 #include <WindowsPackageManager.h>
 
-BOOL WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION DllMain(
-    HMODULE hModule,
-    DWORD reason,
-    LPVOID /* lpReserved */)
+extern "C"
 {
-    BOOLEAN success = TRUE;
-    switch (reason)
+    BOOL WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION DllMain(
+        HMODULE /* hModule */,
+        DWORD reason,
+        LPVOID /* lpReserved */)
     {
-    case DLL_PROCESS_ATTACH:
-    {
-
-    }
-    break;
-
-    case DLL_PROCESS_DETACH:
-    {
-        if (module != NULL)
+        switch (reason)
         {
-            delete module;
-            module = NULL;
+        case DLL_PROCESS_ATTACH:
+        {
+            if (FAILED(WindowsPackageManagerInProcModuleInitialize()))
+            {
+                return FALSE;
+            }
         }
-        EventUnregisterMicrosoft_Windows_AppxPackagingOM();
-        TraceLoggingUnregister(AppxPackagingProvider::Provider());
-
-        BOOLEAN isProcessExiting = (reserved != NULL);
-#if defined(__APPXPACKAGING_DOWNLEVEL_WINRT__)
-        Appx::Packaging::DownlevelWinrt::DllProcessDetach(isProcessExiting);
-#endif
-        Downlevel::DllProcessDetach(isProcessExiting);
-#if !defined(APPX_DOWNLEVEL)
-        Common::CommonLibraryDllProcessDetach(isProcessExiting);
-#endif
-    }
-    break;
-
-    default:
         break;
+
+        case DLL_PROCESS_DETACH:
+        {
+            WindowsPackageManagerInProcModuleTerminate();
+        }
+        break;
+
+        default:
+            return TRUE;
+        }
+        return TRUE;
     }
-    return success;
+
+    WINDOWS_PACKAGE_MANAGER_API DllGetClassObject(
+        REFCLSID rclsid,
+        REFIID riid,
+        LPVOID* ppv)
+    {
+        RETURN_HR(WindowsPackageManagerInProcModuleGetClassObject(rclsid, riid, ppv));
+    }
+
+    WINDOWS_PACKAGE_MANAGER_API DllCanUnloadNow()
+    {
+        return WindowsPackageManagerInProcModuleTerminate() ? S_OK : S_FALSE;
+    }
 }
