@@ -179,7 +179,7 @@
       "items": {
         "$ref": "#/definitions/Documentation"
       },
-      "maxItems": 128
+      "maxItems": 256
     },
     "ManifestType": {
       "type": "string",

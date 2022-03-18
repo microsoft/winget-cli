@@ -48,8 +48,8 @@ namespace AppInstaller::Manifest
         const char* const MissingManifestDependenciesNode = "Dependency not found: ";
         const char* const NoSuitableMinVersion = "No Suitable Minimum Version: ";
         const char* const FoundLoop = "Loop found.";
-        const char* const ExceededAppsAndFeaturesEntryLimit = "Only zero or one entry for Apps and Features can be specified for InstallerType portable.";
-        const char* const ExceededCommandsLimit = "Only zero or one value for Commands can be specified for InstallerType portable.";
+        const char* const ExceededAppsAndFeaturesEntryLimit = "Only zero or one entry for Apps and Features may be specified for InstallerType portable.";
+        const char* const ExceededCommandsLimit = "Only zero or one value for Commands may be specified for InstallerType portable.";
         const char* const ScopeNotSupported = "Scope is not supported for InstallerType portable.";
     }
 

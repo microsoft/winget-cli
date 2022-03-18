@@ -744,7 +744,7 @@
       "items": {
         "$ref": "#/definitions/Documentation"
       },
-      "maxItems": 128
+      "maxItems": 256
     },
     "Channel": {
       "$ref": "#/definitions/Channel"
