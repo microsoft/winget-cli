@@ -4,6 +4,13 @@
 #include "PackageMatchFilter.g.h"
 #include "Public/ComClsids.h"
 
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+namespace AppInstaller::Repository
+{
+    struct PackageMatchFilter;
+}
+#endif
+
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     [uuid(WINGET_OUTOFPROC_COM_CLSID_PackageMatchFilter)]

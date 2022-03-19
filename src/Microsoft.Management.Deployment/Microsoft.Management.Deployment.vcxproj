@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
+    <ClCompile Include="ComClsids.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />

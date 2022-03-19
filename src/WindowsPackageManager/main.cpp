@@ -10,7 +10,7 @@
 #include "WindowsPackageManager.h"
 
 #include <AppInstallerCLICore.h>
-#include <Public/ComClsids.h>
+#include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -21,46 +21,6 @@ CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
-
-namespace
-{
-    CLSID GetClsidFromString()
-
-    CLSID GetRedirectedClsidFromInProcClsid(REFCLSID clsid)
-    {
-        using namespace winrt::Microsoft::Management::Deployment::implementation;
-
-        if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageManager))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageManager);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_FindPackagesOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::FindPackagesOptions);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_CreateCompositePackageCatalogOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::CreateCompositePackageCatalogOptions);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_InstallOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::InstallOptions);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_UninstallOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::UninstallOptions);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageMatchFilter))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter);
-        }
-        else
-        {
-            return CLSID_NULL;
-        }
-    }
-
-}
 
 extern "C"
 {
