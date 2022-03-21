@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
-        return {*m_out, m_channel == Channel::Output };
+        return { *m_out, m_channel == Channel::Output };
     }
 
     void Reporter::SetChannel(Channel channel)
