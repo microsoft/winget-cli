@@ -28,7 +28,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\WinGetUtil\packages.config" />
-    <None Include="..\WinGetUtil\PropertySheet.props" />
+    <None Include="packages.config" />
+    <None Include="PropertySheet.props" />
+    <None Include="Source.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Microsoft.Management.Deployment.InProc.dll.manifest" />
   </ItemGroup>
 </Project>
