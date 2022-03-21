@@ -142,6 +142,7 @@ GHS
 gity
 Globals
 Google
+guiddef
 hackathon
 hashtable
 helplib
