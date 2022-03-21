@@ -64,11 +64,17 @@ extern "C"
     }
     CATCH_RETURN();
 
-    bool WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerInProcModuleTerminate() try
+    bool WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerInProcModuleTerminate()
     {
-        return ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+        try
+        {
+            return ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+        }
+        catch (...)
+        {
+            return false;
+        }
     }
-    CATCH_RETURN();
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetClassObject(
         REFCLSID rclsid,
