@@ -75,6 +75,12 @@ If you do not configure this policy, users will be able to add or remove additio
 If you enable this policy, only the sources specified can be added or removed from the Windows Package Manager. The representation for each allowed source can be obtained from installed sources using 'winget source export'.
 
 If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
+      <string id="EnableMSAppInstallerProtocol">Enable App Installer ms-appinstaller protocol</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">This policy controls whether users can install packages from a website that is using the ms-appinstaller protocol.
+
+If you enable this setting, users will be able to install packages from websites that use this protocol.
+
+If you disable or do not configure this setting, users will not be able to install packages from websites that use this protocol.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
