@@ -9,7 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
-#include "PortableInstallFlow.h"
+#include "PortableInstallHelper.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -284,9 +284,7 @@ namespace AppInstaller::CLI::Workflow
     void PortableInstall(Execution::Context& context) 
     {
         context <<
-            GetInstallerArgs <<
-            PortableInstallImpl <<
-            ReportInstallerResult("PORTABLE"sv, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+            PortableInstallImpl;
     }
 
     void MsixInstall(Execution::Context& context)

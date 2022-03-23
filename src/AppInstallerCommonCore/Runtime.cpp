@@ -317,6 +317,10 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
                 create = false;
                 break;
+            case PathName::LocalAppData:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                create = false;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -363,6 +367,10 @@ namespace AppInstaller::Runtime
                 break;
             case PathName::ProgramFilesX86:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                create = false;
+                break;
+            case PathName::LocalAppData:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
                 create = false;
                 break;
             default:

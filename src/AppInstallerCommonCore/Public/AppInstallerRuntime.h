@@ -51,6 +51,8 @@ namespace AppInstaller::Runtime
         ProgramFiles,
         // The location of the x86 program files.
         ProgramFilesX86,
+        // The local app data location.
+        LocalAppData,
     };
 
     // Gets the path to the requested location.
