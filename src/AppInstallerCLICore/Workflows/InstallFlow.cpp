@@ -650,6 +650,13 @@ namespace AppInstaller::CLI::Workflow
                 sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier);
             }
 
+            // Store the ARP entry found to match the package to record it in the tracking catalog later
+            if (toLog)
+            {
+                // We use the product code as the ID in the ARP source.
+                context.Add<Data::ProductCodeFromARP>(toLog->GetProperty(PackageVersionProperty::Id));
+            }
+
             Logging::Telemetry().LogSuccessfulInstallARPChange(
                 sourceIdentifier,
                 manifest.Id,
@@ -677,10 +684,21 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        auto manifest = context.Get<Data::Manifest>();
+
+        // If we have determined an ARP entry matches the installed package,
+        // we set its product code in the manifest we record to ensure we can
+        // find it in the future.
+        // Note that this may overwrite existing information.
+        if (context.Contains(Data::ProductCodeFromARP))
+        {
+            manifest.DefaultInstallerInfo.ProductCode = context.Get<Data::ProductCodeFromARP>().get();
+        }
+
         auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
 
         trackingCatalog.RecordInstall(
-            context.Get<Data::Manifest>(),
+            manifest,
             context.Get<Data::Installer>().value(),
             WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
     }
