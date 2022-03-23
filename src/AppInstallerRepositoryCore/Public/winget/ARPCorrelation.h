@@ -12,6 +12,7 @@ namespace AppInstaller
     namespace Repository
     {
         struct IPackage;
+        struct SearchResult;
     }
 }
 
@@ -19,23 +20,33 @@ namespace AppInstaller::Repository::Correlation
 {
 
     // An algorithm for correlating a package with an ARP entry. 
-    struct ARPCorrelationAlgorithmBase
+    struct ARPCorrelationMeasure
     {
-        virtual ~ARPCorrelationAlgorithmBase() = default;
+        virtual ~ARPCorrelationMeasure() = default;
 
         // Computes a matching score between a package manifest and a manifest entry.
         // A higher score indicates a more certain match.
         // The possible range of values is determined by the algorithm.
         virtual double GetMatchingScore(
-            const Manifest::Manifest& manifest,
-            std::shared_ptr<IPackage> arpEntry) const = 0;
+            const AppInstaller::Manifest::Manifest& manifest,
+            std::shared_ptr<AppInstaller::Repository::IPackage> arpEntry) const = 0;
 
         // Gets the minimum score needed by this algorithm for something to be considered a match.
         virtual double GetMatchingThreshold() const = 0;
+
+        // Gets the package that has the best correlation score for a given manifest.
+        // If no package has a good enough match, returns null.
+        // This will choose a single package even if multiple are good matches.
+        std::shared_ptr<IPackage> GetBestMatchForManifest(
+            const AppInstaller::Manifest::Manifest& manifest, 
+            const AppInstaller::Repository::SearchResult& packages) const;
+
+        // Returns an instance of the measure we will actually use.
+        static const ARPCorrelationMeasure& GetInstance();
     };
 
 #define DEFINE_CORRELATION_ALGORITHM(_name_) \
-    struct _name_ : public ARPCorrelationAlgorithmBase \
+    struct _name_ : public ARPCorrelationMeasure \
     { \
         double GetMatchingScore(const Manifest::Manifest& manifest, std::shared_ptr<IPackage> arpEntry) const override; \
         double GetMatchingThreshold() const override; \
@@ -46,7 +57,4 @@ namespace AppInstaller::Repository::Correlation
 
     // No correlation between packages and ARP entries
     DEFINE_CORRELATION_ALGORITHM(NoMatch);
-
-    // This is the algorithm we will actually use.
-    using ARPCorrelationAlgorithm = NoMatch;
 }
