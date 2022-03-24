@@ -28,6 +28,7 @@ ignore$
 ^Localization/
 ^NOTICE$
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
+^src/AppInstallerCLITests/TestData/InputARPData.txt$
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
