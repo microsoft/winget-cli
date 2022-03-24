@@ -147,6 +147,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsPackageManager", "Wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMServer.vcxitems", "{409CD681-22A4-469D-88AE-CB5E4836E07A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manifests", "manifests", "{6FF8E5FE-C2D3-4991-8519-6FD12A457DDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1.2.0", "v1.2.0", "{6FA346E3-2171-4D82-95FE-3EC55DC8FA1F}"
+	ProjectSection(SolutionItems) = preProject
+		..\schemas\JSON\manifests\v1.2.0\manifest.defaultLocale.1.2.0.json = ..\schemas\JSON\manifests\v1.2.0\manifest.defaultLocale.1.2.0.json
+		..\schemas\JSON\manifests\v1.2.0\manifest.installer.1.2.0.json = ..\schemas\JSON\manifests\v1.2.0\manifest.installer.1.2.0.json
+		..\schemas\JSON\manifests\v1.2.0\manifest.locale.1.2.0.json = ..\schemas\JSON\manifests\v1.2.0\manifest.locale.1.2.0.json
+		..\schemas\JSON\manifests\v1.2.0\manifest.singleton.1.2.0.json = ..\schemas\JSON\manifests\v1.2.0\manifest.singleton.1.2.0.json
+		..\schemas\JSON\manifests\v1.2.0\manifest.version.1.2.0.json = ..\schemas\JSON\manifests\v1.2.0\manifest.version.1.2.0.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
@@ -1026,6 +1037,8 @@ Global
 		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{409CD681-22A4-469D-88AE-CB5E4836E07A} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
+		{6FF8E5FE-C2D3-4991-8519-6FD12A457DDE} = {F2149997-295A-4593-9282-4C675DFEB670}
+		{6FA346E3-2171-4D82-95FE-3EC55DC8FA1F} = {6FF8E5FE-C2D3-4991-8519-6FD12A457DDE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}
