@@ -52,27 +52,26 @@ std::vector<TestCase> LoadTestData()
     std::vector<TestCase> testCases;
 
     // TODO: There has to be a better way...
-    std::string appId;
-    std::string appName;
-    std::string appPublisher;
-    std::string arpDisplayName;
-    std::string arpDisplayVersion;
-    std::string arpPublisherName;
-    std::string arpProductCode;
-    while (std::getline(testDataStream, appId, '\t') &&
-        std::getline(testDataStream, appName, '\t') &&
-        std::getline(testDataStream, appPublisher, '\t') &&
-        std::getline(testDataStream, arpDisplayName, '\t') &&
-        std::getline(testDataStream, arpDisplayName, '\t') &&
-        std::getline(testDataStream, arpPublisherName, '\t') &&
-        std::getline(testDataStream, arpProductCode, '\t'))
+    std::string line;
+    while (std::getline(testDataStream, line))
     {
+        std::stringstream ss{ line };
+
         TestCase testCase;
-        std::swap(testCase.AppName, appName);
-        std::swap(testCase.AppPublisher, appPublisher);
-        std::swap(testCase.ArpName, arpDisplayName);
-        std::swap(testCase.ArpPublisher, arpPublisherName);
+        std::string appId;
+        std::string arpDisplayVersion;
+        std::string arpProductCode;
+        std::getline(ss, appId, '\t');
+        std::getline(ss, testCase.AppName, '\t');
+        std::getline(ss, testCase.AppPublisher, '\t');
+        std::getline(ss, testCase.ArpName, '\t');
+        std::getline(ss, arpDisplayVersion, '\t');
+        std::getline(ss, testCase.ArpPublisher, '\t');
+        std::getline(ss, arpProductCode, '\t');
+
         testCase.IsMatch = true;
+
+        testCases.push_back(std::move(testCase));
     }
 
     return testCases;
@@ -80,18 +79,43 @@ std::vector<TestCase> LoadTestData()
 
 ResultSummary EvaluateCorrelationMeasure(const ARPCorrelationMeasure& measure, const std::vector<TestCase>& cases)
 {
+    std::vector<ARPEntry> allARPEntries;
+    for (const auto& testCase : cases)
+    {
+        ARPEntry entry{ nullptr, true };
+        entry.Name = testCase.ArpName;
+        entry.Publisher = testCase.ArpPublisher;
+        entry.IsNewOrUpdated = true;
+        allARPEntries.push_back(entry);
+    }
+
     ResultSummary result{};
     for (const auto& testCase : cases)
     {
         // TODO: initialize with test data
         Manifest manifest;
+        manifest.DefaultLocalization.Add<Localization::PackageName>(testCase.AppName);
+        manifest.DefaultLocalization.Add<Localization::Publisher>(testCase.AppPublisher);
+        manifest.Localizations.push_back(manifest.DefaultLocalization);
+
         std::vector<ARPEntry> arpEntries;
+        ARPEntry entry{ nullptr, true };
+        entry.Name = testCase.ArpName;
+        entry.Publisher = testCase.ArpPublisher;
+        entry.IsNewOrUpdated = true;
+        arpEntries.push_back(entry);
+        // Add a couple of ARP entries as noise
+        for (size_t i = 0; i < std::min((size_t)0, allARPEntries.size()); ++i)
+        {
+            arpEntries.push_back(allARPEntries[i]);
+        }
+
         auto match = measure.GetBestMatchForManifest(manifest, arpEntries);
 
         if (match)
         {
             // TODO: Improve match check
-            if (match->GetProperty(PackageVersionProperty::Name) == testCase.ArpName)
+            if (match->Name == testCase.ArpName && match->Publisher == testCase.ArpPublisher)
             {
                 ++result.TrueMatches;
             }
@@ -124,7 +148,11 @@ TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
     std::vector<TestCase> testCases = LoadTestData();
 
     auto resultSummary = EvaluateCorrelationMeasure(measure, testCases);
-    CAPTURE(resultSummary.TrueMatches, resultSummary.TrueMismatches, resultSummary.FalseMatches, resultSummary.FalseMismatches);
-    // TODO: Log
+    WARN("True matches:\t" << resultSummary.TrueMatches);
+    WARN("False matches:\t" << resultSummary.FalseMatches);
+    WARN("True mismatches:\t" << resultSummary.TrueMismatches);
+    WARN("False mismatches:\t" << resultSummary.FalseMismatches);
+    WARN("Total cases:\t" << resultSummary.TotalCases());
+
     // TODO: Check against minimum expected
 }

@@ -27,6 +27,9 @@ namespace AppInstaller::Repository::Correlation
 
         // Whether this entry changed with the current installation
         bool IsNewOrUpdated;
+
+        // TODO: Use data from package; this is a hack for testing...
+        std::string Name, Publisher;
     };
 
     // An algorithm for correlating a package with an ARP entry. 
@@ -40,7 +43,7 @@ namespace AppInstaller::Repository::Correlation
         // Note: This should ideally use all manifest localizations
         virtual double GetMatchingScore(
             const AppInstaller::Manifest::Manifest& manifest,
-            std::shared_ptr<AppInstaller::Repository::IPackageVersion> arpEntry) const = 0;
+            const ARPEntry& arpEntry) const = 0;
 
         // Gets the minimum score needed by this algorithm for something to be considered a match.
         virtual double GetMatchingThreshold() const = 0;
@@ -48,7 +51,7 @@ namespace AppInstaller::Repository::Correlation
         // Gets the package that has the best correlation score for a given manifest.
         // If no package has a good enough match, returns null.
         // This will choose a single package even if multiple are good matches.
-        std::shared_ptr<IPackageVersion> GetBestMatchForManifest(
+        std::optional<ARPEntry> GetBestMatchForManifest(
             const AppInstaller::Manifest::Manifest& manifest, 
             const std::vector<ARPEntry>& arpEntries) const;
 
@@ -59,7 +62,7 @@ namespace AppInstaller::Repository::Correlation
 #define DEFINE_CORRELATION_ALGORITHM(_name_) \
     struct _name_ : public ARPCorrelationMeasure \
     { \
-        double GetMatchingScore(const Manifest::Manifest& manifest, std::shared_ptr<IPackageVersion> arpEntry) const override; \
+        double GetMatchingScore(const Manifest::Manifest& manifest, const ARPEntry& arpEntry) const override; \
         double GetMatchingThreshold() const override; \
     }
 

@@ -588,7 +588,8 @@ namespace AppInstaller::CLI::Workflow
 
         // Find the best match
         const auto& correlationMeasure = Correlation::ARPCorrelationMeasure::GetInstance();
-        auto arpEntry = correlationMeasure.GetBestMatchForManifest(manifest, arpEntries);
+        auto arpEntry = correlationMeasure.GetBestMatchForManifest(manifest, arpEntries)
+            ->Entry; // TODO: Fix; this was modified as a hack for the tests...
 
         IPackageVersion::Metadata arpEntryMetadata;
         if (arpEntry)

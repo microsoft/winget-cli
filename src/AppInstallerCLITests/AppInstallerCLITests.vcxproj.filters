@@ -558,10 +558,8 @@
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesMultideclaration.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="TestData\InputARPData.txt">
+    <CopyFileToFolders Include="TestData\InputARPData.txt">
       <Filter>TestData</Filter>
-    </Text>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
