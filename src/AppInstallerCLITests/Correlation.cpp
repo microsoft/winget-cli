@@ -142,7 +142,8 @@ ResultSummary EvaluateCorrelationMeasure(const ARPCorrelationMeasure& measure, c
 
 TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
     NoCorrelation,
-    NormalizedNameAndPublisherCorrelation)
+    NormalizedNameAndPublisherCorrelation,
+    NormalizedEditDistanceCorrelation)
 {
     TestType measure;
     std::vector<TestCase> testCases = LoadTestData();
