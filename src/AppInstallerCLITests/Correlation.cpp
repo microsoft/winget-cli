@@ -45,13 +45,13 @@ ResultSummary EvaluateCorrelationMeasure(const ARPCorrelationMeasure& measure, c
     {
         // TODO: initialize with test data
         Manifest manifest;
-        SearchResult arpEntries;
+        std::vector<ARPEntry> arpEntries;
         auto match = measure.GetBestMatchForManifest(manifest, arpEntries);
 
         if (match)
         {
             // TODO: Improve match check
-            if (match->GetProperty(PackageProperty::Name) == testCase.ArpName)
+            if (match->GetProperty(PackageVersionProperty::Name) == testCase.ArpName)
             {
                 ++result.TrueMatches;
             }
@@ -76,7 +76,7 @@ ResultSummary EvaluateCorrelationMeasure(const ARPCorrelationMeasure& measure, c
     return result;
 }
 
-TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]", NoMatch)
+TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]", NoCorrelation)
 {
     TestType measure;
     std::vector<TestCase> testCases;

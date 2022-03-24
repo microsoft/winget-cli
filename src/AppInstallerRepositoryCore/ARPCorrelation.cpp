@@ -14,13 +14,13 @@ namespace AppInstaller::Repository::Correlation
     {
         struct PackageScore
         {
-            std::shared_ptr<IPackage> Package;
+            std::shared_ptr<IPackageVersion> Package;
             double Score;
 
             PackageScore(
                 const ARPCorrelationMeasure& measure,
                 const Manifest::Manifest& manifest,
-                std::shared_ptr<IPackage> package)
+                std::shared_ptr<IPackageVersion> package)
                 : Package(package), Score(measure.GetMatchingScore(manifest, package)) {}
 
             bool operator<(const PackageScore& other)
@@ -30,19 +30,19 @@ namespace AppInstaller::Repository::Correlation
         };
     }
 
-    std::shared_ptr<IPackage> ARPCorrelationMeasure::GetBestMatchForManifest(
+    std::shared_ptr<IPackageVersion> ARPCorrelationMeasure::GetBestMatchForManifest(
         const Manifest::Manifest& manifest,
-        const SearchResult& packages) const
+        const std::vector<ARPEntry>& arpEntries) const
     {
         AICLI_LOG(Repo, Verbose, << "Looking for best match in ARP for manifest " << manifest.Id);
 
-        std::shared_ptr<IPackage> bestMatch;
+        std::shared_ptr<IPackageVersion> bestMatch;
         double bestScore = std::numeric_limits<double>::lowest();
 
-        for (const auto& searchMatch : packages.Matches)
+        for (const auto& arpEntry : arpEntries)
         {
-            auto score = GetMatchingScore(manifest, searchMatch.Package);
-            AICLI_LOG(Repo, Verbose, << "Match score for " << searchMatch.Package->GetProperty(PackageProperty::Id) << ": " << score);
+            auto score = GetMatchingScore(manifest, arpEntry.Entry);
+            AICLI_LOG(Repo, Verbose, << "Match score for " << arpEntry.Entry->GetProperty(PackageVersionProperty::Id) << ": " << score);
 
             if (score < GetMatchingThreshold())
             {
@@ -52,14 +52,14 @@ namespace AppInstaller::Repository::Correlation
 
             if (!bestMatch || bestScore < score)
             {
-                bestMatch = searchMatch.Package;
+                bestMatch = arpEntry.Entry;
                 bestScore = score;
             }
         }
 
         if (bestMatch)
         {
-            AICLI_LOG(Repo, Verbose, << "Best match is " << bestMatch->GetProperty(PackageProperty::Id));
+            AICLI_LOG(Repo, Verbose, << "Best match is " << bestMatch->GetProperty(PackageVersionProperty::Id));
         }
         else
         {
@@ -71,19 +71,21 @@ namespace AppInstaller::Repository::Correlation
 
     const ARPCorrelationMeasure& ARPCorrelationMeasure::GetInstance()
     {
-        static NoMatch instance;
+        static NoCorrelation instance;
         return instance;
     }
 
 
-    double NoMatch::GetMatchingScore(
+    double NoCorrelation::GetMatchingScore(
         const Manifest::Manifest& manifest,
-        std::shared_ptr<IPackage> arpEntry) const
+        std::shared_ptr<IPackageVersion> arpEntry) const
     {
+        UNREFERENCED_PARAMETER(manifest);
+        UNREFERENCED_PARAMETER(arpEntry);
         return 0;
     }
 
-    double NoMatch::GetMatchingThreshold() const
+    double NoCorrelation::GetMatchingThreshold() const
     {
         return 1;
     }

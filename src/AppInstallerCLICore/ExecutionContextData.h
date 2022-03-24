@@ -47,7 +47,7 @@ namespace AppInstaller::CLI::Execution
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
-        InstalledProductCode,
+        ProductCodeFromARP,
         Dependencies,
         DependencySource,
         AllowedArchitectures,
@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::InstalledProductCode>
+        struct DataMapping<Data::ProductCodeFromARP>
         {
             using value_t = Utility::LocIndString;
         };
