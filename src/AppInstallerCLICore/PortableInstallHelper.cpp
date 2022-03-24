@@ -166,20 +166,37 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        // Add progress to this function
-        bool CopyExeToPortableRoot(const std::filesystem::path& source, const std::filesystem::path& dest)
+        DWORD CALLBACK CopyFileProgressCallback(
+            LARGE_INTEGER TotalFileSize,
+            LARGE_INTEGER TotalBytesTransferred,
+            [[maybe_unused]] LARGE_INTEGER StreamSize,
+            [[maybe_unused]] LARGE_INTEGER StreamBytesTransferred,
+            DWORD dwStreamNumber,
+            DWORD dwCallbackReason,
+            [[maybe_unused]] HANDLE hSourceFile,
+            [[maybe_unused]] HANDLE hDestinationFile,
+            LPVOID lpData
+        )
         {
-            bool copyResult = std::filesystem::copy_file(source, dest, std::filesystem::copy_options::overwrite_existing);
-            if (copyResult)
+            ProgressCallback callback = static_cast<ProgressCallback>((ProgressCallback*)lpData);
+            if (dwCallbackReason == CALLBACK_STREAM_SWITCH || dwStreamNumber == 1)
             {
-                AICLI_LOG(Core, Verbose, << "Successfully copied copied portable exe to portable root folder '" << dest << "'.");
-            }
-            else
-            {
-                AICLI_LOG(Core, Verbose, << "Failed to copy portable exe to '" << dest << "'.");
+                callback.BeginProgress();
             }
 
-            return copyResult;
+            if (dwCallbackReason == CALLBACK_CHUNK_FINISHED)
+            {
+                callback.OnProgress(TotalBytesTransferred.QuadPart, TotalFileSize.QuadPart, AppInstaller::ProgressType::Percent);
+            }
+
+            return PROGRESS_CONTINUE;
+        }
+
+        bool CopyExeToPortableRoot(const std::filesystem::path& source, const std::filesystem::path& dest, IProgressCallback& callback)
+        {
+            BOOL result = false;
+            CopyFileExW(source.c_str(), dest.c_str(), &CopyFileProgressCallback, &callback, &result, 0);
+            return result;
         }
 
         PortableArguments GetPortableInstallerArguments(Execution::Context& context)
@@ -229,7 +246,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback&)
+    bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback& callback)
     {
         std::filesystem::path portableInstallerPath;
 
@@ -240,7 +257,8 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path portableInstallerDestPath = installRootPackageDirectory / fileName;
 
-        CopyExeToPortableRoot(installerPath, portableInstallerDestPath);
+
+        CopyExeToPortableRoot(installerPath, portableInstallerDestPath, callback);
 
 
         bool installResult;
@@ -258,11 +276,10 @@ namespace AppInstaller::CLI::Workflow
 
         PortableArguments portableArgs = GetPortableInstallerArguments(context);
 
-        auto installResult = context.Reporter.ExecuteWithProgress(
-            std::bind(InvokePortableInstall,
-                installerPath,
-                portableArgs,
-                std::placeholders::_1));
+        auto installResult = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+            {
+                return InvokePortableInstall(installerPath, portableArgs, callback);
+            });
 
         if (!installResult)
         {
