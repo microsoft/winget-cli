@@ -7,6 +7,7 @@ namespace AppInstaller
     namespace Manifest
     {
         struct Manifest;
+        struct ManifestLocalization;
     }
 
     namespace Repository
@@ -43,7 +44,12 @@ namespace AppInstaller::Repository::Correlation
         // Note: This should ideally use all manifest localizations
         virtual double GetMatchingScore(
             const AppInstaller::Manifest::Manifest& manifest,
+            const AppInstaller::Manifest::ManifestLocalization& manifestLocalization,
             const ARPEntry& arpEntry) const = 0;
+
+        double GetMatchingScore(
+            const AppInstaller::Manifest::Manifest& manifest,
+            const ARPEntry& arpEntry) const;
 
         // Gets the minimum score needed by this algorithm for something to be considered a match.
         virtual double GetMatchingThreshold() const = 0;
@@ -62,7 +68,10 @@ namespace AppInstaller::Repository::Correlation
 #define DEFINE_CORRELATION_ALGORITHM(_name_) \
     struct _name_ : public ARPCorrelationMeasure \
     { \
-        double GetMatchingScore(const Manifest::Manifest& manifest, const ARPEntry& arpEntry) const override; \
+        double GetMatchingScore( \
+            const AppInstaller::Manifest::Manifest& manifest, \
+            const AppInstaller::Manifest::ManifestLocalization& manifestLocalization, \
+            const ARPEntry& arpEntry) const; \
         double GetMatchingThreshold() const override; \
     }
 
@@ -71,4 +80,5 @@ namespace AppInstaller::Repository::Correlation
 
     DEFINE_CORRELATION_ALGORITHM(NoCorrelation);
     DEFINE_CORRELATION_ALGORITHM(NormalizedNameAndPublisherCorrelation);
+    DEFINE_CORRELATION_ALGORITHM(NormalizedEditDistanceCorrelation);
 }
