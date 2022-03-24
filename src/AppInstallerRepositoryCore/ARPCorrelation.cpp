@@ -75,7 +75,6 @@ namespace AppInstaller::Repository::Correlation
         return instance;
     }
 
-
     double NoCorrelation::GetMatchingScore(
         const Manifest::Manifest& manifest,
         std::shared_ptr<IPackageVersion> arpEntry) const
@@ -86,6 +85,20 @@ namespace AppInstaller::Repository::Correlation
     }
 
     double NoCorrelation::GetMatchingThreshold() const
+    {
+        return 1;
+    }
+
+    double NormalizedNameAndPublisherCorrelation::GetMatchingScore(
+        const Manifest::Manifest& manifest,
+        std::shared_ptr<IPackageVersion> arpEntry) const
+    {
+        UNREFERENCED_PARAMETER(manifest);
+        UNREFERENCED_PARAMETER(arpEntry);
+        return 0;
+    }
+
+    double NormalizedNameAndPublisherCorrelation::GetMatchingThreshold() const
     {
         return 1;
     }
