@@ -439,7 +439,7 @@ namespace AppInstaller::Registry
         return result;
     }
 
-    Key Key::CreateKeyAndOpen(HKEY key, const std::string_view subKey, DWORD options, REGSAM access)
+    Key Key::CreateKeyAndOpen(HKEY key, std::string_view subKey, DWORD options, REGSAM access)
     {
         return CreateKeyAndOpen(key, Utility::ConvertToUTF16(subKey), options, access);
     }
@@ -449,6 +449,24 @@ namespace AppInstaller::Registry
         Key result;
         result.Create(key, subKey, options, access);
         return result;
+    }
+
+    bool Key::DeleteKey(HKEY key, std::string_view subKey, DWORD samDesired)
+    {
+        return DeleteKey(key, Utility::ConvertToUTF16(subKey), samDesired);
+    }
+
+    bool Key::DeleteKey(HKEY key, const std::wstring& subKey, DWORD samDesired)
+    {
+        LSTATUS status = RegDeleteKeyExW(key, subKey.c_str(), samDesired, 0);
+        if (status == ERROR_SUCCESS)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");
+            return true;
+        }
+
+        THROW_IF_WIN32_ERROR(status);
+        return false;
     }
 
     bool Key::Create(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
@@ -468,6 +486,32 @@ namespace AppInstaller::Registry
 
         THROW_IF_WIN32_ERROR(status);
         return true;
+    }
+
+
+
+    bool Key::TrySetRegistryValue(wil::shared_hkey key, const std::wstring& name, const std::wstring& value, DWORD& dwType)
+    {
+        LSTATUS status;
+        if (name.empty())
+        {
+            status = RegSetValueExW(key.get(), NULL, 0, dwType, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1) * sizeof(wchar_t));
+        }
+        else
+        {
+            status = RegSetValueExW(key.get(), name.c_str(), 0, dwType, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1) * sizeof(wchar_t));
+        }
+
+        if (status == ERROR_SUCCESS)
+        {
+            AICLI_LOG(Core, Verbose, << "Set registry name '" << Utility::ConvertToUTF8(name) << "' with the value '" << Utility::ConvertToUTF8(value));
+            return true;
+        }
+        else
+        {
+            AICLI_LOG(Core, Verbose, << "Failed to set name value '" << Utility::ConvertToUTF8(name));
+            return false;
+        }
     }
 
     bool Key::Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist)

@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "PortableInstallHelper.h"
 #include <filesystem>
-#include <tlhelp32.h>
 
 using namespace AppInstaller::Manifest;
 using namespace std::filesystem;
@@ -12,267 +11,263 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        std::wstring_view appPathsRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-        std::wstring_view uninstallRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+        const std::wstring_view appPathsRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+        const std::wstring_view uninstallRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
         constexpr std::string_view s_Microsoft = "Microsoft"sv;
         constexpr std::string_view s_WinGet = "WinGet"sv;
         constexpr std::string_view s_Packages = "Packages"sv;
 
         struct PortableArguments
         {
-            std::string_view AppPathEntryValue;
-            Manifest::ScopeEnum Scope;
-            Utility::Architecture Arch;
-            std::string_view PackageId;
+            HKEY RootKey;
+            std::filesystem::path InstallRootDirectory;
+            std::string AppPathEntry;
+            std::string PackageId;
             Manifest::AppsAndFeaturesEntry AppsAndFeatureEntry;
         };
+
+        std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch, std::string_view& installLocationArg)
+        {
+            path installLocation;
+            std::string defaultPortableUserRoot = Settings::User().Get<Settings::Setting::PortableAppUserRoot>();
+            std::string defaultPortableMachineRoot = Settings::User().Get<Settings::Setting::PortableAppMachineRoot>();
+
+            if (!installLocationArg.empty())
+            {
+                return installLocationArg;
+            }
+
+            if (scope == ScopeEnum::User || scope == ScopeEnum::Unknown)
+            {
+                if (!defaultPortableUserRoot.empty())
+                {
+                    return path{ defaultPortableUserRoot };
+                }
+                else
+                {
+                    installLocation /= Runtime::GetPathTo(Runtime::PathName::LocalAppData);
+                    installLocation /= s_Microsoft;
+                    installLocation /= s_WinGet;
+                    installLocation /= s_Packages;
+                }
+            }
+            else if (scope == ScopeEnum::Machine)
+            {
+                if (!defaultPortableMachineRoot.empty())
+                {
+                    return path{ defaultPortableMachineRoot };
+                }
+                else
+                {
+                    if (arch == Utility::Architecture::X64)
+                    {
+                        installLocation /= Runtime::GetPathTo(Runtime::PathName::ProgramFiles);
+                    }
+                    else if (arch == Utility::Architecture::X86)
+                    {
+                        installLocation /= Runtime::GetPathTo(Runtime::PathName::ProgramFilesX86);
+                    }
+
+                    installLocation /= s_WinGet;
+                    installLocation /= s_Packages;
+                }
+            }
+
+            return installLocation;
+        }
+
+        bool WriteToAppPathsRegistry(HKEY root, std::string_view entryName, const std::filesystem::path& exePath, bool enablePath)
+        {
+            std::wstring entryNameWString = Utility::ConvertToUTF16(entryName);
+            std::wstring registryKey{ appPathsRegistrySubkey };
+            std::wstring exePathString = exePath.wstring();
+            std::wstring pathString = exePath.parent_path().wstring();
+            std::wstring fullRegistryKey = registryKey + entryNameWString;
+
+            AppInstaller::Registry::Key key = Registry::Key::CreateKeyAndOpen(root, fullRegistryKey);
+
+            bool result = key.SetKeyValue(L"", exePathString, REG_SZ);
+
+            if (enablePath)
+            {
+                result = key.SetKeyValue(L"Path", pathString, REG_SZ);
+            }
+
+            return result;
+        }
+
+        bool WriteToUninstallRegistry(HKEY root, std::string_view packageIdentifier, Manifest::AppsAndFeaturesEntry& entry)
+        {
+            std::wstring registryKey{ uninstallRegistrySubkey };
+            std::wstring productCode = Utility::ConvertToUTF16(entry.ProductCode);
+            std::wstring displayName = Utility::ConvertToUTF16(entry.DisplayName);
+            std::wstring displayVersion = Utility::ConvertToUTF16(entry.DisplayVersion);
+            std::wstring publisher = Utility::ConvertToUTF16(entry.Publisher);
+            std::wstring uninstallString = L"winget uninstall --id " + Utility::ConvertToUTF16(packageIdentifier);
+            std::wstring fullRegistryKey = registryKey + productCode;
+
+            AppInstaller::Registry::Key key = Registry::Key::CreateKeyAndOpen(root, fullRegistryKey);
+
+            bool result;
+            result = key.SetKeyValue(L"DisplayName", displayName, REG_SZ);
+            result = key.SetKeyValue(L"DisplayVersion", displayVersion, REG_SZ);
+            result = key.SetKeyValue(L"Publisher", publisher, REG_SZ);
+            result = key.SetKeyValue(L"UninstallString", uninstallString, REG_SZ);
+
+            return result;
+        }
+
+        bool CleanUpRegistryEdits(HKEY root, std::string& appPathEntry, std::string& productCode)
+        {
+            std::wstring fullAppPathSubkey = Utility::Normalize(appPathsRegistrySubkey) + Utility::ConvertToUTF16(appPathEntry);
+            std::wstring fullUninstallSubkey = Utility::Normalize(uninstallRegistrySubkey) + Utility::ConvertToUTF16(productCode);
+
+            bool result;
+            result = Registry::Key::DeleteKey(root, fullAppPathSubkey);
+            result = Registry::Key::DeleteKey(root, fullUninstallSubkey);
+
+            return result;
+        }
+
+        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries, const AppInstaller::Manifest::Manifest& manifest)
+        {
+            AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
+            std::string displayName = manifest.DefaultLocalization.Get<Localization::PackageName>();
+            std::string displayVersion = manifest.Version;
+            std::string publisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
+            std::string packageId = manifest.Id;
+
+            if (appsAndFeaturesEntries.empty())
+            {
+                appsAndFeaturesEntry = {};
+            }
+            else
+            {
+                appsAndFeaturesEntry = appsAndFeaturesEntries[0];
+            }
+
+            if (appsAndFeaturesEntry.DisplayName.empty())
+            {
+                appsAndFeaturesEntry.DisplayName = displayName;
+            }
+            if (appsAndFeaturesEntry.DisplayVersion.empty())
+            {
+                appsAndFeaturesEntry.DisplayVersion = displayVersion;
+            }
+            if (appsAndFeaturesEntry.Publisher.empty())
+            {
+                appsAndFeaturesEntry.Publisher = publisher;
+            }
+            if (appsAndFeaturesEntry.ProductCode.empty())
+            {
+                appsAndFeaturesEntry.ProductCode = packageId;
+            }
+
+            return appsAndFeaturesEntry;
+        }
+
+        // Add progress to this function
+        bool CopyExeToPortableRoot(const std::filesystem::path& source, const std::filesystem::path& dest)
+        {
+            bool copyResult = std::filesystem::copy_file(source, dest, std::filesystem::copy_options::overwrite_existing);
+            if (copyResult)
+            {
+                AICLI_LOG(Core, Verbose, << "Successfully copied copied portable exe to portable root folder '" << dest << "'.");
+            }
+            else
+            {
+                AICLI_LOG(Core, Verbose, << "Failed to copy portable exe to '" << dest << "'.");
+            }
+
+            return copyResult;
+        }
+
+        PortableArguments GetPortableInstallerArguments(Execution::Context& context)
+        {
+            PortableArguments portableArgs = {};
+
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                portableArgs.RootKey = HKEY_LOCAL_MACHINE;
+            }
+            else
+            {
+                portableArgs.RootKey = HKEY_CURRENT_USER;
+            }
+
+            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+            std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
+            std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
+            std::string fileName = installerPath.filename().u8string();
+
+            portableArgs.InstallRootDirectory = GetPortableInstallRoot(scope, arch, installLocationArg);
+
+            std::vector<AppInstaller::Manifest::string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
+            std::string_view rename = context.Args.GetArg(Execution::Args::Type::Rename);
+
+            if (!rename.empty())
+            {
+                portableArgs.AppPathEntry = rename;
+            }
+            else if (commands.size() > 0)
+            {
+                portableArgs.AppPathEntry = commands[0] + ".exe";
+            }
+            else
+            {
+                portableArgs.AppPathEntry = fileName;
+            }
+
+            std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries;
+            AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
+            portableArgs.PackageId = manifest.Id;
+            portableArgs.AppsAndFeatureEntry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeaturesEntries, manifest);
+
+            return portableArgs;
+        }
+    }
+
+    bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback&)
+    {
+        std::filesystem::path portableInstallerPath;
+
+        std::filesystem::path installRootPackageDirectory = portableArgs.InstallRootDirectory / portableArgs.PackageId;
+
+        std::filesystem::create_directories(installRootPackageDirectory);
+        std::string fileName = installerPath.filename().u8string();
+
+        std::filesystem::path portableInstallerDestPath = installRootPackageDirectory / fileName;
+
+        CopyExeToPortableRoot(installerPath, portableInstallerDestPath);
+
+
+        bool installResult;
+        installResult = WriteToAppPathsRegistry(portableArgs.RootKey, portableArgs.AppPathEntry, portableInstallerDestPath, true);
+        installResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
+
+        return installResult;
     }
 
     void PortableInstallImpl(Execution::Context& context)
     {
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
         const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-        Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
-        std::string packageId = context.Get<Execution::Data::Manifest>().Id;
-        std::string fileName = installerPath.filename().u8string();
 
-        std::filesystem::path installLocation = GetPortableInstallLocation(scope, arch);
-        installLocation /= packageId;
+        PortableArguments portableArgs = GetPortableInstallerArguments(context);
 
-        if (!std::filesystem::create_directories(installLocation))
+        auto installResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokePortableInstall,
+                installerPath,
+                portableArgs,
+                std::placeholders::_1));
+
+        if (!installResult)
         {
-            context.Reporter.Error() << "Failed to create portable app directory" << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
-
-        std::string appPathEntry;
-        std::vector<AppInstaller::Manifest::string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
-        std::string_view renameString = context.Args.GetArg(Execution::Args::Type::Rename);
-
-        if (!renameString.empty())
-        {
-            appPathEntry = renameString;
-        }
-        else if (commands.size() > 0)
-        {
-            appPathEntry = commands[0] + ".exe";
-        }
-        else
-        {
-            appPathEntry = fileName;
-        }
-
-        std::filesystem::path destination = installLocation /= fileName;
-        if (!std::filesystem::copy_file(installerPath, destination, std::filesystem::copy_options::overwrite_existing))
-        {
-            context.Reporter.Error() << "Failed to overwrite existing executable." << std::endl;
-        }
-        else {
-            context.Reporter.Info() << "Successfully copied file" << std::endl;
-        }
-
-        WriteToAppPathsRegistry(appPathEntry, destination, true);
-
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries;
-        AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
-        // what happens if apps and features entries is empty? create a new one
-        if (appsAndFeaturesEntries.size() > 0)
-        {
-            appsAndFeaturesEntry = appsAndFeaturesEntries[0];
-        }
-
-        // check for empty values for apps and feature
-        if (appsAndFeaturesEntry.DisplayName.empty())
-        {
-            appsAndFeaturesEntry.DisplayName = manifest.DefaultLocalization.Get<Localization::PackageName>();
-        }
-        if (appsAndFeaturesEntry.DisplayVersion.empty())
-        {
-            appsAndFeaturesEntry.DisplayVersion = context.Get<Execution::Data::Manifest>().Version;
-        }
-        if (appsAndFeaturesEntry.Publisher.empty())
-        {
-            appsAndFeaturesEntry.Publisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
-        }
-        if (appsAndFeaturesEntry.ProductCode.empty())
-        {
-            appsAndFeaturesEntry.ProductCode = packageId;
-        }
-
-        //Uninstall registry is located at HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall
-        WriteToUninstallRegistry(scope, packageId, appsAndFeaturesEntry);
-
-        // Handle with special case.
-        if (true)
-        {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
-        }
-        else
-        {
-            context.Reporter.Error() << Resource::String::InstallFlowInstallSuccess << std::endl;
-        }
-    }
-
-    std::filesystem::path GetPortableInstallLocation(Manifest::ScopeEnum scope, Utility::Architecture arch)
-    {
-        path installLocation;
-        std::string defaultPortableUserRoot = Settings::User().Get<Settings::Setting::PortableAppUserRoot>();
-        std::string defaultPortableMachineRoot = Settings::User().Get<Settings::Setting::PortableAppMachineRoot>();
-
-        if (scope == ScopeEnum::User || scope == ScopeEnum::Unknown)
-        {
-            if (!defaultPortableUserRoot.empty())
-            {
-                return path{ defaultPortableUserRoot };
-            }
-            else
-            {
-                installLocation /= Runtime::GetPathTo(Runtime::PathName::LocalAppData);
-                installLocation /= s_Microsoft;
-                installLocation /= s_WinGet;
-                installLocation /= s_Packages;
-            }
-        }
-        else if (scope == ScopeEnum::Machine)
-        {
-            if (!defaultPortableMachineRoot.empty())
-            {
-                return path{ defaultPortableMachineRoot };
-            }
-            else
-            {
-                if (arch == Utility::Architecture::X64)
-                {
-                    installLocation /= Runtime::GetPathTo(Runtime::PathName::ProgramFiles);
-                }
-                else if (arch == Utility::Architecture::X86)
-                {
-                    installLocation /= Runtime::GetPathTo(Runtime::PathName::ProgramFilesX86);
-                }
-
-                installLocation /= s_WinGet;
-                installLocation /= s_Packages;
-            }
-        }
-
-        return installLocation;
-    }
-
-    void WriteToAppPathsRegistry(std::string_view entryName, const std::filesystem::path& exePath, bool enablePath)
-    {
-        HKEY hkey;
-        LONG lReg;
-
-        std::wstring entryNameWString = Utility::ConvertToUTF16(entryName);
-        std::wstring registryKey{ appPathsRegistrySubkey };
-        std::wstring exePathString = exePath.wstring();
-        std::wstring pathString = exePath.parent_path().wstring();
-        std::wstring fullRegistryKey = registryKey + entryNameWString;
-
-
-        AppInstaller::Registry::Key key = Registry::Key::CreateKeyAndOpen(HKEY_CURRENT_USER, fullRegistryKey);
-        // Registry::Key::SetValue(null)
-        // Registry::Key::SetValue(path)
-
-
-        //AppInstaller::Registry::Key subKey;
-        //if (key.SubKey(entryNameWString).has_value())
-        //{
-        //    subKey = key.SubKey(entryNameWString).value();
-        //    if (subKey[defaultValueWString].has_value())
-        //    {
-        //        Registry::Value value = subKey[defaultValueWString].value();
-        //        std::string defaultStringValue = value.GetValue<Registry::Value::Type::String>();
-        //        std::string base_filename = defaultStringValue.substr(defaultStringValue.find_last_of("/\\") + 1);
-        //    }
-        //}
-
-
-        lReg = RegCreateKeyEx(
-            HKEY_CURRENT_USER,
-            fullRegistryKey.c_str(),
-            0,
-            NULL,
-            REG_OPTION_NON_VOLATILE,
-            KEY_ALL_ACCESS,
-            NULL,
-            &hkey,
-            NULL);
-
-        if (lReg == ERROR_SUCCESS)
-        {
-
-            // Set (Default) Property Value
-            if (LONG res = RegSetValueEx(hkey, NULL, NULL, REG_SZ, (LPBYTE)exePathString.c_str(), (DWORD)(exePathString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-                // do something
-            }
-
-            if (enablePath &&
-                RegSetValueEx(hkey, L"Path", NULL, REG_SZ, (LPBYTE)pathString.c_str(), (DWORD)(pathString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-                // do something
-            }
-        }
-    }
-
-    bool WriteToUninstallRegistry(Manifest::ScopeEnum scope, std::string& packageIdentifier, Manifest::AppsAndFeaturesEntry& entry)
-    {
-        HKEY hkey;
-        LONG lReg;
-
-        std::wstring registryKey{ uninstallRegistrySubkey };
-        std::wstring productCode = Utility::ConvertToUTF16(entry.ProductCode);
-        std::wstring displayName = Utility::ConvertToUTF16(entry.DisplayName);
-        std::wstring displayVersion = Utility::ConvertToUTF16(entry.DisplayVersion);
-        std::wstring publisher = Utility::ConvertToUTF16(entry.Publisher);
-        std::wstring uninstallString = L"winget uninstall --id " + Utility::ConvertToUTF16(packageIdentifier);
-        std::wstring fullRegistryKey = registryKey + productCode;
-
-        HKEY entryPoint;
-        if (scope == Manifest::ScopeEnum::Machine)
-        {
-            entryPoint = HKEY_LOCAL_MACHINE;
-        }
-        else
-        {
-            entryPoint = HKEY_CURRENT_USER;
-        }
-
-        lReg = RegCreateKeyEx(
-            entryPoint,
-            fullRegistryKey.c_str(),
-            0,
-            NULL,
-            REG_OPTION_NON_VOLATILE,
-            KEY_ALL_ACCESS,
-            NULL,
-            &hkey,
-            NULL);
-
-        if (lReg == ERROR_SUCCESS)
-        {
-
-            if (LONG res = RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName.c_str(), (DWORD)(displayName.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-                // What should we do if we fail to set the value?
-            }
-
-            if (LONG res = RegSetValueEx(hkey, L"DisplayVersion", NULL, REG_SZ, (LPBYTE)displayVersion.c_str(), (DWORD)(displayVersion.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-            }
-
-            if (LONG res = RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher.c_str(), (DWORD)(publisher.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-            }
-
-            if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_SZ, (LPBYTE)uninstallString.c_str(), (DWORD)(uninstallString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
-            {
-            }
-
-            return true;
-        }
-
-        return false;
     }
 }
