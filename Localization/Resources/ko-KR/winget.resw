@@ -261,7 +261,7 @@
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>구성된 원본을 검색하거나 매니페스트에서 직접 검색하여 선택한 패키지를 설치합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모니커와 대/소문자를 구분하지 않고 일치해야 합니다. 다른 필드는 적절한 옵션을 전달하여 사용할 수 있습니다.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>지정된 패키지를 설치합니다.</value>
@@ -472,13 +472,15 @@
     <value>설정 열기 또는 관리자 설정 설정</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>설정을 로드하는 동안 예기치 않은 오류가 발생했습니다. 설정 명령을 실행하여 설정을 확인하십시오.</value>
+    <value>설정을 로드하는 동안 예기치 않은 오류가 발생했습니다. 'settings' 명령을 실행하여 설정을 확인하세요.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>채널</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>특정 패키지에 대한 정보를 표시합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>패키지에 대한 정보 표시</value>
@@ -663,13 +665,6 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>적용 가능한 업데이트를 찾을 수 없습니다.</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 업그레이드합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>주어진 패키지 업그레이드</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>사용</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 제거합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 것이 어떻게 되아야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>지정된 패키지를 제거</value>
@@ -1218,10 +1214,11 @@
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>다음 패키지가 작업 원본에서 발견되었습니다.
 계속하려면 '--source' 옵션을 사용하여 둘 중 하나를 지정하세요.</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>작업 원본 중 패키지를 찾을 수 없습니다.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>이 릴리스는 Windows 패키지 관리자의 안정적인 릴리스입니다. 실험적인 기능을 사용해 보려면 시험판 빌드를 설치하세요. 지침은 GitHub(https://github.com/microsoft/winget-cli)에서 확인할 수 있습니다.</value>
@@ -1249,5 +1246,26 @@
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>설치할 아키텍처 선택</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>현재 버전을 확인할 수 없는 경우에도 패키지 업그레이드</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>이 패키지의 버전 번호를 확인할 수 없습니다. 그래도 업그레이드하려면 이전 명령에 인수 --include-unknown 추가하세요.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. "--include-unknown" 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. "--include-unknown" 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>제공된 인수는 쿼리에서만 사용할 수 있습니다.</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>시스템 아키텍처</value>
   </data>
 </root>

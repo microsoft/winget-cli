@@ -261,7 +261,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installiert das ausgewählte Paket. Es wird entweder durch die Suche nach einer konfigurierten Quelle gefunden, oder direkt aus dem Manifest abgerufen. Standardmäßig muss die Abfrage ohne Berücksichtigung der Groß/Kleinschreibung mit der ID, dem Namen oder dem Moniker des Pakets übereinstimmen. Andere Felder können verwendet werden, indem die entsprechende Option übergeben wird.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installiert das angegebene Paket</value>
@@ -472,13 +472,15 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Einstellungen öffnen oder Administratoreinstellungen festlegen</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Unerwarteter Fehler beim Laden von Einstellungen. Über prüfen Sie die Einstellungen, indem Sie den Befehl "Einstellungen" ausführen.</value>
+    <value>Unerwarteter Fehler beim Laden der Einstellungen. Überprüfen Sie Ihre Einstellungen, indem Sie den Befehl "'settings'" ausführen.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Zeigt Informationen zu einem bestimmten Paket an. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zeigt Informationen zu einem Paket an</value>
@@ -663,13 +665,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Aktualisiert das ausgewählte Paket, das entweder durch Suchen der Liste der installierten Pakete oder direkt aus einem Manifest gefunden wurde. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Aktualisiert das gegebene Paket</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>Nutzung</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Deinstalliert das ausgewählte Paket, das entweder durch Suchen der Liste der installierten Pakete oder direkt aus einem Manifest gefunden wurde. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Deinstalliert das angegebene Paket</value>
@@ -1218,10 +1214,11 @@ Stimmen Sie den Bedingungen zu?</value>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>Die folgenden Pakete wurden in den Arbeitsquellen gefunden.
 Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>Unter den Arbeitsquellen wurden keine Pakete gefunden.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>Dies ist eine stabile Version des Windows-Paket-Managers. Wenn Sie experimentelle Features ausprobieren möchten, installieren Sie bitte eine Vorabversion. Anweisungen finden Sie auf GitHub unter https://github.com/microsoft/winget-cli.</value>
@@ -1249,5 +1246,26 @@ Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Wählen Sie die zu installierende Architektur aus</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Pakete auch dann aktualisieren, wenn ihre aktuelle Version nicht bestimmt werden kann</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>Die Versionsnummer dieses Pakets kann nicht bestimmt werden. Um trotzdem ein Upgrade durchzuführen, fügen Sie dem vorherigen Befehl das Argument „--include-unknown“ hinzu.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>Pakete haben Versionsnummern, die nicht bestimmt werden können. Wenn Sie „--include-unknown“ verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>Paket hat eine Versionsnummer, die nicht bestimmt werden kann. Wenn Sie „--include-unknown“ verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>Die angegebenen Argumente können nur mit einer Abfrage verwendet werden.</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>Systemarchitektur</value>
   </data>
 </root>

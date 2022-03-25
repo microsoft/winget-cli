@@ -53,8 +53,8 @@
 如果您啟用此設定，Windows 封裝管理員的 Microsoft Store 來源將可供使用，且無法移除。
 
 如果您停用此設定，Windows 封裝管理員的 Microsoft Store 來源將無法使用。</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">設定應用程式安裝程式來源自動更新間隔 (分鐘)</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">此原則可控制套件型來源的自動更新間隔。
+      <string id="SourceAutoUpdateInterval">設定應用程式安裝程式來源自動更新間隔 (分鐘)</string>
+      <string id="SourceAutoUpdateIntervalExplanation">此原則可控制套件型來源的自動更新間隔。
 
 如果停用或未設定此設定，Windows 套件管理員將使用 [設定] 中指定的預設間隔或值。
 
@@ -75,10 +75,16 @@
 如果您啟用此原則，僅可以從 Windows 封裝管理員新增或移除指定的來源。每個允許來源的代表都可以從使用 'winget 來源匯出' 的已安裝來源取得。
 
 如果您停用此原則，則 Windows 封裝管理員無法為其他來源進行配置。</string>
+      <string id="EnableMSAppInstallerProtocol">啟用應用程式安裝程式 ms-appinstaller 通訊協定</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">此原則控制使用者是否可以從使用 ms-appinstaller 通訊協定的網站安裝套件。
+
+如果您啟用這個設定，使用者將可以從使用此通訊協定的網站安裝套件。
+
+如果您停用或未設定這個設定，使用者將無法從使用此通訊協定的網站安裝套件。</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">來源自動更新間隔 (分鐘)</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">來源自動更新間隔 (分鐘)</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">其他來源： </listBox>

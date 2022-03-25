@@ -261,7 +261,7 @@
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Устанавливает выбранный пакет, обнаруженный либо путем поиска в настроенном источнике, либо непосредственно из манифеста. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Установка указанного пакета</value>
@@ -472,13 +472,15 @@
     <value>Открыть параметры или настроить параметры администратора</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду "Параметры".</value>
+    <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду 'settings'.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Показывает сведения о пакете</value>
@@ -663,13 +665,6 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Применимые обновления не найдены.</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Обновление выбранного пакета, обнаруженного путем поиска в списке установленных пакетов либо непосредственно из манифеста. По умолчанию запрос должен соответствовать идентификатору, имени или моникеру пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Обновление указанного пакета</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>использование</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Удаление выбранного пакета, обнаруженного путем поиска в списке установленных пакетов либо непосредственно из манифеста. По умолчанию запрос должен соответствовать идентификатору, имени или моникеру пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Удаление указанного пакета</value>
@@ -1218,10 +1214,11 @@
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>Среди рабочих источников найдены следующие пакеты.
 Чтобы продолжить, укажите один из них, используя параметр "--source".</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>Пакеты не найдены среди рабочих источников.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>Это стабильный выпуск Диспетчера пакетов Windows. Чтобы попробовать экспериментальные функции, установите предварительную сборку. Инструкции доступны в GitHub по ссылке https://github.com/microsoft/winget-cli.</value>
@@ -1249,5 +1246,26 @@
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Выберите архитектуру для установки</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Обновить пакеты, даже если не удается определить их текущую версию</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>Невозможно определить номер версии этого пакета. Чтобы все равно обновить его, добавьте аргумент --include-unknown к предыдущей команде.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>Невозможно определить номер версии пакетов. Попробуйте использовать аргумент "--include-unknown" для получения более подробных результатов.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>Невозможно определить номер версии пакета. Попробуйте использовать аргумент "--include-unknown" для получения более подробных результатов.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>Указанные аргументы можно использовать только с запросом.</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>Архитектура системы</value>
   </data>
 </root>

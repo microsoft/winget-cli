@@ -53,8 +53,8 @@ Wenn Sie diese Einstellung nicht konfigurieren, ist die Microsoft Store-Quelle f
 Wenn Sie diese Einstellung aktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager verfügbar und kann nicht entfernt werden.
 
 Wenn Sie diese Einstellung deaktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager nicht verfügbar.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Intervall für automatische Aktualisierung der App-Installer-Quelle in Minuten festlegen</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Diese Richt Linie steuert das Intervall für die automatische Aktualisierung für Paket basierte Quellen.
+      <string id="SourceAutoUpdateInterval">Intervall für automatische Aktualisierung der App-Installer-Quelle in Minuten festlegen</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Diese Richt Linie steuert das Intervall für die automatische Aktualisierung für Paket basierte Quellen.
 
 Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, wird das Standard Intervall oder der in den Einstellungen angegebene Wert vom Windows-Paket-Manager verwendet.
 
@@ -75,10 +75,16 @@ Wenn Sie diese Richtlinie nicht konfigurieren, können Benutzer zusätzliche Que
 Wenn Sie diese Richtlinie aktivieren, können nur die angegebenen Quellen dem Windows-Paket-Manager hinzugefügt oder von ihm entfernt werden. Die Repräsentation für jede erlaubte Quelle kann aus den installierten Quellen mit „winget source export“ bezogen werden.
 
 Wenn Sie diese Richtlinie deaktivieren, können keine zusätzlichen Quellen für den Windows-Paket-Manager konfiguriert werden.</string>
+      <string id="EnableMSAppInstallerProtocol">Aktivieren des ms-appinstaller-Protokolls für den App-Installer</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Diese Richtlinie steuert, ob Benutzer Pakete von einer Website installieren können, die das ms-appinstaller-Protokoll verwendet.
+
+Wenn Sie diese Einstellung aktivieren, können Benutzer Pakete von Websites installieren, die dieses Protokoll verwenden.
+
+Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutzer keine Pakete von Websites installieren, die dieses Protokoll verwenden.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervall für automatische Aktualisierung der Quelle in Minuten</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervall für automatische Aktualisierung der Quelle in Minuten</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Zusätzliche Quellen: </listBox>
