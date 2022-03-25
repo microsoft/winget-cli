@@ -53,8 +53,8 @@ Se non si configura questa impostazione, l'origine Microsoft Store per il gestor
 Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
 
 Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Imposta l'intervallo di aggiornamento automatico dell'origine del programma di installazione app in minuti</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Questo criterio Controlla l'intervallo di aggiornamento automatico per le origini basate sul pacchetto.
+      <string id="SourceAutoUpdateInterval">Imposta l'intervallo di aggiornamento automatico dell'origine del programma di installazione app in minuti</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio Controlla l'intervallo di aggiornamento automatico per le origini basate sul pacchetto.
 
 Se si disabilita o non si configura questa impostazione, l'intervallo predefinito o il valore specificato nelle impostazioni verranno utilizzati da Windows Gestione pacchetti.
 
@@ -75,10 +75,16 @@ Se non si configura questa impostazione dei criteri, gli utenti potranno aggiung
 Se si Abilita questo criterio, solo le origini specificate possono essere aggiunte o rimosse a Windows Gestione pacchetti. È possibile ottenere la rappresentazione di ogni origine aggiuntiva dalle origini installate usando 'esportazione di origine winget'.
 
 Se si disabilita questo criterio, non sarà possibile configurare altre origini per Windows Gestione pacchetti.</string>
+      <string id="EnableMSAppInstallerProtocol">Abilita protocollo del programma di installazione app ms-appinstaller</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Questo criterio controlla se gli utenti possono installare pacchetti da un sito Web che usa il protocollo ms-appinstaller.
+
+Se si abilita questa impostazione, gli utenti potranno installare pacchetti da siti Web che utilizzano questo protocollo.
+
+Se si disabilita o non si configura questa impostazione, gli utenti non potranno installare pacchetti da siti Web che utilizzano questo protocollo.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervallo di aggiornamento automatico di origine in minuti</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervallo di aggiornamento automatico di origine in minuti</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Origini aggiuntive: </listBox>
