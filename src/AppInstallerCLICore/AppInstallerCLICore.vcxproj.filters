@@ -176,7 +176,7 @@
     <ClInclude Include="Public\COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="PortableInstallHelper.h">
+    <ClInclude Include="PortableInstallFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
@@ -322,7 +322,7 @@
     <ClCompile Include="Workflows\DownloadFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="PortableInstallHelper.cpp">
+    <ClCompile Include="PortableInstallFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

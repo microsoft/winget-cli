@@ -9,7 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
-#include "PortableInstallHelper.h"
+#include "PortableInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
