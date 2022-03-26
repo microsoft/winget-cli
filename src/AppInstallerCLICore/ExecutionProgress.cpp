@@ -349,7 +349,7 @@ namespace AppInstaller::CLI::Execution
 
             double percentage = static_cast<double>(current) / maximum;
             size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
-            size_t partialBlockIndex = static_cast<size_t>((percentage * blockWidth - blocksOn) * ARRAYSIZE(blocks));
+            size_t partialBlockIndex = static_cast<size_t>((percentage * blockWidth - blocksOn) * 8);
             TextFormat::Color accent = TextFormat::Color::GetAccentColor();
 
             for (size_t i = 0; i < blockWidth; ++i)
