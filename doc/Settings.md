@@ -171,3 +171,15 @@ Experimental feature with the aim of managing dependencies, as of now it only sh
        "dependencies": true
    },
 ```
+
+### PortableInstall
+
+This feature enables the Windows Package Manager to install Portable/Standalone packages. You can enable the feature as shown below.
+
+>Note: This feature is currently not supported yet. Once we add support for this feature in the near future, this setting will be in place to allow users to try out installing Portable/Standalone apps.
+
+```json
+   "experimentalFeatures": {
+       "portableInstall": true
+   },
+```
