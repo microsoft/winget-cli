@@ -2,14 +2,18 @@
 // Licensed under the MIT License.
 #pragma once
 #include "PackageMatchFilter.g.h"
+#include "Public/ComClsids.h"
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+namespace AppInstaller::Repository
+{
+    struct PackageMatchFilter;
+}
+#endif
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-#if USE_PROD_CLSIDS 
-    [uuid("D02C9DAF-99DC-429C-B503-4E504E4AB000")]
-#else
-    [uuid("3F85B9F4-487A-4C48-9035-2903F8A6D9E8")]
-#endif
+    [uuid(WINGET_OUTOFPROC_COM_CLSID_PackageMatchFilter)]
     struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter>
     {
         PackageMatchFilter() = default;

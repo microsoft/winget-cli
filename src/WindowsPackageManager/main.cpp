@@ -10,9 +10,11 @@
 #include "WindowsPackageManager.h"
 
 #include <AppInstallerCLICore.h>
+#include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
 
+// CreatorMap for out-of-proc com registration
 CoCreatableClassWrlCreatorMapInclude(PackageManager);
 CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
@@ -52,6 +54,36 @@ extern "C"
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleUnregister() try
     {
         RETURN_HR(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().UnregisterObjects());
+    }
+    CATCH_RETURN();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize() try
+    {
+        ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::Create();
+        return S_OK;
+    }
+    CATCH_RETURN();
+
+    bool WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerInProcModuleTerminate()
+    {
+        try
+        {
+            return ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetClassObject(
+        REFCLSID rclsid,
+        REFIID riid,
+        LPVOID* ppv) try
+    {
+        CLSID redirectedClsid = GetRedirectedClsidFromInProcClsid(rclsid);
+        RETURN_HR_IF(CLASS_E_CLASSNOTAVAILABLE, IsEqualCLSID(redirectedClsid, CLSID_NULL));
+        RETURN_HR(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().GetClassObject(redirectedClsid, riid, ppv));
     }
     CATCH_RETURN();
 }

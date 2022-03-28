@@ -116,5 +116,15 @@
         <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSources" valuePrefix="" />
       </elements>
     </policy>
+    <policy name="EnableMSAppInstallerProtocol" class="Machine" displayName="$(string.EnableMSAppInstallerProtocol)" explainText="$(string.EnableMSAppInstallerProtocolExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMSAppInstallerProtocol">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
   </policies>
 </policyDefinitions>

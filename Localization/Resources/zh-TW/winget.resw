@@ -261,7 +261,7 @@
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>可透過搜尋設定的來源或直接從資訊清單來安裝選取的套件。根據預設，查詢必須布區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選像，來使用其他欄位。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安裝指定的套件</value>
@@ -472,13 +472,15 @@
     <value>開啟設定或設定系統管理員設定</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>載入設定時發生意外的錯誤。請執行 [設定] 命令以驗證您的設定。</value>
+    <value>載入設定時發生未預期的錯誤。請執行 'settings' 命令以驗證您的設定。</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>頻道</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>顯示特定封裝的資訊。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>顯示套件相關資訊</value>
@@ -663,13 +665,6 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>找不到適用的更新。</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>透過搜尋已安裝的套件清單或直接從資訊清單來升級選取的套件。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>升級指定的套件</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>可透過搜尋已安裝的套件或直接從資訊清單中，解除安裝已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>解除安裝指定的套件</value>
@@ -1218,10 +1214,11 @@
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>在工作來源中找到下列套件。
 請使用 '--source' 選項指定其中一個以繼續。</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>在工作來源中找不到任何套件。</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>這是 Windows 封裝管理員的穩定版本。如果您想要嘗試實驗性功能，請安裝發行前版本組建。可於 https://github.com/microsoft/winget-cli 的 GitHub 上找到指示。</value>
@@ -1249,5 +1246,26 @@
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>選取要安裝的架構</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>升級套件，即使無法判斷其目前版本</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>無法判斷此套件的版本號碼。若要繼續升級，請將引數 「--include-unknown」新增至先前的命令。</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>無法判斷套件的版本號碼。使用「--include-unknown」可能會顯示更多結果。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>無法判斷套件的版本號碼。使用「--include-unknown」可能會顯示更多結果。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>提供的引數只能與查詢一起使用。</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>系統架構</value>
   </data>
 </root>

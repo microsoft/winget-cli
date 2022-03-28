@@ -53,8 +53,8 @@
 Если включить этот параметр, источник Microsoft Store для Диспетчера пакетов Windows будет доступен, и его нельзя будет удалить.
 
 Если отключить этот параметр, источник Microsoft Store для Диспетчера пакетов Windows будет недоступен.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Задать интервал автоматического обновления источника Установщика приложений в минутах</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Эта политика управляет интервалом автоматического обновления пакетных источников.
+      <string id="SourceAutoUpdateInterval">Задать интервал автоматического обновления источника Установщика приложений в минутах</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Эта политика управляет интервалом автоматического обновления пакетных источников.
 
 Если отключить или не настроить этот параметр, в Диспетчере пакетов Windows будет использоваться интервал по умолчанию или значение, заданное в параметрах.
 
@@ -75,10 +75,16 @@
 Если включить эту политику, добавлять и удалять из Диспетчера пакетов Windows можно будет только указанные источники,. Представление для каждого разрешенного можно получить из установленных источников с помощью команды "winget source export".
 
 Если отключить эту политику, задать дополнительные источники для Диспетчера пакетов Windows будет невозможно.</string>
+      <string id="EnableMSAppInstallerProtocol">Включить протокол Установщика приложений ms-appinstaller</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Эта политика определяет, могут ли пользователи устанавливать пакеты с веб-сайта, который использует протокол ms-appinstaller.
+
+Если включить этот, пользователи смогут устанавливать пакеты с веб-сайтов, которые используют этот протокол.
+
+Если отключить или не настраивать этот параметр, пользователи не смогут устанавливать пакеты с веб-сайтов, которые используют этот протокол.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Интервал автоматического обновления источника в минутах</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Интервал автоматического обновления источника в минутах</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Дополнительные источники: </listBox>

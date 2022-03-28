@@ -158,7 +158,7 @@ constexpr std::string_view s_DefaultSourceAsUserSource = R"(
 Sources:
   - Name: not-winget
     Type: Microsoft.PreIndexed.Package
-    Arg: https://winget.azureedge.net/cache
+    Arg: https://cdn.winget.microsoft.com/cache
     Data: Microsoft.Winget.Source_8wekyb3d8bbwe
     IsTombstone: false
 )"sv;
@@ -693,7 +693,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             SourceDetails details;
             details.Name = "winget";
             details.Type = "Microsoft.PreIndexed.Package";
-            details.Arg = "https://winget.azureedge.net/cache";
+            details.Arg = "https://cdn.winget.microsoft.com/cache";
             REQUIRE_POLICY_EXCEPTION(
                 AddSource(details, progress),
                 TogglePolicy::Policy::DefaultSource);
@@ -790,7 +790,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             REQUIRE(sources.size() == c_DefaultSourceCount);
 
             REQUIRE(sources[1].Name == "winget");
-            REQUIRE(sources[1].Arg == "https://winget.azureedge.net/cache");
+            REQUIRE(sources[1].Arg == "https://cdn.winget.microsoft.com/cache");
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
         }
     }

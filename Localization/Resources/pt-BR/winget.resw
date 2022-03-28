@@ -261,7 +261,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Instala o pacote selecionado, localizado ao pesquisar uma fonte configurada ou diretamente de um manifesto. Por padrão, a consulta deve diferenciar maiúsculas e minúsculas na identificação, no nome ou no moniker do pacote. Outros campos podem ser usados ​​passando a opção apropriada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instalar um determinado pacote</value>
@@ -472,13 +472,15 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Abra as configurações ou defina as configurações do administrador</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Erro inesperado ao carregar as configurações. Verifique suas configurações executando o comando configurações.</value>
+    <value>Erro inesperado ao carregar as configurações. Verifique suas configurações executando o 'settings' comando.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Mostra informações sobre um pacote específico. Por padrão, a consulta deve corresponder de forma insensível à ID, ao nome ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informações sobre um pacote</value>
@@ -663,13 +665,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Nenhuma atualização aplicável foi encontrada.</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Atualiza o pacote selecionado, encontrado pesquisando a lista de pacotes instalados ou diretamente de um manifesto. Por padrão, a consulta deve corresponder de forma insensível à ID, ao nome ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Atualiza o pacote fornecido</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Desinstala o pacote selecionado, encontrado pesquisando a lista de pacotes instalados ou diretamente de um manifesto. Por padrão, a consulta deve corresponder de forma insensível à ID, ao nome ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Desinstala um determinado pacote</value>
@@ -1218,10 +1214,11 @@ Você concorda com os termos?</value>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>Os seguintes pacotes foram encontrados entre as fontes de trabalho.
 Especifique um deles usando a opção '--source' para continuar.</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>Nenhum pacote foi encontrado entre as fontes de trabalho.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>Esta é uma versão estável do Gerenciador de Pacotes do Windows. Se quiser experimentar os recursos experimentais, instale uma versão de pré-lançamento. As instruções estão disponíveis no GitHub em https://github.com/microsoft/winget-cli.</value>
@@ -1249,5 +1246,26 @@ Especifique um deles usando a opção '--source' para continuar.</value>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Selecione a arquitetura a ser instalada</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Atualizar pacotes mesmo que a versão atual não seja determinada</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>Não é possível determinar o número de versão deste pacote. Para atualizá-lo mesmo assim, adicione o argumento --include-unknown ao comando anterior.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>pacotes têm números de versão que não podem ser determinados. Usar "--include-unknown" pode mostrar mais resultados.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>o pacote tem um número de versão que não pode ser determinado. Usar "--include-unknown" pode mostrar mais resultados.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>Os argumentos fornecidos só podem ser usados com uma consulta.</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>Arquitetura do Sistema</value>
   </data>
 </root>

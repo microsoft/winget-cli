@@ -144,6 +144,7 @@ gitlab
 gity
 Globals
 Google
+guiddef
 hackathon
 hashtable
 helplib

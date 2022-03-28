@@ -198,6 +198,10 @@ namespace AppInstaller::Repository::Microsoft
                         THROW_HR(E_UNEXPECTED);
                     }
                 }
+                else
+                {
+                    AICLI_LOG(Repo, Verbose, << "PackageBase: No manifest was found for the package with id# '" << m_idId << "'");
+                }
 
                 return result;
             }

@@ -727,9 +727,29 @@ namespace AppInstaller::Repository
 
             for (auto&& match : installedResult.Matches)
             {
-                auto compositePackage = std::make_shared<CompositePackage>(std::move(match.Package));
+                if (!match.Package)
+                {
+                    // Ensure that the crash from installedVersion below is not from the actual package being null.
+                    AICLI_LOG(Repo, Warning, << "CompositeSource: The match of the package (matched on " <<
+                        ToString(match.MatchCriteria.Field) << " => '" << match.MatchCriteria.Value <<
+                        "') was null and is being dropped from the results.");
+                    continue;
+                }
+
+                auto compositePackage = std::make_shared<CompositePackage>(match.Package);
 
                 auto installedVersion = compositePackage->GetInstalledVersion();
+
+                if (!installedVersion)
+                {
+                    // One would think that the installed version coming directly from our own installed source
+                    // would never be null, but it is sometimes. Rather than making users suffer through crashes
+                    // that break their entire experience, lets log a few things and then ignore this match.
+                    AICLI_LOG(Repo, Warning, << "CompositeSource: The installed version of the package '" <<
+                        match.Package->GetProperty(PackageProperty::Id) << "' was null and is being dropped from the results.");
+                    continue;
+                }
+
                 auto installedPackageData = result.GetSystemReferenceStrings(installedVersion.get());
 
                 // Create a search request to run against all available sources

@@ -53,8 +53,8 @@
 이 설정을 사용하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 없습니다.
 
 이 설정을 사용 중지하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 없습니다.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">앱 설치 관리자 원본 자동 업데이트 간격(분) 설정</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다.
+      <string id="SourceAutoUpdateInterval">앱 설치 관리자 원본 자동 업데이트 간격(분) 설정</string>
+      <string id="SourceAutoUpdateIntervalExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다.
 
 이 설정을 사용하지 않거나 구성하지 않으면 기본 간격이나 설정에 지정된 값이 Windows 패키지 관리자가 사용됩니다.
 
@@ -75,10 +75,16 @@
 정책을 사용하도록 설정하는 경우 지정된 원본만 Windows 패키지 관리자에서 추가하거나 제거할 수 있습니다. 허용된 각 원본에 대한 표현은 'winget 원본 내보내기'를 사용하여 설치된 원본에서 구할 수 있습니다.
 
 이 정책을 사용하지 않도록 설정하는 경우 Windows 패키지 관리자에 대해 추가 원본을 구성할 수 없습니다.</string>
+      <string id="EnableMSAppInstallerProtocol">앱 설치 관리자 ms-appinstaller 프로토콜 사용</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">이 정책은 사용자가 ms-appinstaller 프로토콜을 사용하는 웹 사이트에서 패키지를 설치할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 있습니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 없습니다.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">원본 자동 업데이트 간격(분)</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">원본 자동 업데이트 간격(분)</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">추가 원본: </listBox>

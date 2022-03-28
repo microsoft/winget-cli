@@ -2,14 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "PackageManager.g.h"
+#include "Public/ComClsids.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-#if USE_PROD_CLSIDS 
-    [uuid("C53A4F16-787E-42A4-B304-29EFFB4BF597")]
-#else
-    [uuid("74CB3139-B7C5-4B9E-9388-E6616DEA288C")]
-#endif
+    [uuid(WINGET_OUTOFPROC_COM_CLSID_PackageManager)]
     struct PackageManager : PackageManagerT<PackageManager>
     {
         PackageManager() = default;
