@@ -23,8 +23,8 @@ namespace AppInstaller::Settings
             Dependencies = 0x1,
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x2,
-            PortableInstall = 0x3,
-            Max, // This MUST always be after all experimental features
+            PortableInstall = 0x4,
+            Max = 0x8, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
             // This can be used to hide highly experimental features (or these example ones)

@@ -234,6 +234,9 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurge)
+        WINGET_VALIDATE_PASS_THROUGH(PortableAppUserRoot)
+        WINGET_VALIDATE_PASS_THROUGH(PortableAppMachineRoot)
+
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
@@ -292,24 +295,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
-        }
-
-        WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
-        {
-            if (!std::filesystem::exists(value))
-            {
-                if (!std::filesystem::create_directories(value))
-                {
-                    return {};
-                }
-            }
-
-            return value;
-        }
-
-        WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
-        {
-            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(NetworkDownloader)
