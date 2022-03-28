@@ -3,46 +3,43 @@
 #include "pch.h"
 #include <WindowsPackageManager.h>
 
-extern "C"
+EXTERN_C BOOL WINAPI DllMain(
+    HMODULE /* hModule */,
+    DWORD reason,
+    LPVOID /* lpReserved */)
 {
-    BOOL WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION DllMain(
-        HMODULE /* hModule */,
-        DWORD reason,
-        LPVOID /* lpReserved */)
+    switch (reason)
     {
-        switch (reason)
+    case DLL_PROCESS_ATTACH:
+    {
+        if (FAILED(WindowsPackageManagerInProcModuleInitialize()))
         {
-        case DLL_PROCESS_ATTACH:
-        {
-            if (FAILED(WindowsPackageManagerInProcModuleInitialize()))
-            {
-                return FALSE;
-            }
+            return FALSE;
         }
-        break;
+    }
+    break;
 
-        case DLL_PROCESS_DETACH:
-        {
-            WindowsPackageManagerInProcModuleTerminate();
-        }
-        break;
+    case DLL_PROCESS_DETACH:
+    {
+        WindowsPackageManagerInProcModuleTerminate();
+    }
+    break;
 
-        default:
-            return TRUE;
-        }
+    default:
         return TRUE;
     }
+    return TRUE;
+}
 
-    WINDOWS_PACKAGE_MANAGER_API DllGetClassObject(
-        REFCLSID rclsid,
-        REFIID riid,
-        LPVOID* ppv)
-    {
-        RETURN_HR(WindowsPackageManagerInProcModuleGetClassObject(rclsid, riid, ppv));
-    }
+STDAPI DllGetClassObject(
+    REFCLSID rclsid,
+    REFIID riid,
+    LPVOID* ppv)
+{
+    RETURN_HR(WindowsPackageManagerInProcModuleGetClassObject(rclsid, riid, ppv));
+}
 
-    WINDOWS_PACKAGE_MANAGER_API DllCanUnloadNow()
-    {
-        return WindowsPackageManagerInProcModuleTerminate() ? S_OK : S_FALSE;
-    }
+STDAPI DllCanUnloadNow()
+{
+    return WindowsPackageManagerInProcModuleTerminate() ? S_OK : S_FALSE;
 }
