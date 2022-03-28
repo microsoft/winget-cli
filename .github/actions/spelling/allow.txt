@@ -488,6 +488,7 @@ sscanf
 sstream
 STATFLAG
 STATSTG
+STDAPI
 stdcall
 stderr
 stdexcept
