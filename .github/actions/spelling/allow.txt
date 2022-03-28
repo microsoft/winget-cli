@@ -55,6 +55,7 @@ cguid
 chrono
 cin
 cla
+CLASSNOTAVAILABLE
 CLSCTX
 cmake
 cmdlet
@@ -356,6 +357,7 @@ OSVERSIONINFOEXW
 outfile
 OUTOFDISKSPACE
 OUTOFMEMORY
+OUTOFPROC
 OWC
 packagefamilyname
 packageidentifier
@@ -382,7 +384,7 @@ png
 posix
 powershell
 pplx
-PPV
+ppv
 pragma
 PRECONFIG
 preindexed
@@ -487,6 +489,7 @@ sscanf
 sstream
 STATFLAG
 STATSTG
+STDAPI
 stdcall
 stderr
 stdexcept

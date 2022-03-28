@@ -2,14 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "UninstallOptions.g.h"
+#include "Public/ComClsids.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-#if USE_PROD_CLSIDS 
-    [uuid("E1D9A11E-9F85-4D87-9C17-2B93143ADB8D")]
-#else
-    [uuid("AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C")]
-#endif
+    [uuid(WINGET_OUTOFPROC_COM_CLSID_UninstallOptions)]
     struct UninstallOptions : UninstallOptionsT<UninstallOptions>
     {
         UninstallOptions();
