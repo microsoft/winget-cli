@@ -29,6 +29,26 @@ TEST_CASE("OpenIfExists_NotFound", "[registry]")
     REQUIRE(!key);
 }
 
+TEST_CASE("CreateKeyAndDelete", "[registry]")
+{
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+
+    Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
+
+
+    Key key = Key::CreateKeyAndOpen(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
+    REQUIRE(key);
+    bool result = Key::DeleteKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
+    REQUIRE(result);
+}
+
+TEST_CASE("SetKeyValue", "[registry]")
+{
+    Key key = Key::CreateKeyAndOpen(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
+    REQUIRE(key);
+
+}
+
 TEST_CASE("EnumerateKeys", "[registry]")
 {
     wil::unique_hkey root = RegCreateVolatileTestRoot();

@@ -488,8 +488,6 @@ namespace AppInstaller::Registry
         return true;
     }
 
-
-
     bool Key::TrySetRegistryValue(wil::shared_hkey key, const std::wstring& name, const std::wstring& value, DWORD& dwType)
     {
         LSTATUS status;

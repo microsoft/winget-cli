@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
-        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries, const AppInstaller::Manifest::Manifest& manifest)
+        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries, AppInstaller::Manifest::Manifest& manifest)
         {
             AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
             std::string displayName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();

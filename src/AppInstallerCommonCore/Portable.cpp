@@ -16,6 +16,8 @@ namespace AppInstaller::Portable
 
     const std::wstring_view appPathsRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
     const std::wstring_view uninstallRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+
+    // Remove after merge with 1.2 schema changes
     constexpr std::string_view s_Microsoft = "Microsoft"sv;
     constexpr std::string_view s_WinGet = "WinGet"sv;
     constexpr std::string_view s_Packages = "Packages"sv;
@@ -75,11 +77,9 @@ namespace AppInstaller::Portable
         std::wstring exePathString = exePath.wstring();
         std::wstring pathString = exePath.parent_path().wstring();
         std::wstring fullRegistryKey = Normalize(appPathsRegistrySubkey) + ConvertToUTF16(entryName);
-
         AppInstaller::Registry::Key key = Registry::Key::CreateKeyAndOpen(root, fullRegistryKey);
 
         bool result = key.SetKeyValue(L"", exePathString, REG_SZ);
-
         if (enablePath)
         {
             result = key.SetKeyValue(L"Path", pathString, REG_SZ);
