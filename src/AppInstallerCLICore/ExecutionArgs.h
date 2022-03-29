@@ -41,6 +41,11 @@ namespace AppInstaller::CLI::Execution
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
             AcceptPackageAgreements, // Accept all license agreements for packages
+            Rename, // Renames the file of the executable. Only applies to the portable installerType
+
+            // Uninstall behavior
+            Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
+            Preserve, // Retains any files and directories created by the portable exe.
 
             //Source Command
             SourceName,
@@ -86,9 +91,6 @@ namespace AppInstaller::CLI::Execution
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
-            Rename, // Renames the file of the executable. Only applies to the portable installerType
-            Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
-            Preserve, // Retains any files and directories created by the portable exe.
             Wait, // Prompts the user to press any key before exiting.
 
             // Used for demonstration purposes

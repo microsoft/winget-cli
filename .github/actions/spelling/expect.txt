@@ -287,7 +287,6 @@ powertoys
 pri
 processthreads
 productcode
-PROGRAMFILES
 pscustomobject
 pseudocode
 psm

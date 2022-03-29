@@ -130,7 +130,7 @@ bool HasExtension(std::string_view extension) const;
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
-        Custom
+        Custom,
     };
 
     struct ExpectedReturnCode
@@ -138,7 +138,6 @@ bool HasExtension(std::string_view extension) const;
         DWORD InstallerReturnCode{};
         ExpectedReturnCodeEnum ReturnResponse{};
         string_t ReturnResponseUrl{};
-        ExpectedReturnCode() {};
     };
 
     enum class PlatformEnum

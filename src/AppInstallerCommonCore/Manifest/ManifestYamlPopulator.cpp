@@ -550,7 +550,7 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                { "DocumentDescription", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentDescription = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DocumentDescription", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "DocumentUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }

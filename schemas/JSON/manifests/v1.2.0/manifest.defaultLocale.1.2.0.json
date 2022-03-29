@@ -39,11 +39,11 @@
     "Documentation": {
       "type": "object",
       "properties": {
-        "DocumentDescription": {
+        "DocumentLabel": {
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 100,
-          "description": "The description of the documentation for providing software guides such as manuals and troubleshooting URLs."
+          "description": "The label of the documentation for providing software guides such as manuals and troubleshooting URLs."
         },
         "DocumentUrl": {
           "$ref": "#/definitions/Url",
@@ -176,7 +176,7 @@
     "InstallationNotes": {
       "type": [ "string", "null" ],
       "minLength": 1,
-      "maxLength": 240,
+      "maxLength": 256,
       "description": "The notes displayed to the user upon completion of a package installation."      
     },
     "Documentations": {

@@ -43,7 +43,7 @@ namespace AppInstaller::Manifest
 
     struct Documentation
     {
-        string_t DocumentDescription;
+        string_t DocumentLabel;
         string_t DocumentUrl;
     };
 
