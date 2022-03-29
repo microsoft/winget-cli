@@ -34,7 +34,7 @@ TEST_CASE("CreateKeyAndDelete", "[registry]")
     wil::unique_hkey root = RegCreateVolatileTestRoot();
     Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
     REQUIRE(key);
-    bool result = Key::DeleteKey(root.get(), L"Foo\Bar");
+    bool result = Key::DeleteKey(root.get(), L"Foo\\Bar");
     REQUIRE(result);
 }
 
