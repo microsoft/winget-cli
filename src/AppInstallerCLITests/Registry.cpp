@@ -32,21 +32,26 @@ TEST_CASE("OpenIfExists_NotFound", "[registry]")
 TEST_CASE("CreateKeyAndDelete", "[registry]")
 {
     wil::unique_hkey root = RegCreateVolatileTestRoot();
-
     Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
-
-
-    Key key = Key::CreateKeyAndOpen(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
     REQUIRE(key);
-    bool result = Key::DeleteKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
+    bool result = Key::DeleteKey(root.get(), L"Foo\Bar");
     REQUIRE(result);
 }
 
 TEST_CASE("SetKeyValue", "[registry]")
 {
-    Key key = Key::CreateKeyAndOpen(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Foo\\Bar\\Does\\Not\\Exist");
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
     REQUIRE(key);
 
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"TestValueValue";
+    bool result = key.SetKeyValue(valueName, valueValue, REG_SZ);
+    REQUIRE(result);
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::String);
+    REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
 }
 
 TEST_CASE("EnumerateKeys", "[registry]")

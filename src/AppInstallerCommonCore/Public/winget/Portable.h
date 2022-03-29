@@ -15,7 +15,7 @@ namespace AppInstaller::Portable
     struct PortableArguments
     {
         HKEY RootKey;
-        std::filesystem::path InstallRootDirectory;
+        std::filesystem::path InstallRootPackageDirectory;      // Portable install root directory including the package subdirectory.
         std::string AppPathEntry;
         std::string PackageId;
         Manifest::AppsAndFeaturesEntry AppsAndFeatureEntry;

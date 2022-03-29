@@ -155,6 +155,15 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        [Test]
+        public void InstallPortable()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"TestPortableApp");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestPortableInstalledAndCleanup());
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
@@ -192,6 +201,12 @@ namespace AppInstallerCLIE2ETests
             }
 
             return TestCommon.RemoveMsix(InstallTestMsixName);
+        }
+
+        // Add verification to portable installer type.
+        private bool VerifyTestPortableInstalledAndCleanup()
+        {
+            return true;
         }
     }
 }

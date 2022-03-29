@@ -17,10 +17,10 @@ namespace AppInstaller::CLI::Workflow
         Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries, AppInstaller::Manifest::Manifest& manifest)
         {
             AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
-            std::string displayName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
-            std::string displayVersion = manifest.Version;
-            std::string publisher = manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>();
             std::string packageId = manifest.Id;
+            std::string displayVersion = manifest.Version;
+            std::string displayName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+            std::string publisher = manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>();
 
             if (appsAndFeaturesEntries.empty())
             {
@@ -51,69 +51,77 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        PortableArguments GetPortableInstallerArguments(Execution::Context& context)
+        HKEY GetPortableRegistryRootKey(Manifest::ScopeEnum& scope)
         {
-            PortableArguments portableArgs = {};
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-
             if (scope == Manifest::ScopeEnum::Machine)
             {
-                portableArgs.RootKey = HKEY_LOCAL_MACHINE;
+                return HKEY_LOCAL_MACHINE;
             }
             else
             {
-                portableArgs.RootKey = HKEY_CURRENT_USER;
+                return HKEY_CURRENT_USER;
             }
+        }
 
-            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
-            std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
-            const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
-            std::string fileName = installerPath.filename().u8string();
+        std::string GetAppPathEntry(std::vector<string_t>& commands, std::string_view renameArg, std::string& fileName)
+        {
+            std::string appPathEntry;
 
-            portableArgs.InstallRootDirectory = GetPortableInstallRoot(scope, arch, installLocationArg);
-
-            std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
-            std::string_view rename = context.Args.GetArg(Execution::Args::Type::Rename);
-
-            if (!rename.empty())
+            if (!renameArg.empty())
             {
-                portableArgs.AppPathEntry = rename;
+                appPathEntry = renameArg;
             }
             else if (commands.size() > 0)
             {
-                portableArgs.AppPathEntry = commands[0];
+                appPathEntry = commands[0];
             }
             else
             {
-                portableArgs.AppPathEntry = fileName;
+                appPathEntry = fileName;
             }
 
-            if (!HasSuffix(portableArgs.AppPathEntry, ".exe"))
+            if (!HasSuffix(appPathEntry, ".exe"))
             {
-                portableArgs.AppPathEntry += ".exe";
+                appPathEntry += ".exe";
             }
+
+            return appPathEntry;
+        }
+
+        PortableArguments GetPortableInstallerArguments(Execution::Context& context)
+        {
+            const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
+            std::string fileName = installerPath.filename().u8string();
+
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+
+            std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
+            std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
 
             std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries;
+            std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
             AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
-            portableArgs.PackageId = manifest.Id;
-            portableArgs.AppsAndFeatureEntry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeaturesEntries, manifest);
 
+            PortableArguments portableArgs = {};
+            portableArgs.PackageId = manifest.Id;
+            portableArgs.InstallRootPackageDirectory = GetPortableInstallRoot(scope, arch, installLocationArg) / portableArgs.PackageId;
+            portableArgs.RootKey = GetPortableRegistryRootKey(scope);
+            portableArgs.AppPathEntry = GetAppPathEntry(commands, renameArg, fileName);
+            portableArgs.AppsAndFeatureEntry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeaturesEntries, manifest);
             return portableArgs;
         }
 
         bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback& callback)
         {
-            std::filesystem::path portableInstallerPath;
-            std::filesystem::path installRootPackageDirectory = portableArgs.InstallRootDirectory / portableArgs.PackageId;
-
             callback.BeginProgress();
-            std::filesystem::create_directories(installRootPackageDirectory);
+            std::filesystem::create_directories(portableArgs.InstallRootPackageDirectory);
             std::string fileName = installerPath.filename().u8string();
-            std::filesystem::path portableInstallerDestPath = installRootPackageDirectory / fileName;
+            std::filesystem::path portableExeDestPath = portableArgs.InstallRootPackageDirectory / fileName;
 
             // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handle when dealing with
             // multiple files (archive) to guarantee all files can be successfully copied.
-            bool copyResult = CopyFileExW(installerPath.c_str(), portableInstallerDestPath.c_str(), &CopyPortableExeProgressCallback, &callback, FALSE, 0);
+            bool copyResult = CopyFileExW(installerPath.c_str(), portableExeDestPath.c_str(), &CopyPortableExeProgressCallback, &callback, FALSE, 0);
             if (!copyResult)
             {
                 DWORD copyError = GetLastError();
@@ -122,7 +130,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             bool registrationResult;
-            registrationResult = WriteToAppPathsRegistry(portableArgs.RootKey, portableArgs.AppPathEntry, portableInstallerDestPath, true);
+            registrationResult = WriteToAppPathsRegistry(portableArgs.RootKey, portableArgs.AppPathEntry, portableExeDestPath, true);
             registrationResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
 
             if (registrationResult)

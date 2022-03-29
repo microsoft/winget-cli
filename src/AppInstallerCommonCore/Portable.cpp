@@ -72,6 +72,26 @@ namespace AppInstaller::Portable
         return installLocation;
     }
 
+    // Temporary until 1_2 settings schema changes get checked in.
+    //std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
+    //{
+    //    if (scope == Manifest::ScopeEnum::Machine)
+    //    {
+    //        if (arch == Utility::Architecture::X86)
+    //        {
+    //            return GetPathTo(PathName::PortableAppMachineRootX86);
+    //        }
+    //        else
+    //        {
+    //            return GetPathTo(PathName::PortableAppMachineRootX64);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        return GetPathTo(PathName::PortableAppUserRoot);
+    //    }
+    //}
+
     bool WriteToAppPathsRegistry(HKEY root, std::string_view entryName, const std::filesystem::path& exePath, bool enablePath)
     {
         std::wstring exePathString = exePath.wstring();
