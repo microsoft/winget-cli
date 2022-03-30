@@ -273,7 +273,6 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "string",
-        "pattern": "^[a-z0-9][-a-z0-9\\.\\+]*$",
         "maxLength": 2048
       },
       "maxItems": 16,
