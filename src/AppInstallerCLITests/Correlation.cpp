@@ -96,13 +96,20 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorr
         if (match)
         {
             auto matchManifest = match->Entry->GetManifest();
-            if (matchManifest.DefaultLocalization.Get<Localization::PackageName>() == testCase.ARPName &&
-                matchManifest.DefaultLocalization.Get <Localization::Publisher>() == testCase.ARPPublisher)
+            auto matchName = matchManifest.DefaultLocalization.Get<Localization::PackageName>();
+            auto matchPublisher = matchManifest.DefaultLocalization.Get <Localization::Publisher>();
+            if (matchName == testCase.ARPName && matchPublisher == testCase.ARPPublisher)
             {
                 ++result.TrueMatches;
             }
             else
             {
+                // Report false matches as we don't want any of them
+                WARN("False match: " <<
+                    "App name = '" << testCase.AppName << "'" <<
+                    ", App publisher = '" << testCase.AppPublisher << "'" <<
+                    ", ARP name = '" << matchName << "'" <<
+                    ", ARP publisher = '" << matchPublisher << "'");
                 ++result.FalseMatches;
             }
         }
