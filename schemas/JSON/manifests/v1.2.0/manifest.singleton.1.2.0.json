@@ -538,7 +538,10 @@
           "$ref": "#/definitions/Scope"
         },
         "InstallerUrl": {
-          "$ref": "#/definitions/Url",
+          "allOf": [
+            { "$ref": "#/definitions/Url" },
+            { "not": { "type": "null" } }
+          ],
           "description": "The installer Url"
         },
         "InstallerSha256": {

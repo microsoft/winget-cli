@@ -237,7 +237,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(PortableAppUserRoot)
         WINGET_VALIDATE_PASS_THROUGH(PortableAppMachineRoot)
 
-
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
             std::vector<Utility::Architecture> archs;

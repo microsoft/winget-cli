@@ -39,7 +39,7 @@
     "Documentation": {
       "type": "object",
       "properties": {
-        "DocumentDescription": {
+        "DocumentLabel": {
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 100,

@@ -7,6 +7,7 @@
 namespace AppInstaller::Manifest
 {
     using ValidationErrors = std::vector<ValidationError>;
+    using ExpectedReturnCodeInfo = AppInstaller::Manifest::ManifestInstaller::ExpectedReturnCodeInfo;
 
     namespace
     {
@@ -436,7 +437,7 @@ namespace AppInstaller::Manifest
                 {
                     { "PurchaseUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::PurchaseUrl>(value.as<std::string>()); return {}; } },
                     { "InstallationNotes", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::InstallationNotes>(value.as<std::string>()); return {}; } },
-                    { "Documentations", [this](const YAML::Node& value)->ValidationErrors { return ProcessDocumentationsNode(value); }, true },
+                    { "Documentations", [this](const YAML::Node& value)->ValidationErrors { return ProcessDocumentationsNode(value); }},
                 };
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
@@ -550,7 +551,7 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                { "DocumentDescription", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DocumentLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "DocumentUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
@@ -709,8 +710,7 @@ namespace AppInstaller::Manifest
         THROW_HR_IF(E_INVALIDARG, !returnCodesNode.IsSequence());
 
         ValidationErrors resultErrors;
-        std::map<DWORD, ExpectedReturnCodeEnum> returnCodes;
-        std::map<DWORD, string_t> returnResponseUrls;
+        std::map<DWORD, ExpectedReturnCodeInfo> returnCodes;
 
         for (auto const& entry : returnCodesNode.Sequence())
         {
@@ -718,17 +718,13 @@ namespace AppInstaller::Manifest
             m_p_expectedReturnCode = &returnCode;
             auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-
-            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second)
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, ExpectedReturnCodeInfo{ returnCode.ReturnResponse, returnCode.ReturnResponseUrl} }).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
             }
-
-            returnResponseUrls.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponseUrl }).second;
         }
 
         m_p_installer->ExpectedReturnCodes = returnCodes;
-        m_p_installer->ReturnResponseUrls = returnResponseUrls;
 
         return resultErrors;
     }
@@ -848,7 +844,7 @@ namespace AppInstaller::Manifest
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&
                     std::find(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end(), defaultReturnCode.first) == installer.InstallerSuccessCodes.end())
                 {
-                    installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
+                    installer.ExpectedReturnCodes[defaultReturnCode.first].ReturnResponseEnum = defaultReturnCode.second;
                 }
             }
 

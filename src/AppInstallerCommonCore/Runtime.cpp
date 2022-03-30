@@ -24,7 +24,9 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
-        constexpr std::string_view s_DefaultPackagesDirectory = "Packages"sv;
+        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_PortableAppMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_PackagesDirectory = "Packages"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -316,9 +318,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppUserRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_SecureSettings_Base;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;
@@ -326,9 +328,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_ProgramFiles);
-                    result /= s_DefaultTempDirectory;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;
@@ -336,9 +338,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_DefaultTempDirectory;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;
@@ -386,9 +388,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppUserRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_SecureSettings_Base;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;
@@ -396,9 +398,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_ProgramFiles);
-                    result /= s_DefaultTempDirectory;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;
@@ -406,9 +408,9 @@ namespace AppInstaller::Runtime
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
-                    result /= GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_DefaultTempDirectory;
-                    result /= s_DefaultPackagesDirectory;
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PackagesDirectory;
                 }
                 create = true;
                 break;

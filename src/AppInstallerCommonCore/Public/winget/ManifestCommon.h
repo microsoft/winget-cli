@@ -133,13 +133,6 @@ bool HasExtension(std::string_view extension) const;
         Custom,
     };
 
-    struct ExpectedReturnCode
-    {
-        DWORD InstallerReturnCode{};
-        ExpectedReturnCodeEnum ReturnResponse{};
-        string_t ReturnResponseUrl{};
-    };
-
     enum class PlatformEnum
     {
         Unknown,
@@ -179,6 +172,13 @@ bool HasExtension(std::string_view extension) const;
         WindowsLibrary,
         Package,
         External
+    };
+
+    struct ExpectedReturnCode
+    {
+        DWORD InstallerReturnCode = 0;
+        ExpectedReturnCodeEnum ReturnResponse = ExpectedReturnCodeEnum::Unknown;
+        string_t ReturnResponseUrl;
     };
 
     struct Dependency

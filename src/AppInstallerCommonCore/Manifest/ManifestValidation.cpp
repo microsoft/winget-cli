@@ -96,14 +96,6 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
             }
 
-            for (const auto& unsupportedArgument : installer.UnsupportedArguments)
-            {
-                if (unsupportedArgument == UnsupportedArgumentEnum::Unknown)
-                {
-                    resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UnsupportedArguments");
-                }
-            }
-
             // Validate system reference strings if they are set at the installer level
             // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
             if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
@@ -163,17 +155,15 @@ namespace AppInstaller::Manifest
 
             if (installer.InstallerType == InstallerTypeEnum::Portable)
             {
-                if ((manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() > 1 && installer.AppsAndFeaturesEntries.size() == 0) ||
-                    installer.AppsAndFeaturesEntries.size() > 1)
+                if (installer.AppsAndFeaturesEntries.size() > 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededAppsAndFeaturesEntryLimit);
                 }
-                if ((manifest.DefaultInstallerInfo.Commands.size() > 1 && installer.Commands.size() == 0) ||
-                    installer.Commands.size() > 1)
+                if (installer.Commands.size() > 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
                 }
-                if (manifest.DefaultInstallerInfo.Scope != ScopeEnum::Unknown || installer.Scope != ScopeEnum::Unknown)
+                if (installer.Scope != ScopeEnum::Unknown)
                 {
                     resultErrors.emplace_back(ManifestError::ScopeNotSupported, ValidationError::Level::Warning);
                 }
