@@ -403,19 +403,19 @@
       "type": "object",
       "properties": {
         "DisplayName": {
-          "type": "string",
+          "type": ["string", "null"],
           "minLength": 1,
           "maxLength": 256,
           "description": "The DisplayName registry value"
         },
         "Publisher": {
-          "type": "string",
+          "type": ["string", "null"],
           "minLength": 1,
           "maxLength": 256,
           "description": "The Publisher registry value"
         },
         "DisplayVersion": {
-          "type": "string",
+          "type": ["string", "null"],
           "minLength": 1,
           "maxLength": 128,
           "description": "The DisplayVersion registry value"
