@@ -66,12 +66,11 @@ namespace AppInstaller::Repository::Correlation
         double EditDistanceScore(std::string_view sv1, std::string_view sv2)
         {
             // Naive implementation of Levenshtein distance (scaled over the string size)
-            const double EditCost = 0.5;
-            const double AddCost = 1;
+            // TODO: This implementation does not consider multi-byte symbols.
 
             // Do it ignoring case
-            auto s1 = Utility::ToLower(sv1);
-            auto s2 = Utility::ToLower(sv2);
+            auto s1 = Utility::FoldCase(sv1);
+            auto s2 = Utility::FoldCase(sv2);
 
             // distance[i][j] = distance between s1[0:i] and s2[0:j]
             std::vector<std::vector<double>> distance{ s1.size(), std::vector<double>(s2.size(), 0.0) };
@@ -83,11 +82,11 @@ namespace AppInstaller::Repository::Correlation
                     double& d = distance[i][j];
                     if (i == 0)
                     {
-                        d = j * AddCost;
+                        d = static_cast<double>(j);
                     }
                     else if (j == 0)
                     {
-                        d = i * AddCost;
+                        d = static_cast<double>(i);
                     }
                     else if (s1[i] == s2[j])
                     {
@@ -96,13 +95,17 @@ namespace AppInstaller::Repository::Correlation
                     else
                     {
                         d = std::min(
-                            EditCost + distance[i - 1][j - 1],
-                            AddCost + std::min(distance[i][j - 1], distance[i - 1][j]));
+                            1 + distance[i - 1][j - 1],
+                            1 + std::min(distance[i][j - 1], distance[i - 1][j]));
                     }
                 }
             }
 
-            return 1 - distance.back().back() / std::max(s1.size(), s2.size());
+            // Maximum distance is equal to the length of the longest string.
+            // We use that to scale to [0,1].
+            // A smaller distance represents a higher match, so we subtract from 1 for the final score
+            double editDistance = distance.back().back();
+            return 1 - editDistance / std::max(s1.size(), s2.size());
         }
 
     }
@@ -192,6 +195,15 @@ namespace AppInstaller::Repository::Correlation
 
     double EditDistanceNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const
     {
+        auto nameDistance = EditDistanceScore(packageName, arpName);
+        auto publisherDistance = EditDistanceScore(packagePublisher, arpPublisher);
+
+        // TODO: Consider other ways of merging the two values
+        return nameDistance * publisherDistance;
+    }
+
+    double EditDistanceNormalizedNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const
+    {
         // TODO: Re-consider using normalization here
         NameNormalizer normer(NormalizationVersion::Initial);
 
@@ -202,7 +214,7 @@ namespace AppInstaller::Repository::Correlation
         auto publisherDistance = EditDistanceScore(arpNormalizedName.Publisher(), packageNormalizedName.Publisher());
 
         // TODO: Consider other ways of merging the two values
-        return nameDistance * publisherDistance;
+        return (2 * nameDistance + publisherDistance) / 3;
     }
 
     std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackage(

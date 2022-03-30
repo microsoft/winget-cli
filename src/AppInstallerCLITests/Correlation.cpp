@@ -254,7 +254,8 @@ struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
 TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
     TestAlgorithmForStringMatching<EmptyNameAndPublisherCorrelationMeasure>,
     TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
-    TestAlgorithmForStringMatching<EditDistanceNameAndPublisherCorrelationMeasure>)
+    TestAlgorithmForStringMatching<EditDistanceNameAndPublisherCorrelationMeasure>,
+    TestAlgorithmForStringMatching<EditDistanceNormalizedNameAndPublisherCorrelationMeasure>)
 {
     // Each section loads a different data set,
     // and then they are all handled the same

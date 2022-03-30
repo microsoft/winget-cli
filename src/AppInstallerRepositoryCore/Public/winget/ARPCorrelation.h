@@ -107,6 +107,11 @@ namespace AppInstaller::Repository::Correlation
         double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
     };
 
+    struct EditDistanceNormalizedNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
+    {
+        double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
+    };
+
     // Finds the ARP entry in the ARP source that matches a newly installed package.
     // Takes the package manifest, a snapshot of the ARP before the installation, and the current ARP source.
     // Returns the entry in the ARP source, or nullptr if there was no match.
