@@ -128,7 +128,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         namespace Background
         {
-
+            ConstructedSequence Extended(const Color& color);
         }
 
         ConstructedSequence Hyperlink(const std::string& text, const std::string& ref);

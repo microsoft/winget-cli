@@ -150,7 +150,12 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         namespace Background
         {
-
+            ConstructedSequence Extended(const Color& color)
+            {
+                std::ostringstream result;
+                result << AICLI_VT_CSI "48;2;" << static_cast<uint32_t>(color.R) << ';' << static_cast<uint32_t>(color.G) << ';' << static_cast<uint32_t>(color.B) << 'm';
+                return ConstructedSequence{ result.str() };
+            }
         }
 
         ConstructedSequence Hyperlink(const std::string& text, const std::string& ref)
