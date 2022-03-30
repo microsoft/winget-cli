@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSource.h"
 
 #include <winget/ARPCorrelation.h>
 #include <winget/Manifest.h>
@@ -11,6 +12,8 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Correlation;
 
+using namespace TestCommon;
+
 // Data for defining a test case
 struct TestCase
 {
@@ -19,24 +22,132 @@ struct TestCase
     std::string AppPublisher;
 
     // Data in ARP
-    std::string ArpName;
-    std::string ArpPublisher;
+    std::string ARPName;
+    std::string ARPPublisher;
 
     bool IsMatch;
 };
 
+// Definition of a collection of test cases that we evaluate
+// together to get a single aggregate result
+struct DataSet
+{
+    // Details about the apps we are trying to correlate
+    std::vector<TestCase> TestCases;
+
+    // Additional ARP entries to use as "noise" for the correlation
+    std::vector<ARPEntry> ARPNoise;
+
+    // Thresholds for considering a run of an heuristic against
+    // this data set "good".
+    // Values are ratios to the total number of test cases
+    double RequiredTrueMatchRatio;
+    double RequiredTrueMismatchRatio;
+    double RequiredFalseMatchRatio;
+    double RequiredFalseMismatchRatio;
+};
+
+// Aggregate result of running an heuristic against a data set.
 struct ResultSummary
 {
-    unsigned TrueMatches;
-    unsigned TrueMismatches;
-    unsigned FalseMatches;
-    unsigned FalseMismatches;
+    size_t TrueMatches;
+    size_t TrueMismatches;
+    size_t FalseMatches;
+    size_t FalseMismatches;
 
-    unsigned TotalCases() const
+    size_t TotalCases() const
     {
         return TrueMatches + TrueMismatches + FalseMatches + FalseMismatches;
     }
 };
+
+Manifest GetManifestFromTestCase(const TestCase& testCase)
+{
+    Manifest manifest;
+    manifest.DefaultLocalization.Add<Localization::PackageName>(testCase.AppName);
+    manifest.DefaultLocalization.Add<Localization::Publisher>(testCase.AppPublisher);
+    manifest.Localizations.push_back(manifest.DefaultLocalization);
+    return manifest;
+}
+
+ARPEntry GetARPEntryFromTestCase(const TestCase& testCase)
+{
+    Manifest arpManifest;
+    arpManifest.DefaultLocalization.Add<Localization::PackageName>(testCase.ARPName);
+    arpManifest.DefaultLocalization.Add<Localization::Publisher>(testCase.ARPPublisher);
+    arpManifest.Localizations.push_back(arpManifest.DefaultLocalization);
+    return ARPEntry{ TestPackageVersion::Make(arpManifest), false };
+}
+
+ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorrelationAlgorithm& correlationAlgorithm)
+{
+    ResultSummary result{};
+
+    // Each entry under test will be pushed at the end of this
+    // and removed at the end.
+    auto arpEntries = dataSet.ARPNoise;
+
+    for (const auto& testCase : dataSet.TestCases)
+    {
+        arpEntries.push_back(GetARPEntryFromTestCase(testCase));
+        auto match = correlationAlgorithm.GetBestMatchForManifest(GetManifestFromTestCase(testCase), arpEntries);
+        arpEntries.pop_back();
+
+        if (match)
+        {
+            auto matchManifest = match->Entry->GetManifest();
+            if (matchManifest.DefaultLocalization.Get<Localization::PackageName>() == testCase.ARPName &&
+                matchManifest.DefaultLocalization.Get <Localization::Publisher>() == testCase.ARPPublisher)
+            {
+                ++result.TrueMatches;
+            }
+            else
+            {
+                ++result.FalseMatches;
+            }
+        }
+        else
+        {
+            if (testCase.IsMatch)
+            {
+                ++result.FalseMismatches;
+            }
+            else
+            {
+                ++result.TrueMismatches;
+            }
+        }
+    }
+
+    return result;
+}
+
+void ReportResults(ResultSummary results)
+{
+    // This uses WARN to report as that is always shown.
+    // TODO: Consider reporting in some other way
+    WARN("Total cases:       " << results.TotalCases() << '\n' <<
+         "True matches:      " << results.TrueMatches << '\n' <<
+         "False matches:     " << results.FalseMatches << '\n' <<
+         "True mismatches:   " << results.TrueMismatches << '\n' <<
+         "False mismatches:  " << results.FalseMismatches << '\n');
+}
+
+void EvaluateResults(ResultSummary results, const DataSet& dataSet)
+{
+    // Required True ratio is a lower limit. The more results we get right, the better.
+    // Required False ratio is an upper limit. The fewer results we get wrong, the better.
+    REQUIRE(results.TrueMatches > results.TotalCases() * dataSet.RequiredTrueMatchRatio);
+    REQUIRE(results.TrueMismatches > results.TotalCases() * dataSet.RequiredTrueMismatchRatio);
+    REQUIRE(results.FalseMatches < results.TotalCases() * dataSet.RequiredTrueMatchRatio);
+    REQUIRE(results.FalseMismatches < results.TotalCases()* dataSet.RequiredTrueMismatchRatio);
+}
+
+// TODO: Define multiple data sets
+//   - Data set with many apps.
+//   - Data set with popular apps. The match requirements should be higher
+//   - Data set(s) in other languages.
+//   - Data set where not everything has a match
 
 std::vector<TestCase> LoadTestData()
 {
@@ -64,9 +175,9 @@ std::vector<TestCase> LoadTestData()
         std::getline(ss, appId, '\t');
         std::getline(ss, testCase.AppName, '\t');
         std::getline(ss, testCase.AppPublisher, '\t');
-        std::getline(ss, testCase.ArpName, '\t');
+        std::getline(ss, testCase.ARPName, '\t');
         std::getline(ss, arpDisplayVersion, '\t');
-        std::getline(ss, testCase.ArpPublisher, '\t');
+        std::getline(ss, testCase.ARPPublisher, '\t');
         std::getline(ss, arpProductCode, '\t');
 
         testCase.IsMatch = true;
@@ -77,83 +188,100 @@ std::vector<TestCase> LoadTestData()
     return testCases;
 }
 
-ResultSummary EvaluateCorrelationMeasure(const ARPCorrelationMeasure& measure, const std::vector<TestCase>& cases)
+DataSet GetDataSet_ManyAppsNoNoise()
 {
-    std::vector<ARPEntry> allARPEntries;
-    for (const auto& testCase : cases)
-    {
-        ARPEntry entry{ nullptr, true };
-        entry.Name = testCase.ArpName;
-        entry.Publisher = testCase.ArpPublisher;
-        entry.IsNewOrUpdated = true;
-        allARPEntries.push_back(entry);
-    }
+    DataSet dataSet;
+    dataSet.TestCases = LoadTestData();
 
-    ResultSummary result{};
-    for (const auto& testCase : cases)
-    {
-        // TODO: initialize with test data
-        Manifest manifest;
-        manifest.DefaultLocalization.Add<Localization::PackageName>(testCase.AppName);
-        manifest.DefaultLocalization.Add<Localization::Publisher>(testCase.AppPublisher);
-        manifest.Localizations.push_back(manifest.DefaultLocalization);
-
-        std::vector<ARPEntry> arpEntries;
-        ARPEntry entry{ nullptr, true };
-        entry.Name = testCase.ArpName;
-        entry.Publisher = testCase.ArpPublisher;
-        entry.IsNewOrUpdated = true;
-        arpEntries.push_back(entry);
-        // Add a couple of ARP entries as noise
-        for (size_t i = 0; i < std::min((size_t)0, allARPEntries.size()); ++i)
-        {
-            arpEntries.push_back(allARPEntries[i]);
-        }
-
-        auto match = measure.GetBestMatchForManifest(manifest, arpEntries);
-
-        if (match)
-        {
-            // TODO: Improve match check
-            if (match->Name == testCase.ArpName && match->Publisher == testCase.ArpPublisher)
-            {
-                ++result.TrueMatches;
-            }
-            else
-            {
-                ++result.FalseMatches;
-            }
-        }
-        else
-        {
-            if (testCase.IsMatch)
-            {
-                ++result.FalseMismatches;
-            }
-            else
-            {
-                ++result.TrueMismatches;
-            }
-        }
-    }
-
-    return result;
+    return dataSet;
 }
 
-TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
-    NoCorrelation,
-    NormalizedNameAndPublisherCorrelation,
-    NormalizedEditDistanceCorrelation)
+DataSet GetDataSet_FewAppsMuchNoise()
 {
+    DataSet dataSet;
+    auto baseTestCases = LoadTestData();
+
+    std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetARPEntryFromTestCase);
+
+    // Take the first few apps from the test data
+    for (size_t i = 0; i < 10; ++i)
+    {
+        dataSet.TestCases.push_back(baseTestCases[i]);
+    }
+
+    return dataSet;
+}
+
+// A correlation algorithm that considers only the matching with name+publisher.
+// Used to evaluate the string matching.
+template<typename T>
+struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
+{
+    double GetMatchingScore(
+        const Manifest&,
+        const ManifestLocalization& manifestLocalization,
+        const ARPEntry& arpEntry) const override
+    {
+        // Overall algorithm:
+        // This considers only the matching between name/publisher.
+        // It ignores versions and whether the ARP entry is new.
+        const auto packageName = manifestLocalization.Get<Localization::PackageName>();
+        const auto packagePublisher = manifestLocalization.Get<Localization::Publisher>();
+
+        const auto arpNames = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Name);
+        const auto arpPublishers = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Publisher);
+        THROW_HR_IF(E_NOT_VALID_STATE, arpNames.size() != arpPublishers.size());
+
+        T nameAndPublisherCorrelationMeasure;
+        double bestMatch = 0;
+        for (size_t i = 0; i < arpNames.size(); ++i)
+        {
+            bestMatch = std::max(bestMatch, nameAndPublisherCorrelationMeasure.GetMatchingScore(packageName, packagePublisher, arpNames[i], arpPublishers[i]));
+        }
+
+        return bestMatch;
+    }
+};
+
+
+TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
+    TestAlgorithmForStringMatching<EmptyNameAndPublisherCorrelationMeasure>,
+    TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
+    TestAlgorithmForStringMatching<EditDistanceNameAndPublisherCorrelationMeasure>)
+{
+    // Each section loads a different data set,
+    // and then they are all handled the same
+    DataSet dataSet;
+    SECTION("Many apps with no noise")
+    {
+        dataSet = GetDataSet_ManyAppsNoNoise();
+    }
+    SECTION("Few apps with much noise")
+    {
+        dataSet = GetDataSet_FewAppsMuchNoise();
+    }
+
     TestType measure;
-    std::vector<TestCase> testCases = LoadTestData();
+    auto results = EvaluateDataSetWithHeuristic(dataSet, measure);
+    ReportResults(results);
+}
 
-    auto resultSummary = EvaluateCorrelationMeasure(measure, testCases);
-    WARN("True matches:\t" << resultSummary.TrueMatches);
-    WARN("False matches:\t" << resultSummary.FalseMatches);
-    WARN("True mismatches:\t" << resultSummary.TrueMismatches);
-    WARN("False mismatches:\t" << resultSummary.FalseMismatches);
-    WARN("Total cases:\t" << resultSummary.TotalCases());
+TEST_CASE("CorrelationHeuristicIsGood", "[correlation]")
+{
+    // Each section loads a different data set,
+    // and then they are all handled the same
+    DataSet dataSet;
+    SECTION("Many apps with no noise")
+    {
+        dataSet = GetDataSet_ManyAppsNoNoise();
+    }
+    SECTION("Few apps with much noise")
+    {
+        dataSet = GetDataSet_FewAppsMuchNoise();
+    }
 
-    // TODO: Check against minimum expected
+    // Use only the measure we ultimately pick
+    const auto& measure = ARPCorrelationAlgorithm::GetInstance();
+    auto results = EvaluateDataSetWithHeuristic(dataSet, measure);
+    EvaluateResults(results, dataSet);
 }
