@@ -16,19 +16,19 @@
       "description": "The package version"
     },
     "Locale": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "pattern": "^([a-zA-Z]{2,3}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
       "maxLength": 20,
       "description": "The package meta-data locale"
     },
     "Url": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
       "maxLength": 2048,
       "description": "Optional Url type"
     },
     "Tag": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 40,
       "description": "Package moniker or tag"
@@ -37,13 +37,13 @@
       "type": "object",
       "properties": {
         "AgreementLabel": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 100,
           "description": "The label of the Agreement. i.e. EULA, AgeRating, etc. This field should be localized. Either Agreement or AgreementUrl is required. When we show the agreements, we would Bold the AgreementLabel"
         },
         "Agreement": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 10000,
           "description": "The agreement text content."
@@ -55,13 +55,13 @@
       }
     },
     "Channel": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 16,
       "description": "The distribution channel"
     },
     "Platform": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "title": "Platform",
         "type": "string",
@@ -70,17 +70,18 @@
           "Windows.Universal"
         ]
       },
+      "minItems": 1,
       "maxItems": 2,
       "uniqueItems": true,
       "description": "The installer supported operating system"
     },
     "MinimumOSVersion": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$",
       "description": "The installer minimum operating system version"
     },
     "InstallerType": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "enum": [
         "msix",
         "msi",
@@ -96,7 +97,7 @@
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
     "Scope": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "enum": [
         "user",
         "machine"
@@ -104,7 +105,7 @@
       "description": "Scope indicates if the installer is per user or per machine"
     },
     "InstallModes": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "title": "InstallModes",
         "type": "string",
@@ -114,6 +115,7 @@
           "silentWithProgress"
         ]
       },
+      "minItems": 1,
       "maxItems": 3,
       "uniqueItems": true,
       "description": "List of supported installer modes"
@@ -122,43 +124,43 @@
       "type": "object",
       "properties": {
         "Silent": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
         },
         "SilentWithProgress": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "SilentWithProgress is the value that should be passed to the installer when user chooses a non-interactive install"
         },
         "Interactive": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "Interactive is the value that should be passed to the installer when user chooses an interactive install"
         },
         "InstallLocation": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "InstallLocation is the value passed to the installer for custom install location. <INSTALLPATH> token can be included in the switch value so that winget will replace the token with user provided path"
         },
         "Log": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "Log is the value passed to the installer for custom log file path. <LOGPATH> token can be included in the switch value so that winget will replace the token with user provided path"
         },
         "Upgrade": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 512,
           "description": "Upgrade is the value that should be passed to the installer when user chooses an upgrade"
         },
         "Custom": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
@@ -169,23 +171,26 @@
       "type": "integer",
       "format": "long",
       "not": {
-        "enum": [ 0 ]
+        "enum": [
+          0
+        ]
       },
       "minimum": -2147483648,
       "maximum": 4294967295,
       "description": "An exit code that can be returned by the installer after execution"
     },
     "InstallerSuccessCodes": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "$ref": "#/definitions/InstallerReturnCode"
       },
+      "minItems": 1,
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of additional non-zero installer success exit codes other than known default values by winget"
     },
     "ExpectedReturnCodes": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "object",
         "title": "ExpectedReturnCode",
@@ -213,13 +218,15 @@
               "blockedByPolicy"
             ]
           }
-        }
+        },
+        "minProperties": 1
       },
+      "minItems": 1,
       "maxItems": 128,
       "description": "Installer exit codes for common errors"
     },
     "UpgradeBehavior": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "enum": [
         "install",
         "uninstallPrevious"
@@ -227,65 +234,70 @@
       "description": "The upgrade method"
     },
     "Commands": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "string",
         "minLength": 1,
         "maxLength": 40
       },
+      "minItems": 1,
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of commands or aliases to run the package"
     },
     "Protocols": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "string",
         "pattern": "^[a-z][-a-z0-9\\.\\+]*$",
         "maxLength": 2048
       },
+      "minItems": 1,
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of protocols the package provides a handler for"
     },
     "FileExtensions": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "string",
         "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
         "maxLength": 64
       },
+      "minItems": 1,
       "maxItems": 256,
       "uniqueItems": true,
       "description": "List of file extensions the package could support"
     },
     "Dependencies": {
-      "type": [ "object", "null" ],
+      "type": "object",
       "properties": {
         "WindowsFeatures": {
-          "type": [ "array", "null" ],
+          "type": "array",
           "items": {
             "type": "string",
             "minLength": 1,
             "maxLength": 128
           },
+          "minItems": 1,
           "maxItems": 16,
           "uniqueItems": true,
           "description": "List of Windows feature dependencies"
         },
         "WindowsLibraries": {
-          "type": [ "array", "null" ],
+          "type": "array",
           "items": {
             "type": "string",
             "minLength": 1,
             "maxLength": 128
           },
+          "minItems": 1,
           "maxItems": 16,
           "uniqueItems": true,
           "description": "List of Windows library dependencies"
         },
         "PackageDependencies": {
-          "type": [ "array", "null" ],
+          "type": "array",
           "items": {
             "type": "object",
             "properties": {
@@ -296,54 +308,61 @@
                 "$ref": "#/definitions/PackageVersion"
               }
             },
-            "required": [ "PackageIdentifier" ]
+            "required": [
+              "PackageIdentifier"
+            ]
           },
+          "minItems": 1,
           "maxItems": 16,
           "description": "List of package dependencies from current source"
         },
         "ExternalDependencies": {
-          "type": [ "array", "null" ],
+          "type": "array",
           "items": {
             "type": "string",
             "minLength": 1,
             "maxLength": 128
           },
+          "minItems": 1,
           "maxItems": 16,
           "uniqueItems": true,
           "description": "List of external package dependencies"
         }
-      }
+      },
+      "minProperties": 1
     },
     "PackageFamilyName": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "pattern": "^[A-Za-z0-9][-\\.A-Za-z0-9]+_[A-Za-z0-9]{13}$",
       "maxLength": 255,
       "description": "PackageFamilyName for appx or msix installer. Could be used for correlation of packages across sources"
     },
     "ProductCode": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 255,
       "description": "ProductCode could be used for correlation of packages across sources"
     },
     "Capabilities": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "string",
         "minLength": 1,
         "maxLength": 40
       },
+      "minItems": 1,
       "maxItems": 1000,
       "uniqueItems": true,
       "description": "List of appx or msix installer capabilities"
     },
     "RestrictedCapabilities": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "type": "string",
         "minLength": 1,
         "maxLength": 40
       },
+      "minItems": 1,
       "maxItems": 1000,
       "uniqueItems": true,
       "description": "List of appx or msix installer restricted capabilities"
@@ -354,8 +373,9 @@
       "description": "The installer target market"
     },
     "MarketArray": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "uniqueItems": true,
+      "minItems": 1,
       "maxItems": 256,
       "items": {
         "$ref": "#/definitions/Market"
@@ -364,45 +384,38 @@
     },
     "Markets": {
       "description": "The installer markets",
-      "type": [ "object", "null" ],
-      "oneOf": [
-        {
-          "properties": {
-            "AllowedMarkets": {
-              "$ref": "#/definitions/MarketArray"
-            }
-          },
-          "required": [ "AllowedMarkets" ]
+      "type": "object",
+      "properties": {
+        "AllowedMarkets": {
+          "$ref": "#/definitions/MarketArray"
         },
-        {
-          "properties": {
-            "ExcludedMarkets": {
-              "$ref": "#/definitions/MarketArray"
-            }
-          },
-          "required": [ "ExcludedMarkets" ]
+        "ExcludedMarkets": {
+          "$ref": "#/definitions/MarketArray"
         }
-      ]
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false
     },
     "InstallerAbortsTerminal": {
-      "type": [ "boolean", "null" ],
+      "type": "boolean",
       "description": "Indicates whether the installer will abort terminal. Default is false"
     },
     "ReleaseDate": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "format": "date",
       "description": "The installer release date"
     },
     "InstallLocationRequired": {
-      "type": [ "boolean", "null" ],
+      "type": "boolean",
       "description": "Indicates whether the installer requires an install location provided"
     },
     "RequireExplicitUpgrade": {
-      "type": [ "boolean", "null" ],
+      "type": "boolean",
       "description": "Indicates whether the installer should be pinned by default from upgrade"
     },
     "UnsupportedOSArchitectures": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "string",
@@ -420,19 +433,19 @@
       "type": "object",
       "properties": {
         "DisplayName": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 256,
           "description": "The DisplayName registry value"
         },
         "Publisher": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 256,
           "description": "The Publisher registry value"
         },
         "DisplayVersion": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 128,
           "description": "The DisplayVersion registry value"
@@ -447,11 +460,13 @@
           "$ref": "#/definitions/InstallerType"
         }
       },
+      "minProperties": 1,
       "description": "Various key values under installer's ARP entry"
     },
     "AppsAndFeaturesEntries": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "uniqueItems": true,
+      "minItems": 1,
       "maxItems": 128,
       "items": {
         "$ref": "#/definitions/AppsAndFeaturesEntry"
@@ -459,7 +474,7 @@
       "description": "List of ARP entries."
     },
     "ElevationRequirement": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "enum": [
         "elevationRequired",
         "elevationProhibited",
@@ -508,7 +523,7 @@
           "description": "Sha256 is required. Sha256 of the installer"
         },
         "SignatureSha256": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "pattern": "^[A-Fa-f0-9]{64}$",
           "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
         },
@@ -613,7 +628,7 @@
       "description": "The publisher privacy page or the package privacy page"
     },
     "Author": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 2,
       "maxLength": 256,
       "description": "The package author"
@@ -639,7 +654,7 @@
       "description": "The license page"
     },
     "Copyright": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 512,
       "description": "The package copyright"
@@ -655,7 +670,7 @@
       "description": "The short package description"
     },
     "Description": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 10000,
       "description": "The full package description"
@@ -665,23 +680,25 @@
       "description": "The most common package term"
     },
     "Tags": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "$ref": "#/definitions/Tag"
       },
+      "minItems": 1,
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of additional package search terms"
     },
     "Agreements": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "$ref": "#/definitions/Agreement"
       },
+      "minItems": 1,
       "maxItems": 128
     },
     "ReleaseNotes": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 10000,
       "description": "The package release notes"

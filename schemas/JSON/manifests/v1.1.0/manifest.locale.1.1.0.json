@@ -4,13 +4,13 @@
   "description": "A representation of a multiple-file manifest representing app metadata in other locale in the OWC. v1.1.0",
   "definitions": {
     "Url": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
       "maxLength": 2048,
       "description": "Optional Url type"
     },
     "Tag": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 40,
       "description": "Package tag"
@@ -19,13 +19,13 @@
       "type": "object",
       "properties": {
         "AgreementLabel": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 100,
           "description": "The label of the Agreement. i.e. EULA, AgeRating, etc. This field should be localized. Either Agreement or AgreementUrl is required. When we show the agreements, we would Bold the AgreementLabel"
         },
         "Agreement": {
-          "type": [ "string", "null" ],
+          "type": "string",
           "minLength": 1,
           "maxLength": 10000,
           "description": "The agreement text content."
@@ -34,7 +34,8 @@
           "$ref": "#/definitions/Url",
           "description": "The agreement URL."
         }
-      }
+      },
+      "minProperties": 1
     }
   },
   "type": "object",
@@ -58,7 +59,7 @@
       "description": "The package meta-data locale"
     },
     "Publisher": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 2,
       "maxLength": 256,
       "description": "The publisher name"
@@ -76,13 +77,13 @@
       "description": "The publisher privacy page or the package privacy page"
     },
     "Author": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 2,
       "maxLength": 256,
       "description": "The package author"
     },
     "PackageName": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 2,
       "maxLength": 256,
       "description": "The package name"
@@ -92,7 +93,7 @@
       "description": "The package home page"
     },
     "License": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 512,
       "description": "The package license"
@@ -102,7 +103,7 @@
       "description": "The license page"
     },
     "Copyright": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 512,
       "description": "The package copyright"
@@ -112,35 +113,37 @@
       "description": "The package copyright page"
     },
     "ShortDescription": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 256,
       "description": "The short package description"
     },
     "Description": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 3,
       "maxLength": 10000,
       "description": "The full package description"
     },
     "Tags": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "$ref": "#/definitions/Tag"
       },
+      "minItems": 1,
       "maxItems": 16,
       "uniqueItems": true,
       "description": "List of additional package search terms"
     },
     "Agreements": {
-      "type": [ "array", "null" ],
+      "type": "array",
       "items": {
         "$ref": "#/definitions/Agreement"
       },
+      "minItems": 1,
       "maxItems": 128
     },
     "ReleaseNotes": {
-      "type": [ "string", "null" ],
+      "type": "string",
       "minLength": 1,
       "maxLength": 10000,
       "description": "The package release notes"
