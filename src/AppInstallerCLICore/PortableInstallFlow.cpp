@@ -8,6 +8,9 @@
 using namespace AppInstaller::Manifest;
 using namespace std::filesystem;
 
+#define BUFSIZE = 4096;
+#define PATHVARNAME = TEXT("PATH");
+
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Portable;
@@ -117,11 +120,11 @@ namespace AppInstaller::CLI::Workflow
             callback.BeginProgress();
             std::filesystem::create_directories(portableArgs.InstallRootPackageDirectory);
             std::string fileName = installerPath.filename().u8string();
-            std::filesystem::path portableExeDestPath = portableArgs.InstallRootPackageDirectory / fileName;
+            std::filesystem::path portableTargetPath = portableArgs.InstallRootPackageDirectory / fileName;
 
             // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handle when dealing with
             // multiple files (archive) to guarantee all files can be successfully copied.
-            bool copyResult = CopyFileExW(installerPath.c_str(), portableExeDestPath.c_str(), &CopyPortableExeProgressCallback, &callback, FALSE, 0);
+            bool copyResult = CopyFileExW(installerPath.c_str(), portableTargetPath.c_str(), &CopyPortableExeProgressCallback, &callback, FALSE, 0);
             if (!copyResult)
             {
                 DWORD copyError = GetLastError();
@@ -129,9 +132,24 @@ namespace AppInstaller::CLI::Workflow
                 return false;
             }
 
-            bool registrationResult;
-            registrationResult = WriteToAppPathsRegistry(portableArgs.RootKey, portableArgs.AppPathEntry, portableExeDestPath, true);
-            registrationResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
+            std::string portableLinksLocation = Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation).u8string();
+            AddToPathEnvironmentRegistry(portableArgs.RootKey, portableLinksLocation);
+
+            // create a function that opens the environment variable registry
+            // checks if the path already exists std::string::find if (s1.find(s2) != std::string::npos) {
+            // std::cout << "found!" << '\n';
+            // if the path doesn't exist, append it at the end with a semicolon
+            // set registry key value
+            // return true if written or already exists, return false if it fails 
+            // Need to write to environment registry 
+
+            //Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
+            //Computer\HKEY_CURRENT_USER\Environment
+
+            std::filesystem::path symlinkPath = Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation) / portableArgs.AppPathEntry;
+            CreateSymlink(portableTargetPath, symlinkPath);
+
+            bool registrationResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
 
             if (registrationResult)
             {

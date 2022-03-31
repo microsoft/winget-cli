@@ -25,6 +25,10 @@ namespace AppInstaller::Portable
 
     bool WriteToAppPathsRegistry(HKEY root, std::string_view entryName, const std::filesystem::path& exePath, bool enablePath);
 
+    void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
+
+    bool AddToPathEnvironmentRegistry(HKEY root, std::string& keyValue);
+
     bool WriteToUninstallRegistry(HKEY root, std::string_view packageIdentifier, Manifest::AppsAndFeaturesEntry& entry);
 
     bool CleanUpRegistryEdits(HKEY root, std::string& appPathEntry, std::string& productCode);

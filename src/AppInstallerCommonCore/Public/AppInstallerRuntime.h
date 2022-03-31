@@ -53,6 +53,18 @@ namespace AppInstaller::Runtime
         ProgramFilesX86,
         // The local app data location.
         LocalAppData,
+        // The location where portable packages are installed to with user scope.
+        PortableAppUserRoot,
+        // The location where portable packages are installed to with machine scope (x64).
+        PortableAppMachineRootX64,
+        // The location where portable packages are installed to with machine scope (x86).
+        PortableAppMachineRootX86,
+        // The location where symlinks to portable packages are stored under user scope.
+        PortableLinksUserLocation,
+        // The location where symlinks to portable packages are stored under machine scope (x64).
+        PortableLinksMachineLocationX64,
+        // The location where symlinks to portable packages are stored under user scope (x86).
+        PortableLinksMachineLocationX86
     };
 
     // Gets the path to the requested location.

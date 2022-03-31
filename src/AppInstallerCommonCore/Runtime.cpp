@@ -22,6 +22,9 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
+        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_PortableMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_LinksDirectory = "Links"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -321,6 +324,12 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_LocalAppData);
                 create = false;
                 break;
+            case PathName::PortableLinksUserLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_PortableAppUserRoot;
+                result /= s_LinksDirectory;
+                create = true;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -372,6 +381,12 @@ namespace AppInstaller::Runtime
             case PathName::LocalAppData:
                 result = GetKnownFolderPath(FOLDERID_LocalAppData);
                 create = false;
+                break;
+            case PathName::PortableLinksUserLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_PortableAppUserRoot;
+                result /= s_LinksDirectory;
+                create = true;
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

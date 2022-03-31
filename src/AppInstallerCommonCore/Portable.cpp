@@ -16,7 +16,7 @@ namespace AppInstaller::Portable
 
     const std::wstring_view appPathsRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
     const std::wstring_view uninstallRegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-
+    const std::wstring_view environmentRegistrySubkey = L"Environment";
     // Remove after merge with 1.2 schema changes
     constexpr std::string_view s_Microsoft = "Microsoft"sv;
     constexpr std::string_view s_WinGet = "WinGet"sv;
@@ -106,6 +106,34 @@ namespace AppInstaller::Portable
         }
 
         return result;
+    }
+
+    bool AddToPathEnvironmentRegistry(HKEY root, std::string& keyValue)
+    {
+        std::wstring keyValueW = ConvertToUTF16(keyValue);
+
+        AppInstaller::Registry::Key key = Registry::Key::CreateKeyAndOpen(root, Normalize(environmentRegistrySubkey));
+        std::wstring pathKey = { L"Path" };
+
+        auto pathValue = key[pathKey]->GetValue<AppInstaller::Registry::Value::Type::String>();
+        if (pathValue.find(keyValue) == std::string::npos)
+        {
+            // TODO: fix path combine when adding to path
+            std::string modifiedPathValue = pathValue.append(Normalize(keyValue) + ";");
+            return key.SetKeyValue(pathKey, ConvertToUTF16(modifiedPathValue), REG_EXPAND_SZ);
+        }
+
+        return true;
+    }
+
+    void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link)
+    {
+        if (std::filesystem::exists(link))
+        {
+            std::filesystem::remove(link);
+        }
+
+        std::filesystem::create_symlink(target, link);
     }
 
     bool WriteToUninstallRegistry(HKEY root, std::string_view packageIdentifier, Manifest::AppsAndFeaturesEntry& entry)
