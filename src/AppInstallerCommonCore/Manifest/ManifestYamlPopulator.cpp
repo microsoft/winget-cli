@@ -718,7 +718,7 @@ namespace AppInstaller::Manifest
             m_p_expectedReturnCode = &returnCode;
             auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-            if (!returnCodes.insert({ returnCode.InstallerReturnCode, ExpectedReturnCodeInfo{ returnCode.ReturnResponse, returnCode.ReturnResponseUrl} }).second)
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, {returnCode.ReturnResponse, returnCode.ReturnResponseUrl} }).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
             }
