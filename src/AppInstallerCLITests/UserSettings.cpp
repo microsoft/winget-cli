@@ -413,3 +413,16 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }
+
+TEST_CASE("SettingsPortableAppRoot", "[settings]")
+{
+    SECTION("Relative path")
+    {
+        std::string_view json = R"({ "installBehavior": { "portableAppUserRoot": %LOCALAPPDATA%/Portable/Root } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+        
+        REQUIRE(userSettingTest.Get<Setting::PortableAppUserRoot>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}

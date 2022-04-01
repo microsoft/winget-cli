@@ -234,8 +234,22 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortableApp)
-        WINGET_VALIDATE_PASS_THROUGH(PortableAppUserRoot)
-        WINGET_VALIDATE_PASS_THROUGH(PortableAppMachineRoot)
+
+        WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
+        {
+            std::filesystem::path root = { value };
+            if (!root.is_absolute())
+            {
+                return {};
+            }
+
+            return root;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
+        {
+            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
+        }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {

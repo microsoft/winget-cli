@@ -1279,7 +1279,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Retains all files and directories created by the package (portable)</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
-    <value>Deletes all files and directories created by the package (portable)</value>
+    <value>Deletes all files and directories in the package directory (portable)</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>The value to rename the executable file (portable)</value>
