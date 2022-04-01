@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::ProductCodeFromARP>
         {
-            using value_t = std::vector<Utility::LocIndString>;
+            using value_t = std::vector<Manifest::AppsAndFeaturesEntry>;
         };
 
         template <>

@@ -536,7 +536,41 @@ namespace AppInstaller::CLI::Workflow
         // Store the ARP entry found to match the package to record it in the tracking catalog later
         if (arpEntry)
         {
-            context.Add<Data::ProductCodeFromARP>(arpEntry->GetMultiProperty(PackageVersionMultiProperty::ProductCode));
+            // TODO: Is this the right way to add the data we have?
+            std::vector<AppsAndFeaturesEntry> entries;
+
+            auto metadata = arpEntry->GetMetadata();
+
+            AppsAndFeaturesEntry baseEntry;
+            baseEntry.DisplayName = arpEntry->GetProperty(PackageVersionProperty::Name).get();
+            baseEntry.DisplayVersion = arpEntry->GetProperty(PackageVersionProperty::Version).get();
+            baseEntry.Publisher = metadata[PackageVersionMetadata::Publisher];
+            baseEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(metadata[PackageVersionMetadata::InstalledType]);
+
+            auto productCodes = arpEntry->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            for (auto&& productCode : productCodes)
+            {
+                AppsAndFeaturesEntry entry = baseEntry;
+                entry.ProductCode = std::move(productCode).get();
+                entries.push_back(std::move(entry));
+            }
+
+            auto names = arpEntry->GetMultiProperty(PackageVersionMultiProperty::Name);
+            auto publishers = arpEntry->GetMultiProperty(PackageVersionMultiProperty::Publisher);
+
+            // TODO: these should always have the same size...
+            if (names.size() == publishers.size())
+            {
+                for (size_t i = 0; i < names.size(); ++i)
+                {
+                    AppsAndFeaturesEntry entry = baseEntry;
+                    entry.DisplayName = std::move(names[i]).get();
+                    entry.Publisher = std::move(publishers[i]).get();
+                    entries.push_back(std::move(entry));
+                }
+            }
+
+            context.Add<Data::ProductCodeFromARP>(std::move(entries));
         }
     }
     CATCH_LOG();
@@ -561,13 +595,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Use a new Installer entry
             manifest.Installers.emplace_back();
-            auto& installer = manifest.Installers.back();
-            for (const auto& arpProductCode : context.Get<Data::ProductCodeFromARP>())
-            {
-                AppsAndFeaturesEntry newEntry;
-                newEntry.ProductCode = arpProductCode.get();
-                installer.AppsAndFeaturesEntries.push_back(std::move(newEntry));
-            }
+            manifest.Installers.back().AppsAndFeaturesEntries = context.Get<Data::ProductCodeFromARP>();
         }
 
         auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
