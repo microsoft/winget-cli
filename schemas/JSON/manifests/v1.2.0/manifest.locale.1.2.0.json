@@ -35,6 +35,21 @@
           "description": "The agreement URL."
         }
       }
+    },
+    "Documentation": {
+      "type": "object",
+      "properties": {
+        "DocumentLabel": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "The label of the documentation for providing software guides such as manuals and troubleshooting URLs."
+        },
+        "DocumentUrl": {
+          "$ref": "#/definitions/Url",
+          "description": "The documentation URL."          
+        }
+      }
     }
   },
   "type": "object",
@@ -148,6 +163,23 @@
     "ReleaseNotesUrl": {
       "$ref": "#/definitions/Url",
       "description": "The package release notes url"
+    },
+    "PurchaseUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The purchase url for acquiring entitlement for the package."
+    },
+    "InstallationNotes": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "The notes displayed to the user upon completion of a package installation."      
+    },
+    "Documentations": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/Documentation"
+      },
+      "maxItems": 256
     },
     "ManifestType": {
       "type": "string",

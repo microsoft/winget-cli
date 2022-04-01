@@ -4,6 +4,7 @@
 #include <binver/version.h>
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/UserSettings.h"
 
 #include <optional>
 
@@ -12,6 +13,7 @@
 namespace AppInstaller::Runtime
 {
     using namespace Utility;
+    using namespace Settings;
 
     namespace
     {
@@ -22,6 +24,9 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
+        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_PortableAppMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -309,6 +314,36 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
+            case PathName::PortableAppUserRoot:
+                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX64:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX86:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -348,6 +383,36 @@ namespace AppInstaller::Runtime
             case PathName::UserProfile:
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
+                break;
+            case PathName::PortableAppUserRoot:
+                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX64:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX86:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

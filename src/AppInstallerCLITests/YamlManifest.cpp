@@ -254,6 +254,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. Field: InstallerType" },
         { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml", "Only zero or one entry for Apps and Features may be specified for InstallerType portable." },
+        { "Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml", "Only zero or one value for Commands may be specified for InstallerType portable." },
+        { "Manifest-Bad-InstallerTypePortable-InvalidScope.yaml", "Scope is not supported for InstallerType portable." },
         { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
@@ -395,6 +398,15 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default installation notes");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
+    }
+
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -448,7 +460,15 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
         REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+    }
+
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 2);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
     }
 
     if (isSingleton)
@@ -517,7 +537,14 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.Markets.AllowedMarkets.size() == 0);
         REQUIRE(installer1.Markets.ExcludedMarkets.size() == 1);
         REQUIRE(installer1.Markets.ExcludedMarkets.at(0) == "US");
-        REQUIRE(installer1.ExpectedReturnCodes.at(2) == ExpectedReturnCodeEnum::ContactSupport);
+        REQUIRE(installer1.ExpectedReturnCodes.at(2).ReturnResponseEnum == ExpectedReturnCodeEnum::ContactSupport);
+    }
+
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+    {
+        REQUIRE_FALSE(installer1.DisplayInstallWarnings);
+        REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+        REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
     }
 
     if (!isSingleton)
@@ -548,7 +575,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
             REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
             REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
-            REQUIRE(installer2.ExpectedReturnCodes.at(10) == ExpectedReturnCodeEnum::PackageInUse);
+            REQUIRE(installer2.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
         }
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
@@ -559,6 +586,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
             REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
             REQUIRE(installer3.Commands == MultiValue{ "standalone" });
+            REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
+            REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+            REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+            REQUIRE_FALSE(installer3.DisplayInstallWarnings);
         }
 
         // Localization
@@ -588,6 +619,15 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
             REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(localization1.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+            REQUIRE(localization1.Get<Localization::InstallationNotes>() == "Default installation notes");
+            REQUIRE(localization1.Get<Localization::Documentations>().size() == 1);
+            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
+            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
         }
     }
 }

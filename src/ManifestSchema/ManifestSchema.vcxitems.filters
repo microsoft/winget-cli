@@ -15,7 +15,7 @@
     </Filter>
     <Filter Include="schema\v1.2.0">
       <UniqueIdentifier>{fb3524f4-5541-468d-a33c-ddcdad90484d}</UniqueIdentifier>
-    </Filter>    
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
@@ -58,6 +58,9 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.version.1.1.0.json">
       <Filter>schema\v1.1.0</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.version.1.2.0.json">
+      <Filter>schema\v1.2.0</Filter>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.defaultLocale.1.2.0.json">
       <Filter>schema\v1.2.0</Filter>
     </None>
@@ -68,9 +71,6 @@
       <Filter>schema\v1.2.0</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.singleton.1.2.0.json">
-      <Filter>schema\v1.2.0</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.version.1.2.0.json">
       <Filter>schema\v1.2.0</Filter>
     </None>
   </ItemGroup>

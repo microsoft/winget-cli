@@ -26,8 +26,11 @@ namespace AppInstaller::Manifest
         Description,
         Tags,
         Agreements,
+        Documentations,
         ReleaseNotes,
         ReleaseNotesUrl,
+        PurchaseUrl,
+        InstallationNotes,
         Max
     };
 
@@ -36,6 +39,12 @@ namespace AppInstaller::Manifest
         string_t Label;
         string_t AgreementText;
         string_t AgreementUrl;
+    };
+
+    struct Documentation
+    {
+        string_t DocumentLabel;
+        string_t DocumentUrl;
     };
 
     namespace details
@@ -56,6 +65,12 @@ namespace AppInstaller::Manifest
         struct LocalizationMapping<Localization::Agreements>
         {
             using value_t = std::vector<Agreement>;
+        };
+
+        template <>
+        struct LocalizationMapping<Localization::Documentations>
+        {
+            using value_t = std::vector<Documentation>;
         };
 
         // Used to deduce the LocalizationVariant type; making a variant that includes std::monostate and all LocalizationMapping types.

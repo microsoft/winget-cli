@@ -258,6 +258,15 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeMissing.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
