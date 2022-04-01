@@ -21,7 +21,6 @@ namespace AppInstaller
 namespace AppInstaller::Repository::Correlation
 {
     // Contains the { Id, Version, Channel }
-    // TODO: Use this in the Context. Not doing it yet to avoid having to recompile the whole CLICore project each time
     using ARPEntrySnapshot = std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>;
 
     // Struct holding all the data from an ARP entry we use for the correlation

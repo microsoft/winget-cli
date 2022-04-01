@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
+#include <winget/ARPCorrelation.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"
@@ -187,8 +188,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::ARPSnapshot>
         {
-            // Contains the { Id, Version, Channel }
-            using value_t = std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>>;
+            using value_t = std::vector<Repository::Correlation::ARPEntrySnapshot>;
         };
 
         template <>
