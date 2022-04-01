@@ -237,7 +237,7 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
         {
-            std::filesystem::path root = { value };
+            std::filesystem::path root = ConvertToUTF16(value);
             if (!root.is_absolute())
             {
                 return {};
