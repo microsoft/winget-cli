@@ -79,6 +79,15 @@ ARPEntry GetARPEntryFromTestCase(const TestCase& testCase)
     return ARPEntry{ TestPackageVersion::Make(arpManifest), false };
 }
 
+void ReportMatch(std::string_view label, std::string_view appName, std::string_view appPublisher, std::string_view arpName, std::string_view arpPublisher)
+{
+    WARN(label << '\n' <<
+        "\tApp name      = " << appName << '\n' <<
+        "\tApp publisher = " << appPublisher << '\n' <<
+        "\tARP name      = " << arpName << '\n' <<
+        "\tARP publisher = " << arpPublisher);
+}
+
 ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorrelationAlgorithm& correlationAlgorithm)
 {
     ResultSummary result{};
@@ -105,11 +114,7 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorr
             else
             {
                 // Report false matches as we don't want any of them
-                WARN("False match: " <<
-                    "App name = '" << testCase.AppName << "'" <<
-                    ", App publisher = '" << testCase.AppPublisher << "'" <<
-                    ", ARP name = '" << matchName << "'" <<
-                    ", ARP publisher = '" << matchPublisher << "'");
+                ReportMatch("False match", testCase.AppName, testCase.AppPublisher, matchName, matchPublisher);
                 ++result.FalseMatches;
             }
         }
@@ -117,6 +122,7 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorr
         {
             if (testCase.IsMatch)
             {
+                ReportMatch("False mismatch", testCase.AppName, testCase.AppPublisher, testCase.ARPName, testCase.ARPPublisher);
                 ++result.FalseMismatches;
             }
             else
@@ -211,7 +217,7 @@ DataSet GetDataSet_FewAppsMuchNoise()
     std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetARPEntryFromTestCase);
 
     // Take the first few apps from the test data
-    for (size_t i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 50; ++i)
     {
         dataSet.TestCases.push_back(baseTestCases[i]);
     }
