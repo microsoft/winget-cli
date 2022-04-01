@@ -50,7 +50,12 @@ namespace AppInstaller::Repository::Correlation
 
                 const auto arpNames = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Name);
                 const auto arpPublishers = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Publisher);
-                THROW_HR_IF(E_NOT_VALID_STATE, arpNames.size() != arpPublishers.size());
+
+                // TODO: Comments say that these should match, but it seems they don't always do
+                if (arpNames.size() != arpPublishers.size())
+                {
+                    return 0;
+                }
 
                 T nameAndPublisherCorrelationMeasure;
                 double bestMatch = 0;
@@ -166,7 +171,7 @@ namespace AppInstaller::Repository::Correlation
 
     const ARPCorrelationAlgorithm& ARPCorrelationAlgorithm::GetInstance()
     {
-        static BasicARPCorrelationAlgorithm<EmptyNameAndPublisherCorrelationMeasure> instance;
+        static BasicARPCorrelationAlgorithm<EditDistanceNormalizedNameAndPublisherCorrelationMeasure> instance;
         return instance;
     }
 
@@ -223,6 +228,7 @@ namespace AppInstaller::Repository::Correlation
         Source& arpSource,
         std::string_view sourceIdentifier)
     {
+        AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
         std::vector<ResultMatch> changes;
 
         for (auto& entry : arpSource.Search({}).Matches)
@@ -353,6 +359,7 @@ namespace AppInstaller::Repository::Correlation
         {
             // We were not able to find an exact match, so we now run some heuristics
             // to try and match the package with some ARP entry by assigning them scores.
+            AICLI_LOG(Repo, Verbose, << "No exact ARP match found. Trying to find one with heuristics");
             toLog = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, arpSnapshot, arpSource);
         }
 
@@ -408,6 +415,7 @@ namespace AppInstaller::Repository::Correlation
 
         // Find the best match
         const auto& correlationMeasure = Correlation::ARPCorrelationAlgorithm::GetInstance();
-        return correlationMeasure.GetBestMatchForManifest(manifest, arpEntriesForCorrelation)->Entry;
+        auto bestMatch = correlationMeasure.GetBestMatchForManifest(manifest, arpEntriesForCorrelation);
+        return bestMatch ? bestMatch->Entry : nullptr;
     }
 }
