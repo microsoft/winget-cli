@@ -189,11 +189,11 @@
     <value>Se encontró un argumento posicional cuando no se esperaba nada</value>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>Esta característica es un trabajo en curso y puede cambiar drásticamente o quitarse de forma conjunta en el futuro. Para habilitarlo, edita la configuración ("winget settings") para incluir la característica experimental.</value>
+    <value>Esta característica es un trabajo en curso y puede cambiar drásticamente o quitarse por completo en el futuro. Para habilitarlo, edita la configuración ("winget settings") para incluir la característica experimental.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Muestra el estado de las características experimentales. Las características experimentales se pueden activar a través de la 'winget settings'.</value>
+    <value>Muestra el estado de las características experimentales. Las características experimentales se pueden activar a través de 'winget settings'.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -232,13 +232,13 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Calcula el hash de un archivo local, apropiado para la entrada en un manifiesto.  También puede calcular el hash del archivo de firma de un paquete MSIX para habilitar las instalaciones en streaming.</value>
   </data>
   <data name="HashCommandShortDescription" xml:space="preserve">
-    <value>Aplicación auxiliar para aplicar un algoritmo hash a los archivos del instalador</value>
+    <value>Aplicación auxiliar para aplicar un algoritmo hash a los archivos instaladores</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
     <value>Muestra la ayuda sobre el comando seleccionado</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>Para más información sobre un comando específico, pásalo como argumento de ayuda.</value>
+    <value>Para más información sobre un comando específico, pásalo el argumento de ayuda.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
     <value>Puedes encontrar más ayuda en:</value>
@@ -260,8 +260,8 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>No se puede instalar el paquete porque requiere una versión superior de Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instala el paquete seleccionado, encontrado al buscar en una fuente configurada o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe distinguir entre mayúsculas y minúsculas el id, nombre o el moniker del paquete. Se pueden usar otros campos usando su opción apropiada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <value>Instala el paquete seleccionado, encontrado al buscar en un origen configurado o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir con el id, nombre o el moniker del paquete sin distinguir entre mayúsculas y minúsculas. Se pueden usar otros campos usando su opción apropiada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instala el paquete proporcionado</value>
@@ -363,7 +363,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Error al instalar o actualizar el paquete de Microsoft Store. Código de error:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Error en la comprobación/solicitud de la adquisición del paquete: error de conectividad</value>
+    <value>Error en la comprobación o solicitud de la adquisición del paquete: error de conectividad</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
     <value>Error en la comprobación o solicitud de la adquisición de paquete: no se encontró la cuenta de almacenamiento</value>
@@ -378,13 +378,13 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Error al instalar o actualizar el paquete de Microsoft Store porque el cliente de Microsoft Store está bloqueado por la directiva</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
-    <value>Comprobando/solicitando la adquisición del paquete...</value>
+    <value>Comprobando o solicitando la adquisición del paquete...</value>
   </data>
   <data name="MultipleInstalledPackagesFound" xml:space="preserve">
-    <value>Se encontraron varios paquetes instalados que coinciden con los criterios de entrada. Por favor, vuelve a ajustar la búsqueda.</value>
+    <value>Se encontraron varios paquetes instalados que coinciden con los criterios de entrada. Por favor, reajusta tu búsqueda.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
-    <value>Se encontraron varios paquetes coincidentes con los criterios de entrada. Por favor, reajusta tu busqueda.</value>
+    <value>Se encontraron varios paquetes coincidentes con los criterios de entrada. Por favor, reajusta tu búsqueda.</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por nombre</value>
@@ -466,19 +466,21 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Se encontraron los siguientes errores al validar la configuración:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Abra la configuración en el editor de texto JSON predeterminado. Si no hay un editor configurado, abra la configuración en el bloc de notas. Para conocer la configuración disponible, consulte https://aka.ms/winget-settings. Este comando también se puede utilizar para establecer la configuración del administrador proporcionando el argumento "enable" o "disable".</value>
+    <value>Abre la configuración en el editor de texto JSON predeterminado. Si no hay un editor configurado, abre la configuración en el bloc de notas. Para conocer la configuración disponible, consulte https://aka.ms/winget-settings. Este comando también se puede utilizar para establecer la configuración del administrador proporcionando el argumento "enable" o "disable".</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Abrir la configuración o establecer la configuración del administrador</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Error inesperado al cargar la configuración. Para comprobar la configuración, ejecute el comando configuración.</value>
+    <value>Error inesperado al cargar la configuración. Para comprobar la configuración, ejecute el comando 'settings'.</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Muestra información sobre un paquete específico. De forma predeterminada, la consulta no debe distinguir entre mayúsculas y minúsculas y no distingue entre el identificador, el nombre o el moniker del paquete. Puede usar otros campos si pasa su opción adecuada.</value>
+    <value>Muestra información sobre un paquete específico. De forma predeterminada, la consulta debe coincidir con el id, nombre o el moniker del paquete sin distinguir entre mayúsculas y minúsculas. Puede usar otros campos si pasa su opción adecuada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Muestra información sobre un paquete</value>
@@ -578,7 +580,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>No se pudo abrir el origen predefinido; informa a winget mantenedores.</value>
+    <value>No se pudo abrir el origen predefinido; por favor informa a los mantenedores de winget.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
@@ -663,13 +665,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No se encontraron actualizaciones aplicables.</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Actualiza el paquete seleccionado, ya sea buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta no debe distinguir entre mayúsculas y minúsculas y no distingue entre el identificador, el nombre o el moniker del paquete. Puede usar otros campos si pasa su opción adecuada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Actualiza el paquete determinado</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
     <comment>The way to use the software</comment>
@@ -708,7 +703,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Los orígenes configurados son:</value>
   </data>
   <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
-    <value>No se definió ninguna fuente. Agregue una con "source add" o restablezca el valor predeterminado con "source reset"</value>
+    <value>No se definió ningún origen. Agregue uno con "source add" o restablezca el valor predeterminado con "source reset"</value>
     <comment>{Locked="source add","source reset"}</comment>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
@@ -731,7 +726,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>El instalador está bloqueado debido a una directiva</value>
   </data>
   <data name="InstallerFailedSecurityCheck" xml:space="preserve">
-    <value>El instalador no pudo realizar la comprobación de seguridad</value>
+    <value>El instalador falló la comprobación de seguridad</value>
   </data>
   <data name="InstallerFailedVirusScan" xml:space="preserve">
     <value>Un producto antivirus informa de una infección en el instalador</value>
@@ -740,7 +735,8 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Error al intentar actualizar el origen:</value>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
-    <value>Desinstala el paquete seleccionado, encontrado al buscar en una lista de paquetes instalados o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir con el id, el nombre o el moniker distinguiendo entre mayúsculas y minúsculas. Se pueden usar otros campos usando la opción apropiada.</value>
+    <value>Desinstala el paquete seleccionado, encontrado al buscar en una lista de paquetes instalados o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir con el id, nombre o el moniker del paquete sin distinguir entre mayúsculas y minúsculas. Se pueden usar otros campos usando la opción apropiada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Desinstala el paquete proporcionado</value>
@@ -799,7 +795,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>La versión instalada del paquete no está disponible de ningún origen:</value>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
-    <value>No se encontraron paquetes en importar archivo</value>
+    <value>No se encontraron paquetes en archivo de importación</value>
   </data>
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>El archivo JSON no es válido.</value>
@@ -811,10 +807,10 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Omitir los paquetes no disponibles</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Incluir versiones del paquete en un archivo producido</value>
+    <value>Incluir versiones del paquete en el archivo producido</value>
   </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
-    <value>Omitir las versiones del paquete de la importación del archivo</value>
+    <value>Omitir las versiones del paquete del archivo de importación</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Ruta de acceso no existe:</value>
@@ -846,7 +842,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Habilitar las funciones experimentales del instalador de aplicaciones de Windows</value>
   </data>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
-    <value>Habilitar el instalador de aplicaciones de Windows Microsoft Store Source</value>
+    <value>Habilitar el origen Microsoft Store del instalador de aplicaciones de Windows</value>
   </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Habilitar la configuración del Administrador de paquetes de Windows</value>
@@ -905,13 +901,13 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
     <value>El hash del instalador no coincide.</value>
   </data>
   <data name="PolicyEnableHashOverride" xml:space="preserve">
-    <value>Habilitar la anulación del hash del instalador de aplicaciones de Windows</value>
+    <value>Habilitar la sobreescritura del hash del instalador de aplicaciones de Windows</value>
   </data>
   <data name="SourceExportCommandLongDescription" xml:space="preserve">
-    <value>Exportar las fuentes actuales como JSON para la directiva de grupo.</value>
+    <value>Exportar los orígenes actuales como JSON para la directiva de grupo.</value>
   </data>
   <data name="SourceExportCommandShortDescription" xml:space="preserve">
-    <value>Orígenes actuales de exportación</value>
+    <value>Exportar los orígenes actuales</value>
   </data>
   <data name="SourceListAdditionalSource" xml:space="preserve">
     <value>Origen adicional</value>
@@ -1000,7 +996,7 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
     <comment>For getting package type dependencies when installing from a local manifest</comment>
   </data>
   <data name="WindowsStoreTerms" xml:space="preserve">
-    <value>Términos de la Tienda Windows</value>
+    <value>Términos de Microsoft Store</value>
   </data>
   <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
     <value>Aceptar todos los contratos de licencia para paquetes</value>
@@ -1088,7 +1084,7 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
     <value>Aceptar todos los contratos de origen durante las operaciones de origen</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>El origen '%1' requiere que vea los siguientes contratos antes de usarlos.</value>
+    <value>El origen '%1' requiere que vea los siguientes contratos antes de usarlo.</value>
     <comment>{Locked="%1"} The value will be replaced with the source name</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
@@ -1216,12 +1212,13 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
     <value>El registro del instalador está disponible en:</value>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
-    <value>Se encontraron los siguientes paquetes entre los orígenes de trabajo.
+    <value>Se encontraron los siguientes paquetes entre los orígenes que funcionan.
 Especifique uno de ellos con la opción '--source' para continuar.</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
-    <value>No se encontraron paquetes entre los orígenes de trabajo.</value>
+    <value>No se encontraron paquetes entre los orígenes que funcionan.</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>Esto es una versión estable del Administrador de paquetes de Windows. Si desea probar las características experimentales, instale una compilación de versión preliminar. Las instrucciones están disponibles en GitHub en https://github.com/microsoft/winget-cli.</value>
@@ -1249,5 +1246,26 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Seleccionar la arquitectura que se va a instalar</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>Actualizar paquetes aunque no se pueda determinar su versión actual</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>No se puede determinar el número de versión de este paquete. Para actualizarlo de todos modos, agregue el argumento --include-unknown al comando anterior.</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>los paquetes tienen números de versión que no se pueden determinar. El uso de "--include-unknown" puede mostrar más resultados.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>el paquete tiene un número de versión que no se puede determinar. El uso de "--include-unknown" puede mostrar más resultados.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>Los argumentos proporcionados solo se pueden usar con una consulta.</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>Arquitectura del sistema</value>
   </data>
 </root>

@@ -53,8 +53,8 @@ If you do not configure this setting, the Microsoft Store source for the Windows
 If you enable this setting, the Microsoft Store source for the Windows Package Manager will be available and cannot be removed.
 
 If you disable this setting the Microsoft Store source for the Windows Package Manager will not be available.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Set App Installer Source Auto Update Interval In Minutes</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">This policy controls the auto update interval for package-based sources.
+      <string id="SourceAutoUpdateInterval">Set App Installer Source Auto Update Interval In Minutes</string>
+      <string id="SourceAutoUpdateIntervalExplanation">This policy controls the auto update interval for package-based sources.
 
 If you disable or do not configure this setting, the default interval or the value specified in settings will be used by the Windows Package Manager.
 
@@ -75,10 +75,16 @@ If you do not configure this policy, users will be able to add or remove additio
 If you enable this policy, only the sources specified can be added or removed from the Windows Package Manager. The representation for each allowed source can be obtained from installed sources using 'winget source export'.
 
 If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
+      <string id="EnableMSAppInstallerProtocol">Enable App Installer ms-appinstaller protocol</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">This policy controls whether users can install packages from a website that is using the ms-appinstaller protocol.
+
+If you enable this setting, users will be able to install packages from websites that use this protocol.
+
+If you disable or do not configure this setting, users will not be able to install packages from websites that use this protocol.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Source Auto Update Interval In Minutes</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Source Auto Update Interval In Minutes</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Additional Sources: </listBox>

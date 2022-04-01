@@ -83,11 +83,11 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="SourceAutoUpdateIntervalInMinutes" class="Machine" displayName="$(string.SourceAutoUpdateIntervalInMinutes)" explainText="$(string.SourceAutoUpdateIntervalInMinutesExplanation)" presentation="$(presentation.SourceAutoUpdateIntervalInMinutes)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+    <policy name="SourceAutoUpdateInterval" class="Machine" displayName="$(string.SourceAutoUpdateInterval)" explainText="$(string.SourceAutoUpdateIntervalExplanation)" presentation="$(presentation.SourceAutoUpdateInterval)" key="Software\Policies\Microsoft\Windows\AppInstaller">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <elements>
-        <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
+        <decimal id="SourceAutoUpdateInterval" valueName="SourceAutoUpdateInterval" maxValue="43200" />
       </elements>
     </policy>
     <policy name="EnableAdditionalSources" class="Machine" displayName="$(string.EnableAdditionalSources)" explainText="$(string.EnableAdditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAdditionalSources">
@@ -115,6 +115,16 @@
       <elements>
         <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSources" valuePrefix="" />
       </elements>
+    </policy>
+    <policy name="EnableMSAppInstallerProtocol" class="Machine" displayName="$(string.EnableMSAppInstallerProtocol)" explainText="$(string.EnableMSAppInstallerProtocolExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMSAppInstallerProtocol">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
     </policy>
   </policies>
 </policyDefinitions>

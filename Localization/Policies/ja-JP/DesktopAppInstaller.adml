@@ -53,8 +53,8 @@
 この設定を有効にした場合、Windows パッケージ マネージャーの Microsoft Store ソースが利用できるようになり、削除できなくなります。
 
 この設定を無効にした場合、Windows パッケージマ ネージャーの Microsoft Store ソースは利用できなくなります。</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">アプリ インストーラー ソースの自動更新間隔を分単位で設定します</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">このポリシーでは、パッケージベースのソースの自動更新間隔を制御します。
+      <string id="SourceAutoUpdateInterval">アプリ インストーラー ソースの自動更新間隔を分単位で設定します</string>
+      <string id="SourceAutoUpdateIntervalExplanation">このポリシーでは、パッケージベースのソースの自動更新間隔を制御します。
 
 この設定を無効にした場合、または構成しなかった場合は、Windows パッケージマネージャーによって [設定] で指定した既定の間隔または値が使用されます。
 
@@ -75,10 +75,16 @@
 このポリシーを有効にすると、指定したソースのみを Windows パッケージ マネージャーに追加または Windows パッケージ マネージャーから削除できます。 許可された各ソースの表現は、「wingetsourceexport」を使用してインストールされたソースから取得できます。
 
 このポリシーを無効にすると、Windows パッケージ マネージャーに追加のソースを構成できなくなります。</string>
+      <string id="EnableMSAppInstallerProtocol">アプリ インストーラーの ms-appinstaller プロトコルを有効にする</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">このポリシーでは、ユーザーが ms-appinstaller プロトコルを使用している Web サイトからパッケージをインストールできるかどうかを制御します。
+
+この設定を有効にした場合、ユーザーは、このプロトコルを使用する Web サイトからパッケージをインストールできます。
+
+この設定を無効にするか、未構成にした場合、ユーザーはこのプロトコルを使用する Web サイトからパッケージをインストールできなくなります。</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">ソースの自動更新間隔 (分)</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">ソースの自動更新間隔 (分)</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">追加ソース: </listBox>

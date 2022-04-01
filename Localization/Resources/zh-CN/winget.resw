@@ -261,7 +261,7 @@
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>安装选定的程序包，该程序包可以通过搜索配置的源找到，也可以直接从清单中找到。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安装给定的程序包</value>
@@ -472,13 +472,15 @@
     <value>打开设置或设置管理员设置</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>加载设置时出现意外错误。请运行 "设置" 命令以验证您的设置。</value>
+    <value>加载设置时出现意外错误。请运行'settings'命令来验证你的设置。</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>频道</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>显示包的相关信息</value>
@@ -663,13 +665,6 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>找不到适用的更新。</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>通过搜索已安装的程序包列表或直接从清单升级所选的程序包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>升级给定的程序包</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用情况</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>通过搜索已安装的程序包列表或直接从清单中卸载选择的程序包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>卸载给定的程序包</value>
@@ -1218,10 +1214,11 @@
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>在工作源中找到以下包。
 请使用"--source"选项指定其中一个选项以继续。</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>在工作源中找不到任何包。</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>这是 Windows 程序包管理器的稳定版本。如果要尝试实验性功能，请安装预发布版本。请前往 https://github.com/microsoft/winget-cli 查看 GitHub 说明。</value>
@@ -1249,5 +1246,26 @@
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>选择要安装的体系结构</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>即使无法确定其当前版本，也可升级包</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>无法确定此包的版本号。若要继续升级，请将参数--include-unknown添加到上一命令。</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>包具有无法确定的版本号。使用 “--include-unknown” 可能会显示更多结果。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>包具有无法确定的版本号。使用 “--include-unknown” 可能会显示更多结果。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>提供的参数只能与查询一起使用。</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>系统体系结构</value>
   </data>
 </root>

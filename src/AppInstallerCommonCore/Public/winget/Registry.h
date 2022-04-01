@@ -13,6 +13,9 @@ namespace AppInstaller::Registry
 {
     namespace details
     {
+        template<DWORD>
+        constexpr bool dependent_false = false;
+
         template <DWORD Type>
         struct ValueTypeSpecifics
         {
@@ -20,7 +23,7 @@ namespace AppInstaller::Registry
 
             static value_t Convert(const std::vector<BYTE>& data)
             {
-                static_assert(false, "No Type specific override has been supplied");
+                static_assert(dependent_false<Type>, "No Type specific override has been supplied");
             }
         };
 

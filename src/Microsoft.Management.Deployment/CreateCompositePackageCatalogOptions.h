@@ -2,14 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "CreateCompositePackageCatalogOptions.g.h"
+#include "Public/ComClsids.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-#if USE_PROD_CLSIDS 
-    [uuid("526534B8-7E46-47C8-8416-B1685C327D37")]
-#else
-    [uuid("EE160901-B317-4EA7-9CC6-5355C6D7D8A7")]
-#endif
+    [uuid(WINGET_OUTOFPROC_COM_CLSID_CreateCompositePackageCatalogOptions)]
     struct CreateCompositePackageCatalogOptions : CreateCompositePackageCatalogOptionsT<CreateCompositePackageCatalogOptions>
     {
         CreateCompositePackageCatalogOptions() = default;

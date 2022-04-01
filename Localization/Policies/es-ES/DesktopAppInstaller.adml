@@ -53,8 +53,8 @@ Si no configura esta opción, el origen de la Tienda Microsoft para el Administr
 Si habilita esta configuración, el origen de Microsoft Store para el Administrador de paquetes de Windows estará disponible y no se podrá eliminar.
 
 Si desactiva esta configuración, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows no estará disponible.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Establecer el intervalo de actualización automática de la fuente del instalador de aplicaciones en minutos</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta directiva controla el intervalo de actualización automática de los orígenes basados en paquetes.
+      <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática de la fuente del instalador de aplicaciones en minutos</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática de los orígenes basados en paquetes.
 
 Si deshabilitas o no estableces esta configuración, el administrador de paquetes de Windows usará el valor del intervalo predeterminado o el valor especificado en la configuración.
 
@@ -75,10 +75,16 @@ Si no configura esta directiva, los usuarios podrán agregar o eliminar fuentes 
 Si habilita esta directiva, sólo las fuentes especificadas podrán agregarse o eliminarse del Administrador de paquetes de Windows. La representación de cada fuente permitida puede obtenerse de las fuentes instaladas mediante "winget source export".
 
 Si desactiva esta directiva, no se pueden configurar fuentes adicionales para el Administrador de paquetes de Windows.</string>
+      <string id="EnableMSAppInstallerProtocol">Habilitar protocolo ms-appinstaller del instalador de aplicaciones</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Esta directiva controla si los usuarios pueden instalar paquetes desde un sitio web que usa el protocolo ms-appinstaller.
+
+Si habilita esta configuración, los usuarios podrán instalar paquetes de sitios web que usen este protocolo.
+
+Si deshabilita o no establece esta configuración, los usuarios no podrán instalar paquetes de sitios web que usen este protocolo.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalo de actualización automática de la fuente en minutos</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervalo de actualización automática de la fuente en minutos</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Orígenes adicionales: </listBox>

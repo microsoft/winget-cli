@@ -44,6 +44,7 @@ namespace AppInstaller::CLI::Execution
         {
             Output,
             Completion,
+            Disabled,
         };
 
         // The level for the Output channel.

@@ -21,13 +21,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         callAttributes.Flags = RPC_QUERY_CLIENT_PID;
         rpcStatus = RpcServerInqCallAttributes(nullptr, &callAttributes);
 
-        if ((rpcStatus != RPC_S_NO_CALL_ACTIVE) &&
-            !((rpcStatus == RPC_S_OK) && HandleToULong(callAttributes.ClientPID) == GetCurrentProcessId()))
+        if (rpcStatus == RPC_S_NO_CALL_ACTIVE ||
+            (rpcStatus == RPC_S_OK && HandleToULong(callAttributes.ClientPID) == GetCurrentProcessId()))
         {
-            DWORD callerProcessId = HandleToULong(callAttributes.ClientPID);
-            return { S_OK, callerProcessId };
+            // in-proc is supported now.
+            return { S_OK, GetCurrentProcessId() };
         }
-        return { E_ACCESSDENIED, 0 };
+        else if (rpcStatus == RPC_S_OK)
+        {
+            // out-of-proc case.
+            return { S_OK, HandleToULong(callAttributes.ClientPID) };
+        }
+        else
+        {
+            return { E_ACCESSDENIED, 0 };
+        }
     }
 
     std::wstring_view GetStringForCapability(Capability capability)

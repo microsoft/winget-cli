@@ -23,8 +23,7 @@ namespace AppInstaller::Settings
             return (s_override ? *s_override : s_groupPolicy);
         }
 
-        template<Registry::Value::Type T>
-        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
+        std::optional<Registry::Value> GetRegistryValueObject(const Registry::Key& key, const std::string_view valueName)
         {
             if (!key)
             {
@@ -32,14 +31,13 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            auto regValue = key[valueName];
-            if (!regValue.has_value())
-            {
-                // Value does not exist
-                return std::nullopt;
-            }
+            return key[valueName];
+        }
 
-            auto value = regValue->TryGetValue<T>();
+        template<Registry::Value::Type T>
+        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValueData(const Registry::Value& regValue, const std::string_view valueName)
+        {
+            auto value = regValue.TryGetValue<T>();
             if (!value.has_value())
             {
                 AICLI_LOG(Core, Warning, << "Value for policy '" << valueName << "' does not have expected type");
@@ -49,9 +47,22 @@ namespace AppInstaller::Settings
             return std::move(value.value());
         }
 
+        template<Registry::Value::Type T>
+        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValueData(const Registry::Key& key, const std::string_view valueName)
+        {
+            auto regValue = GetRegistryValueObject(key, valueName);
+            if (!regValue.has_value())
+            {
+                // Value does not exist; there's nothing to return
+                return std::nullopt;
+            }
+
+            return GetRegistryValueData<T>(regValue.value(), valueName);
+        }
+
         std::optional<bool> RegistryValueIsTrue(const Registry::Key& key, std::string_view valueName)
         {
-            auto intValue = GetRegistryValue<Registry::Value::Type::DWord>(key, valueName);
+            auto intValue = GetRegistryValueData<Registry::Value::Type::DWord>(key, valueName);
             if (!intValue.has_value())
             {
                 return std::nullopt;
@@ -207,8 +218,21 @@ namespace AppInstaller::Settings
 
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
+            // This policy used to have another name in the registry.
+            // Try to read first with the current name, and if it's not present
+            // check if the old name is present.
             using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
-            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
+
+            auto regValueWithCurrentName = GetRegistryValueObject(policiesKey, Mapping::ValueName);
+            if (regValueWithCurrentName.has_value())
+            {
+                // We use the current name even if it doesn't have valid data.
+                return GetRegistryValueData<Mapping::ValueType>(regValueWithCurrentName.value(), Mapping::ValueName);
+            }
+            else
+            {
+                return GetRegistryValueData<Mapping::ValueType>(policiesKey, "SourceAutoUpdateIntervalInMinutes"sv);
+            }
         }
 
         std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidateItem(const Registry::Value& item)
@@ -228,8 +252,8 @@ namespace AppInstaller::Settings
         {
         case TogglePolicy::Policy::WinGet:
             return TogglePolicy(policy, "EnableAppInstaller"sv, String::PolicyEnableWinGet);
-        case TogglePolicy::Policy::Settings: return
-            TogglePolicy(policy, "EnableSettings"sv, String::PolicyEnableWingetSettings);
+        case TogglePolicy::Policy::Settings:
+            return TogglePolicy(policy, "EnableSettings"sv, String::PolicyEnableWingetSettings);
         case TogglePolicy::Policy::ExperimentalFeatures:
             return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
         case TogglePolicy::Policy::LocalManifestFiles:
