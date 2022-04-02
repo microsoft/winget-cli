@@ -1275,13 +1275,16 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>System Architecture</value>
   </data>
-  <data name="AddPathArgumentDescription" xml:space="preserve">
-    <value>Adds to the PATH environment variable</value>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>Retains all files and directories created by the package (portable)</value>
   </data>
-  <data name="NoPathArgumentDescription" xml:space="preserve">
-    <value>Does not add to the PATH environment variable</value>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>Deletes all files and directories in the package directory (portable)</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
-    <value>Rename the executable file</value>
+    <value>The value to rename the executable file (portable)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>Prompts the user to press any key before exiting</value>
   </data>
 </root>

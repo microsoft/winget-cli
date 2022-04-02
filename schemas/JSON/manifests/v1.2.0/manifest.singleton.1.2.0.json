@@ -54,6 +54,21 @@
         }
       }
     },
+    "Documentation": {
+      "type": "object",
+      "properties": {
+        "DocumentLabel": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "The label of the documentation for providing software guides such as manuals and troubleshooting URLs."
+        },
+        "DocumentUrl": {
+          "$ref": "#/definitions/Url",
+          "description": "The documentation URL."
+        }
+      }
+    },
     "Channel": {
       "type": [ "string", "null" ],
       "minLength": 1,
@@ -95,6 +110,17 @@
         "portable"
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
+    },
+    "Architecture": {
+      "type": "string",
+      "enum": [
+        "x86",
+        "x64",
+        "arm",
+        "arm64",
+        "neutral"
+      ],
+      "description": "The installer target architecture"
     },
     "Scope": {
       "type": [ "string", "null" ],
@@ -211,8 +237,13 @@
               "cancelledByUser",
               "alreadyInstalled",
               "downgrade",
-              "blockedByPolicy"
+              "blockedByPolicy",
+              "custom"
             ]
+          },
+          "ReturnResponseUrl": {
+            "$ref": "#/definitions/Url",
+            "description": "The return response url to provide additional guidance for expected return codes"
           }
         }
       },
@@ -242,7 +273,6 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "string",
-        "pattern": "^[a-z][-a-z0-9\\.\\+]*$",
         "maxLength": 2048
       },
       "maxItems": 16,
@@ -256,7 +286,7 @@
         "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
         "maxLength": 64
       },
-      "maxItems": 256,
+      "maxItems": 512,
       "uniqueItems": true,
       "description": "List of file extensions the package could support"
     },
@@ -402,6 +432,10 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer should be pinned by default from upgrade"
     },
+    "DisplayInstallWarnings": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether winget should display a warning message if the install or upgrade is known to interfere with running applications."
+    },
     "UnsupportedOSArchitectures": {
       "type": [ "array", "null" ],
       "uniqueItems": true,
@@ -416,6 +450,19 @@
         ]
       },
       "description": "List of OS architectures the installer does not support"
+    },
+    "UnsupportedArguments": {
+      "type": [ "array", "null" ],
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "title": "UnsupportedArgument",
+        "enum": [
+          "log",
+          "location"
+        ]
+      },
+      "description": "List of winget arguments the installer does not support"
     },
     "AppsAndFeaturesEntry": {
       "type": "object",
@@ -481,15 +528,7 @@
           "$ref": "#/definitions/MinimumOSVersion"
         },
         "Architecture": {
-          "type": "string",
-          "enum": [
-            "x86",
-            "x64",
-            "arm",
-            "arm64",
-            "neutral"
-          ],
-          "description": "The installer target architecture"
+          "$ref": "#/definitions/Architecture"
         },
         "InstallerType": {
           "$ref": "#/definitions/InstallerType"
@@ -690,6 +729,23 @@
     "ReleaseNotesUrl": {
       "$ref": "#/definitions/Url",
       "description": "The package release notes url"
+    },
+    "PurchaseUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The purchase url for acquiring entitlement for the package."
+    },
+    "InstallationNotes": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "The notes displayed to the user upon completion of a package installation."
+    },
+    "Documentations": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/Documentation"
+      },
+      "maxItems": 256
     },
     "Channel": {
       "$ref": "#/definitions/Channel"

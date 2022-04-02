@@ -29,6 +29,7 @@ namespace AppInstaller::Manifest::YamlParser
             { "InstallerAbortsTerminal"sv, YamlScalarType::Bool },
             { "InstallLocationRequired"sv, YamlScalarType::Bool },
             { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
+            { "DisplayInstallWarnings"sv, YamlScalarType::Bool },
             { "InstallerReturnCode"sv, YamlScalarType::Int },
         };
 

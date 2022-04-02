@@ -378,6 +378,15 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeMissing.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>    
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>   
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-DefaultScope.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

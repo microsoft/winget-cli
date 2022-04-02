@@ -88,6 +88,12 @@ namespace AppInstaller::CLI
             return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         case Args::Type::Rename:
             return Argument{ "rename", NoAlias, Args::Type::Rename, Resource::String::RenameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::Purge:
+            return Argument{ "purge", NoAlias, Args::Type::Purge, Resource::String::PurgeArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::Preserve:
+            return Argument{ "preserve", NoAlias, Args::Type::Preserve, Resource::String::PreserveArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::Wait:
+            return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

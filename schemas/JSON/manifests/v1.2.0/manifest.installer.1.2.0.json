@@ -231,7 +231,6 @@
       "type": [ "array", "null" ],
       "items": {
         "type": "string",
-        "pattern": "^[a-z0-9][-a-z0-9\\.\\+]*$",
         "maxLength": 2048
       },
       "maxItems": 16,
@@ -564,6 +563,9 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
@@ -669,6 +671,9 @@
     },
     "ElevationRequirement": {
       "$ref": "#/definitions/ElevationRequirement"
+    },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
     },
     "Installers": {
       "type": "array",

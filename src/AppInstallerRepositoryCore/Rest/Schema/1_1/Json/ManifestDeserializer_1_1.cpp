@@ -139,7 +139,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
                     // Only add when it is valid
                     if (installerReturnCode != 0 && returnResponse != ExpectedReturnCodeEnum::Unknown)
                     {
-                        if (!installer.ExpectedReturnCodes.insert({ installerReturnCode, returnResponse }).second)
+                        if (!installer.ExpectedReturnCodes.insert({ installerReturnCode, { returnResponse, "" } }).second)
                         {
                             AICLI_LOG(Repo, Error, << "Expected return codes cannot have repeated value.");
                             return {};
@@ -155,7 +155,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&
                     std::find(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end(), defaultReturnCode.first) == installer.InstallerSuccessCodes.end())
                 {
-                    installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
+                    installer.ExpectedReturnCodes[defaultReturnCode.first].ReturnResponseEnum = defaultReturnCode.second;
                 }
             }
         }

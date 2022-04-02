@@ -8,9 +8,6 @@
 using namespace AppInstaller::Manifest;
 using namespace std::filesystem;
 
-#define BUFSIZE = 4096;
-#define PATHVARNAME = TEXT("PATH");
-
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Portable;
@@ -54,63 +51,71 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        HKEY GetPortableRegistryRootKey(Manifest::ScopeEnum& scope)
+        std::string GetPortableCommandAlias(std::vector<string_t>& commands, std::string_view fileName)
         {
-            if (scope == Manifest::ScopeEnum::Machine)
+            std::string alias;
+
+            if (commands.size() > 0)
             {
-                return HKEY_LOCAL_MACHINE;
+                alias = commands[0];
             }
             else
             {
-                return HKEY_CURRENT_USER;
-            }
-        }
-
-        std::string GetAppPathEntry(std::vector<string_t>& commands, std::string_view renameArg, std::string& fileName)
-        {
-            std::string appPathEntry;
-
-            if (!renameArg.empty())
-            {
-                appPathEntry = renameArg;
-            }
-            else if (commands.size() > 0)
-            {
-                appPathEntry = commands[0];
-            }
-            else
-            {
-                appPathEntry = fileName;
+                alias = fileName;
             }
 
-            if (!HasSuffix(appPathEntry, ".exe"))
+            if (!HasSuffix(alias, ".exe"))
             {
-                appPathEntry += ".exe";
+                alias += ".exe";
             }
 
-            return appPathEntry;
+            return alias;
         }
 
         PortableArguments GetPortableInstallerArguments(Execution::Context& context)
         {
             const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
-            std::string fileName = installerPath.filename().u8string();
-
             Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
-
             std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
+            PortableArguments portableArgs = {};
+
+            if (!renameArg.empty())
+            {
+                portableArgs.FileName = renameArg;
+            }
+            else
+            {
+                portableArgs.FileName = installerPath.filename().u8string();
+            }
+
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                portableArgs.RootKey = HKEY_LOCAL_MACHINE;
+            }
+            else
+            {
+                portableArgs.RootKey = HKEY_CURRENT_USER;
+            }
+
+            if (!installLocationArg.empty())
+            {
+                portableArgs.InstallRootDirectory = std::filesystem::path{ ConvertToUTF16(installLocationArg) };
+            }
+            else
+            {
+                portableArgs.InstallRootDirectory = GetPortableInstallRoot(scope, arch);
+            }
+
+            portableArgs.LinksLocation = GetPortableLinksLocation(scope, arch);
 
             std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries;
             std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
             AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
 
-            PortableArguments portableArgs = {};
             portableArgs.PackageId = manifest.Id;
-            portableArgs.InstallRootPackageDirectory = GetPortableInstallRoot(scope, arch, installLocationArg) / portableArgs.PackageId;
-            portableArgs.RootKey = GetPortableRegistryRootKey(scope);
-            portableArgs.AppPathEntry = GetAppPathEntry(commands, renameArg, fileName);
+            portableArgs.CommandAlias = GetPortableCommandAlias(commands, portableArgs.FileName);
             portableArgs.AppsAndFeatureEntry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeaturesEntries, manifest);
             return portableArgs;
         }
@@ -118,9 +123,10 @@ namespace AppInstaller::CLI::Workflow
         bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback& callback)
         {
             callback.BeginProgress();
-            std::filesystem::create_directories(portableArgs.InstallRootPackageDirectory);
-            std::string fileName = installerPath.filename().u8string();
-            std::filesystem::path portableTargetPath = portableArgs.InstallRootPackageDirectory / fileName;
+            std::filesystem::path installRootPackageDirectory = portableArgs.InstallRootDirectory / portableArgs.PackageId;
+            std::filesystem::create_directories(installRootPackageDirectory);
+
+            std::filesystem::path portableTargetPath = portableArgs.InstallRootDirectory / portableArgs.PackageId / portableArgs.FileName;
 
             // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handle when dealing with
             // multiple files (archive) to guarantee all files can be successfully copied.
@@ -132,21 +138,9 @@ namespace AppInstaller::CLI::Workflow
                 return false;
             }
 
-            std::string portableLinksLocation = Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation).u8string();
-            AddToPathEnvironmentRegistry(portableArgs.RootKey, portableLinksLocation);
+            AddToPathEnvironmentRegistry(portableArgs.RootKey, portableArgs.LinksLocation.u8string());
 
-            // create a function that opens the environment variable registry
-            // checks if the path already exists std::string::find if (s1.find(s2) != std::string::npos) {
-            // std::cout << "found!" << '\n';
-            // if the path doesn't exist, append it at the end with a semicolon
-            // set registry key value
-            // return true if written or already exists, return false if it fails 
-            // Need to write to environment registry 
-
-            //Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
-            //Computer\HKEY_CURRENT_USER\Environment
-
-            std::filesystem::path symlinkPath = Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation) / portableArgs.AppPathEntry;
+            std::filesystem::path symlinkPath = portableArgs.LinksLocation / portableArgs.CommandAlias;
             CreateSymlink(portableTargetPath, symlinkPath);
 
             bool registrationResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);

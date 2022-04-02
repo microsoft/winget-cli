@@ -130,12 +130,7 @@ bool HasExtension(std::string_view extension) const;
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
-    };
-
-    struct ExpectedReturnCode
-    {
-        DWORD InstallerReturnCode;
-        ExpectedReturnCodeEnum ReturnResponse;
+        Custom,
     };
 
     enum class PlatformEnum
@@ -151,6 +146,13 @@ bool HasExtension(std::string_view extension) const;
         ElevationRequired,
         ElevationProhibited,
         ElevatesSelf,
+    };
+
+    enum class UnsupportedArgumentEnum
+    {
+        Unknown,
+        Log,
+        Location
     };
 
     enum class ManifestTypeEnum
@@ -170,6 +172,13 @@ bool HasExtension(std::string_view extension) const;
         WindowsLibrary,
         Package,
         External
+    };
+
+    struct ExpectedReturnCode
+    {
+        DWORD InstallerReturnCode = 0;
+        ExpectedReturnCodeEnum ReturnResponse = ExpectedReturnCodeEnum::Unknown;
+        string_t ReturnResponseUrl;
     };
 
     struct Dependency
@@ -245,6 +254,8 @@ bool HasExtension(std::string_view extension) const;
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
+
+    UnsupportedArgumentEnum ConvertToUnsupportedArgumentEnum(const std::string& in);
 
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 

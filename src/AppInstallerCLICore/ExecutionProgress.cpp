@@ -76,13 +76,11 @@ namespace AppInstaller::CLI::Execution
             out << ' ' << bfd.Name;
         }
 
-        void SetColor(BaseStream& out, const TextFormat::Color& color, bool enabled)
+        void SetColor(BaseStream& out, const TextFormat::Color& color, bool foregroundOnly)
         {
-            if (enabled)
-            {
-                out << TextFormat::Foreground::Extended(color);
-            }
-            else
+            out << TextFormat::Foreground::Extended(color);
+
+            if (!foregroundOnly)
             {
                 constexpr uint8_t divisor = 3;
 
@@ -91,11 +89,11 @@ namespace AppInstaller::CLI::Execution
                 reduced.G /= divisor;
                 reduced.B /= divisor;
 
-                out << TextFormat::Foreground::Extended(reduced);
+                out << TextFormat::Background::Extended(reduced);
             }
         }
 
-        void SetRainbowColor(BaseStream& out, size_t i, size_t max, bool enabled)
+        void SetRainbowColor(BaseStream& out, size_t i, size_t max, bool foregroundOnly)
         {
             TextFormat::Color rainbow[] =
             {
@@ -125,13 +123,13 @@ namespace AppInstaller::CLI::Execution
                 result = { AICLI_AVERAGE(R), AICLI_AVERAGE(G), AICLI_AVERAGE(B) };
             }
 
-            SetColor(out, result, enabled);
+            SetColor(out, result, foregroundOnly);
         }
     }
 
     namespace details
     {
-        void ProgressVisualizerBase::ApplyStyle(size_t i, size_t max, bool enabled)
+        void ProgressVisualizerBase::ApplyStyle(size_t i, size_t max, bool foregroundOnly)
         {
             if (!UseVT())
             {
@@ -141,20 +139,13 @@ namespace AppInstaller::CLI::Execution
             switch (m_style)
             {
             case VisualStyle::Retro:
-                if (enabled)
-                {
-                    m_out << TextFormat::Default;
-                }
-                else
-                {
-                    m_out << TextFormat::Negative;
-                }
+                m_out << TextFormat::Default;
                 break;
             case VisualStyle::Accent:
-                SetColor(m_out, TextFormat::Color::GetAccentColor(), enabled);
+                SetColor(m_out, TextFormat::Color::GetAccentColor(), foregroundOnly);
                 break;
             case VisualStyle::Rainbow:
-                SetRainbowColor(m_out, i, max, enabled);
+                SetRainbowColor(m_out, i, max, foregroundOnly);
                 break;
             default:
                 LOG_HR(E_UNEXPECTED);
@@ -334,21 +325,49 @@ namespace AppInstaller::CLI::Execution
 
     void ProgressBar::ShowProgressWithVT(uint64_t current, uint64_t maximum, ProgressType type)
     {
+        m_out << TextFormat::Default;
+
         m_out << "\r  ";
 
         if (maximum)
         {
-            const char* const blockOn = u8"\x2588";
+            const char* const blocks[] =
+            {
+                u8" ",      // block off
+                u8"\x258F", // block 1/8
+                u8"\x258E", // block 2/8
+                u8"\x258D", // block 3/8
+                u8"\x258C", // block 4/8
+                u8"\x258B", // block 5/8
+                u8"\x258A", // block 6/8
+                u8"\x2589", // block 7/8
+                u8"\x2588"  // block on
+            };
+            const char* const blockOn = blocks[8];
+            const char* const blockOff = blocks[0];
             constexpr size_t blockWidth = 30;
 
             double percentage = static_cast<double>(current) / maximum;
             size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
+            size_t partialBlockIndex = static_cast<size_t>((percentage * blockWidth - blocksOn) * 8);
             TextFormat::Color accent = TextFormat::Color::GetAccentColor();
 
             for (size_t i = 0; i < blockWidth; ++i)
             {
-                ApplyStyle(i, blockWidth, i < blocksOn);
-                m_out << blockOn;
+                ApplyStyle(i, blockWidth, false);
+
+                if (i < blocksOn)
+                {                    
+                    m_out << blockOn;
+                }
+                else if (i == blocksOn)
+                {
+                    m_out << blocks[partialBlockIndex];
+                }
+                else
+                {
+                    m_out << blockOff;
+                }
             }
 
             m_out << TextFormat::Default;

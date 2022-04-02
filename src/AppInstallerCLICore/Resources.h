@@ -208,9 +208,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
+        WINGET_DEFINE_RESOURCE_STRINGID(PurgeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
@@ -361,6 +363,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyPathFailedNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(WaitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);

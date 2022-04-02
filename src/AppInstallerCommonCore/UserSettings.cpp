@@ -228,11 +228,28 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
+        WINGET_VALIDATE_PASS_THROUGH(EFPortableInstall)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
-        WINGET_VALIDATE_PASS_THROUGH(PortableAppUserRoot) // pass for now, determine later if a check needs to be added.
-        WINGET_VALIDATE_PASS_THROUGH(PortableAppMachineRoot)
+        WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
+        WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortableApp)
+
+        WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
+        {
+            std::filesystem::path root = ConvertToUTF16(value);
+            if (!root.is_absolute())
+            {
+                return {};
+            }
+
+            return root;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
+        {
+            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
+        }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {

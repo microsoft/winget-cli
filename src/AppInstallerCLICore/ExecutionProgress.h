@@ -34,7 +34,7 @@ namespace AppInstaller::CLI::Execution
             bool UseVT() const { return m_enableVT && m_style != AppInstaller::Settings::VisualStyle::NoVT; }
 
             // Applies the selected visual style.
-            void ApplyStyle(size_t i, size_t max, bool enabled);
+            void ApplyStyle(size_t i, size_t max, bool foregroundOnly);
 
         private:
             bool m_enableVT = false;

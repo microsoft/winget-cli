@@ -15,23 +15,27 @@ namespace AppInstaller::Portable
     struct PortableArguments
     {
         HKEY RootKey;
-        std::filesystem::path InstallRootPackageDirectory;      // Portable install root directory including the package subdirectory.
-        std::string AppPathEntry;
+        std::filesystem::path InstallRootDirectory;      // Portable install root directory including the package subdirectory.
+        std::filesystem::path LinksLocation;
+        std::string CommandAlias;
+        std::string FileName;
         std::string PackageId;
         Manifest::AppsAndFeaturesEntry AppsAndFeatureEntry;
     };
 
-    std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch, std::string_view& installLocationArg);
+    std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch);
+
+    std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum& scope, Utility::Architecture& arch);
 
     bool WriteToAppPathsRegistry(HKEY root, std::string_view entryName, const std::filesystem::path& exePath, bool enablePath);
 
     void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 
-    bool AddToPathEnvironmentRegistry(HKEY root, std::string& keyValue);
+    bool AddToPathEnvironmentRegistry(HKEY root, const std::string& keyValue);
 
     bool WriteToUninstallRegistry(HKEY root, std::string_view packageIdentifier, Manifest::AppsAndFeaturesEntry& entry);
 
-    bool CleanUpRegistryEdits(HKEY root, std::string& appPathEntry, std::string& productCode);
+    bool CleanUpRegistryEdits(HKEY root, std::string& productCode);
 
     DWORD CALLBACK CopyPortableExeProgressCallback(
         LARGE_INTEGER TotalFileSize,

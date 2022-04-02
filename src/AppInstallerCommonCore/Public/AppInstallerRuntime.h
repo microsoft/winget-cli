@@ -47,12 +47,6 @@ namespace AppInstaller::Runtime
         SecureSettings,
         // The value of %USERPROFILE%.
         UserProfile,
-        // The location of the x64 program files.
-        ProgramFiles,
-        // The location of the x86 program files.
-        ProgramFilesX86,
-        // The local app data location.
-        LocalAppData,
         // The location where portable packages are installed to with user scope.
         PortableAppUserRoot,
         // The location where portable packages are installed to with machine scope (x64).
