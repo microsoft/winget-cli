@@ -16,7 +16,7 @@ namespace AppInstaller::Portable
 
     constexpr std::wstring_view s_UninstallSubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
     constexpr std::wstring_view s_PathSubkey_User = L"Environment";
-    constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentcontrolSet\\Control\\Session Manager\\Environment";
+    constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
 
     std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
     {

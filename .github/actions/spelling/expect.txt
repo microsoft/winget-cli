@@ -215,6 +215,8 @@ llvm
 localhost
 localizationpriority
 LPBYTE
+lpdw
+LPDWORD
 LPWSTR
 LSTATUS
 LTDA
@@ -357,6 +359,7 @@ SUSE
 swervy
 SYD
 SYG
+symlink
 sysrefcomp
 Tagit
 TCpp
