@@ -185,13 +185,13 @@ std::vector<TestCase> LoadTestData()
         std::string appId;
         std::string arpDisplayVersion;
         std::string arpProductCode;
-        std::getline(ss, appId, '\t');
-        std::getline(ss, testCase.AppName, '\t');
-        std::getline(ss, testCase.AppPublisher, '\t');
-        std::getline(ss, testCase.ARPName, '\t');
-        std::getline(ss, arpDisplayVersion, '\t');
-        std::getline(ss, testCase.ARPPublisher, '\t');
-        std::getline(ss, arpProductCode, '\t');
+        std::getline(ss, appId, '|');
+        std::getline(ss, testCase.AppName, '|');
+        std::getline(ss, testCase.AppPublisher, '|');
+        std::getline(ss, testCase.ARPName, '|');
+        std::getline(ss, arpDisplayVersion, '|');
+        std::getline(ss, testCase.ARPPublisher, '|');
+        std::getline(ss, arpProductCode, '|');
 
         testCase.IsMatch = true;
 
