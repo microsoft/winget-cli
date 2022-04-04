@@ -684,6 +684,32 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    /// Global settings for PackageManager operations.
+    /// This settings should be invoked prior to invocation of PackageManager class.
+    /// This settings is only exposed in in-proc Com invocation.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
+    runtimeclass PackageManagerSettings
+    {
+        PackageManagerSettings();
+
+        /// Sets caller name to be used in telemetry logging. Default value is the calling process name.
+        /// Call this before any PackageManager operations.
+        /// Returns true if successful, false if caller name is already set.
+        /// This is a one time setup, multiple calls will not override existing caller name.
+        Boolean SetCallerIdentifier(String callerIdentifier);
+
+        /// Sets state name for state separation. If not set, state will be written in a default location and states may be affected by other callers.
+        /// Call this before any PackageManager operations.
+        /// Returns true if successful, false if state name is already set.
+        /// This is a one time setup, multiple calls will not override existing state name.
+        Boolean SetStateIdentifier(String stateIdentifier);
+
+        /// Sets custom UserSettings.
+        /// Returns true if successful, false if settingsContent cannot be parsed or UserSettings is already created.
+        /// This is a one time setup, multiple calls will not override existing UserSettings.
+        Boolean SetUserSettings(String settingsContent);
+    }
+
     /// Force midl3 to generate vector marshalling info. 
     declare
     {

@@ -3,7 +3,7 @@
 #pragma once
 #include <guiddef.h>
 
-// clsids for out-of-proc com invocation
+// Clsids for out-of-proc com invocation
 #if USE_PROD_CLSIDS 
 #define WINGET_OUTOFPROC_COM_CLSID_PackageManager "C53A4F16-787E-42A4-B304-29EFFB4BF597"
 #define WINGET_OUTOFPROC_COM_CLSID_FindPackagesOptions "572DED96-9C60-4526-8F92-EE7D91D38C1A"
@@ -20,6 +20,9 @@
 #define WINGET_OUTOFPROC_COM_CLSID_PackageMatchFilter "3F85B9F4-487A-4C48-9035-2903F8A6D9E8"
 #endif
 
+// Clsids only used in in-proc invocation
+#define WINGET_INPROC_ONLY_COM_CLSID_PackageManagerSettings "80CF9D63-5505-4342-B9B4-BB87895CA8BB"
+
 namespace winrt::Microsoft::Management::Deployment
 {
     // clsid constants for in-proc com invocation
@@ -29,6 +32,7 @@ namespace winrt::Microsoft::Management::Deployment
     const CLSID WINGET_INPROC_COM_CLSID_InstallOptions = { 0xE2AF3BA8, 0x8A88, 0x4766, 0x9D, 0xDA, 0xAE, 0x40, 0x13, 0xAD, 0xE2, 0x86 }; // E2AF3BA8-8A88-4766-9DDA-AE4013ADE286
     const CLSID WINGET_INPROC_COM_CLSID_UninstallOptions = { 0x869CB959, 0xEB54, 0x425C, 0xA1, 0xE4, 0x1A, 0x1C, 0x29, 0x1C, 0x64, 0xE9 }; // 869CB959-EB54-425C-A1E4-1A1C291C64E9
     const CLSID WINGET_INPROC_COM_CLSID_PackageMatchFilter = { 0x57DC8962, 0x7343, 0x42CD, 0xB9, 0x1C, 0x04, 0xF6, 0xA2, 0x5D, 0xB1, 0xD0 }; // 57DC8962-7343-42CD-B91C-04F6A25DB1D0
+    const CLSID WINGET_INPROC_COM_CLSID_PackageManagerSettings = { 0x80CF9D63, 0x5505, 0x4342, 0xB9, 0xB4, 0xBB, 0x87, 0x89, 0x5C, 0xA8, 0xBB }; // 80CF9D63-5505-4342-B9B4-BB87895CA8BB
 
     CLSID GetRedirectedClsidFromInProcClsid(REFCLSID clsid);
 }

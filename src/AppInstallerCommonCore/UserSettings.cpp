@@ -72,25 +72,31 @@ namespace AppInstaller::Settings
             return convertedValue;
         }
 
+        std::optional<Json::Value> ParseSettingsContent(const std::string& content, std::string_view settingName, std::vector<UserSettings::Warning>& warnings)
+        {
+            Json::Value root;
+            Json::CharReaderBuilder builder;
+            const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+            std::string error;
+
+            if (reader->parse(content.c_str(), content.c_str() + content.size(), &root, &error))
+            {
+                return root;
+            }
+
+            AICLI_LOG(Core, Error, << "Error parsing " << settingName << ": " << error);
+            warnings.emplace_back(StringResource::String::SettingsWarningParseError, settingName, error, false);
+
+            return {};
+        }
+
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<UserSettings::Warning>& warnings)
         {
             auto stream = Stream{ setting }.Get();
             if (stream)
             {
-                Json::Value root;
-                Json::CharReaderBuilder builder;
-                const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-
                 std::string settingsContentStr = Utility::ReadEntireStream(*stream);
-                std::string error;
-
-                if (reader->parse(settingsContentStr.c_str(), settingsContentStr.c_str() + settingsContentStr.size(), &root, &error))
-                {
-                    return root;
-                }
-
-                AICLI_LOG(Core, Error, << "Error parsing " << setting.Name << ": " << error);
-                warnings.emplace_back(StringResource::String::SettingsWarningParseError, setting.Name, error, false);
+                return ParseSettingsContent(settingsContentStr, setting.Name, warnings);
             }
 
             return {};
@@ -382,7 +388,7 @@ namespace AppInstaller::Settings
     static std::atomic_bool s_userSettingsInitialized{ false };
     static std::atomic_bool s_userSettingsInInitialization{ false };
 
-    UserSettings const& UserSettings::Instance()
+    UserSettings const& UserSettings::Instance(const std::optional<std::string>& content)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_UserSettings_Override)
@@ -395,7 +401,7 @@ namespace AppInstaller::Settings
             s_userSettingsInInitialization = true;
         }
 
-        static UserSettings userSettings;
+        static UserSettings userSettings(content);
         s_userSettingsInitialized = true;
         s_userSettingsInInitialization = false;
 
@@ -423,15 +429,29 @@ namespace AppInstaller::Settings
         return UserSettings::Instance();
     }
 
-    UserSettings::UserSettings() : m_type(UserSettingsType::Default)
+    bool TryInitializeCustomUserSettings(std::string content)
+    {
+        if (s_userSettingsInitialized || s_userSettingsInInitialization)
+        {
+            return false;
+        }
+
+        return UserSettings::Instance(std::move(content)).GetType() == UserSettingsType::Custom;
+    }
+
+    UserSettings::UserSettings(const std::optional<std::string>& content) : m_type(UserSettingsType::Default)
     {
         Json::Value settingsRoot = Json::Value::nullSingleton();
 
         // Settings can be loaded from settings.json or settings.json.backup files.
         // 0 - Use default (empty) settings if disabled by group policy.
-        // 1 - Use settings.json if exists and passes parsing.
-        // 2 - Use settings.backup.json if settings.json fails to parse.
-        // 3 - Use default (empty) if both settings files fail to load.
+        // if
+        // 1 - Use passed in settings content if available.
+        // else
+        // 2 - Use settings.json if exists and passes parsing.
+        // 3 - Use settings.backup.json if settings.json fails to parse.
+        // finally
+        // 4 - Use default (empty) if both settings files fail to load.
 
         if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Settings))
         {
@@ -439,24 +459,37 @@ namespace AppInstaller::Settings
             return;
         }
 
-        auto settingsJson = ParseFile(Stream::PrimaryUserSettings, m_warnings);
-        if (settingsJson.has_value())
+        if (content.has_value())
         {
-            AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::PrimaryUserSettings.Name);
-            m_type = UserSettingsType::Standard;
-            settingsRoot = settingsJson.value();
-        }
-
-        // Settings didn't parse or doesn't exist, try with backup.
-        if (settingsRoot.isNull())
-        {
-            auto settingsBackupJson = ParseFile(Stream::BackupUserSettings, m_warnings);
-            if (settingsBackupJson.has_value())
+            auto settingsJson = ParseSettingsContent(content.value(), "CustomSettings", m_warnings);
+            if (settingsJson.has_value())
             {
-                AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::BackupUserSettings.Name);
-                m_warnings.emplace_back(StringResource::String::SettingsWarningLoadedBackupSettings);
-                m_type = UserSettingsType::Backup;
-                settingsRoot = settingsBackupJson.value();
+                AICLI_LOG(Core, Info, << "Settings loaded from custom settings");
+                m_type = UserSettingsType::Custom;
+                settingsRoot = settingsJson.value();
+            }
+        }
+        else
+        {
+            auto settingsJson = ParseFile(Stream::PrimaryUserSettings, m_warnings);
+            if (settingsJson.has_value())
+            {
+                AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::PrimaryUserSettings.Name);
+                m_type = UserSettingsType::Standard;
+                settingsRoot = settingsJson.value();
+            }
+
+            // Settings didn't parse or doesn't exist, try with backup.
+            if (settingsRoot.isNull())
+            {
+                auto settingsBackupJson = ParseFile(Stream::BackupUserSettings, m_warnings);
+                if (settingsBackupJson.has_value())
+                {
+                    AICLI_LOG(Core, Info, << "Settings loaded from " << Stream::BackupUserSettings.Name);
+                    m_warnings.emplace_back(StringResource::String::SettingsWarningLoadedBackupSettings);
+                    m_type = UserSettingsType::Backup;
+                    settingsRoot = settingsBackupJson.value();
+                }
             }
         }
 

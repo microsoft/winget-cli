@@ -29,6 +29,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UninstallResult, winrt::Microsoft::Management::Deployment::UninstallProgress>
             GetUninstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
     };
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    void SetComCallerName(std::string name);
+#endif
 }
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

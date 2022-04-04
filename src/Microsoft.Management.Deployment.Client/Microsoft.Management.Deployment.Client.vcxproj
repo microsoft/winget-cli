@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Client.PackageManagerSettings.h" />
     <ClInclude Include="Client.UninstallOptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Client.CreateCompositePackageCatalogOptions.h" />
@@ -141,6 +142,7 @@
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="InstallOptions.cpp" />
+    <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

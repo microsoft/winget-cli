@@ -30,6 +30,8 @@ namespace AppInstaller::Settings
         Standard,
         // Loaded settings.json.backup
         Backup,
+        // Loaded from custom settings content
+        Custom,
     };
 
     // The visual style of the progress bar.
@@ -172,7 +174,7 @@ namespace AppInstaller::Settings
             bool IsFieldWarning = true;
         };
 
-        static UserSettings const& Instance();
+        static UserSettings const& Instance(const std::optional<std::string>& content = std::nullopt);
 
         static std::filesystem::path SettingsFilePath();
 
@@ -205,10 +207,11 @@ namespace AppInstaller::Settings
         std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
-        UserSettings();
+        UserSettings(const std::optional<std::string>& content = std::nullopt);
         ~UserSettings() = default;
     };
 
     const UserSettings* TryGetUser();
     UserSettings const& User();
+    bool TryInitializeCustomUserSettings(std::string content);
 }
