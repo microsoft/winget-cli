@@ -17,7 +17,6 @@ namespace AppInstaller::Portable
     constexpr std::wstring_view s_UninstallSubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
     constexpr std::wstring_view s_PathSubkey_User = L"Environment";
     constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentcontrolSet\\Control\\Session Manager\\Environment";
-    constexpr std::wstring_view s_PathKeyName = L"Path";
 
     std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
     {
@@ -73,7 +72,7 @@ namespace AppInstaller::Portable
         }
     }
 
-    bool AddToPathEnvironmentRegistry(HKEY root, const std::string& keyValue)
+    bool AddToPathEnvironmentRegistry(HKEY root, const std::string& value)
     {
         AppInstaller::Registry::Key key;
         if (root == HKEY_LOCAL_MACHINE)
@@ -86,10 +85,17 @@ namespace AppInstaller::Portable
         }
 
         std::wstring pathKey = { L"Path" };
-        auto pathValue = key[pathKey]->GetValue<AppInstaller::Registry::Value::Type::String>();
-        if (pathValue.find(keyValue) == std::string::npos)
+        std::string pathValue = key[pathKey]->GetValue<AppInstaller::Registry::Value::Type::String>();
+        if (pathValue.find(value) == std::string::npos)
         {
-            std::string modifiedPathValue = pathValue.append(keyValue + ";");
+            std::string modifiedPathValue = pathValue;
+
+            if (modifiedPathValue.back() != ';')
+            {
+                modifiedPathValue += ";";
+            }
+
+            modifiedPathValue += value + ";";
             return key.SetKeyValue(pathKey, ConvertToUTF16(modifiedPathValue), REG_EXPAND_SZ);
         }
 
@@ -126,16 +132,6 @@ namespace AppInstaller::Portable
         return result;
     }
 
-    bool CleanUpRegistryEdits(HKEY root, std::string& productCode)
-    {
-        std::wstring fullUninstallSubkey = Utility::Normalize(s_UninstallSubkey) + Utility::ConvertToUTF16(productCode);
-
-        bool result;
-        result = Registry::Key::DeleteKey(root, fullUninstallSubkey);
-
-        return result;
-    }
-
     DWORD CALLBACK CopyPortableExeProgressCallback(
         LARGE_INTEGER TotalFileSize,
         LARGE_INTEGER TotalBytesTransferred,
@@ -162,7 +158,12 @@ namespace AppInstaller::Portable
 
         if (dwCallbackReason == CALLBACK_CHUNK_FINISHED)
         {
-            callback.OnProgress(TotalBytesTransferred.QuadPart - 1, TotalFileSize.QuadPart, AppInstaller::ProgressType::Percent);
+            callback.OnProgress(TotalBytesTransferred.QuadPart, TotalFileSize.QuadPart, AppInstaller::ProgressType::Percent);
+        }
+
+        if (TotalBytesTransferred.QuadPart == TotalFileSize.QuadPart)
+        {
+            callback.EndProgress(true);
         }
 
         return PROGRESS_CONTINUE;

@@ -15,8 +15,8 @@ namespace AppInstaller::Portable
     struct PortableArguments
     {
         HKEY RootKey;
-        std::filesystem::path InstallRootDirectory;      // Portable install root directory including the package subdirectory.
-        std::filesystem::path LinksLocation;
+        std::filesystem::path InstallRootDirectory;      // Root directory where portables apps are installed to.
+        std::filesystem::path LinksLocation;             // Directory containing the symlinks that point to the portable exes.
         std::string CommandAlias;
         std::string FileName;
         std::string PackageId;
@@ -27,15 +27,11 @@ namespace AppInstaller::Portable
 
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum& scope, Utility::Architecture& arch);
 
-    bool WriteToAppPathsRegistry(HKEY root, std::string_view entryName, const std::filesystem::path& exePath, bool enablePath);
-
     void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 
     bool AddToPathEnvironmentRegistry(HKEY root, const std::string& keyValue);
 
     bool WriteToUninstallRegistry(HKEY root, std::string_view packageIdentifier, Manifest::AppsAndFeaturesEntry& entry);
-
-    bool CleanUpRegistryEdits(HKEY root, std::string& productCode);
 
     DWORD CALLBACK CopyPortableExeProgressCallback(
         LARGE_INTEGER TotalFileSize,

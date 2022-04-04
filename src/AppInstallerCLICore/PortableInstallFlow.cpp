@@ -51,84 +51,59 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        std::string GetPortableCommandAlias(std::vector<string_t>& commands, std::string_view fileName)
-        {
-            std::string alias;
-
-            if (commands.size() > 0)
-            {
-                alias = commands[0];
-            }
-            else
-            {
-                alias = fileName;
-            }
-
-            if (!HasSuffix(alias, ".exe"))
-            {
-                alias += ".exe";
-            }
-
-            return alias;
-        }
-
         PortableArguments GetPortableInstallerArguments(Execution::Context& context)
         {
             const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+
+            // Retrieve command-line arguments.
             std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+
+            AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
+            Manifest::ManifestInstaller installer = context.Get<Execution::Data::Installer>().value();
+            Utility::Architecture arch = installer.Arch;
+            std::vector<string_t> commands = installer.Commands;
+            std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = installer.AppsAndFeaturesEntries;
+
             PortableArguments portableArgs = {};
+            portableArgs.PackageId = manifest.Id;
+            portableArgs.RootKey = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
             if (!renameArg.empty())
             {
-                portableArgs.FileName = renameArg;
+                std::string renameArgValue = Normalize(renameArg);
+                portableArgs.CommandAlias = renameArgValue;
+                portableArgs.FileName = renameArgValue;
             }
             else
             {
                 portableArgs.FileName = installerPath.filename().u8string();
+                portableArgs.CommandAlias = !commands.empty() ? commands[0] : portableArgs.FileName;
             }
 
-            if (scope == Manifest::ScopeEnum::Machine)
+            if (!HasSuffix(portableArgs.CommandAlias, ".exe"))
             {
-                portableArgs.RootKey = HKEY_LOCAL_MACHINE;
+                portableArgs.CommandAlias += ".exe";
             }
-            else
+            if (!HasSuffix(portableArgs.FileName, ".exe"))
             {
-                portableArgs.RootKey = HKEY_CURRENT_USER;
-            }
-
-            if (!installLocationArg.empty())
-            {
-                portableArgs.InstallRootDirectory = std::filesystem::path{ ConvertToUTF16(installLocationArg) };
-            }
-            else
-            {
-                portableArgs.InstallRootDirectory = GetPortableInstallRoot(scope, arch);
+                portableArgs.FileName += ".exe";
             }
 
+            portableArgs.InstallRootDirectory = !installLocationArg.empty() ? std::filesystem::path{ ConvertToUTF16(installLocationArg) } : GetPortableInstallRoot(scope, arch);
             portableArgs.LinksLocation = GetPortableLinksLocation(scope, arch);
-
-            std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry> appsAndFeaturesEntries = context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries;
-            std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
-            AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
-
-            portableArgs.PackageId = manifest.Id;
-            portableArgs.CommandAlias = GetPortableCommandAlias(commands, portableArgs.FileName);
             portableArgs.AppsAndFeatureEntry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeaturesEntries, manifest);
             return portableArgs;
         }
 
         bool InvokePortableInstall(const std::filesystem::path& installerPath, PortableArguments& portableArgs, IProgressCallback& callback)
         {
-            callback.BeginProgress();
             std::filesystem::path installRootPackageDirectory = portableArgs.InstallRootDirectory / portableArgs.PackageId;
             std::filesystem::create_directories(installRootPackageDirectory);
+            std::filesystem::path portableTargetPath = installRootPackageDirectory / portableArgs.FileName;
 
-            std::filesystem::path portableTargetPath = portableArgs.InstallRootDirectory / portableArgs.PackageId / portableArgs.FileName;
-
-            // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handle when dealing with
+            // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handles when dealing with
             // multiple files (archive) to guarantee all files can be successfully copied.
             bool copyResult = CopyFileExW(installerPath.c_str(), portableTargetPath.c_str(), &CopyPortableExeProgressCallback, &callback, FALSE, 0);
             if (!copyResult)
@@ -138,24 +113,11 @@ namespace AppInstaller::CLI::Workflow
                 return false;
             }
 
-            AddToPathEnvironmentRegistry(portableArgs.RootKey, portableArgs.LinksLocation.u8string());
-
             std::filesystem::path symlinkPath = portableArgs.LinksLocation / portableArgs.CommandAlias;
             CreateSymlink(portableTargetPath, symlinkPath);
-
-            bool registrationResult = WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
-
-            if (registrationResult)
-            {
-                callback.OnProgress(100, 100, AppInstaller::ProgressType::Percent);
-            }
-            else
-            {
-                // TODO: Handle clean up process if registration fails when implementing uninstall flow.
-            }
-
-            callback.EndProgress(true);
-            return registrationResult;
+            AddToPathEnvironmentRegistry(portableArgs.RootKey, portableArgs.LinksLocation.u8string());
+            WriteToUninstallRegistry(portableArgs.RootKey, portableArgs.PackageId, portableArgs.AppsAndFeatureEntry);
+            return true;
         }
     }
 
