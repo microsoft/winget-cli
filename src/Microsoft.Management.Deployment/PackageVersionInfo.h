@@ -17,6 +17,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField);
         hstring Id();
         hstring DisplayName();
+        hstring Publisher();
         hstring Version();
         hstring Channel();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();

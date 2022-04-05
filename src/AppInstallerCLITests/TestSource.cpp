@@ -50,6 +50,8 @@ namespace TestCommon
             return LocIndString{ VersionManifest.Channel };
         case PackageVersionProperty::SourceIdentifier:
             return LocIndString{ Source.lock()->GetIdentifier() };
+        case PackageVersionProperty::Publisher:
+            return LocIndString{ VersionManifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::Publisher>() };
         default:
             return {};
         }

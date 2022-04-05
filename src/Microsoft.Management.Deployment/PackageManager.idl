@@ -270,6 +270,8 @@ namespace Microsoft.Management.Deployment
         {
             /// Checks if this package version has at least one applicable installer.
             Boolean HasApplicableInstaller { get; };
+
+            String Publisher { get; };
         }
 
         /// DESIGN NOTE:

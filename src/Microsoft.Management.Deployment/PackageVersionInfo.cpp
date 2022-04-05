@@ -43,6 +43,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Name).get());
     }
+    hstring PackageVersionInfo::Publisher()
+    {
+        return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Publisher).get());
+    }
     hstring PackageVersionInfo::Version()
     {
         return winrt::to_hstring(m_packageVersion->GetProperty(::AppInstaller::Repository::PackageVersionProperty::Version).get());

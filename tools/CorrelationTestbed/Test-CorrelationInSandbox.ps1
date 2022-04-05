@@ -5,10 +5,61 @@ Param(
   [Parameter(Position = 0, HelpMessage = "The package identifiers to test.")]
   [String[]] $PackageIdentifiers,
   [Parameter(Position = 1, HelpMessage = "The source name that the package identifiers are from.")]
-  [String] $Source
+  [String] $Source,
+  [Parameter(HelpMessage = "The directory where the correlation program is located.")]
+  [String] $ExePath,
+  [Parameter(HelpMessage = "Indicates that the local dev build should be used rather than the published package.")]
+  [Switch] $UseDev,
+  [Parameter(HelpMessage = "The directory where local dev build is located; only the release build works.")]
+  [String] $DevPackagePath,
+  [Parameter(HelpMessage = "The results output path.")]
+  [String] $ResultsPath,
+  [Parameter(HelpMessage = "The path to registry files that should be injected before the test.")]
+  [String] $RegFileDirectory
 )
 
 $ErrorActionPreference = "Stop"
+
+# Validate that the ExePath points to a reasonable location
+
+if (-not $ExePath)
+{
+  $ExePath = Join-Path $PSScriptRoot "InstallAndCheckCorrelation\x64\Release"
+}
+
+if (-not (Test-Path (Join-Path $ExePath "InstallAndCheckCorrelation.exe")))
+{
+  Write-Error -Category InvalidArgument -Message @"
+InstallAndCheckCorrelation.exe does not exist in the path $ExePath
+Either build it, or provide the location using -ExePath
+"@
+}
+
+# Validate that the local dev manifest exists
+
+if ($UseDev)
+{
+  if (-not $DevPackagePath)
+  {
+    $DevPackagePath = Join-Path $PSScriptRoot "..\..\src\AppInstallerCLIPackage\bin\x64\Release\AppX"
+  }
+
+  if ($DevPackagePath.ToLower().Contains("debug"))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+The Debug dev package does not work for unknown reasons.
+Use the Release build or figure out how to make debug work and fix the scripts.
+"@
+  }
+  
+  if (-not (Test-Path (Join-Path $DevPackagePath "AppxManifest.xml")))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+AppxManifest.xml does not exist in the path $DevPackagePath
+Either build the local dev package, or provide the location using -DevPackagePath
+"@
+  }
+}
 
 # Check if Windows Sandbox is enabled
 
@@ -22,6 +73,20 @@ $ Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClien
 '@
 }
 
+# Create output location for results
+
+if (-not $ResultsPath)
+{
+  $ResultsPath = Join-Path ([System.IO.Path]::GetTempPath()) (New-Guid)
+}
+
+if (Test-Path $ResultsPath)
+{
+  Remove-Item -Recurse $ResultsPath -Force
+}
+
+New-Item -ItemType Directory $ResultsPath > $nul
+
 # Close Windows Sandbox
 
 function Close-WindowsSandbox {
@@ -31,6 +96,8 @@ function Close-WindowsSandbox {
 
       $sandbox | Stop-Process
       $sandbox | Wait-Process -Timeout 30
+
+      Start-Sleep 2
 
       Write-Host
     }
@@ -47,6 +114,8 @@ $tempFolder = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath $temp
 New-Item $tempFolder -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
 
 # Set dependencies
+
+$desktopInSandbox = 'C:\Users\WDAGUtilityAccount\Desktop'
 
 $apiLatestUrl = 'https://api.github.com/repos/microsoft/winget-cli/releases/latest'
 
@@ -89,6 +158,19 @@ $uiLibsUwp = @{
     hash = "422FD24B231E87A842C4DAEABC6A335112E0D35B86FAC91F5CE7CF327E36A591"
 }
 
+if ($UseDev)
+{
+  $devVCLibsFileName = "Microsoft.VCLibs.x64.14.00.Desktop.appx"
+  $devVCLibsPath = Join-Path ${env:ProgramFiles(x86)} "Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64"
+  $devVCLibsPath = Join-Path $devVCLibsPath $devVCLibsFileName
+
+  Copy-Item -Path $devVCLibsPath -Destination $tempFolder -Force
+
+  $devVCLibsPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $devVCLibsFileName)
+}
+else
+{
+
 $dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
 
 # Clean temp directory
@@ -102,8 +184,6 @@ if (-Not [String]::IsNullOrWhiteSpace($Manifest)) {
 # Download dependencies
 
 Write-Host '--> Checking dependencies'
-
-$desktopInSandbox = 'C:\Users\WDAGUtilityAccount\Desktop'
 
 foreach ($dependency in $dependencies) {
   $dependency.file = Join-Path -Path $tempFolder -ChildPath $dependency.fileName
@@ -139,6 +219,8 @@ $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7
 $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
 Write-Host
 
+} # !$UseDev
+
 # Copy main script
 
 $mainPs1FileName = 'InSandboxScript.ps1'
@@ -148,14 +230,24 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 {
 
     # Create temporary location for output
-    $outPath = Join-Path ([System.IO.Path]::GetTempPath()) (New-Guid)
+    $outPath = Join-Path $ResultsPath $packageIdentifier
     New-Item -ItemType Directory $outPath > $nul
 
     $outPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Split-Path -Path $outPath -Leaf)
 
-    $bootstrapPs1Content = @"
-.\$mainPs1FileName -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)' -DesktopAppInstallerDependencyPath @('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)') -PackageIdentifier '$packageIdentifier' -SourceName '$Source'-OutputPath '$outPathInSandbox'
+    if ($UseDev)
+    {
+      $bootstrapPs1Content = @"
+.\$mainPs1FileName -DesktopAppInstallerDependencyPath @('$devVCLibsPathInSandbox') -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -UseDev
 "@
+    }
+    else
+    {
+      $bootstrapPs1Content = @"
+.\$mainPs1FileName -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)' -DesktopAppInstallerDependencyPath @('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)') -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'
+"@
+    }
+
 
     $bootstrapPs1FileName = 'Bootstrap.ps1'
     $bootstrapPs1Content | Out-File (Join-Path $tempFolder $bootstrapPs1FileName) -Force
@@ -164,6 +256,34 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     $bootstrapPs1InSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $bootstrapPs1FileName)
     $tempFolderInSandbox = Join-Path -Path $desktopInSandbox -ChildPath $tempFolderName
+    $exePathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "InstallAndCheckCorrelation"
+
+    $devPackageInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "DevPackage"
+    $devPackageXMLFragment = ""
+
+    if ($UseDev)
+    {
+      $devPackageXMLFragment = @"
+      <MappedFolder>
+          <HostFolder>$DevPackagePath</HostFolder>
+          <SandboxFolder>$devPackageInSandbox</SandboxFolder>
+      </MappedFolder>
+"@
+    }
+
+    $regFileDirInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "RegFiles"
+    $regFileDirXMLFragment = ""
+
+    if ($RegFileDirectory)
+    {
+      $regFileDirXMLFragment = @"
+      <MappedFolder>
+          <HostFolder>$RegFileDirectory</HostFolder>
+          <SandboxFolder>$regFileDirInSandbox</SandboxFolder>
+          <ReadOnly>true</ReadOnly>
+      </MappedFolder>
+"@
+    }
 
     $sandboxTestWsbContent = @"
 <Configuration>
@@ -172,6 +292,13 @@ foreach ($packageIdentifier in $PackageIdentifiers)
         <HostFolder>$tempFolder</HostFolder>
         <ReadOnly>true</ReadOnly>
     </MappedFolder>
+    <MappedFolder>
+        <HostFolder>$ExePath</HostFolder>
+        <SandboxFolder>$exePathInSandbox</SandboxFolder>
+        <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    $devPackageXMLFragment
+    $regFileDirXMLFragment
     <MappedFolder>
         <HostFolder>$outPath</HostFolder>
     </MappedFolder>
@@ -200,12 +327,16 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     WindowsSandbox $SandboxTestWsbFile
 
-    $outputFileBlockerPath = Join-Path $outPath "test-out.txt"
+    $outputFileBlockerPath = Join-Path $outPath "done.txt"
 
     while (-not (Test-Path $outputFileBlockerPath))
     {
         Start-Sleep 1
     }
 
-    Close-WindowsSandbox
+    #Close-WindowsSandbox
 }
+
+Write-Host @"
+--> Results are located at $ResultsPath
+"@

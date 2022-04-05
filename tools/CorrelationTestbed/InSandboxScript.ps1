@@ -3,7 +3,8 @@ Param(
   [String[]] $DesktopAppInstallerDependencyPath,
   [String] $PackageIdentifier,
   [String] $SourceName,
-  [String] $OutputPath
+  [String] $OutputPath,
+  [Switch] $UseDev
 )
 
 function Get-ARPTable {
@@ -13,13 +14,54 @@ function Get-ARPTable {
        Where-Object {$null -ne $_.DisplayName }
 }
 
+$ProgressPreference = 'SilentlyContinue'
+
+$desktopPath = "C:\Users\WDAGUtilityAccount\Desktop"
+
+$regFilesDirPath = Join-Path $desktopPath "RegFiles"
+
+if (Test-Path $regFilesDirPath)
+{
+  foreach ($regFile in (Get-ChildItem $regFilesDirPath))
+  {
+
+    Write-Host @"
+--> Importing reg file $($regFile.FullName)
+"@
+    reg import $($regFile.FullName)
+  }
+}
+
 Write-Host @"
 --> Installing WinGet
 
 "@
 
-$ProgressPreference = 'SilentlyContinue'
-Add-AppxPackage -Path $DesktopAppInstallerPath -DependencyPath $DesktopAppInstallerDependencyPath
+if ($UseDev)
+{
+  foreach($dependency in $DesktopAppInstallerDependencyPath)
+  {
+    Write-Host @"
+  ----> Installing $dependency
+"@
+    Add-AppxPackage -Path $dependency
+  }
+
+  Write-Host @"
+  ----> Enabling dev mode
+"@
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+
+  $devPackageManifestPath = Join-Path $desktopPath "DevPackage\AppxManifest.xml"
+  Write-Host @"
+  ----> Installing $devPackageManifestPath
+"@
+  Add-AppxPackage -Path $devPackageManifestPath -Register
+}
+else
+{
+  Add-AppxPackage -Path $DesktopAppInstallerPath -DependencyPath $DesktopAppInstallerDependencyPath
+}
 
 $originalARP = Get-ARPTable
 
@@ -29,13 +71,41 @@ Write-Host @"
 
 "@
 
-winget install --id "$PackageIdentifier" -s "$SourceName" --verbose-logs --accept-source-agreements --accept-package-agreements
+$installAndCorrelateOutPath = Join-Path $OutputPath "install_and_correlate.json"
+
+$installAndCorrelationExpression = Join-Path $desktopPath "InstallAndCheckCorrelation\InstallAndCheckCorrelation.exe"
+$installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -id "', $PackageIdentifier, '" -src "', $SourceName, '" -out "', $installAndCorrelateOutPath, '"')
+
+if ($UseDev)
+{
+  $installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -dev')
+}
+
+Invoke-Expression $installAndCorrelationExpression
+
+Write-Host @"
+
+--> Copying logs
+"@
+
+if ($UseDev)
+{
+  Copy-Item -Recurse (Join-Path $env:LOCALAPPDATA "Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir") $OutputPath
+}
+else
+{
+  Copy-Item -Recurse (Join-Path $env:LOCALAPPDATA "Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir") $OutputPath
+}
+
 
 Write-Host @"
 
 --> Comparing ARP Entries
 "@
 
-(Compare-Object (Get-ARPTable) $originalARP -Property DisplayName,DisplayVersion,Publisher,ProductCode)| Select-Object -Property * -ExcludeProperty SideIndicator | Format-Table
+$arpCompared = (Compare-Object (Get-ARPTable) $originalARP -Property DisplayName,DisplayVersion,Publisher,ProductCode)
+$arpCompared | Select-Object -Property * -ExcludeProperty SideIndicator | Format-Table
 
-"Test output" | Out-File (Join-Path $OutputPath "test-out.txt")
+$arpCompared | Select-Object -Property * -ExcludeProperty SideIndicator | Format-Table | Out-File (Join-Path $OutputPath "ARPCompare.txt")
+
+"Done" | Out-File (Join-Path $OutputPath "done.txt")

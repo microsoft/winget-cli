@@ -292,4 +292,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             builder.Execute(connection);
         }
     }
+
+    std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    {
+        switch (property)
+        {
+        case AppInstaller::Repository::PackageVersionProperty::Publisher:
+        {
+            // Publisher is not a primary data member in this version, but it may be stored in the metadata
+            if (ManifestMetadataTable::Exists(connection))
+            {
+                return ManifestMetadataTable::GetMetadataByManifestIdAndMetadata(connection, manifestId, PackageVersionMetadata::Publisher);
+            }
+
+            // No metadata, so no publisher
+            return {};
+        }
+        default:
+            return V1_0::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
+        }
+    }
 }
