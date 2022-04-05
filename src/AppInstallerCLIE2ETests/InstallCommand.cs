@@ -3,6 +3,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using Microsoft.Win32;
     using NUnit.Framework;
     using System.IO;
 
@@ -11,6 +12,8 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
+        private const string InstallTestPortableExe = @"AppInstallerTestPortable.exe";
+        private const string InstallTestPortableProductCode = @"AppInstallerTest.TestPortableExe";
 
         [Test]
         public void InstallAppDoesNotExist()
@@ -155,6 +158,16 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        [Test]
+        public void InstallPortableExe()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir));
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
@@ -192,6 +205,56 @@ namespace AppInstallerCLIE2ETests
             }
 
             return TestCommon.RemoveMsix(InstallTestMsixName);
+        }
+
+        private bool VerifyTestPortableInstalledAndCleanup(string installDir)
+        {
+            if (!File.Exists(Path.Combine(installDir, InstallTestPortableExe)))
+            {
+                return false;
+            }
+
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall"))
+            {
+                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(InstallTestPortableProductCode);
+                if (installTestPortableSubkey == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    uninstallRegistryKey.DeleteSubKey(InstallTestPortableProductCode);
+                }
+            }
+
+            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment"))
+            {
+                var pathValue = (string)environmentRegistryKey.GetValue("Path");
+                var expectedValue = installDir + ';';
+                if (!pathValue.Contains(expectedValue))
+                {
+                    return false;
+                }
+                else
+                {
+                    string initialPathValue = pathValue.Replace(expectedValue, "");
+                    environmentRegistryKey.SetValue("Path", initialPathValue);
+                }
+            }
+
+            DirectoryInfo di = new DirectoryInfo(installDir);
+
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+
+            return true;
         }
     }
 }

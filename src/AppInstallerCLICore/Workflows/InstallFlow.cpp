@@ -284,7 +284,8 @@ namespace AppInstaller::CLI::Workflow
     void PortableInstall(Execution::Context& context) 
     {
         context <<
-            PortableInstallImpl;
+            PortableInstallImpl <<
+            ReportInstallerResult("PortableInstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
     }
 
     void MsixInstall(Execution::Context& context)

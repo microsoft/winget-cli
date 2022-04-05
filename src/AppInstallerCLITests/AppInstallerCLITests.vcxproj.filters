@@ -188,9 +188,6 @@
     <ClCompile Include="PackageTrackingCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Portable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -263,10 +260,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

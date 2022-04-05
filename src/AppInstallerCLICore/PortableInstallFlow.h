@@ -5,9 +5,9 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Ensures that there is an applicable installer.
+    // Installs a portable exe by copying the file, creating a symlink and writing to registry.
     // Required Args: None
-    // Inputs: InstallerArgs, Installer, InstallerPath, Manifest
+    // Inputs: Manifest, InstallerPath, AppsAndFeaturesEntry
     // Outputs: OperationReturnCode
     void PortableInstallImpl(Execution::Context& context);
 }

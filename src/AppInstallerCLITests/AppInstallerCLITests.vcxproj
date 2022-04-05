@@ -202,7 +202,6 @@
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
-    <ClCompile Include="Portable.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="Regex.cpp" />
@@ -380,10 +379,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>   
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

@@ -473,7 +473,7 @@ namespace AppInstaller::Registry
     {
         m_access = access;
         LPDWORD lpdwDisposition = {};
-        LSTATUS status = RegCreateKeyExW(key, subKey.c_str(), 0, NULL, options, access, NULL, &m_key, lpdwDisposition);
+        LSTATUS status = RegCreateKeyExW(key, subKey.c_str(), 0, nullptr, options, access, NULL, &m_key, lpdwDisposition);
 
         if (lpdwDisposition == (LPDWORD)REG_CREATED_NEW_KEY)
         {

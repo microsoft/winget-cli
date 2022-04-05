@@ -31,21 +31,28 @@ TEST_CASE("OpenIfExists_NotFound", "[registry]")
 
 TEST_CASE("CreateKeyAndDelete", "[registry]")
 {
+    std::wstring subkey = L"Foo\\Bar";
     wil::unique_hkey root = RegCreateVolatileTestRoot();
-    Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
+    Key key = Key::CreateKeyAndOpen(root.get(), subkey, REG_OPTION_VOLATILE);
     REQUIRE(key);
-    bool result = Key::DeleteKey(root.get(), L"Foo\\Bar");
+    bool result = Key::DeleteKey(root.get(), subkey);
     REQUIRE(result);
+    Key secondKey = Key::OpenIfExists(root.get(), subkey);
+    REQUIRE(!secondKey);
 }
 
 TEST_CASE("SetKeyValue", "[registry]")
 {
-    wil::unique_hkey root = RegCreateVolatileTestRoot();
-    Key key = Key::CreateKeyAndOpen(root.get(), L"Foo\\Bar");
-    REQUIRE(key);
-
     std::wstring valueName = L"TestValueName";
     std::wstring valueValue = L"TestValueValue";
+    std::wstring subkey = L"FooBar";
+
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    RegCreateVolatileSubKey(root.get(), subkey);
+
+
+    //encountering ErrorCode 5 access denied...
+    Key key = Key::OpenIfExists(root.get(), subkey);
     bool result = key.SetKeyValue(valueName, valueValue, REG_SZ);
     REQUIRE(result);
     auto value = key[valueName];

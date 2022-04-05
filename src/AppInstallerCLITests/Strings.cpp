@@ -194,3 +194,10 @@ TEST_CASE("GetFileNameFromURI", "[strings]")
     REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/README.md").u8string() == "README.md");
     REQUIRE(GetFileNameFromURI("https://microsoft.com/").u8string() == "");
 }
+
+TEST_CASE("HasSuffix", "[strings]")
+{
+    REQUIRE(HasSuffix("abcde", "cde"));
+    REQUIRE(HasSuffix("testFile.exe", ".exe"));
+    REQUIRE(!HasSuffix("abcde", "abc"));
+}

@@ -189,7 +189,7 @@
     <ClInclude Include="Public\winget\Debugging.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\Portable.h">
+    <ClInclude Include="Public\winget\Filesystem.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -329,7 +329,7 @@
     <ClCompile Include="Debugging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Portable.cpp">
+    <ClCompile Include="Filesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
