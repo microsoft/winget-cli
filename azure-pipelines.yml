@@ -153,7 +153,7 @@ jobs:
     displayName: Run Unit Tests Unpackaged Under System Context
     inputs:
       script: |
-        $(PsExec.secureFilePath) -accepteula -s -i AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     continueOnError: true
 
