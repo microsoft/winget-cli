@@ -13,7 +13,7 @@ pr:
     - src/*
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'windows-latest'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
