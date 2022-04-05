@@ -73,6 +73,12 @@ namespace AppInstaller::Repository::Correlation
             // Naive implementation of Levenshtein distance (scaled over the string size)
             // TODO: This implementation does not consider multi-byte symbols.
 
+            // We may have empty values coming from the ARP
+            if (sv1.empty() || sv2.empty())
+            {
+                return 0;
+            }
+
             // Do it ignoring case
             auto s1 = Utility::FoldCase(sv1);
             auto s2 = Utility::FoldCase(sv2);
