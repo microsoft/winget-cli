@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+#pragma warning( push )
+#pragma warning ( disable : 6553)
 #include <wil/resource.h>
+#pragma warning( pop )
 #include <winrt/base.h>
 #include <objidl.h>
 #include <WindowsPackageManager.h>
