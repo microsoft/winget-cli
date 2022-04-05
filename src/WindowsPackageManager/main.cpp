@@ -14,7 +14,7 @@
 
 using namespace winrt::Microsoft::Management::Deployment;
 
-// CreatorMap for out-of-proc com registration
+// CreatorMap for out-of-proc com registration and direct in-proc com class construction
 CoCreatableClassWrlCreatorMapInclude(PackageManager);
 CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
