@@ -100,12 +100,7 @@ namespace AppInstaller::Repository::Correlation
         double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
     };
 
-    // Measures the correlation using the edit distance between the strings.
-    struct EditDistanceNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
-    {
-        double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
-    };
-
+    // Measures the correlation with the edit distance between the normalized name and publisher strings.
     struct EditDistanceNormalizedNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
     {
         double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;

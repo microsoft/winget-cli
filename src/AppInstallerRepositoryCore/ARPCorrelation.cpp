@@ -204,18 +204,8 @@ namespace AppInstaller::Repository::Correlation
         }
     }
 
-    double EditDistanceNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const
-    {
-        auto nameDistance = EditDistanceScore(packageName, arpName);
-        auto publisherDistance = EditDistanceScore(packagePublisher, arpPublisher);
-
-        // TODO: Consider other ways of merging the two values
-        return nameDistance * publisherDistance;
-    }
-
     double EditDistanceNormalizedNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const
     {
-        // TODO: Re-consider using normalization here
         NameNormalizer normer(NormalizationVersion::Initial);
 
         auto packageNormalizedName = normer.Normalize(packageName, packagePublisher);
