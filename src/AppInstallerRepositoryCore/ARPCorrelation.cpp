@@ -70,7 +70,7 @@ namespace AppInstaller::Repository::Correlation
 
         double EditDistanceScore(std::string_view sv1, std::string_view sv2)
         {
-            // Naive implementation of Levenshtein distance (scaled over the string size)
+            // Naive implementation of edit distance (scaled over the string size)
             // TODO: This implementation does not consider multi-byte symbols.
 
             // We may have empty values coming from the ARP
@@ -125,7 +125,7 @@ namespace AppInstaller::Repository::Correlation
         const Manifest::Manifest& manifest,
         const ARPEntry& arpEntry) const
     {
-        // Get the best score accross all localizations
+        // Get the best score across all localizations
         double bestMatchingScore = GetMatchingScore(manifest, manifest.DefaultLocalization, arpEntry);
         for (const auto& localization : manifest.Localizations)
         {
