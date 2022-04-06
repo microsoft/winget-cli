@@ -88,7 +88,7 @@ void ReportMatch(std::string_view label, std::string_view appName, std::string_v
         "\tARP publisher = " << arpPublisher);
 }
 
-ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorrelationAlgorithm& correlationAlgorithm)
+ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorrelationAlgorithm& correlationAlgorithm, bool reportErrors = false)
 {
     ResultSummary result{};
 
@@ -113,17 +113,24 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorr
             }
             else
             {
-                // Report false matches as we don't want any of them
-                ReportMatch("False match", testCase.AppName, testCase.AppPublisher, matchName, matchPublisher);
                 ++result.FalseMatches;
+
+                if (reportErrors)
+                {
+                    ReportMatch("False match", testCase.AppName, testCase.AppPublisher, matchName, matchPublisher);
+                }
             }
         }
         else
         {
             if (testCase.IsMatch)
             {
-                ReportMatch("False mismatch", testCase.AppName, testCase.AppPublisher, testCase.ARPName, testCase.ARPPublisher);
                 ++result.FalseMismatches;
+
+                if (reportErrors)
+                {
+                    ReportMatch("False mismatch", testCase.AppName, testCase.AppPublisher, testCase.ARPName, testCase.ARPPublisher);
+                }
             }
             else
             {
@@ -146,14 +153,16 @@ void ReportResults(ResultSummary results)
          "False mismatches:  " << results.FalseMismatches << '\n');
 }
 
-void EvaluateResults(ResultSummary results, const DataSet& dataSet)
+void ReportAndEvaluateResults(ResultSummary results, const DataSet& dataSet)
 {
+    ReportResults(results);
+
     // Required True ratio is a lower limit. The more results we get right, the better.
     // Required False ratio is an upper limit. The fewer results we get wrong, the better.
-    REQUIRE(results.TrueMatches > results.TotalCases() * dataSet.RequiredTrueMatchRatio);
-    REQUIRE(results.TrueMismatches > results.TotalCases() * dataSet.RequiredTrueMismatchRatio);
-    REQUIRE(results.FalseMatches < results.TotalCases() * dataSet.RequiredTrueMatchRatio);
-    REQUIRE(results.FalseMismatches < results.TotalCases()* dataSet.RequiredTrueMismatchRatio);
+    REQUIRE(results.TrueMatches >= results.TotalCases() * dataSet.RequiredTrueMatchRatio);
+    REQUIRE(results.TrueMismatches >= results.TotalCases() * dataSet.RequiredTrueMismatchRatio);
+    REQUIRE(results.FalseMatches <= results.TotalCases() * dataSet.RequiredFalseMatchRatio);
+    REQUIRE(results.FalseMismatches <= results.TotalCases()* dataSet.RequiredFalseMismatchRatio);
 }
 
 // TODO: Define multiple data sets
@@ -206,6 +215,12 @@ DataSet GetDataSet_ManyAppsNoNoise()
     DataSet dataSet;
     dataSet.TestCases = LoadTestData();
 
+    // Arbitrary values. We should refine them as the algorithm gets better.
+    dataSet.RequiredTrueMatchRatio = 0.5;
+    dataSet.RequiredFalseMatchRatio = 0.1;
+    dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
+    dataSet.RequiredFalseMismatchRatio = 0.5;
+
     return dataSet;
 }
 
@@ -217,10 +232,16 @@ DataSet GetDataSet_FewAppsMuchNoise()
     std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetARPEntryFromTestCase);
 
     // Take the first few apps from the test data
-    for (size_t i = 0; i < 50; ++i)
+    for (size_t i = 0; i < 25; ++i)
     {
         dataSet.TestCases.push_back(baseTestCases[i]);
     }
+
+    // Arbitrary values. We should refine them as the algorithm gets better.
+    dataSet.RequiredTrueMatchRatio = 0.5;
+    dataSet.RequiredFalseMatchRatio = 0.1;
+    dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
+    dataSet.RequiredFalseMismatchRatio = 0.5;
 
     return dataSet;
 }
@@ -260,7 +281,6 @@ struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
 TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
     TestAlgorithmForStringMatching<EmptyNameAndPublisherCorrelationMeasure>,
     TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
-    TestAlgorithmForStringMatching<EditDistanceNameAndPublisherCorrelationMeasure>,
     TestAlgorithmForStringMatching<EditDistanceNormalizedNameAndPublisherCorrelationMeasure>)
 {
     // Each section loads a different data set,
@@ -296,6 +316,6 @@ TEST_CASE("CorrelationHeuristicIsGood", "[correlation]")
 
     // Use only the measure we ultimately pick
     const auto& measure = ARPCorrelationAlgorithm::GetInstance();
-    auto results = EvaluateDataSetWithHeuristic(dataSet, measure);
-    EvaluateResults(results, dataSet);
+    auto results = EvaluateDataSetWithHeuristic(dataSet, measure, /* reportErrors */ true);
+    ReportAndEvaluateResults(results, dataSet);
 }
