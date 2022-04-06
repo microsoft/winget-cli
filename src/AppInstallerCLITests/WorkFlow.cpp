@@ -14,6 +14,7 @@
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
+#include <Workflows/PortableInstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/DependenciesFlow.h>
@@ -525,6 +526,11 @@ void OverrideForShellExecute(TestContext& context, std::vector<Dependency>& inst
     OverrideForUpdateInstallerMotw(context);
 }
 
+//void OverrideForPortableInstall(TestContext& context)
+//{
+//
+//}
+
 void OverrideForDirectMsi(TestContext& context)
 {
     OverrideForCheckExistingInstaller(context);
@@ -871,6 +877,37 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
+
+// Write workflow tests for portable here:
+TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
+{
+    // verifies that if a basic manifest with no args/command/appsandfeatures is provided, it will still work.
+    TestCommon::TempFile installResultPath("TestPortableInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFPortableInstall>(true);
+}
+
+TEST_CASE("PortableInstallFlow_RenameArg", "[InstallFlow][workflow]")
+{
+    // verifies that if a rename arg is provided, the command value and the file name are both changed to honor that.
+}
+
+TEST_CASE("PortableInstallFlow_CommandValueSpecified", "[InstallFlow][workflow]")
+{
+    // verifies that if a command value is specified, the symlink exe filename is changed to honor that.
+}
+
+TEST_CASE("PortableInstallFlow_AppsAndFeatures", "[InstallFlow][workflow]")
+{
+    // verifies that if the apps and features field is provided, the registry is honored
+}
+
+TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
+{
+    // verifies that if the machine scope is selected, the file is written to the correct location.
+}
+// End of workflow tests for portable...
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 {

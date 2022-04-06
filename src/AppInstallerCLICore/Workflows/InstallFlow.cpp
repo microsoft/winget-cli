@@ -283,8 +283,22 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstall(Execution::Context& context) 
     {
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+        auto installResult = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+            {
+                return InstallPortable(context, callback);
+            });
+
+        if (!installResult)
+        {
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+
         context <<
-            PortableInstallImpl <<
+            AddPortableEntryToUninstallRegistry <<
+            AddPortableLinksDirToPathRegistry <<
             ReportInstallerResult("PortableInstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
     }
 

@@ -260,7 +260,6 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ContextOrchestrator.h" />
-    <ClInclude Include="PortableInstallFlow.h" />
     <ClInclude Include="Public\COMContext.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
@@ -282,6 +281,7 @@
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
+    <ClInclude Include="Workflows\PortableInstallFlow.h" />
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
@@ -297,7 +297,6 @@
     <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
-    <ClCompile Include="PortableInstallFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />
@@ -334,6 +333,7 @@
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\PortableInstallFlow.cpp" />
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
