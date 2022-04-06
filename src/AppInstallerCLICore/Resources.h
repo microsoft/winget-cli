@@ -21,7 +21,6 @@ namespace AppInstaller::CLI::Resource
     {
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptPackageAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptSourceAgreementsArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(AddPathArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisabled);
@@ -189,7 +188,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoPathArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
