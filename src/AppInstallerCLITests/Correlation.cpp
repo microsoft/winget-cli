@@ -277,8 +277,11 @@ struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
     }
 };
 
-
-TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation]",
+// Hide this test as it takes too long to run.
+// It is useful for comparing multiple algorithms, but for
+// regular testing we need only check that the chosen algorithm
+// performs well.
+TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation][.]",
     TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
     TestAlgorithmForStringMatching<EditDistanceNormalizedNameAndPublisherCorrelationMeasure>)
 {
