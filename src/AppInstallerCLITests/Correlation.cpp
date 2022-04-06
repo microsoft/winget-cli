@@ -278,8 +278,7 @@ struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
 };
 
 
-TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
-    TestAlgorithmForStringMatching<EmptyNameAndPublisherCorrelationMeasure>,
+TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation]",
     TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
     TestAlgorithmForStringMatching<EditDistanceNormalizedNameAndPublisherCorrelationMeasure>)
 {
@@ -300,7 +299,7 @@ TEMPLATE_TEST_CASE("MeasureAlgorithmPerformance", "[correlation]",
     ReportResults(results);
 }
 
-TEST_CASE("CorrelationHeuristicIsGood", "[correlation]")
+TEST_CASE("Correlation_ChosenHeuristicIsGood", "[correlation]")
 {
     // Each section loads a different data set,
     // and then they are all handled the same
@@ -315,7 +314,7 @@ TEST_CASE("CorrelationHeuristicIsGood", "[correlation]")
     }
 
     // Use only the measure we ultimately pick
-    const auto& measure = ARPCorrelationAlgorithm::GetInstance();
+    const auto& measure = ARPCorrelationAlgorithm::Instance();
     auto results = EvaluateDataSetWithHeuristic(dataSet, measure, /* reportErrors */ true);
     ReportAndEvaluateResults(results, dataSet);
 }

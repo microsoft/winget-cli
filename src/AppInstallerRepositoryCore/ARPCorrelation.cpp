@@ -68,6 +68,26 @@ namespace AppInstaller::Repository::Correlation
             }
         };
 
+        const ARPCorrelationAlgorithm& InstanceInternal(std::optional<ARPCorrelationAlgorithm*> algorithmOverride = {})
+        {
+            const static BasicARPCorrelationAlgorithm<EditDistanceNormalizedNameAndPublisherCorrelationMeasure> s_algorithm;
+            static ARPCorrelationAlgorithm* s_override = nullptr;
+
+            if (algorithmOverride.has_value())
+            {
+                s_override = algorithmOverride.value();
+            }
+
+            if (s_override)
+            {
+                return *s_override;
+            }
+            else
+            {
+                return s_algorithm;
+            }
+        }
+
         double EditDistanceScore(std::string_view sv1, std::string_view sv2)
         {
             // Naive implementation of edit distance (scaled over the string size)
@@ -118,7 +138,6 @@ namespace AppInstaller::Repository::Correlation
             double editDistance = distance.back().back();
             return 1 - editDistance / std::max(s1.size(), s2.size());
         }
-
     }
 
     double ARPCorrelationAlgorithm::GetMatchingScore(
@@ -175,16 +194,22 @@ namespace AppInstaller::Repository::Correlation
         return bestMatch;
     }
 
-    const ARPCorrelationAlgorithm& ARPCorrelationAlgorithm::GetInstance()
+    const ARPCorrelationAlgorithm& ARPCorrelationAlgorithm::Instance()
     {
-        static BasicARPCorrelationAlgorithm<EditDistanceNormalizedNameAndPublisherCorrelationMeasure> instance;
-        return instance;
+        return InstanceInternal();
     }
 
-    double EmptyNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view, std::string_view, std::string_view, std::string_view) const
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void ARPCorrelationAlgorithm::OverrideInstance(ARPCorrelationAlgorithm* algorithmOverride)
     {
-        return 0;
+        InstanceInternal(algorithmOverride);
     }
+
+    void ARPCorrelationAlgorithm::ResetInstance()
+    {
+        InstanceInternal(nullptr);
+    }
+#endif
 
     double NormalizedNameAndPublisherCorrelationMeasure::GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const
     {
@@ -410,7 +435,7 @@ namespace AppInstaller::Repository::Correlation
         }
 
         // Find the best match
-        const auto& correlationMeasure = Correlation::ARPCorrelationAlgorithm::GetInstance();
+        const auto& correlationMeasure = Correlation::ARPCorrelationAlgorithm::Instance();
         auto bestMatch = correlationMeasure.GetBestMatchForManifest(manifest, arpEntriesForCorrelation);
         return bestMatch ? bestMatch->Entry : nullptr;
     }

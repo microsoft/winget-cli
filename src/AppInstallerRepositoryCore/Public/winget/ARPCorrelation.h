@@ -67,7 +67,12 @@ namespace AppInstaller::Repository::Correlation
 
         // Returns an instance of the algorithm we will actually use.
         // We may use multiple instances/specializations for testing and experimentation.
-        static const ARPCorrelationAlgorithm& GetInstance();
+        static const ARPCorrelationAlgorithm& Instance();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        static void OverrideInstance(ARPCorrelationAlgorithm* algorithmOverride);
+        static void ResetInstance();
+#endif
     };
 
     // An algorithm for measuring the match in name and publisher between a package
@@ -83,13 +88,6 @@ namespace AppInstaller::Repository::Correlation
             std::string_view packagePublisher,
             std::string_view arpName,
             std::string_view arpPublisher) const = 0;
-    };
-
-    // Empty correlation measure that always returns 0.
-    // This is used only as a benchmark to compare other measures to.
-    struct EmptyNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
-    {
-        double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
     };
 
     // Measures the correlation with an exact match using normalized name and publisher.
