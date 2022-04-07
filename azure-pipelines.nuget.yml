@@ -120,7 +120,7 @@ jobs:
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
           FolderPath: "$(Build.ArtifactStagingDirectory)"
-          Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
+          Pattern: "$(packageName).$(version).nupkg"
           signConfigType: inlineSignParams
           inlineOperation: |
             [

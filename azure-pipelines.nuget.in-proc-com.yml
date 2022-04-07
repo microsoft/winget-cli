@@ -11,14 +11,14 @@ pool:
 variables:
   solution: "src/AppInstallerCLI.sln"
   buildConfiguration: "Release"
-  packageName: Microsoft.WindowsPackageManager.Utils
+  packageName: Microsoft.WindowsPackageManager.InProcCom
+  BuildVer: $[counter(${{ parameters.version }}, 1)]
+  version: ${{ parameters.version }}.$(BuildVer)
+  msbuildArgs: '/t:WindowsPackageManager:Build;Microsoft.Management.Deployment.InProc:Build'
 
 jobs:
   - job: "Build"
     timeoutInMinutes: 120
-    variables:
-      BuildVer: $[counter(${{ parameters.version }}, 1)]
-      version: ${{ parameters.version }}.$(BuildVer)
     steps:
       - script: echo $(version)
 
@@ -31,28 +31,8 @@ jobs:
         inputs:
           restoreSolution: "$(solution)"
 
-      # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
-      # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
-      - task: NuGetCommand@2
-        displayName: Restore AppInstallerCLIPackage
-        inputs:
-          restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
-  
-      - task: NuGetCommand@2
-        displayName: Restore AppInstallerTestMsixInstaller
-        inputs:
-          restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
-
-      # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
-      - task: DotNetCoreCLI@2
-        displayName: DotNet Restore
-        inputs:
-          command: "restore"
-          projects: "**/*.csproj"
-
       - task: PowerShell@2
         displayName: Update Binary Version
-        condition: not(eq(variables['Build.Reason'], 'PullRequest'))
         inputs:
           filePath: 'src\binver\Update-BinVer.ps1'
           arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
@@ -64,6 +44,7 @@ jobs:
           platform: "x86"
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
+          msbuildArgs: "$(msbuildArgs)"
 
       - task: VSBuild@1
         displayName: Build Solution x64
@@ -71,6 +52,7 @@ jobs:
           platform: "x64"
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
+          msbuildArgs: "$(msbuildArgs)"
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP CodeSigning - Package contents"
@@ -78,8 +60,9 @@ jobs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
           FolderPath: src
           Pattern: |
-            *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
-            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
+            *\$(buildConfiguration)\WindowsPackageManager\WindowsPackageManager.dll
+            *\$(buildConfiguration)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll
+            *\$(buildConfiguration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
           UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |
@@ -107,10 +90,10 @@ jobs:
             ]
 
       - task: NuGetCommand@2
-        displayName: Pack WingetUtil nuget package
+        displayName: Pack WingetInProcCom nuget package
         inputs:
           command: pack
-          packagesToPack: WinGetUtil.nuspec
+          packagesToPack: WinGetInProcCom.nuspec
           versioningScheme: byEnvVar
           versionEnvVar: version
           packDestination: "$(Build.ArtifactStagingDirectory)"
@@ -120,7 +103,7 @@ jobs:
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
           FolderPath: "$(Build.ArtifactStagingDirectory)"
-          Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
+          Pattern: "$(packageName).$(version).nupkg"
           signConfigType: inlineSignParams
           inlineOperation: |
             [
@@ -147,11 +130,11 @@ jobs:
           ArtifactName: $(packageName)
           publishLocation: Container
 
-      - task: NuGetCommand@2
-        displayName: Push WingetUtil nuget package to nuget.org
-        inputs:
-          command: push
-          nuGetFeedType: external
-          includeNugetOrg: true
-          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
-          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
+#      - task: NuGetCommand@2
+#        displayName: Push WingetInProcCom nuget package to nuget.org
+#        inputs:
+#          command: push
+#          nuGetFeedType: external
+#          includeNugetOrg: true
+#          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+#          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
