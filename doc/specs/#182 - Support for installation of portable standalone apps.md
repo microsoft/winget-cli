@@ -1,7 +1,7 @@
 ---
 author: Demitrius Nelon @denelon
 created on: 2022-03-09
-last updated: 2022-03-09
+last updated: 2022-04-07
 issue id: 182
 ---
 
@@ -37,7 +37,7 @@ Some portable applications generate or consume other files. An additional argume
 
 Users should have settings to be able to specify a new default location other than the system default for the Windows Package Manager.
 
-The default path for installing these packages is "%LOCALAPPDATA%/Microsoft/WinGet/Packages/" for user based installs. The default path for installing these packages is "Program Files/WinGet/Packages/"for machine wide x64 installs and "Program Files (x86)/WinGet/Packages/" for machine wide x86 installs.
+The default path for installing these packages is "%LOCALAPPDATA%/Microsoft/WinGet/Packages/" for user based installs. The default path for installing these packages is "Program Files/WinGet/Packages/" for machine wide x64 installs and "Program Files (x86)/WinGet/Packages/" for machine wide x86 installs.
 
 The corresponding settings are "PortablePackageUserRoot" and "PortablePackageMachineRoot".
 
@@ -50,9 +50,13 @@ A related setting for the uninstall scenario will be able to specify the default
 
 ### Install
 
-When the portable application is being installed by the Windows Package Manager, an entry will be created in Windows Apps & Features so the user will be able to see that the application is installed.
+When the portable application is being installed by the Windows Package Manager, an entry will be created in Windows Apps & Features so the user will be able to see that the application is installed. 
 
-The "AppPath" registry subkey will identify the path to the application so the user will be able to execute the program from any path via command prompt.
+Once the portable application is copied to the appropriate install location based on the preferences of the user, a symlink will be created that points to the portable application. The locations where these symlinks will be stored are "%LOCALAPPDATA%/Microsoft/WinGet/Links/" for user based installs, "Program Files/WinGet/Links/" for machine wide x64 installs and "Program Files (x86)/WinGet/Links/" for machine wide x86 installs. We will then append these paths to the PATH environment variable if they do not exist already.
+
+The filename of the symlink file determines the command alias that will be used when being executed in the command prompt. By default, the symlink filename we be the same as the filename of the portable exe. If a command value is specified in the manifest, then the symlink filename will be renamed to match the command value. If the rename argument is provided, then both the symlink filename and the portable exe filename will be renamed to match the rename argument value.
+
+>Note: In our initial design, we had opted to only writing to the "AppPath" registry subkey to install/register the portable application. However, we determined that this is not sufficient to support command-line execution, which does not look in the "AppPath" registry when locating executables.
 
 The data from “AppsAndFeaturesEntry” in the manifest will be used to specify the name of the package in Windows Apps & Features.  Constraints for manifests with portable packages are covered below in the section on validating manifests. If the “AppsAndFeaturesEntry” doesn’t have a “DisplayName” value, then we will use the “PackageName”.
 The Product Code will be populated with the "PackageIdentifier" if it is not specified in the “AppsAndFeaturesEntry”.
@@ -69,11 +73,11 @@ By default, portable apps will be installed with the "User" scope unless specifi
 
 If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.GitLabRunner_msstore/". 
 
-Since entries in the registry must be unique, if the entry in the "App Paths" registry conflicts with an existing entry, then the user will be notified of the conflict and the subkey value will remain unchanged. By default we will have "first writer wins (FWW)" behavior, but the user can include the --lww argument ("last writer wins") to have the client replace the subkey value to point to the path of the executable last installed from the second source. 
+The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the mstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/Gitlab.GitLabRunner_msstore.exe/"
 
 ### Upgrade
 
-The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the "App Paths" registry and the entry in "Apps & Features" will be updated accordingly.
+The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the entry in "Apps & Features" will be updated accordingly and the symlink will be overwritten to point to the latest portable exe.
 
 If the "UninstallPrevious" field is specified in the manifest, then the Windows Package Manager will perform an uninstall of the previous version of the package prior to installing the newer version. 
 
@@ -83,7 +87,7 @@ There will be no support for installing multiple “side by side” versions of 
 
 ### Uninstall
 
-The executable should be removed along with the entry in Apps & Features. The user should also be able to uninstall the package from Apps & Features.
+The executable and the symlink should be removed along with the entry in Apps & Features. The user should also be able to uninstall the package from Apps & Features.
 
 >Note: The default behavior for uninstalling a portable application with Windows Apps & Features will be to execute uninstall without "--purge" so any files created by the portable application will be remain if they are located in the portable applications directory. An additional argument for "--wait" will be added that will prompt the user to press any key to exit. This is intended to support this scenario so that the user is aware of any remaining files if they choose to uninstall through Windows Apps & Features.
 
@@ -91,7 +95,7 @@ If the directory is empty after removing the portable application, the directory
 
 ### Manifest Validation
 
-Portable package manifests will only support zero or one "command" value to be specified. In the absence of the "--rename" argument, the value specified in "command" will define the default value for renaming the entry in the "App Path" subkey for the portable application.
+Portable package manifests will only support zero or one "command" value to be specified. In the absence of the "--rename" argument, the value specified in "command" will define the default value for naming the symlink file that is created to point to the portable application.
 
 If a value for "scope" is specified for a portable installer, the user should be shown an error that the "scope" field is not supported for portable installers.
 
