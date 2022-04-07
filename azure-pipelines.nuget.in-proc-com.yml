@@ -130,11 +130,11 @@ jobs:
           ArtifactName: $(packageName)
           publishLocation: Container
 
-#      - task: NuGetCommand@2
-#        displayName: Push WingetInProcCom nuget package to nuget.org
-#        inputs:
-#          command: push
-#          nuGetFeedType: external
-#          includeNugetOrg: true
-#          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
-#          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
+      - task: NuGetCommand@2
+        displayName: Push WingetInProcCom nuget package to nuget.org
+        inputs:
+          command: push
+          nuGetFeedType: external
+          includeNugetOrg: true
+          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
