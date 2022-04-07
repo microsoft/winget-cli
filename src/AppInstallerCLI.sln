@@ -21,11 +21,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53D749-D51C-46F8-A162-9371AAA6C2E7}"
 	ProjectSection(SolutionItems) = preProject
 		..\azure-pipelines.loc.yml = ..\azure-pipelines.loc.yml
+		..\azure-pipelines.nuget.in-proc-com.yml = ..\azure-pipelines.nuget.in-proc-com.yml
 		..\azure-pipelines.nuget.yml = ..\azure-pipelines.nuget.yml
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\cgmanifest.json = ..\cgmanifest.json
 		..\README.md = ..\README.md
 		..\doc\Settings.md = ..\doc\Settings.md
+		..\WinGetInProcCom.nuspec = ..\WinGetInProcCom.nuspec
 		..\WinGetUtil.nuspec = ..\WinGetUtil.nuspec
 	EndProjectSection
 EndProject
