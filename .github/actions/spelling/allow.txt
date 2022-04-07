@@ -522,6 +522,8 @@ subselect
 substr
 SWIPECONTROL
 SYMED
+symlink
+symlinks
 Sys
 sz
 TARG
