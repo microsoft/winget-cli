@@ -9,9 +9,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest, InstallerPath, AppsAndFeaturesEntry
     // Outputs: OperationReturnCode
-    std::optional<DWORD> InstallPortable(Execution::Context& context, IProgressCallback& progress);
+    std::optional<DWORD> PortableExeInstall(Execution::Context& context, IProgressCallback& progress);
 
-    void AddPortableLinksDirToPathRegistry(Execution::Context& context);
-
-    void AddPortableEntryToUninstallRegistry(Execution::Context& context);
+    void PortableRegistryInstall(Execution::Context& context);
 }

@@ -258,8 +258,12 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            context << PortableInstall;
-            break;
+            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
+            {
+                context << PortableInstall;
+                break;
+            }
+            [[fallthrough]];
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -287,7 +291,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto installResult = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
             {
-                return InstallPortable(context, callback);
+                return PortableExeInstall(context, callback);
             });
 
         if (!installResult)
@@ -297,8 +301,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context <<
-            AddPortableEntryToUninstallRegistry <<
-            AddPortableLinksDirToPathRegistry <<
+            PortableRegistryInstall <<
             ReportInstallerResult("PortableInstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
     }
 
