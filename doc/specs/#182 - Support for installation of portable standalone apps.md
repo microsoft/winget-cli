@@ -73,7 +73,7 @@ By default, portable apps will be installed with the "User" scope unless specifi
 
 If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.GitLabRunner_msstore/". 
 
-The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the mstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/Gitlab.GitLabRunner_msstore.exe/"
+The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the msstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/Gitlab.GitLabRunner_msstore.exe/"
 
 ### Upgrade
 
