@@ -14,7 +14,7 @@ variables:
   packageName: Microsoft.WindowsPackageManager.InProcCom
   BuildVer: $[counter(${{ parameters.version }}, 1)]
   version: ${{ parameters.version }}.$(BuildVer)
-  msbuildArgs: '/t:WindowsPackageManager;Microsoft.Management.Deployment.InProc'
+  msbuildArgs: '/t:WindowsPackageManager;Microsoft_Management_Deployment_InProc'
 
 jobs:
   - job: "Build"
