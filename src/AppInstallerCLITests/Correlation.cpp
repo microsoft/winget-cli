@@ -144,8 +144,8 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
 
 void ReportResults(ResultSummary results)
 {
-    // This uses WARN to report as that is always shown.
-    // TODO: Consider reporting in some other way
+    // This uses WARN to report as that is always shown regardless of the test result.
+    // We may want to re-consider reporting in some other way
     WARN("Total cases:       " << results.TotalCases() << '\n' <<
          "True matches:      " << results.TrueMatches << '\n' <<
          "False matches:     " << results.FalseMatches << '\n' <<
@@ -182,7 +182,6 @@ std::vector<TestCase> LoadTestData()
 
     std::vector<TestCase> testCases;
 
-    // TODO: There has to be a better way...
     std::string line;
     while (std::getline(testDataStream, line))
     {

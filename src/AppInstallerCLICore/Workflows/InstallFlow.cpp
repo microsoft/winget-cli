@@ -524,30 +524,25 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }, true);
 
-        // We can only get the source identifier from an active source
-        std::string sourceIdentifier;
-        if (context.Contains(Execution::Data::PackageVersion))
-        {
-            sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier);
-        }
-
-        auto arpEntry = Correlation::FindARPEntryForNewlyInstalledPackage(manifest, arpSnapshot, arpSource, sourceIdentifier);
+        auto correlationResult = Correlation::FindARPEntryForNewlyInstalledPackage(manifest, arpSnapshot, arpSource);
 
         // Store the ARP entry found to match the package to record it in the tracking catalog later
-        if (arpEntry)
+        if (correlationResult.Package)
         {
-            // TODO: Is this the right way to add the data we have?
             std::vector<AppsAndFeaturesEntry> entries;
 
-            auto metadata = arpEntry->GetMetadata();
+            auto metadata = correlationResult.Package->GetMetadata();
 
             AppsAndFeaturesEntry baseEntry;
-            baseEntry.DisplayName = arpEntry->GetProperty(PackageVersionProperty::Name).get();
-            baseEntry.DisplayVersion = arpEntry->GetProperty(PackageVersionProperty::Version).get();
-            baseEntry.Publisher = metadata[PackageVersionMetadata::Publisher];
+
+            // Display name and publisher are also available as multi properties, but
+            // for ARP there will always be only 0 or 1 values.
+            baseEntry.DisplayName = correlationResult.Package->GetProperty(PackageVersionProperty::Name).get();
+            baseEntry.Publisher = correlationResult.Package->GetProperty(PackageVersionProperty::Publisher).get();
+            baseEntry.DisplayVersion = correlationResult.Package->GetProperty(PackageVersionProperty::Version).get();
             baseEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(metadata[PackageVersionMetadata::InstalledType]);
 
-            auto productCodes = arpEntry->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            auto productCodes = correlationResult.Package->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
             for (auto&& productCode : productCodes)
             {
                 AppsAndFeaturesEntry entry = baseEntry;
@@ -555,23 +550,36 @@ namespace AppInstaller::CLI::Workflow
                 entries.push_back(std::move(entry));
             }
 
-            auto names = arpEntry->GetMultiProperty(PackageVersionMultiProperty::Name);
-            auto publishers = arpEntry->GetMultiProperty(PackageVersionMultiProperty::Publisher);
-
-            // TODO: these should always have the same size...
-            if (names.size() == publishers.size())
-            {
-                for (size_t i = 0; i < names.size(); ++i)
-                {
-                    AppsAndFeaturesEntry entry = baseEntry;
-                    entry.DisplayName = std::move(names[i]).get();
-                    entry.Publisher = std::move(publishers[i]).get();
-                    entries.push_back(std::move(entry));
-                }
-            }
-
             context.Add<Data::CorrelatedAppsAndFeaturesEntries>(std::move(entries));
         }
+
+        // We can only get the source identifier from an active source
+        std::string sourceIdentifier;
+        if (context.Contains(Execution::Data::PackageVersion))
+        {
+            sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier);
+        }
+
+        IPackageVersion::Metadata arpEntryMetadata;
+        if (correlationResult.Package)
+        {
+            arpEntryMetadata = correlationResult.Package->GetMetadata();
+        }
+
+        // TODO: Move reporting out
+        Logging::Telemetry().LogSuccessfulInstallARPChange(
+            sourceIdentifier,
+            manifest.Id,
+            manifest.Version,
+            manifest.Channel,
+            correlationResult.ChangesToARP,
+            correlationResult.MatchesInARP,
+            correlationResult.CountOfIntersectionOfChangesAndMatches,
+            correlationResult.Package ? static_cast<std::string>(correlationResult.Package->GetProperty(PackageVersionProperty::Name)) : "",
+            correlationResult.Package ? static_cast<std::string>(correlationResult.Package->GetProperty(PackageVersionProperty::Version)) : "",
+            correlationResult.Package ? static_cast<std::string>(correlationResult.Package->GetProperty(PackageVersionProperty::Publisher)) : "",
+            correlationResult.Package ? static_cast<std::string_view>(arpEntryMetadata[PackageVersionMetadata::InstalledLocale]) : ""
+        );
     }
     CATCH_LOG();
 

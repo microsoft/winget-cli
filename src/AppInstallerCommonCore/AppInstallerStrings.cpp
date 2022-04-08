@@ -167,8 +167,7 @@ namespace AppInstaller::Utility
         if (errorCode != U_BUFFER_OVERFLOW_ERROR)
         {
             AICLI_LOG(Core, Error, << "ucnv_convert returned " << errorCode);
-            // TODO: Use new error code
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR);
         }
 
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf32ByteCount % sizeof(char32_t) != 0);
@@ -178,11 +177,13 @@ namespace AppInstaller::Utility
         errorCode = UErrorCode::U_ZERO_ERROR;
 
         auto utf32BytesWritten = ucnv_convert("UTF-32", "UTF-8", (char*)(result.data()), utf32ByteCount, input.data(), static_cast<int32_t>(input.size()), &errorCode);
-        if (U_FAILURE(errorCode))
+
+        // The size we pass to ucnv_convert is not enough for it to put in the null terminator,
+        // which wouldn't work anyways as it puts a single byte.
+        if (errorCode != U_STRING_NOT_TERMINATED_WARNING)
         {
             AICLI_LOG(Core, Error, << "ucnv_convert returned " << errorCode);
-            // TODO: Use new error code
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR);
         }
 
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf32ByteCount != utf32BytesWritten);

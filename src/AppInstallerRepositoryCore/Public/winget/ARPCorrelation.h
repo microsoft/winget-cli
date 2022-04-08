@@ -37,6 +37,18 @@ namespace AppInstaller::Repository::Correlation
         bool IsNewOrUpdated;
     };
 
+    struct ARPCorrelationResult
+    {
+        // Correlated package from ARP
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> Package{};
+        // Number of ARP entries that are new or updated
+        size_t ChangesToARP{};
+        // Number of ARP entries that match with the installed package
+        size_t MatchesInARP{};
+        // Number of changed ARP entries that match the installed package
+        size_t CountOfIntersectionOfChangesAndMatches{};
+    };
+
     struct IARPMatchConfidenceAlgorithm
     {
         virtual ~IARPMatchConfidenceAlgorithm() = default;
@@ -76,12 +88,11 @@ namespace AppInstaller::Repository::Correlation
 
     // Finds the ARP entry in the ARP source that matches a newly installed package.
     // Takes the package manifest, a snapshot of the ARP before the installation, and the current ARP source.
-    // Returns the entry in the ARP source, or nullptr if there was no match.
-    std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackage(
+    // Returns the entry in the ARP source, or nullptr if there was no match, plus some stats about the correlation.
+    ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        AppInstaller::Repository::Source& arpSource,
-        std::string_view sourceIdentifier);
+        AppInstaller::Repository::Source& arpSource);
 
     std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const AppInstaller::Manifest::Manifest& manifest,

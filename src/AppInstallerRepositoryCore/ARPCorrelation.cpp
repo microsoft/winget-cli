@@ -152,18 +152,10 @@ namespace AppInstaller::Repository::Correlation
         {
             // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
             auto arpName = arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name);
+            auto arpPublisher = arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher);
 
-            // TODO: Use PackageVersionProperty::Publisher once #2071 is merged
-            const auto arpPublishers = arpEntry.Entry->GetInstalledVersion()->GetMultiProperty(PackageVersionMultiProperty::Publisher);
-            LocIndString arpPublisher;
-            if (!arpPublishers.empty())
-            {
-                arpPublisher = arpPublishers.front();
-            }
-
-            // Names and publishers from the ARP source are already normalized, so we don't need to normalize them
-            auto nameDistance = EditDistanceScore(manifestNameAndPublisher.first, PrepareString(arpName.get()));
-            auto publisherDistance = EditDistanceScore(manifestNameAndPublisher.second, PrepareString(arpPublisher.get()));
+            auto nameDistance = EditDistanceScore(manifestNameAndPublisher.first, NormalizeAndPrepareName(arpName.get()));
+            auto publisherDistance = EditDistanceScore(manifestNameAndPublisher.second, NormalizeAndPreparePublisher(arpPublisher.get()));
 
             // TODO: Consider other ways of merging the two values
             auto score = (2 * nameDistance + publisherDistance) / 3;
@@ -173,15 +165,14 @@ namespace AppInstaller::Repository::Correlation
         return bestMatchingScore;
     }
 
-    std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackage(
+    ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
         const Manifest::Manifest& manifest,
         const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        Source& arpSource,
-        std::string_view sourceIdentifier)
+        Source& arpSource)
     {
         AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
 
-        std::vector<Correlation::ARPEntry> changedArpEntries; 
+        std::vector<Correlation::ARPEntry> changedArpEntries;
         std::vector<Correlation::ARPEntry> existingArpEntries;
 
         for (auto& entry : arpSource.Search({}).Matches)
@@ -294,25 +285,28 @@ namespace AppInstaller::Repository::Correlation
         //                  a problem with our name normalization.
 
         // Find the package that we are going to log
-        std::shared_ptr<IPackageVersion> toLog;
+        ARPCorrelationResult result;
+        // TODO: Find a good way to consider the other heuristics in these stats.
+        result.ChangesToARP = changedArpEntries.size();
+        result.MatchesInARP = findByManifest.Matches.size();
+        result.CountOfIntersectionOfChangesAndMatches = packagesInBoth.size();
 
         // If there is only a single common package (changed and matches), it is almost certainly the correct one.
         if (packagesInBoth.size() == 1)
         {
-            toLog = packagesInBoth[0]->GetInstalledVersion();
+            result.Package = packagesInBoth[0]->GetInstalledVersion();
         }
         // If it wasn't changed but we still find a match, that is the best thing to report.
         else if (findByManifest.Matches.size() == 1)
         {
-            toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
+            result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
         }
         // If only a single ARP entry was changed and we found no matches, report that.
         else if (findByManifest.Matches.empty() && changedArpEntries.size() == 1)
         {
-            toLog = changedArpEntries[0].Entry->GetInstalledVersion();
+            result.Package = changedArpEntries[0].Entry->GetInstalledVersion();
         }
-
-        if (!toLog)
+        else
         {
             // We were not able to find an exact match, so we now run some heuristics
             // to try and match the package with some ARP entry by assigning them scores.
@@ -328,32 +322,10 @@ namespace AppInstaller::Repository::Correlation
                 arpEntries.push_back(std::move(entry));
             }
 
-            toLog = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, arpEntries);
+            result.Package = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, arpEntries);
         }
 
-        IPackageVersion::Metadata toLogMetadata;
-        if (toLog)
-        {
-            toLogMetadata = toLog->GetMetadata();
-        }
-
-        // TODO: Move reporting out
-        //       Report number of changes, how many manifests were above the threshold, and how many of those were changed
-        Logging::Telemetry().LogSuccessfulInstallARPChange(
-            sourceIdentifier,
-            manifest.Id,
-            manifest.Version,
-            manifest.Channel,
-            changedArpEntries.size(),
-            findByManifest.Matches.size(),
-            packagesInBoth.size(),
-            toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
-            toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
-            toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-            toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::InstalledLocale]) : ""
-        );
-
-        return toLog;
+        return result;
     }
 
     // Find the best match using heuristics
