@@ -89,6 +89,7 @@ createtables
 cref
 csproj
 CStr
+csv
 CURSORPOSITON
 CUSTOMHEADER
 cwctype
@@ -188,7 +189,9 @@ hfile
 HGLOBAL
 HIDECANCEL
 hinternet
+HKCU
 HKEY
+HKLM
 hmac
 HMODULE
 Homepage
@@ -445,6 +448,7 @@ screenshots
 SCROLLER
 SCROLLVIEWER
 sdk
+sdks
 seekg
 seinfo
 selectany
@@ -538,6 +542,7 @@ TEXTFORMAT
 TEXTINCLUDE
 Threadpool
 Timeline
+tls
 todo
 tokenizer
 tolower

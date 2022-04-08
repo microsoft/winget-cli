@@ -121,110 +121,114 @@ const CLSID CLSID_FindPackagesOptions2 = { 0x1BD8FF3A, 0xEC50, 0x4F69, { 0xAE, 0
 const CLSID CLSID_PackageMatchFilter2 = { 0x3F85B9F4, 0x487A, 0x4C48, { 0x90, 0x35, 0x29, 0x03, 0xF8, 0xA6, 0xD9, 0xE8 } }; //3F85B9F4-487A-4C48-9035-2903F8A6D9E8
 const CLSID CLSID_CreateCompositePackageCatalogOptions2 = { 0xEE160901, 0xB317, 0x4EA7, { 0x9C, 0xC6, 0x53, 0x55, 0xC6, 0xD7, 0xD8, 0xA7 } }; //EE160901-B317-4EA7-9CC6-5355C6D7D8A7
 
-PackageManager CreatePackageManager(bool useDev)
+// Helper object to make cleaner error handling
+struct Main
 {
-    if (useDev)
-    {
-        return winrt::create_instance<PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
-    }
-    return winrt::create_instance<PackageManager>(CLSID_PackageManager, CLSCTX_ALL);
-}
-
-InstallOptions CreateInstallOptions(bool useDev)
-{
-    if (useDev)
-    {
-        return winrt::create_instance<InstallOptions>(CLSID_InstallOptions2, CLSCTX_ALL);
-    }
-    return winrt::create_instance<InstallOptions>(CLSID_InstallOptions, CLSCTX_ALL);
-}
-
-FindPackagesOptions CreateFindPackagesOptions(bool useDev)
-{
-    if (useDev)
-    {
-        return winrt::create_instance<FindPackagesOptions>(CLSID_FindPackagesOptions2, CLSCTX_ALL);
-    }
-    return winrt::create_instance<FindPackagesOptions>(CLSID_FindPackagesOptions, CLSCTX_ALL);
-}
-
-CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions(bool useDev)
-{
-    if (useDev)
-    {
-        return winrt::create_instance<CreateCompositePackageCatalogOptions>(CLSID_CreateCompositePackageCatalogOptions2, CLSCTX_ALL);
-    }
-    return winrt::create_instance<CreateCompositePackageCatalogOptions>(CLSID_CreateCompositePackageCatalogOptions, CLSCTX_ALL);
-}
-
-PackageMatchFilter CreatePackageMatchFilter(bool useDev)
-{
-    if (useDev)
-    {
-        return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter2, CLSCTX_ALL);
-    }
-    return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter, CLSCTX_ALL);
-}
-
-int main(int argc, char** argv) try
-{
-    // Supports the following arguments:
-    //  -id : [Required] The PackageIdentifier to install and check for correlation
     std::string packageIdentifier;
-
-    //  -src : [Required] The source name for the package to install
     std::string sourceName;
-
-    //  -out : [Required] The file to write results to
     std::filesystem::path outputPath;
-
-    //  -dev : [Optional] Use the dev CLSIDs
     bool useDevCLSIDs = false;
 
-    for (int i = 1; i < argc; ++i)
+    int ParseArgs(int argc, char** argv)
     {
-        if ("-id"sv == argv[i] && i + 1 < argc)
+        // Supports the following arguments:
+        //  -id : [Required] The PackageIdentifier to install and check for correlation
+        //  -src : [Required] The source name for the package to install
+        //  -out : [Required] The file to write results to
+        //  -dev : [Optional] Use the dev CLSIDs
+
+        for (int i = 1; i < argc; ++i)
         {
-            packageIdentifier = argv[++i];
+            if ("-id"sv == argv[i] && i + 1 < argc)
+            {
+                packageIdentifier = argv[++i];
+            }
+            else if ("-src"sv == argv[i] && i + 1 < argc)
+            {
+                sourceName = argv[++i];
+            }
+            else if ("-out"sv == argv[i] && i + 1 < argc)
+            {
+                outputPath = argv[++i];
+            }
+            else if ("-dev"sv == argv[i])
+            {
+                useDevCLSIDs = true;
+            }
         }
-        else if ("-src"sv == argv[i] && i + 1 < argc)
+
+        // Check inputs
+        if (outputPath.empty())
         {
-            sourceName = argv[++i];
+            std::cout << "No output file path specified, use -out" << std::endl;
+            return 2;
         }
-        else if ("-out"sv == argv[i] && i + 1 < argc)
+
+        if (!outputPath.has_stem())
         {
-            outputPath = argv[++i];
+            std::cout << "Output path is not a file" << std::endl;
+            return 3;
         }
-        else if ("-dev"sv == argv[i])
+
+        std::filesystem::create_directories(outputPath.parent_path());
+
+        outputStream.open(outputPath);
+
+        if (!outputStream)
         {
-            useDevCLSIDs = true;
+            std::cout << "Output file could not be created" << std::endl;
+            return 4;
         }
+
+        return 0;
     }
 
-    // Check inputs
-    if (outputPath.empty())
+    PackageManager CreatePackageManager()
     {
-        std::cout << "No output file path specified, use -out" << std::endl;
-        return 2;
+        if (useDevCLSIDs)
+        {
+            return winrt::create_instance<PackageManager>(CLSID_PackageManager2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<PackageManager>(CLSID_PackageManager, CLSCTX_ALL);
     }
 
-    if (!outputPath.has_stem())
+    InstallOptions CreateInstallOptions()
     {
-        std::cout << "Output path is not a file" << std::endl;
-        return 3;
+        if (useDevCLSIDs)
+        {
+            return winrt::create_instance<InstallOptions>(CLSID_InstallOptions2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<InstallOptions>(CLSID_InstallOptions, CLSCTX_ALL);
     }
 
-    std::filesystem::create_directories(outputPath.parent_path());
-
-    std::ofstream outputStream{ outputPath };
-
-    if (!outputStream)
+    FindPackagesOptions CreateFindPackagesOptions()
     {
-        std::cout << "Output file could not be created" << std::endl;
-        return 4;
+        if (useDevCLSIDs)
+        {
+            return winrt::create_instance<FindPackagesOptions>(CLSID_FindPackagesOptions2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<FindPackagesOptions>(CLSID_FindPackagesOptions, CLSCTX_ALL);
     }
 
-    auto co_uninit = wil::CoInitializeEx();
+    CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions()
+    {
+        if (useDevCLSIDs)
+        {
+            return winrt::create_instance<CreateCompositePackageCatalogOptions>(CLSID_CreateCompositePackageCatalogOptions2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<CreateCompositePackageCatalogOptions>(CLSID_CreateCompositePackageCatalogOptions, CLSCTX_ALL);
+    }
+
+    PackageMatchFilter CreatePackageMatchFilter()
+    {
+        if (useDevCLSIDs)
+        {
+            return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter, CLSCTX_ALL);
+    }
+
+    std::ofstream outputStream;
 
     // Result file outputs
     HRESULT hr = S_OK;
@@ -240,305 +244,353 @@ int main(int argc, char** argv) try
     std::string archiveName;
     std::string archivePublisher;
 
-    if (packageIdentifier.empty())
+    void ValidateArgs()
     {
-        hr = E_INVALIDARG;
-        error = "A package identifier must be supplied, use -id";
-        goto output_result;
+        if (packageIdentifier.empty())
+        {
+            hr = E_INVALIDARG;
+            error = "A package identifier must be supplied, use -id";
+            return;
+        }
+
+        if (sourceName.empty())
+        {
+            hr = E_INVALIDARG;
+            error = "A source name must be supplied, use -src";
+            return;
+        }
     }
 
-    if (sourceName.empty())
+    void Install()
     {
-        hr = E_INVALIDARG;
-        error = "A source name must be supplied, use -src";
-        goto output_result;
-    }
-
-    // Execute the install step
-    phase = "Install";
-    std::cout << "Connecting to PackageManager..." << std::endl;
-    try
-    { do {
-        action = "Create package manager";
-        auto packageManager = CreatePackageManager(useDevCLSIDs);
-
-        action = "Get source reference";
-        auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
-
-        action = "Connecting to catalog";
-        auto connectResult = sourceRef.Connect();
-
-        if (connectResult.Status() != ConnectResultStatus::Ok)
+        try
         {
-            hr = E_FAIL;
-            error = "Error connecting to catalog";
-            break;
-        }
+            action = "Create package manager";
+            auto packageManager = CreatePackageManager();
 
-        auto catalog = connectResult.PackageCatalog();
+            action = "Get source reference";
+            auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
 
-        action = "Create find options";
-        auto findOptions = CreateFindPackagesOptions(useDevCLSIDs);
+            action = "Connecting to catalog";
+            auto connectResult = sourceRef.Connect();
 
-        action = "Add package id filter";
-        auto filter = CreatePackageMatchFilter(useDevCLSIDs);
-        filter.Field(PackageMatchField::Id);
-        filter.Option(PackageFieldMatchOption::Equals);
-        filter.Value(ConvertToUTF16(packageIdentifier));
-        findOptions.Filters().Append(filter);
+            if (connectResult.Status() != ConnectResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error connecting to catalog";
+                return;
+            }
 
-        action = "Find package";
-        auto findResult = catalog.FindPackages(findOptions);
+            auto catalog = connectResult.PackageCatalog();
 
-        if (findResult.Status() != FindPackagesResultStatus::Ok)
-        {
-            hr = E_FAIL;
-            error = "Error finding packages";
-            break;
-        }
+            action = "Create find options";
+            auto findOptions = CreateFindPackagesOptions();
 
-        action = "Get match";
-        auto matches = findResult.Matches();
+            action = "Add package id filter";
+            auto filter = CreatePackageMatchFilter();
+            filter.Field(PackageMatchField::Id);
+            filter.Option(PackageFieldMatchOption::Equals);
+            filter.Value(ConvertToUTF16(packageIdentifier));
+            findOptions.Filters().Append(filter);
 
-        if (matches.Size() == 0)
-        {
-            hr = E_NOT_SET;
-            error = "Package not found";
-            break;
-        }
+            action = "Find package";
+            auto findResult = catalog.FindPackages(findOptions);
 
-        auto package = matches.GetAt(0).CatalogPackage();
+            if (findResult.Status() != FindPackagesResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error finding packages";
+                return;
+            }
 
-        action = "Inspect package";
-        auto installVersion = package.DefaultInstallVersion();
-        packageName = ConvertToUTF8(installVersion.DisplayName());
-        if (useDevCLSIDs)
-        {
-            // Publisher is not yet available on the release version; make this unconditional when it is
-            packagePublisher = ConvertToUTF8(installVersion.Publisher());
-        }
+            action = "Get match";
+            auto matches = findResult.Matches();
 
-        action = "Create install options";
-        auto installOptions = CreateInstallOptions(useDevCLSIDs);
+            if (matches.Size() == 0)
+            {
+                hr = E_NOT_SET;
+                error = "Package not found";
+                return;
+            }
 
-        installOptions.PackageInstallScope(PackageInstallScope::Any);
-        installOptions.PackageInstallMode(PackageInstallMode::Silent);
+            auto package = matches.GetAt(0).CatalogPackage();
 
-        std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
-        auto installResult = packageManager.InstallPackageAsync(package, installOptions).get();
-
-        if (installResult.Status() != InstallResultStatus::Ok)
-        {
-            hr = installResult.ExtendedErrorCode();
-            error = "Error installing package";
-            break;
-        }
-
-    } while(0); }
-    catch (const winrt::hresult_error& hre)
-    {
-        hr = hre.code();
-        error = ConvertToUTF8(hre.message());
-    }
-
-    if (FAILED(hr))
-    {
-        goto output_result;
-    }
-
-    // Check for the installed package being correlated when the remote package is known,
-    // as when trying to determine information about a single known package.
-    phase = "Correlate when package known";
-    std::cout << "Correlating package when known..." << std::endl;
-    try
-    { do {
-        action = "Create package manager";
-        auto packageManager = CreatePackageManager(useDevCLSIDs);
-
-        action = "Get source reference";
-        auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
-
-        action = "Create composite catalog options";
-        auto compOptions = CreateCreateCompositePackageCatalogOptions(useDevCLSIDs);
-
-        compOptions.Catalogs().Append(sourceRef);
-        compOptions.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromAllCatalogs);
-
-        action = "Create composite catalog reference";
-        auto compRef = packageManager.CreateCompositePackageCatalog(compOptions);
-
-        action = "Connecting to catalog";
-        auto connectResult = compRef.Connect();
-
-        if (connectResult.Status() != ConnectResultStatus::Ok)
-        {
-            hr = E_FAIL;
-            error = "Error connecting to catalog";
-            break;
-        }
-
-        auto catalog = connectResult.PackageCatalog();
-
-        action = "Create find options";
-        auto findOptions = CreateFindPackagesOptions(useDevCLSIDs);
-
-        action = "Add package id filter";
-        auto filter = CreatePackageMatchFilter(useDevCLSIDs);
-        filter.Field(PackageMatchField::Id);
-        filter.Option(PackageFieldMatchOption::Equals);
-        filter.Value(ConvertToUTF16(packageIdentifier));
-        findOptions.Filters().Append(filter);
-
-        action = "Find package";
-        auto findResult = catalog.FindPackages(findOptions);
-
-        if (findResult.Status() != FindPackagesResultStatus::Ok)
-        {
-            hr = E_FAIL;
-            error = "Error finding packages";
-            break;
-        }
-
-        action = "Get match";
-        auto matches = findResult.Matches();
-
-        if (matches.Size() == 0)
-        {
-            hr = E_NOT_SET;
-            error = "Package not found";
-            break;
-        }
-
-        auto package = matches.GetAt(0).CatalogPackage();
-
-        action = "Inspect package for installed version";
-        auto installed = package.InstalledVersion();
-
-        if (installed)
-        {
-            correlatePackageKnown = true;
-            packageKnownName = ConvertToUTF8(installed.DisplayName());
+            action = "Inspect package";
+            auto installVersion = package.DefaultInstallVersion();
+            packageName = ConvertToUTF8(installVersion.DisplayName());
             if (useDevCLSIDs)
             {
                 // Publisher is not yet available on the release version; make this unconditional when it is
-                packageKnownPublisher = ConvertToUTF8(installed.Publisher());
+                packagePublisher = ConvertToUTF8(installVersion.Publisher());
+            }
+
+            action = "Create install options";
+            auto installOptions = CreateInstallOptions();
+
+            installOptions.PackageInstallScope(PackageInstallScope::Any);
+            installOptions.PackageInstallMode(PackageInstallMode::Silent);
+
+            std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
+            auto installResult = packageManager.InstallPackageAsync(package, installOptions).get();
+
+            if (installResult.Status() != InstallResultStatus::Ok)
+            {
+                hr = installResult.ExtendedErrorCode();
+                error = "Error installing package";
+                return;
             }
         }
-
-    } while(0); }
-    catch (const winrt::hresult_error& hre)
-    {
-        hr = hre.code();
-        error = ConvertToUTF8(hre.message());
+        catch (const winrt::hresult_error& hre)
+        {
+            hr = hre.code();
+            error = ConvertToUTF8(hre.message());
+        }
     }
 
-    // Check for the installed package being correlated when archiving local package information.
-    phase = "Correlate when archiving";
-    std::cout << "Correlating package when archiving..." << std::endl;
-    try
-    { do {
-        action = "Create package manager";
-        auto packageManager = CreatePackageManager(useDevCLSIDs);
-
-        action = "Get source reference";
-        auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
-
-        action = "Create composite catalog options";
-        auto compOptions = CreateCreateCompositePackageCatalogOptions(useDevCLSIDs);
-
-        compOptions.Catalogs().Append(sourceRef);
-        compOptions.CompositeSearchBehavior(CompositeSearchBehavior::LocalCatalogs);
-
-        action = "Create composite catalog reference";
-        auto compRef = packageManager.CreateCompositePackageCatalog(compOptions);
-
-        action = "Connecting to catalog";
-        auto connectResult = compRef.Connect();
-
-        if (connectResult.Status() != ConnectResultStatus::Ok)
+    void CorrelatePackageKnown()
+    {
+        try
         {
-            hr = E_FAIL;
-            error = "Error connecting to catalog";
-            break;
-        }
+            action = "Create package manager";
+            auto packageManager = CreatePackageManager();
 
-        auto catalog = connectResult.PackageCatalog();
+            action = "Get source reference";
+            auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
 
-        action = "Create find options";
-        auto findOptions = CreateFindPackagesOptions(useDevCLSIDs);
+            action = "Create composite catalog options";
+            auto compOptions = CreateCreateCompositePackageCatalogOptions();
 
-        action = "Find package";
-        auto findResult = catalog.FindPackages(findOptions);
+            compOptions.Catalogs().Append(sourceRef);
+            compOptions.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromAllCatalogs);
 
-        if (findResult.Status() != FindPackagesResultStatus::Ok)
-        {
-            hr = E_FAIL;
-            error = "Error finding packages";
-            break;
-        }
+            action = "Create composite catalog reference";
+            auto compRef = packageManager.CreateCompositePackageCatalog(compOptions);
 
-        action = "Get matches";
-        auto matches = findResult.Matches();
+            action = "Connecting to catalog";
+            auto connectResult = compRef.Connect();
 
-        action = "Get source info";
-        auto sourceInfo = sourceRef.Info();
-        auto sourceIdentifier = sourceInfo.Id();
-        auto sourceType = sourceInfo.Type();
+            if (connectResult.Status() != ConnectResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error connecting to catalog";
+                return;
+            }
 
-        for (const auto& match : matches)
-        {
-            auto package = match.CatalogPackage();
+            auto catalog = connectResult.PackageCatalog();
+
+            action = "Create find options";
+            auto findOptions = CreateFindPackagesOptions();
+
+            action = "Add package id filter";
+            auto filter = CreatePackageMatchFilter();
+            filter.Field(PackageMatchField::Id);
+            filter.Option(PackageFieldMatchOption::Equals);
+            filter.Value(ConvertToUTF16(packageIdentifier));
+            findOptions.Filters().Append(filter);
+
+            action = "Find package";
+            auto findResult = catalog.FindPackages(findOptions);
+
+            if (findResult.Status() != FindPackagesResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error finding packages";
+                return;
+            }
+
+            action = "Get match";
+            auto matches = findResult.Matches();
+
+            if (matches.Size() == 0)
+            {
+                hr = E_NOT_SET;
+                error = "Package not found";
+                return;
+            }
+
+            auto package = matches.GetAt(0).CatalogPackage();
+
+            action = "Inspect package for installed version";
             auto installed = package.InstalledVersion();
 
             if (installed)
             {
-                auto installedCatalogInfo = installed.PackageCatalog().Info();
-
-                if (installedCatalogInfo.Id() == sourceIdentifier && installedCatalogInfo.Type() == sourceType)
+                correlatePackageKnown = true;
+                packageKnownName = ConvertToUTF8(installed.DisplayName());
+                if (useDevCLSIDs)
                 {
-                    correlateArchive = true;
-                    archiveName = ConvertToUTF8(installed.DisplayName());
-                    if (useDevCLSIDs)
-                    {
-                        // Publisher is not yet available on the release version; make this unconditional when it is
-                        archivePublisher = ConvertToUTF8(installed.Publisher());
-                    }
-                    break;
+                    // Publisher is not yet available on the release version; make this unconditional when it is
+                    packageKnownPublisher = ConvertToUTF8(installed.Publisher());
                 }
             }
         }
-
-    } while(0); }
-    catch (const winrt::hresult_error& hre)
-    {
-        hr = hre.code();
-        error = ConvertToUTF8(hre.message());
+        catch (const winrt::hresult_error& hre)
+        {
+            hr = hre.code();
+            error = ConvertToUTF8(hre.message());
+        }
     }
 
-    std::cout << "Done" << std::endl;
-    phase = "Completed";
-    action.clear();
+    void CorrelateArchive()
+    {
+        try
+        {
+            action = "Create package manager";
+            auto packageManager = CreatePackageManager();
 
-output_result:
-    outputStream << "{" << std::endl;
-    outputStream << JSONPair{ "PackageIdentifier", packageIdentifier };
-    outputStream << JSONPair{ "Source", sourceName };
-    outputStream << JSONPair{ "UseDev", useDevCLSIDs };
-    outputStream << JSONPair{ "Error", error };
-    outputStream << JSONPair{ "Phase", phase };
-    outputStream << JSONPair{ "Action", action };
-    outputStream << JSONPair{ "PackageName", packageName };
-    outputStream << JSONPair{ "PackagePublisher", packagePublisher };
-    outputStream << JSONPair{ "CorrelatePackageKnown", correlatePackageKnown };
-    outputStream << JSONPair{ "PackageKnownName", packageKnownName };
-    outputStream << JSONPair{ "PackageKnownPublisher", packageKnownPublisher };
-    outputStream << JSONPair{ "CorrelateArchive", correlateArchive };
-    outputStream << JSONPair{ "ArchiveName", archiveName };
-    outputStream << JSONPair{ "ArchivePublisher", archivePublisher };
-    // Keep at the end to prevent a dangling comma
-    outputStream << JSONPair{ "HRESULT", hr, false } << "}" << std::endl;
+            action = "Get source reference";
+            auto sourceRef = packageManager.GetPackageCatalogByName(ConvertToUTF16(sourceName));
 
-    return hr;
+            action = "Create composite catalog options";
+            auto compOptions = CreateCreateCompositePackageCatalogOptions();
+
+            compOptions.Catalogs().Append(sourceRef);
+            compOptions.CompositeSearchBehavior(CompositeSearchBehavior::LocalCatalogs);
+
+            action = "Create composite catalog reference";
+            auto compRef = packageManager.CreateCompositePackageCatalog(compOptions);
+
+            action = "Connecting to catalog";
+            auto connectResult = compRef.Connect();
+
+            if (connectResult.Status() != ConnectResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error connecting to catalog";
+                return;
+            }
+
+            auto catalog = connectResult.PackageCatalog();
+
+            action = "Create find options";
+            auto findOptions = CreateFindPackagesOptions();
+
+            action = "Find package";
+            auto findResult = catalog.FindPackages(findOptions);
+
+            if (findResult.Status() != FindPackagesResultStatus::Ok)
+            {
+                hr = E_FAIL;
+                error = "Error finding packages";
+                return;
+            }
+
+            action = "Get matches";
+            auto matches = findResult.Matches();
+
+            action = "Get source info";
+            auto sourceInfo = sourceRef.Info();
+            auto sourceIdentifier = sourceInfo.Id();
+            auto sourceType = sourceInfo.Type();
+
+            for (const auto& match : matches)
+            {
+                auto package = match.CatalogPackage();
+
+                if (ConvertToUTF8(package.Id()) != packageIdentifier)
+                {
+                    continue;
+                }
+
+                auto installed = package.InstalledVersion();
+
+                if (installed)
+                {
+                    auto installedCatalogInfo = installed.PackageCatalog().Info();
+
+                    if (installedCatalogInfo.Id() == sourceIdentifier && installedCatalogInfo.Type() == sourceType)
+                    {
+                        correlateArchive = true;
+                        archiveName = ConvertToUTF8(installed.DisplayName());
+                        if (useDevCLSIDs)
+                        {
+                            // Publisher is not yet available on the release version; make this unconditional when it is
+                            archivePublisher = ConvertToUTF8(installed.Publisher());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            hr = hre.code();
+            error = ConvertToUTF8(hre.message());
+        }
+    }
+
+    void ReportResult()
+    {
+        if (outputStream)
+        {
+            outputStream << "{" << std::endl;
+            outputStream << JSONPair{ "PackageIdentifier", packageIdentifier };
+            outputStream << JSONPair{ "Source", sourceName };
+            outputStream << JSONPair{ "UseDev", useDevCLSIDs };
+            outputStream << JSONPair{ "Error", error };
+            outputStream << JSONPair{ "Phase", phase };
+            outputStream << JSONPair{ "Action", action };
+            outputStream << JSONPair{ "PackageName", packageName };
+            outputStream << JSONPair{ "PackagePublisher", packagePublisher };
+            outputStream << JSONPair{ "CorrelatePackageKnown", correlatePackageKnown };
+            outputStream << JSONPair{ "PackageKnownName", packageKnownName };
+            outputStream << JSONPair{ "PackageKnownPublisher", packageKnownPublisher };
+            outputStream << JSONPair{ "CorrelateArchive", correlateArchive };
+            outputStream << JSONPair{ "ArchiveName", archiveName };
+            outputStream << JSONPair{ "ArchivePublisher", archivePublisher };
+            // Keep at the end to prevent a dangling comma
+            outputStream << JSONPair{ "HRESULT", hr, false } << "}" << std::endl;
+        }
+    }
+
+    void main(int argc, char** argv)
+    {
+        hr = ParseArgs(argc, argv);
+        if (hr != 0)
+        {
+            return;
+        }
+
+        ValidateArgs();
+        if (FAILED(hr))
+        {
+            return;
+        }
+
+        auto co_uninitialize = wil::CoInitializeEx();
+
+        // Execute the install step
+        phase = "Install";
+        std::cout << "Connecting to PackageManager..." << std::endl;
+        Install();
+        if (FAILED(hr))
+        {
+            return;
+        }
+
+        // Check for the installed package being correlated when the remote package is known,
+        // as when trying to determine information about a single known package.
+        phase = "Correlate when package known";
+        std::cout << "Correlating package when known..." << std::endl;
+        CorrelatePackageKnown();
+
+        // Check for the installed package being correlated when archiving local package information.
+        phase = "Correlate when archiving";
+        std::cout << "Correlating package when archiving..." << std::endl;
+        CorrelateArchive();
+
+        std::cout << "Done" << std::endl;
+        phase = "Completed";
+        action.clear();
+    }
+};
+
+int main(int argc, char** argv) try
+{
+    Main mainMain;
+    mainMain.main(argc, argv);
+    mainMain.ReportResult();
+    return mainMain.hr;
 }
 catch (const std::exception& e)
 {

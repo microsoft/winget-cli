@@ -27,6 +27,8 @@ if (-not $ExePath)
   $ExePath = Join-Path $PSScriptRoot "InstallAndCheckCorrelation\x64\Release"
 }
 
+$ExePath = [System.IO.Path]::GetFullPath($ExePath)
+
 if (-not (Test-Path (Join-Path $ExePath "InstallAndCheckCorrelation.exe")))
 {
   Write-Error -Category InvalidArgument -Message @"
@@ -43,6 +45,8 @@ if ($UseDev)
   {
     $DevPackagePath = Join-Path $PSScriptRoot "..\..\src\AppInstallerCLIPackage\bin\x64\Release\AppX"
   }
+  
+  $DevPackagePath = [System.IO.Path]::GetFullPath($DevPackagePath)
 
   if ($DevPackagePath.ToLower().Contains("debug"))
   {
@@ -73,20 +77,6 @@ $ Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClien
 '@
 }
 
-# Create output location for results
-
-if (-not $ResultsPath)
-{
-  $ResultsPath = Join-Path ([System.IO.Path]::GetTempPath()) (New-Guid)
-}
-
-if (Test-Path $ResultsPath)
-{
-  Remove-Item -Recurse $ResultsPath -Force
-}
-
-New-Item -ItemType Directory $ResultsPath > $nul
-
 # Close Windows Sandbox
 
 function Close-WindowsSandbox {
@@ -94,10 +84,16 @@ function Close-WindowsSandbox {
     if ($sandbox) {
       Write-Host '--> Closing Windows Sandbox'
 
+      $sandboxServer = Get-Process 'WindowsSandbox' -ErrorAction SilentlyContinue
+
       $sandbox | Stop-Process
       $sandbox | Wait-Process -Timeout 30
 
-      Start-Sleep 2
+      # Also wait for the server to close
+      if ($sandboxServer)
+      {
+        $sandboxServer | Wait-Process -Timeout 30
+      }
 
       Write-Host
     }
@@ -105,6 +101,22 @@ function Close-WindowsSandbox {
 }
 
 Close-WindowsSandbox
+
+# Create output location for results
+
+if (-not $ResultsPath)
+{
+  $ResultsPath = Join-Path ([System.IO.Path]::GetTempPath()) (New-Guid)
+}
+
+$ResultsPath = [System.IO.Path]::GetFullPath($ResultsPath)
+
+if (Test-Path $ResultsPath)
+{
+  Remove-Item -Recurse $ResultsPath -Force
+}
+
+New-Item -ItemType Directory $ResultsPath  | Out-Null
 
 # Initialize Temp Folder
 
@@ -171,53 +183,53 @@ if ($UseDev)
 else
 {
 
-$dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
+  $dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
 
-# Clean temp directory
+  # Clean temp directory
 
-Get-ChildItem $tempFolder -Recurse -Exclude $dependencies.fileName | Remove-Item -Force -Recurse
+  Get-ChildItem $tempFolder -Recurse -Exclude $dependencies.fileName | Remove-Item -Force -Recurse
 
-if (-Not [String]::IsNullOrWhiteSpace($Manifest)) {
-  Copy-Item -Path $Manifest -Recurse -Destination $tempFolder
-}
+  if (-Not [String]::IsNullOrWhiteSpace($Manifest)) {
+    Copy-Item -Path $Manifest -Recurse -Destination $tempFolder
+  }
 
-# Download dependencies
+  # Download dependencies
 
-Write-Host '--> Checking dependencies'
+  Write-Host '--> Checking dependencies'
 
-foreach ($dependency in $dependencies) {
-  $dependency.file = Join-Path -Path $tempFolder -ChildPath $dependency.fileName
-  $dependency.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $dependency.fileName)
+  foreach ($dependency in $dependencies) {
+    $dependency.file = Join-Path -Path $tempFolder -ChildPath $dependency.fileName
+    $dependency.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $dependency.fileName)
 
-  # Only download if the file does not exist, or its hash does not match.
-  if (-Not ((Test-Path -Path $dependency.file -PathType Leaf) -And $dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
-    Write-Host @"
+    # Only download if the file does not exist, or its hash does not match.
+    if (-Not ((Test-Path -Path $dependency.file -PathType Leaf) -And $dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
+      Write-Host @"
     - Downloading:
       $($dependency.url)
 "@
 
-    try {
-      $WebClient.DownloadFile($dependency.url, $dependency.file)
-    }
-    catch {
-      #Pass the exception as an inner exception
-      throw [System.Net.WebException]::new("Error downloading $($dependency.url).",$_.Exception)
-    }
-    if (-not ($dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
-      throw [System.Activities.VersionMismatchException]::new('Dependency hash does not match the downloaded file')
+      try {
+        $WebClient.DownloadFile($dependency.url, $dependency.file)
+      }
+      catch {
+        #Pass the exception as an inner exception
+        throw [System.Net.WebException]::new("Error downloading $($dependency.url).",$_.Exception)
+      }
+      if (-not ($dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
+        throw [System.Activities.VersionMismatchException]::new('Dependency hash does not match the downloaded file')
+      }
     }
   }
-}
 
-# Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
-# This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
+  # Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
+  # This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
 
-if (-Not (Test-Path (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx))){
-  Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
-}  
-$uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-$uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-Write-Host
+  if (-Not (Test-Path (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx))){
+    Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
+  }  
+  $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
+  $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
+  Write-Host
 
 } # !$UseDev
 
@@ -231,7 +243,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     # Create temporary location for output
     $outPath = Join-Path $ResultsPath $packageIdentifier
-    New-Item -ItemType Directory $outPath > $nul
+    New-Item -ItemType Directory $outPath  | Out-Null
 
     $outPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Split-Path -Path $outPath -Leaf)
 
@@ -252,7 +264,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     $bootstrapPs1FileName = 'Bootstrap.ps1'
     $bootstrapPs1Content | Out-File (Join-Path $tempFolder $bootstrapPs1FileName) -Force
 
-    # Create Wsb file
+    # Create Windows Sandbox configuration file
 
     $bootstrapPs1InSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $bootstrapPs1FileName)
     $tempFolderInSandbox = Join-Path -Path $desktopInSandbox -ChildPath $tempFolderName
@@ -314,13 +326,9 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     $sandboxTestWsbContent | Out-File $sandboxTestWsbFile -Force
 
     Write-Host @"
---> Starting Windows Sandbox, and:
-    - Mounting the following directories:
-        - $tempFolder as read-only
-        - $outPath as read-write
-    - Installing WinGet
-    - Installing the package: $packageIdentifier
-    - Comparing ARP Entries
+--> Starting Windows Sandbox:
+    - Package: $packageIdentifier
+    - Output directory: $outPath
 "@
 
     Write-Host
@@ -329,12 +337,20 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     $outputFileBlockerPath = Join-Path $outPath "done.txt"
 
+    $waitTimeout = [System.TimeSpan]::new(0, 10, 0)
+    $startWaitTime = Get-Date
+
     while (-not (Test-Path $outputFileBlockerPath))
     {
+        $elapsedTime = (Get-Date) - $startWaitTime
+        if ($elapsedTime -gt $waitTimeout)
+        {
+          break
+        }
         Start-Sleep 1
     }
 
-    #Close-WindowsSandbox
+    Close-WindowsSandbox
 }
 
 Write-Host @"
