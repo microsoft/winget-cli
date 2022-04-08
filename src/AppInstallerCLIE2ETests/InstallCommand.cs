@@ -13,6 +13,13 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            // TODO: Remove this once portable install is no longer an experimental feature.
+            ConfigureFeature("portableInstall", true);
+        }
+
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -164,7 +171,7 @@ namespace AppInstallerCLIE2ETests
             packageId = commandAlias = productCode = "AppInstallerTest.TestPortableExe";
             fileName = "AppInstallerTestExeInstaller.exe";
 
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {installDir}");
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
@@ -190,7 +197,7 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
-            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageId = "AppInstallerTest.TestPortableExeWithAppsAndFeatures";
             productCode = "testProductCode";
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
