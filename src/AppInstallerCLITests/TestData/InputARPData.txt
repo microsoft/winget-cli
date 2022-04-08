@@ -1,6 +1,5 @@
 ﻿XP890ZFCZZR294|Studio Fisioterapico Pro|Esposito Software di M. G. Caputo|Studio Fisioterapico Pro Demo||Copyright Esposito Software|Studio Fisioterapico Pro Demo_is1
 XP89DCGQ3K6VLD|Microsoft PowerToys|Microsoft Corporation|PowerToys (Preview) x64|0.57.0|Microsoft Corporation|{582f7a19-045d-43d4-89bf-7f8e9479311c}
-XP89DCGQ3K6VLD|Microsoft PowerToys|Microsoft Corporation|PowerToys (Preview)|0.57.0|Microsoft Corporation|{45E073FD-1ED7-4787-B445-2980175F449A}
 XP89HZ8SVWTT0M|ElevenClock|Martí Climent|ElevenClock version 3.3.2|3.3.2|SomePythonThings|{D62480B8-71F1-48CE-BEEC-9D3E172C87B5}_is1
 XP89HZKG342W76|POWER-KI GUI Client|XPLAB - Research in Automation|POWER-KI GUI|33.11|XPLAB - Research in Automation - Brescia - Italy|{0760E097-F794-4836-9941-8846EA43BE06}
 XP89J5462CMGJD|Apache OpenOffice|The Apache Software Foundation|OpenOffice 4.1.11|4.111.9808|Apache Software Foundation|{D2F124FC-5373-4A4A-8C5A-61052A3D34CA}
@@ -31,15 +30,12 @@ XP99J7FXZD0JDM|Emjysoft eSanté|Emjysoft|Suivi des soins et des remboursements d
 XP99JXDBM4XKFP|Parallels Toolbox|Corel Corporation|Parallels Toolbox|5.1.0.3170|Parallels International GmbH|{5145E2CF-E9FC-48E6-A2B4-E409FC84D059}
 XP99K41V2P36RQ|MSIX Editor|InstallAware Software Corporation|InstallAware Msix Editor 1.0|1.0.0.2703|InstallAware Software|InstallAware Msix Editor 1.0
 XP99VR1BPSBQJ2|Epic Games Store|Epic Games Inc.|Epic Games Launcher|1.3.23.0|Epic Games, Inc.|{FAC47927-1A6A-4C6E-AD7D-E9756794A4BC}
-XP99VR1BPSBQJ2|Epic Games Store|Epic Games Inc.|Epic Online Services|2.0.33.0|Epic Games, Inc.|{758842D2-1538-4008-A8E3-66F65A061C52}
 XP99WSCKQSH7SW|Emjysoft Sauvegarde Facile|Emjysoft|Easy Backup|VersionApplication|Emjysoft|{37215B1A-1990-4F55-936E-C9BA1634EF75}}_is1
 XP99WT9NMGB1PN|蜜蜂剪辑|网旭科技|BeeCut V1.7.7.22|1.7.7.22|Apowersoft LIMITED|{CA76BFA8-1862-49D7-B2C7-AE3D6CF40E53}_is1
 XP9B0HTG55KTCH|Free Hex Editor Neo|HHD Software Ltd.|HHD Software Free Hex Editor Neo 6.54|6.54.02.6790|HHD Software, Ltd.|{8EB85C0E-DE7D-4A53-BD66-708B8F2C80B0}
 XP9B16C2TFN8P1|GOM Mix Pro|Gom and Company|GOM Mix Pro|2.0.4.8|GOM & Company|GOMMixPro
-XP9B16C2TFN8P1|GOM Mix Pro|Gom and Company|곰다운로더|1.0.0.1|GOM & Company|GOM Downloader
 XP9CFZ9PKV0DWS|Automation Workshop|Febooti, SIA|Febooti Automation Workshop|5.1.1.0|Febooti Software|{6114DD12-2516-4465-9275-FB9A8E1A583C}
 XP9CRZD7D219NK|FolderSizes|Key Metric Software|FolderSizes 9|9.3.362|Key Metric Software|{587D3069-EFE1-4FC2-B917-01496D5ABF8A}
-XP9CRZQDCJ0CC6|LetsView|网旭科技|Bonjour|3.0.0.10|Apple Inc.|{6E3610B2-430D-4EB0-81E3-2B57E8B9DE8D}
 XP9CRZQDCJ0CC6|LetsView|网旭科技|LetsView V1.1.2.5|1.1.2.5|LetsView LIMITED|{6AA74BE4-9506-4D81-A07C-A40F883C2EA7}_is1
 XP9CSP03RV8BX9|Audials One 2022|Audials AG|Audials 2022|22.0.177.0|Audials AG|{3F273072-3D14-479E-B4CD-AC8B1F436DA1}
 XP9K4SR87H227Q|VisualNEO Win|SinLios Soluciones Digitales|VisualNEO Win|21.9.9|SinLios|{57147D4D-2492-41EC-A552-FB37C1C7FF3E}_is1
@@ -50,7 +46,6 @@ XP9KHM4BK9FZ7Q|Visual Studio Code|Microsoft Corporation|Microsoft Visual Studio 
 XP9KHPQ5C9MSN2|ZIPmagic|ZIPmagic Software|ZIPmagic|19.19.21|Simon King|ZIPmagic
 XP9KHPXMW6RQLL|Gestione Studio Tecnico|Esposito Software di M. G. Caputo|Gestione Studio Tecnico Demo||Copyright Esposito Software|Gestione Studio Tecnico Demo_is1
 XP9KHQZV691PF9|PTZ Link|AVer Information|AVer PTZ Link|1.1.1013.0|AVer Information Inc|{AC08D179-14D5-4B93-9684-20DBE0848637}
-XP9KM2X7H10448|PCmover Reconfigurator|Laplink Software Inc|Laplink Reconfigurator|1.0.0.1|Laplink Software, Inc.|{b666623c-3a76-463d-805e-7a32e7e98f0a}
 XP9KM2X7H10448|PCmover Reconfigurator|Laplink Software Inc|Laplink Reconfigurator|1.0.0.1|Laplink Software, Inc.|{BBB86720-65BA-452A-A14D-B152CB506DD8}
 XP9M20CZB2C5W8|Powder - Gaming Recorder|Unique Entertainment Experience SAS|Powder 2.5.0|2.5.0|powder-team|2b39bc52-9c37-5fcd-ab25-906727f7c690
 XP9MFNDJM19N0G|Gestione Affitti Pro|Esposito Software di M. G. Caputo|Gestione Affitti Pro 4.0 Demo||Copyright Esposito Software|Gestione Affitti Pro 4.0 Demo_is1
@@ -61,7 +56,6 @@ XPDC2KHD93HVJW|Stampa Ricevute Generiche|Esposito Software di Maria Grazia Caput
 XPDCFJD1GFFDXD|WorldClock.Classic|Fulvio Castelli|WorldClock (Trial)|7.0.12.0|Fulvio Castelli|{E32193B9-8870-40be-B88A-B302251B8AA7}_is1
 XPDCJ80KGNRVSS|TeamSpeak|TeamSpeak Systems GmbH|TeamSpeak|5.0.0|TeamSpeak|{C9D97E1E-B188-4500-A87D-902530E0D1E0}
 XPDCK0XGHVWNBK|Trend Micro Antivirus Plus Security|Trend Micro Inc.|Trend Micro Antivirus+|17.7|Trend Micro Inc.|{ABBD4BA8-6703-40D2-AB1E-5BB1F7DB49A4}
-XPDCK0XGHVWNBK|Trend Micro Antivirus Plus Security|Trend Micro Inc.|Trend Micro Troubleshooting Tool|6.0|Trend Micro Inc.|{4B83469E-CE4F-45D0-BC34-CCB7BF194477}
 XPDDZ434WT2M5Z|SOLARWATT Pro experience|SOLARWATT GmbH|SOLARWATT Experience|2.1.0.4|SOLARWATT|{40CF234F-1D35-4ED8-AAFC-E07EA2FD8B3B}
 XPDF9J69VVFMX3|Apowersoft Background Eraser|网旭科技|Apowersoft background eraser V2.3.13|2.3.13|Apowersoft LIMITED|{98EC0F66-C563-40FA-A77A-F2FC558F5DAA}_is1
 XPDFF6P40P0M5Q|星愿浏览器|Twinkstar|Twinkstar Browser|7.12.1000.2112|Twinkstar Limited|Twinkstar
@@ -82,13 +76,10 @@ XPDP2X1MMZ4KR8|Ashampoo Burning Studio 23|Ashampoo|Ashampoo Burning Studio 23|23
 XPFCFBB4FB3D6D|Emjysoft Cleaner|Emjysoft|Emjysoft Cleaner 2022 v4.1|4.1|Emjysoft|{167B1302-A739-42DE-BBD2-4C2F13D1FF51}_is1
 XPFCFKCNNTXGQD|Yandex Browser|Yandex|Yandex|21.9.1.686|ООО «ЯНДЕКС»|YandexBrowser
 XPFCFL5ZTNFGD7|Wondershare Anireel|WONDERSHARE GLOBAL LIMITED|Wondershare Anireel(Build 1.6.2)||Wondershare Software|Wondershare Anireel_is1
-XPFCFL5ZTNFGD7|Wondershare Anireel|WONDERSHARE GLOBAL LIMITED|Wondershare Helper Compact 2.6.0|2.6.0|Wondershare|{5363CE84-5F09-48A1-8B6C-6BB590FFEDF2}_is1
 XPFCG86X2PGLDJ|Christmas Elf by Pothos|Pothos|Christmas Elf|||ChristmasElf
 XPFCGHHXNH4WBW|Biblioteca e Prestiti Librari|Esposito Software di M. G. Caputo|Gestione Biblioteca e Prestiti Librari 3.0 Demo||Copyright Esposito Software|Gestione Biblioteca e Prestiti Librari 3.0 Demo_is1
 XPFCWP0SQWXM3V|CCleaner|Piriform Software Ltd|CCleaner|5.89|Piriform|CCleaner
 XPFCXFRDJ8VGPT|Домашняя Бухгалтерия|Keepsoft|Äîìàøíÿÿ áóõãàëòåðèÿ Lite|7.2|Keepsoft|Äîìàøíÿÿ áóõãàëòåðèÿ Lite
-XPFCXPF18WNKP6|Total Defense Essential Anti-Virus|Total Defense, Inc.|Total Defense Essential Anti-Virus|13.0.0.572|Total Defense, Inc.|TotalDefense Anti-Virus
-XPFCXPF18WNKP6|Total Defense Essential Anti-Virus|Total Defense, Inc.|Total Defense Essential Anti-Virus|13.0.0.572|Total Defense, Inc.|TotalDefense WebFilter
 XPFCXPF18WNKP6|Total Defense Essential Anti-Virus|Total Defense, Inc.|Total Defense|13.0.0.572|Total Defense, Inc.|TotalDefense
 XPFCXS0QVTHDC9|Active@ Disk Editor|LSoft Technologies Inc.|Active@ Disk Editor 7|7|LSoft Technologies Inc|{F40165C8-BD5B-4E42-A40D-396BB707E5B7}_is1
 XPFD27PCFQJQ68|TextSeek|Xiamen Zesite Company|TextSeek|2.12.3060|Zesite Company|TextSeek
@@ -111,12 +102,10 @@ XPFNZJKG6100L4|ASM Visual|gri-software|ASM Visual version 1.1.7|1.1.7|gri-softwa
 XPFNZKDRP1SXM6|视频转换王|网旭科技|Apowersoft Video Converter Studio V4.8.6.7|4.8.6.7|APOWERSOFT LIMITED|{195E8D7F-292B-4B04-A6E7-E96CAF04C767}_is1
 XPFP0G0V147H6D|Wondershare PDFelement|WONDERSHARE GLOBAL LIMITED|Wondershare PDFelement ( Version 8.3.0 )|8.3.0|Wondershare|{343A530C-4726-4091-87E0-F9CC41792CE2}_is1
 XPFP2VCXM8D2DB|傲软PDF编辑——一键编辑&转化&压缩&签名PDF文件|网旭科技|ApowerPDF V5.4.2.3|5.4.2.3|Apowersoft LIMITED|{8691C793-7B2C-46C5-9AB2-AB80D129A5EC}_is1
-XPFP30KL61D4SC|Wondershare UniConverter|WONDERSHARE GLOBAL LIMITED|Wondershare Helper Compact 2.5.3|2.5.3|Wondershare|{5363CE84-5F09-48A1-8B6C-6BB590FFEDF2}_is1
 XPFP30KL61D4SC|Wondershare UniConverter|WONDERSHARE GLOBAL LIMITED|Wondershare UniConverter 13(Build 13.5.1.116)|13.5.1.116|Wondershare Software|UniConverter 13_is1
 XPFP42D8L456SK|X-VPN - Best VPN Proxy and Wifi Security|Free Connected Limited.|X-VPN|71.0|Free Connected Limited|X-VPN
 XPFP42J061BPC1|Documenti Lavori Cantiere|Esposito Software di M. G. Caputo|Documenti Lavori Cantiere Demo||Copyright Esposito Software|Documenti Lavori Cantiere Demo_is1
 XPFPFN4LT21PZJ|Studio Dentistico Pro|Esposito Software di M. G. Caputo|Studio Dentistico Pro Demo||Copyright Esposito Software|Studio Dentistico Pro Demo_is1
 XPFPFWMVTR0WHP|Ashampoo UnInstaller 11|Ashampoo|Ashampoo UnInstaller 11|11.00.12|Ashampoo GmbH & Co. KG|{4209F371-B84B-F321-6BD3-1D91E2505732}_is1
 XPFPFWV5JD80K2|BeeCut|网旭科技|BeeCut V1.7.7.22|1.7.7.22|Apowersoft LIMITED|{CA76BFA8-1862-49D7-B2C7-AE3D6CF40E53}_is1
-XPFPLCB36G8V8J|HttpMaster Professional|Borvid, Informacijske storitve, Janez Čas s.p.|HttpMaster Professional Edition 5.4.1|5.4.1|Borvid|{B61241AA-F5FC-42C9-A1F9-F6D72D654349}
 XPFPLCB36G8V8J|HttpMaster Professional|Borvid, Informacijske storitve, Janez Čas s.p.|HttpMaster Professional Edition 5.4.1|5.4.1|Borvid|{B61241AA-F5FC-42C9-A1F9-F6D72D654349}
