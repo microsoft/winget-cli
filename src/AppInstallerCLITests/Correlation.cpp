@@ -104,10 +104,9 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
 
         if (match)
         {
-            // TODO: This can be done with match->GetProperty() once #2071 is merged
-            auto matchManifest = match->GetManifest();
-            auto matchName = matchManifest.DefaultLocalization.Get<Localization::PackageName>();
-            auto matchPublisher = matchManifest.DefaultLocalization.Get <Localization::Publisher>();
+            auto matchName = match->GetProperty(PackageVersionProperty::Name);
+            auto matchPublisher = match->GetProperty(PackageVersionProperty::Publisher);
+
             if (matchName == testCase.ARPName && matchPublisher == testCase.ARPPublisher)
             {
                 ++result.TrueMatches;
