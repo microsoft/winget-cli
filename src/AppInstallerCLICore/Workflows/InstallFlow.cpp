@@ -570,7 +570,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            context.Add<Data::ProductCodeFromARP>(std::move(entries));
+            context.Add<Data::CorrelatedAppsAndFeaturesEntries>(std::move(entries));
         }
     }
     CATCH_LOG();
@@ -591,11 +591,11 @@ namespace AppInstaller::CLI::Workflow
         // we set its product code in the manifest we record to ensure we can
         // find it in the future.
         // Note that this may overwrite existing information.
-        if (context.Contains(Data::ProductCodeFromARP))
+        if (context.Contains(Data::CorrelatedAppsAndFeaturesEntries))
         {
             // Use a new Installer entry
             manifest.Installers.emplace_back();
-            manifest.Installers.back().AppsAndFeaturesEntries = context.Get<Data::ProductCodeFromARP>();
+            manifest.Installers.back().AppsAndFeaturesEntries = context.Get<Data::CorrelatedAppsAndFeaturesEntries>();
         }
 
         auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();

@@ -171,12 +171,12 @@ namespace AppInstaller::CLI::Workflow
     // and stores the product code of the ARP entry found for the package.
     // Required Args: None
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
-    // Outputs: ProductCodeFromARP?
+    // Outputs: CorrelatedAppsAndFeaturesEntries?
     void ReportARPChanges(Execution::Context& context);
 
     // Records the installation to the tracking catalog.
     // Required Args: None
-    // Inputs: PackageVersion?, Manifest, Installer, ProductCodeFromARP?
+    // Inputs: PackageVersion?, Manifest, Installer, CorrelatedAppsAndFeaturesEntries?
     // Outputs: None
     void RecordInstall(Execution::Context& context);
 }

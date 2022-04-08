@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Execution
         // On import: Sources for the imported packages
         Sources,
         ARPSnapshot,
-        ProductCodeFromARP,
+        CorrelatedAppsAndFeaturesEntries,
         Dependencies,
         DependencySource,
         AllowedArchitectures,
@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::ProductCodeFromARP>
+        struct DataMapping<Data::CorrelatedAppsAndFeaturesEntries>
         {
             using value_t = std::vector<Manifest::AppsAndFeaturesEntry>;
         };
