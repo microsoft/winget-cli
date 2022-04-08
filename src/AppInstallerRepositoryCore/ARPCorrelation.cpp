@@ -37,6 +37,22 @@ namespace AppInstaller::Repository::Correlation
             }
         }
 
+        // A simple matrix class to hold the edit distance table without having to allocate multiple arrays.
+        struct Matrix
+        {
+            Matrix(size_t rows, size_t columns) : m_rows(rows), m_columns(columns), m_data(rows * columns) {}
+
+            double& At(size_t i, size_t j)
+            {
+                return m_data[i * m_columns + j];
+            }
+
+        private:
+            size_t m_rows;
+            size_t m_columns;
+            std::vector<double> m_data;
+        };
+
         double EditDistanceScore(std::u32string_view sv1, std::u32string_view sv2)
         {
             // Naive implementation of edit distance (scaled over the string size)
@@ -47,14 +63,15 @@ namespace AppInstaller::Repository::Correlation
                 return 0;
             }
 
-            // distance[i][j] = distance between sv1[0:i] and sv2[0:j]
-            std::vector<std::vector<double>> distance{ sv1.size(), std::vector<double>(sv2.size(), 0.0) };
+            // distance[i, j] = distance between sv1[0:i] and sv2[0:j]
+            // We don't need to hold more than two rows at a time, but it's simpler to keep the whole table.
+            Matrix distance(sv1.size(), sv2.size());
 
             for (size_t i = 0; i < sv1.size(); ++i)
             {
                 for (size_t j = 0; j < sv2.size(); ++j)
                 {
-                    double& d = distance[i][j];
+                    double& d = distance.At(i, j);
                     if (i == 0)
                     {
                         d = static_cast<double>(j);
@@ -65,13 +82,13 @@ namespace AppInstaller::Repository::Correlation
                     }
                     else if (sv1[i] == sv2[j])
                     {
-                        d = distance[i - 1][j - 1];
+                        d = distance.At(i - 1, j - 1);
                     }
                     else
                     {
                         d = std::min(
-                            1 + distance[i - 1][j - 1],
-                            1 + std::min(distance[i][j - 1], distance[i - 1][j]));
+                            1 + distance.At(i - 1, j - 1),
+                            1 + std::min(distance.At(i, j - 1), distance.At(i - 1, j)));
                     }
                 }
             }
@@ -79,7 +96,7 @@ namespace AppInstaller::Repository::Correlation
             // Maximum distance is equal to the length of the longest string.
             // We use that to scale to [0,1].
             // A smaller distance represents a higher match, so we subtract from 1 for the final score
-            double editDistance = distance.back().back();
+            double editDistance = distance.At(sv1.size() - 1, sv2.size() - 1);
             return 1 - editDistance / std::max(sv1.size(), sv2.size());
         }
     }
