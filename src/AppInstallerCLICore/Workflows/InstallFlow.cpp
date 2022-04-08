@@ -566,7 +566,6 @@ namespace AppInstaller::CLI::Workflow
             arpEntryMetadata = correlationResult.Package->GetMetadata();
         }
 
-        // TODO: Move reporting out
         Logging::Telemetry().LogSuccessfulInstallARPChange(
             sourceIdentifier,
             manifest.Id,

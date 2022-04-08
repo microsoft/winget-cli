@@ -54,10 +54,16 @@ struct ResultSummary
     size_t TrueMismatches;
     size_t FalseMatches;
     size_t FalseMismatches;
+    std::chrono::milliseconds TotalTime;
 
     size_t TotalCases() const
     {
         return TrueMatches + TrueMismatches + FalseMatches + FalseMismatches;
+    }
+
+    auto AverageMatchingTime() const
+    {
+        return TotalTime / TotalCases();
     }
 };
 
@@ -91,6 +97,7 @@ void ReportMatch(std::string_view label, std::string_view appName, std::string_v
 ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConfidenceAlgorithm& correlationAlgorithm, bool reportErrors = false)
 {
     ResultSummary result{};
+    auto startTime = std::chrono::system_clock::now();
 
     // Each entry under test will be pushed at the end of this
     // and removed at the end.
@@ -139,6 +146,9 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
         }
     }
 
+    auto endTime = std::chrono::system_clock::now();
+    result.TotalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
     return result;
 }
 
@@ -150,7 +160,9 @@ void ReportResults(ResultSummary results)
          "True matches:      " << results.TrueMatches << '\n' <<
          "False matches:     " << results.FalseMatches << '\n' <<
          "True mismatches:   " << results.TrueMismatches << '\n' <<
-         "False mismatches:  " << results.FalseMismatches << '\n');
+         "False mismatches:  " << results.FalseMismatches << '\n' <<
+         "Total matching time:   " << results.TotalTime.count() << "ms\n" <<
+         "Average matching time: " << results.AverageMatchingTime().count() << "ms");
 }
 
 void ReportAndEvaluateResults(ResultSummary results, const DataSet& dataSet)
