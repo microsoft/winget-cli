@@ -167,15 +167,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ARPSnapshot
     void SnapshotARPEntries(Execution::Context& context);
 
-    // Reports on the changes between the stored ARPSnapshot and the current values.
+    // Reports on the changes between the stored ARPSnapshot and the current values,
+    // and stores the product code of the ARP entry found for the package.
     // Required Args: None
     // Inputs: ARPSnapshot?, Manifest, PackageVersion
-    // Outputs: None
+    // Outputs: CorrelatedAppsAndFeaturesEntries?
     void ReportARPChanges(Execution::Context& context);
 
     // Records the installation to the tracking catalog.
     // Required Args: None
-    // Inputs: PackageVersion?, Manifest, Installer
+    // Inputs: PackageVersion?, Manifest, Installer, CorrelatedAppsAndFeaturesEntries?
     // Outputs: None
     void RecordInstall(Execution::Context& context);
 }

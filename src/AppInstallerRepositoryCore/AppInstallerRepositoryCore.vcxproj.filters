@@ -264,6 +264,9 @@
     <ClInclude Include="PackageDependenciesValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ARPCorrelation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -411,6 +414,9 @@
       <Filter>Microsoft\Schema\1_4</Filter>
     </ClCompile>
     <ClCompile Include="PackageDependenciesValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ARPCorrelation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

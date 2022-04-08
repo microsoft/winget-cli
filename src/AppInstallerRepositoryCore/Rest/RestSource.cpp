@@ -201,6 +201,8 @@ namespace AppInstaller::Repository::Rest
                     return Utility::LocIndString{ m_versionInfo.VersionAndChannel.GetVersion().ToString() };
                 case PackageVersionProperty::Channel:
                     return Utility::LocIndString{ m_versionInfo.VersionAndChannel.GetChannel().ToString() };
+                case PackageVersionProperty::Publisher:
+                    return Utility::LocIndString{ m_package->PackageInfo().Publisher };
                 default:
                     return Utility::LocIndString{};
                 }

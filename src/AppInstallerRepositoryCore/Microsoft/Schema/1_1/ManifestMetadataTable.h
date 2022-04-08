@@ -26,6 +26,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // The table must exist.
         static ISQLiteIndex::MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId);
 
+        // Gets the specific metadata value for the manifest, if it exists.
+        // The table must exist.
+        static std::optional<std::string> GetMetadataByManifestIdAndMetadata(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata);
+
         // Sets the metadata value for the given manifest.
         // The table must exist.
         static void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value);

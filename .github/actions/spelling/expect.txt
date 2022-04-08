@@ -159,6 +159,7 @@ hre
 hresults
 htm
 IAttachment
+IARP
 IConfiguration
 idx
 IFACEMETHODIMP
@@ -379,6 +380,7 @@ TStatus
 UCase
 ucasemap
 UChars
+ucnv
 uec
 uild
 uintptr
