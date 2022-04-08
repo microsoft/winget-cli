@@ -629,6 +629,7 @@ WINAPI
 WINEVENT
 winget
 wininet
+winmd
 winmeta
 winres
 winrt
