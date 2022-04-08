@@ -269,7 +269,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
         {
             /// Checks if this package version has at least one applicable installer.
-            Boolean HasApplicableInstaller { get; };
+            Boolean HasApplicableInstaller(InstallOptions options);
         }
 
         /// DESIGN NOTE:
