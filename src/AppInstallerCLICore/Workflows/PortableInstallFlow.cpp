@@ -176,7 +176,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!result)
             {
-                AICLI_LOG(CLI, Info, << "Failed to set values in unintall registry.");
+                AICLI_LOG(CLI, Info, << "Failed to set values in Uninstall registry.");
             }
             else
             {

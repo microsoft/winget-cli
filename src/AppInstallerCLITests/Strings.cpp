@@ -197,7 +197,7 @@ TEST_CASE("GetFileNameFromURI", "[strings]")
 
 TEST_CASE("HasSuffix", "[strings]")
 {
-    REQUIRE(HasSuffix("abcde", "cde"));
+    REQUIRE(HasSuffix("abcd", "bcd"));
     REQUIRE(HasSuffix("testFile.exe", ".exe"));
-    REQUIRE(!HasSuffix("abcde", "abc"));
+    REQUIRE(!HasSuffix("abcd", "abc"));
 }
