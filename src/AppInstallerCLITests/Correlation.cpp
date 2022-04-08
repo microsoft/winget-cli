@@ -209,7 +209,7 @@ std::vector<TestCase> LoadTestData()
     return testCases;
 }
 
-DataSet GetDataSet_ManyAppsNoNoise()
+DataSet GetDataSet_NoNoise()
 {
     DataSet dataSet;
     dataSet.TestCases = LoadTestData();
@@ -223,18 +223,13 @@ DataSet GetDataSet_ManyAppsNoNoise()
     return dataSet;
 }
 
-DataSet GetDataSet_FewAppsMuchNoise()
+DataSet GetDataSet_WithNoise()
 {
     DataSet dataSet;
     auto baseTestCases = LoadTestData();
 
     std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetARPEntryFromTestCase);
-
-    // Take the first few apps from the test data
-    for (size_t i = 0; i < 25; ++i)
-    {
-        dataSet.TestCases.push_back(baseTestCases[i]);
-    }
+    dataSet.TestCases = std::move(baseTestCases);
 
     // Arbitrary values. We should refine them as the algorithm gets better.
     dataSet.RequiredTrueMatchRatio = 0.5;
@@ -256,13 +251,13 @@ TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation][.]"
     // Each section loads a different data set,
     // and then they are all handled the same
     DataSet dataSet;
-    SECTION("Many apps with no noise")
+    SECTION("No ARP noise")
     {
-        dataSet = GetDataSet_ManyAppsNoNoise();
+        dataSet = GetDataSet_NoNoise();
     }
-    SECTION("Few apps with much noise")
+    SECTION("With ARP noise")
     {
-        dataSet = GetDataSet_FewAppsMuchNoise();
+        dataSet = GetDataSet_WithNoise();
     }
 
     TestType measure;
@@ -275,13 +270,13 @@ TEST_CASE("Correlation_ChosenHeuristicIsGood", "[correlation]")
     // Each section loads a different data set,
     // and then they are all handled the same
     DataSet dataSet;
-    SECTION("Many apps with no noise")
+    SECTION("No ARP noise")
     {
-        dataSet = GetDataSet_ManyAppsNoNoise();
+        dataSet = GetDataSet_NoNoise();
     }
-    SECTION("Few apps with much noise")
+    SECTION("With ARP noise")
     {
-        dataSet = GetDataSet_FewAppsMuchNoise();
+        dataSet = GetDataSet_WithNoise();
     }
 
     // Use only the measure we ultimately pick
