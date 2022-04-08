@@ -209,26 +209,18 @@ struct TestContext : public Context
 // consider only the exact matching.
 struct TestHeuristicOverride
 {
-    struct EmptyHeuristic: public ARPCorrelationAlgorithm
-    {
-        double GetMatchingScore(const Manifest::Manifest&, const Manifest::ManifestLocalization&, const ARPEntry&) const override
-        {
-            return 0;
-        }
-    };
-
     TestHeuristicOverride()
     {
-        ARPCorrelationAlgorithm::OverrideInstance(&m_algorithm);
+        IARPMatchConfidenceAlgorithm::OverrideInstance(&m_algorithm);
     }
 
     ~TestHeuristicOverride()
     {
-        ARPCorrelationAlgorithm::ResetInstance();
+        IARPMatchConfidenceAlgorithm::ResetInstance();
     }
 
 private:
-    EmptyHeuristic m_algorithm;
+    EmptyMatchConfidenceAlgorithm m_algorithm;
 };
 
 TEST_CASE("ARPChanges_MSIX_Ignored", "[ARPChanges][workflow]")

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <winget/NameNormalization.h>
+
 namespace AppInstaller
 {
     namespace Manifest
@@ -12,8 +14,8 @@ namespace AppInstaller
 
     namespace Repository
     {
+        struct IPackage;
         struct IPackageVersion;
-        struct SearchResult;
         struct Source;
     }
 }
@@ -26,82 +28,50 @@ namespace AppInstaller::Repository::Correlation
     // Struct holding all the data from an ARP entry we use for the correlation
     struct ARPEntry
     {
-        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackageVersion> entry, bool isNewOrUpdated) : Entry(entry), IsNewOrUpdated(isNewOrUpdated) {}
+        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackage> entry, bool isNewOrUpdated) : Entry(entry), IsNewOrUpdated(isNewOrUpdated) {}
 
         // Data found in the ARP entry
-        std::shared_ptr<AppInstaller::Repository::IPackageVersion> Entry;
+        std::shared_ptr<AppInstaller::Repository::IPackage> Entry;
 
         // Whether this entry changed with the current installation
         bool IsNewOrUpdated;
     };
 
-    // An algorithm for correlating a package with an ARP entry.
-    // This is the overall algorithm that considers everything: name matching, versions,
-    // how to mix multiple data points, threshold for matching.
-    // TODO: These may benefit from being instantiated with the single manifest
-    //       we are looking for, instead of passing it as an argument each time.
-    struct ARPCorrelationAlgorithm
+    struct IARPMatchConfidenceAlgorithm
     {
-        virtual ~ARPCorrelationAlgorithm() = default;
-
-        // Computes a matching score between a package manifest and a manifest entry.
-        // A higher score indicates a more certain match.
-        // The score should be in the range [0, 1].
-        virtual double GetMatchingScore(
-            const AppInstaller::Manifest::Manifest& manifest,
-            const AppInstaller::Manifest::ManifestLocalization& manifestLocalization,
-            const ARPEntry& arpEntry) const = 0;
-
-        // Computes a matching score between a package manifest and a manifest entry.
-        // This takes the highest score from all the available localizations.
-        double GetMatchingScore(
-            const AppInstaller::Manifest::Manifest& manifest,
-            const ARPEntry& arpEntry) const;
-
-        // Gets the ARP entry that has the best correlation score for a given manifest.
-        // If no entry has a good enough match, returns null.
-        // This will choose a single package even if multiple are good matches.
-        std::optional<ARPEntry> GetBestMatchForManifest(
-            const AppInstaller::Manifest::Manifest& manifest,
-            const std::vector<ARPEntry>& arpEntries) const;
+        virtual ~IARPMatchConfidenceAlgorithm() = default;
+        virtual void Init(const AppInstaller::Manifest::Manifest& manifest) = 0;
+        virtual double ComputeConfidence(const ARPEntry& arpEntry) const = 0;
 
         // Returns an instance of the algorithm we will actually use.
         // We may use multiple instances/specializations for testing and experimentation.
-        static const ARPCorrelationAlgorithm& Instance();
+        static IARPMatchConfidenceAlgorithm& Instance();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        static void OverrideInstance(ARPCorrelationAlgorithm* algorithmOverride);
+        static void OverrideInstance(IARPMatchConfidenceAlgorithm* algorithmOverride);
         static void ResetInstance();
 #endif
     };
 
-    // An algorithm for measuring the match in name and publisher between a package
-    // and an ARP entry
-    struct NameAndPublisherCorrelationMeasure
+    struct EmptyMatchConfidenceAlgorithm : public IARPMatchConfidenceAlgorithm
     {
-        virtual ~NameAndPublisherCorrelationMeasure() = default;
-
-        // Computes a score between 0 and 1 indicating how certain we are that
-        // the two pairs of name+publisher represent the same app.
-        virtual double GetMatchingScore(
-            std::string_view packageName,
-            std::string_view packagePublisher,
-            std::string_view arpName,
-            std::string_view arpPublisher) const = 0;
-    };
-
-    // Measures the correlation with an exact match using normalized name and publisher.
-    // This is used only as a benchmark to compare other measures to, as the actual correlation
-    // algorithm can do this with a search of the ARP source.
-    struct NormalizedNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
-    {
-        double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
+        void Init(const AppInstaller::Manifest::Manifest&) override {}
+        double ComputeConfidence(const ARPEntry&) const override { return 0; }
     };
 
     // Measures the correlation with the edit distance between the normalized name and publisher strings.
-    struct EditDistanceNormalizedNameAndPublisherCorrelationMeasure : public NameAndPublisherCorrelationMeasure
+    struct EditDistanceMatchConfidenceAlgorithm : public IARPMatchConfidenceAlgorithm
     {
-        double GetMatchingScore(std::string_view packageName, std::string_view packagePublisher, std::string_view arpName, std::string_view arpPublisher) const override;
+        void Init(const AppInstaller::Manifest::Manifest& manifest) override;
+        double ComputeConfidence(const ARPEntry& entry) const override;
+
+    private:
+        std::u32string PrepareString(std::string_view s) const;
+        std::u32string NormalizeAndPrepareName(std::string_view name) const;
+        std::u32string NormalizeAndPreparePublisher(std::string_view publisher) const;
+
+        AppInstaller::Utility::NameNormalizer m_normalizer{ AppInstaller::Utility::NormalizationVersion::Initial };
+        std::vector<std::pair<std::u32string, std::u32string>> m_namesAndPublishers;
     };
 
     // Finds the ARP entry in the ARP source that matches a newly installed package.
@@ -115,6 +85,10 @@ namespace AppInstaller::Repository::Correlation
 
     std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const AppInstaller::Manifest::Manifest& manifest,
-        const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        AppInstaller::Repository::Source& arpSource);
+        const std::vector<ARPEntry>& arpEntries);
+
+    std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
+        const AppInstaller::Manifest::Manifest& manifest,
+        const std::vector<ARPEntry>& arpEntries,
+        IARPMatchConfidenceAlgorithm& algorithm);
 }

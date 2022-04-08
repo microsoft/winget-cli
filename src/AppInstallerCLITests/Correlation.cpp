@@ -76,7 +76,7 @@ ARPEntry GetARPEntryFromTestCase(const TestCase& testCase)
     arpManifest.DefaultLocalization.Add<Localization::PackageName>(testCase.ARPName);
     arpManifest.DefaultLocalization.Add<Localization::Publisher>(testCase.ARPPublisher);
     arpManifest.Localizations.push_back(arpManifest.DefaultLocalization);
-    return ARPEntry{ TestPackageVersion::Make(arpManifest), false };
+    return ARPEntry{ TestPackage::Make(arpManifest, TestPackage::MetadataMap{}), false };
 }
 
 void ReportMatch(std::string_view label, std::string_view appName, std::string_view appPublisher, std::string_view arpName, std::string_view arpPublisher)
@@ -88,7 +88,7 @@ void ReportMatch(std::string_view label, std::string_view appName, std::string_v
         "\tARP publisher = " << arpPublisher);
 }
 
-ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorrelationAlgorithm& correlationAlgorithm, bool reportErrors = false)
+ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConfidenceAlgorithm& correlationAlgorithm, bool reportErrors = false)
 {
     ResultSummary result{};
 
@@ -99,12 +99,13 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, const ARPCorr
     for (const auto& testCase : dataSet.TestCases)
     {
         arpEntries.push_back(GetARPEntryFromTestCase(testCase));
-        auto match = correlationAlgorithm.GetBestMatchForManifest(GetManifestFromTestCase(testCase), arpEntries);
+        auto match = FindARPEntryForNewlyInstalledPackageWithHeuristics(GetManifestFromTestCase(testCase), arpEntries, correlationAlgorithm);
         arpEntries.pop_back();
 
         if (match)
         {
-            auto matchManifest = match->Entry->GetManifest();
+            // TODO: This can be done with match->GetProperty() once #2071 is merged
+            auto matchManifest = match->GetManifest();
             auto matchName = matchManifest.DefaultLocalization.Get<Localization::PackageName>();
             auto matchPublisher = matchManifest.DefaultLocalization.Get <Localization::Publisher>();
             if (matchName == testCase.ARPName && matchPublisher == testCase.ARPPublisher)
@@ -174,11 +175,9 @@ void ReportAndEvaluateResults(ResultSummary results, const DataSet& dataSet)
 std::vector<TestCase> LoadTestData()
 {
     // Creates test cases from the test data file.
-    // The format of the file is one case per line, each with tab separated values.
+    // The format of the file is one case per line, each with pipe (|) separated values.
     // Each row contains: AppId, AppName, AppPublisher, ARPDisplayName, ARPDisplayVersion, ARPPublisherName, ARPProductCode
-    // TODO: Cleanup data (e.g. bad encoding)
-    //       Add more test cases; particularly for non-matches
-    //       Consider using a different file format
+    // TODO: Add more test cases; particularly for non-matches
     std::ifstream testDataStream(TestCommon::TestDataFile("InputARPData.txt").GetPath());
     REQUIRE(testDataStream);
 
@@ -246,44 +245,13 @@ DataSet GetDataSet_FewAppsMuchNoise()
     return dataSet;
 }
 
-// A correlation algorithm that considers only the matching with name+publisher.
-// Used to evaluate the string matching.
-template<typename T>
-struct TestAlgorithmForStringMatching : public ARPCorrelationAlgorithm
-{
-    double GetMatchingScore(
-        const Manifest&,
-        const ManifestLocalization& manifestLocalization,
-        const ARPEntry& arpEntry) const override
-    {
-        // Overall algorithm:
-        // This considers only the matching between name/publisher.
-        // It ignores versions and whether the ARP entry is new.
-        const auto packageName = manifestLocalization.Get<Localization::PackageName>();
-        const auto packagePublisher = manifestLocalization.Get<Localization::Publisher>();
-
-        const auto arpNames = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Name);
-        const auto arpPublishers = arpEntry.Entry->GetMultiProperty(PackageVersionMultiProperty::Publisher);
-        THROW_HR_IF(E_NOT_VALID_STATE, arpNames.size() != arpPublishers.size());
-
-        T nameAndPublisherCorrelationMeasure;
-        double bestMatch = 0;
-        for (size_t i = 0; i < arpNames.size(); ++i)
-        {
-            bestMatch = std::max(bestMatch, nameAndPublisherCorrelationMeasure.GetMatchingScore(packageName, packagePublisher, arpNames[i], arpPublishers[i]));
-        }
-
-        return bestMatch;
-    }
-};
-
 // Hide this test as it takes too long to run.
 // It is useful for comparing multiple algorithms, but for
 // regular testing we need only check that the chosen algorithm
 // performs well.
 TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation][.]",
-    TestAlgorithmForStringMatching<NormalizedNameAndPublisherCorrelationMeasure>,
-    TestAlgorithmForStringMatching<EditDistanceNormalizedNameAndPublisherCorrelationMeasure>)
+    EmptyMatchConfidenceAlgorithm,
+    EditDistanceMatchConfidenceAlgorithm)
 {
     // Each section loads a different data set,
     // and then they are all handled the same
@@ -317,7 +285,7 @@ TEST_CASE("Correlation_ChosenHeuristicIsGood", "[correlation]")
     }
 
     // Use only the measure we ultimately pick
-    const auto& measure = ARPCorrelationAlgorithm::Instance();
-    auto results = EvaluateDataSetWithHeuristic(dataSet, measure, /* reportErrors */ true);
+    auto& algorithm = IARPMatchConfidenceAlgorithm::Instance();
+    auto results = EvaluateDataSetWithHeuristic(dataSet, algorithm, /* reportErrors */ true);
     ReportAndEvaluateResults(results, dataSet);
 }
