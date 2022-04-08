@@ -4,6 +4,14 @@
 #include "PackageManager.g.h"
 #include "Public/ComClsids.h"
 
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+// Forward declaration
+namespace AppInstaller::CLI::Execution
+{
+    struct Context;
+}
+#endif
+
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     [uuid(WINGET_OUTOFPROC_COM_CLSID_PackageManager)]
@@ -29,6 +37,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UninstallResult, winrt::Microsoft::Management::Deployment::UninstallProgress>
             GetUninstallProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
     };
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    void SetComCallerName(std::string name);
+    void PopulateContextFromInstallOptions(AppInstaller::CLI::Execution::Context* context, winrt::Microsoft::Management::Deployment::InstallOptions options);
+#endif
 }
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
