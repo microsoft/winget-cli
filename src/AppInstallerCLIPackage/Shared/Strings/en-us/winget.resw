@@ -1287,4 +1287,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="WaitArgumentDescription" xml:space="preserve">
     <value>Prompts the user to press any key before exiting</value>
   </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>Path environment variable modified. Restart your shell to enable execution of portable packages from the command line.</value>
+  </data>
 </root>

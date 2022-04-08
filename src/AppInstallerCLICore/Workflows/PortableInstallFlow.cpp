@@ -17,6 +17,10 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_PathSubkey_User = L"Environment";
         constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
         constexpr std::wstring_view s_UninstallSubkey = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+        constexpr std::wstring_view s_DisplayName = L"DisplayVersion";
+        constexpr std::wstring_view s_DisplayVersion = L"DisplayVersion";
+        constexpr std::wstring_view s_Publisher = L"Publisher";
+        constexpr std::wstring_view s_UninstallString = L"UninstallString";
 
         std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
         {
@@ -117,7 +121,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void AddPortableLinksDirToPathRegistry(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
+        bool AddPortableLinksDirToPathRegistry(Manifest::ScopeEnum& scope, Utility::Architecture& arch, bool& isPathModified)
         {
             Key key;
             if (scope == Manifest::ScopeEnum::Machine)
@@ -143,11 +147,17 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 modifiedPathValue += portableLinksDir + ";";
-                key.SetKeyValue(pathKey, ConvertToUTF16(modifiedPathValue), REG_EXPAND_SZ);
+                bool result = key.SetKeyValue(pathKey, ConvertToUTF16(modifiedPathValue), REG_EXPAND_SZ);
+                if (result)
+                {
+                    isPathModified = true;
+                }
             }
+
+            return true;
         }
 
-        void AddPortableEntryToUninstallRegistry(Manifest::ScopeEnum& scope, std::string_view packageId, AppsAndFeaturesEntry& entry)
+        bool AddPortableEntryToUninstallRegistry(Manifest::ScopeEnum& scope, std::string_view packageId, AppsAndFeaturesEntry& entry)
         {
             HKEY root = (scope == Manifest::ScopeEnum::Machine) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
             std::wstring productCode = ConvertToUTF16(entry.ProductCode);
@@ -158,11 +168,22 @@ namespace AppInstaller::CLI::Workflow
             std::wstring fullRegistryKey = Normalize(s_UninstallSubkey) + L"\\" + productCode;
 
             Key key = Key::CreateKeyAndOpen(root, fullRegistryKey);
-            key.SetKeyValue(L"DisplayName", displayName, REG_SZ);
-            key.SetKeyValue(L"DisplayVersion", displayVersion, REG_SZ);
-            key.SetKeyValue(L"Publisher", publisher, REG_SZ);
-            key.SetKeyValue(L"UninstallString", uninstallString, REG_SZ);
-            AICLI_LOG(CLI, Info, << "Writing to Uninstall registry complete.");
+            bool result = false;
+            result = key.SetKeyValue(Normalize(s_DisplayName), displayName, REG_SZ);
+            result = key.SetKeyValue(Normalize(s_DisplayVersion), displayVersion, REG_SZ);
+            result = key.SetKeyValue(Normalize(s_Publisher), publisher, REG_SZ);
+            result = key.SetKeyValue(Normalize(s_UninstallString), uninstallString, REG_SZ);
+
+            if (!result)
+            {
+                AICLI_LOG(CLI, Info, << "Failed to set values in unintall registry.");
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Writing to Uninstall registry complete.");
+            }
+
+            return result;
         }
     }
 
@@ -265,7 +286,22 @@ namespace AppInstaller::CLI::Workflow
         AppInstaller::Manifest::Manifest manifest = context.Get<Execution::Data::Manifest>();
         Manifest::AppsAndFeaturesEntry entry = GetAppsAndFeaturesEntryForPortableInstall(appsAndFeatureEntries, manifest);
 
-        AddPortableLinksDirToPathRegistry(scope, arch);
-        AddPortableEntryToUninstallRegistry(scope, manifest.Id, entry);
+        bool isPathModified = false;
+        bool result = AddPortableLinksDirToPathRegistry(scope, arch, isPathModified);
+        if (isPathModified)
+        {
+            context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
+        }
+
+        if (result)
+        {
+            result = AddPortableEntryToUninstallRegistry(scope, manifest.Id, entry);
+        }
+
+        if (!result)
+        {
+            DWORD exitCode = GetLastError();
+            context.Add<Execution::Data::OperationReturnCode>(exitCode);
+        }
     }
 }

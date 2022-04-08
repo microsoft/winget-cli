@@ -31,8 +31,6 @@ namespace AppInstallerCLIE2ETests
         public static string MsiInstallerPath { get; set; }
 
         public static string MsixInstallerPath { get; set; }
-
-        public static string PortableInstallerPath { get; set; }
         
         public static string PackageCertificatePath { get; set; }
 

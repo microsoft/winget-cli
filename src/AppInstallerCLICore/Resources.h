@@ -169,6 +169,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ModifiedPathRequiresShellRestart);
         WINGET_DEFINE_RESOURCE_STRINGID(MonikerArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);

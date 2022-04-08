@@ -176,7 +176,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
             packageId = productCode = "AppInstallerTest.TestPortableExeWithCommand";
-            fileName = "AppInstallerTest.TestPortableExe";
+            fileName = "AppInstallerTestExeInstaller.exe";
             commandAlias = "testCommand";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
@@ -191,8 +191,8 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-            commandAlias = fileName = "AppInstallerTest.TestPortableExe";
             productCode = "testProductCode";
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -204,10 +204,10 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortableExeWithRename()
         {
             var installDir = TestCommon.GetRandomTestDir();
-            string renameArgValue = "testRename";
-            string packageId, productCode;
+            string packageId, productCode, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithRename";
             productCode = "testProductCode";
+            renameArgValue = "testRename";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} -r {renameArgValue}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -305,7 +305,8 @@ namespace AppInstallerCLIE2ETests
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment"))
             {
-                var currentPathValue = (string)environmentRegistryKey.GetValue("Path");
+                string pathName = "Path";
+                var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
                 var portablePathValue = installPackageRoot + ';';
                 if (!currentPathValue.Contains(portablePathValue))
                 {
@@ -314,7 +315,7 @@ namespace AppInstallerCLIE2ETests
                 else
                 {
                     string initialPathValue = currentPathValue.Replace(portablePathValue, "");
-                    environmentRegistryKey.SetValue("Path", initialPathValue);
+                    environmentRegistryKey.SetValue(pathName, initialPathValue);
                 }
             }
 
