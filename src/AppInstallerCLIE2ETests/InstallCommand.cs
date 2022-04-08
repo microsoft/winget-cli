@@ -12,8 +12,6 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
-        private const string InstallTestPortableExe = @"AppInstallerTestPortable.exe";
-        private const string InstallTestPortableProductCode = @"AppInstallerTest.TestPortableExe";
 
         [Test]
         public void InstallAppDoesNotExist()
@@ -162,10 +160,59 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortableExe()
         {
             var installDir = TestCommon.GetRandomTestDir();
+            string packageId, commandAlias, fileName, productCode;
+            packageId = commandAlias = productCode = "AppInstallerTest.TestPortableExe";
+            fileName = "AppInstallerTestExeInstaller.exe";
+
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir));
+            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+        }
+
+        [Test]
+        public void InstallPortableExeWithCommand()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, commandAlias, fileName, productCode;
+            packageId = productCode = "AppInstallerTest.TestPortableExeWithCommand";
+            fileName = "AppInstallerTest.TestPortableExe";
+            commandAlias = "testCommand";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+        }
+
+        [Test]
+        public void InstallPortableExeWithAppsAndFeatures()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, commandAlias, fileName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            commandAlias = fileName = "AppInstallerTest.TestPortableExe";
+            productCode = "testProductCode";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+        }
+
+        [Test]
+        public void InstallPortableExeWithRename()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string renameArgValue = "testRename";
+            string packageId, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithRename";
+            productCode = "testProductCode";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} -r {renameArgValue}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, renameArgValue, renameArgValue, productCode));
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
@@ -207,51 +254,68 @@ namespace AppInstallerCLIE2ETests
             return TestCommon.RemoveMsix(InstallTestMsixName);
         }
 
-        private bool VerifyTestPortableInstalledAndCleanup(string installDir)
+        private bool VerifyTestPortableInstalledAndCleanup(
+            string installDir,
+            string packageId,
+            string expectedCommandAlias,
+            string expectedFileName,
+            string expectedProductCode)
         {
-            if (!File.Exists(Path.Combine(installDir, InstallTestPortableExe)))
+            string installPackageRoot = Path.Combine(installDir, packageId);
+            if (!File.Exists(Path.Combine(installPackageRoot, expectedFileName)))
             {
                 return false;
+            }
+            else
+            {
+                DirectoryInfo di = new DirectoryInfo(installDir);
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
+
+            string symlinkPath = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links", expectedCommandAlias);
+            if (!File.Exists(symlinkPath))
+            {
+                return false;
+            }
+            else
+            {
+                File.Delete(symlinkPath);
             }
 
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall"))
             {
-                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(InstallTestPortableProductCode);
+                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(expectedProductCode);
                 if (installTestPortableSubkey == null)
                 {
                     return false;
                 }
                 else
                 {
-                    uninstallRegistryKey.DeleteSubKey(InstallTestPortableProductCode);
+                    uninstallRegistryKey.DeleteSubKey(expectedProductCode);
                 }
             }
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment"))
             {
-                var pathValue = (string)environmentRegistryKey.GetValue("Path");
-                var expectedValue = installDir + ';';
-                if (!pathValue.Contains(expectedValue))
+                var currentPathValue = (string)environmentRegistryKey.GetValue("Path");
+                var portablePathValue = installPackageRoot + ';';
+                if (!currentPathValue.Contains(portablePathValue))
                 {
                     return false;
                 }
                 else
                 {
-                    string initialPathValue = pathValue.Replace(expectedValue, "");
+                    string initialPathValue = currentPathValue.Replace(portablePathValue, "");
                     environmentRegistryKey.SetValue("Path", initialPathValue);
                 }
-            }
-
-            DirectoryInfo di = new DirectoryInfo(installDir);
-
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
             }
 
             return true;

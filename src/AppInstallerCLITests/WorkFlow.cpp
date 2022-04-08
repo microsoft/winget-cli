@@ -534,6 +534,20 @@ void OverrideForPortableInstall(TestContext& context)
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     } });
 
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+
+    context.Override({ CreatePortableSymlink , [](TestContext&)
+    {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPortableSymlinkCreated.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file.close();
+    } });
+
     context.Override({ PortableRegistryInstall, [](TestContext&)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -893,9 +907,9 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
 // Write workflow tests for portable here:
 TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
 {
-    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
-    TestCommon::TempFile writeToUninstallRegistryResultPath("TestPortableWrittenToUninstallRegistry.txt");
-    TestCommon::TempFile writeToPathRegistryResultPath("TestPortableLinksDirWrittenToPathRegistry.txt");
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableSymlinkInstallResultPath("TestPortableSymlinkCreated.txt");
+    TestCommon::TempFile portableRegistryInstallResultPath("TestPortableWriteToRegistry.txt");
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFPortableInstall>(true);
@@ -904,40 +918,18 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForPortableInstall(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
-
-    // We want to verify that the portable exists in the correct directory 
-
     // Verify portable install flows are called.
-    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
-    REQUIRE(std::filesystem::exists(writeToUninstallRegistryResultPath.GetPath()));
-    REQUIRE(std::filesystem::exists(writeToPathRegistryResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(GetPortableTargetFullPath(context)));
+    REQUIRE(std::filesystem::exists(portableSymlinkInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(portableRegistryInstallResultPath.GetPath()));
 }
-
-TEST_CASE("PortableInstallFlow_LocationArg", "[InstallFlow][workflow]")
-{
-
-}
-
-TEST_CASE("PortableInstallFlow_RenameAndLocationArg", "[InstallFlow][workflow]")
-{
-
-}
-
-TEST_CASE("PortableInstallFlow_RenameArg", "[InstallFlow][workflow]")
-{
-    // verifies that if a rename arg is provided, the command value and the file name are both changed to honor that.
-}
-
-TEST_CASE("PortableInstallFlow_CommandValueSpecified", "[InstallFlow][workflow]")
-{
-    // verifies that if a command value is specified, the symlink exe filename is changed to honor that.
-}
-
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 {

@@ -291,16 +291,17 @@ namespace AppInstaller::CLI::Workflow
 
         auto installResult = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
             {
-                return PortableExeInstall(context, callback);
+                return PortableCopyExeInstall(context, callback);
             });
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            context << ReportInstallerResult("PortableInstall"sv, installResult.value(), true);
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
         context <<
+            CreatePortableSymlink <<
             PortableRegistryInstall <<
             ReportInstallerResult("PortableInstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
     }

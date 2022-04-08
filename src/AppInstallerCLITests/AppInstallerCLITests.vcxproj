@@ -266,6 +266,12 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>      
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>        
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

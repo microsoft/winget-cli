@@ -48,11 +48,7 @@ TEST_CASE("SetKeyValue", "[registry]")
     std::wstring subkey = L"FooBar";
 
     wil::unique_hkey root = RegCreateVolatileTestRoot();
-    RegCreateVolatileSubKey(root.get(), subkey);
-
-
-    //encountering ErrorCode 5 access denied...
-    Key key = Key::OpenIfExists(root.get(), subkey);
+    Key key = Key::CreateKeyAndOpen(root.get(), subkey, REG_OPTION_VOLATILE);
     bool result = key.SetKeyValue(valueName, valueValue, REG_SZ);
     REQUIRE(result);
     auto value = key[valueName];

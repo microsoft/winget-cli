@@ -117,33 +117,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        std::filesystem::path CreateTargetDirectoryForPortableInstall(Execution::Context& context)
-        {
-            const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
-            std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
-            std::string_view locationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
-            std::string packageId = context.Get<Execution::Data::Manifest>().Id;
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
-
-            std::filesystem::path targetInstallDirectory;
-
-            if (!locationArg.empty())
-            {
-                targetInstallDirectory = std::filesystem::path{ ConvertToUTF16(locationArg) };
-            }
-            else
-            {
-                targetInstallDirectory = GetPortableInstallRoot(scope, arch);
-            }
-
-            targetInstallDirectory /= packageId;
-
-            // TODO: verify if bad directory is created then what happens
-            std::filesystem::create_directories(targetInstallDirectory);
-            return targetInstallDirectory;
-        }
-
         void AddPortableLinksDirToPathRegistry(Manifest::ScopeEnum& scope, Utility::Architecture& arch)
         {
             Key key;
@@ -193,13 +166,51 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    std::optional<DWORD> PortableExeInstall(Execution::Context& context, IProgressCallback& progress)
+    std::filesystem::path GetPortableTargetFullPath(Execution::Context& context)
     {
         const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
         std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
-        std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
+        std::string_view locationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
+        std::string packageId = context.Get<Execution::Data::Manifest>().Id;
         Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+
+        std::filesystem::path targetInstallDirectory;
+
+        if (!locationArg.empty())
+        {
+            targetInstallDirectory = std::filesystem::path{ ConvertToUTF16(locationArg) };
+        }
+        else
+        {
+            targetInstallDirectory = GetPortableInstallRoot(scope, arch);
+        }
+
+        targetInstallDirectory /= packageId;
+
+        std::filesystem::create_directories(targetInstallDirectory);
+
+        std::string fileName;
+        if (!renameArg.empty())
+        {
+            fileName = Normalize(renameArg);
+        }
+        else
+        {
+            fileName = installerPath.filename().u8string();
+        }
+
+        std::filesystem::path targetInstallFullPath = targetInstallDirectory / fileName;
+        return targetInstallFullPath;
+    }
+
+    void CreatePortableSymlink(Execution::Context& context)
+    {
+        const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
+        Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+        std::vector<string_t> commands = context.Get<Execution::Data::Installer>()->Commands;
+        std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
 
         std::string fileName;
         std::string commandAlias;
@@ -211,25 +222,36 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            fileName = installerPath.filename().u8string();
-            commandAlias = !commands.empty() ? commands[0] : fileName;
+            commandAlias = !commands.empty() ? commands[0] : installerPath.filename().u8string();
         }
 
         AppendExeExtension(commandAlias);
-        AppendExeExtension(fileName);
+        std::filesystem::path symlinkPath = GetPortableLinksLocation(scope, arch) / commandAlias;
+        std::filesystem::path portableTargetFullPath = GetPortableTargetFullPath(context);
+        AppInstaller::Filesystem::CreateSymlink(portableTargetFullPath, symlinkPath);
+    }
 
-        std::filesystem::path portableTargetFullPath = CreateTargetDirectoryForPortableInstall(context) / fileName;
+    std::optional<DWORD> PortableCopyExeInstall(Execution::Context& context, IProgressCallback& progress)
+    {
+        const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
+        std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
 
-        // TODO: Copying file for a single portable exe is sufficient, but will need to change to checking file handles when dealing with
-        // multiple files (archive) to guarantee all files can be successfully copied.
-        AICLI_LOG(CLI, Info, << "Copying portable to: " << portableTargetFullPath);
-        DWORD exitCode = AppInstaller::Filesystem::CopyFileWithProgressCallback(installerPath, portableTargetFullPath, progress);
-        if (exitCode == ERROR_SUCCESS)
+        std::string fileName;
+        if (!renameArg.empty())
         {
-            std::filesystem::path symlinkPath = GetPortableLinksLocation(scope, arch) / commandAlias;
-            AppInstaller::Filesystem::CreateSymlink(portableTargetFullPath, symlinkPath);
+            std::string renameArgValue = Normalize(renameArg);
+            fileName = renameArgValue;
+        }
+        else
+        {
+            fileName = installerPath.filename().u8string();
         }
 
+        AppendExeExtension(fileName);
+
+        std::filesystem::path portableTargetFullPath = GetPortableTargetFullPath(context);
+        AICLI_LOG(CLI, Info, << "Copying portable to: " << portableTargetFullPath);
+        DWORD exitCode = AppInstaller::Filesystem::CopyFileWithProgressCallback(installerPath, portableTargetFullPath, progress);
         context.Add<Execution::Data::OperationReturnCode>(exitCode);
         return exitCode;
     }

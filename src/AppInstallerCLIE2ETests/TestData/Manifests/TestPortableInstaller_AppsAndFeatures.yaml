@@ -1,9 +1,13 @@
-PackageIdentifier: AppInstallerTest.TestPortableExe
+PackageIdentifier: AppInstallerTest.TestPortableExeWithAppsAndFeatures
 PackageVersion: 1.0.0.0
 PackageName: TestPortableExe
 PackageLocale: en-US
 Publisher: AppInstallerTest
-License: Test
+AppsAndFeaturesEntries:
+  - DisplayName: TestDisplayName
+    DisplayVersion: 1.2
+    Publisher: AppInstallerTest
+    ProductCode: testProductCode
 Installers:
   - Architecture: x64
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe

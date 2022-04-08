@@ -30,6 +30,9 @@
     <None Remove="TestData\ImportFiles\ImportFile-Good.1.0.json" />
     <None Remove="TestData\ImportFiles\ImportFile-Good.2.0.json" />
     <None Remove="TestData\Manifests\TestPortableInstaller.yaml" />
+    <None Remove="TestData\Manifests\TestPortableInstaller_AppsAndFeatures.yaml" />
+    <None Remove="TestData\Manifests\TestPortableInstaller_WithCommand.yaml" />
+    <None Remove="TestData\Manifests\TestPortableInstaller_WithRename.yaml" />
   </ItemGroup>
 
   <ItemGroup>
