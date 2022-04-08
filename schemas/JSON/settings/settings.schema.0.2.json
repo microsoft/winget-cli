@@ -96,7 +96,33 @@
       "type": "object",
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
-        "requirements": { "$ref": "#/definitions/InstallPrefReq" }
+        "requirements": { "$ref": "#/definitions/InstallPrefReq" },
+        "ignoreWarnings": {
+          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
+          "type": "boolean",
+          "default": false
+        },
+        "PortableAppUserRoot": {
+          "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
+          "type": "string",
+          "default": "%LOCALAPPDATA%/Microsoft/WinGet/Packages/"
+        },
+        "PortableAppMachineRoot": {
+          "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
+          "type": "string",
+          "default": "%PROGRAMFILES%/WinGet/Packages/"
+        }
+      }
+    },
+    "UninstallBehavior": {
+      "description": "Uninstall settings",
+      "type": "object",
+      "properties": {
+        "purgePortableApp": {
+          "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType.",
+          "type": "boolean",
+          "default":  false
+        }
       }
     },
     "Telemetry": {
@@ -156,6 +182,11 @@
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
           "default": false
+        },
+        "portableInstall": {
+          "description": "Enable support for installing portable packages.",
+          "type": "boolean",
+          "default":  false
         }
       }
     }

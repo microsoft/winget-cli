@@ -7,6 +7,7 @@
 namespace AppInstaller::Manifest
 {
     using ValidationErrors = std::vector<ValidationError>;
+    using ExpectedReturnCodeInfo = AppInstaller::Manifest::ManifestInstaller::ExpectedReturnCodeInfo;
 
     namespace
     {
@@ -111,6 +112,20 @@ namespace AppInstaller::Manifest
             for (auto const& entry : node.Sequence())
             {
                 result.emplace_back(Utility::ConvertToArchitectureEnum(entry.as<std::string>()));
+            }
+
+            return result;
+        }
+
+        std::vector<UnsupportedArgumentEnum> ProcessUnsupportedArgumentsSequenceNode(const YAML::Node& node)
+        {
+            THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
+
+            std::vector<UnsupportedArgumentEnum> result;
+
+            for (auto const& entry : node.Sequence())
+            {
+                result.emplace_back(ConvertToUnsupportedArgumentEnum(entry.as<std::string>()));
             }
 
             return result;
@@ -281,6 +296,17 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_2 =
+                {
+                    { "UnsupportedArguments", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->UnsupportedArguments = ProcessUnsupportedArgumentsSequenceNode(value); return {}; } },
+                    { "DisplayInstallWarnings", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->DisplayInstallWarnings = value.as<bool>(); return {}; } },
+                };
+
+                std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -322,6 +348,11 @@ namespace AppInstaller::Manifest
         {
             result.emplace_back("InstallerReturnCode", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->InstallerReturnCode = static_cast<int>(value.as<int>()); return {}; });
             result.emplace_back("ReturnResponse", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>()); return {}; });
+        }
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            result.emplace_back("ReturnResponseUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_expectedReturnCode->ReturnResponseUrl = value.as<std::string>(); return {}; });
         }
 
         return result;
@@ -398,6 +429,18 @@ namespace AppInstaller::Manifest
                 };
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
+            }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_2 =
+                {
+                    { "PurchaseUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::PurchaseUrl>(value.as<std::string>()); return {}; } },
+                    { "InstallationNotes", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::InstallationNotes>(value.as<std::string>()); return {}; } },
+                    { "Documentations", [this](const YAML::Node& value)->ValidationErrors { return ProcessDocumentationsNode(value); }},
+                };
+
+                std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
         }
 
@@ -494,6 +537,22 @@ namespace AppInstaller::Manifest
                 { "ProductCode", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->ProductCode = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "UpgradeCode", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->UpgradeCode = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_appsAndFeaturesEntry->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDocumentationFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            result =
+            {
+                { "DocumentLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DocumentUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -651,7 +710,7 @@ namespace AppInstaller::Manifest
         THROW_HR_IF(E_INVALIDARG, !returnCodesNode.IsSequence());
 
         ValidationErrors resultErrors;
-        std::map<DWORD, ExpectedReturnCodeEnum> returnCodes;
+        std::map<DWORD, ExpectedReturnCodeInfo> returnCodes;
 
         for (auto const& entry : returnCodesNode.Sequence())
         {
@@ -659,8 +718,7 @@ namespace AppInstaller::Manifest
             m_p_expectedReturnCode = &returnCode;
             auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-
-            if (!returnCodes.insert({ returnCode.InstallerReturnCode, returnCode.ReturnResponse }).second)
+            if (!returnCodes.insert({ returnCode.InstallerReturnCode, {returnCode.ReturnResponse, returnCode.ReturnResponseUrl} }).second)
             {
                 resultErrors.emplace_back(ManifestError::DuplicateReturnCodeEntry);
             }
@@ -668,6 +726,30 @@ namespace AppInstaller::Manifest
 
         m_p_installer->ExpectedReturnCodes = returnCodes;
 
+        return resultErrors;
+    }
+
+    ValidationErrors ManifestYamlPopulator::ProcessDocumentationsNode(const YAML::Node& documentationsNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !documentationsNode.IsSequence());
+        
+        ValidationErrors resultErrors;
+        std::vector<Documentation> documentations;
+
+        for (auto const& entry : documentationsNode.Sequence())
+        {
+            Documentation documentation;
+            m_p_documentation = &documentation;
+            auto errors = ValidateAndProcessFields(entry, DocumentationFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            documentations.emplace_back(std::move(documentation));
+        }
+
+        if (!documentations.empty())
+        {
+            m_p_localization->Add<Localization::Documentations>(std::move(documentations));
+        }
+        
         return resultErrors;
     }
 
@@ -694,6 +776,7 @@ namespace AppInstaller::Manifest
         AgreementFieldInfos = GetAgreementFieldProcessInfo(manifestVersion);
         MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
+        DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;
@@ -761,7 +844,7 @@ namespace AppInstaller::Manifest
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&
                     std::find(installer.InstallerSuccessCodes.begin(), installer.InstallerSuccessCodes.end(), defaultReturnCode.first) == installer.InstallerSuccessCodes.end())
                 {
-                    installer.ExpectedReturnCodes[defaultReturnCode.first] = defaultReturnCode.second;
+                    installer.ExpectedReturnCodes[defaultReturnCode.first].ReturnResponseEnum = defaultReturnCode.second;
                 }
             }
 

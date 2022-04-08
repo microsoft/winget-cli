@@ -47,6 +47,12 @@ namespace AppInstaller::Runtime
         SecureSettings,
         // The value of %USERPROFILE%.
         UserProfile,
+        // The location where portable packages are installed to with user scope.
+        PortableAppUserRoot,
+        // The location where portable packages are installed to with machine scope (x64).
+        PortableAppMachineRootX64,
+        // The location where portable packages are installed to with machine scope (x86).
+        PortableAppMachineRootX86,
     };
 
     // Gets the path to the requested location.

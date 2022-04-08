@@ -20,6 +20,11 @@ Tags:
   - "msixsdk"
 ReleaseNotes: Default release notes
 ReleaseNotesUrl: https://DefaultReleaseNotes.net
+PurchaseUrl: https://DefaultPurchaseUrl.com
+InstallationNotes: Default installation notes
+Documentations:
+  - DocumentLabel: Default document label
+    DocumentUrl: https://DefaultDocumentUrl.com 
 Agreements:
   - AgreementLabel: DefaultLabel
     Agreement: DefaultText
@@ -78,6 +83,7 @@ ReleaseDate: 2021-01-01
 InstallerAbortsTerminal: true
 InstallLocationRequired: true
 RequireExplicitUpgrade: true
+DisplayInstallWarnings: true
 ElevationRequirement: elevatesSelf
 UnsupportedOSArchitectures:
   - arm
@@ -94,6 +100,10 @@ Markets:
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
+    ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+UnsupportedArguments:
+  - log
+  - location
 
 Installers:
   - Architecture: x86
@@ -146,7 +156,11 @@ Installers:
     InstallerAbortsTerminal: false
     InstallLocationRequired: false
     RequireExplicitUpgrade: false
+    DisplayInstallWarnings: false
     ElevationRequirement: elevationRequired
+    UnsupportedArguments:
+      - log
+      - location
     UnsupportedOSArchitectures:
       - arm64
     Markets:
@@ -155,5 +169,8 @@ Installers:
     ExpectedReturnCodes:
       - InstallerReturnCode: 2
         ReturnResponse: contactSupport
+      - InstallerReturnCode: 3
+        ReturnResponse: custom
+        ReturnResponseUrl: https://defaultReturnResponseUrl.com
 ManifestType: singleton
 ManifestVersion: 1.2.0

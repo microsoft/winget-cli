@@ -13,9 +13,9 @@ Installers:
       InstallerType: exe
       InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
       ExpectedReturnCodes:
-          - InstallerReturnCode: 1
-            ReturnResponse: PackageInUse
-          - InstallerReturnCode: 1
-            ReturnResponse: InstallInProgress
+        - InstallerReturnCode: 1
+          ReturnResponse: packageInUse
+        - InstallerReturnCode: 1
+          ReturnResponse: installInProgress
 ManifestType: singleton
 ManifestVersion: 1.1.0
