@@ -97,7 +97,7 @@ void ReportMatch(std::string_view label, std::string_view appName, std::string_v
 ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConfidenceAlgorithm& correlationAlgorithm, bool reportErrors = false)
 {
     ResultSummary result{};
-    auto startTime = std::chrono::system_clock::now();
+    auto startTime = std::chrono::steady_clock::now();
 
     // Each entry under test will be pushed at the end of this
     // and removed at the end.
