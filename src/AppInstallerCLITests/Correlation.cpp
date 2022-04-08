@@ -146,7 +146,7 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
         }
     }
 
-    auto endTime = std::chrono::system_clock::now();
+    auto endTime = std::chrono::steady_clock::now();
     result.TotalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 
     return result;
