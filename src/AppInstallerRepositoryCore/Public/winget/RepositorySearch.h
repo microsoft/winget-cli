@@ -134,6 +134,7 @@ namespace AppInstaller::Repository
         RelativePath,
         // Returned in hexadecimal format
         ManifestSHA256Hash,
+        Publisher,
     };
 
     // A property of a package version that can have multiple values.

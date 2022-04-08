@@ -48,7 +48,8 @@ namespace AppInstaller::Repository::Microsoft
                     return LocIndString{ GetReferenceSource()->GetDetails().Name };
                 default:
                     // Values coming from the index will always be localized/independent.
-                    return LocIndString{ GetReferenceSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
+                    std::optional<std::string> optValue = GetReferenceSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property);
+                    return LocIndString{ optValue ? optValue.value() :std::string{} };
                 }
             }
 
