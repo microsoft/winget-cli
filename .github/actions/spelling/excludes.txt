@@ -38,4 +38,6 @@ ignore$
 ^src/JsonCppLib/
 ^src/Valijson/
 ^src/YamlCppLib/
+# Because it doesn't handle argument -Words well
+^tools/CorrelationTestbed/.*\.ps1$
 ^\.github/
