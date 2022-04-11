@@ -61,7 +61,7 @@ namespace AppInstaller::Filesystem
         std::filesystem::create_symlink(target, link);
     }
 
-    DWORD CopyFileWithProgressCallback(const std::filesystem::path& from, const std::filesystem::path& to, IProgressCallback& progress)
+    HRESULT CopyFileWithProgressCallback(const std::filesystem::path& from, const std::filesystem::path& to, IProgressCallback& progress)
     {
         bool result = CopyFileExW(from.c_str(), to.c_str(), &AppInstaller::Filesystem::CopyFileProgressCallback, &progress, FALSE, 0);
         DWORD exitCode = 0;
@@ -70,6 +70,6 @@ namespace AppInstaller::Filesystem
             exitCode = GetLastError();
         }
 
-        return exitCode;
+        return HRESULT_FROM_WIN32(exitCode);
     }
 }

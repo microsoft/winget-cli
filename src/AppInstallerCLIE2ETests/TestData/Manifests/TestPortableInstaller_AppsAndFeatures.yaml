@@ -1,8 +1,9 @@
-PackageIdentifier: AppInstallerTest.TestPortableExeWithAppsAndFeatures
+PackageIdentifier: AppInstallerTest.TestPortableAppsAndFeatures
 PackageVersion: 1.0.0.0
-PackageName: TestPortableExe
+PackageName: TestPortableAppsAndFeatures
 PackageLocale: en-US
 Publisher: AppInstallerTest
+ShortDescription: E2E test for portable install with Apps and Features entry.
 AppsAndFeaturesEntries:
   - DisplayName: TestDisplayName
     DisplayVersion: 1.2

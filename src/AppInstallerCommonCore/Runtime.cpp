@@ -24,7 +24,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
-        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_PortableAppUserRoot = "Microsoft\\WinGet"sv;
         constexpr std::string_view s_PortableAppMachineRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;

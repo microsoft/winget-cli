@@ -157,14 +157,14 @@ namespace AppInstaller::CLI::Workflow
             return true;
         }
 
-        bool AddPortableEntryToUninstallRegistry(Manifest::ScopeEnum& scope, std::string_view packageId, AppsAndFeaturesEntry& entry)
+        bool AddPortableEntryToUninstallRegistry(Manifest::ScopeEnum& scope, AppsAndFeaturesEntry& entry)
         {
             HKEY root = (scope == Manifest::ScopeEnum::Machine) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
             std::wstring productCode = ConvertToUTF16(entry.ProductCode);
             std::wstring displayName = ConvertToUTF16(entry.DisplayName);
             std::wstring displayVersion = ConvertToUTF16(entry.DisplayVersion);
             std::wstring publisher = ConvertToUTF16(entry.Publisher);
-            std::wstring uninstallString = L"winget uninstall --id " + ConvertToUTF16(packageId);
+            std::wstring uninstallString = L"winget uninstall --id " + productCode;
             std::wstring fullRegistryKey = Normalize(s_UninstallSubkey) + L"\\" + productCode;
 
             Key key = Key::CreateKeyAndOpen(root, fullRegistryKey);
@@ -221,6 +221,8 @@ namespace AppInstaller::CLI::Workflow
             fileName = installerPath.filename().u8string();
         }
 
+        AppendExeExtension(fileName);
+
         std::filesystem::path targetInstallFullPath = targetInstallDirectory / fileName;
         return targetInstallFullPath;
     }
@@ -252,7 +254,7 @@ namespace AppInstaller::CLI::Workflow
         AppInstaller::Filesystem::CreateSymlink(portableTargetFullPath, symlinkPath);
     }
 
-    std::optional<DWORD> PortableCopyExeInstall(Execution::Context& context, IProgressCallback& progress)
+    std::optional<HRESULT> PortableCopyExeInstall(Execution::Context& context, IProgressCallback& progress)
     {
         const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
         std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
@@ -272,9 +274,9 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path portableTargetFullPath = GetPortableTargetFullPath(context);
         AICLI_LOG(CLI, Info, << "Copying portable to: " << portableTargetFullPath);
-        DWORD exitCode = AppInstaller::Filesystem::CopyFileWithProgressCallback(installerPath, portableTargetFullPath, progress);
-        context.Add<Execution::Data::OperationReturnCode>(exitCode);
-        return exitCode;
+        HRESULT result = AppInstaller::Filesystem::CopyFileWithProgressCallback(installerPath, portableTargetFullPath, progress);
+        context.Add<Execution::Data::OperationReturnCode>(result);
+        return result;
     }
 
     void PortableRegistryInstall(Execution::Context& context)
@@ -295,7 +297,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (result)
         {
-            result = AddPortableEntryToUninstallRegistry(scope, manifest.Id, entry);
+            result = AddPortableEntryToUninstallRegistry(scope, entry);
         }
 
         if (!result)

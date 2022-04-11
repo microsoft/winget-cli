@@ -294,9 +294,10 @@ namespace AppInstaller::CLI::Workflow
                 return PortableCopyExeInstall(context, callback);
             });
 
-        if (!installResult)
+        HRESULT exitCode = installResult.value();
+        if (exitCode != S_OK)
         {
-            context << ReportInstallerResult("PortableInstall"sv, installResult.value(), true);
+            context << ReportInstallerResult("PortableInstall"sv, exitCode, true);
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 

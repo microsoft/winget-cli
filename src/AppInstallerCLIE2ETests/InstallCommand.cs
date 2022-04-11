@@ -16,7 +16,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            // TODO: Remove this once portable install is no longer an experimental feature.
             ConfigureFeature("portableInstall", true);
         }
 
@@ -184,7 +183,7 @@ namespace AppInstallerCLIE2ETests
             string packageId, commandAlias, fileName, productCode;
             packageId = productCode = "AppInstallerTest.TestPortableExeWithCommand";
             fileName = "AppInstallerTestExeInstaller.exe";
-            commandAlias = "testCommand";
+            commandAlias = "testCommand.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -197,7 +196,7 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
-            packageId = "AppInstallerTest.TestPortableExeWithAppsAndFeatures";
+            packageId = "AppInstallerTest.TestPortableAppsAndFeatures";
             productCode = "testProductCode";
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
@@ -214,12 +213,25 @@ namespace AppInstallerCLIE2ETests
             string packageId, productCode, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithRename";
             productCode = "testProductCode";
-            renameArgValue = "testRename";
+            renameArgValue = "testRename.exe";
 
-            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} -r {renameArgValue}");
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, renameArgValue, renameArgValue, productCode));
+        }
+
+        [Test]
+        public void InstallPortableInvalidRename()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, renameArgValue;
+            packageId = "AppInstallerTest.TestPortableExeWithRename";
+            renameArgValue = "test!$%?Value";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("The filename, directory name, or volume label syntax is incorrect."));
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
@@ -287,7 +299,9 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
-            string symlinkPath = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links", expectedCommandAlias);
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, expectedCommandAlias);
+
             if (!File.Exists(symlinkPath))
             {
                 return false;
@@ -297,7 +311,7 @@ namespace AppInstallerCLIE2ETests
                 File.Delete(symlinkPath);
             }
 
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall"))
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall", true))
             {
                 var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(expectedProductCode);
                 if (installTestPortableSubkey == null)
@@ -310,11 +324,11 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
-            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment"))
+            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
-                var portablePathValue = installPackageRoot + ';';
+                var portablePathValue = symlinkDirectory + ';';
                 if (!currentPathValue.Contains(portablePathValue))
                 {
                     return false;

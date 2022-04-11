@@ -1,9 +1,10 @@
 PackageIdentifier: AppInstallerTest.TestPortableExeWithRename
 PackageVersion: 1.0.0.0
-PackageName: TestPortableExe
+PackageName: TestPortableExeWithRename
 PackageLocale: en-US
 Publisher: AppInstallerTest
 License: Test
+ShortDescription: E2E test for portable install with rename argument.
 AppsAndFeaturesEntries:
   - DisplayName: TestDisplayName
     DisplayVersion: 1.2

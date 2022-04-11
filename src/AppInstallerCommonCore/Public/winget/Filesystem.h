@@ -7,5 +7,5 @@ namespace AppInstaller::Filesystem
 {
     void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 
-    DWORD CopyFileWithProgressCallback(const std::filesystem::path& from, const std::filesystem::path& to, IProgressCallback& progress);
+    HRESULT CopyFileWithProgressCallback(const std::filesystem::path& from, const std::filesystem::path& to, IProgressCallback& progress);
 }
