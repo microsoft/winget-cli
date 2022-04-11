@@ -53,8 +53,8 @@ Si vous ne configurez pas ce paramètre, la source du Microsoft Store pour le Ge
 Si vous activez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows est disponible et ne peut pas être supprimée.
 
 Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows n’est pas disponible.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Définir l’intervalle en minutes de mise à jour automatique de source du programme d’installation de l’application</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur un package.
+      <string id="SourceAutoUpdateInterval">Définir l’intervalle en minutes de mise à jour automatique de source du programme d’installation de l’application</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur un package.
 
 Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifiée dans les paramètres est utilisé par le gestionnaire de packages Windows.
 
@@ -75,10 +75,16 @@ Si vous ne configurez pas ce paramètre de stratégie, les utilisateurs pourront
 Si vous activez cette stratégie, seules les sources spécifiées peuvent être ajoutées ou supprimées du Gestionnaire de package Windows. La représentation de chaque source autorisée peut être obtenue à partir de sources installées à l’aide de « Winget source export ».
 
 Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire ne peut être configurée pour le Gestionnaire de package Windows.</string>
+      <string id="EnableMSAppInstallerProtocol">Activer le protocole ms-appinstaller du Programme d'installation d'application</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Cette stratégie contrôle si les utilisateurs peuvent installer des packages à partir d’un site web qui utilise le protocole ms-appinstaller.
+
+Si vous activez ce paramètre, les utilisateurs peuvent installer des packages à partir de sites web qui utilisent ce protocole.
+
+Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuvent pas installer de packages à partir de sites web qui utilisent ce protocole.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalle en minutes de mise à jour automatique de source</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervalle en minutes de mise à jour automatique de source</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Sources supplémentaires : </listBox>

@@ -14,6 +14,11 @@
 #include "winget/RepositorySearch.h"
 #include "AppInstallerVersions.h"
 #include "Converters.h"
+#pragma warning( push )
+#pragma warning ( disable : 4467 )
+// 4467 Allow use of uuid attribute for com object creation.
+#include "PackageManager.h"
+#pragma warning( pop )
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -119,9 +124,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return CompareResult::Equal;
         }
     }
-    bool PackageVersionInfo::HasApplicableInstaller()
+    bool PackageVersionInfo::HasApplicableInstaller(InstallOptions options)
     {
         AppInstaller::CLI::Execution::COMContext context;
+        PopulateContextFromInstallOptions(&context, options);
         AppInstaller::Repository::IPackageVersion::Metadata installationMetadata;
         AppInstaller::CLI::Workflow::ManifestComparator manifestComparator{ context, installationMetadata };
         AppInstaller::Manifest::Manifest manifest = m_packageVersion->GetManifest();

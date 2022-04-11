@@ -4,6 +4,7 @@
 #include <binver/version.h>
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/UserSettings.h"
 
 #include <optional>
 
@@ -12,6 +13,7 @@
 namespace AppInstaller::Runtime
 {
     using namespace Utility;
+    using namespace Settings;
 
     namespace
     {
@@ -22,10 +24,17 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
+        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_PortableAppMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
         constexpr std::string_view s_PreviewBuildSuffix = "-preview"sv;
+        constexpr std::string_view s_RuntimePath_Unpackaged_DefaultState = "defaultState"sv;
+
+        static std::optional<std::string> s_runtimePathStateName;
+        static wil::srwlock s_runtimePathStateNameLock;
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -134,6 +143,24 @@ namespace AppInstaller::Runtime
             THROW_IF_WIN32_BOOL_FALSE(ConvertSidToStringSidW(userToken->User.Sid, &sidString));
             return { sidString.get() };
         }
+
+        std::string GetRuntimePathStateName()
+        {
+            std::string result;
+            auto lock = s_runtimePathStateNameLock.lock_shared();
+
+            if (s_runtimePathStateName.has_value())
+            {
+                result = s_runtimePathStateName.value();
+            }
+
+            if (Utility::IsEmptyOrWhitespace(result))
+            {
+                result = s_RuntimePath_Unpackaged_DefaultState;
+            }
+
+            return result;
+        }
     }
 
     bool IsRunningInPackagedContext()
@@ -234,6 +261,13 @@ namespace AppInstaller::Runtime
     }
 #endif
 
+    void SetRuntimePathStateName(std::string name)
+    {
+        auto suitablePathPart = MakeSuitablePathPart(name);
+        auto lock = s_runtimePathStateNameLock.lock_exclusive();
+        s_runtimePathStateName.emplace(std::move(suitablePathPart));
+    }
+
     std::filesystem::path GetPathTo(PathName path)
     {
         std::filesystem::path result;
@@ -309,6 +343,36 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
+            case PathName::PortableAppUserRoot:
+                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX64:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX86:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -323,19 +387,23 @@ namespace AppInstaller::Runtime
             {
                 result = GetPathToUserTemp();
                 result /= s_DefaultTempDirectory;
+                result /= GetRuntimePathStateName();
             }
                 break;
             case PathName::DefaultLogLocationForDisplay:
                 result.assign("%TEMP%");
                 result /= s_DefaultTempDirectory;
+                result /= GetRuntimePathStateName();
                 create = false;
                 break;
             case PathName::LocalState:
                 result = GetPathToAppDataDir(s_AppDataDir_State);
+                result /= GetRuntimePathStateName();
                 break;
             case PathName::StandardSettings:
             case PathName::UserFileSettings:
                 result = GetPathToAppDataDir(s_AppDataDir_Settings);
+                result /= GetRuntimePathStateName();
                 break;
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
@@ -343,11 +411,42 @@ namespace AppInstaller::Runtime
                 result /= GetUserSID();
                 result /= s_SecureSettings_UserRelative;
                 result /= s_SecureSettings_Relative_Unpackaged;
+                result /= GetRuntimePathStateName();
                 create = false;
                 break;
             case PathName::UserProfile:
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
+                break;
+            case PathName::PortableAppUserRoot:
+                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX64:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
+                break;
+            case PathName::PortableAppMachineRootX86:
+                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                if (result.empty())
+                {
+                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackagesDirectory;
+                }
+                create = true;
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

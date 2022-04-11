@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CatalogPackage.cpp" />
+    <ClCompile Include="ConnectResult.cpp" />
+    <ClCompile Include="Converters.cpp" />
+    <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
+    <ClCompile Include="FindPackagesOptions.cpp" />
+    <ClCompile Include="FindPackagesResult.cpp" />
+    <ClCompile Include="Helpers.cpp" />
+    <ClCompile Include="InstallOptions.cpp" />
+    <ClCompile Include="InstallResult.cpp" />
+    <ClCompile Include="MatchResult.cpp" />
+    <ClCompile Include="PackageCatalog.cpp" />
+    <ClCompile Include="PackageCatalogInfo.cpp" />
+    <ClCompile Include="PackageCatalogReference.cpp" />
+    <ClCompile Include="PackageManager.cpp" />
+    <ClCompile Include="PackageMatchFilter.cpp" />
+    <ClCompile Include="PackageVersionId.cpp" />
+    <ClCompile Include="PackageVersionInfo.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="UninstallOptions.cpp" />
+    <ClCompile Include="UninstallResult.cpp" />
+    <ClCompile Include="ComClsids.cpp" />
+    <ClCompile Include="PackageManagerSettings.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CatalogPackage.h" />
+    <ClInclude Include="ConnectResult.h" />
+    <ClInclude Include="Converters.h" />
+    <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
+    <ClInclude Include="FindPackagesOptions.h" />
+    <ClInclude Include="FindPackagesResult.h" />
+    <ClInclude Include="Helpers.h" />
+    <ClInclude Include="InstallOptions.h" />
+    <ClInclude Include="InstallResult.h" />
+    <ClInclude Include="MatchResult.h" />
+    <ClInclude Include="PackageCatalog.h" />
+    <ClInclude Include="PackageCatalogInfo.h" />
+    <ClInclude Include="PackageCatalogReference.h" />
+    <ClInclude Include="PackageManager.h" />
+    <ClInclude Include="PackageMatchFilter.h" />
+    <ClInclude Include="PackageVersionId.h" />
+    <ClInclude Include="PackageVersionInfo.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="UninstallOptions.h" />
+    <ClInclude Include="UninstallResult.h" />
+    <ClInclude Include="Public\ComClsids.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageManagerSettings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="PackageManager.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Microsoft_Management_Deployment.def" />
+    <None Include="packages.config" />
+    <None Include="PropertySheet.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Public">
+      <UniqueIdentifier>{9c3907ed-84d9-4485-9b15-04c50717f0ab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

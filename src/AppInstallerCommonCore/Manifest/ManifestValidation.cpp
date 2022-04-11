@@ -153,6 +153,22 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }
 
+            if (installer.InstallerType == InstallerTypeEnum::Portable)
+            {
+                if (installer.AppsAndFeaturesEntries.size() > 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededAppsAndFeaturesEntryLimit);
+                }
+                if (installer.Commands.size() > 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
+                }
+                if (installer.Scope != ScopeEnum::Unknown)
+                {
+                    resultErrors.emplace_back(ManifestError::ScopeNotSupported, ValidationError::Level::Warning);
+                }
+            }
+
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {

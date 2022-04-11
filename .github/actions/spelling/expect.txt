@@ -1,4 +1,5 @@
 abcd
+accepteula
 adjacents
 activatable
 adml
@@ -144,6 +145,7 @@ gitlab
 gity
 Globals
 Google
+guiddef
 hackathon
 hashtable
 helplib
@@ -157,6 +159,7 @@ hre
 hresults
 htm
 IAttachment
+IARP
 IConfiguration
 idx
 IFACEMETHODIMP
@@ -377,6 +380,7 @@ TStatus
 UCase
 ucasemap
 UChars
+ucnv
 uec
 uild
 uintptr

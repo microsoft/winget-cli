@@ -182,6 +182,36 @@ struct IndexFields
         ProductCodes(std::move(productCodes))
     {}
 
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string publisher,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path,
+        std::vector<NormalizedString> packageFamilyNames,
+        std::vector<NormalizedString> productCodes,
+        std::string arpName,
+        std::string arpPublisher
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Publisher(std::move(publisher)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path)),
+        PackageFamilyNames(std::move(packageFamilyNames)),
+        ProductCodes(std::move(productCodes)),
+        ArpName(std::move(arpName)),
+        ArpPublisher(std::move(arpPublisher))
+    {}
+
     std::string Id;
     std::string Name;
     std::string Publisher;
@@ -193,6 +223,8 @@ struct IndexFields
     std::string Path;
     std::vector<NormalizedString> PackageFamilyNames;
     std::vector<NormalizedString> ProductCodes;
+    std::string ArpName;
+    std::string ArpPublisher;
 };
 
 SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, std::optional<Schema::Version> version = {})
@@ -228,6 +260,13 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
         for (size_t i = 0; i < d.ProductCodes.size(); ++i)
         {
             manifest.Installers[i].ProductCode = d.ProductCodes[i];
+        }
+
+        if (!d.ArpName.empty() || !d.ArpPublisher.empty())
+        {
+            manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+            manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayName = d.ArpName;
+            manifest.Installers[0].AppsAndFeaturesEntries[0].Publisher = d.ArpPublisher;
         }
 
         index.AddManifest(manifest, d.Path);
@@ -2725,6 +2764,37 @@ TEST_CASE("SQLiteIndex_NormNameAndPublisher_Complex", "[sqliteindex]")
 
     SearchRequest request;
     request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, testName + " 1.0", testPublisher));
+
+    auto results = index.Search(request);
+
+    if (AreNormalizedNameAndPublisherSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.empty());
+    }
+}
+
+TEST_CASE("SQLiteIndex_NormNameAndPublisher_AppsAndFeatures", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string testName = "Name";
+    std::string testPublisher = "Publisher";
+    std::string arpTestName = "Other Thing";
+    std::string arpTestPublisher = "Big Company Name";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", testName, testPublisher, "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" }, arpTestName, arpTestPublisher },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, arpTestName, arpTestPublisher));
 
     auto results = index.Search(request);
 

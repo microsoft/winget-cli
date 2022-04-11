@@ -21,11 +21,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53D749-D51C-46F8-A162-9371AAA6C2E7}"
 	ProjectSection(SolutionItems) = preProject
 		..\azure-pipelines.loc.yml = ..\azure-pipelines.loc.yml
+		..\azure-pipelines.nuget.in-proc-com.yml = ..\azure-pipelines.nuget.in-proc-com.yml
 		..\azure-pipelines.nuget.yml = ..\azure-pipelines.nuget.yml
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\cgmanifest.json = ..\cgmanifest.json
 		..\README.md = ..\README.md
 		..\doc\Settings.md = ..\doc\Settings.md
+		..\WinGetInProcCom.nuspec = ..\WinGetInProcCom.nuspec
 		..\WinGetUtil.nuspec = ..\WinGetUtil.nuspec
 	EndProjectSection
 EndProject
@@ -86,21 +88,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spelling", "spelling", "{2A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpprestsdk", "cpprestsdk\cpprestsdk.vcxproj", "{866C3F06-636F-4BE8-BC24-5F86ECC606A1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{92637527-6CDA-4F4A-84FD-858793776777}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "JSON", "JSON", "{F2149997-295A-4593-9282-4C675DFEB670}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "settings", "settings", "{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528}"
-	ProjectSection(SolutionItems) = preProject
-		..\schemas\JSON\settings\settings.schema.0.2.json = ..\schemas\JSON\settings\settings.schema.0.2.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{F5CED6B6-C27F-4405-9033-6C273B8B129C}"
-	ProjectSection(SolutionItems) = preProject
-		..\schemas\JSON\packages\packages.schema.1.0.json = ..\schemas\JSON\packages\packages.schema.1.0.json
-		..\schemas\JSON\packages\packages.schema.2.0.json = ..\schemas\JSON\packages\packages.schema.2.0.json
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
 	ProjectSection(SolutionItems) = preProject
 		..\doc\admx\en-US\DesktopAppInstaller.adml = ..\doc\admx\en-US\DesktopAppInstaller.adml
@@ -146,6 +133,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsPackageManager", "WindowsPackageManager\WindowsPackageManager.vcxproj", "{2046B5AF-666D-4CE8-8D3E-C32C57908A56}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMServer.vcxitems", "{409CD681-22A4-469D-88AE-CB5E4836E07A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment.InProc", "Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj", "{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -1003,6 +992,40 @@ Global
 		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x64.Build.0 = Release|x64
 		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x86.ActiveCfg = Release|Win32
 		{2046B5AF-666D-4CE8-8D3E-C32C57908A56}.TestRelease|x86.Build.0 = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|ARM.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|x64.ActiveCfg = Debug|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|x64.Build.0 = Debug|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|x86.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Debug|x86.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|Any CPU.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|Any CPU.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|ARM.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|ARM.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|ARM64.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|ARM64.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|x64.ActiveCfg = Debug|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|x64.Build.0 = Debug|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|x86.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Fuzzing|x86.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|Any CPU.ActiveCfg = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|ARM.ActiveCfg = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|ARM64.ActiveCfg = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|x64.ActiveCfg = Release|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|x64.Build.0 = Release|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|x86.ActiveCfg = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.Release|x86.Build.0 = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|Any CPU.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|Any CPU.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|ARM.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|ARM.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|ARM64.ActiveCfg = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|ARM64.Build.0 = Debug|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x64.ActiveCfg = Release|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x64.Build.0 = Release|x64
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x86.ActiveCfg = Release|Win32
+		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1020,10 +1043,6 @@ Global
 		{952B513F-8A00-4D74-9271-925AFB3C6252} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{2ACDE176-F13F-42FA-8159-C34FA3D37837} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{866C3F06-636F-4BE8-BC24-5F86ECC606A1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
-		{92637527-6CDA-4F4A-84FD-858793776777} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
-		{F2149997-295A-4593-9282-4C675DFEB670} = {92637527-6CDA-4F4A-84FD-858793776777}
-		{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528} = {F2149997-295A-4593-9282-4C675DFEB670}
-		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{409CD681-22A4-469D-88AE-CB5E4836E07A} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection

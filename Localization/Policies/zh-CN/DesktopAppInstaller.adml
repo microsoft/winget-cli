@@ -53,8 +53,8 @@
 如果启用此设置，Windows 程序包管理器的 Microsoft Store 源将可用，无法删除。
 
 如果禁用此设置，Windows 程序包管理器的 Microsoft Store 源将不可用。</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">设置应用安装程序源自动更新间隔（分钟）</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">此策略控制基于程序包的源的自动更新间隔。
+      <string id="SourceAutoUpdateInterval">设置应用安装程序源自动更新间隔（分钟）</string>
+      <string id="SourceAutoUpdateIntervalExplanation">此策略控制基于程序包的源的自动更新间隔。
 
 如果禁用或未配置此设置，则 Windows 程序包管理器将使用在 "设置" 中指定的默认间隔或值。
 
@@ -75,10 +75,16 @@
 如果启用此策略，则只能从 Windows 程序包管理器中添加或删除指定的源。可使用“winget source export”从已安装的源获取每个允许的源的表示形式。
 
 如果禁用此策略，则不能为 Windows 程序包管理器配置其他源。</string>
+      <string id="EnableMSAppInstallerProtocol">启用应用安装程序 ms-appinstaller 协议</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">此策略控制用户是否可以从使用 ms-appinstaller 协议的网站安装包。
+
+如果启用此设置，则用户将能够安装来自使用此协议的网站的包。
+
+如果禁用或未配置此设置，则用户将无法安装来自使用此协议的网站的包。</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">源自动更新间隔(分钟)</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">源自动更新间隔(分钟)</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">其他源: </listBox>

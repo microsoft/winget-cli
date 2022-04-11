@@ -55,6 +55,7 @@ cguid
 chrono
 cin
 cla
+CLASSNOTAVAILABLE
 CLSCTX
 cmake
 cmdlet
@@ -359,6 +360,7 @@ OSVERSIONINFOEXW
 outfile
 OUTOFDISKSPACE
 OUTOFMEMORY
+OUTOFPROC
 OWC
 packagefamilyname
 packageidentifier
@@ -385,7 +387,7 @@ png
 posix
 powershell
 pplx
-PPV
+ppv
 pragma
 PRECONFIG
 preindexed
@@ -394,6 +396,7 @@ PRIMARYKEY
 prioritization
 PRODUCTNAME
 PRODUCTVERSION
+PROGRAMFILES
 PROGRESSONLY
 promptrestart
 PROPERTYDUMP
@@ -491,6 +494,7 @@ sscanf
 sstream
 STATFLAG
 STATSTG
+STDAPI
 stdcall
 stderr
 stdexcept
@@ -522,6 +526,8 @@ subselect
 substr
 SWIPECONTROL
 SYMED
+symlink
+symlinks
 Sys
 sz
 TARG
@@ -628,6 +634,7 @@ WINAPI
 WINEVENT
 winget
 wininet
+winmd
 winmeta
 winres
 winrt

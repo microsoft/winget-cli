@@ -188,6 +188,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
+    <ClCompile Include="Correlation.cpp" />
     <ClCompile Include="CustomHeader.cpp" />
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
@@ -377,6 +378,15 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeMissing.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>    
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>   
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-DefaultScope.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -540,6 +550,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputPublishers.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InputARPData.txt">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\NormalizationInitialIds.txt">

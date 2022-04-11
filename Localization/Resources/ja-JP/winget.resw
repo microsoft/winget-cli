@@ -261,7 +261,7 @@
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>構成されたソースを検索するか、マニフェストから直接検索して見つけた選択されたパッケージをインストールします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>指定されたパッケージをインストール</value>
@@ -472,13 +472,15 @@
     <value>設定を開くか、管理者設定を設定する</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>設定の読み込み中に予期しないエラーが発生しました。Settings コマンドを実行して、設定を確認してください。</value>
+    <value>設定の読み込み中に予期しないエラーが発生しました。'settings' コマンドを実行して、設定を確認してください。</value>
+    <comment>{Locked="'settings'"}</comment>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>チャネル</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>特定のパッケージの情報を表示します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>パッケージに関する情報を表示します</value>
@@ -663,13 +665,6 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>適用可能な更新は見つかりませんでした。</value>
   </data>
-  <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>インストールされたパッケージ リスト、またはマニフェストから直接検索し、選択されたパッケージをアップグレードします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
-  </data>
-  <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>指定されたパッケージをアップグレードします</value>
-  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用状況</value>
     <comment>The way to use the software</comment>
@@ -741,6 +736,7 @@
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>インストールされているパッケージリスト、またはマニフェストから検索し、選択したパッケージをアンインストールします。既定では、クエリはパッケージのID、名前、モニカーと大文字と小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>指定されたパッケージをアンインストール</value>
@@ -1218,10 +1214,11 @@
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>作業ソースの中以下のパッケージが見つかりました。
 続行するには、'--source' オプションを使用していずれかのパッケージを指定してください。</value>
-    <comment>{Locked="--source"}</comment>
+    <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
     <value>作業ソースの中にパッケージが見つかりませんでした。</value>
+    <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
     <value>これは、Windows パッケージ マネージャーの安定版リリースです。実験的な機能を試したい場合は、プレリリース ビルドをインストールしてください。手順は、GitHub (https://github.com/microsoft/winget-cli) で入手できます。</value>
@@ -1249,5 +1246,26 @@
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>アーキテクチャを選択してインストール</value>
+  </data>
+  <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
+    <value>現在のバージョンを特定できない場合でもパッケージをアップグレードする</value>
+  </data>
+  <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
+    <value>このパッケージのバージョン番号を特定できません。とにかくアップグレードするには、前のコマンドに引数 --include-unknown を追加します。</value>
+    <comment>{Locked="--include-unknown"}</comment>
+  </data>
+  <data name="UpgradeUnknownCount" xml:space="preserve">
+    <value>パッケージのバージョン番号を判別できません。"--include-unknown" を使用すると、その他の結果が表示される場合があります。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
+    <value>パッケージのバージョン番号を判別できません。"--include-unknown" を使用すると、その他の結果が表示される場合があります。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
+    <value>指定された引数はクエリでのみ使用できます。</value>
+  </data>
+  <data name="SystemArchitecture" xml:space="preserve">
+    <value>システム アーキテクチャ</value>
   </data>
 </root>

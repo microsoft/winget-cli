@@ -23,7 +23,7 @@ namespace AppInstaller::Utility
         {
             ICUBreakIterator(std::string_view input, UBreakIteratorType type)
             {
-                UErrorCode err = U_ZERO_ERROR;
+                UErrorCode err = U_ZERO_ERROR; 
 
                 m_text.reset(utext_openUTF8(nullptr, input.data(), wil::safe_cast<int64_t>(input.length()), &err));
                 if (U_FAILURE(err))
@@ -150,6 +150,43 @@ namespace AppInstaller::Utility
 
         int utf16CharsWritten = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf16CharCount != utf16CharsWritten);
+
+        return result;
+    }
+
+    std::u32string ConvertToUTF32(std::string_view input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        UErrorCode errorCode = UErrorCode::U_ZERO_ERROR;
+        auto utf32ByteCount= ucnv_convert("UTF-32", "UTF-8", nullptr, 0, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+
+        if (errorCode != U_BUFFER_OVERFLOW_ERROR)
+        {
+            AICLI_LOG(Core, Error, << "ucnv_convert returned " << errorCode);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR);
+        }
+
+        FAIL_FAST_HR_IF(E_UNEXPECTED, utf32ByteCount % sizeof(char32_t) != 0);
+        auto utf32CharCount = utf32ByteCount / sizeof(char32_t);
+        std::u32string result(utf32CharCount, U'\0');
+
+        errorCode = UErrorCode::U_ZERO_ERROR;
+
+        auto utf32BytesWritten = ucnv_convert("UTF-32", "UTF-8", (char*)(result.data()), utf32ByteCount, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+
+        // The size we pass to ucnv_convert is not enough for it to put in the null terminator,
+        // which wouldn't work anyways as it puts a single byte.
+        if (errorCode != U_STRING_NOT_TERMINATED_WARNING)
+        {
+            AICLI_LOG(Core, Error, << "ucnv_convert returned " << errorCode);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR);
+        }
+
+        FAIL_FAST_HR_IF(E_UNEXPECTED, utf32ByteCount != utf32BytesWritten);
 
         return result;
     }

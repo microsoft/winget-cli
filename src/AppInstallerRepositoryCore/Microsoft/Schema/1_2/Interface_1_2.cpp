@@ -13,15 +13,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
     namespace
     {
+        void AddNormalizedName(const Utility::NameNormalizer& normalizer, const Manifest::string_t& name, std::vector<Utility::NormalizedString>& out)
+        {
+            Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(name)).Name();
+            if (std::find(out.begin(), out.end(), value) == out.end())
+            {
+                out.emplace_back(std::move(value));
+            }
+        }
+
         void AddLocalizationNormalizedName(const Utility::NameNormalizer& normalizer, const Manifest::ManifestLocalization& localization, std::vector<Utility::NormalizedString>& out)
         {
             if (localization.Contains(Manifest::Localization::PackageName))
             {
-                Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(localization.Get<Manifest::Localization::PackageName>())).Name();
-                if (std::find(out.begin(), out.end(), value) == out.end())
-                {
-                    out.emplace_back(std::move(value));
-                }
+                AddNormalizedName(normalizer, localization.Get<Manifest::Localization::PackageName>(), out);
+            }
+        }
+
+        void AddNormalizedPublisher(const Utility::NameNormalizer& normalizer, const Manifest::string_t& publisher, std::vector<Utility::NormalizedString>& out)
+        {
+            Utility::NormalizedString value = normalizer.NormalizePublisher(Utility::FoldCase(publisher));
+            if (std::find(out.begin(), out.end(), value) == out.end())
+            {
+                out.emplace_back(std::move(value));
             }
         }
 
@@ -29,11 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         {
             if (localization.Contains(Manifest::Localization::Publisher))
             {
-                Utility::NormalizedString value = normalizer.NormalizePublisher(Utility::FoldCase(localization.Get<Manifest::Localization::Publisher>()));
-                if (std::find(out.begin(), out.end(), value) == out.end())
-                {
-                    out.emplace_back(std::move(value));
-                }
+                AddNormalizedPublisher(normalizer, localization.Get<Manifest::Localization::Publisher>(), out);
             }
         }
 
@@ -47,6 +57,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
                 AddLocalizationNormalizedName(normalizer, loc, result);
             }
 
+            // In addition to the names used for our display, add the display names from the ARP entries
+            for (const auto& installer : manifest.Installers)
+            {
+                for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
+                {
+                    if (!appsAndFeaturesEntry.DisplayName.empty())
+                    {
+                        AddNormalizedName(normalizer, appsAndFeaturesEntry.DisplayName, result);
+                    }
+                }
+            }
+
             return result;
         }
 
@@ -58,6 +80,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             for (const auto& loc : manifest.Localizations)
             {
                 AddLocalizationNormalizedPublisher(normalizer, loc, result);
+            }
+
+            // In addition to the publishers used for our display, add the publishers from the ARP entries
+            for (const auto& installer : manifest.Installers)
+            {
+                for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
+                {
+                    if (!appsAndFeaturesEntry.Publisher.empty())
+                    {
+                        AddNormalizedPublisher(normalizer, appsAndFeaturesEntry.Publisher, result);
+                    }
+                }
             }
 
             return result;

@@ -1,0 +1,42 @@
+# Bad manifest. Installer Type portable can only have zero or one AppsAndFeatureEntry defined.
+PackageIdentifier: TestInstaller.WithLicenseAgreement
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestExe
+License: Test
+ShortDescription: TestInstallerWithLicenseAgreement
+AppsAndFeaturesEntries:
+  - DisplayName: DisplayName1
+    DisplayVersion: DisplayVersion1
+    Publisher: Publisher1
+    ProductCode: ProductCode1
+    UpgradeCode: UpgradeCode1
+  - DisplayName: DisplayName2
+    DisplayVersion: DisplayVersion2
+    Publisher: Publisher2
+    ProductCode: ProductCode2
+    UpgradeCode: UpgradeCode2
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerType: portable
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+  - Architecture: x86
+    InstallerUrl: https://ThisIsNotUsed2
+    InstallerType: portable
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+    AppsAndFeaturesEntries:
+      - DisplayName: DisplayName1
+        DisplayVersion: DisplayVersion1
+        Publisher: Publisher1
+        ProductCode: ProductCode1
+        UpgradeCode: UpgradeCode1
+      - DisplayName: DisplayName2
+        DisplayVersion: DisplayVersion2
+        Publisher: Publisher2
+        ProductCode: ProductCode2
+        UpgradeCode: UpgradeCode2
+ManifestType: singleton
+ManifestVersion: 1.2.0

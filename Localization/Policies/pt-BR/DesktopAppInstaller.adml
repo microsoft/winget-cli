@@ -53,8 +53,8 @@ Se você não definir essa configuração, a fonte da Microsoft Store para o Ger
 Se você habilitar essa configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
 
 Se você desabilitar esta configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows não estará disponível.</string>
-      <string id="SourceAutoUpdateIntervalInMinutes">Definir o Intervalo de Atualização Automática da Fonte do Instalador de Aplicativo em Minutos</string>
-      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote.
+      <string id="SourceAutoUpdateInterval">Definir o Intervalo de Atualização Automática da Fonte do Instalador de Aplicativo em Minutos</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote.
 
 Se você desabilitar ou não definir essa configuração, o intervalo padrão ou o valor especificado em configurações serão usados pelo Gerenciador de pacotes do Windows.
 
@@ -75,10 +75,16 @@ Se você não configurar esta política, os usuários poderão adicionar ou remo
 Se você habilitar essa política, apenas as fontes especificadas poderão ser adicionadas ou removidas do Gerenciador de Pacotes do Windows. A representação de cada fonte permitida pode ser obtida a partir das fontes instaladas usando a 'exportação de fonte de winget'.
 
 Se você desabilitar esta política, nenhuma fonte adicional poderá ser configurada para o Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableMSAppInstallerProtocol">Ativar o protocolo ms-appinstaller do Instalador de Aplicativo</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Esta política controla se os usuários podem instalar pacotes de um site que esteja usando o protocolo ms-appinstaller.
+
+Se você habilitar essa configuração, os usuários poderão instalar pacotes de sites que usam esse protocolo.
+
+Se você desabilitar ou não definir essa configuração, os usuários não poderão instalar pacotes de sites que usam esse protocolo.</string>
     </stringTable>
     <presentationTable>
-      <presentation id="SourceAutoUpdateIntervalInMinutes">
-        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalo de atualização automática da fonte em minutos</decimalTextBox>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervalo de atualização automática da fonte em minutos</decimalTextBox>
       </presentation>
       <presentation id="AdditionalSources">
         <listBox refId="AdditionalSources" required="false">Fontes Adicionais: </listBox>

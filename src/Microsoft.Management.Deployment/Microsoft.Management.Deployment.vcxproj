@@ -150,15 +150,18 @@
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageManager.h" />
+    <ClInclude Include="PackageManagerSettings.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\ComClsids.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
+    <ClCompile Include="ComClsids.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
@@ -172,6 +175,7 @@
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageManager.cpp" />
+    <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />
     <ClCompile Include="PackageVersionId.cpp" />
     <ClCompile Include="PackageVersionInfo.cpp" />
