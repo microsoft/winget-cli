@@ -23,6 +23,7 @@
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
+    <ClCompile Include="PackageManagerSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Public\ComClsids.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="PackageManagerSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

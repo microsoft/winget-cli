@@ -90,6 +90,7 @@ createtables
 cref
 csproj
 CStr
+csv
 CURSORPOSITON
 CUSTOMHEADER
 cwctype
@@ -190,7 +191,9 @@ hfile
 HGLOBAL
 HIDECANCEL
 hinternet
+HKCU
 HKEY
+HKLM
 hmac
 HMODULE
 Homepage
@@ -449,6 +452,7 @@ screenshots
 SCROLLER
 SCROLLVIEWER
 sdk
+sdks
 seekg
 seinfo
 selectany
@@ -523,6 +527,8 @@ subselect
 substr
 SWIPECONTROL
 SYMED
+symlink
+symlinks
 Sys
 sz
 TARG
@@ -543,6 +549,7 @@ TEXTFORMAT
 TEXTINCLUDE
 Threadpool
 Timeline
+tls
 todo
 tokenizer
 tolower
@@ -628,6 +635,7 @@ WINAPI
 WINEVENT
 winget
 wininet
+winmd
 winmeta
 winres
 winrt

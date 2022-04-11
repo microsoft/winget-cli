@@ -61,6 +61,8 @@ namespace AppInstaller::Runtime
         PortableLinksMachineLocationX86
     };
 
+    void SetRuntimePathStateName(std::string name);
+
     // Gets the path to the requested location.
     std::filesystem::path GetPathTo(PathName path);
 

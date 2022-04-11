@@ -28,6 +28,7 @@ ignore$
 ^Localization/
 ^NOTICE$
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
+^src/AppInstallerCLITests/TestData/InputARPData.txt$
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
@@ -37,4 +38,6 @@ ignore$
 ^src/JsonCppLib/
 ^src/Valijson/
 ^src/YamlCppLib/
+# Because it doesn't handle argument -Words well
+^tools/CorrelationTestbed/.*\.ps1$
 ^\.github/

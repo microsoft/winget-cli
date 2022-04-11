@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.WindowsPackageManager.InProcCom</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <projectUrl>https://github.com/microsoft/winget-cli</projectUrl>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Windows Package Manager In-Proc Com Binaries.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>winget</tags>
+  </metadata>
+  <files>
+    <file src="src\x64\Release\WindowsPackageManager\WindowsPackageManager.dll" target="runtimes\win-x64\native\WindowsPackageManager.dll"/>
+    <file src="src\x64\Release\WindowsPackageManager\WindowsPackageManager.pdb" target="runtimes\win-x64\native\WindowsPackageManager.pdb"/>
+    <file src="src\x64\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" target="runtimes\win-x64\native\Microsoft.Management.Deployment.InProc.dll"/>
+    <file src="src\x64\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.pdb" target="runtimes\win-x64\native\Microsoft.Management.Deployment.InProc.pdb"/>
+    <file src="src\x64\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest" target="runtimes\win-x64\native\Microsoft.Management.Deployment.InProc.dll.manifest"/>
+    <file src="src\x64\Release\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" target="runtimes\win-x64\native\Microsoft.Management.Deployment.winmd"/>
+    <file src="src\x86\Release\WindowsPackageManager\WindowsPackageManager.dll" target="runtimes\win-x86\native\WindowsPackageManager.dll"/>
+    <file src="src\x86\Release\WindowsPackageManager\WindowsPackageManager.pdb" target="runtimes\win-x86\native\WindowsPackageManager.pdb"/>
+    <file src="src\x86\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" target="runtimes\win-x86\native\Microsoft.Management.Deployment.InProc.dll"/>
+    <file src="src\x86\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.pdb" target="runtimes\win-x86\native\Microsoft.Management.Deployment.InProc.pdb"/>
+    <file src="src\x86\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest" target="runtimes\win-x86\native\Microsoft.Management.Deployment.InProc.dll.manifest"/>
+    <file src="src\x86\Release\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" target="runtimes\win-x86\native\Microsoft.Management.Deployment.winmd"/>
+    <!-- Placing a copy of the winmd in lib folder to let .net 4.* framework recognize and compile -->
+    <file src="src\x86\Release\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" target="lib\Microsoft.Management.Deployment.winmd"/>
+  </files>
+</package>

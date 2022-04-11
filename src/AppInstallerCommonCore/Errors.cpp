@@ -172,6 +172,8 @@ namespace AppInstaller
                 return "The upgrade version is not newer than the installed version";
             case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN:
                 return "Upgrade version is unknown and override is not specified";
+            case APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR:
+                return "ICU conversion error";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:

@@ -32,6 +32,10 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
         constexpr std::string_view s_PreviewBuildSuffix = "-preview"sv;
+        constexpr std::string_view s_RuntimePath_Unpackaged_DefaultState = "defaultState"sv;
+
+        static std::optional<std::string> s_runtimePathStateName;
+        static wil::srwlock s_runtimePathStateNameLock;
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -140,6 +144,24 @@ namespace AppInstaller::Runtime
             THROW_IF_WIN32_BOOL_FALSE(ConvertSidToStringSidW(userToken->User.Sid, &sidString));
             return { sidString.get() };
         }
+
+        std::string GetRuntimePathStateName()
+        {
+            std::string result;
+            auto lock = s_runtimePathStateNameLock.lock_shared();
+
+            if (s_runtimePathStateName.has_value())
+            {
+                result = s_runtimePathStateName.value();
+            }
+
+            if (Utility::IsEmptyOrWhitespace(result))
+            {
+                result = s_RuntimePath_Unpackaged_DefaultState;
+            }
+
+            return result;
+        }
     }
 
     bool IsRunningInPackagedContext()
@@ -239,6 +261,13 @@ namespace AppInstaller::Runtime
         return Utility::ConvertToUTF8(region.CodeTwoLetter());
     }
 #endif
+
+    void SetRuntimePathStateName(std::string name)
+    {
+        auto suitablePathPart = MakeSuitablePathPart(name);
+        auto lock = s_runtimePathStateNameLock.lock_exclusive();
+        s_runtimePathStateName.emplace(std::move(suitablePathPart));
+    }
 
     std::filesystem::path GetPathTo(PathName path)
     {
@@ -377,19 +406,23 @@ namespace AppInstaller::Runtime
             {
                 result = GetPathToUserTemp();
                 result /= s_DefaultTempDirectory;
+                result /= GetRuntimePathStateName();
             }
                 break;
             case PathName::DefaultLogLocationForDisplay:
                 result.assign("%TEMP%");
                 result /= s_DefaultTempDirectory;
+                result /= GetRuntimePathStateName();
                 create = false;
                 break;
             case PathName::LocalState:
                 result = GetPathToAppDataDir(s_AppDataDir_State);
+                result /= GetRuntimePathStateName();
                 break;
             case PathName::StandardSettings:
             case PathName::UserFileSettings:
                 result = GetPathToAppDataDir(s_AppDataDir_Settings);
+                result /= GetRuntimePathStateName();
                 break;
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
@@ -397,6 +430,7 @@ namespace AppInstaller::Runtime
                 result /= GetUserSID();
                 result /= s_SecureSettings_UserRelative;
                 result /= s_SecureSettings_Relative_Unpackaged;
+                result /= GetRuntimePathStateName();
                 create = false;
                 break;
             case PathName::UserProfile:
