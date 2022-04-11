@@ -24,5 +24,7 @@
     <file src="src\x86\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.pdb" target="runtimes\win-x86\native\Microsoft.Management.Deployment.InProc.pdb"/>
     <file src="src\x86\Release\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest" target="runtimes\win-x86\native\Microsoft.Management.Deployment.InProc.dll.manifest"/>
     <file src="src\x86\Release\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" target="runtimes\win-x86\native\Microsoft.Management.Deployment.winmd"/>
+    <!-- Placing a copy of the winmd in lib folder to let .net 4.* framework recognize and compile -->
+    <file src="src\x86\Release\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" target="lib\Microsoft.Management.Deployment.winmd"/>
   </files>
 </package>
