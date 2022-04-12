@@ -128,6 +128,7 @@ struct Main
     std::string sourceName;
     std::filesystem::path outputPath;
     bool useDevCLSIDs = false;
+    bool onlyCorrelate = false;
 
     int ParseArgs(int argc, char** argv)
     {
@@ -136,6 +137,7 @@ struct Main
         //  -src : [Required] The source name for the package to install
         //  -out : [Required] The file to write results to
         //  -dev : [Optional] Use the dev CLSIDs
+        //  -cor : [Optional] Only correlate the package
 
         for (int i = 1; i < argc; ++i)
         {
@@ -154,6 +156,10 @@ struct Main
             else if ("-dev"sv == argv[i])
             {
                 useDevCLSIDs = true;
+            }
+            else if ("-cor"sv == argv[i])
+            {
+                onlyCorrelate = true;
             }
         }
 
@@ -324,20 +330,23 @@ struct Main
                 packagePublisher = ConvertToUTF8(installVersion.Publisher());
             }
 
-            action = "Create install options";
-            auto installOptions = CreateInstallOptions();
-
-            installOptions.PackageInstallScope(PackageInstallScope::Any);
-            installOptions.PackageInstallMode(PackageInstallMode::Silent);
-
-            std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
-            auto installResult = packageManager.InstallPackageAsync(package, installOptions).get();
-
-            if (installResult.Status() != InstallResultStatus::Ok)
+            if (!onlyCorrelate)
             {
-                hr = installResult.ExtendedErrorCode();
-                error = "Error installing package";
-                return;
+                action = "Create install options";
+                auto installOptions = CreateInstallOptions();
+
+                installOptions.PackageInstallScope(PackageInstallScope::Any);
+                installOptions.PackageInstallMode(PackageInstallMode::Silent);
+
+                std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
+                auto installResult = packageManager.InstallPackageAsync(package, installOptions).get();
+
+                if (installResult.Status() != InstallResultStatus::Ok)
+                {
+                    hr = installResult.ExtendedErrorCode();
+                    error = "Error installing package";
+                    return;
+                }
             }
         }
         catch (const winrt::hresult_error& hre)
