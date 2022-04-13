@@ -102,12 +102,14 @@ Function Install-WinGetPackage
     )
     BEGIN
     {
+        $WinGetInstallArgs = @{}
         [string[]] $WinGetArgs  = "Install"
         IF($PSBoundParameters.ContainsKey('Filter')){
             IF($Local) {
                 $WinGetArgs += "--Manifest"
             }
             $WinGetArgs += $Filter
+            $WinGetInstallArgs.Add('Filter', $Filter)
         }
         IF($PSBoundParameters.ContainsKey('Name')){
             $WinGetArgs += "--Name", $Name
@@ -155,6 +157,7 @@ Function Install-WinGetPackage
     PROCESS
     {
         ## Exact, ID and Source - Talk with Demitrius tomorrow to better understand this.
+        ## Passing null/empty params to Find-WinGetPackage breaks it. TODO: Replace with parameter hash table
         IF(!$Local) {
             $Result = Find-WinGetPackage -Filter $Filter -Name $Name -Id $Id -Moniker $Moniker -Tag $Tag -Command $Command -Source $Source
         }
