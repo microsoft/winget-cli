@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
                 AICLI_LOG(CLI, Error, << "Get entitlement succeeded. Server error. ProductId: " << Utility::ConvertToUTF8(productId));
             }
-            return entitlementStatus == GetEntitlementStatus::Succeeded || entitlementStatus == GetEntitlementStatus::NoStoreAccount;
+            return enr.Status() == GetEntitlementStatus::Succeeded || enr.Status() == GetEntitlementStatus::NoStoreAccount;
         }
     }
 
@@ -159,7 +159,7 @@ namespace AppInstaller::CLI::Workflow
         AppInstallItem installItem = installManager.SearchForUpdatesAsync(
             productId,          // ProductId
             winrt::hstring()    // SkuId
-            ).get();
+        ).get();
 
         if (!installItem)
         {
