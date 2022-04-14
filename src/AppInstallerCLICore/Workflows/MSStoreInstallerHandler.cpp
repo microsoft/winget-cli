@@ -87,7 +87,7 @@ namespace AppInstaller::CLI::Workflow
             else if (enr.Status() == GetEntitlementStatus::NoStoreAccount)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementNoStoreAccount << std::endl;
-                AICLI_LOG(CLI, Error, << "Get entitlement failed. No Store account.");
+                AICLI_LOG(CLI, Error, << "Get entitlement failed, no Store account. However, that is okay as the app is free.");
             }
             else if (enr.Status() == GetEntitlementStatus::NetworkError)
             {
@@ -99,8 +99,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
                 AICLI_LOG(CLI, Error, << "Get entitlement succeeded. Server error. ProductId: " << Utility::ConvertToUTF8(productId));
             }
-
-            return enr.Status() == GetEntitlementStatus::Succeeded;
+            return entitlementStatus == GetEntitlementStatus::Succeeded || entitlementStatus == GetEntitlementStatus::NoStoreAccount;
         }
     }
 
