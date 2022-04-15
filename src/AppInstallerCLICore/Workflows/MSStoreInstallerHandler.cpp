@@ -92,7 +92,7 @@ namespace AppInstaller::CLI::Workflow
             return GetSuccessOfEntitlementRequest(context, productId, enr, "Device");
         }
 
-        bool GetSuccessOfEntitlementRequest(Execution::Context& context, const std::wstring& productId, GetEntitlementResult enr, std::string entitlementType)
+        bool GetSuccessOfEntitlementRequest(Execution::Context& context, const std::wstring& productId, GetEntitlementResult enr, std::string_view entitlementType)
         {
             if (enr.Status() == GetEntitlementStatus::Succeeded)
             {
