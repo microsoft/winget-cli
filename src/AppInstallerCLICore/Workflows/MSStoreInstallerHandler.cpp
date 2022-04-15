@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Workflow
             if (enr.Status() == GetEntitlementStatus::Succeeded)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementSuccess << std::endl;
-                AICLI_LOG(CLI, Error, << "Get " + entitlementType + " entitlement succeeded.");
+                AICLI_LOG(CLI, Error, << "Get " << entitlementType << " entitlement succeeded.");
             }
             else if (enr.Status() == GetEntitlementStatus::NoStoreAccount)
             {
