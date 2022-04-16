@@ -468,12 +468,21 @@ namespace AppInstaller::CLI::Workflow
             auto previousThreadGlobals = installContext.SetForCurrentThread();
 
             installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
-            if (!m_ignorePackageDependencies)
+
+            // Prevent individual exceptions from breaking out of the loop
+            try
             {
-                installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
+                if (!m_ignorePackageDependencies)
+                {
+                    installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
+                }
+                installContext << Workflow::DownloadInstaller;
+                installContext << Workflow::InstallPackageInstaller;
             }
-            installContext << Workflow::DownloadInstaller;
-            installContext << Workflow::InstallPackageInstaller;
+            catch (...)
+            {
+                installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
+            }
 
             installContext.Reporter.Info() << std::endl;
 

@@ -129,6 +129,7 @@ jobs:
     inputs:
       Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
       TargetFolder: '$(artifactsDir)'
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
@@ -238,6 +239,7 @@ jobs:
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
       TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run Com Interface Tests
@@ -270,9 +272,11 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
     inputs:
-      Contents: '$(buildOutDir)\WinGetUtil\WinGetUtil.dll
-                 $(buildOutDir)\WinGetUtil\WinGetUtil.pdb'
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+          $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
       TargetFolder: '$(artifactsDir)'
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
@@ -291,7 +295,7 @@ jobs:
   - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
-      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\AppInstaller*CLI.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" --config default --recurse'
+      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\win*get.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" "$(System.DefaultWorkingDirectory)\src\Windows*PackageManager.dll" "$(System.DefaultWorkingDirectory)\src\Microsoft.Management.Deployment.*InProc.dll" --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
