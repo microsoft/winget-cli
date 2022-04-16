@@ -149,9 +149,6 @@ namespace AppInstaller::Utility
     // Gets the file name part of the given URI.
     std::filesystem::path GetFileNameFromURI(std::string_view uri);
 
-    // Returns a value indicating whether a string has the provided suffix.
-    bool HasSuffix(const std::string& str, const std::string& suffix);
-
     // Converts a container to a string representation of it.
     template <typename T, typename U>
     std::string ConvertContainerToString(const T& container, U toString)

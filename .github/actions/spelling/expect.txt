@@ -217,7 +217,6 @@ llvm
 localhost
 localizationpriority
 LPBYTE
-lpdw
 LPDWORD
 LPWSTR
 LSTATUS

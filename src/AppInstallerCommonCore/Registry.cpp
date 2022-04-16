@@ -422,6 +422,21 @@ namespace AppInstaller::Registry
         }
     }
 
+    void Key::SetValue(const std::wstring& name, const std::wstring& value, DWORD type) const
+    {
+        THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>(sizeof(wchar_t) * (value.size() + 1))));
+    }
+
+    void Key::SetValue(const std::wstring& name, const std::vector<BYTE>& value, DWORD type) const
+    {
+        THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.data()), static_cast<DWORD>(value.size())));
+    }
+
+    void Key::SetValue(const std::wstring& name, DWORD value) const
+    {
+        THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(DWORD)));
+    }
+
     ValueList Key::Values() const
     {
         return { m_key };
@@ -439,37 +454,36 @@ namespace AppInstaller::Registry
         return result;
     }
 
-    Key Key::CreateKeyAndOpen(HKEY key, std::string_view subKey, DWORD options, REGSAM access)
+    Key Key::Create(HKEY key, std::string_view subKey, DWORD options, REGSAM access)
     {
-        return CreateKeyAndOpen(key, Utility::ConvertToUTF16(subKey), options, access);
+        return Create(key, Utility::ConvertToUTF16(subKey), options, access);
     }
 
-    Key Key::CreateKeyAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
+    Key Key::Create(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
     {
         Key result;
-        result.Create(key, subKey, options, access);
+        result.CreateAndOpen(key, subKey, options, access);
         return result;
     }
 
-    bool Key::DeleteKey(HKEY key, std::string_view subKey, DWORD samDesired)
+    void Key::Delete(HKEY key, std::string_view subKey, DWORD samDesired)
     {
-        return DeleteKey(key, Utility::ConvertToUTF16(subKey), samDesired);
+        Delete(key, Utility::ConvertToUTF16(subKey), samDesired);
     }
 
-    bool Key::DeleteKey(HKEY key, const std::wstring& subKey, DWORD samDesired)
+    void Key::Delete(HKEY key, const std::wstring& subKey, DWORD samDesired)
     {
         LSTATUS status = RegDeleteKeyExW(key, subKey.c_str(), samDesired, 0);
         if (status == ERROR_SUCCESS)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");
-            return true;
+            return;
         }
 
         THROW_IF_WIN32_ERROR(status);
-        return false;
     }
 
-    bool Key::Create(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
+    bool Key::CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
     {
         m_access = access;
         LPDWORD lpdwDisposition = {};
@@ -486,30 +500,6 @@ namespace AppInstaller::Registry
 
         THROW_IF_WIN32_ERROR(status);
         return true;
-    }
-
-    bool Key::TrySetRegistryValue(wil::shared_hkey key, const std::wstring& name, const std::wstring& value, DWORD& dwType)
-    {
-        LSTATUS status;
-        if (name.empty())
-        {
-            status = RegSetValueExW(key.get(), NULL, 0, dwType, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1) * sizeof(wchar_t));
-        }
-        else
-        {
-            status = RegSetValueExW(key.get(), name.c_str(), 0, dwType, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1) * sizeof(wchar_t));
-        }
-
-        if (status == ERROR_SUCCESS)
-        {
-            AICLI_LOG(Core, Verbose, << "Set registry name '" << Utility::ConvertToUTF8(name) << "' with the value '" << Utility::ConvertToUTF8(value));
-            return true;
-        }
-        else
-        {
-            AICLI_LOG(Core, Verbose, << "Failed to set name value '" << Utility::ConvertToUTF8(name));
-            return false;
-        }
     }
 
     bool Key::Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist)

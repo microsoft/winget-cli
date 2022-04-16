@@ -251,11 +251,10 @@ namespace AppInstaller::Registry
         std::optional<Key> SubKey(std::string_view name, DWORD options = 0) const;
         std::optional<Key> SubKey(const std::wstring& name, DWORD options = 0) const;
 
-        template <typename T>
-        bool SetKeyValue(const std::wstring& name, const std::wstring& value, T dwType)
-        {
-            return TrySetRegistryValue(m_key, name, value, dwType);
-        }
+        // Set registry values.
+        void SetValue(const std::wstring& name, const std::wstring& value, DWORD type = REG_SZ) const;
+        void SetValue(const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY) const;
+        void SetValue(const std::wstring& name, DWORD value) const;
 
         ValueList Values() const;
 
@@ -266,21 +265,19 @@ namespace AppInstaller::Registry
         static Key OpenIfExists(HKEY key, const std::wstring& subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
 
         // Creates a new Key or returns one if it already existed. 
-        static Key CreateKeyAndOpen(HKEY key, std::string_view subkey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
-        static Key CreateKeyAndOpen(HKEY key, const std::wstring& subKey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
+        static Key Create(HKEY key, std::string_view subkey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
+        static Key Create(HKEY key, const std::wstring& subKey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
 
         // Delete a key
-        static bool DeleteKey(HKEY key, std::string_view subkey = {}, DWORD samDesired = KEY_WOW64_64KEY);
-        static bool DeleteKey(HKEY key, const std::wstring& subKey = {}, DWORD samDesired = KEY_WOW64_64KEY);
+        static void Delete(HKEY key, std::string_view subkey = {}, DWORD samDesired = KEY_WOW64_64KEY);
+        static void Delete(HKEY key, const std::wstring& subKey = {}, DWORD samDesired = KEY_WOW64_64KEY);
 
     private:
         // When ignoring error, returns whether the key existed
         bool Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
 
         // Returns whether the key was created successfully.
-        bool Create(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access);
-
-        bool TrySetRegistryValue(wil::shared_hkey key, const std::wstring& name, const std::wstring& value, DWORD& dwType);
+        bool CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access);
 
         wil::shared_hkey m_key;
         REGSAM m_access = KEY_READ;

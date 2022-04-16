@@ -6,70 +6,57 @@
 
 namespace AppInstaller::Filesystem
 {
-    namespace
+    DWORD GetVolumeInformationFlagsByHandle(HANDLE anyFileHandle)
     {
-        DWORD CALLBACK CopyFileProgressCallback(
-            LARGE_INTEGER TotalFileSize,
-            LARGE_INTEGER TotalBytesTransferred,
-            LARGE_INTEGER StreamSize,
-            LARGE_INTEGER StreamBytesTransferred,
-            DWORD dwStreamNumber,
-            DWORD dwCallbackReason,
-            HANDLE hSourceFile,
-            HANDLE hDestinationFile,
-            LPVOID lpData
-        )
+        DWORD flags = 0;
+        wchar_t fileSystemName[MAX_PATH];
+        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
+            anyFileHandle, /*hFile*/
+            NULL, /*lpVolumeNameBuffer*/
+            0, /*nVolumeNameSize*/
+            NULL, /*lpVolumeSerialNumber*/
+            NULL, /*lpMaximumComponentLength*/
+            &flags, /*lpFileSystemFlags*/
+            fileSystemName, /*lpFileSystemNameBuffer*/
+            MAX_PATH /*nFileSystemNameSize*/));
+
+        // Vista and older does not report all flags, fix them up here
+        if (!(flags & FILE_SUPPORTS_HARD_LINKS) && !_wcsicmp(fileSystemName, L"NTFS"))
         {
-            UNREFERENCED_PARAMETER(StreamSize);
-            UNREFERENCED_PARAMETER(StreamBytesTransferred);
-            UNREFERENCED_PARAMETER(hSourceFile);
-            UNREFERENCED_PARAMETER(hDestinationFile);
-
-            ProgressCallback callback = static_cast<ProgressCallback>((ProgressCallback*)lpData);
-
-            if (callback.IsCancelled())
-            {
-                return PROGRESS_CANCEL;
-            }
-
-            if (dwCallbackReason == CALLBACK_STREAM_SWITCH || dwStreamNumber == 1)
-            {
-                callback.BeginProgress();
-            }
-
-            if (dwCallbackReason == CALLBACK_CHUNK_FINISHED)
-            {
-                callback.OnProgress(TotalBytesTransferred.QuadPart, TotalFileSize.QuadPart, AppInstaller::ProgressType::Percent);
-            }
-
-            if (TotalBytesTransferred.QuadPart == TotalFileSize.QuadPart)
-            {
-                callback.EndProgress(true);
-            }
-
-            return PROGRESS_CONTINUE;
+            flags |= FILE_SUPPORTS_HARD_LINKS | FILE_SUPPORTS_EXTENDED_ATTRIBUTES | FILE_SUPPORTS_OPEN_BY_FILE_ID | FILE_SUPPORTS_USN_JOURNAL;
         }
+
+        return flags;
     }
 
-    void CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link)
+    DWORD GetVolumeInformationFlags(const std::filesystem::path& anyPath)
     {
-        if (std::filesystem::exists(link))
-        {
-            std::filesystem::remove(link);
-        }
+        wil::unique_hfile fileHandle{ CreateFileW(
+            anyPath.c_str(), /*lpFileName*/
+            0, /*dwDesiredAccess*/
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, /*dwShareMode*/
+            NULL, /*lpSecurityAttributes*/
+            OPEN_EXISTING, /*dwCreationDisposition*/
+            FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
+            NULL /*hTemplateFile*/) };
 
-        std::filesystem::create_symlink(target, link);
+        THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
+
+        return GetVolumeInformationFlagsByHandle(fileHandle.get());
     }
 
-    HRESULT CopyFileWithProgressCallback(const std::filesystem::path& from, const std::filesystem::path& to, IProgressCallback& progress)
+    bool SupportsNamedStreams(const std::filesystem::path& path)
     {
-        bool result = CopyFileExW(from.c_str(), to.c_str(), &AppInstaller::Filesystem::CopyFileProgressCallback, &progress, FALSE, 0);
-        DWORD exitCode = 0;
-        if (!result)
-        {
-            exitCode = GetLastError();
-        }
+        return (GetVolumeInformationFlags(path) & FILE_NAMED_STREAMS) != 0;
+    }
 
-        return HRESULT_FROM_WIN32(exitCode);
+    bool SupportsHardLinks(const std::filesystem::path& path)
+    {
+        return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_HARD_LINKS) != 0;
+    }
+
+    bool SupportsReparsePoints(const std::filesystem::path& path)
+    {
+        return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 }

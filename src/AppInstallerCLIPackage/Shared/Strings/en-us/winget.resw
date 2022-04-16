@@ -1290,4 +1290,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
     <value>Path environment variable modified. Restart your shell to enable execution of portable packages from the command line.</value>
   </data>
+  <data name="ProductCodeArgumentDescrption" xml:space="preserve">
+    <value>Filters uninstalls using the product code as the identifier</value>
+  </data>
 </root>

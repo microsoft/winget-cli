@@ -10,10 +10,12 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
+#include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Filesystem;
 
 namespace AppInstaller::Utility
 {

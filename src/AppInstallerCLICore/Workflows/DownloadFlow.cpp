@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
+#include "winget/Filesystem.h"
 
 #include <AppInstallerMsixInfo.h>
 
@@ -166,7 +167,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // 4. Attempt to use a hard link if available.
-            if (Runtime::SupportsHardLinks(from))
+            if (Filesystem::SupportsHardLinks(from))
             {
                 try
                 {

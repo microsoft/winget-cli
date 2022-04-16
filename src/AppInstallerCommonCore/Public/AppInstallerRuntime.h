@@ -48,11 +48,11 @@ namespace AppInstaller::Runtime
         // The value of %USERPROFILE%.
         UserProfile,
         // The location where portable packages are installed to with user scope.
-        PortableAppUserRoot,
+        PortablePackageUserRoot,
         // The location where portable packages are installed to with machine scope (x64).
-        PortableAppMachineRootX64,
+        PortablePackageMachineRootX64,
         // The location where portable packages are installed to with machine scope (x86).
-        PortableAppMachineRootX86,
+        PortablePackageMachineRootX86,
         // The location where symlinks to portable packages are stored under user scope.
         PortableLinksUserLocation,
         // The location where symlinks to portable packages are stored under machine scope (x64).
@@ -72,12 +72,6 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
-
-    // Checks if the file system at path supports named streams/ADS
-    bool SupportsNamedStreams(const std::filesystem::path& path);
-
-    // Checks if the file system at path supports hard links
-    bool SupportsHardLinks(const std::filesystem::path& path);
 
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild();

@@ -135,6 +135,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EnsureFeatureEnabledForPortableInstall(Execution::Context& context)
+    {
+        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+
+        if (installerType == InstallerTypeEnum::Portable)
+        {
+            context << Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::PortableInstall);
+        }
+    }
+
     void ShowPackageAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -262,6 +272,11 @@ namespace AppInstaller::CLI::Workflow
             if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
             {
                 context << PortableInstall;
+                if (context.IsTerminated())
+                {
+                    // TODO: Call uninstall flow for portable when implemented.
+                }
+
                 break;
             }
             [[fallthrough]];
@@ -284,28 +299,6 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
-    }
-
-    void PortableInstall(Execution::Context& context) 
-    {
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-        auto installResult = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
-            {
-                return PortableCopyExeInstall(context, callback);
-            });
-
-        HRESULT exitCode = installResult.value();
-        if (exitCode != S_OK)
-        {
-            context << ReportInstallerResult("PortableInstall"sv, exitCode, true);
-            AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-
-        context <<
-            CreatePortableSymlink <<
-            PortableRegistryInstall <<
-            ReportInstallerResult("PortableInstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -424,6 +417,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            Workflow::EnsureFeatureEnabledForPortableInstall <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

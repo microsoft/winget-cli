@@ -5,15 +5,9 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Copies the portable to the appropriate install location and creates a symlink.
+    // Installs the portable package.
     // Required Args: None
-    // Inputs: Manifest, InstallerPath, AppsAndFeaturesEntry
-    // Outputs: OperationReturnCode
-    std::optional<HRESULT> PortableCopyExeInstall(Execution::Context& context, IProgressCallback& progress);
-
-    void PortableRegistryInstall(Execution::Context& context);
-
-    void CreatePortableSymlink(Execution::Context& context);
-
-    std::filesystem::path GetPortableTargetFullPath(Execution::Context& context);
+    // Inputs: Manifest, Scope, Rename, Location
+    // Outputs: None
+    void PortableInstall(Execution::Context& context);
 }
