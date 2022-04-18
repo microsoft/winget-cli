@@ -35,7 +35,7 @@ TEST_CASE("CreateKeyAndDelete", "[registry]")
     wil::unique_hkey root = RegCreateVolatileTestRoot();
     Key key = Key::Create(root.get(), subkey, REG_OPTION_VOLATILE);
     REQUIRE(key);
-    Key::Delete(root.get(), subkey);
+    Key::Delete(root.get(), subkey, KEY_WOW64_64KEY);
     Key secondKey = Key::OpenIfExists(root.get(), subkey);
     REQUIRE(!secondKey);
 }
