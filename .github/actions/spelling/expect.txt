@@ -317,6 +317,7 @@ Redist
 REFIID
 regexes
 REGSAM
+reparse
 restsource
 rgex
 rhs

@@ -269,8 +269,8 @@ namespace AppInstaller::Registry
         static Key Create(HKEY key, const std::wstring& subKey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
 
         // Delete a key
-        static void Delete(HKEY key, std::string_view subkey = {}, DWORD samDesired = KEY_WOW64_64KEY);
-        static void Delete(HKEY key, const std::wstring& subKey = {}, DWORD samDesired = KEY_WOW64_64KEY);
+        static void Delete(HKEY key, std::string_view subkey, DWORD samDesired);
+        static void Delete(HKEY key, const std::wstring& subKey, DWORD samDesired);
 
     private:
         // When ignoring error, returns whether the key existed

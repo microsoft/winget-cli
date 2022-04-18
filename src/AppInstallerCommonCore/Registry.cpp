@@ -486,14 +486,14 @@ namespace AppInstaller::Registry
     bool Key::CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
     {
         m_access = access;
-        LPDWORD lpdwDisposition = {};
-        LSTATUS status = RegCreateKeyExW(key, subKey.c_str(), 0, nullptr, options, access, NULL, &m_key, lpdwDisposition);
+        LPDWORD disposition = {};
+        LSTATUS status = RegCreateKeyExW(key, subKey.c_str(), 0, nullptr, options, access, NULL, &m_key, disposition);
 
-        if (lpdwDisposition == (LPDWORD)REG_CREATED_NEW_KEY)
+        if (disposition == (LPDWORD)REG_CREATED_NEW_KEY)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was created.");
         }
-        else if (lpdwDisposition == (LPDWORD)REG_OPENED_EXISTING_KEY)
+        else if (disposition == (LPDWORD)REG_OPENED_EXISTING_KEY)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' already existed and was opened.");
         }
