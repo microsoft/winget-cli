@@ -13,4 +13,7 @@ namespace AppInstaller::Filesystem
 
     // Checks if the file system at path support reparse points
     bool SupportsReparsePoints(const std::filesystem::path& path);
+
+    // Checks that the path does not contain any reserved words.
+    bool IsNonReservedFilename(const std::filesystem::path& path);
 }

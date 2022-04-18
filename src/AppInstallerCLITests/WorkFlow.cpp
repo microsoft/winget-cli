@@ -540,21 +540,14 @@ void OverrideForPortableInstall(TestContext& context)
 
     OverrideForUpdateInstallerMotw(context);
 
-    //context.Override({ CreatePortableSymlink , [](TestContext&)
-    //{
-    //    std::filesystem::path temp = std::filesystem::temp_directory_path();
-    //    temp /= "TestPortableSymlinkCreated.txt";
-    //    std::ofstream file(temp, std::ofstream::out);
-    //    file.close();
-    //} });
-
-    //context.Override({ PortableRegistryInstall, [](TestContext&)
-    //{
-    //    std::filesystem::path temp = std::filesystem::temp_directory_path();
-    //    temp /= "TestPortableWriteToRegistry.txt";
-    //    std::ofstream file(temp, std::ofstream::out);
-    //    file.close();
-    //} });
+    context.Override({ PortableInstall, [](TestContext&)
+    {
+        // Write out the install command
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPortableInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file.close();
+    } });
 }
 
 void OverrideForDirectMsi(TestContext& context)
@@ -904,12 +897,10 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
-// Write workflow tests for portable here:
 TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
-    TestCommon::TempFile portableSymlinkInstallResultPath("TestPortableSymlinkCreated.txt");
-    TestCommon::TempFile portableRegistryInstallResultPath("TestPortableWriteToRegistry.txt");
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFPortableInstall>(true);
@@ -925,10 +916,7 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify portable install flows are called.
-    //REQUIRE(std::filesystem::exists(GetPortableTargetFullPath(context)));
-    REQUIRE(std::filesystem::exists(portableSymlinkInstallResultPath.GetPath()));
-    REQUIRE(std::filesystem::exists(portableRegistryInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")

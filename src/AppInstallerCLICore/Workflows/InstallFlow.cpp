@@ -135,16 +135,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureFeatureEnabledForPortableInstall(Execution::Context& context)
-    {
-        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
-
-        if (installerType == InstallerTypeEnum::Portable)
-        {
-            context << Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::PortableInstall);
-        }
-    }
-
     void ShowPackageAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -271,7 +261,9 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Portable:
             if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
             {
-                context << PortableInstall;
+                context <<
+                    EnsureNonReservedNamesForPortableInstall <<
+                    PortableInstall;
                 if (context.IsTerminated())
                 {
                     // TODO: Call uninstall flow for portable when implemented.

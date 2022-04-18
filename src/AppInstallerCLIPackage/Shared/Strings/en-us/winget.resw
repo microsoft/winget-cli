@@ -1293,4 +1293,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ProductCodeArgumentDescrption" xml:space="preserve">
     <value>Filters uninstalls using the product code as the identifier</value>
   </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>The volume does not support reparse points</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>The specified filename contains a reserved name</value>
+  </data>
 </root>

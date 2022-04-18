@@ -20,15 +20,15 @@
 	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
   -->
   <TestRunParameters>
-	  <Parameter name="PackagedContext" value="false" />
-	  <Parameter name="VerboseLogging" value="true" />
-	  <Parameter name="AICLIPath" value="C:\Users\ryfu\git\ryfu-msft\winget-cli\src\x64\Debug\AppInstallerCLI\winget.exe" />
+	  <Parameter name="PackagedContext" value="true" />
+	  <Parameter name="VerboseLogging" value="false" />
+	  <Parameter name="AICLIPath" value="AppInst.exe" />
 	  <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
 	  <Parameter name="LooseFileRegistration" value="false" />
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
-	  <Parameter name="StaticFileRootPath" value="C:\Users\ryfu\AppData\Local\Temp\TestLocalIndex" />
+	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
 	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
-	  <Parameter name="ExeTestInstallerPath" value="C:\Users\ryfu\git\ryfu-msft\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
-	  <Parameter name="PackageCertificatePath" value="C:\Users\ryfu\Downloads\AppInstallerTest.pfx"/>
+	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
+	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
   </TestRunParameters>
 </RunSettings>

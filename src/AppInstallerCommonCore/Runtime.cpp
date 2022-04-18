@@ -24,8 +24,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
-        constexpr std::string_view s_PortablePackageUserRoot = "Microsoft/WinGet"sv;
-        constexpr std::string_view s_PortablePackageMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_PortablePackageUserRoot_Base = "Microsoft"sv;
+        constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
@@ -349,7 +349,8 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortablePackageUserRoot;
+                    result /= s_PortablePackageUserRoot_Base;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
@@ -359,7 +360,7 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortablePackageMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
@@ -369,26 +370,27 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortablePackageMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
             case PathName::PortableLinksUserLocation:
                 result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result /= s_PortablePackageUserRoot;
+                result /= s_PortablePackageUserRoot_Base;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocationX64:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageMachineRoot;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocationX86:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                result /= s_PortablePackageMachineRoot;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;
@@ -442,7 +444,8 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortablePackageUserRoot;
+                    result /= s_PortablePackageUserRoot_Base;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
@@ -452,7 +455,7 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortablePackageMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
@@ -462,26 +465,27 @@ namespace AppInstaller::Runtime
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortablePackageMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
             case PathName::PortableLinksUserLocation:
                 result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result /= s_PortablePackageUserRoot;
+                result /= s_PortablePackageUserRoot_Base;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocationX64:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageMachineRoot;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocationX86:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                result /= s_PortablePackageMachineRoot;
+                result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
                 break;

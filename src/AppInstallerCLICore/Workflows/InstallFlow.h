@@ -84,7 +84,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MsixInstall(Execution::Context& context);
 
-    // Copies the portable exe to the specified install location and writes to the registry.
+    // Runs the flow for installing a Portable package.
     // Required Args: None
     // Inputs: Installer, InstallerPath
     // Outputs: None

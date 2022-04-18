@@ -10,4 +10,8 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest, Scope, Rename, Location
     // Outputs: None
     void PortableInstall(Execution::Context& context);
+
+    void EnsureNonReservedNamesForPortableInstall(Execution::Context& context);
+
+    void EnsureFeatureEnabledForPortableInstall(Execution::Context& context);
 }
