@@ -607,15 +607,21 @@ namespace AppInstaller::Repository
                 IPackageVersion* installedVersion,
                 PackageData& data)
             {
+                // Unfortunately the names and publishers are unique and not tied to each other strictly, so we need
+                // to go broad on the matches. Future work can hopefully make name and publisher operate more as a unit,
+                // but for now we have to search for the cartesian of these...
                 auto names = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Name);
                 auto publishers = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Publisher);
 
-                for (size_t i = 0; i < names.size() && i < publishers.size(); ++i)
+                for (size_t i = 0; i < names.size(); ++i)
                 {
-                    data.AddIfNotPresent(SystemReferenceString{
-                        PackageMatchField::NormalizedNameAndPublisher,
-                        std::move(names[i]),
-                        std::move(publishers[i]) });
+                    for (size_t j = 0; j < publishers.size(); ++j)
+                    {
+                        data.AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            names[i],
+                            publishers[j] });
+                    }
                 }
             }
         };
