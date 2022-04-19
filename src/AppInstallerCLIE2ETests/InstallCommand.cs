@@ -214,10 +214,11 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             //Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
-            Assert.True(VerifyPortableMove(installDir, packageId, fileName), "Portable exe not found");
-            Assert.True(VerifySymlink(commandAlias), "Symlink not found/created");
             Assert.True(VerifyUninstallRegistry(productCode), "Uninstall registry not created");
             Assert.True(VerifyPathAdded(), "Path not added correctly");
+            Assert.True(VerifyPortableMove(installDir, packageId, fileName), "Portable exe not found");
+            Assert.True(VerifySymlink(commandAlias), "Symlink not found/created");
+
         }
 
         [Test]
@@ -244,7 +245,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-            renameArgValue = "test!#?&";
+            renameArgValue = "test?";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -307,7 +308,8 @@ namespace AppInstallerCLIE2ETests
         {
             bool isExeMoved = false;
             string installPackageRoot = Path.Combine(installDir, packageId);
-            if (File.Exists(Path.Combine(installPackageRoot, expectedFileName)))
+            string expectedPath = Path.Combine(installPackageRoot, expectedFileName);
+            if (File.Exists(expectedPath))
             {
                 isExeMoved = true;
                 DirectoryInfo di = new DirectoryInfo(installDir);
@@ -321,7 +323,7 @@ namespace AppInstallerCLIE2ETests
                     dir.Delete(true);
                 }
             }
-
+            Assert.True(isExeMoved, expectedPath);
             return isExeMoved;
         }
 
@@ -338,6 +340,7 @@ namespace AppInstallerCLIE2ETests
                 File.Delete(symlinkPath);
             }
 
+            Assert.True(isSymlinkCreated, symlinkPath);
             return isSymlinkCreated;
         }
 
