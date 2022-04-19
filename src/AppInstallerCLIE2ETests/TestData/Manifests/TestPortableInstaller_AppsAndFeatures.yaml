@@ -14,5 +14,7 @@ Installers:
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
     InstallerType: portable
     InstallerSha256: <EXEHASH>
+    Commands:
+     - testAppsAndFeatures
 ManifestType: singleton
 ManifestVersion: 1.2.0

@@ -425,6 +425,7 @@ namespace AppInstaller::Registry
     void Key::SetValue(const std::wstring& name, const std::wstring& value, DWORD type) const
     {
         THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>(sizeof(wchar_t) * (value.size() + 1))));
+        AICLI_LOG(Core, Verbose, << "Setting '" << Utility::ConvertToUTF8(name) << "' with the value '" << Utility::ConvertToUTF8(value));
     }
 
     void Key::SetValue(const std::wstring& name, const std::vector<BYTE>& value, DWORD type) const

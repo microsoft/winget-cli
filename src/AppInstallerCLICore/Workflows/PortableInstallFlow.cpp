@@ -304,21 +304,20 @@ namespace AppInstaller::CLI::Workflow
                 {
                     isSamePackageSource = existingWinGetSourceId.value().GetValue<Value::Type::String>() == sourceIdentifier;
                 }
-            }
 
-            // If the entry is not new package and fails packageId or sourceId check, then show error and return.
-            if (!isNewEntry && (!isSamePackageId || !isSamePackageSource))
-            {
-                if (!context.Args.Contains(Execution::Args::Type::PortableOverride))
+                if (!isSamePackageId || !isSamePackageSource)
                 {
-                    AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
-                    context.Reporter.Error() << Resource::String::PortableRegistryCollisionOverrideRequired << std::endl;
-                    return NULL;
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Overriding registry match check...");
-                    context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                    if (!context.Args.Contains(Execution::Args::Type::PortableOverride))
+                    {
+                        AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
+                        context.Reporter.Error() << Resource::String::PortableRegistryCollisionOverrideRequired << std::endl;
+                        return NULL;
+                    }
+                    else
+                    {
+                        AICLI_LOG(CLI, Info, << "Overriding registry match check...");
+                        context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                    }
                 }
             }
 

@@ -173,7 +173,12 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            //Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            Assert.True(VerifyPortableMove(installDir, packageId, fileName), "Portable exe not found");
+            Assert.True(VerifySymlink(commandAlias), "Symlink not found/created");
+            Assert.True(VerifyUninstallRegistry(productCode), "Uninstall registry not created");
+            Assert.True(VerifyPathAdded(), "Path not added correctly");
+
         }
 
         [Test]
@@ -188,7 +193,11 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            //Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            Assert.True(VerifyPortableMove(installDir, packageId, fileName), "Portable exe not found");
+            Assert.True(VerifySymlink(commandAlias), "Symlink not found/created");
+            Assert.True(VerifyUninstallRegistry(productCode), "Uninstall registry not created");
+            Assert.True(VerifyPathAdded(), "Path not added correctly");
         }
 
         [Test]
@@ -198,12 +207,17 @@ namespace AppInstallerCLIE2ETests
             string packageId, commandAlias, fileName, productCode;
             packageId = "AppInstallerTest.TestPortableAppsAndFeatures";
             productCode = "testProductCode";
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testAppsAndFeatures.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            //Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
+            Assert.True(VerifyPortableMove(installDir, packageId, fileName), "Portable exe not found");
+            Assert.True(VerifySymlink(commandAlias), "Symlink not found/created");
+            Assert.True(VerifyUninstallRegistry(productCode), "Uninstall registry not created");
+            Assert.True(VerifyPathAdded(), "Path not added correctly");
         }
 
         [Test]
@@ -217,7 +231,11 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, renameArgValue, renameArgValue, productCode));
+            //Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, renameArgValue, renameArgValue, productCode));
+            Assert.True(VerifyPortableMove(installDir, packageId, renameArgValue), "Portable exe not found");
+            Assert.True(VerifySymlink(renameArgValue), "Symlink not found/created");
+            Assert.True(VerifyUninstallRegistry(productCode), "Uninstall registry not created");
+            Assert.True(VerifyPathAdded(), "Path not added correctly");
         }
 
         [Test]
@@ -226,7 +244,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-            renameArgValue = "test!#%?&";
+            renameArgValue = "test!#?&";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -284,6 +302,85 @@ namespace AppInstallerCLIE2ETests
 
             return TestCommon.RemoveMsix(InstallTestMsixName);
         }
+        
+        private bool VerifyPortableMove(string installDir, string packageId, string expectedFileName)
+        {
+            bool isExeMoved = false;
+            string installPackageRoot = Path.Combine(installDir, packageId);
+            if (File.Exists(Path.Combine(installPackageRoot, expectedFileName)))
+            {
+                isExeMoved = true;
+                DirectoryInfo di = new DirectoryInfo(installDir);
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
+
+            return isExeMoved;
+        }
+
+
+        private bool VerifySymlink(string expectedCommandAlias)
+        {
+            bool isSymlinkCreated = false;
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, expectedCommandAlias);
+
+            if (File.Exists(symlinkPath))
+            {
+                isSymlinkCreated = true;
+                File.Delete(symlinkPath);
+            }
+
+            return isSymlinkCreated;
+        }
+
+        private bool VerifyUninstallRegistry(string expectedProductCode)
+        {
+            bool isWrittenToUninstallRegistry = false;
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall", true))
+            {
+                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(expectedProductCode, true);
+                if (installTestPortableSubkey != null)
+                {
+                    isWrittenToUninstallRegistry = true;
+                    uninstallRegistryKey.DeleteSubKey(expectedProductCode);
+                }
+
+                System.Console.WriteLine(installTestPortableSubkey.ToString());
+            }
+
+
+            return isWrittenToUninstallRegistry;
+        }
+
+        private bool VerifyPathAdded()
+        {
+            bool isAddedToPath = false;
+            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
+            {
+                string pathName = "Path";
+                var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+                var portablePathValue = symlinkDirectory + ';';
+
+                if (currentPathValue.Contains(portablePathValue))
+                {
+                    isAddedToPath = true;
+                    string initialPathValue = currentPathValue.Replace(portablePathValue, "");
+                    environmentRegistryKey.SetValue(pathName, initialPathValue);
+                }
+            }
+
+            return isAddedToPath;
+        }
+
 
         private bool VerifyTestPortableInstalledAndCleanup(
             string installDir,
@@ -325,7 +422,7 @@ namespace AppInstallerCLIE2ETests
 
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall", true))
             {
-                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(expectedProductCode);
+                var installTestPortableSubkey = uninstallRegistryKey.OpenSubKey(expectedProductCode, true);
                 if (installTestPortableSubkey != null)
                 {
                     isWrittenToUninstallRegistry = true;
