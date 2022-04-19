@@ -177,20 +177,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallPortableExeWithLocation()
-        {
-            var installDir = TestCommon.GetRandomTestDir();
-            string packageId, commandAlias, fileName, productCode;
-            packageId = productCode = "AppInstallerTest.TestPortableExe";
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
-
-            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestPortableInstalledAndCleanup(installDir, packageId, commandAlias, fileName, productCode));
-        }
-
-        [Test]
         public void InstallPortableExeWithCommand()
         {
             var installDir = TestCommon.GetRandomTestDir();
@@ -240,7 +226,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-            renameArgValue = "test!$%?Value";
+            renameArgValue = "test!#%?&";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);

@@ -20,9 +20,12 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_UninstallRegistryX64 = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
         constexpr std::wstring_view s_UninstallRegistryX86 = L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
 
-        constexpr std::wstring_view s_DisplayName = L"DisplayVersion";
+        constexpr std::wstring_view s_DisplayName = L"DisplayName";
         constexpr std::wstring_view s_DisplayVersion = L"DisplayVersion";
         constexpr std::wstring_view s_Publisher = L"Publisher";
+        constexpr std::wstring_view s_InstallDate = L"InstallDate";
+        constexpr std::wstring_view s_URLInfoAbout = L"URLInfoAbout";
+        constexpr std::wstring_view s_HelpLink = L"HelpLink";
         constexpr std::wstring_view s_UninstallString = L"UninstallString";
         constexpr std::wstring_view s_WinGetInstallerType = L"WinGetInstallerType";
         constexpr std::wstring_view s_InstallLocation = L"InstallLocation";
@@ -257,8 +260,11 @@ namespace AppInstaller::CLI::Workflow
             std::wstring displayVersion = ConvertToUTF16(entry.DisplayVersion);
             std::wstring publisher = ConvertToUTF16(entry.Publisher);
             std::wstring uninstallString = L"winget uninstall --product-code " + productCode;
-            std::string_view installerType = InstallerTypeToString(context.Get<Execution::Data::Installer>().value().InstallerType);
-            std::string packageIdentifier = context.Get<Execution::Data::Manifest>().Id;
+            std::wstring installerType = L"portable";
+            std::string packageIdentifier = manifest.Id;
+            std::string packageUrl = manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>();
+            std::string publisherSupportUrl = manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
+            std::string installDate = Utility::GetCurrentDate();
             std::filesystem::path targetFullPath = GetPortableTargetFullPath(context);
             std::filesystem::path symlinkFullPath = GetPortableSymlinkFullPath(context);
             std::filesystem::path linksDirectory = GetPortableLinksLocation(scope, arch);
@@ -300,23 +306,38 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (isNewEntry || isSamePackageId && isSamePackageSource)
+            // If the entry is not new package and fails packageId or sourceId check, then show error and return.
+            if (!isNewEntry && (!isSamePackageId || !isSamePackageSource))
             {
-                AICLI_LOG(CLI, Verbose, << "Begin writing to uninstall registry.");
-                uninstallEntry.SetValue(Normalize(s_DisplayName), displayName, REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_DisplayVersion), displayVersion, REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_Publisher), publisher, REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_UninstallString), uninstallString, REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_WinGetInstallerType), ConvertToUTF16(installerType), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_WinGetPackageIdentifier), ConvertToUTF16(packageIdentifier), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_WinGetSourceIdentifier), ConvertToUTF16(sourceIdentifier), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_InstallLocation), installLocation.wstring(), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_PortableTargetFullPath), targetFullPath.wstring(), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_PortableSymlinkFullPath), symlinkFullPath.wstring(), REG_SZ);
-                uninstallEntry.SetValue(Normalize(s_PortableLinksDirectory), linksDirectory.wstring(), REG_SZ);
-                AICLI_LOG(CLI, Verbose, << "Writing to Uninstall registry complete.");
+                if (!context.Args.Contains(Execution::Args::Type::PortableOverride))
+                {
+                    AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
+                    context.Reporter.Error() << Resource::String::PortableRegistryCollisionOverrideRequired << std::endl;
+                    return NULL;
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Overriding registry match check...");
+                    context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                }
             }
 
+            AICLI_LOG(CLI, Info, << "Begin writing to Uninstall registry.");
+            uninstallEntry.SetValue(Normalize(s_DisplayName), displayName, REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_DisplayVersion), displayVersion, REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_Publisher), publisher, REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_InstallDate), ConvertToUTF16(installDate), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_URLInfoAbout), ConvertToUTF16(packageUrl), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_HelpLink), ConvertToUTF16(publisherSupportUrl), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_UninstallString), uninstallString, REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_WinGetInstallerType), installerType, REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_WinGetPackageIdentifier), ConvertToUTF16(packageIdentifier), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_WinGetSourceIdentifier), ConvertToUTF16(sourceIdentifier), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_InstallLocation), installLocation.wstring(), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_PortableTargetFullPath), targetFullPath.wstring(), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_PortableSymlinkFullPath), symlinkFullPath.wstring(), REG_SZ);
+            uninstallEntry.SetValue(Normalize(s_PortableLinksDirectory), linksDirectory.wstring(), REG_SZ);
+            AICLI_LOG(CLI, Info, << "Writing to Uninstall registry complete.");
             return uninstallEntry;
         }
     }
@@ -349,6 +370,11 @@ namespace AppInstaller::CLI::Workflow
         try
         {
             Registry::Key entry = WritePortableEntryToUninstallRegistry(context);
+            if (entry == NULL)
+            {
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+            }
+
             const std::filesystem::path installerPath = context.Get<Execution::Data::InstallerPath>();
             std::filesystem::path targetFullPath = ConvertToUTF16(entry[Normalize(s_PortableTargetFullPath)].value().GetValue<Value::Type::String>());
             std::filesystem::path symlinkFullPath = ConvertToUTF16(entry[Normalize(s_PortableSymlinkFullPath)].value().GetValue<Value::Type::String>());

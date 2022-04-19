@@ -1293,6 +1293,15 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ProductCodeArgumentDescription" xml:space="preserve">
     <value>Filters uninstalls using the product code as the identifier</value>
   </data>
+  <data name="PortableOverrideArgumentDescription" xml:space="preserve">
+    <value>Overrides the existing portable package check (Portable)</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>A portable package with the same name but from a different source already exists; proceeding due to --portable-force</value>
+  </data>
+  <data name="PortableRegistryCollisionOverrideRequired" xml:space="preserve">
+    <value>A portable package with the same name but from a different source already exists; to overwrite the existing package use --portable-force</value>
+  </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>The volume does not support reparse points</value>
   </data>

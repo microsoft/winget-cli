@@ -94,6 +94,8 @@ namespace AppInstaller::CLI
             return Argument{ "preserve", NoAlias, Args::Type::Preserve, Resource::String::PreserveArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Wait:
             return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::PortableOverride:
+            return Argument{ "portable-force", NoAlias, Args::Type::PortableOverride, Resource::String::PortableOverrideArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         default:
