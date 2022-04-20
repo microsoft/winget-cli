@@ -382,14 +382,8 @@ namespace AppInstaller::Runtime
                 result /= s_LinksDirectory;
                 create = true;
                 break;
-            case PathName::PortableLinksMachineLocationX64:
+            case PathName::PortableLinksMachineLocation:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            case PathName::PortableLinksMachineLocationX86:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
                 result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
@@ -477,14 +471,8 @@ namespace AppInstaller::Runtime
                 result /= s_LinksDirectory;
                 create = true;
                 break;
-            case PathName::PortableLinksMachineLocationX64:
+            case PathName::PortableLinksMachineLocation:
                 result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            case PathName::PortableLinksMachineLocationX86:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
                 result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;

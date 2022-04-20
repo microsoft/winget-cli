@@ -259,19 +259,8 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
-            {
-                context <<
-                    EnsureNonReservedNamesForPortableInstall <<
-                    PortableInstall;
-                if (context.IsTerminated())
-                {
-                    // TODO: Call uninstall flow for portable when implemented.
-                }
-
-                break;
-            }
-            [[fallthrough]];
+            context << PortableInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -291,6 +280,33 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
+    }
+
+    void PortableInstall(Execution::Context& context)
+    {
+        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
+        {
+            try
+            {
+                context <<
+                    EnsureNonReservedNamesForPortableInstall <<
+                    PortableInstallImpl;
+            }
+            catch (...)
+            {
+                context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
+            }
+
+            if (context.IsTerminated())
+            {
+                // TODO: Call uninstall flow for portable when implemented.
+                context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+            }
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << std::endl;
+        }
     }
 
     void MsixInstall(Execution::Context& context)

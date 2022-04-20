@@ -55,10 +55,8 @@ namespace AppInstaller::Runtime
         PortablePackageMachineRootX86,
         // The location where symlinks to portable packages are stored under user scope.
         PortableLinksUserLocation,
-        // The location where symlinks to portable packages are stored under machine scope (x64).
-        PortableLinksMachineLocationX64,
-        // The location where symlinks to portable packages are stored under user scope (x86).
-        PortableLinksMachineLocationX86
+        // The location where symlinks to portable packages are stored under machine scope.
+        PortableLinksMachineLocation,
     };
 
     void SetRuntimePathStateName(std::string name);

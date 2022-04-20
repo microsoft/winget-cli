@@ -9,7 +9,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest, Scope, Rename, Location
     // Outputs: None
-    void PortableInstall(Execution::Context& context);
+    void PortableInstallImpl(Execution::Context& context);
 
     void EnsureNonReservedNamesForPortableInstall(Execution::Context& context);
 

@@ -3,6 +3,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using Microsoft.Win32;
     using NUnit.Framework;
     using System;
     using System.Diagnostics;
@@ -275,6 +276,45 @@ namespace AppInstallerCLIE2ETests
         public static bool RemoveMsix(string name)
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
+        }
+
+        public static void VerifyPortablePackage(
+            string installDir,
+            string packageId,
+            string commandAlias,
+            string filename,
+            string productCode,
+            bool shouldExist)
+        {
+            string exePath = Path.Combine(installDir, packageId, filename);
+            FileInfo exeFile = new FileInfo(exePath);
+            Assert.AreEqual(exeFile.Exists, shouldExist, $"Expected portable exe path: {exeFile}");
+
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+            FileInfo symlinkFile = new FileInfo(symlinkPath);
+            Assert.AreEqual(symlinkFile.Exists, shouldExist, $"Expected portable symlink path: {symlinkFile}");
+
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}", true))
+            {
+                Assert.AreEqual(uninstallRegistryKey != null, shouldExist, $"Expected uninstall subkey path: {uninstallRegistryKey.Name}");
+            }
+
+            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
+            {
+                string pathName = "Path";
+                var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                var portablePathValue = symlinkDirectory + ';';
+                bool isAddedToPath = currentPathValue.Contains(portablePathValue);
+                if (isAddedToPath)
+                {
+                    string initialPathValue = currentPathValue.Replace(portablePathValue, "");
+                    environmentRegistryKey.SetValue(pathName, initialPathValue);
+                }
+                Assert.AreEqual(isAddedToPath, shouldExist, $"Expected path variable: {portablePathValue}");
+            }
+
+            // TODO: Call uninstall command for cleanup when implemented
         }
 
         /// <summary>
