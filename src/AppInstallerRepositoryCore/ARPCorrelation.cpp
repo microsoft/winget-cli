@@ -288,12 +288,6 @@ namespace AppInstaller::Repository::Correlation
         }
 
         // We now have all of the package changes; time to report them.
-        // The set of cases we could have for changes to ARP:
-        //  0 packages  ::  No changes were detected to ARP, which could mean that the installer
-        //                  did not write an entry. It could also be a forced reinstall.
-        //  1 package   ::  Golden path; this should be what we installed.
-        //  2+ packages ::  We need to determine which package actually matches the one that we
-        //                  were installing.
         //
         // The set of cases we could have for finding packages based on the manifest:
         //  0 packages  ::  The manifest data does not match the ARP information.
@@ -317,11 +311,6 @@ namespace AppInstaller::Repository::Correlation
         else if (findByManifest.Matches.size() == 1)
         {
             result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
-        }
-        // If only a single ARP entry was changed and we found no matches, report that.
-        else if (findByManifest.Matches.empty() && changedArpEntries.size() == 1)
-        {
-            result.Package = changedArpEntries[0].Entry->GetInstalledVersion();
         }
         else
         {
