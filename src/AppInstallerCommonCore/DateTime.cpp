@@ -49,7 +49,7 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::string GetCurrentDate()
+    std::string GetCurrentDateForARP()
     {
         auto now = std::chrono::system_clock::now();
         std::time_t tt = std::chrono::system_clock::to_time_t(now);

@@ -40,7 +40,6 @@ namespace AppInstaller::CLI::Execution
             InstallScope,
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
-            PortableOverride, // Ignore registry checks when installing a portable package.
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
 

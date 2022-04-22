@@ -286,21 +286,34 @@ namespace AppInstaller::CLI::Workflow
     {
         if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PortableInstall))
         {
-            try
-            {
-                context <<
-                    EnsureNonReservedNamesForPortableInstall <<
-                    PortableInstallImpl;
-            }
-            catch (...)
-            {
-                context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
-            }
+            auto portableInstallContextPtr = context.CreateSubContext();
+            Execution::Context& portableInstallContext = *portableInstallContextPtr;
+            auto previousThreadGlobals = portableInstallContext.SetForCurrentThread();
 
-            if (context.IsTerminated())
+            portableInstallContext.Args.AddArg(Execution::Args::Type::InstallLocation, std::move(context.Args.GetArg(Execution::Args::Type::InstallLocation)));
+            portableInstallContext.Args.AddArg(Execution::Args::Type::InstallScope, std::move(context.Args.GetArg(Execution::Args::Type::InstallScope)));
+            portableInstallContext.Args.AddArg(Execution::Args::Type::Rename, std::move(context.Args.GetArg(Execution::Args::Type::Rename)));
+            
+            if (context.Args.Contains(Execution::Args::Type::HashOverride))
             {
-                // TODO: Call uninstall flow for portable when implemented.
-                context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+                portableInstallContext.Args.AddArg(Execution::Args::Type::HashOverride);
+            }
+            
+            if (context.Contains(Execution::Data::Source))
+            {
+                portableInstallContext.Add<Execution::Data::Source>(std::move(context.Get<Execution::Data::Source>()));
+            }
+            portableInstallContext.Add<Execution::Data::HashPair>(std::move(context.Get<Execution::Data::HashPair>()));
+            portableInstallContext.Add<Execution::Data::Installer>(std::move(context.Get<Execution::Data::Installer>()));
+            portableInstallContext.Add<Execution::Data::InstallerPath>(std::move(context.Get<Execution::Data::InstallerPath>()));
+            portableInstallContext.Add<Execution::Data::Manifest>(std::move(context.Get<Execution::Data::Manifest>()));
+
+            portableInstallContext << PortableInstallImpl;
+
+            if (portableInstallContext.IsTerminated())
+            {
+                context.Add<Execution::Data::OperationReturnCode>(portableInstallContext.GetTerminationHR());
+                context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
             }
         }
         else
@@ -425,9 +438,17 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureFeatureEnabledForPortableInstall <<
+            Workflow::EnsureSupportForPortableInstall <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
+    }
+
+    void EnsureSupportForPortableInstall(Execution::Context& context)
+    {
+        context <<
+            Workflow::EnsureFeatureEnabledForPortableInstall <<
+            Workflow::EnsureValidArgsForPortableInstall <<
+            Workflow::EnsureVolumeSupportsReparsePoints;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const

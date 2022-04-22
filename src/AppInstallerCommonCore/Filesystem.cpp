@@ -5,6 +5,7 @@
 
 namespace AppInstaller::Filesystem
 {
+    using namespace std::chrono_literals;
     using namespace std::string_view_literals;
 
     DWORD GetVolumeInformationFlagsByHandle(HANDLE anyFileHandle)
@@ -38,7 +39,7 @@ namespace AppInstaller::Filesystem
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, /*dwShareMode*/
             NULL, /*lpSecurityAttributes*/
             OPEN_EXISTING, /*dwCreationDisposition*/
-            FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
+            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, /*dwFlagsAndAttributes*/
             NULL /*hTemplateFile*/) };
 
         THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
@@ -61,28 +62,71 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool IsNonReservedFilename(const std::filesystem::path& path)
+    bool IsSuitableFilename(const std::filesystem::path& path)
     {
-        std::string filename= path.filename().u8string();
-        std::string extension = path.extension().u8string();
-        Utility::FindAndReplace(filename, extension, "");
+        std::string filename = path.stem().u8string();
+        return Utility::CaseInsensitiveEquals(AppInstaller::Utility::MakeSuitablePathPart(filename), filename);
+    }
 
-        auto lastChar = filename.back();
-        if (lastChar == '.' || lastChar == ' ')
+    // Complicated rename algorithm due to somewhat arbitrary failures.
+    // 1. First, try to rename.
+    // 2. Then, create an empty file for the target, and attempt to rename.
+    // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+    // 4. Attempt to use a hard link if available.
+    // 5. Copy the file if nothing else has worked so far.
+    void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to)
+    {
+        // 1. First, try to rename.
+        try
         {
-            return false;
+            // std::filesystem::rename() handles motw correctly if applicable.
+            std::filesystem::rename(from, to);
+            return;
         }
+        CATCH_LOG();
 
-        for (const auto& illegalName : {
-            "."sv, "CON"sv, "PRN"sv, "AUX"sv, "NUL"sv, "COM0"sv, "COM1"sv, "COM2"sv, "COM3"sv, "COM4"sv, "COM5"sv, "COM6"sv, "COM7"sv, "COM8"sv, "COM9"sv, "LPT0"sv,
-            "LPT1"sv, "LPT2"sv, "LPT3"sv, "LPT4"sv, "LPT5"sv, "LPT6"sv, "LPT7"sv, "LPT8"sv, "LPT9"sv })
+        // 2. Then, create an empty file for the target, and attempt to rename.
+        //    This seems to fix things in certain cases, so we do it.
+        try
         {
-            if (Utility::CaseInsensitiveEquals(filename, illegalName))
             {
-                return false;
+                std::ofstream targetFile{ to };
             }
+            std::filesystem::rename(from, to);
+            return;
+        }
+        CATCH_LOG();
+
+        // 3. Then, try repeatedly for 500ms in case it is a timing thing.
+        for (int i = 0; i < 5; ++i)
+        {
+            try
+            {
+                std::this_thread::sleep_for(100ms);
+                std::filesystem::rename(from, to);
+                return;
+            }
+            CATCH_LOG();
         }
 
-        return true;
+        // 4. Attempt to use a hard link if available.
+        if (SupportsHardLinks(from))
+        {
+            try
+            {
+                // Create a hard link to the file; the installer will be left in the temp directory afterward
+                // but it is better to succeed the operation and leave a file around than to fail.
+                // First we have to remove the target file as the function will not overwrite.
+                std::filesystem::remove(to);
+                std::filesystem::create_hard_link(from, to);
+                return;
+            }
+            CATCH_LOG();
+        }
+
+        // 5. Copy the file if nothing else has worked so far.
+        // Create a copy of the file; the installer will be left in the temp directory afterward
+        // but it is better to succeed the operation and leave a file around than to fail.
+        std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 }

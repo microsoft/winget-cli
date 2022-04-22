@@ -8,6 +8,7 @@
 #include <string_view>
 #include <vector>
 
+#define AICLI_REGISTRY_UTF16_FLAG 0x08000000
 
 namespace AppInstaller::Registry
 {
@@ -42,9 +43,23 @@ namespace AppInstaller::Registry
         };
 
         template <>
+        struct ValueTypeSpecifics<REG_SZ | AICLI_REGISTRY_UTF16_FLAG>
+        {
+            using value_t = std::wstring;
+            static value_t Convert(const std::vector<BYTE>& data);
+        };
+
+        template <>
         struct ValueTypeSpecifics<REG_EXPAND_SZ>
         {
             using value_t = std::string;
+            static value_t Convert(const std::vector<BYTE>& data);
+        };
+
+        template <>
+        struct ValueTypeSpecifics<REG_EXPAND_SZ | AICLI_REGISTRY_UTF16_FLAG>
+        {
+            using value_t = std::wstring;
             static value_t Convert(const std::vector<BYTE>& data);
         };
 
@@ -77,7 +92,10 @@ namespace AppInstaller::Registry
         {
             None = REG_NONE,
             String = REG_SZ,
+            UTF16Flag = AICLI_REGISTRY_UTF16_FLAG,
+            UTF16String = REG_SZ | UTF16Flag,
             ExpandString = REG_EXPAND_SZ,
+            UTF16ExpandString = REG_EXPAND_SZ | UTF16Flag,
             Binary = REG_BINARY,
             DWord = REG_DWORD,
             DWordLittleEndian = REG_DWORD_LITTLE_ENDIAN,
@@ -269,8 +287,8 @@ namespace AppInstaller::Registry
         static Key Create(HKEY key, const std::wstring& subKey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
 
         // Delete a key
-        static void Delete(HKEY key, std::string_view subkey, DWORD samDesired);
-        static void Delete(HKEY key, const std::wstring& subKey, DWORD samDesired);
+        static bool Delete(HKEY key, std::string_view subkey, DWORD samDesired);
+        static bool Delete(HKEY key, const std::wstring& subKey, DWORD samDesired);
 
     private:
         // When ignoring error, returns whether the key existed

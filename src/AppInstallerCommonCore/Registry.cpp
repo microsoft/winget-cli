@@ -146,9 +146,19 @@ namespace AppInstaller::Registry
             return ConvertBytesToString(data);
         }
 
+        ValueTypeSpecifics<REG_SZ | AICLI_REGISTRY_UTF16_FLAG>::value_t ValueTypeSpecifics<REG_SZ | AICLI_REGISTRY_UTF16_FLAG>::Convert(const std::vector<BYTE>& data)
+        {
+            return ConvertBytesToWideString(data);
+        }
+
         ValueTypeSpecifics<REG_EXPAND_SZ>::value_t ValueTypeSpecifics<REG_EXPAND_SZ>::Convert(const std::vector<BYTE>& data)
         {
             return Utility::ConvertToUTF8(Utility::ExpandEnvironmentVariables(ConvertBytesToWideString(data)));
+        }
+
+        ValueTypeSpecifics<REG_EXPAND_SZ | AICLI_REGISTRY_UTF16_FLAG>::value_t ValueTypeSpecifics<REG_EXPAND_SZ | AICLI_REGISTRY_UTF16_FLAG>::Convert(const std::vector<BYTE>& data)
+        {
+            return ConvertBytesToWideString(data);
         }
 
         ValueTypeSpecifics<REG_BINARY>::value_t ValueTypeSpecifics<REG_BINARY>::Convert(const std::vector<BYTE>& data)
@@ -169,7 +179,8 @@ namespace AppInstaller::Registry
     bool Value::HasCompatibleType(Type type) const
     {
         // Allow interop between String and ExpandString
-        if ((m_type == Type::String || m_type == Type::ExpandString) && (type == Type::String || type == Type::ExpandString))
+        if ((m_type == Type::String || m_type == Type::ExpandString || m_type == Type::UTF16String || m_type == Type::UTF16ExpandString) &&
+            (type == Type::String || type == Type::ExpandString || type == Type::UTF16String || type == Type::UTF16ExpandString))
         {
             return true;
         }
@@ -425,17 +436,21 @@ namespace AppInstaller::Registry
     void Key::SetValue(const std::wstring& name, const std::wstring& value, DWORD type) const
     {
         THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>(sizeof(wchar_t) * (value.size() + 1))));
-        AICLI_LOG(Core, Verbose, << "Setting '" << Utility::ConvertToUTF8(name) << "' with the value '" << Utility::ConvertToUTF8(value));
+        AICLI_LOG(Core, Verbose, << "Setting '" << Utility::ConvertToUTF8(name) << "' with the value: " << Utility::ConvertToUTF8(value));
     }
 
     void Key::SetValue(const std::wstring& name, const std::vector<BYTE>& value, DWORD type) const
     {
         THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.data()), static_cast<DWORD>(value.size())));
+        AICLI_LOG(Core, Verbose, << "Setting '" << Utility::ConvertToUTF8(name) << "' with the value: " << ConvertBytesToString(value));
+
     }
 
     void Key::SetValue(const std::wstring& name, DWORD value) const
     {
         THROW_IF_WIN32_ERROR(RegSetValueExW(m_key.get(), name.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(DWORD)));
+        AICLI_LOG(Core, Verbose, << "Setting '" << Utility::ConvertToUTF8(name) << "' with the value: " << value);
+
     }
 
     ValueList Key::Values() const
@@ -467,21 +482,29 @@ namespace AppInstaller::Registry
         return result;
     }
 
-    void Key::Delete(HKEY key, std::string_view subKey, DWORD samDesired)
+    bool Key::Delete(HKEY key, std::string_view subKey, DWORD samDesired)
     {
-        Delete(key, Utility::ConvertToUTF16(subKey), samDesired);
+        return Delete(key, Utility::ConvertToUTF16(subKey), samDesired);
     }
 
-    void Key::Delete(HKEY key, const std::wstring& subKey, DWORD samDesired)
+    bool Key::Delete(HKEY key, const std::wstring& subKey, DWORD samDesired)
     {
         LSTATUS status = RegDeleteKeyExW(key, subKey.c_str(), samDesired, 0);
         if (status == ERROR_SUCCESS)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");
-            return;
+            return true;
+        }
+        else if (status == ERROR_FILE_NOT_FOUND)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was not found.");
+        }
+        else
+        {
+            THROW_IF_WIN32_ERROR(status);
         }
 
-        THROW_IF_WIN32_ERROR(status);
+        return false;
     }
 
     bool Key::CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)

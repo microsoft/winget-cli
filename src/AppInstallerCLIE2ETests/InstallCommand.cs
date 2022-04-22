@@ -231,7 +231,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The filename, directory name, or volume label syntax is incorrect."));
+            Assert.True(result.StdOut.Contains("The rename argument value is invalid"));
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The specified filename contains a reserved name"));
+            Assert.True(result.StdOut.Contains("The parameter is incorrect."));
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)

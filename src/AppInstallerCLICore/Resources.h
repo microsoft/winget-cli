@@ -154,6 +154,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentWithoutQueryError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidRenameArgumentError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
@@ -197,6 +198,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsNotAgreedTo);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
@@ -206,6 +208,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallDirectoryNotCreated);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableOverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverrideRequired);

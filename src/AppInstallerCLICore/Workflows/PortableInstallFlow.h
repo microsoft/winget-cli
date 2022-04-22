@@ -11,7 +11,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void PortableInstallImpl(Execution::Context& context);
 
-    void EnsureNonReservedNamesForPortableInstall(Execution::Context& context);
+    void EnsureVolumeSupportsReparsePoints(Execution::Context& context);
+
+    void EnsureValidArgsForPortableInstall(Execution::Context& context);
 
     void EnsureFeatureEnabledForPortableInstall(Execution::Context& context);
 }
