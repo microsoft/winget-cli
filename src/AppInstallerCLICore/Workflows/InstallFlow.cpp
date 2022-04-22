@@ -294,6 +294,7 @@ namespace AppInstaller::CLI::Workflow
             portableInstallContext.Args.AddArg(Execution::Args::Type::InstallScope, std::move(context.Args.GetArg(Execution::Args::Type::InstallScope)));
             portableInstallContext.Args.AddArg(Execution::Args::Type::Rename, std::move(context.Args.GetArg(Execution::Args::Type::Rename)));
             
+            // TODO:: Replace when --force argument gets changed.
             if (context.Args.Contains(Execution::Args::Type::HashOverride))
             {
                 portableInstallContext.Args.AddArg(Execution::Args::Type::HashOverride);
@@ -301,8 +302,9 @@ namespace AppInstaller::CLI::Workflow
             
             if (context.Contains(Execution::Data::Source))
             {
-                portableInstallContext.Add<Execution::Data::Source>(std::move(context.Get<Execution::Data::Source>()));
+                portableInstallContext.Add<Execution::Data::Source>(context.Get<Execution::Data::Source>());
             }
+
             portableInstallContext.Add<Execution::Data::HashPair>(std::move(context.Get<Execution::Data::HashPair>()));
             portableInstallContext.Add<Execution::Data::Installer>(std::move(context.Get<Execution::Data::Installer>()));
             portableInstallContext.Add<Execution::Data::InstallerPath>(std::move(context.Get<Execution::Data::InstallerPath>()));

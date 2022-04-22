@@ -280,13 +280,12 @@ namespace AppInstallerCLIE2ETests
 
         public static void VerifyPortablePackage(
             string installDir,
-            string packageId,
             string commandAlias,
             string filename,
             string productCode,
             bool shouldExist)
         {
-            string exePath = Path.Combine(installDir, packageId, filename);
+            string exePath = Path.Combine(installDir, filename);
             FileInfo exeFile = new FileInfo(exePath);
             Assert.AreEqual(exeFile.Exists, shouldExist, $"Expected portable exe path: {exeFile}");
 
@@ -295,9 +294,10 @@ namespace AppInstallerCLIE2ETests
             FileInfo symlinkFile = new FileInfo(symlinkPath);
             Assert.AreEqual(symlinkFile.Exists, shouldExist, $"Expected portable symlink path: {symlinkFile}");
 
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(@$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}", true))
+            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}";
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
             {
-                Assert.AreEqual(uninstallRegistryKey != null, shouldExist, $"Expected uninstall subkey path: {uninstallRegistryKey.Name}");
+                Assert.AreEqual(uninstallRegistryKey != null, shouldExist, $"Expected uninstall subkey path: {subKey}");
             }
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
