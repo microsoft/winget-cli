@@ -287,16 +287,16 @@ namespace AppInstallerCLIE2ETests
             bool shouldExist)
         {
             string exePath = Path.Combine(installDir, filename);
-            Assert.AreEqual(FileExists(exePath), shouldExist, $"Expected portable exe path: {exePath}");
+            Assert.AreEqual(shouldExist, FileExists(exePath), $"Expected portable exe path: {exePath}");
 
             string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
-            Assert.AreEqual(FileExists(symlinkPath), shouldExist, $"Expected portable symlink path: {symlinkPath}");
+            Assert.AreEqual(shouldExist, FileExists(symlinkPath), $"Expected portable symlink path: {symlinkPath}");
 
             string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}";
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
             {
-                Assert.AreEqual(uninstallRegistryKey != null, shouldExist, $"Expected uninstall subkey path: {subKey}");
+                Assert.AreEqual(shouldExist, uninstallRegistryKey != null, $"Expected uninstall subkey path: {subKey}");
             }
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
@@ -310,7 +310,7 @@ namespace AppInstallerCLIE2ETests
                     string initialPathValue = currentPathValue.Replace(portablePathValue, "");
                     environmentRegistryKey.SetValue(pathName, initialPathValue);
                 }
-                Assert.AreEqual(isAddedToPath, shouldExist, $"Expected path variable: {portablePathValue}");
+                Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {portablePathValue}");
             }
 
             // TODO: Call uninstall command for cleanup when implemented
@@ -323,9 +323,23 @@ namespace AppInstallerCLIE2ETests
         /// <returns>Boolean value indicating whether the file exists.</returns>
         public static bool FileExists(string path)
         {
+            TestContext.Out.WriteLine("Path to check: " + $"{path}");
             var dirInfo = new DirectoryInfo(Path.GetDirectoryName(path));
-            string file = Path.GetFileName(path);
-            bool exists = (dirInfo.Exists && dirInfo.EnumerateFiles().Any(f => f.Name == file));
+            TestContext.Out.WriteLine("Does directory exist: " + $"{dirInfo != null}");
+
+            string filename = Path.GetFileName(path);
+            TestContext.Out.WriteLine("Enumeration of files in directory:");
+            foreach (var file in dirInfo.GetFiles())
+            {
+                TestContext.Out.WriteLine(file.FullName);
+            }
+
+            foreach (var dir in dirInfo.GetDirectories())
+            {
+                TestContext.Out.WriteLine(dir.FullName);
+            }
+
+            bool exists = dirInfo.Exists && dirInfo.EnumerateFiles().Any(f => f.Name == filename);
             return exists;
         }
 
