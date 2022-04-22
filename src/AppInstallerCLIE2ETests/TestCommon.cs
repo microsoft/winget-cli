@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
 
@@ -286,13 +287,11 @@ namespace AppInstallerCLIE2ETests
             bool shouldExist)
         {
             string exePath = Path.Combine(installDir, filename);
-            FileInfo exeFile = new FileInfo(exePath);
-            Assert.AreEqual(exeFile.Exists, shouldExist, $"Expected portable exe path: {exeFile}");
+            Assert.AreEqual(FileExists(exePath), shouldExist, $"Expected portable exe path: {exePath}");
 
             string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
-            FileInfo symlinkFile = new FileInfo(symlinkPath);
-            Assert.AreEqual(symlinkFile.Exists, shouldExist, $"Expected portable symlink path: {symlinkFile}");
+            Assert.AreEqual(FileExists(symlinkPath), shouldExist, $"Expected portable symlink path: {symlinkPath}");
 
             string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}";
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
@@ -315,6 +314,19 @@ namespace AppInstallerCLIE2ETests
             }
 
             // TODO: Call uninstall command for cleanup when implemented
+        }
+
+        /// <summary>
+        /// Method for checking if a file exists regardless of permissions.
+        /// </summary>
+        /// <param name="path">Path to file.</param>
+        /// <returns>Boolean value indicating whether the file exists.</returns>
+        public static bool FileExists(string path)
+        {
+            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(path));
+            string file = Path.GetFileName(path);
+            bool exists = (dirInfo.Exists && dirInfo.EnumerateFiles().Any(f => f.Name == file));
+            return exists;
         }
 
         /// <summary>

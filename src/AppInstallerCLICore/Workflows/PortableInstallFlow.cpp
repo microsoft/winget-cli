@@ -389,6 +389,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
+            AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
 
             if (AddToPathRegistry(context))
             {
