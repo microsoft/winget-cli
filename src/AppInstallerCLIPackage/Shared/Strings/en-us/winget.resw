@@ -1317,4 +1317,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InvalidRenameArgumentError" xml:space="preserve">
     <value>The rename argument value is invalid</value>
   </data>
+  <data name="OSVersionDoesNotSupportPortableInstall" xml:space="preserve">
+    <value>The current OS version is below the minimum version that supports portable installation</value>
+  </data>
 </root>

@@ -442,6 +442,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::EnsureFeatureEnabledForPortableInstall <<
+            Workflow::EnsureOSVersionSupportForPortableInstall <<
             Workflow::EnsureValidArgsForPortableInstall <<
             Workflow::EnsureVolumeSupportsReparsePoints;
     }

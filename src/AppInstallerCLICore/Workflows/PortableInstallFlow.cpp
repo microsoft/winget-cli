@@ -449,4 +449,15 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
         }
     }
+
+    void EnsureOSVersionSupportForPortableInstall(Execution::Context& context)
+    {
+        // Unvirtualized resources restricted capability is only supported for >= 10.0.18362
+        // TODO: Add support for OS versions that don't support virtualization.
+        if (!Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version("10.0.18362")))
+        {
+            context.Reporter.Error() << Resource::String::OSVersionDoesNotSupportPortableInstall << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_OSVERSION_NOT_SUPPORTED);
+        }
+    }
 }

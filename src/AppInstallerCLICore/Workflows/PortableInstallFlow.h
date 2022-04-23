@@ -16,4 +16,6 @@ namespace AppInstaller::CLI::Workflow
     void EnsureValidArgsForPortableInstall(Execution::Context& context);
 
     void EnsureFeatureEnabledForPortableInstall(Execution::Context& context);
+
+    void EnsureOSVersionSupportForPortableInstall(Execution::Context& context);
 }
