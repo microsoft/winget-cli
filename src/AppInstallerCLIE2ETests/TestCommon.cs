@@ -294,10 +294,13 @@ namespace AppInstallerCLIE2ETests
             FileInfo symlinkFile = new FileInfo(symlinkPath);
             Assert.AreEqual(shouldExist, symlinkFile.Exists, $"Expected portable symlink path: {symlinkPath}");
 
-            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}";
+            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
             {
-                Assert.AreEqual(shouldExist, uninstallRegistryKey != null, $"Expected uninstall subkey path: {subKey}");
+                RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                Assert.AreEqual(shouldExist, portableEntry != null, $"Expected {productCode} subkey in path: {subKey}");
+                // TODO: Remove delete once uninstall is implemented.
+                uninstallRegistryKey.DeleteSubKey(productCode);
             }
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
