@@ -274,6 +274,7 @@ objbase
 objidl
 ofile
 Outptr
+OSVERSION
 Packagedx
 packageinuse
 parametermap
@@ -397,6 +398,7 @@ uninstalls
 unknwn
 unparsable
 UNSCOPED
+unvirtualized
 UParse
 UPSERT
 uris
@@ -410,6 +412,7 @@ uuid
 UWP
 VERSI
 VERSIE
+virtualization
 vns
 vscode
 vstest

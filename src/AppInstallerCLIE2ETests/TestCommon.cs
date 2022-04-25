@@ -286,11 +286,13 @@ namespace AppInstallerCLIE2ETests
             bool shouldExist)
         {
             string exePath = Path.Combine(installDir, filename);
-            Assert.AreEqual(shouldExist, FileExists(exePath), $"Expected portable exe path: {exePath}");
+            FileInfo exeFile = new FileInfo(exePath);
+            Assert.AreEqual(shouldExist, exeFile.Exists, $"Expected portable exe path: {exePath}");
 
             string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
-            Assert.AreEqual(shouldExist, FileExists(symlinkPath), $"Expected portable symlink path: {symlinkPath}");
+            FileInfo symlinkFile = new FileInfo(symlinkPath);
+            Assert.AreEqual(shouldExist, symlinkFile.Exists, $"Expected portable symlink path: {symlinkPath}");
 
             string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall\{productCode}";
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
@@ -313,33 +315,6 @@ namespace AppInstallerCLIE2ETests
             }
 
             // TODO: Call uninstall command for cleanup when implemented
-        }
-
-        /// <summary>
-        /// Method for checking if a file exists regardless of permissions.
-        /// </summary>
-        /// <param name="path">Path to file.</param>
-        /// <returns>Boolean value indicating whether the file exists.</returns>
-        public static bool FileExists(string path)
-        {
-            TestContext.Out.WriteLine("Path to check: " + $"{path}");
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(path));
-            TestContext.Out.WriteLine("Does directory exist: " + $"{dirInfo != null}");
-
-            string filename = Path.GetFileName(path);
-            TestContext.Out.WriteLine("Enumeration of files in directory:");
-            foreach (var file in dirInfo.GetFiles())
-            {
-                TestContext.Out.WriteLine(file.FullName);
-            }
-
-            foreach (var dir in dirInfo.GetDirectories())
-            {
-                TestContext.Out.WriteLine(dir.FullName);
-            }
-
-            bool exists = dirInfo.Exists && dirInfo.EnumerateFiles().Any(f => f.Name == filename);
-            return exists;
         }
 
         /// <summary>

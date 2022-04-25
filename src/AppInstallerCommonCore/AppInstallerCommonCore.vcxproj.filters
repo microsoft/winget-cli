@@ -192,6 +192,9 @@
     <ClInclude Include="Public\winget\Filesystem.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PortableARPEntry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -330,6 +333,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

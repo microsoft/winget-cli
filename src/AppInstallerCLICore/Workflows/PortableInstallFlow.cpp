@@ -3,11 +3,13 @@
 #include "pch.h"
 #include "PortableInstallFlow.h"
 #include "winget/Filesystem.h"
+#include "winget/PortableARPEntry.h"
 #include "AppInstallerStrings.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;
+using namespace AppInstaller::Registry::Portable;
 using namespace std::filesystem;
 
 namespace AppInstaller::CLI::Workflow
@@ -17,25 +19,6 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_PathName = L"Path";
         constexpr std::wstring_view s_PathSubkey_User = L"Environment";
         constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-        constexpr std::wstring_view s_UninstallRegistryX64 = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
-        constexpr std::wstring_view s_UninstallRegistryX86 = L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
-
-        constexpr std::wstring_view s_DisplayName = L"DisplayName";
-        constexpr std::wstring_view s_DisplayVersion = L"DisplayVersion";
-        constexpr std::wstring_view s_Publisher = L"Publisher";
-        constexpr std::wstring_view s_InstallDate = L"InstallDate";
-        constexpr std::wstring_view s_URLInfoAbout = L"URLInfoAbout";
-        constexpr std::wstring_view s_HelpLink = L"HelpLink";
-        constexpr std::wstring_view s_UninstallString = L"UninstallString";
-        constexpr std::wstring_view s_WinGetInstallerType = L"WinGetInstallerType";
-        constexpr std::wstring_view s_InstallLocation = L"InstallLocation";
-        constexpr std::wstring_view s_PortableTargetFullPath = L"TargetFullPath";
-        constexpr std::wstring_view s_PortableSymlinkFullPath = L"SymlinkFullPath";
-        constexpr std::wstring_view s_PortableLinksDirectory = L"LinkDirectory";
-        constexpr std::wstring_view s_SHA256 = L"SHA256";
-
-        constexpr std::wstring_view s_WinGetPackageIdentifier = L"WinGetPackageIdentifier";
-        constexpr std::wstring_view s_WinGetSourceIdentifier = L"WinGetSourceIdentifier";
         constexpr std::string_view s_LocalSource = "*Local"sv;
 
         void AppendExeExtension(std::filesystem::path& value)
@@ -75,27 +58,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 return Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation);
             }
-        }
-
-        bool IsSamePortablePackageEntry(Registry::Key entry, std::string packageId, std::string sourceId)
-        {
-            auto existingWinGetPackageId = entry[Normalize(s_WinGetPackageIdentifier)];
-            auto existingWinGetSourceId = entry[Normalize(s_WinGetSourceIdentifier)];
-
-            bool isSamePackageId = false;
-            bool isSamePackageSource = false;
-
-            if (existingWinGetPackageId.has_value())
-            {
-                isSamePackageId = existingWinGetPackageId.value().GetValue<Value::Type::String>() == packageId;
-            }
-
-            if (existingWinGetSourceId.has_value())
-            {
-                isSamePackageSource = existingWinGetSourceId.value().GetValue<Value::Type::String>() == sourceId;
-            }
-
-            return isSamePackageId && isSamePackageSource;
         }
 
         std::filesystem::path GetPortableTargetDirectory(Execution::Context& context)
@@ -242,43 +204,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        Registry::Key GetPortableEntryUninstallRegistrySubkey(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode, bool& isExistingEntry)
-        {
-            HKEY root;
-            std::wstring subKey;
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                root = HKEY_LOCAL_MACHINE;
-                if (arch == Utility::Architecture::X64)
-                {
-                    subKey = s_UninstallRegistryX64;
-                }
-                else
-                {
-                    subKey = s_UninstallRegistryX86;
-                }
-            }
-            else
-            {
-                // HKCU uninstall registry share the x64 registry view.
-                root = HKEY_CURRENT_USER;
-                subKey = s_UninstallRegistryX64;
-            }
-
-            subKey += L"\\" + productCode;
-            Registry::Key entry = Key::OpenIfExists(root, subKey, 0, KEY_ALL_ACCESS);
-            if (entry != NULL)
-            {
-                isExistingEntry = true;
-            }
-            else
-            {
-                entry = Key::Create(root, subKey);
-            }
-
-            return entry;
-        }
-
         Registry::Key WritePortableEntryToUninstallRegistry(Execution::Context& context)
         {
             const AppInstaller::Manifest::Manifest& manifest = context.Get<Execution::Data::Manifest>();
@@ -305,23 +230,21 @@ namespace AppInstaller::CLI::Workflow
                 productCode = ConvertToUTF16(packageIdentifier + "_" + sourceIdentifier);
             }
 
-            bool isExistingEntry = false;
-            Key uninstallEntry = GetPortableEntryUninstallRegistrySubkey(
+            Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
                 ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
                 context.Get<Execution::Data::Installer>()->Arch,
-                productCode,
-                isExistingEntry);
+                productCode);
 
-            if(isExistingEntry)
+            if(uninstallEntry.IsExisting())
             {
-                if (!IsSamePortablePackageEntry(uninstallEntry, packageIdentifier, sourceIdentifier))
+                if (uninstallEntry.IsSamePortablePackageEntry(packageIdentifier, sourceIdentifier))
                 {
                     // TODO: Replace HashOverride with --Force when argument behavior gets updated.
                     if (!context.Args.Contains(Execution::Args::Type::HashOverride))
                     {
                         AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
                         context.Reporter.Error() << Resource::String::PortableRegistryCollisionOverrideRequired << std::endl;
-                        AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, {});
+                        AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, {} );
                     }
                     else
                     {
@@ -332,22 +255,22 @@ namespace AppInstaller::CLI::Workflow
             }
 
             AICLI_LOG(CLI, Info, << "Begin writing to Uninstall registry.");
-            uninstallEntry.SetValue(Normalize(s_DisplayName), ConvertToUTF16(entry.DisplayName), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_DisplayVersion), ConvertToUTF16(entry.DisplayVersion), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_Publisher), ConvertToUTF16(entry.Publisher), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_InstallDate), ConvertToUTF16(Utility::GetCurrentDateForARP()), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_URLInfoAbout), ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>()), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_HelpLink), ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>()), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_UninstallString), L"winget uninstall --product-code " + productCode, REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_WinGetInstallerType), ConvertToUTF16(InstallerTypeToString(InstallerTypeEnum::Portable)), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_WinGetPackageIdentifier), ConvertToUTF16(manifest.Id), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_WinGetSourceIdentifier), ConvertToUTF16(sourceIdentifier), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_PortableTargetFullPath), GetPortableTargetFullPath(context).wstring(), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_PortableSymlinkFullPath), GetPortableSymlinkFullPath(context).wstring(), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_SHA256), Utility::SHA256::ConvertToWideString(context.Get<Execution::Data::HashPair>().second), REG_SZ);
-            uninstallEntry.SetValue(Normalize(s_InstallLocation), GetPortableTargetDirectory(context).wstring(), REG_SZ);
+            uninstallEntry.SetValue(PortableValueName::DisplayName, ConvertToUTF16(entry.DisplayName));
+            uninstallEntry.SetValue(PortableValueName::DisplayVersion, ConvertToUTF16(entry.DisplayVersion));
+            uninstallEntry.SetValue(PortableValueName::Publisher, ConvertToUTF16(entry.Publisher));
+            uninstallEntry.SetValue(PortableValueName::InstallDate, ConvertToUTF16(Utility::GetCurrentDateForARP()));
+            uninstallEntry.SetValue(PortableValueName::URLInfoAbout, ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>()));
+            uninstallEntry.SetValue(PortableValueName::HelpLink, ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>()));
+            uninstallEntry.SetValue(PortableValueName::UninstallString, L"winget uninstall --product-code " + productCode);
+            uninstallEntry.SetValue(PortableValueName::WinGetInstallerType, ConvertToUTF16(InstallerTypeToString(InstallerTypeEnum::Portable)));
+            uninstallEntry.SetValue(PortableValueName::WinGetPackageIdentifier, ConvertToUTF16(manifest.Id));
+            uninstallEntry.SetValue(PortableValueName::WinGetSourceIdentifier, ConvertToUTF16(sourceIdentifier));
+            uninstallEntry.SetValue(PortableValueName::PortableTargetFullPath, GetPortableTargetFullPath(context).wstring());
+            uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, GetPortableSymlinkFullPath(context).wstring());
+            uninstallEntry.SetValue(PortableValueName::SHA256, Utility::SHA256::ConvertToWideString(context.Get<Execution::Data::HashPair>().second));
+            uninstallEntry.SetValue(PortableValueName::InstallLocation, GetPortableTargetDirectory(context).wstring());
             AICLI_LOG(CLI, Info, << "Writing to Uninstall registry complete.");
-            return uninstallEntry;
+            return uninstallEntry.GetKey();
         }
     }
 
@@ -364,8 +287,8 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-            const std::filesystem::path& targetFullPath = entry[Normalize(s_PortableTargetFullPath)].value().GetValue<Value::Type::UTF16String>();
-            const std::filesystem::path& symlinkFullPath = entry[Normalize(s_PortableSymlinkFullPath)].value().GetValue<Value::Type::UTF16String>();
+            const std::filesystem::path& targetFullPath = entry[ToString(PortableValueName::PortableTargetFullPath)].value().GetValue<Value::Type::UTF16String>();
+            const std::filesystem::path& symlinkFullPath = entry[ToString(PortableValueName::PortableSymlinkFullPath)].value().GetValue<Value::Type::UTF16String>();
 
             std::filesystem::path targetDirectory = targetFullPath.parent_path();
             if (std::filesystem::create_directories(targetDirectory))
@@ -460,4 +383,5 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_OSVERSION_NOT_SUPPORTED);
         }
     }
+
 }
