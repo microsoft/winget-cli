@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // ShellExecutes the given path.
-        std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
+        std::optional<DWORD> InvokeShellExecuteEx(const std::filesystem::path& filePath, const std::string& args, bool useRunAs, IProgressCallback& progress)
         {
             AICLI_LOG(CLI, Info, << "Starting: '" << filePath.u8string() << "' with arguments '" << args << '\'');
 
@@ -27,6 +27,13 @@ namespace AppInstaller::CLI::Workflow
             // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
+
+            // This installer must be run elevated, but we are not currently.
+            // Have ShellExecute elevate the installer since it won't do so itself.
+            if (useRunAs)
+            {
+                execInfo.lpVerb = L"runas";
+            }
 
             THROW_LAST_ERROR_IF(!ShellExecuteExW(&execInfo) || !execInfo.hProcess);
 
@@ -56,6 +63,11 @@ namespace AppInstaller::CLI::Workflow
                 GetExitCodeProcess(process.get(), &exitCode);
                 return exitCode;
             }
+        }
+
+        std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
+        {
+            return InvokeShellExecuteEx(filePath, args, false, progress);
         }
 
         // Gets the escaped installer args.
@@ -187,12 +199,25 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
+        const auto& installer = context.Get<Execution::Data::Installer>();
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
 
+        // Enforce elevation requirements
+        bool isElevated = Runtime::IsRunningAsAdmin();
+
+        // The installer will run elevated, either by direct request or through the installer itself doing so.
+        if ((installer->ElevationRequirement == ElevationRequirementEnum::ElevationRequired ||
+            installer->ElevationRequirement == ElevationRequirementEnum::ElevatesSelf)
+            && !isElevated)
+        {
+            context.Reporter.Warn() << Resource::String::InstallerElevationExpected << std::endl;
+        }
+
         auto installResult = context.Reporter.ExecuteWithProgress(
-            std::bind(InvokeShellExecute,
+            std::bind(InvokeShellExecuteEx,
                 context.Get<Execution::Data::InstallerPath>(),
                 installerArgs,
+                installer->ElevationRequirement == ElevationRequirementEnum::ElevationRequired && !isElevated,
                 std::placeholders::_1));
 
         if (!installResult)
