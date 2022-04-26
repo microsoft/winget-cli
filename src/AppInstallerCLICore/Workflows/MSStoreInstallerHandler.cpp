@@ -79,18 +79,17 @@ namespace AppInstaller::CLI::Workflow
 
             AICLI_LOG(CLI, Error, << "Get user entitlement.");
             GetEntitlementResult result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+            if (result.Status() == GetEntitlementStatus::NoStoreAccount)
+            {
+                AICLI_LOG(CLI, Error, << "Get device entitlement.");
+                result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+            }
+
             if (result.Status() == GetEntitlementStatus::Succeeded)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementSuccess << std::endl;
             }
-
-            if (result.Status() == GetEntitlementStatus::NoStoreAccount)
-            {
-                AICLI_LOG(CLI, Error, << "Get device entitlement.");
-                result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-            }
-
-            if (result.Status() == GetEntitlementStatus::NetworkError)
+            else if (result.Status() == GetEntitlementStatus::NetworkError)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementNetworkError << std::endl;
                 AICLI_LOG(CLI, Error, << "Get entitlement failed. Network error.");
