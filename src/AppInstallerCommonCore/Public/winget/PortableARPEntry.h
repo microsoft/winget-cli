@@ -32,14 +32,14 @@ namespace AppInstaller::Registry::Portable
 
         bool IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId);
 
-        bool IsExisting() { return m_isExisting; }
+        bool Exists() { return m_exists; }
 
         void SetValue(PortableValueName valueName, const std::wstring& value);
 
         Registry::Key GetKey() { return m_key; };
 
     private:
-        bool m_isExisting;
+        bool m_exists;
         Key m_key;
     };
 

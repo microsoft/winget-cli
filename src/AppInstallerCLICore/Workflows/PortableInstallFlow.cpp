@@ -235,7 +235,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Get<Execution::Data::Installer>()->Arch,
                 productCode);
 
-            if(uninstallEntry.IsExisting())
+            if(uninstallEntry.Exists())
             {
                 if (uninstallEntry.IsSamePortablePackageEntry(packageIdentifier, sourceIdentifier))
                 {
