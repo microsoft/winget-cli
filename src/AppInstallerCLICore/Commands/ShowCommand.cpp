@@ -7,6 +7,8 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+using namespace AppInstaller::CLI::Execution;
+
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ShowCommand::GetArguments() const
@@ -47,6 +49,24 @@ namespace AppInstaller::CLI
     std::string ShowCommand::HelpLink() const
     {
         return "https://aka.ms/winget-command-show";
+    }
+
+    void ShowCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
+
+        if (execArgs.Contains(Args::Type::Manifest) &&
+            (execArgs.Contains(Args::Type::Query) ||
+                execArgs.Contains(Args::Type::Id) ||
+                execArgs.Contains(Args::Type::Name) ||
+                execArgs.Contains(Args::Type::Moniker) ||
+                execArgs.Contains(Args::Type::Version) ||
+                execArgs.Contains(Args::Type::Channel) ||
+                execArgs.Contains(Args::Type::Source) ||
+                execArgs.Contains(Args::Type::Exact)))
+        {
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
+        }
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const

@@ -93,6 +93,8 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
+        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
+
         if (execArgs.Contains(Args::Type::Manifest) &&
             (execArgs.Contains(Args::Type::Query) ||
              execArgs.Contains(Args::Type::Id) ||
@@ -115,7 +117,7 @@ namespace AppInstaller::CLI
         }
         if (execArgs.Contains(Args::Type::InstallArchitecture))
         {
-	        Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Args::Type::InstallArchitecture)));
+            Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Args::Type::InstallArchitecture)));
             if ((selectedArch == Utility::Architecture::Unknown) || (Utility::IsApplicableArchitecture(selectedArch) == Utility::InapplicableArchitecture))
             {
                 std::vector<Utility::LocIndString> applicableArchitectures;
