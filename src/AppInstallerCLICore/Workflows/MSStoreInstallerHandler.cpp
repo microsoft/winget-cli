@@ -77,11 +77,11 @@ namespace AppInstaller::CLI::Workflow
             // Verifying/Acquiring product ownership
             context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
 
-            AICLI_LOG(CLI, Error, << "Get user entitlement.");
+            AICLI_LOG(CLI, Info, << "Get user entitlement.");
             GetEntitlementResult result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
             if (result.Status() == GetEntitlementStatus::NoStoreAccount)
             {
-                AICLI_LOG(CLI, Error, << "Get device entitlement.");
+                AICLI_LOG(CLI, Info, << "Get device entitlement.");
                 result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
             }
 
