@@ -16,7 +16,6 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_AppxManifestFileName = "AppxManifest.xml"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
@@ -338,6 +337,51 @@ namespace AppInstaller::Repository::Microsoft
             return result;
         }
 
+        struct TempIndexFile
+        {
+            TempIndexFile() = default;
+
+            TempIndexFile(Msix::MsixInfo& packageInfo, IProgressCallback& progress)
+            {
+                GUID guid;
+                THROW_IF_FAILED(CoCreateGuid(&guid));
+                WCHAR tempFileName[256];
+                THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, tempFileName, ARRAYSIZE(tempFileName)) == 0);
+
+                m_indexFile = Runtime::GetPathTo(Runtime::PathName::Temp);
+                m_indexFile /= tempFileName;
+
+                m_indexHanlde.reset(CreateFileW(m_indexFile.c_str(), 0, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
+                THROW_LAST_ERROR_IF(!m_indexHanlde);
+
+                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexFile, progress);
+            }
+
+            ~TempIndexFile()
+            {
+                if (!m_indexFile.empty() && std::filesystem::exists(m_indexFile))
+                {
+                    if (m_indexHanlde)
+                    {
+                        m_indexHanlde.reset();
+                    }
+
+                    try
+                    {
+                        std::filesystem::remove(m_indexFile);
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << m_indexFile);
+                    }
+                }
+            }
+
+        private:
+            std::filesystem::path m_indexFile;
+            wil::unique_handle m_indexHanlde;
+        };
+
         struct DesktopContextSourceReference : public ISourceReference
         {
             DesktopContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -361,12 +405,21 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 std::filesystem::path packageLocation = GetStatePathFromDetails(m_details);
-                packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+                packageLocation /= s_PreIndexedPackageSourceFactory_PackageFileName;
 
                 if (!std::filesystem::exists(packageLocation))
                 {
                     AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                }
+
+                Msix::MsixInfo packageInfo(Utility::ConvertToUTF8(packageLocation.c_str()));
+                TempIndexFile tempIndexFile;
+
+                if (progress.IsCancelled())
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling open upon request");
+                    return {};
                 }
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
@@ -389,7 +442,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<DesktopContextSourceReference>(details);
             }
 
-            bool UpdateInternal(const std::string&, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
