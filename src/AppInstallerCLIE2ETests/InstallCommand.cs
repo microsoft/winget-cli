@@ -180,22 +180,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallPortableExeWithAppsAndFeatures()
-        {
-            var installDir = TestCommon.GetRandomTestDir();
-            string packageId, commandAlias, fileName, productCode;
-            packageId = "AppInstallerTest.TestPortableAppsAndFeatures";
-            productCode = "testProductCode";
-            fileName = "AppInstallerTestExeInstaller.exe";
-            commandAlias = "testAppsAndFeatures.exe";
-
-            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
-        }
-
-        [Test]
         public void InstallPortableExeWithCommand()
         {
             var installDir = TestCommon.GetRandomTestDir();
@@ -236,7 +220,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The rename argument value is invalid"));
+            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
         }
 
         [Test]
