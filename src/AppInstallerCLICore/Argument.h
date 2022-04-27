@@ -81,6 +81,11 @@ namespace AppInstaller::CLI
         // Gets the common arguments for all commands.
         static void GetCommon(std::vector<Argument>& args);
 
+        // Static argument validation helpers; throw CommandException when validation fails.
+
+        // Requires that some form of package selection argument is present
+        static void ValidatePackageSelectionArgumentSupplied(const Execution::Args& args);
+
         // Arguments are not localized at this time.
         Utility::LocIndView Name() const { return Utility::LocIndView{ m_name }; }
         char Alias() const { return m_alias; }

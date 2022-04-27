@@ -1305,4 +1305,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
     <value>Overwriting existing file:</value>
   </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>No package selection argument was provided; see the help for details about finding a package.</value>
+  </data>
 </root>

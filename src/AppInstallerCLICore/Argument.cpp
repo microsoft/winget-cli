@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Argument.h"
+#include "Command.h"
 #include "Resources.h"
 #include <winget/UserSettings.h>
 
@@ -108,6 +109,19 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
         args.push_back(ForType(Args::Type::VerboseLogs));
+    }
+
+    void Argument::ValidatePackageSelectionArgumentSupplied(const Execution::Args& args)
+    {
+        for (Args::Type type : { Args::Type::Query, Args::Type::Manifest, Args::Type::Id, Args::Type::Name, Args::Type::Moniker, Args::Type::Tag, Args::Type::Command })
+        {
+            if (args.Contains(type))
+            {
+                return;
+            }
+        }
+
+        throw CommandException(Resource::String::NoPackageSelectionArgumentProvided);
     }
 
     Argument::Visibility Argument::GetVisibility() const
