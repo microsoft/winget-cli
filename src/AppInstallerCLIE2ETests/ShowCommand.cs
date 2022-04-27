@@ -10,13 +10,8 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithNoArgs()
         {
-            // Show with no arg lists every app and a warning message
             var result = TestCommon.RunAICLICommand("show", "");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
         [Test]

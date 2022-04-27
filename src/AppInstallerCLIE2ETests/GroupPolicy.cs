@@ -29,7 +29,7 @@ namespace AppInstallerCLIE2ETests
         public void PolicyEnableWinget()
         {
             GroupPolicyHelper.EnableWinget.Disable();
-            var result = TestCommon.RunAICLICommand("search", string.Empty);
+            var result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 

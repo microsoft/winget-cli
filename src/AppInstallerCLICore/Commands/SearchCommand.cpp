@@ -66,6 +66,11 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-search";
     }
 
+    void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
+    }
+
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
