@@ -414,9 +414,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureFeatureEnabledForPortableInstall <<
-            Workflow::EnsureValidArgsForPortableInstall <<
-            Workflow::EnsureVolumeSupportsReparsePoints;
+            Workflow::EnsureSupportForPortableInstall;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const

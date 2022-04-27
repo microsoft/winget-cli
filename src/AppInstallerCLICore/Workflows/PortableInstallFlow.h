@@ -11,9 +11,5 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void PortableInstallImpl(Execution::Context& context);
 
-    void EnsureVolumeSupportsReparsePoints(Execution::Context& context);
-
-    void EnsureValidArgsForPortableInstall(Execution::Context& context);
-
-    void EnsureFeatureEnabledForPortableInstall(Execution::Context& context);
+    void EnsureSupportForPortableInstall(Execution::Context& context);
 }

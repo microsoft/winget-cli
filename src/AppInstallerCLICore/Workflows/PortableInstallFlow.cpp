@@ -316,6 +316,29 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
             }
         }
+
+        void EnsureValidArgsForPortableInstall(Execution::Context& context)
+        {
+            std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
+
+            if (MakeSuitablePathPart(renameArg) != renameArg)
+            {
+                context.Reporter.Error() << Resource::String::ReservedFilenameError << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+            }
+        }
+
+        void EnsureVolumeSupportsReparsePoints(Execution::Context& context)
+        {
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(scope);
+
+            if (!AppInstaller::Filesystem::SupportsReparsePoints(symlinkDirectory))
+            {
+                context.Reporter.Error() << Resource::String::ReparsePointsNotSupportedError << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
+            }
+        }
     }
 
     void PortableInstallImpl(Execution::Context& context)
@@ -341,36 +364,16 @@ namespace AppInstaller::CLI::Workflow
         // TODO: create subcontext for uninstall
     }
 
-    void EnsureFeatureEnabledForPortableInstall(Execution::Context& context)
+    void EnsureSupportForPortableInstall(Execution::Context& context)
     {
         auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
 
         if (installerType == InstallerTypeEnum::Portable)
         {
-            context << Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::PortableInstall);
-        }
-    }
-
-    void EnsureValidArgsForPortableInstall(Execution::Context& context)
-    {
-        std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
-
-        if (MakeSuitablePathPart(renameArg) != renameArg)
-        {
-            context.Reporter.Error() << Resource::String::ReservedFilenameError << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-    }
-
-    void EnsureVolumeSupportsReparsePoints(Execution::Context& context)
-    {
-        Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(scope);
-
-        if (!AppInstaller::Filesystem::SupportsReparsePoints(symlinkDirectory))
-        {
-            context.Reporter.Error() << Resource::String::ReparsePointsNotSupportedError << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
+            context <<
+                Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::PortableInstall) <<
+                EnsureValidArgsForPortableInstall <<
+                EnsureVolumeSupportsReparsePoints;
         }
     }
 }
