@@ -202,7 +202,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>();
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
 
-        // Enforce elevation requirements
+        // Inform of elevation requirements
         bool isElevated = Runtime::IsRunningAsAdmin();
 
         // The installer will run elevated, either by direct request or through the installer itself doing so.
