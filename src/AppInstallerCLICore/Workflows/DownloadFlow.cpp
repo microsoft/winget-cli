@@ -454,7 +454,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        AppInstaller::Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
+        Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);

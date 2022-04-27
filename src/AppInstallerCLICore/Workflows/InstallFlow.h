@@ -90,11 +90,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void PortableInstall(Execution::Context& context);
 
-    // Verifies parameters for portable install to ensure success.
+    // Verifies parameters for install to ensure success.
     // Required Args: None
     // Inputs: 
     // Outputs: None
-    void EnsureSupportForPortableInstall(Execution::Context& context);
+    void EnsureSupportForInstall(Execution::Context& context);
 
     // Reports the return code returned by the installer.
     // Required Args: None

@@ -62,12 +62,6 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool IsSuitableFilename(const std::filesystem::path& path)
-    {
-        std::string filename = path.stem().u8string();
-        return Utility::CaseInsensitiveEquals(AppInstaller::Utility::MakeSuitablePathPart(filename), filename);
-    }
-
     // Complicated rename algorithm due to somewhat arbitrary failures.
     // 1. First, try to rename.
     // 2. Then, create an empty file for the target, and attempt to rename.

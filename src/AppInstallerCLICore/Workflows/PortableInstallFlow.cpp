@@ -29,6 +29,23 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        std::string GetPortableProductCode(Execution::Context& context)
+        {
+            const std::string& packageId = context.Get<Execution::Data::Manifest>().Id;
+
+            std::string source;
+            if (context.Contains(Execution::Data::Source))
+            {
+                source = context.Get<Execution::Data::Source>().GetIdentifier();
+            }
+            else
+            {
+                source = s_LocalSource;
+            }
+
+            return packageId + "_" + source;
+        }
+
         std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch)
         {
             if (scope == Manifest::ScopeEnum::Machine)
@@ -65,20 +82,6 @@ namespace AppInstaller::CLI::Workflow
             Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
             std::string_view locationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
-            const std::string& packageId = context.Get<Execution::Data::Manifest>().Id;
-
-            std::string source;
-            if (context.Contains(Execution::Data::Source))
-            {
-                source = context.Get<Execution::Data::Source>().GetIdentifier();
-            }
-            else
-            {
-                source = s_LocalSource;
-            }
-
-            // Make sure that virtual sources don't contain "*" or creating the directory will fail.
-            FindAndReplace(source, "*", ""); 
             std::filesystem::path targetInstallDirectory;
 
             if (!locationArg.empty())
@@ -87,8 +90,9 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
+                const std::string& productCode = MakeSuitablePathPart(GetPortableProductCode(context));
                 targetInstallDirectory = GetPortableInstallRoot(scope, arch);
-                targetInstallDirectory /= packageId + "_" + source;
+                targetInstallDirectory /= ConvertToUTF16(productCode);
             }
 
             return targetInstallDirectory;
@@ -174,16 +178,16 @@ namespace AppInstaller::CLI::Workflow
             Key key;
             if (scope == Manifest::ScopeEnum::Machine)
             {
-                key = Registry::Key::Create(HKEY_LOCAL_MACHINE, Normalize(s_PathSubkey_Machine));
+                key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
             }
             else
             {
-                key = Registry::Key::Create(HKEY_CURRENT_USER, Normalize(s_PathSubkey_User));
+                key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
             }
 
-            std::wstring pathName = Normalize(s_PathName);
-            std::string portableLinksDir = linksDirectory.u8string();
-            std::string pathValue = key[pathName]->GetValue<Value::Type::String>();
+            std::wstring pathName = std::wstring{ s_PathName };
+            std::string portableLinksDir = Normalize(linksDirectory.u8string());
+            std::string pathValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
             
             if (pathValue.find(portableLinksDir) == std::string::npos)
             {
@@ -204,11 +208,11 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        Registry::Key WritePortableEntryToUninstallRegistry(Execution::Context& context)
+        void WritePortableEntryToUninstallRegistry(Execution::Context& context)
         {
             const AppInstaller::Manifest::Manifest& manifest = context.Get<Execution::Data::Manifest>();
             const Manifest::AppsAndFeaturesEntry& entry = GetAppsAndFeaturesEntryForPortableInstall(context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries, manifest);
-            std::string packageIdentifier = manifest.Id;
+            const std::string& packageIdentifier = manifest.Id;
 
             std::string sourceIdentifier;
             if (context.Contains(Execution::Data::Source))
@@ -220,15 +224,7 @@ namespace AppInstaller::CLI::Workflow
                 sourceIdentifier = s_LocalSource;
             }
 
-            std::wstring productCode;
-            if (!entry.ProductCode.empty())
-            {
-                productCode = ConvertToUTF16(entry.ProductCode);
-            }
-            else
-            {
-                productCode = ConvertToUTF16(packageIdentifier + "_" + sourceIdentifier);
-            }
+            const std::wstring& productCode = ConvertToUTF16(packageIdentifier + "_" + sourceIdentifier);
 
             Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
                 ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
@@ -243,8 +239,7 @@ namespace AppInstaller::CLI::Workflow
                     if (!context.Args.Contains(Execution::Args::Type::HashOverride))
                     {
                         AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
-                        context.Reporter.Error() << Resource::String::PortableRegistryCollisionOverrideRequired << std::endl;
-                        AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, {} );
+                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
                     }
                     else
                     {
@@ -255,46 +250,48 @@ namespace AppInstaller::CLI::Workflow
             }
 
             AICLI_LOG(CLI, Info, << "Begin writing to Uninstall registry.");
-            uninstallEntry.SetValue(PortableValueName::DisplayName, ConvertToUTF16(entry.DisplayName));
-            uninstallEntry.SetValue(PortableValueName::DisplayVersion, ConvertToUTF16(entry.DisplayVersion));
-            uninstallEntry.SetValue(PortableValueName::Publisher, ConvertToUTF16(entry.Publisher));
-            uninstallEntry.SetValue(PortableValueName::InstallDate, ConvertToUTF16(Utility::GetCurrentDateForARP()));
-            uninstallEntry.SetValue(PortableValueName::URLInfoAbout, ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>()));
-            uninstallEntry.SetValue(PortableValueName::HelpLink, ConvertToUTF16(manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>()));
+            uninstallEntry.SetValue(PortableValueName::DisplayName, entry.DisplayName);
+            uninstallEntry.SetValue(PortableValueName::DisplayVersion, entry.DisplayVersion);
+            uninstallEntry.SetValue(PortableValueName::Publisher, entry.Publisher);
+            uninstallEntry.SetValue(PortableValueName::InstallDate, Utility::GetCurrentDateForARP());
+            uninstallEntry.SetValue(PortableValueName::URLInfoAbout, manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>());
+            uninstallEntry.SetValue(PortableValueName::HelpLink, manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>());
             uninstallEntry.SetValue(PortableValueName::UninstallString, L"winget uninstall --product-code " + productCode);
             uninstallEntry.SetValue(PortableValueName::WinGetInstallerType, ConvertToUTF16(InstallerTypeToString(InstallerTypeEnum::Portable)));
-            uninstallEntry.SetValue(PortableValueName::WinGetPackageIdentifier, ConvertToUTF16(manifest.Id));
-            uninstallEntry.SetValue(PortableValueName::WinGetSourceIdentifier, ConvertToUTF16(sourceIdentifier));
+            uninstallEntry.SetValue(PortableValueName::WinGetPackageIdentifier, manifest.Id);
+            uninstallEntry.SetValue(PortableValueName::WinGetSourceIdentifier, sourceIdentifier);
             uninstallEntry.SetValue(PortableValueName::PortableTargetFullPath, GetPortableTargetFullPath(context).wstring());
             uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, GetPortableSymlinkFullPath(context).wstring());
             uninstallEntry.SetValue(PortableValueName::SHA256, Utility::SHA256::ConvertToWideString(context.Get<Execution::Data::HashPair>().second));
             uninstallEntry.SetValue(PortableValueName::InstallLocation, GetPortableTargetDirectory(context).wstring());
             AICLI_LOG(CLI, Info, << "Writing to Uninstall registry complete.");
-            return uninstallEntry.GetKey();
         }
-    }
 
-    void PortableInstallImpl(Execution::Context& context)
-    {
-        try
+        void MovePortableExeAndCreateSymlink(Execution::Context& context)
         {
-            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-            Registry::Key entry = WritePortableEntryToUninstallRegistry(context);
-            if (context.IsTerminated())
-            {
-                return;
-            }
-
             const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-            const std::filesystem::path& targetFullPath = entry[ToString(PortableValueName::PortableTargetFullPath)].value().GetValue<Value::Type::UTF16String>();
-            const std::filesystem::path& symlinkFullPath = entry[ToString(PortableValueName::PortableSymlinkFullPath)].value().GetValue<Value::Type::UTF16String>();
+            const std::filesystem::path& targetFullPath = GetPortableTargetFullPath(context);
+            const std::filesystem::path& symlinkFullPath = GetPortableSymlinkFullPath(context);
+            const std::filesystem::path& targetDirectory = GetPortableTargetDirectory(context);
 
-            std::filesystem::path targetDirectory = targetFullPath.parent_path();
-            if (std::filesystem::create_directories(targetDirectory))
+            bool isDirectoryCreated = false;
+            if (!std::filesystem::exists(targetDirectory) || !std::filesystem::is_directory(targetDirectory))
             {
-                AICLI_LOG(CLI, Info, << "Creating target install directories: " << targetDirectory);
+                if (!std::filesystem::create_directories(targetDirectory))
+                {
+                    AICLI_LOG(CLI, Info, << "Unable to create the target install directory: " << targetDirectory);
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_FAILED_TO_CREATE_DIRECTORY);
+                }
+
+                AICLI_LOG(CLI, Info, << "Created target install directory: " << targetDirectory);
+                isDirectoryCreated = true;
             }
+
+            Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
+                ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
+                context.Get<Execution::Data::Installer>()->Arch,
+                ConvertToUTF16(GetPortableProductCode(context)));
+            uninstallEntry.SetValue(PortableValueName::InstallDirectoryCreated, isDirectoryCreated);
 
             Filesystem::RenameFile(installerPath, targetFullPath);
             AICLI_LOG(CLI, Info, << "Portable exe moved to: " << targetFullPath);
@@ -318,15 +315,30 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
             }
+        }
+    }
 
-            context.Add<Execution::Data::OperationReturnCode>(0);
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+    void PortableInstallImpl(Execution::Context& context)
+    {
+        try
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            context <<
+                WritePortableEntryToUninstallRegistry <<
+                MovePortableExeAndCreateSymlink;
+
+            context.Add<Execution::Data::OperationReturnCode>(context.GetTerminationHR());
         }
         catch (...)
         {
-            Workflow::HandleException(context, std::current_exception());
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
+
+        // Reset termination to allow for ReportInstallResult to process return code.
+        context.ResetTermination();
+
+        // TODO: create subcontext for uninstall
     }
 
     void EnsureFeatureEnabledForPortableInstall(Execution::Context& context)
@@ -342,22 +354,11 @@ namespace AppInstaller::CLI::Workflow
     void EnsureValidArgsForPortableInstall(Execution::Context& context)
     {
         std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
-        std::string_view installLocationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
 
         if (MakeSuitablePathPart(renameArg) != renameArg)
         {
-            context.Reporter.Error() << Resource::String::InvalidRenameArgumentError << std::endl;
+            context.Reporter.Error() << Resource::String::ReservedFilenameError << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-
-        const std::filesystem::path& targetDirectory = GetPortableTargetDirectory(context);
-        if (!std::filesystem::is_directory(targetDirectory) || !std::filesystem::exists(targetDirectory))
-        {
-            if (!std::filesystem::create_directories(targetDirectory))
-            {
-                context.Reporter.Error() << Resource::String::PortableInstallDirectoryNotCreated;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
-            }
         }
     }
 
@@ -372,16 +373,4 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
         }
     }
-
-    void EnsureOSVersionSupportForPortableInstall(Execution::Context& context)
-    {
-        // Unvirtualized resources restricted capability is only supported for >= 10.0.18362
-        // TODO: Add support for OS versions that don't support virtualization.
-        if (!Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version("10.0.18362")))
-        {
-            context.Reporter.Error() << Resource::String::OSVersionDoesNotSupportPortableInstall << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_OSVERSION_NOT_SUPPORTED);
-        }
-    }
-
 }

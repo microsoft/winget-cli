@@ -10,21 +10,22 @@ namespace AppInstaller::Registry::Portable
     {
         DisplayName,
         DisplayVersion,
-        Publisher,
-        InstallDate,
-        URLInfoAbout,
         HelpLink,
+        InstallDate,
+        InstallDirectoryCreated,
+        InstallLocation,
+        PortableSymlinkFullPath,
+        PortableTargetFullPath,
+        Publisher,
+        SHA256,
+        URLInfoAbout,
         UninstallString,
         WinGetInstallerType,
-        InstallLocation,
-        PortableTargetFullPath,
-        PortableSymlinkFullPath,
-        SHA256,
         WinGetPackageIdentifier,
         WinGetSourceIdentifier,
     };
 
-    std::wstring ToString(PortableValueName valueName);
+    std::wstring_view ToString(PortableValueName valueName);
 
     struct PortableARPEntry : Registry::Key
     {
@@ -35,6 +36,10 @@ namespace AppInstaller::Registry::Portable
         bool Exists() { return m_exists; }
 
         void SetValue(PortableValueName valueName, const std::wstring& value);
+
+        void SetValue(PortableValueName valueName, const std::string& value);
+
+        void SetValue(PortableValueName valueName, bool& value);
 
         Registry::Key GetKey() { return m_key; };
 

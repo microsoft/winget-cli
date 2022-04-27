@@ -54,11 +54,11 @@ namespace AppInstaller::Utility
         auto now = std::chrono::system_clock::now();
         std::time_t tt = std::chrono::system_clock::to_time_t(now);
 
-        struct tm newtime;
-        localtime_s(&newtime, &tt);
+        struct tm newTime;
+        localtime_s(&newTime, &tt);
 
         std::stringstream ss;
-        ss << std::put_time(&newtime, "%Y%m%d");
+        ss << std::put_time(&newTime, "%Y%m%d");
         return ss.str();
     }
 

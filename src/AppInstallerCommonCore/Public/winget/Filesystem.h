@@ -14,9 +14,6 @@ namespace AppInstaller::Filesystem
     // Checks if the file system at path support reparse points
     bool SupportsReparsePoints(const std::filesystem::path& path);
 
-    // Checks if the filename of a path is suitable and does not contain any invalid/reserved characters.
-    bool IsSuitableFilename(const std::filesystem::path& path);
-
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
 }

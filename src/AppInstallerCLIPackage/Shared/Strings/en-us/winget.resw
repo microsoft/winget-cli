@@ -1288,36 +1288,21 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Prompts the user to press any key before exiting</value>
   </data>
   <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
-    <value>Path environment variable modified. Restart your shell to enable execution of portable packages from the command line.</value>
+    <value>Path environment variable modified; restart your shell to use the new value.</value>
   </data>
   <data name="ProductCodeArgumentDescription" xml:space="preserve">
-    <value>Filters uninstalls using the product code as the identifier</value>
-  </data>
-  <data name="PortableOverrideArgumentDescription" xml:space="preserve">
-    <value>Overrides the existing portable package check (Portable)</value>
+    <value>Filters using the product code</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
-  </data>
-  <data name="PortableRegistryCollisionOverrideRequired" xml:space="preserve">
-    <value>A portable package with the same name but from a different source already exists; to overwrite the existing package use --force</value>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>The volume does not support reparse points</value>
   </data>
   <data name="ReservedFilenameError" xml:space="preserve">
-    <value>The specified filename contains a reserved name</value>
+    <value>The specified filename is not a valid filename</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>Overwriting existing file at </value>
-  </data>
-  <data name="PortableInstallDirectoryNotCreated" xml:space="preserve">
-    <value>Failed to create target directory for portable installation</value>
-  </data>
-  <data name="InvalidRenameArgumentError" xml:space="preserve">
-    <value>The rename argument value is invalid</value>
-  </data>
-  <data name="OSVersionDoesNotSupportPortableInstall" xml:space="preserve">
-    <value>The current OS version is below the minimum version that supports portable installation</value>
+    <value>Overwriting existing file:</value>
   </data>
 </root>

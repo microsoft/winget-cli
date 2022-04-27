@@ -6,6 +6,8 @@
 
 using namespace AppInstaller::Utility;
 
+#define VALUENAMECASE(valueName) case PortableValueName::valueName: return s_##valueName;
+
 namespace AppInstaller::Registry::Portable
 {
     namespace
@@ -26,24 +28,7 @@ namespace AppInstaller::Registry::Portable
         constexpr std::wstring_view s_SHA256 = L"SHA256";
         constexpr std::wstring_view s_WinGetPackageIdentifier = L"WinGetPackageIdentifier";
         constexpr std::wstring_view s_WinGetSourceIdentifier = L"WinGetSourceIdentifier";
-
-        std::map<PortableValueName, std::wstring_view> portableValueNameMap =
-        {
-            { PortableValueName::DisplayName, s_DisplayName },
-            { PortableValueName::DisplayVersion, s_DisplayVersion },
-            { PortableValueName::Publisher, s_Publisher },
-            { PortableValueName::InstallDate, s_InstallDate },
-            { PortableValueName::URLInfoAbout, s_URLInfoAbout },
-            { PortableValueName::HelpLink, s_HelpLink },
-            { PortableValueName::UninstallString, s_UninstallString },
-            { PortableValueName::WinGetInstallerType, s_WinGetInstallerType },
-            { PortableValueName::InstallLocation, s_InstallLocation },
-            { PortableValueName::PortableTargetFullPath, s_PortableTargetFullPath },
-            { PortableValueName::PortableSymlinkFullPath, s_PortableSymlinkFullPath },
-            { PortableValueName::SHA256, s_SHA256 },
-            { PortableValueName::WinGetPackageIdentifier, s_WinGetPackageIdentifier },
-            { PortableValueName::WinGetSourceIdentifier, s_WinGetSourceIdentifier },
-        };
+        constexpr std::wstring_view s_InstallDirectoryCreated = L"InstallDirectoryCreated";
     }
 
     PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode)
@@ -81,15 +66,48 @@ namespace AppInstaller::Registry::Portable
         }
     }
 
-    std::wstring ToString(PortableValueName valueName)
+    std::wstring_view ToString(PortableValueName valueName)
     {
-        return Normalize(portableValueNameMap[valueName]);
+        switch (valueName)
+        {
+            VALUENAMECASE(DisplayName);
+            break;
+            VALUENAMECASE(DisplayVersion);
+            break;
+            VALUENAMECASE(Publisher);
+            break;
+            VALUENAMECASE(InstallDate);
+            break;
+            VALUENAMECASE(URLInfoAbout);
+            break;
+            VALUENAMECASE(HelpLink);
+            break;
+            VALUENAMECASE(UninstallString);
+            break;
+            VALUENAMECASE(WinGetInstallerType);
+            break;
+            VALUENAMECASE(InstallLocation);
+            break;
+            VALUENAMECASE(PortableTargetFullPath);
+            break;
+            VALUENAMECASE(PortableSymlinkFullPath);
+            break;
+            VALUENAMECASE(SHA256);
+            break;
+            VALUENAMECASE(WinGetPackageIdentifier);
+            break;
+            VALUENAMECASE(WinGetSourceIdentifier);
+            break;
+            VALUENAMECASE(InstallDirectoryCreated);
+            break;
+            default: return {};
+        }
     }
 
     bool PortableARPEntry::IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId)
     {
-        auto existingWinGetPackageId = m_key[Normalize(s_WinGetPackageIdentifier)];
-        auto existingWinGetSourceId = m_key[Normalize(s_WinGetSourceIdentifier)];
+        auto existingWinGetPackageId = m_key[std::wstring{ s_WinGetPackageIdentifier }];
+        auto existingWinGetSourceId = m_key[std::wstring{ s_WinGetSourceIdentifier }];
 
         bool isSamePackageId = false;
         bool isSamePackageSource = false;
@@ -109,6 +127,16 @@ namespace AppInstaller::Registry::Portable
 
     void PortableARPEntry::SetValue(PortableValueName valueName, const std::wstring& value)
     {
-        m_key.SetValue(ToString(valueName), value, REG_SZ);
+        m_key.SetValue(std::wstring{ ToString(valueName) }, value, REG_SZ);
+    }
+
+    void PortableARPEntry::SetValue(PortableValueName valueName, const std::string& value)
+    {
+        m_key.SetValue(std::wstring{ ToString(valueName) }, ConvertToUTF16(value), REG_SZ);
+    }
+
+    void PortableARPEntry::SetValue(PortableValueName valueName, bool& value)
+    {
+        m_key.SetValue(std::wstring{ ToString(valueName) }, value);
     }
 }

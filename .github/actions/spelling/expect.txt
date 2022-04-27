@@ -257,7 +257,6 @@ mysilentwithprogress
 mytool
 NETFX
 netlify
-newtime
 Newtonsoft
 NOEXPAND
 nonetwork

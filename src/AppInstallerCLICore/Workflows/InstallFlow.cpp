@@ -117,6 +117,8 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
+
+        context << EnsureSupportForInstall;
     }
 
     void ShowInstallationDisclaimer(Execution::Context& context)
@@ -284,37 +286,9 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstall(Execution::Context& context)
     {
-        auto portableInstallContextPtr = context.CreateSubContext();
-        Execution::Context& portableInstallContext = *portableInstallContextPtr;
-        auto previousThreadGlobals = portableInstallContext.SetForCurrentThread();
-
-        portableInstallContext.Args.AddArg(Execution::Args::Type::InstallLocation, std::move(context.Args.GetArg(Execution::Args::Type::InstallLocation)));
-        portableInstallContext.Args.AddArg(Execution::Args::Type::InstallScope, std::move(context.Args.GetArg(Execution::Args::Type::InstallScope)));
-        portableInstallContext.Args.AddArg(Execution::Args::Type::Rename, std::move(context.Args.GetArg(Execution::Args::Type::Rename)));
-
-        // TODO:: Replace when --force argument gets changed.
-        if (context.Args.Contains(Execution::Args::Type::HashOverride))
-        {
-            portableInstallContext.Args.AddArg(Execution::Args::Type::HashOverride);
-        }
-
-        if (context.Contains(Execution::Data::Source))
-        {
-            portableInstallContext.Add<Execution::Data::Source>(context.Get<Execution::Data::Source>());
-        }
-
-        portableInstallContext.Add<Execution::Data::HashPair>(std::move(context.Get<Execution::Data::HashPair>()));
-        portableInstallContext.Add<Execution::Data::Installer>(std::move(context.Get<Execution::Data::Installer>()));
-        portableInstallContext.Add<Execution::Data::InstallerPath>(std::move(context.Get<Execution::Data::InstallerPath>()));
-        portableInstallContext.Add<Execution::Data::Manifest>(std::move(context.Get<Execution::Data::Manifest>()));
-
-        portableInstallContext << PortableInstallImpl;
-
-        if (portableInstallContext.IsTerminated())
-        {
-            context.Add<Execution::Data::OperationReturnCode>(portableInstallContext.GetTerminationHR());
-            context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
-        }
+        context <<
+            PortableInstallImpl <<
+            ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -433,16 +407,14 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureSupportForPortableInstall <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }
 
-    void EnsureSupportForPortableInstall(Execution::Context& context)
+    void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
             Workflow::EnsureFeatureEnabledForPortableInstall <<
-            Workflow::EnsureOSVersionSupportForPortableInstall <<
             Workflow::EnsureValidArgsForPortableInstall <<
             Workflow::EnsureVolumeSupportsReparsePoints;
     }
