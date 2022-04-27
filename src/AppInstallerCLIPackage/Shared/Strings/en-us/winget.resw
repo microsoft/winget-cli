@@ -1293,4 +1293,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>The installer cannot be run from an administrator context.</value>
   </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>No package selection argument was provided; see the help for details about finding a package.</value>
+  </data>
 </root>
