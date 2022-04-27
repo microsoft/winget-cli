@@ -260,6 +260,7 @@ netlify
 Newtonsoft
 NOEXPAND
 nonetwork
+nonterminated
 normer
 NOSEPARATOR
 NOTAPROPERTY
@@ -409,6 +410,7 @@ USHORT
 utils
 uuid
 UWP
+VALUENAMECASE
 VERSI
 VERSIE
 virtualization
