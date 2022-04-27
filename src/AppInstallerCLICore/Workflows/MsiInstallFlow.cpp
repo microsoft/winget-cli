@@ -39,7 +39,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Inform of elevation requirements
         if (!Runtime::IsRunningAsAdmin() && installer->ElevationRequirement == Manifest::ElevationRequirementEnum::ElevatesSelf)
-         {
+        {
             context.Reporter.Warn() << Resource::String::InstallerElevationExpected << std::endl;
         }
 
