@@ -233,7 +233,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The parameter is incorrect."));
+            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
         }
 
         [Test]

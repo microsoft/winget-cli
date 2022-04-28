@@ -315,7 +315,15 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
 
-            if (MakeSuitablePathPart(renameArg) != renameArg)
+            try
+            {
+                if (MakeSuitablePathPart(renameArg) != renameArg)
+                {
+                    context.Reporter.Error() << Resource::String::ReservedFilenameError << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+                }
+            }
+            catch (...)
             {
                 context.Reporter.Error() << Resource::String::ReservedFilenameError << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
