@@ -16,6 +16,10 @@ namespace AppInstaller::Msix
 {
     namespace
     {
+        // MSIX-specific header placed in the P7X file, before the actual signature
+        const DWORD P7xFileId = 0x58434b50;
+        const DWORD P7xFileIdSize = sizeof(P7xFileId);
+
         // Gets the version from the manifest reader.
         UINT64 GetVersionFromManifestReader(IAppxManifestReader* reader)
         {
@@ -276,6 +280,150 @@ namespace AppInstaller::Msix
 
         result.resize(length - 1);
         return { result };
+    }
+
+    bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin)
+    {
+        bool result = true;
+        AICLI_LOG(Core, Info, << "Started trust validation of msix at: " << msixPath);
+
+        try
+        {
+            // First verify certificate chain if requested.
+            if (verifyMicrosoftOrigin)
+            {
+                // Retrieve raw signature from msix
+                MsixInfo msixInfo{ msixPath.u8string() };
+                auto signature = msixInfo.GetSignature();
+                THROW_HR_IF(E_UNEXPECTED, signature.size() <= P7xFileIdSize);
+                signature.erase(signature.begin(), signature.begin() + P7xFileIdSize);
+
+                // Get the cert content
+                wil::unique_any<HCRYPTMSG, decltype(&::CryptMsgClose), ::CryptMsgClose> signedMessage;
+                wil::unique_hcertstore certStore;
+                CRYPT_DATA_BLOB signatureBlob = { 0 };
+                signatureBlob.cbData = signature.size();
+                signatureBlob.pbData = signature.data();
+                THROW_LAST_ERROR_IF(!CryptQueryObject(
+                    CERT_QUERY_OBJECT_BLOB,
+                    &signatureBlob,
+                    CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED,
+                    CERT_QUERY_FORMAT_FLAG_BINARY,
+                    0,      // Reserved parameter
+                    NULL,   // No encoding info needed
+                    NULL,
+                    NULL,
+                    &certStore,
+                    &signedMessage,
+                    NULL));
+
+                // Get the signer size and information from the signed data message
+                // The properties of the signer info will be used to uniquely identify the signing certificate in the certificate store
+                DWORD signerInfoSize = 0;
+                THROW_LAST_ERROR_IF(!CryptMsgGetParam(
+                    signedMessage.get(),
+                    CMSG_SIGNER_INFO_PARAM,
+                    0,
+                    NULL,
+                    &signerInfoSize));
+
+                // Check that the signer info size is within reasonable bounds; under the max length of a string for the issuer field
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_DATA), !(signerInfoSize > 0 && signerInfoSize < STRSAFE_MAX_CCH));
+
+                std::vector<byte> signerInfoBuffer;
+                signerInfoBuffer.resize(signerInfoSize);
+                THROW_LAST_ERROR_IF(!CryptMsgGetParam(
+                    signedMessage.get(),
+                    CMSG_SIGNER_INFO_PARAM,
+                    0,
+                    signerInfoBuffer.data(),
+                    &signerInfoSize));
+
+                // Get the signing certificate from the certificate store based on the issuer and serial number of the signer info
+                CMSG_SIGNER_INFO* signerInfo = reinterpret_cast<CMSG_SIGNER_INFO*>(signerInfoBuffer.data());
+                CERT_INFO certInfo;
+                certInfo.Issuer = signerInfo->Issuer;
+                certInfo.SerialNumber = signerInfo->SerialNumber;
+
+                wil::unique_cert_context certContext;
+                certContext.reset(CertGetSubjectCertificateFromStore(
+                    certStore.get(),
+                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                    &certInfo));
+                THROW_LAST_ERROR_IF(!certContext.get());
+
+                // Get certificate chain context for validation
+                CERT_CHAIN_PARA certChainParameters = { 0 };
+                certChainParameters.cbSize = sizeof(CERT_CHAIN_PARA);
+                certChainParameters.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+                DWORD certChainFlags = CERT_CHAIN_CACHE_ONLY_URL_RETRIEVAL;
+
+                wil::unique_cert_chain_context certChainContext;
+                THROW_LAST_ERROR_IF(!CertGetCertificateChain(
+                    HCCE_LOCAL_MACHINE,
+                    certContext.get(),
+                    NULL,   // Use the current system time for CRL validation
+                    certStore.get(),
+                    &certChainParameters,
+                    certChainFlags,
+                    NULL,   // Reserved parameter; must be NULL
+                    &certChainContext));
+
+                // Validate that the certificate chain is rooted in one of the well-known Microsoft root certs
+                CERT_CHAIN_POLICY_PARA policyParameters = { 0 };
+                policyParameters.cbSize = sizeof(CERT_CHAIN_POLICY_PARA);
+                policyParameters.dwFlags = MICROSOFT_ROOT_CERT_CHAIN_POLICY_CHECK_APPLICATION_ROOT_FLAG;
+                CERT_CHAIN_POLICY_STATUS policyStatus = { 0 };
+                policyStatus.cbSize = sizeof(CERT_CHAIN_POLICY_STATUS);
+                LPCSTR policyOid = CERT_CHAIN_POLICY_MICROSOFT_ROOT;
+                BOOL certChainVerifySucceeded = CertVerifyCertificateChainPolicy(
+                    policyOid,
+                    certChainContext.get(),
+                    &policyParameters,
+                    &policyStatus);
+
+                AICLI_LOG(Core, Info, << "Result for certificate chain validation of Microsoft origin: " << policyStatus.dwError);
+
+                result = certChainVerifySucceeded && policyStatus.dwError == ERROR_SUCCESS;
+            }
+
+            // If certificate chain origin validation is success or not requested, then validate the trust info of the file.
+            if (result)
+            {
+                // Set up the structures needed for the WinVerifyTrust call
+                WINTRUST_FILE_INFO fileInfo = { 0 };
+                fileInfo.cbStruct = sizeof(WINTRUST_FILE_INFO);
+                fileInfo.pcwszFilePath = msixPath.c_str();
+
+                WINTRUST_DATA trustData = { 0 };
+                trustData.cbStruct = sizeof(WINTRUST_DATA);
+                trustData.dwUIChoice = WTD_UI_NONE;
+                trustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+                trustData.dwUnionChoice = WTD_CHOICE_FILE;
+                trustData.dwStateAction = WTD_STATEACTION_VERIFY;
+                trustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL | WTD_REVOCATION_CHECK_NONE;
+                trustData.pFile = &fileInfo;
+
+                GUID verifyActionId = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+
+                HRESULT verifyTrustResult = (HRESULT)WinVerifyTrust(static_cast<HWND>(INVALID_HANDLE_VALUE), &verifyActionId, &trustData);
+                AICLI_LOG(Core, Info, << "Result for trust info validation of the msix: " << verifyTrustResult);
+
+                result = verifyTrustResult == S_OK;
+            }
+        }
+        catch (const wil::ResultException& re)
+        {
+            AICLI_LOG(Core, Error, << "Failed during msix trust validation. Error: " << re.GetErrorCode());
+            result = false;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Error, << "Failed during msix trust validation.");
+            result = false;
+        }
+
+        return result;
     }
 
     MsixInfo::MsixInfo(std::string_view uriStr)

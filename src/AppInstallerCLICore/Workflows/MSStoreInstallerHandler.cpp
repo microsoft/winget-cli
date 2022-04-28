@@ -88,6 +88,7 @@ namespace AppInstaller::CLI::Workflow
             if (result.Status() == GetEntitlementStatus::Succeeded)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementSuccess << std::endl;
+                AICLI_LOG(CLI, Info, << "Get entitlement succeeded.");
             }
             else if (result.Status() == GetEntitlementStatus::NetworkError)
             {
