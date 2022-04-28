@@ -324,7 +324,7 @@ TEST_CASE("ARPChanges_SingleChange_NoMatch", "[ARPChanges][workflow]")
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
 
     context << ReportARPChanges;
-    context.ExpectEvent(1, 0, 0, context.EverythingResult.Matches.back().Package.get());
+    context.ExpectEvent(1, 0, 0);
 }
 
 TEST_CASE("ARPChanges_SingleChange_SingleMatch", "[ARPChanges][workflow]")
