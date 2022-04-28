@@ -5,6 +5,7 @@
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/Version.h"
 #include "ISource.h"
+#include "TempSQLiteIndexFile.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
@@ -57,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft
         };
 
         // Opens an existing index database.
-        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition);
+        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, TempSQLiteIndexFile&& tempIndexFileHandle = {});
 
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
@@ -151,7 +152,7 @@ namespace AppInstaller::Repository::Microsoft
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
     private:
         // Constructor used to open an existing index.
-        SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);
+        SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, TempSQLiteIndexFile&& tempIndexFileHandle);
 
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
@@ -167,5 +168,6 @@ namespace AppInstaller::Repository::Microsoft
         Schema::Version m_version;
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
+        TempSQLiteIndexFile m_tempIndexFileHandle;
     };
 }

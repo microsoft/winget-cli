@@ -68,8 +68,8 @@ namespace AppInstaller::Msix
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
-        // Gets a value indicating whether the referenced info is newer than the given manifest.
-        bool IsNewerThan(const std::filesystem::path& otherManifest);
+        // Gets a value indicating whether the referenced info is newer than the given package.
+        bool IsNewerThan(const std::filesystem::path& otherPackage);
 
         bool IsNewerThan(const winrt::Windows::ApplicationModel::PackageVersion& otherVersion);
 

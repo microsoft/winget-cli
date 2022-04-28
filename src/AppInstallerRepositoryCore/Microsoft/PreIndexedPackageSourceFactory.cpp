@@ -4,6 +4,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include "TempSQLiteIndexFile.h"
 
 #include <AppInstallerDeployment.h>
 #include <AppInstallerMsixInfo.h>
@@ -337,51 +338,6 @@ namespace AppInstaller::Repository::Microsoft
             return result;
         }
 
-        struct TempIndexFile
-        {
-            TempIndexFile() = default;
-
-            TempIndexFile(Msix::MsixInfo& packageInfo, IProgressCallback& progress)
-            {
-                GUID guid;
-                THROW_IF_FAILED(CoCreateGuid(&guid));
-                WCHAR tempFileName[256];
-                THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, tempFileName, ARRAYSIZE(tempFileName)) == 0);
-
-                m_indexFile = Runtime::GetPathTo(Runtime::PathName::Temp);
-                m_indexFile /= tempFileName;
-
-                m_indexHanlde.reset(CreateFileW(m_indexFile.c_str(), 0, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
-                THROW_LAST_ERROR_IF(!m_indexHanlde);
-
-                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexFile, progress);
-            }
-
-            ~TempIndexFile()
-            {
-                if (!m_indexFile.empty() && std::filesystem::exists(m_indexFile))
-                {
-                    if (m_indexHanlde)
-                    {
-                        m_indexHanlde.reset();
-                    }
-
-                    try
-                    {
-                        std::filesystem::remove(m_indexFile);
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << m_indexFile);
-                    }
-                }
-            }
-
-        private:
-            std::filesystem::path m_indexFile;
-            wil::unique_handle m_indexHanlde;
-        };
-
         struct DesktopContextSourceReference : public ISourceReference
         {
             DesktopContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -413,8 +369,10 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
-                Msix::MsixInfo packageInfo(Utility::ConvertToUTF8(packageLocation.c_str()));
-                TempIndexFile tempIndexFile;
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !Msix::ValidateMsixTrustInfo(packageLocation, WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
+
+                Msix::MsixInfo packageInfo(packageLocation.u8string());
+                TempSQLiteIndexFile tempIndexFile{ packageInfo, progress };
 
                 if (progress.IsCancelled())
                 {
@@ -422,7 +380,7 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
+                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetIndexFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
@@ -448,29 +406,51 @@ namespace AppInstaller::Repository::Microsoft
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
                 std::filesystem::create_directories(packageState);
 
-                std::filesystem::path manifestPath = packageState / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
-                std::filesystem::path indexPath = packageState / s_PreIndexedPackageSourceFactory_IndexFileName;
+                std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
 
-                if (std::filesystem::exists(manifestPath) && std::filesystem::exists(indexPath))
+                if (std::filesystem::exists(packagePath))
                 {
-                    // If we already have a manifest, use it to determine if we need to update or not.
-                    if (!packageInfo.IsNewerThan(manifestPath))
+                    // If we already have a trusted index package, use it to determine if we need to update or not.
+                    if (Msix::ValidateMsixTrustInfo(packagePath, WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
+                        !packageInfo.IsNewerThan(packagePath))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
                         return true;
                     }
                 }
 
+                std::filesystem::path tempPackagePath = packagePath.u8string() + ".dlnd.msix";
+                AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+
+                bool updateSuccess = false;
                 if (progress.IsCancelled())
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return false;
+                }
+                else if (Msix::ValidateMsixTrustInfo(tempPackagePath, WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                {
+                    std::filesystem::rename(tempPackagePath, packagePath);
+                    AICLI_LOG(Repo, Info, << "Source update success.");
+                    updateSuccess = true;
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Source update failed. Source package failed trust validation.");
                 }
 
-                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, indexPath, progress);
-                packageInfo.WriteManifestToFile(manifestPath, progress);
+                if (!updateSuccess)
+                {
+                    try
+                    {
+                        std::filesystem::remove(tempPackagePath);
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << tempPackagePath);
+                    }
+                }
 
-                return true;
+                return updateSuccess;
             }
 
             bool RemoveInternal(const SourceDetails& details, IProgressCallback&) override

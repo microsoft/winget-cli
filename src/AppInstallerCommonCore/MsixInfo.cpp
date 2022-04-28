@@ -520,16 +520,16 @@ namespace AppInstaller::Msix
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
     }
 
-    bool MsixInfo::IsNewerThan(const std::filesystem::path& otherManifest)
+    bool MsixInfo::IsNewerThan(const std::filesystem::path& otherPackage)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
 
-        ComPtr<IStream> otherStream;
-        THROW_IF_FAILED(SHCreateStreamOnFileEx(otherManifest.c_str(), 
-            STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &otherStream));
+        MsixInfo other{ otherPackage.u8string() };
+
+        THROW_HR_IF(E_INVALIDARG, other.m_isBundle);
 
         ComPtr<IAppxManifestReader> otherReader;
-        GetManifestReader(otherStream.Get(), &otherReader);
+        THROW_IF_FAILED(other.m_packageReader->GetManifest(&otherReader));
 
         ComPtr<IAppxManifestReader> manifestReader;
         THROW_IF_FAILED(m_packageReader->GetManifest(&manifestReader));
