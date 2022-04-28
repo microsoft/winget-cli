@@ -430,7 +430,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Portable
             );
     }
 
@@ -442,7 +443,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Portable
             );
     }
 

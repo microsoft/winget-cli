@@ -15,6 +15,9 @@ namespace AppInstaller::Utility
     // Gets the current time as a string. Can be used as a file name.
     std::string GetCurrentTimeForFilename();
 
+    // Gets the current date as a string to be used in the ARP registry.
+    std::string GetCurrentDateForARP();
+
     // Gets the current time as a unix epoch value.
     int64_t GetCurrentUnixEpoch();
 

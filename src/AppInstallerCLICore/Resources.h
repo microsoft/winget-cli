@@ -169,6 +169,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ModifiedPathRequiresShellRestart);
         WINGET_DEFINE_RESOURCE_STRINGID(MonikerArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
@@ -197,6 +198,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsNotAgreedTo);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
@@ -206,17 +208,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
+        WINGET_DEFINE_RESOURCE_STRINGID(ProductCodeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);

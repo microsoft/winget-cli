@@ -22,6 +22,29 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
+        struct PortableInstallFilter : public details::FilterField
+        {
+            PortableInstallFilter() : details::FilterField("Portable Install") {}
+
+            InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                // Unvirtualized resources restricted capability is only supported for >= 10.0.18362
+                // TODO: Add support for OS versions that don't support virtualization.
+                if (installer.InstallerType == InstallerTypeEnum::Portable && !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version("10.0.18362")))
+                {
+                    return InapplicabilityFlags::OSVersion;
+                }
+
+                return InapplicabilityFlags::None;
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller&) override
+            {
+                std::string result = "Current OS is lower than supported MinOSVersion (10.0.18362) for Portable install";
+                return result;
+            }
+        };
+
         struct OSVersionFilter : public details::FilterField
         {
             OSVersionFilter() : details::FilterField("OS Version") {}
@@ -566,6 +589,7 @@ namespace AppInstaller::CLI::Workflow
     ManifestComparator::ManifestComparator(const Execution::Context& context, const Repository::IPackageVersion::Metadata& installationMetadata)
     {
         AddFilter(std::make_unique<OSVersionFilter>());
+        AddFilter(std::make_unique<PortableInstallFilter>());
         AddFilter(InstalledScopeFilter::Create(installationMetadata));
         AddFilter(MarketFilter::Create());
 

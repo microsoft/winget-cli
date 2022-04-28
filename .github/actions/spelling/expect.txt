@@ -217,6 +217,7 @@ llvm
 localhost
 localizationpriority
 LPBYTE
+LPDWORD
 LPWSTR
 LSTATUS
 LTDA
@@ -259,6 +260,7 @@ netlify
 Newtonsoft
 NOEXPAND
 nonetwork
+nonterminated
 normer
 NOSEPARATOR
 NOTAPROPERTY
@@ -272,6 +274,7 @@ objbase
 objidl
 ofile
 Outptr
+OSVERSION
 Packagedx
 packageinuse
 parametermap
@@ -316,6 +319,7 @@ Redist
 REFIID
 regexes
 REGSAM
+reparse
 restsource
 rgex
 rhs
@@ -359,6 +363,7 @@ SUSE
 swervy
 SYD
 SYG
+symlink
 sysrefcomp
 Tagit
 TCpp
@@ -393,6 +398,7 @@ uninstalls
 unknwn
 unparsable
 UNSCOPED
+unvirtualized
 UParse
 UPSERT
 uris
@@ -404,8 +410,10 @@ USHORT
 utils
 uuid
 UWP
+VALUENAMECASE
 VERSI
 VERSIE
+virtualization
 vns
 vscode
 vstest

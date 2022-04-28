@@ -24,9 +24,10 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
-        constexpr std::string_view s_PortableAppUserRoot = "Microsoft/WinGet"sv;
-        constexpr std::string_view s_PortableAppMachineRoot = "WinGet"sv;
+        constexpr std::string_view s_PortablePackageUserRoot_Base = "Microsoft"sv;
+        constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
+        constexpr std::string_view s_LinksDirectory = "Links"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -343,34 +344,48 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
-            case PathName::PortableAppUserRoot:
+            case PathName::PortablePackageUserRoot:
                 result = Settings::User().Get<Setting::PortableAppUserRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackageUserRoot_Base;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
-            case PathName::PortableAppMachineRootX64:
+            case PathName::PortablePackageMachineRootX64:
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
-            case PathName::PortableAppMachineRootX86:
+            case PathName::PortablePackageMachineRootX86:
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
+                create = true;
+                break;
+            case PathName::PortableLinksUserLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_PortablePackageUserRoot_Base;
+                result /= s_PortablePackageRoot;
+                result /= s_LinksDirectory;
+                create = true;
+                break;
+            case PathName::PortableLinksMachineLocation:
+                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result /= s_PortablePackageRoot;
+                result /= s_LinksDirectory;
                 create = true;
                 break;
             default:
@@ -418,34 +433,48 @@ namespace AppInstaller::Runtime
                 result = GetKnownFolderPath(FOLDERID_Profile);
                 create = false;
                 break;
-            case PathName::PortableAppUserRoot:
+            case PathName::PortablePackageUserRoot:
                 result = Settings::User().Get<Setting::PortableAppUserRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortableAppUserRoot;
+                    result /= s_PortablePackageUserRoot_Base;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
-            case PathName::PortableAppMachineRootX64:
+            case PathName::PortablePackageMachineRootX64:
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
                 create = true;
                 break;
-            case PathName::PortableAppMachineRootX86:
+            case PathName::PortablePackageMachineRootX86:
                 result = Settings::User().Get<Setting::PortableAppMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortableAppMachineRoot;
+                    result /= s_PortablePackageRoot;
                     result /= s_PortablePackagesDirectory;
                 }
+                create = true;
+                break;
+            case PathName::PortableLinksUserLocation:
+                result = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result /= s_PortablePackageUserRoot_Base;
+                result /= s_PortablePackageRoot;
+                result /= s_LinksDirectory;
+                create = true;
+                break;
+            case PathName::PortableLinksMachineLocation:
+                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result /= s_PortablePackageRoot;
+                result /= s_LinksDirectory;
                 create = true;
                 break;
             default:
@@ -512,55 +541,6 @@ namespace AppInstaller::Runtime
     bool IsRunningAsAdmin()
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-    }
-
-    DWORD GetVolumeInformationFlagsByHandle(HANDLE anyFileHandle)
-    {
-        DWORD flags = 0;
-        wchar_t fileSystemName[MAX_PATH];
-        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
-            anyFileHandle, /*hFile*/
-            NULL, /*lpVolumeNameBuffer*/
-            0, /*nVolumeNameSize*/
-            NULL, /*lpVolumeSerialNumber*/
-            NULL, /*lpMaximumComponentLength*/
-            &flags, /*lpFileSystemFlags*/
-            fileSystemName, /*lpFileSystemNameBuffer*/
-            MAX_PATH /*nFileSystemNameSize*/));
-
-        // Vista and older does not report all flags, fix them up here
-        if (!(flags & FILE_SUPPORTS_HARD_LINKS) && !_wcsicmp(fileSystemName, L"NTFS"))
-        {
-            flags |= FILE_SUPPORTS_HARD_LINKS|FILE_SUPPORTS_EXTENDED_ATTRIBUTES|FILE_SUPPORTS_OPEN_BY_FILE_ID|FILE_SUPPORTS_USN_JOURNAL;
-        }
-
-        return flags;
-    }
-
-    DWORD GetVolumeInformationFlags(const std::filesystem::path& anyPath)
-    {
-        wil::unique_hfile fileHandle{ CreateFileW(
-            anyPath.c_str(), /*lpFileName*/
-            0, /*dwDesiredAccess*/
-            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, /*dwShareMode*/
-            NULL, /*lpSecurityAttributes*/
-            OPEN_EXISTING, /*dwCreationDisposition*/
-            FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
-            NULL /*hTemplateFile*/) };
-
-        THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
-
-        return GetVolumeInformationFlagsByHandle(fileHandle.get());
-    }
-
-    bool SupportsNamedStreams(const std::filesystem::path& path)
-    {
-        return (GetVolumeInformationFlags(path) & FILE_NAMED_STREAMS) != 0;
-    }
-
-    bool SupportsHardLinks(const std::filesystem::path& path)
-    {
-        return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_HARD_LINKS) != 0;
     }
 
     constexpr bool IsReleaseBuild()

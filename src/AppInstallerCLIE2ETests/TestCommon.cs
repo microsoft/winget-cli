@@ -3,11 +3,12 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using Microsoft.Win32;
     using NUnit.Framework;
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Text;
+    using System.Linq;
     using System.Threading;
 
     public class TestCommon
@@ -275,6 +276,48 @@ namespace AppInstallerCLIE2ETests
         public static bool RemoveMsix(string name)
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
+        }
+
+        public static void VerifyPortablePackage(
+            string installDir,
+            string commandAlias,
+            string filename,
+            string productCode,
+            bool shouldExist)
+        {
+            string exePath = Path.Combine(installDir, filename);
+            FileInfo exeFile = new FileInfo(exePath);
+            Assert.AreEqual(shouldExist, exeFile.Exists, $"Expected portable exe path: {exePath}");
+
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+            FileInfo symlinkFile = new FileInfo(symlinkPath);
+            Assert.AreEqual(shouldExist, symlinkFile.Exists, $"Expected portable symlink path: {symlinkPath}");
+
+            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
+            {
+                RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                Assert.AreEqual(shouldExist, portableEntry != null, $"Expected {productCode} subkey in path: {subKey}");
+                // TODO: Remove delete once uninstall is implemented.
+                uninstallRegistryKey.DeleteSubKey(productCode);
+            }
+
+            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
+            {
+                string pathName = "Path";
+                var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                var portablePathValue = symlinkDirectory + ';';
+                bool isAddedToPath = currentPathValue.Contains(portablePathValue);
+                if (isAddedToPath)
+                {
+                    string initialPathValue = currentPathValue.Replace(portablePathValue, "");
+                    environmentRegistryKey.SetValue(pathName, initialPathValue);
+                }
+                Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {portablePathValue}");
+            }
+
+            // TODO: Call uninstall command for cleanup when implemented
         }
 
         /// <summary>

@@ -3,6 +3,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using Microsoft.Win32;
     using NUnit.Framework;
     using System.IO;
 
@@ -11,6 +12,13 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
+        private const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
+
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            ConfigureFeature("portableInstall", true);
+        }
 
         [Test]
         public void InstallAppDoesNotExist()
@@ -153,6 +161,97 @@ namespace AppInstallerCLIE2ETests
             {
                 ResetTestSource();
             }
+        }
+
+        [Test]
+        public void InstallPortableExe()
+        {
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            // If no location specified, default behavior is to create a package directory with the name "{packageId}_{sourceId}"
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        [Test]
+        public void InstallPortableExeWithCommand()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, commandAlias, fileName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+             productCode = packageId + "_" + TestSourceIdentifier;
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testCommand.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
+        }
+
+        [Test]
+        public void InstallPortableExeWithRename()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, productCode, renameArgValue;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            productCode = packageId + "_" + TestSourceIdentifier;
+            renameArgValue = "testRename.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(installDir, renameArgValue, renameArgValue, productCode, true);
+        }
+
+        [Test]
+        public void InstallPortableInvalidRename()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, renameArgValue;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            renameArgValue = "test?";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
+        }
+
+        [Test]
+        public void InstallPortableReservedNames()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            string packageId, renameArgValue;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            renameArgValue = "CON";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
+        }
+
+        [Test]
+        public void InstallPortableToExistingDirectory()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var existingDir = Path.Combine(installDir, "testDirectory");
+            Directory.CreateDirectory(existingDir);
+
+            string packageId, commandAlias, fileName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            productCode = packageId + "_" + TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {existingDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
