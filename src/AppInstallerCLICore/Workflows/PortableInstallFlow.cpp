@@ -43,7 +43,7 @@ namespace AppInstaller::CLI::Workflow
                 source = s_LocalSource;
             }
 
-            return packageId + "_" + source;
+            return MakeSuitablePathPart(packageId + "_" + source);
         }
 
         std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch)
@@ -90,7 +90,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                const std::string& productCode = MakeSuitablePathPart(GetPortableProductCode(context));
+                const std::string& productCode = GetPortableProductCode(context);
                 targetInstallDirectory = GetPortableInstallRoot(scope, arch);
                 targetInstallDirectory /= ConvertToUTF16(productCode);
             }
@@ -224,7 +224,7 @@ namespace AppInstaller::CLI::Workflow
                 sourceIdentifier = s_LocalSource;
             }
 
-            const std::wstring& productCode = ConvertToUTF16(packageIdentifier + "_" + sourceIdentifier);
+            const std::wstring& productCode = ConvertToUTF16(GetPortableProductCode(context));
 
             Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
                 ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
@@ -275,14 +275,8 @@ namespace AppInstaller::CLI::Workflow
             const std::filesystem::path& targetDirectory = GetPortableTargetDirectory(context);
 
             bool isDirectoryCreated = false;
-            if (!std::filesystem::exists(targetDirectory) || !std::filesystem::is_directory(targetDirectory))
+            if (std::filesystem::create_directories(targetDirectory))
             {
-                if (!std::filesystem::create_directories(targetDirectory))
-                {
-                    AICLI_LOG(CLI, Info, << "Unable to create the target install directory: " << targetDirectory);
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_FAILED_TO_CREATE_DIRECTORY);
-                }
-
                 AICLI_LOG(CLI, Info, << "Created target install directory: " << targetDirectory);
                 isDirectoryCreated = true;
             }

@@ -236,6 +236,24 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("The parameter is incorrect."));
         }
 
+        [Test]
+        public void InstallPortableToExistingDirectory()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var existingDir = Path.Combine(installDir, "testDirectory");
+            Directory.CreateDirectory(existingDir);
+
+            string packageId, commandAlias, fileName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            productCode = packageId + "_" + TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {existingDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))

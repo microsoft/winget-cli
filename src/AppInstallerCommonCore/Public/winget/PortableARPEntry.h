@@ -37,7 +37,7 @@ namespace AppInstaller::Registry::Portable
 
         void SetValue(PortableValueName valueName, const std::wstring& value);
 
-        void SetValue(PortableValueName valueName, const std::string& value);
+        void SetValue(PortableValueName valueName, const std::string_view& value);
 
         void SetValue(PortableValueName valueName, bool& value);
 

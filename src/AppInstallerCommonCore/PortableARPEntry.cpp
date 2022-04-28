@@ -71,35 +71,20 @@ namespace AppInstaller::Registry::Portable
         switch (valueName)
         {
             VALUENAMECASE(DisplayName);
-            break;
             VALUENAMECASE(DisplayVersion);
-            break;
             VALUENAMECASE(Publisher);
-            break;
             VALUENAMECASE(InstallDate);
-            break;
             VALUENAMECASE(URLInfoAbout);
-            break;
             VALUENAMECASE(HelpLink);
-            break;
             VALUENAMECASE(UninstallString);
-            break;
             VALUENAMECASE(WinGetInstallerType);
-            break;
             VALUENAMECASE(InstallLocation);
-            break;
             VALUENAMECASE(PortableTargetFullPath);
-            break;
             VALUENAMECASE(PortableSymlinkFullPath);
-            break;
             VALUENAMECASE(SHA256);
-            break;
             VALUENAMECASE(WinGetPackageIdentifier);
-            break;
             VALUENAMECASE(WinGetSourceIdentifier);
-            break;
             VALUENAMECASE(InstallDirectoryCreated);
-            break;
             default: return {};
         }
     }
@@ -130,7 +115,7 @@ namespace AppInstaller::Registry::Portable
         m_key.SetValue(std::wstring{ ToString(valueName) }, value, REG_SZ);
     }
 
-    void PortableARPEntry::SetValue(PortableValueName valueName, const std::string& value)
+    void PortableARPEntry::SetValue(PortableValueName valueName, const std::string_view& value)
     {
         m_key.SetValue(std::wstring{ ToString(valueName) }, ConvertToUTF16(value), REG_SZ);
     }
