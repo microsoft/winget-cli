@@ -97,6 +97,17 @@ namespace AppInstaller::Repository::Microsoft
         return (value && value->GetType() == Registry::Value::Type::DWord && value->GetValue<Registry::Value::Type::DWord>());
     }
 
+    std::string ARPHelper::GetStringValue(const Registry::Key& arpKey, const std::wstring& name)
+    {
+        auto value = arpKey[name];
+        if (value && value->GetType() == Registry::Value::Type::String)
+        {
+            return value->GetValue<Registry::Value::Type::String>();
+        }
+
+        return {};
+    }
+
     std::string ARPHelper::DetermineVersion(const Registry::Key& arpKey) const
     {
         // First check DisplayVersion for a complete version string
@@ -340,6 +351,11 @@ namespace AppInstaller::Repository::Microsoft
                 if (GetBoolValue(arpKey, WindowsInstaller))
                 {
                     installedType = Manifest::InstallerTypeEnum::Msi;
+                }
+
+                if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, WinGetInstallerType)) == Manifest::InstallerTypeEnum::Portable)
+                {
+                    installedType = Manifest::InstallerTypeEnum::Portable;
                 }
 
                 index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::InstallerTypeToString(installedType));

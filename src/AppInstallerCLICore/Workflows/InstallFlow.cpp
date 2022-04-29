@@ -286,9 +286,41 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstall(Execution::Context& context)
     {
-        context <<
-            PortableInstallImpl <<
-            ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
+        try
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            context <<
+                GetPortableARPEntryForInstall <<
+                WritePortableEntryToUninstallRegistry <<
+                MovePortableExe <<
+                CreatePortableSymlink;
+
+            context.Add<Execution::Data::OperationReturnCode>(context.GetTerminationHR());
+        }
+        catch (...)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+        }
+
+        if (context.Get<Execution::Data::OperationReturnCode>() != 0)
+        {
+            context.Reporter.Warn() << "Portable install failed. Cleaning up..." << std::endl;
+            auto uninstallPortableContextPtr = context.CreateSubContext();
+            Execution::Context& uninstallPortableContext = *uninstallPortableContextPtr;
+            auto previousThreadGlobals = uninstallPortableContext.SetForCurrentThread();
+
+            uninstallPortableContext.Add<Execution::Data::PortableARPEntry>(context.Get<Execution::Data::PortableARPEntry>());
+            uninstallPortableContext <<
+                RemovePortableExe <<
+                RemovePortableSymlink;
+
+            context.Get<Execution::Data::PortableARPEntry>().Delete();
+        }
+
+        // Reset termination to allow for ReportInstallResult to process return code.
+        context.ResetTermination();
+        context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }
 
     void MsixInstall(Execution::Context& context)

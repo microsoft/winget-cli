@@ -51,6 +51,8 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring WindowsInstaller{ L"WindowsInstaller" };
         // REG_DWORD (bool)
         const std::wstring SystemComponent{ L"SystemComponent" };
+        // REG_SZ  (ex. "portable")
+        const std::wstring WinGetInstallerType{ L"WinGetInstallerType" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
@@ -58,6 +60,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);
+
+        // Returns the string value if it exists.
+        static std::string GetStringValue(const Registry::Key& arpKey, const std::wstring& name);
 
         // Determines the version from an ARP entry.
         // The priority is:

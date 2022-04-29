@@ -33,36 +33,37 @@ namespace AppInstaller::Registry::Portable
 
     PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode)
     {
-        HKEY root;
-        std::wstring subKey;
         if (scope == Manifest::ScopeEnum::Machine)
         {
-            root = HKEY_LOCAL_MACHINE;
+            m_root = HKEY_LOCAL_MACHINE;
             if (arch == Utility::Architecture::X64)
             {
-                subKey = s_UninstallRegistryX64;
+                m_subKey = s_UninstallRegistryX64;
+                m_samDesired = KEY_WOW64_64KEY;
             }
             else
             {
-                subKey = s_UninstallRegistryX86;
+                m_subKey = s_UninstallRegistryX86;
+                m_samDesired = KEY_WOW64_32KEY;
             }
         }
         else
         {
             // HKCU uninstall registry share the x64 registry view.
-            root = HKEY_CURRENT_USER;
-            subKey = s_UninstallRegistryX64;
+            m_root = HKEY_CURRENT_USER;
+            m_subKey = s_UninstallRegistryX64;
+            m_samDesired = KEY_WOW64_64KEY;
         }
 
-        subKey += L"\\" + productCode;
-        m_key = Key::OpenIfExists(root, subKey, 0, KEY_ALL_ACCESS);
+        m_subKey += L"\\" + productCode;
+        m_key = Key::OpenIfExists(m_root, m_subKey, 0, KEY_ALL_ACCESS);
         if (m_key != NULL)
         {
             m_exists = true;
         }
         else
         {
-            m_key = Key::Create(root, subKey);
+            m_key = Key::Create(m_root, m_subKey);
         }
     }
 
@@ -123,5 +124,15 @@ namespace AppInstaller::Registry::Portable
     void PortableARPEntry::SetValue(PortableValueName valueName, bool& value)
     {
         m_key.SetValue(std::wstring{ ToString(valueName) }, value);
+    }
+
+    std::optional<Registry::Value> PortableARPEntry::GetValue(PortableValueName valueName)
+    {
+        return m_key[std::wstring{ ToString(valueName) }];
+    }
+
+    void PortableARPEntry::Delete()
+    {
+        Registry::Key::Delete(m_root, m_subKey, m_samDesired);
     }
 }

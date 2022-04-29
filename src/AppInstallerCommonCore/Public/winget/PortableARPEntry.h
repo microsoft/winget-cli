@@ -41,11 +41,18 @@ namespace AppInstaller::Registry::Portable
 
         void SetValue(PortableValueName valueName, bool& value);
 
+        std::optional<Registry::Value> GetValue(PortableValueName valueName);
+
+        void Delete();
+
         Registry::Key GetKey() { return m_key; };
 
     private:
         bool m_exists;
         Key m_key;
+        HKEY m_root;
+        std::wstring m_subKey;
+        DWORD m_samDesired;
     };
 
 }
