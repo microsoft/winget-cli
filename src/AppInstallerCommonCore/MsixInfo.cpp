@@ -302,7 +302,7 @@ namespace AppInstaller::Msix
                 wil::unique_any<HCRYPTMSG, decltype(&::CryptMsgClose), ::CryptMsgClose> signedMessage;
                 wil::unique_hcertstore certStore;
                 CRYPT_DATA_BLOB signatureBlob = { 0 };
-                signatureBlob.cbData = signature.size();
+                signatureBlob.cbData = static_cast<DWORD>(signature.size());
                 signatureBlob.pbData = signature.data();
                 THROW_LAST_ERROR_IF(!CryptQueryObject(
                     CERT_QUERY_OBJECT_BLOB,
@@ -406,7 +406,7 @@ namespace AppInstaller::Msix
 
                 GUID verifyActionId = WINTRUST_ACTION_GENERIC_VERIFY_V2;
 
-                HRESULT verifyTrustResult = (HRESULT)WinVerifyTrust(static_cast<HWND>(INVALID_HANDLE_VALUE), &verifyActionId, &trustData);
+                HRESULT verifyTrustResult = static_cast<HRESULT>(WinVerifyTrust(static_cast<HWND>(INVALID_HANDLE_VALUE), &verifyActionId, &trustData));
                 AICLI_LOG(Core, Info, << "Result for trust info validation of the msix: " << verifyTrustResult);
 
                 result = verifyTrustResult == S_OK;
