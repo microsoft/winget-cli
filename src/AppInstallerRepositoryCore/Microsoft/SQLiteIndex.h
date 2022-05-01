@@ -164,10 +164,10 @@ namespace AppInstaller::Repository::Microsoft
         // Sets the last write time metadata value in the index.
         void SetLastWriteTime();
 
+        TempSQLiteIndexFile m_tempIndexFileHandle;
         SQLite::Connection m_dbconn;
         Schema::Version m_version;
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
-        TempSQLiteIndexFile m_tempIndexFileHandle;
     };
 }
