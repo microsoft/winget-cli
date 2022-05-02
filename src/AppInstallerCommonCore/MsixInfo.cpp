@@ -121,6 +121,68 @@ namespace AppInstaller::Msix
 
             WriteStreamToFile(stream.Get(), size, target, progress);
         }
+
+        // Writes the stream (from current location) to the given file handle.
+        void WriteStreamToFileHandle(IStream* stream, UINT64 expectedSize, HANDLE target, IProgressCallback& progress)
+        {
+            constexpr ULONG bufferSize = 1 << 20;
+            std::unique_ptr<char[]> buffer = std::make_unique<char[]>(bufferSize);
+
+            UINT64 totalBytesRead = 0;
+
+            while (!progress.IsCancelled())
+            {
+                ULONG bytesRead = 0;
+                HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);
+
+                if (bytesRead)
+                {
+                    // If we got bytes, just accept them and keep going.
+                    LOG_IF_FAILED(hr);
+
+                    THROW_LAST_ERROR_IF(INVALID_SET_FILE_POINTER == SetFilePointer(target, 0, nullptr, FILE_END));
+                    DWORD bytesWritten = 0;
+                    THROW_LAST_ERROR_IF(!WriteFile(target, buffer.get(), bytesRead, &bytesWritten, nullptr));
+                    THROW_HR_IF(E_UNEXPECTED, bytesRead != bytesWritten);
+                    totalBytesRead += bytesRead;
+                    progress.OnProgress(totalBytesRead, expectedSize, ProgressType::Bytes);
+                }
+                else
+                {
+                    // If given a size, and we have read it all, quit
+                    if (expectedSize && totalBytesRead == expectedSize)
+                    {
+                        break;
+                    }
+
+                    // If the stream returned an error, throw it
+                    THROW_IF_FAILED(hr);
+
+                    // If we were given a size and didn't reach it, throw our own error;
+                    // otherwise assume that this is just normal EOF.
+                    if (expectedSize)
+                    {
+                        THROW_WIN32(ERROR_HANDLE_EOF);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Writes the appx file to the given file handle.
+        void WriteAppxFileToFileHandle(IAppxFile* appxFile, HANDLE target, IProgressCallback& progress)
+        {
+            UINT64 size = 0;
+            THROW_IF_FAILED(appxFile->GetSize(&size));
+
+            ComPtr<IStream> stream;
+            THROW_IF_FAILED(appxFile->GetStream(&stream));
+
+            WriteStreamToFileHandle(stream.Get(), size, target, progress);
+        }
     }
 
     bool GetBundleReader(
@@ -577,5 +639,22 @@ namespace AppInstaller::Msix
         }
 
         WriteAppxFileToFile(appxFile.Get(), target, progress);
+    }
+
+    void MsixInfo::WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress)
+    {
+        std::wstring fileUTF16 = Utility::ConvertToUTF16(packageFile);
+
+        ComPtr<IAppxFile> appxFile;
+        if (m_isBundle)
+        {
+            THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(fileUTF16.c_str(), &appxFile));
+        }
+        else
+        {
+            THROW_IF_FAILED(m_packageReader->GetPayloadFile(fileUTF16.c_str(), &appxFile));
+        }
+
+        WriteAppxFileToFileHandle(appxFile.Get(), target, progress);
     }
 }

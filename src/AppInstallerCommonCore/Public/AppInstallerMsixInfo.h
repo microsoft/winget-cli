@@ -79,6 +79,9 @@ namespace AppInstaller::Msix
         // Writes the package's manifest to the given path.
         void WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress);
 
+        // Writes the package file to the given file handle.
+        void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
+
     private:
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;

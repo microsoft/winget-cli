@@ -23,7 +23,7 @@ namespace AppInstaller::Repository::Microsoft
         m_indexHanlde.reset(CreateFileW(m_indexFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
         THROW_LAST_ERROR_IF(!m_indexHanlde);
 
-        packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexFile, progress, true);
+        packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexHanlde.get(), progress);
     }
 
     TempSQLiteIndexFile::~TempSQLiteIndexFile()
