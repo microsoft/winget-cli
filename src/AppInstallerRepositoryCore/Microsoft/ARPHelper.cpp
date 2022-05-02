@@ -355,6 +355,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, WinGetInstallerType)) == Manifest::InstallerTypeEnum::Portable)
                 {
+                    // Portable uninstall requires the installed architecture for locating the entry in the registry.
+                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);
                     installedType = Manifest::InstallerTypeEnum::Portable;
                 }
 

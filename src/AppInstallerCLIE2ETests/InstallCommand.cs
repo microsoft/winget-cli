@@ -254,6 +254,20 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
+        [Test]
+        public void InstallPortableUninstallPrevious()
+        {
+            // Test for verifying that uninstallPrevious works as expected for an upgrade.
+        }
+
+        [Test]
+        public void InstallPortableFailsWithCleanup()
+        {
+            // Test for verifying that the cleanup process is called if the portable package fails.
+            // create a test file with the exact same name that will conflict with the install.
+            // Call verifyportablepackage to verify that the package is cleaned up.
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))

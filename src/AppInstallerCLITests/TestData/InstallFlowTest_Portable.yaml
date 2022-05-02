@@ -5,7 +5,6 @@ PackageName: AppInstaller Test Portable Exe
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestPortable
 License: Test
-ProductCode: AppInstallerCliTest.TestExeInstaller
 Installers: 
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed

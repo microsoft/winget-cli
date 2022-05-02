@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
+            Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::Version),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
@@ -70,6 +71,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Version:
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
+        case Execution::Args::Type::ProductCode:
             context <<
                 Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
@@ -90,6 +92,7 @@ namespace AppInstaller::CLI
              execArgs.Contains(Execution::Args::Type::Id) ||
              execArgs.Contains(Execution::Args::Type::Name) ||
              execArgs.Contains(Execution::Args::Type::Moniker) ||
+             execArgs.Contains(Execution::Args::Type::ProductCode) ||
              execArgs.Contains(Execution::Args::Type::Version) ||
              execArgs.Contains(Execution::Args::Type::Channel) ||
              execArgs.Contains(Execution::Args::Type::Source) ||

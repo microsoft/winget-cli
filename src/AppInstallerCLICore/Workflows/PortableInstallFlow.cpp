@@ -286,16 +286,20 @@ namespace AppInstaller::CLI::Workflow
 
     void GetPortableARPEntryForUninstall(Execution::Context& context)
     {
-        const auto& productCode = context.Get<Execution::Data::ProductCodes>()[0];
-        const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
-        
-        // figure out how to get architecture
-        Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
-            ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
-            Utility::Architecture::X64,
-            ConvertToUTF16(productCode));
+        // PortableARPEntry will already exist if portable install fails.
+        if (!context.Contains(Execution::Data::PortableARPEntry))
+        {
+            const auto& productCode = context.Get<Execution::Data::ProductCodes>()[0];
+            const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+            const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
 
-        context.Add<Execution::Data::PortableARPEntry>(std::move(uninstallEntry));
+            Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
+                ConvertToScopeEnum(installedScope),
+                ConvertToArchitectureEnum(installedArch),
+                ConvertToUTF16(productCode));
+
+            context.Add<Execution::Data::PortableARPEntry>(std::move(uninstallEntry));
+        }
     }
 
     void WritePortableEntryToUninstallRegistry(Execution::Context& context)
@@ -375,14 +379,15 @@ namespace AppInstaller::CLI::Workflow
 
     void RemovePortableExe(Execution::Context& context)
     {
-
         Portable::PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
         const auto& targetPathValue = uninstallEntry.GetValue(PortableValueName::PortableTargetFullPath);
         const auto& installDirectoryCreated = uninstallEntry.GetValue(PortableValueName::InstallDirectoryCreated);
 
         if (!targetPathValue.has_value())
         {
-            context.Reporter.Error() << "Registry has been modified, unable to locate target exe Path" << std::endl;
+            // Failing to obtain target exe path should not block on the rest of the cleanup operations.
+            context.Reporter.Warn() << "Registry has been modified, unable to locate target exe Path" << std::endl;
+            return;
         }
 
         const std::filesystem::path& targetPath = targetPathValue.value().GetValue<Value::Type::UTF16String>();
@@ -394,8 +399,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "Portable exe does not exist: " << targetPath);
-            context.Reporter.Warn() << "Failed to delete portable exe as it was not found" << std::endl;
+            AICLI_LOG(CLI, Info, << "Portable exe not found; Unable to delete portable exe: " << targetPath);
         }
 
         if (isCreated)
@@ -444,10 +448,19 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::remove(symlinkPath))
         {
-            context.Reporter.Warn() << "Unable to delete symlink. File may have been moved or renamed." << std::endl;
+            AICLI_LOG(CLI, Info, << "Portable symlink not found; Unable to delete portable symlink: " << symlinkPath);
         }
 
-        const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+        std::string installedScope;
+        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        {
+            installedScope = context.Args.GetArg(Execution::Args::Type::InstallScope);
+        }
+        else
+        {
+            installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+        }
+
         if (std::filesystem::is_empty(GetPortableLinksLocation(ConvertToScopeEnum(installedScope))))
         {
             RemoveFromPathRegistry(context);

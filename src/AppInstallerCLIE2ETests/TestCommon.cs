@@ -299,8 +299,6 @@ namespace AppInstallerCLIE2ETests
             {
                 RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 Assert.AreEqual(shouldExist, portableEntry != null, $"Expected {productCode} subkey in path: {subKey}");
-                // TODO: Remove delete once uninstall is implemented.
-                uninstallRegistryKey.DeleteSubKey(productCode);
             }
 
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
@@ -317,7 +315,11 @@ namespace AppInstallerCLIE2ETests
                 Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {portablePathValue}");
             }
 
-            // TODO: Call uninstall command for cleanup when implemented
+            if (shouldExist)
+            {
+                var result = RunAICLICommand("uninstall", $"--product-code {productCode}");
+                Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            }
         }
 
         /// <summary>

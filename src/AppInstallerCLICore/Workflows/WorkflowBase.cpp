@@ -133,6 +133,11 @@ namespace AppInstaller::CLI::Workflow
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
             }
 
+            if (args.Contains(Execution::Args::Type::ProductCode))
+            {
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, matchType, args.GetArg(Execution::Args::Type::ProductCode)));
+            }
+
             if (args.Contains(Execution::Args::Type::Tag))
             {
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
@@ -478,7 +483,6 @@ namespace AppInstaller::CLI::Workflow
             // Regardless of match type, always use an exact match for the system reference strings.
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
-
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));

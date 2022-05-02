@@ -261,6 +261,10 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
+            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            {
+                context << PortableUninstall;
+            }
             context << PortableInstall;
             break;
         default:
@@ -303,24 +307,23 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
 
-        if (context.Get<Execution::Data::OperationReturnCode>() != 0)
+        const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
+
+        // Reset termination to allow for ReportInstallResult to process return code.
+        context.ResetTermination();
+        context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
+
+        if (installReturnCode != 0)
         {
-            context.Reporter.Warn() << "Portable install failed. Cleaning up..." << std::endl;
+            context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
             auto uninstallPortableContextPtr = context.CreateSubContext();
             Execution::Context& uninstallPortableContext = *uninstallPortableContextPtr;
             auto previousThreadGlobals = uninstallPortableContext.SetForCurrentThread();
 
             uninstallPortableContext.Add<Execution::Data::PortableARPEntry>(context.Get<Execution::Data::PortableARPEntry>());
-            uninstallPortableContext <<
-                RemovePortableExe <<
-                RemovePortableSymlink;
-
-            context.Get<Execution::Data::PortableARPEntry>().Delete();
+            uninstallPortableContext.Args.AddArg(Execution::Args::Type::InstallScope, context.Args.GetArg(Execution::Args::Type::InstallScope));
+            uninstallPortableContext << PortableUninstall;
         }
-
-        // Reset termination to allow for ReportInstallResult to process return code.
-        context.ResetTermination();
-        context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }
 
     void MsixInstall(Execution::Context& context)

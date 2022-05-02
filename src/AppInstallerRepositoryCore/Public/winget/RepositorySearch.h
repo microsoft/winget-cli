@@ -162,6 +162,8 @@ namespace AppInstaller::Repository
         InstalledType,
         // The Scope of an installed package
         InstalledScope,
+        // The Architecture of an installed package
+        InstalledArchitecture,
         // The system path where the package is installed
         InstalledLocation,
         // The standard uninstall command; which may be interactive

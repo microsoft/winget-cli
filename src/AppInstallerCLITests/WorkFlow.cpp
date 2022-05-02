@@ -550,6 +550,18 @@ void OverrideForPortableInstall(TestContext& context)
     } });
 }
 
+void OverrideForPortableUninstall(TestContext& context)
+{
+    context.Override({ PortableUninstall, [](TestContext&)
+    {
+            // Write out the uninstall command
+            std::filesystem::path temp = std::filesystem::temp_directory_path();
+            temp /= "TestPortableUninstalled.txt";
+            std::ofstream file(temp, std::ofstream::out);
+            file.close();
+        } });
+}
+
 void OverrideForDirectMsi(TestContext& context)
 {
     OverrideForCheckExistingInstaller(context);
@@ -1805,6 +1817,23 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     REQUIRE_FALSE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+}
+
+TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestPortableUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForPortableUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortable"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
 }
 
 TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
