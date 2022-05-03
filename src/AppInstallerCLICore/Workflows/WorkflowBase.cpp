@@ -710,6 +710,7 @@ namespace AppInstaller::CLI::Workflow
         int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
+        std::set<Utility::LocIndString> packageIdsPrinted = std::set<Utility::LocIndString>();
 
         for (const auto& match : searchResult.Matches)
         {
@@ -731,26 +732,50 @@ namespace AppInstaller::CLI::Workflow
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
                     Utility::LocIndString availableVersion, sourceName;
+                    Utility::LocIndString packageId = match.Package->GetProperty(PackageProperty::Id);
 
                     if (latestVersion)
                     {
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                            availableUpgradesCount++;
+                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count(packageId))
+                            {
+                                // we should only add to the upgrade count if we actually showed the table entry.
+                                availableUpgradesCount++;
+                            }
                         }
 
                         // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
 
-                    table.OutputLine({
-                        match.Package->GetProperty(PackageProperty::Name),
-                        match.Package->GetProperty(PackageProperty::Id),
-                        installedVersion->GetProperty(PackageVersionProperty::Version),
-                        availableVersion,
-                        shouldShowSource ? sourceName : ""s
-                        });
+                    if (context.Args.Contains(Execution::Args::Type::ListAll))
+                    {
+                       table.OutputLine({
+							installedVersion->GetProperty(PackageVersionProperty::Name),
+							match.Package->GetProperty(PackageProperty::Id),
+							installedVersion->GetProperty(PackageVersionProperty::Version),
+							availableVersion,
+							shouldShowSource ? sourceName : ""s
+                       });
+                    }
+                    else
+                    {
+	                    // we need to only list once per package
+                        if (!packageIdsPrinted.count(packageId))
+                        {
+                            packageIdsPrinted.insert(packageId);
+                            table.OutputLine({
+                                match.Package->GetProperty(PackageProperty::Name),
+                                match.Package->GetProperty(PackageProperty::Id),
+                                installedVersion->GetProperty(PackageVersionProperty::Version),
+                                availableVersion,
+                                shouldShowSource ? sourceName : ""s
+                            });
+                        }
+                    }
+                   
                 }
             }
         }

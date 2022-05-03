@@ -63,6 +63,8 @@ namespace AppInstaller::CLI
             return Argument{ "msix", 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
         case Args::Type::ListVersions:
             return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::ListAll:
+            return Argument{ "all", 'a', Args::Type::ListAll, Resource::String::ListAllArgumentDescription, ArgumentType::Flag};
         case Args::Type::Help:
             return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceName:

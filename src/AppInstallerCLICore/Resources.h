@@ -156,6 +156,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
+        WINGET_DEFINE_RESOURCE_STRINGID(ListAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocaleArgumentDescription);

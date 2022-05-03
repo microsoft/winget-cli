@@ -81,6 +81,7 @@ namespace AppInstaller::CLI::Execution
 
             // Other
             All, // Used in Update command to update all installed packages to latest
+        	ListAll, // Used in List command to list all installed apps associated with a package
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro
