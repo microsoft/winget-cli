@@ -753,11 +753,11 @@ namespace AppInstaller::CLI::Workflow
                     if (context.Args.Contains(Execution::Args::Type::ListAll))
                     {
                        table.OutputLine({
-							installedVersion->GetProperty(PackageVersionProperty::Name),
-							match.Package->GetProperty(PackageProperty::Id),
-							installedVersion->GetProperty(PackageVersionProperty::Version),
-							availableVersion,
-							shouldShowSource ? sourceName : ""s
+                           installedVersion->GetProperty(PackageVersionProperty::Name),
+                           match.Package->GetProperty(PackageProperty::Id),
+                           installedVersion->GetProperty(PackageVersionProperty::Version),
+                           availableVersion,
+                           shouldShowSource ? sourceName : ""s
                        });
                     }
                     else
