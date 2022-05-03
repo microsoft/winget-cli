@@ -1067,6 +1067,11 @@ namespace AppInstaller::CLI::Workflow
             {
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
             }
+            else if (installer.InstallerType == Manifest::InstallerTypeEnum::Portable)
+            {
+                const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + "_" + source.GetIdentifier());
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, Utility::Normalize(productCode)));
+            }
 
             if (!searchRequest.Inclusions.empty())
             {

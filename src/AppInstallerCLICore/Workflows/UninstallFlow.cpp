@@ -6,7 +6,7 @@
 #include "DependenciesFlow.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
-#include "PortableInstallFlow.h"
+#include "PortableFlow.h"
 
 #include <AppInstallerDeployment.h>
 
@@ -129,7 +129,6 @@ namespace AppInstaller::CLI::Workflow
         }
         case InstallerTypeEnum::Portable:
         {
-            // process the product code by obtaining the source and packageIdentifier and add it as the productCode.
             auto productCodes = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
             if (productCodes.empty())
             {
@@ -164,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
             context << Workflow::MsixUninstall;
             break;
         case InstallerTypeEnum::Portable:
-            context << Workflow::PortableUninstall;
+            context << Workflow::PortableUninstallImpl;
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -199,26 +198,6 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
-    }
-
-    void PortableUninstall(Execution::Context& context)
-    {
-        try
-        {
-            context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
-            context <<
-                GetPortableARPEntryForUninstall <<
-                RemovePortableExe <<
-                RemovePortableSymlink;
-
-            context.Get<Execution::Data::PortableARPEntry>().Delete();
-            context.Add<Execution::Data::OperationReturnCode>(0);
-            context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
-        }
-        catch (...)
-        {
-            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
-        }
     }
 
     void RecordUninstall(Context& context)

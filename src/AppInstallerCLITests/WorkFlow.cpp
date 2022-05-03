@@ -14,7 +14,7 @@
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
-#include <Workflows/PortableInstallFlow.h>
+#include <Workflows/PortableFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/DependenciesFlow.h>
@@ -150,6 +150,20 @@ namespace
                     ResultMatch(
                         testPackage,
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
+            if (input.empty() || input == "AppInstallerCliTest.TestPortable")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
+                            std::vector<Manifest>{ manifest },
+                            shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestPortable")));
             }
 
             if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller")
@@ -540,7 +554,7 @@ void OverrideForPortableInstall(TestContext& context)
 
     OverrideForUpdateInstallerMotw(context);
 
-    context.Override({ PortableInstall, [](TestContext&)
+    context.Override({ PortableInstallImpl, [](TestContext&)
     {
         // Write out the install command
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -552,7 +566,7 @@ void OverrideForPortableInstall(TestContext& context)
 
 void OverrideForPortableUninstall(TestContext& context)
 {
-    context.Override({ PortableUninstall, [](TestContext&)
+    context.Override({ PortableUninstallImpl, [](TestContext&)
     {
             // Write out the uninstall command
             std::filesystem::path temp = std::filesystem::temp_directory_path();

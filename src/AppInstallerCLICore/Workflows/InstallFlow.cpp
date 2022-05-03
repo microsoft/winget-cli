@@ -9,7 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
-#include "PortableInstallFlow.h"
+#include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -263,7 +263,10 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Portable:
             if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
-                context << PortableUninstall;
+                context <<
+                    GetUninstallInfo <<
+                    ExecuteUninstaller;
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
             context << PortableInstall;
             break;
@@ -290,28 +293,11 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstall(Execution::Context& context)
     {
-        try
-        {
-            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-            context <<
-                GetPortableARPEntryForInstall <<
-                WritePortableEntryToUninstallRegistry <<
-                MovePortableExe <<
-                CreatePortableSymlink;
-
-            context.Add<Execution::Data::OperationReturnCode>(context.GetTerminationHR());
-        }
-        catch (...)
-        {
-            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
-        }
+        context <<
+            PortableInstallImpl <<
+            ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
 
         const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
-
-        // Reset termination to allow for ReportInstallResult to process return code.
-        context.ResetTermination();
-        context << ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
 
         if (installReturnCode != 0)
         {
@@ -320,9 +306,11 @@ namespace AppInstaller::CLI::Workflow
             Execution::Context& uninstallPortableContext = *uninstallPortableContextPtr;
             auto previousThreadGlobals = uninstallPortableContext.SetForCurrentThread();
 
-            uninstallPortableContext.Add<Execution::Data::PortableARPEntry>(context.Get<Execution::Data::PortableARPEntry>());
+            // Uninstall requires the productCode, architecture, and scope.
+            uninstallPortableContext.Add<Execution::Data::ProductCodes>(context.Get<Execution::Data::ProductCodes>());
+            uninstallPortableContext.Add<Execution::Data::Installer>(context.Get<Execution::Data::Installer>());
             uninstallPortableContext.Args.AddArg(Execution::Args::Type::InstallScope, context.Args.GetArg(Execution::Args::Type::InstallScope));
-            uninstallPortableContext << PortableUninstall;
+            uninstallPortableContext << PortableUninstallImpl;
         }
     }
 
