@@ -233,7 +233,7 @@ namespace AppInstaller::CLI::Workflow
 
             if(uninstallEntry.Exists())
             {
-                if (uninstallEntry.IsSamePortablePackageEntry(packageIdentifier, sourceIdentifier))
+                if (!uninstallEntry.IsSamePortablePackageEntry(packageIdentifier, sourceIdentifier))
                 {
                     // TODO: Replace HashOverride with --Force when argument behavior gets updated.
                     if (!context.Args.Contains(Execution::Args::Type::HashOverride))
