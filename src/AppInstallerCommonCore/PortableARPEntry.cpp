@@ -62,6 +62,7 @@ namespace AppInstaller::Registry::Portable
         }
         else
         {
+            m_exists = false;
             m_key = Key::Create(root, subKey);
         }
     }
