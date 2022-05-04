@@ -49,6 +49,19 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::string GetCurrentDateForARP()
+    {
+        auto now = std::chrono::system_clock::now();
+        std::time_t tt = std::chrono::system_clock::to_time_t(now);
+
+        struct tm newTime;
+        localtime_s(&newTime, &tt);
+
+        std::stringstream ss;
+        ss << std::put_time(&newTime, "%Y%m%d");
+        return ss.str();
+    }
+
     int64_t GetCurrentUnixEpoch()
     {
         static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");

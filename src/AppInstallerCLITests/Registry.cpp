@@ -29,6 +29,32 @@ TEST_CASE("OpenIfExists_NotFound", "[registry]")
     REQUIRE(!key);
 }
 
+TEST_CASE("CreateKeyAndDelete", "[registry]")
+{
+    std::wstring subkey = L"Foo\\Bar";
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    Key key = Key::Create(root.get(), subkey, REG_OPTION_VOLATILE);
+    REQUIRE(key);
+    Key::Delete(root.get(), subkey, KEY_WOW64_64KEY);
+    Key secondKey = Key::OpenIfExists(root.get(), subkey);
+    REQUIRE(!secondKey);
+}
+
+TEST_CASE("SetKeyValue", "[registry]")
+{
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"TestValueValue";
+    std::wstring subkey = L"FooBar";
+
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    Key key = Key::Create(root.get(), subkey, REG_OPTION_VOLATILE);
+    key.SetValue(valueName, valueValue, REG_SZ);
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::String);
+    REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
+}
+
 TEST_CASE("EnumerateKeys", "[registry]")
 {
     wil::unique_hkey root = RegCreateVolatileTestRoot();

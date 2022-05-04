@@ -1,0 +1,16 @@
+PackageIdentifier: AppInstallerTest.TestPortableExeWithCommand
+PackageVersion: 1.0.0.0
+PackageName: TestPortableExeWithCommand
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for portable install with command value.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: portable
+    InstallerSha256: <EXEHASH>
+    Commands:
+     - testCommand
+ManifestType: singleton
+ManifestVersion: 1.2.0

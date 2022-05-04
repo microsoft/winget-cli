@@ -55,6 +55,8 @@ namespace AppInstaller::Utility {
 
         static std::string ConvertToString(const HashBuffer& hashBuffer);
 
+        static std::wstring ConvertToWideString(const HashBuffer& hashBuffer);
+
         static HashBuffer ConvertToBytes(const std::string& hashStr);
 
         // Returns a value indicating whether the two hashes are equal.

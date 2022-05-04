@@ -1293,6 +1293,24 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>The installer cannot be run from an administrator context.</value>
   </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>Path environment variable modified; restart your shell to use the new value.</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>Filters using the product code</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>The volume does not support reparse points</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>The specified filename is not a valid filename</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>Overwriting existing file:</value>
+  </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
   </data>

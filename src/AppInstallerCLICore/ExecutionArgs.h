@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Execution
             // Uninstall behavior
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
             Preserve, // Retains any files and directories created by the portable exe.
+            ProductCode, // Uninstalls using the product code as the identifier.
 
             //Source Command
             SourceName,

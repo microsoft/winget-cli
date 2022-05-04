@@ -83,7 +83,8 @@ namespace AppInstaller::Repository::Correlation
         std::u32string NormalizeAndPreparePublisher(std::string_view publisher) const;
 
         AppInstaller::Utility::NameNormalizer m_normalizer{ AppInstaller::Utility::NormalizationVersion::Initial };
-        std::vector<std::pair<std::u32string, std::u32string>> m_namesAndPublishers;
+        // Each entry is a tuple { name, publisher, name + publisher }
+        std::vector<std::tuple<std::u32string, std::u32string, std::u32string>> m_namesAndPublishers;
     };
 
     // Finds the ARP entry in the ARP source that matches a newly installed package.

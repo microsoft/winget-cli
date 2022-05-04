@@ -95,6 +95,9 @@ namespace AppInstaller::CLI::Execution
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
 
+        // Resets the context to a nonterminated state. 
+        void ResetTermination() { m_terminationHR = S_OK; m_isTerminated = false; }
+
         // Gets the HRESULT reason for the termination.
         HRESULT GetTerminationHR() const { return m_terminationHR; }
 

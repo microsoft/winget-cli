@@ -8,6 +8,7 @@
 #include <string_view>
 #include <vector>
 
+#define AICLI_REGISTRY_UTF16_FLAG 0x08000000
 
 namespace AppInstaller::Registry
 {
@@ -42,9 +43,23 @@ namespace AppInstaller::Registry
         };
 
         template <>
+        struct ValueTypeSpecifics<REG_SZ | AICLI_REGISTRY_UTF16_FLAG>
+        {
+            using value_t = std::wstring;
+            static value_t Convert(const std::vector<BYTE>& data);
+        };
+
+        template <>
         struct ValueTypeSpecifics<REG_EXPAND_SZ>
         {
             using value_t = std::string;
+            static value_t Convert(const std::vector<BYTE>& data);
+        };
+
+        template <>
+        struct ValueTypeSpecifics<REG_EXPAND_SZ | AICLI_REGISTRY_UTF16_FLAG>
+        {
+            using value_t = std::wstring;
             static value_t Convert(const std::vector<BYTE>& data);
         };
 
@@ -77,7 +92,10 @@ namespace AppInstaller::Registry
         {
             None = REG_NONE,
             String = REG_SZ,
+            UTF16Flag = AICLI_REGISTRY_UTF16_FLAG,
+            UTF16String = REG_SZ | UTF16Flag,
             ExpandString = REG_EXPAND_SZ,
+            UTF16ExpandString = REG_EXPAND_SZ | UTF16Flag,
             Binary = REG_BINARY,
             DWord = REG_DWORD,
             DWordLittleEndian = REG_DWORD_LITTLE_ENDIAN,
@@ -251,6 +269,11 @@ namespace AppInstaller::Registry
         std::optional<Key> SubKey(std::string_view name, DWORD options = 0) const;
         std::optional<Key> SubKey(const std::wstring& name, DWORD options = 0) const;
 
+        // Set registry values.
+        void SetValue(const std::wstring& name, const std::wstring& value, DWORD type = REG_SZ) const;
+        void SetValue(const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY) const;
+        void SetValue(const std::wstring& name, DWORD value) const;
+
         ValueList Values() const;
 
         operator bool() const { return m_key.operator bool(); }
@@ -259,9 +282,20 @@ namespace AppInstaller::Registry
         static Key OpenIfExists(HKEY key, std::string_view subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
         static Key OpenIfExists(HKEY key, const std::wstring& subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
 
+        // Creates a new Key or returns one if it already existed. 
+        static Key Create(HKEY key, std::string_view subkey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
+        static Key Create(HKEY key, const std::wstring& subKey = {}, DWORD options = REG_OPTION_NON_VOLATILE, REGSAM access = KEY_ALL_ACCESS);
+
+        // Delete a key
+        static bool Delete(HKEY key, std::string_view subkey, DWORD samDesired);
+        static bool Delete(HKEY key, const std::wstring& subKey, DWORD samDesired);
+
     private:
         // When ignoring error, returns whether the key existed
         bool Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
+
+        // Returns whether the key was created successfully.
+        bool CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access);
 
         wil::shared_hkey m_key;
         REGSAM m_access = KEY_READ;

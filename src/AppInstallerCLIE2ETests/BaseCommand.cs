@@ -49,6 +49,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalCmd", status);
             ConfigureFeature("dependencies", status);
             ConfigureFeature("directMSI", status);
+            ConfigureFeature("portableInstall", status);
         }
     }
 }

@@ -147,15 +147,17 @@ namespace AppInstaller::Repository::Correlation
         if (manifest.DefaultLocalization.Contains(Localization::PackageName))
         {
             std::u32string defaultName = NormalizeAndPrepareName(manifest.DefaultLocalization.Get<Localization::PackageName>());
-            m_namesAndPublishers.emplace_back(defaultName, defaultPublisher);
+            m_namesAndPublishers.emplace_back(defaultName, defaultPublisher, defaultName + defaultPublisher);
 
             for (const auto& loc : manifest.Localizations)
             {
                 if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
                 {
-                    m_namesAndPublishers.emplace_back(
-                        loc.Contains(Localization::PackageName) ? NormalizeAndPrepareName(loc.Get<Localization::PackageName>()) : defaultName,
-                        loc.Contains(Localization::Publisher) ? NormalizeAndPreparePublisher(loc.Get<Localization::Publisher>()) : defaultPublisher);
+                    auto name = loc.Contains(Localization::PackageName) ? NormalizeAndPrepareName(loc.Get<Localization::PackageName>()) : defaultName;
+                    auto publisher = loc.Contains(Localization::Publisher) ? NormalizeAndPreparePublisher(loc.Get<Localization::Publisher>()) : defaultPublisher;
+                    auto nameAndPublisher = publisher + name;
+
+                    m_namesAndPublishers.emplace_back(std::move(name), std::move(publisher), std::move(nameAndPublisher));
                 }
             }
         }
@@ -163,16 +165,23 @@ namespace AppInstaller::Repository::Correlation
 
     double EditDistanceMatchConfidenceAlgorithm::ComputeConfidence(const ARPEntry& arpEntry) const
     {
+        // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
+        auto arpName = NormalizeAndPrepareName(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name).get());
+        auto arpPublisher = NormalizeAndPreparePublisher(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher).get());
+        auto arpNamePublisher = arpPublisher + arpName;
+
         // Get the best score across all localizations
         double bestMatchingScore = 0;
         for (const auto& manifestNameAndPublisher : m_namesAndPublishers)
         {
-            // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
-            auto arpName = arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name);
-            auto arpPublisher = arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher);
-
-            auto nameDistance = EditDistanceScore(manifestNameAndPublisher.first, NormalizeAndPrepareName(arpName.get()));
-            auto publisherDistance = EditDistanceScore(manifestNameAndPublisher.second, NormalizeAndPreparePublisher(arpPublisher.get()));
+            // Sometimes the publisher may be included in the name, for example Microsoft PowerToys as opposed to simply PowerToys.
+            // This may happen both in the ARP entry and the manifest. We try adding it in case it is in one but not in both.
+            auto nameDistance = std::max(
+                EditDistanceScore(std::get<0>(manifestNameAndPublisher), arpName),
+                std::max(
+                    EditDistanceScore(std::get<2>(manifestNameAndPublisher), arpName),
+                    EditDistanceScore(std::get<0>(manifestNameAndPublisher), arpNamePublisher)));
+            auto publisherDistance = EditDistanceScore(std::get<1>(manifestNameAndPublisher), arpPublisher);
 
             // TODO: Consider other ways of merging the two values
             auto score = (2 * nameDistance + publisherDistance) / 3;
@@ -288,12 +297,6 @@ namespace AppInstaller::Repository::Correlation
         }
 
         // We now have all of the package changes; time to report them.
-        // The set of cases we could have for changes to ARP:
-        //  0 packages  ::  No changes were detected to ARP, which could mean that the installer
-        //                  did not write an entry. It could also be a forced reinstall.
-        //  1 package   ::  Golden path; this should be what we installed.
-        //  2+ packages ::  We need to determine which package actually matches the one that we
-        //                  were installing.
         //
         // The set of cases we could have for finding packages based on the manifest:
         //  0 packages  ::  The manifest data does not match the ARP information.
@@ -317,11 +320,6 @@ namespace AppInstaller::Repository::Correlation
         else if (findByManifest.Matches.size() == 1)
         {
             result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
-        }
-        // If only a single ARP entry was changed and we found no matches, report that.
-        else if (findByManifest.Matches.empty() && changedArpEntries.size() == 1)
-        {
-            result.Package = changedArpEntries[0].Entry->GetInstalledVersion();
         }
         else
         {
