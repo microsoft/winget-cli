@@ -269,10 +269,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>      
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>        
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -550,6 +550,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputNames.txt">

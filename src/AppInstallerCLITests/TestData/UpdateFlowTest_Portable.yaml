@@ -1,3 +1,4 @@
+# Same content with InstallFlowTest_Portable.yaml but with higher version
 PackageIdentifier: AppInstallerCliTest.TestPortable
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
