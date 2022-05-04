@@ -111,6 +111,11 @@ namespace AppInstaller::Registry::Portable
         return isSamePackageId && isSamePackageSource;
     }
 
+    std::optional<Value> PortableARPEntry::operator[](PortableValueName valueName) const
+    {
+        return m_key[std::wstring{ ToString(valueName) }];
+    }
+
     void PortableARPEntry::SetValue(PortableValueName valueName, const std::wstring& value)
     {
         m_key.SetValue(std::wstring{ ToString(valueName) }, value, REG_SZ);
@@ -124,11 +129,6 @@ namespace AppInstaller::Registry::Portable
     void PortableARPEntry::SetValue(PortableValueName valueName, bool& value)
     {
         m_key.SetValue(std::wstring{ ToString(valueName) }, value);
-    }
-
-    std::optional<Registry::Value> PortableARPEntry::GetValue(PortableValueName valueName)
-    {
-        return m_key[std::wstring{ ToString(valueName) }];
     }
 
     void PortableARPEntry::Delete()

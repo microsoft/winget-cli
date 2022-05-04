@@ -136,6 +136,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
             }
             context.Add<Execution::Data::ProductCodes>(std::move(productCodes));
+
             break;
         }
         default:

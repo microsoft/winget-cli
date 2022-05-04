@@ -31,17 +31,15 @@ namespace AppInstaller::Registry::Portable
     {
         PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode);
 
+        std::optional<Value> operator[](PortableValueName valueName) const;
+
         bool IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId);
 
         bool Exists() { return m_exists; }
 
         void SetValue(PortableValueName valueName, const std::wstring& value);
-
         void SetValue(PortableValueName valueName, const std::string_view& value);
-
         void SetValue(PortableValueName valueName, bool& value);
-
-        std::optional<Registry::Value> GetValue(PortableValueName valueName);
 
         void Delete();
 
