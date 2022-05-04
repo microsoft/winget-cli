@@ -710,7 +710,7 @@ namespace AppInstaller::CLI::Workflow
         int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
-        std::set<Utility::LocIndString> packageIdsPrinted = std::set<Utility::LocIndString>();
+        std::set<std::pair<Utility::LocIndString, Utility::LocIndString>> packageIdsPrinted = std::set<std::pair<Utility::LocIndString, Utility::LocIndString>>();
 
         for (const auto& match : searchResult.Matches)
         {
@@ -736,18 +736,18 @@ namespace AppInstaller::CLI::Workflow
 
                     if (latestVersion)
                     {
+                        // Always show the source for correlated packages
+                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count(packageId))
+                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count({ packageId, sourceName }))
                             {
                                 // we should only add to the upgrade count if we actually showed the table entry.
                                 availableUpgradesCount++;
                             }
                         }
-
-                        // Always show the source for correlated packages
-                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
 
                     if (context.Args.Contains(Execution::Args::Type::ListAll))
@@ -763,9 +763,9 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
 	                    // we need to only list once per package
-                        if (!packageIdsPrinted.count(packageId))
+                        if (!packageIdsPrinted.count({ packageId, sourceName }))
                         {
-                            packageIdsPrinted.insert(packageId);
+                            packageIdsPrinted.insert({ packageId, sourceName });
                             table.OutputLine({
                                 match.Package->GetProperty(PackageProperty::Name),
                                 match.Package->GetProperty(PackageProperty::Id),
