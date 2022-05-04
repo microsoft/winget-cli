@@ -710,7 +710,7 @@ namespace AppInstaller::CLI::Workflow
         int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
-        std::set<std::pair<Utility::LocIndString, Utility::LocIndString>> packageIdsPrinted = std::set<std::pair<Utility::LocIndString, Utility::LocIndString>>();
+        std::set<std::pair<Utility::LocIndString, Utility::LocIndString>> packageIdsPrinted;
 
         for (const auto& match : searchResult.Matches)
         {
@@ -762,7 +762,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-	                    // we need to only list once per package
+                        // we need to only list once per package
                         if (!packageIdsPrinted.count({ packageId, sourceName }))
                         {
                             packageIdsPrinted.insert({ packageId, sourceName });
