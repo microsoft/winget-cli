@@ -731,18 +731,19 @@ namespace AppInstaller::CLI::Workflow
                 // The only time we don't want to output a line is when filtering and no update is available.
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
-                    Utility::LocIndString availableVersion, sourceName;
+                    Utility::LocIndString availableVersion, sourceName, sourceIdentifier;
                     Utility::LocIndString packageId = match.Package->GetProperty(PackageProperty::Id);
 
                     if (latestVersion)
                     {
                         // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+                        sourceIdentifier = latestVersion->GetProperty(PackageVersionProperty::SourceIdentifier);
 
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count({ packageId, sourceName }))
+                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count({ packageId, sourceIdentifier }))
                             {
                                 // we should only add to the upgrade count if we actually showed the table entry.
                                 availableUpgradesCount++;
@@ -763,9 +764,9 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         // we need to only list once per package
-                        if (!packageIdsPrinted.count({ packageId, sourceName }))
+                        if (!packageIdsPrinted.count({ packageId, sourceIdentifier }))
                         {
-                            packageIdsPrinted.insert({ packageId, sourceName });
+                            packageIdsPrinted.insert({ packageId, sourceIdentifier });
                             table.OutputLine({
                                 match.Package->GetProperty(PackageProperty::Name),
                                 match.Package->GetProperty(PackageProperty::Id),
