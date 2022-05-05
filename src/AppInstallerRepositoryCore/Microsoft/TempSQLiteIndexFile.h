@@ -24,6 +24,6 @@ namespace AppInstaller::Repository::Microsoft
 
     private:
         std::filesystem::path m_indexFile;
-        wil::unique_handle m_indexHanlde;
+        wil::unique_handle m_indexHandle;
     };
 }

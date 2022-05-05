@@ -419,7 +419,7 @@ namespace AppInstaller::Repository::Microsoft
                     }
                 }
 
-                std::filesystem::path tempPackagePath = packagePath.u8string() + ".dlnd.msix";
+                std::filesystem::path tempPackagePath = packagePath.u8string() + ".dnld.msix";
                 if (Utility::IsUrlRemote(packageLocation))
                 {
                     AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);

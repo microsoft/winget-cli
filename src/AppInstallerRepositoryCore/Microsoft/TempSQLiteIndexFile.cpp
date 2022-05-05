@@ -20,19 +20,19 @@ namespace AppInstaller::Repository::Microsoft
         m_indexFile = Runtime::GetPathTo(Runtime::PathName::Temp);
         m_indexFile /= tempFileName;
 
-        m_indexHanlde.reset(CreateFileW(m_indexFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
-        THROW_LAST_ERROR_IF(!m_indexHanlde);
+        m_indexHandle.reset(CreateFileW(m_indexFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
+        THROW_LAST_ERROR_IF(!m_indexHandle);
 
-        packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexHanlde.get(), progress);
+        packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, m_indexHandle.get(), progress);
     }
 
     TempSQLiteIndexFile::~TempSQLiteIndexFile()
     {
         if (!m_indexFile.empty() && std::filesystem::exists(m_indexFile))
         {
-            if (m_indexHanlde)
+            if (m_indexHandle)
             {
-                m_indexHanlde.reset();
+                m_indexHandle.reset();
             }
 
             try
