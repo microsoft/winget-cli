@@ -344,6 +344,71 @@ namespace AppInstaller::Msix
         return { result };
     }
 
+    GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath)
+    {
+        // Retrieve raw signature from msix
+        MsixInfo msixInfo{ msixPath.u8string() };
+        auto signature = msixInfo.GetSignature();
+        THROW_HR_IF(E_UNEXPECTED, signature.size() <= P7xFileIdSize);
+        signature.erase(signature.begin(), signature.begin() + P7xFileIdSize);
+
+        // Get the cert content
+        wil::unique_any<HCRYPTMSG, decltype(&::CryptMsgClose), ::CryptMsgClose> signedMessage;
+        wil::unique_hcertstore certStore;
+        CRYPT_DATA_BLOB signatureBlob = { 0 };
+        signatureBlob.cbData = static_cast<DWORD>(signature.size());
+        signatureBlob.pbData = signature.data();
+        THROW_LAST_ERROR_IF(!CryptQueryObject(
+            CERT_QUERY_OBJECT_BLOB,
+            &signatureBlob,
+            CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED,
+            CERT_QUERY_FORMAT_FLAG_BINARY,
+            0,      // Reserved parameter
+            NULL,   // No encoding info needed
+            NULL,
+            NULL,
+            &certStore,
+            &signedMessage,
+            NULL));
+
+        // Get the signer size and information from the signed data message
+        // The properties of the signer info will be used to uniquely identify the signing certificate in the certificate store
+        DWORD signerInfoSize = 0;
+        THROW_LAST_ERROR_IF(!CryptMsgGetParam(
+            signedMessage.get(),
+            CMSG_SIGNER_INFO_PARAM,
+            0,
+            NULL,
+            &signerInfoSize));
+
+        // Check that the signer info size is within reasonable bounds; under the max length of a string for the issuer field
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_DATA), !(signerInfoSize > 0 && signerInfoSize < STRSAFE_MAX_CCH));
+
+        std::vector<byte> signerInfoBuffer;
+        signerInfoBuffer.resize(signerInfoSize);
+        THROW_LAST_ERROR_IF(!CryptMsgGetParam(
+            signedMessage.get(),
+            CMSG_SIGNER_INFO_PARAM,
+            0,
+            signerInfoBuffer.data(),
+            &signerInfoSize));
+
+        // Get the signing certificate from the certificate store based on the issuer and serial number of the signer info
+        CMSG_SIGNER_INFO* signerInfo = reinterpret_cast<CMSG_SIGNER_INFO*>(signerInfoBuffer.data());
+        CERT_INFO certInfo;
+        certInfo.Issuer = signerInfo->Issuer;
+        certInfo.SerialNumber = signerInfo->SerialNumber;
+
+        wil::unique_cert_context certContext;
+        certContext.reset(CertGetSubjectCertificateFromStore(
+            certStore.get(),
+            X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+            &certInfo));
+        THROW_LAST_ERROR_IF(!certContext.get());
+
+        return { std::move(certContext), std::move(certStore) };
+    }
+
     bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin)
     {
         bool result = true;
@@ -354,65 +419,7 @@ namespace AppInstaller::Msix
             // First verify certificate chain if requested.
             if (verifyMicrosoftOrigin)
             {
-                // Retrieve raw signature from msix
-                MsixInfo msixInfo{ msixPath.u8string() };
-                auto signature = msixInfo.GetSignature();
-                THROW_HR_IF(E_UNEXPECTED, signature.size() <= P7xFileIdSize);
-                signature.erase(signature.begin(), signature.begin() + P7xFileIdSize);
-
-                // Get the cert content
-                wil::unique_any<HCRYPTMSG, decltype(&::CryptMsgClose), ::CryptMsgClose> signedMessage;
-                wil::unique_hcertstore certStore;
-                CRYPT_DATA_BLOB signatureBlob = { 0 };
-                signatureBlob.cbData = static_cast<DWORD>(signature.size());
-                signatureBlob.pbData = signature.data();
-                THROW_LAST_ERROR_IF(!CryptQueryObject(
-                    CERT_QUERY_OBJECT_BLOB,
-                    &signatureBlob,
-                    CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED,
-                    CERT_QUERY_FORMAT_FLAG_BINARY,
-                    0,      // Reserved parameter
-                    NULL,   // No encoding info needed
-                    NULL,
-                    NULL,
-                    &certStore,
-                    &signedMessage,
-                    NULL));
-
-                // Get the signer size and information from the signed data message
-                // The properties of the signer info will be used to uniquely identify the signing certificate in the certificate store
-                DWORD signerInfoSize = 0;
-                THROW_LAST_ERROR_IF(!CryptMsgGetParam(
-                    signedMessage.get(),
-                    CMSG_SIGNER_INFO_PARAM,
-                    0,
-                    NULL,
-                    &signerInfoSize));
-
-                // Check that the signer info size is within reasonable bounds; under the max length of a string for the issuer field
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_DATA), !(signerInfoSize > 0 && signerInfoSize < STRSAFE_MAX_CCH));
-
-                std::vector<byte> signerInfoBuffer;
-                signerInfoBuffer.resize(signerInfoSize);
-                THROW_LAST_ERROR_IF(!CryptMsgGetParam(
-                    signedMessage.get(),
-                    CMSG_SIGNER_INFO_PARAM,
-                    0,
-                    signerInfoBuffer.data(),
-                    &signerInfoSize));
-
-                // Get the signing certificate from the certificate store based on the issuer and serial number of the signer info
-                CMSG_SIGNER_INFO* signerInfo = reinterpret_cast<CMSG_SIGNER_INFO*>(signerInfoBuffer.data());
-                CERT_INFO certInfo;
-                certInfo.Issuer = signerInfo->Issuer;
-                certInfo.SerialNumber = signerInfo->SerialNumber;
-
-                wil::unique_cert_context certContext;
-                certContext.reset(CertGetSubjectCertificateFromStore(
-                    certStore.get(),
-                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                    &certInfo));
-                THROW_LAST_ERROR_IF(!certContext.get());
+                auto [certContext, certStore] = GetCertContextFromMsix(msixPath);
 
                 // Get certificate chain context for validation
                 CERT_CHAIN_PARA certChainParameters = { 0 };

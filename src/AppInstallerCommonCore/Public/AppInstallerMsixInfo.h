@@ -42,9 +42,6 @@ namespace AppInstaller::Msix
     // Gets the package location from the given full name.
     std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName);
 
-    // Validate the msix file trust info, also validate the signing cert is from Microsoft origin if verifyMicrosoftOrigin is true;
-    bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin = false);
-
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
@@ -88,4 +85,16 @@ namespace AppInstaller::Msix
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
     };
+
+    struct GetCertContextResult
+    {
+        wil::unique_cert_context CertContext;
+        wil::unique_hcertstore CertStore;
+    };
+
+    // Get cert context from a signed msix/msixbundle file.
+    GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath);
+
+    // Validate the msix file trust info, also validate the signing cert is from Microsoft origin if verifyMicrosoftOrigin is true;
+    bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin = false);
 }

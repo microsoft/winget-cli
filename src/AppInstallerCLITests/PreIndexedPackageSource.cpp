@@ -23,12 +23,10 @@ namespace fs = std::filesystem;
 
 constexpr std::string_view s_RepositorySettings_UserSources = "usersources"sv;
 
-constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.msix";
-constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.msix";
-constexpr std::string_view s_Msix_FamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
-constexpr std::string_view s_AppxManifestFileName = "AppxManifest.xml"sv;
+constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.signed.msix";
+constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.signed.msix";
+constexpr std::string_view s_Msix_FamilyName = "AppInstallerCLITestsFakeIndex_8wekyb3d8bbwe";
 constexpr std::string_view s_IndexMsixName = "source.msix"sv;
-constexpr std::string_view s_IndexFileName = "index.db"sv;
 
 void CopyIndexFileToDirectory(const fs::path& from, const fs::path& to)
 {
@@ -71,6 +69,8 @@ TEST_CASE("PIPS_Add", "[pips]")
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
+
     SourceDetails details;
     details.Name = "TestName";
     details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
@@ -82,15 +82,15 @@ TEST_CASE("PIPS_Add", "[pips]")
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifest = state;
-    manifest /= s_AppxManifestFileName;
-    REQUIRE(fs::exists(manifest));
-    REQUIRE(fs::file_size(manifest) > 0);
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    REQUIRE(fs::exists(indexMsix));
+    REQUIRE(fs::file_size(indexMsix) > 0);
 
-    fs::path indexFile = state;
-    indexFile /= s_IndexFileName;
-    REQUIRE(fs::exists(indexFile));
-    REQUIRE(fs::file_size(indexFile) > 0);
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }
 
 TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
@@ -100,6 +100,8 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
+
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
 
     SourceDetails details;
     details.Name = "TestName";
@@ -117,6 +119,11 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 
     UpdateSource(details.Name, callback);
     REQUIRE(!progressCalled);
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
@@ -126,6 +133,8 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     TempDirectory dir("pipssource");
     TestDataFile indexMsix1(s_MsixFile_1);
     CopyIndexFileToDirectory(indexMsix1, dir);
+
+    bool shouldCleanCert = InstallCertFromSignedPackage(indexMsix1);
 
     SourceDetails details;
     details.Name = "TestName";
@@ -138,13 +147,9 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifestPath = state;
-    manifestPath /= s_AppxManifestFileName;
-    std::string manifestContents1 = GetContents(manifestPath);
-
-    fs::path indexPath = state;
-    indexPath /= s_IndexFileName;
-    std::string indexContents1 = GetContents(indexPath);
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    std::string indexContents1 = GetContents(indexMsix);
 
     TestDataFile indexMsix2(s_MsixFile_2);
     CopyIndexFileToDirectory(indexMsix2, dir);
@@ -155,11 +160,13 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     UpdateSource(details.Name, callback);
     REQUIRE(progressCalled);
 
-    std::string manifestContents2 = GetContents(manifestPath);
-    REQUIRE(manifestContents1 != manifestContents2);
-
-    std::string indexContents2 = GetContents(indexPath);
+    std::string indexContents2 = GetContents(indexMsix);
     REQUIRE(indexContents1 != indexContents2);
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(indexMsix1);
+    }
 }
 
 TEST_CASE("PIPS_Remove", "[pips]")
@@ -169,6 +176,8 @@ TEST_CASE("PIPS_Remove", "[pips]")
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
+
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
 
     SourceDetails details;
     details.Name = "TestName";
@@ -181,14 +190,15 @@ TEST_CASE("PIPS_Remove", "[pips]")
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifest = state;
-    manifest /= s_AppxManifestFileName;
-    REQUIRE(fs::exists(manifest));
-
-    fs::path indexFile = state;
-    indexFile /= s_IndexFileName;
-    REQUIRE(fs::exists(indexFile));
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    REQUIRE(fs::exists(indexMsix));
 
     RemoveSource(details.Name, callback);
     REQUIRE(!fs::exists(state));
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }

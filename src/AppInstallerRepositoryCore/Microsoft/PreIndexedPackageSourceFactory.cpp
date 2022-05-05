@@ -420,7 +420,15 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 std::filesystem::path tempPackagePath = packagePath.u8string() + ".dlnd.msix";
-                AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                if (Utility::IsUrlRemote(packageLocation))
+                {
+                    AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                }
+                else
+                {
+                    std::filesystem::copy(packageLocation, tempPackagePath);
+                    progress.OnProgress(100, 100, ProgressType::Percent);
+                }
 
                 bool updateSuccess = false;
                 if (progress.IsCancelled())
@@ -435,7 +443,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 else
                 {
-                    AICLI_LOG(Repo, Info, << "Source update failed. Source package failed trust validation.");
+                    AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
                 }
 
                 if (!updateSuccess)

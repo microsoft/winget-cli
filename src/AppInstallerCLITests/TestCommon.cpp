@@ -3,8 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestHooks.h"
-#include "winget/GroupPolicy.h"
-#include "winget/UserSettings.h"
+#include <winget/GroupPolicy.h>
+#include <winget/UserSettings.h>
+#include <AppInstallerMsixInfo.h>
 
 namespace TestCommon
 {
@@ -213,5 +214,75 @@ namespace TestCommon
     TestUserSettings::~TestUserSettings()
     {
         AppInstaller::Settings::SetUserSettingsOverride(nullptr);
+    }
+
+    bool InstallCertFromSignedPackage(const std::filesystem::path& package)
+    {
+        auto [certContext, certStore] = AppInstaller::Msix::GetCertContextFromMsix(package);
+
+        wil::unique_hcertstore trustedPeopleStore;
+        trustedPeopleStore.reset(CertOpenStore(
+            CERT_STORE_PROV_SYSTEM_W,
+            PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
+            NULL,
+            CERT_SYSTEM_STORE_LOCAL_MACHINE,
+            L"TrustedPeople"));
+        THROW_LAST_ERROR_IF(!trustedPeopleStore.get());
+
+        wil::unique_cert_context existingCert;
+        existingCert.reset(CertFindCertificateInStore(
+            trustedPeopleStore.get(),
+            PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
+            0,
+            CERT_FIND_EXISTING,
+            certContext.get(),
+            nullptr));
+
+        // Add if it does not already exist in the store
+        if (!existingCert.get())
+        {
+            THROW_LAST_ERROR_IF(!CertAddCertificateContextToStore(
+                trustedPeopleStore.get(),
+                certContext.get(),
+                CERT_STORE_ADD_NEW,
+                nullptr));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool UninstallCertFromSignedPackage(const std::filesystem::path& package)
+    {
+        auto [certContext, certStore] = AppInstaller::Msix::GetCertContextFromMsix(package);
+
+        wil::unique_hcertstore trustedPeopleStore;
+        trustedPeopleStore.reset(CertOpenStore(
+            CERT_STORE_PROV_SYSTEM_W,
+            PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
+            NULL,
+            CERT_SYSTEM_STORE_LOCAL_MACHINE,
+            L"TrustedPeople"));
+        THROW_LAST_ERROR_IF(!trustedPeopleStore.get());
+
+        wil::unique_cert_context existingCert;
+        existingCert.reset(CertFindCertificateInStore(
+            trustedPeopleStore.get(),
+            PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
+            0,
+            CERT_FIND_EXISTING,
+            certContext.get(),
+            nullptr));
+
+        // Remove if it exists in the store
+        if (existingCert.get())
+        {
+            THROW_LAST_ERROR_IF(!CertDeleteCertificateFromStore(existingCert.get()));
+
+            return true;
+        }
+
+        return false;
     }
 }

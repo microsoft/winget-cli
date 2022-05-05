@@ -130,4 +130,7 @@ namespace TestCommon
             m_settings[S].emplace<AppInstaller::Settings::details::SettingIndex(S)>(std::move(value));
         }
     };
+
+    bool InstallCertFromSignedPackage(const std::filesystem::path& package);
+    bool UninstallCertFromSignedPackage(const std::filesystem::path& package);
 }
