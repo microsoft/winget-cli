@@ -32,9 +32,16 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
+        const auto& installer = context.Get<Execution::Data::Installer>();
         const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
 
         Msi::MsiParsedArguments parsedArgs = Msi::ParseMSIArguments(context.Get<Execution::Data::InstallerArgs>());
+
+        // Inform of elevation requirements
+        if (!Runtime::IsRunningAsAdmin() && installer->ElevationRequirement == Manifest::ElevationRequirementEnum::ElevatesSelf)
+        {
+            context.Reporter.Warn() << Resource::String::InstallerElevationExpected << std::endl;
+        }
 
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeMsiInstallProduct,
