@@ -403,8 +403,8 @@ namespace AppInstaller::CLI::Workflow
                     (Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
                 {
                     context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
-                    std::uintmax_t numOfRemovedFiles = std::filesystem::remove_all(installDirectoryValue);
-                    AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << numOfRemovedFiles << " files or directories");
+                    const auto& removedFilesCount = std::filesystem::remove_all(installDirectoryValue);
+                    AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << removedFilesCount << " files or directories");
                 }
                 else
                 {
