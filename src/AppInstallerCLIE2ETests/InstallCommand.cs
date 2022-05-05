@@ -3,7 +3,6 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using Microsoft.Win32;
     using NUnit.Framework;
     using System.IO;
 
@@ -12,7 +11,6 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
-        private const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -169,7 +167,7 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + TestSourceIdentifier;
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
@@ -185,7 +183,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-             productCode = packageId + "_" + TestSourceIdentifier;
+             productCode = packageId + "_" + Constants.TestSourceIdentifier;
             fileName = "AppInstallerTestExeInstaller.exe";
             commandAlias = "testCommand.exe";
 
@@ -201,7 +199,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, productCode, renameArgValue;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-            productCode = packageId + "_" + TestSourceIdentifier;
+            productCode = packageId + "_" + Constants.TestSourceIdentifier;
             renameArgValue = "testRename.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
@@ -245,7 +243,7 @@ namespace AppInstallerCLIE2ETests
 
             string packageId, commandAlias, fileName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
-            productCode = packageId + "_" + TestSourceIdentifier;
+            productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -l {existingDir}");
@@ -255,17 +253,27 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallPortableUninstallPrevious()
-        {
-            // Test for verifying that uninstallPrevious works as expected for an upgrade.
-        }
-
-        [Test]
         public void InstallPortableFailsWithCleanup()
         {
-            // Test for verifying that the cleanup process is called if the portable package fails.
-            // create a test file with the exact same name that will conflict with the install.
-            // Call verifyportablepackage to verify that the package is cleaned up.
+            string winGetDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet");
+            string installDir = Path.Combine(winGetDir, "Packages");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            // Create a directory with the same name as the symlink in order to cause install to fail.
+            string symlinkDirectory = Path.Combine(winGetDir, "Links");
+            string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
+            Directory.CreateDirectory(conflictDirectory);
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
+
+            // Remove directory prior to assertions as this will impact other tests if assertions fail.
+            Directory.Delete(conflictDirectory, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)

@@ -358,6 +358,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     std::ifstream inStream{ targetPathValue, std::ifstream::binary };
                     const Utility::SHA256::HashBuffer& targetFileHash = SHA256::ComputeHash(inStream);
+                    inStream.close();
 
                     if (SHA256::AreEqual(SHA256::ConvertToBytes(expectedHashValue), targetFileHash))
                     {

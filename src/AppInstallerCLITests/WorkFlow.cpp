@@ -156,17 +156,14 @@ namespace
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
-                auto testPackage = 
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    );
-                testPackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
                 result.Matches.emplace_back(
                     ResultMatch(
-                        testPackage,
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            shared_from_this()
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestPortable")));
             }
 
@@ -558,7 +555,7 @@ void OverrideForPortableInstall(TestContext& context)
 
     OverrideForUpdateInstallerMotw(context);
 
-    context.Override({ PortableInstallImpl, [](TestContext&)
+    context.Override({ PortableInstall, [](TestContext&)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestPortableInstalled.txt";
@@ -575,7 +572,14 @@ void OverrideForPortableUninstall(TestContext& context)
             temp /= "TestPortableUninstalled.txt";
             std::ofstream file(temp, std::ofstream::out);
             file.close();
-        } });
+    } });
+}
+
+void OverrideForEnsureSupportForPortable(TestContext& context)
+{
+    context.Override({ EnsureSupportForPortableInstall, [](TestContext&)
+    {
+    } });
 }
 
 void OverrideForDirectMsi(TestContext& context)
@@ -1490,14 +1494,47 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
     OverrideForPortableInstall(context);
-    //context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortable"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortable"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdatePortableUninstallPrevious", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForEnsureSupportForPortable(context);
+    OverrideForPortableInstall(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_PortableUninstallPrevious.yaml").GetPath().u8string());
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForEnsureSupportForPortable(context);
+    OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Portable.yaml").GetPath().u8string());
 
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
-
-    // VerifyInstaller is called.
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 

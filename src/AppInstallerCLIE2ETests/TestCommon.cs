@@ -291,6 +291,7 @@ namespace AppInstallerCLIE2ETests
 
             string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+            
             FileInfo symlinkFile = new FileInfo(symlinkPath);
             Assert.AreEqual(shouldExist, symlinkFile.Exists, $"Expected portable symlink path: {symlinkPath}");
 

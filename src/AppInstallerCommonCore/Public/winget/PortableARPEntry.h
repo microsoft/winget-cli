@@ -46,7 +46,7 @@ namespace AppInstaller::Registry::Portable
         Registry::Key GetKey() { return m_key; };
 
     private:
-        bool m_exists;
+        bool m_exists = false;
         Key m_key;
         HKEY m_root;
         std::wstring m_subKey;
