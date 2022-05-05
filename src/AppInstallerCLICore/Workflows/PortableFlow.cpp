@@ -400,7 +400,7 @@ namespace AppInstaller::CLI::Workflow
                 const std::filesystem::path& installDirectoryValue = installDirectory.value().GetValue<Value::Type::UTF16String>();
 
                 if (context.Args.Contains(Execution::Args::Type::Purge) ||
-                    (Settings::User().Get<Settings::Setting::UninstallPurgePortableApp>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
+                    (Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
                 {
                     context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
                     std::uintmax_t numOfRemovedFiles = std::filesystem::remove_all(installDirectoryValue);
@@ -470,7 +470,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
             if (symlinkPath.has_value())
             {
-                const std::filesystem::path& symlinkPathValue = uninstallEntry[PortableValueName::PortableSymlinkFullPath].value().GetValue<Value::Type::UTF16String>();
+                const std::filesystem::path& symlinkPathValue = symlinkPath.value().GetValue<Value::Type::UTF16String>();
 
                 if (!std::filesystem::remove(symlinkPathValue))
                 {
@@ -589,7 +589,8 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (...)
         {
-            Workflow::HandleException(context, std::current_exception());
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
         }
     }
 
