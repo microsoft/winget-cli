@@ -1502,24 +1502,6 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_UpdatePortableUninstallPrevious", "[UpdateFlow][workflow]")
-{
-    TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
-
-    std::ostringstream updateOutput;
-    TestContext context{ updateOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    OverrideForEnsureSupportForPortable(context);
-    OverrideForPortableInstall(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_PortableUninstallPrevious.yaml").GetPath().u8string());
-
-    UpgradeCommand update({});
-    update.Execute(context);
-    INFO(updateOutput.str());
-    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
-}
-
 TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");

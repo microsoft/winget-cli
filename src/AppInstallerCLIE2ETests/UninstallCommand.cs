@@ -70,8 +70,8 @@ namespace AppInstallerCLIE2ETests
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
-            var result = TestCommon.RunAICLICommand("uninstall", $"{productCode}");
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
@@ -87,7 +87,7 @@ namespace AppInstallerCLIE2ETests
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
