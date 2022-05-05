@@ -70,17 +70,15 @@ namespace AppInstaller::CLI::Workflow
                 installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             }
 
-            return Portable::PortableARPEntry(
-                ConvertToScopeEnum(installedScope),
-                installedArch,
-                ConvertToUTF16(productCode));
+            return Portable::PortableARPEntry(ConvertToScopeEnum(installedScope), installedArch, productCode);
         }
 
         PortableARPEntry GetPortableARPEntryForInstall(Execution::Context& context)
         {
-            const std::string_view& scope = context.Args.GetArg(Execution::Args::Type::InstallScope);
-            Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
-            return Portable::PortableARPEntry(ConvertToScopeEnum(scope), arch, ConvertToUTF16(GetPortableProductCode(context)));
+            return Portable::PortableARPEntry(
+                ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
+                context.Get<Execution::Data::Installer>()->Arch,
+                GetPortableProductCode(context));
         }
 
         std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch)
@@ -183,7 +181,9 @@ namespace AppInstaller::CLI::Workflow
             return GetPortableLinksLocation(scope) / commandAlias;
         }
 
-        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& appsAndFeaturesEntries, const AppInstaller::Manifest::Manifest& manifest)
+        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(
+            const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& appsAndFeaturesEntries,
+            const AppInstaller::Manifest::Manifest& manifest)
         {
             AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
             if (!appsAndFeaturesEntries.empty())
@@ -274,15 +274,14 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                AICLI_LOG(CLI, Verbose, << "Path already does not exist in environment variable.");
+                AICLI_LOG(CLI, Verbose, << "Path does not exist in environment variable.");
                 return false;
             }
         }
 
         void InitializePortableARPEntry(Execution::Context& context)
         {
-            const AppInstaller::Manifest::Manifest& manifest = context.Get<Execution::Data::Manifest>();
-            const std::string& packageIdentifier = manifest.Id;
+            const std::string& packageIdentifier = context.Get<Execution::Data::Manifest>().Id;
 
             std::string sourceIdentifier;
             if (context.Contains(Execution::Data::Source))
@@ -314,7 +313,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            uninstallEntry.SetValue(PortableValueName::WinGetPackageIdentifier, manifest.Id);
+            uninstallEntry.SetValue(PortableValueName::WinGetPackageIdentifier, packageIdentifier);
             uninstallEntry.SetValue(PortableValueName::WinGetSourceIdentifier, sourceIdentifier);
             uninstallEntry.SetValue(PortableValueName::UninstallString, L"winget uninstall --product-code " + ConvertToUTF16(GetPortableProductCode(context)));
             uninstallEntry.SetValue(PortableValueName::WinGetInstallerType, ConvertToUTF16(InstallerTypeToString(InstallerTypeEnum::Portable)));
@@ -352,7 +351,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 const std::filesystem::path& targetPathValue = targetPath.value().GetValue<Value::Type::UTF16String>();
                 const auto& expectedHash = uninstallEntry[PortableValueName::SHA256];
-                std::string expectedHashValue = expectedHash ? uninstallEntry[PortableValueName::SHA256].value().GetValue<Value::Type::String>() : "";
+                std::string expectedHashValue = expectedHash.has_value() ? uninstallEntry[PortableValueName::SHA256].value().GetValue<Value::Type::String>() : "";
 
                 if (std::filesystem::exists(targetPathValue))
                 {
@@ -369,13 +368,13 @@ namespace AppInstaller::CLI::Workflow
                     {
                         if (context.Args.Contains(Execution::Args::Type::HashOverride))
                         {
-                            context.Reporter.Warn() << "Portable hash does not match; proceeding due to --force" << std::endl;
+                            context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                             std::filesystem::remove(targetPathValue);
                             AICLI_LOG(CLI, Info, << "Successfully deleted portable exe:" << targetPathValue);
                         }
                         else
                         {
-                            context.Reporter.Warn() << "Unable to remove Portable exe as it has been modified; Use --force to override this behavior" << std::endl;
+                            context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
                             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
                         }
                     }
@@ -385,21 +384,55 @@ namespace AppInstaller::CLI::Workflow
                     AICLI_LOG(CLI, Info, << "Portable exe not found; Unable to delete portable exe: " << targetPathValue);
                 }
             }
-
-            const auto& isDirectoryCreated = uninstallEntry[PortableValueName::InstallDirectoryCreated];
-            const auto& installDirectory = uninstallEntry[PortableValueName::InstallLocation];
-            if (isDirectoryCreated.has_value() && installDirectory.has_value())
+            else
             {
-                const bool& isDirectoryCreatedValue = uninstallEntry[PortableValueName::InstallDirectoryCreated].value().GetValue<Value::Type::DWord>();
-                if (isDirectoryCreatedValue)
-                {
-                    const std::filesystem::path& installDirectoryValue = installDirectory.value().GetValue<Value::Type::UTF16String>();
+                AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
+            }
+        }
 
-                    if (std::filesystem::exists(installDirectoryValue) && std::filesystem::is_empty(installDirectoryValue))
+        void RemoveInstallDirectory(Execution::Context& context)
+        {
+            PortableARPEntry uninstallEntry = GetPortableARPEntryForUninstall(context);
+            const auto& installDirectory = uninstallEntry[PortableValueName::InstallLocation];
+
+            if (installDirectory.has_value())
+            {
+                const std::filesystem::path& installDirectoryValue = installDirectory.value().GetValue<Value::Type::UTF16String>();
+
+                if (context.Args.Contains(Execution::Args::Type::Purge) ||
+                    (Settings::User().Get<Settings::Setting::UninstallPurgePortableApp>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
+                {
+                    context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
+                    std::uintmax_t numOfRemovedFiles = std::filesystem::remove_all(installDirectoryValue);
+                    AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << numOfRemovedFiles << " files or directories");
+                }
+                else
+                {
+                    if (std::filesystem::exists(installDirectoryValue))
                     {
-                        std::filesystem::remove(installDirectoryValue);
+                        if (std::filesystem::is_empty(installDirectoryValue))
+                        {
+                            const auto& isDirectoryCreated = uninstallEntry[PortableValueName::InstallDirectoryCreated];
+                            if (isDirectoryCreated.has_value() && isDirectoryCreated.value().GetValue<Value::Type::DWord>())
+                            {
+                                std::filesystem::remove(installDirectoryValue);
+                                AICLI_LOG(CLI, Info, << "Install directory deleted: " << installDirectoryValue);
+                            }
+                        }
+                        else
+                        {
+                            context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectoryValue << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        AICLI_LOG(CLI, Info, << "Install directory does not exist: " << installDirectoryValue);
                     }
                 }
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "The registry value for [InstallLocation] does not exist");
             }
         }
 
@@ -444,6 +477,10 @@ namespace AppInstaller::CLI::Workflow
                     AICLI_LOG(CLI, Info, << "Portable symlink not found; Unable to delete portable symlink: " << symlinkPathValue);
                 }
             }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "The registry value for [SymlinkFullPath] does not exist");
+            }
 
             std::string_view installedScope;
             if (context.Args.Contains(Execution::Args::Type::InstallScope))
@@ -461,6 +498,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             uninstallEntry.Delete();
+            AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
         }
 
         void CommitPortableMetadataToRegistry(Execution::Context& context)
@@ -515,6 +553,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
+            // Add product code for uninstall subcontext prior to install in case of install failure.
             const std::string& productCode = GetPortableProductCode(context);
             context.Add<Execution::Data::ProductCodes>(std::move(std::vector<Utility::LocIndString> { LocIndString(productCode) }));
 
@@ -543,6 +582,7 @@ namespace AppInstaller::CLI::Workflow
 
             context <<
                 RemovePortableExe <<
+                RemoveInstallDirectory <<
                 RemovePortableSymlink;
 
             context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;

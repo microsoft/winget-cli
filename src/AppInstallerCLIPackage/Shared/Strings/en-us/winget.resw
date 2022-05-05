@@ -1311,4 +1311,21 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>Both `purge` and `preserve` args are provided</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>Portable exe has been modified; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Unable to remove Portable exe as it has been modified; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>Files remain in install directory:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>Purging install directory...</value>
+  </data>
 </root>

@@ -100,6 +100,11 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
         }
+
+        if (execArgs.Contains(Execution::Args::Type::Purge) && execArgs.Contains(Execution::Args::Type::Preserve))
+        {
+            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided, "");
+        }
     }
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const

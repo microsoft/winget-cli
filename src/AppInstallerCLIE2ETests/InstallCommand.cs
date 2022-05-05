@@ -268,11 +268,12 @@ namespace AppInstallerCLIE2ETests
             Directory.CreateDirectory(conflictDirectory);
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
 
             // Remove directory prior to assertions as this will impact other tests if assertions fail.
             Directory.Delete(conflictDirectory, true);
+
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 

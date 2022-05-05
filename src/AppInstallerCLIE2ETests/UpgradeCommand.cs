@@ -24,7 +24,6 @@ namespace AppInstallerCLIE2ETests
             var result2 = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
-
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
     }

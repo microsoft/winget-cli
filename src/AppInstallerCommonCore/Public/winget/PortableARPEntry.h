@@ -29,7 +29,7 @@ namespace AppInstaller::Registry::Portable
 
     struct PortableARPEntry : Registry::Key
     {
-        PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode);
+        PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
         std::optional<Value> operator[](PortableValueName valueName) const;
 

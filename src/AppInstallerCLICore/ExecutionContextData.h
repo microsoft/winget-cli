@@ -4,7 +4,6 @@
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
-#include <winget/PortableARPEntry.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"

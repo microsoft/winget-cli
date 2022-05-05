@@ -31,7 +31,7 @@ namespace AppInstaller::Registry::Portable
         constexpr std::wstring_view s_InstallDirectoryCreated = L"InstallDirectoryCreated";
     }
 
-    PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::wstring& productCode)
+    PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode)
     {
         if (scope == Manifest::ScopeEnum::Machine)
         {
@@ -55,7 +55,7 @@ namespace AppInstaller::Registry::Portable
             m_samDesired = KEY_WOW64_64KEY;
         }
 
-        m_subKey += L"\\" + productCode;
+        m_subKey += L"\\" + ConvertToUTF16(productCode);
         m_key = Key::OpenIfExists(m_root, m_subKey, 0, KEY_ALL_ACCESS);
         if (m_key != NULL)
         {
