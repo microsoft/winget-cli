@@ -212,6 +212,8 @@ namespace AppInstaller
                 return "A higher version of this application is already installed.";
             case APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY:
                 return "Organization policies are preventing installation. Contact your admin.";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
+                return "The installer cannot be run from an administrator context.";
             default:
                 return "Unknown Error Code";
             }

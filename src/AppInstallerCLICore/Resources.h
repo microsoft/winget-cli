@@ -116,6 +116,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
@@ -126,6 +127,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowRegistrationDeferred);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeAlreadyInstalled);
