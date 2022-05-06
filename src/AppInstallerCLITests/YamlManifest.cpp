@@ -819,3 +819,21 @@ TEST_CASE("ManifestApplyLocale", "[ManifestValidation]")
     REQUIRE(manifest.CurrentLocalization.Get<Localization::PackageName>() == "fr-FR package name");
     REQUIRE(manifest.CurrentLocalization.Get<Localization::Publisher>() == "es-MX publisher");
 }
+
+TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
+
+    // Set 1 locale to bad value
+    manifest.Localizations.at(0).Locale = "Invalid";
+
+    // Full validation should detect as error
+    auto errors = ValidateManifest(manifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    // Not full validation should detect as warning
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
