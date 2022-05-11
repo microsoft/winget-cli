@@ -23,7 +23,7 @@ namespace AppInstaller::Utility
         // Always creates a new write locked file at the path given. desiredAccess is passed to CreateFile call.
         static ManagedFile CreateWriteLockedFile(const std::filesystem::path& path, DWORD desiredAccess, bool deleteOnExit);
 
-        // Always opens an exising file at the path given with write locked. desiredAccess is passed to CreateFile call.
+        // Always opens an existing file at the path given with write locked. desiredAccess is passed to CreateFile call.
         static ManagedFile OpenWriteLockedFile(const std::filesystem::path& path, DWORD desiredAccess);
 
         ~ManagedFile();

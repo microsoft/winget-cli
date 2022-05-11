@@ -640,6 +640,7 @@ wcout
 wcsicmp
 webpage
 wekyb
+WHOLECHAIN
 wil
 wildcards
 WINAPI
