@@ -267,9 +267,6 @@
     <ClInclude Include="Public\winget\ARPCorrelation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\TempSQLiteIndexFile.h">
-      <Filter>Microsoft</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -421,9 +418,6 @@
     </ClCompile>
     <ClCompile Include="ARPCorrelation.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\TempSQLiteIndexFile.cpp">
-      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

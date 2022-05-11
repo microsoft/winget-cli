@@ -63,6 +63,12 @@ void CleanSources()
 
 TEST_CASE("PIPS_Add", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        INFO("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
@@ -95,6 +101,12 @@ TEST_CASE("PIPS_Add", "[pips]")
 
 TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        INFO("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
@@ -128,6 +140,12 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        INFO("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
@@ -171,6 +189,12 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 
 TEST_CASE("PIPS_Remove", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        INFO("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");

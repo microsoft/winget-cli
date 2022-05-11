@@ -308,6 +308,7 @@
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\Locale.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
+    <ClInclude Include="Public\winget\ManagedFile.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
@@ -364,6 +365,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="Locale.cpp" />
+    <ClCompile Include="ManagedFile.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />

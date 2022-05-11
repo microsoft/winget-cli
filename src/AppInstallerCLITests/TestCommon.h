@@ -131,6 +131,8 @@ namespace TestCommon
         }
     };
 
+    // Below cert installation/uninstallation methods require admin privilege,
+    // tests calling these functions should skip when not running with admin.
     bool InstallCertFromSignedPackage(const std::filesystem::path& package);
     bool UninstallCertFromSignedPackage(const std::filesystem::path& package);
 }

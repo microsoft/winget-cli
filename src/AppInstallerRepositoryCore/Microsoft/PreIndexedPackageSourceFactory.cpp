@@ -4,10 +4,10 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
-#include "TempSQLiteIndexFile.h"
 
 #include <AppInstallerDeployment.h>
 #include <AppInstallerMsixInfo.h>
+#include <winget/ManagedFile.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -369,10 +369,24 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
+                // Put a write exclusive lock on the index package.
+                auto indexPackageLock = Utility::ManagedFile::OpenWriteLockedFile(packageLocation, 0);
+
+                // Validate index package trust info.
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !Msix::ValidateMsixTrustInfo(packageLocation, WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
 
+                // Create a temp lock exclusive index file.
+                GUID guid;
+                THROW_IF_FAILED(CoCreateGuid(&guid));
+                WCHAR tempFileName[256];
+                THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, tempFileName, ARRAYSIZE(tempFileName)) == 0);
+                auto tempIndexFilePath = Runtime::GetPathTo(Runtime::PathName::Temp);
+                tempIndexFilePath /= tempFileName;
+                auto tempIndexFile = Utility::ManagedFile::CreateWriteLockedFile(tempIndexFilePath, GENERIC_WRITE, true);
+
+                // Populate temp index file.
                 Msix::MsixInfo packageInfo(packageLocation.u8string());
-                TempSQLiteIndexFile tempIndexFile{ packageInfo, progress };
+                packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
 
                 if (progress.IsCancelled())
                 {
@@ -380,7 +394,7 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetIndexFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
+                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.

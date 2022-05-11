@@ -59,7 +59,8 @@ namespace AppInstaller::Msix
         }
 
         // Full content of AppxSignature.p7x
-        std::vector<byte> GetSignature();
+        // If getRawSignature is true, returns content of converted .p7s
+        std::vector<byte> GetSignature(bool getRawSignature = false);
 
         // Gets the package full name.
         std::wstring GetPackageFullNameWide();

@@ -17,7 +17,7 @@ namespace AppInstaller::Msix
     namespace
     {
         // MSIX-specific header placed in the P7X file, before the actual signature
-        const DWORD P7xFileId = 0x58434b50;
+        const byte P7xFileId[] = { 0x50, 0x4b, 0x43, 0x58 };
         const DWORD P7xFileIdSize = sizeof(P7xFileId);
 
         // Gets the version from the manifest reader.
@@ -348,9 +348,7 @@ namespace AppInstaller::Msix
     {
         // Retrieve raw signature from msix
         MsixInfo msixInfo{ msixPath.u8string() };
-        auto signature = msixInfo.GetSignature();
-        THROW_HR_IF(E_UNEXPECTED, signature.size() <= P7xFileIdSize);
-        signature.erase(signature.begin(), signature.begin() + P7xFileIdSize);
+        auto signature = msixInfo.GetSignature(true);
 
         // Get the cert content
         wil::unique_any<HCRYPTMSG, decltype(&::CryptMsgClose), ::CryptMsgClose> signedMessage;
@@ -411,11 +409,13 @@ namespace AppInstaller::Msix
 
     bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin)
     {
-        bool result = true;
+        bool result = false;
         AICLI_LOG(Core, Info, << "Started trust validation of msix at: " << msixPath);
 
         try
         {
+            bool verifyChainResult = false;
+
             // First verify certificate chain if requested.
             if (verifyMicrosoftOrigin)
             {
@@ -453,11 +453,15 @@ namespace AppInstaller::Msix
 
                 AICLI_LOG(Core, Info, << "Result for certificate chain validation of Microsoft origin: " << policyStatus.dwError);
 
-                result = certChainVerifySucceeded && policyStatus.dwError == ERROR_SUCCESS;
+                verifyChainResult = certChainVerifySucceeded && policyStatus.dwError == ERROR_SUCCESS;
+            }
+            else
+            {
+                verifyChainResult = true;
             }
 
             // If certificate chain origin validation is success or not requested, then validate the trust info of the file.
-            if (result)
+            if (verifyChainResult)
             {
                 // Set up the structures needed for the WinVerifyTrust call
                 WINTRUST_FILE_INFO fileInfo = { 0 };
@@ -467,10 +471,10 @@ namespace AppInstaller::Msix
                 WINTRUST_DATA trustData = { 0 };
                 trustData.cbStruct = sizeof(WINTRUST_DATA);
                 trustData.dwUIChoice = WTD_UI_NONE;
-                trustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+                trustData.fdwRevocationChecks = WTD_REVOKE_WHOLECHAIN;
                 trustData.dwUnionChoice = WTD_CHOICE_FILE;
                 trustData.dwStateAction = WTD_STATEACTION_VERIFY;
-                trustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL | WTD_REVOCATION_CHECK_NONE;
+                trustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL;
                 trustData.pFile = &fileInfo;
 
                 GUID verifyActionId = WINTRUST_ACTION_GENERIC_VERIFY_V2;
@@ -530,7 +534,7 @@ namespace AppInstaller::Msix
         }
     }
 
-    std::vector<byte> MsixInfo::GetSignature()
+    std::vector<byte> MsixInfo::GetSignature(bool getRawSignature)
     {
         ComPtr<IAppxFile> signatureFile;
         if (m_isBundle)
@@ -552,6 +556,18 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(signatureStream->Stat(&stat, STATFLAG_NONAME));
         THROW_HR_IF(E_UNEXPECTED, stat.cbSize.HighPart != 0); // Signature size should be small
         signatureSize = stat.cbSize.LowPart;
+        THROW_HR_IF(E_UNEXPECTED, signatureSize <= P7xFileIdSize);
+
+        if (getRawSignature)
+        {
+            // Validate msix signature header
+            byte headerBuffer[P7xFileIdSize];
+            DWORD headerRead;
+            THROW_IF_FAILED(signatureStream->Read(headerBuffer, P7xFileIdSize, &headerRead));
+            THROW_HR_IF_MSG(E_UNEXPECTED, headerRead != P7xFileIdSize, "Failed to read signature header");
+            THROW_HR_IF_MSG(E_UNEXPECTED, !std::equal(P7xFileId, P7xFileId + P7xFileIdSize, headerBuffer), "Unexpected msix signature header");
+            signatureSize -= P7xFileIdSize;
+        }
 
         signatureContent.resize(signatureSize);
 

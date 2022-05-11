@@ -3,7 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerMsixInfo.h>
-#include "AppInstallerDownloader.h"
+#include <AppInstallerDownloader.h>
+#include <AppInstallerRuntime.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -57,6 +58,12 @@ TEST_CASE("MsixInfo_WriteFile", "[msixinfo]")
 
 TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        INFO("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     TestDataFile notSigned{ s_MsixFile_1 };
     REQUIRE_FALSE(Msix::ValidateMsixTrustInfo(notSigned));
 
