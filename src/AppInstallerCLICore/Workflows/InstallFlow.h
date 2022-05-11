@@ -84,6 +84,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MsixInstall(Execution::Context& context);
 
+    // Runs the flow for installing a Portable package.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
+    void PortableInstall(Execution::Context& context);
+
+    // Verifies parameters for install to ensure success.
+    // Required Args: None
+    // Inputs: 
+    // Outputs: None
+    void EnsureSupportForInstall(Execution::Context& context);
+
     // Reports the return code returned by the installer.
     // Required Args: None
     // Inputs: Manifest, Installer, InstallerResult

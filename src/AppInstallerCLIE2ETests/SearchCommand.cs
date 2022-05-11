@@ -11,10 +11,7 @@ namespace AppInstallerCLIE2ETests
         public void SearchWithoutArgs()
         {
             var result = TestCommon.RunAICLICommand("search", "");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
         [Test]

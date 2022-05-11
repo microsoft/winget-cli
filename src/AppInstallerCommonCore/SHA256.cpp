@@ -6,6 +6,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerStrings.h"
 
 using namespace AppInstaller::Runtime;
 
@@ -106,6 +107,11 @@ namespace AppInstaller::Utility {
         resultBuffer[HashStringSizeInChars] = '\0';
 
         return std::string(resultBuffer);
+    }
+
+    std::wstring SHA256::ConvertToWideString(const HashBuffer& hashBuffer)
+    {
+        return ConvertToUTF16(SHA256::ConvertToString(hashBuffer));
     }
 
     SHA256::HashBuffer SHA256::ConvertToBytes(const std::string& hashStr)

@@ -14,6 +14,7 @@
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
+#include <Workflows/PortableInstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/DependenciesFlow.h>
@@ -525,6 +526,30 @@ void OverrideForShellExecute(TestContext& context, std::vector<Dependency>& inst
     OverrideForUpdateInstallerMotw(context);
 }
 
+void OverrideForPortableInstall(TestContext& context)
+{
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+
+    context.Override({ PortableInstall, [](TestContext&)
+    {
+        // Write out the install command
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPortableInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file.close();
+    } });
+}
+
 void OverrideForDirectMsi(TestContext& context)
 {
     OverrideForCheckExistingInstaller(context);
@@ -870,6 +895,28 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
+}
+
+TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFPortableInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstall(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")

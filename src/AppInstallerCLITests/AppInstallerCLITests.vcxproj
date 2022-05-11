@@ -267,6 +267,12 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>      
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>        
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -386,10 +392,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>   
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

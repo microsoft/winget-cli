@@ -263,10 +263,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidScope.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -444,6 +444,12 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
+   <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>      
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

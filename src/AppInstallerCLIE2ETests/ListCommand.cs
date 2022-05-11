@@ -34,11 +34,9 @@ namespace AppInstallerCLIE2ETests
 
             result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(productCode));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
             Assert.True(result.StdOut.Contains("1.0.0.0"));
-            // TODO: Uncomment when install starts tracking packages. Until then this won't be true because our install
-            //       in this test is using a random guid that won't be in the index.
-            //Assert.True(result.StdOut.Contains("2.0.0.0"));
+            Assert.True(result.StdOut.Contains("2.0.0.0"));
         }
     }
 }

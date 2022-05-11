@@ -163,6 +163,7 @@ EXTRADEBUG
 EXTRAFLAGS
 FAILIFTHERE
 fakeswitch
+fallthrough
 FATALEXIT
 FEBAB
 FIELDTAG
@@ -450,6 +451,7 @@ Rpc
 rpc
 rubengustorage
 ruleset
+runas
 runsettings
 runtimes
 safecast

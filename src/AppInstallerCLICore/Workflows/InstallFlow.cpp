@@ -9,6 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
+#include "PortableInstallFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -115,6 +116,16 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
+        }
+
+        context << EnsureSupportForInstall;
+        
+        // This installer cannot be run elevated, but we are running elevated.
+        // Implementation of de-elevation is complex; simply block for now.
+        if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
         }
     }
 
@@ -257,6 +268,9 @@ namespace AppInstaller::CLI::Workflow
                 EnsureStorePolicySatisfied <<
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
+        case InstallerTypeEnum::Portable:
+            context << PortableInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -276,6 +290,13 @@ namespace AppInstaller::CLI::Workflow
             GetInstallerArgs <<
             DirectMSIInstallImpl <<
             ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
+    }
+
+    void PortableInstall(Execution::Context& context)
+    {
+        context <<
+            PortableInstallImpl <<
+            ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }
 
     void MsixInstall(Execution::Context& context)
@@ -396,6 +417,12 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
+    }
+
+    void EnsureSupportForInstall(Execution::Context& context)
+    {
+        context <<
+            Workflow::EnsureSupportForPortableInstall;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const

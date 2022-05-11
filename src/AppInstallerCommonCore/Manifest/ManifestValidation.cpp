@@ -203,20 +203,20 @@ namespace AppInstaller::Manifest
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            auto locErrors = ValidateManifestLocalization(localization);
+            auto locErrors = ValidateManifestLocalization(localization, !fullValidation);
             std::move(locErrors.begin(), locErrors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
         return resultErrors;
     }
 
-    std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization)
+    std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning)
     {
         std::vector<ValidationError> resultErrors;
 
         if (!localization.Locale.empty() && !Locale::IsWellFormedBcp47Tag(localization.Locale))
         {
-            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale);
+            resultErrors.emplace_back(ManifestError::InvalidBcp47Value, "PackageLocale", localization.Locale, treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
         }
 
         if (localization.Contains(Localization::Agreements))
@@ -227,7 +227,7 @@ namespace AppInstaller::Manifest
                 // At least one must be present
                 if (agreement.Label.empty() && agreement.AgreementText.empty() && agreement.AgreementUrl.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Agreements");
+                    resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Agreements", treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
                 }
             }
         }
