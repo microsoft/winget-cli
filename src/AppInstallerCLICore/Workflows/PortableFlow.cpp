@@ -366,9 +366,10 @@ namespace AppInstaller::CLI::Workflow
             if (installDirectory.has_value())
             {
                 const std::filesystem::path& installDirectoryValue = installDirectory.value().GetValue<Value::Type::UTF16String>();
+                bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
                 if (context.Args.Contains(Execution::Args::Type::Purge) ||
-                    (Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
+                    (!isUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
                 {
                     context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
                     const auto& removedFilesCount = std::filesystem::remove_all(installDirectoryValue);
