@@ -44,6 +44,8 @@ namespace AppInstaller::Registry::Portable
         void Delete();
 
         Registry::Key GetKey() { return m_key; };
+        Manifest::ScopeEnum GetScope() { return m_scope; };
+        Utility::Architecture GetArchitecture() { return m_arch; };
 
     private:
         bool m_exists = false;
@@ -51,6 +53,8 @@ namespace AppInstaller::Registry::Portable
         HKEY m_root;
         std::wstring m_subKey;
         DWORD m_samDesired;
+        Manifest::ScopeEnum m_scope;
+        Utility::Architecture m_arch;
     };
 
 }

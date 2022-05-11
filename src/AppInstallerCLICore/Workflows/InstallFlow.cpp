@@ -304,22 +304,6 @@ namespace AppInstaller::CLI::Workflow
         context <<
             PortableInstallImpl <<
             ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
-
-        const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
-
-        if (installReturnCode != 0)
-        {
-            context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
-            auto uninstallPortableContextPtr = context.CreateSubContext();
-            Execution::Context& uninstallPortableContext = *uninstallPortableContextPtr;
-            auto previousThreadGlobals = uninstallPortableContext.SetForCurrentThread();
-
-            // Uninstall requires the productCode, architecture, and scope.
-            uninstallPortableContext.Add<Execution::Data::ProductCodes>(context.Get<Execution::Data::ProductCodes>());
-            uninstallPortableContext.Add<Execution::Data::Installer>(context.Get<Execution::Data::Installer>());
-            uninstallPortableContext.Args.AddArg(Execution::Args::Type::InstallScope, context.Args.GetArg(Execution::Args::Type::InstallScope));
-            uninstallPortableContext << PortableUninstallImpl;
-        }
     }
 
     void MsixInstall(Execution::Context& context)

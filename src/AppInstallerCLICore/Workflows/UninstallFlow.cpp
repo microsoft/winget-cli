@@ -7,6 +7,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
 #include "PortableFlow.h"
+#include "winget/PortableARPEntry.h"
 
 #include <AppInstallerDeployment.h>
 
@@ -14,6 +15,7 @@ using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Msix;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Registry;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -135,8 +137,11 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
             }
-            context.Add<Execution::Data::ProductCodes>(std::move(productCodes));
 
+            const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+            const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
+            Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(ConvertToScopeEnum(installedScope), Utility::ConvertToArchitectureEnum(installedArch), productCodes[0]);
+            context.Add<Execution::Data::PortableARPEntry>(uninstallEntry);
             break;
         }
         default:

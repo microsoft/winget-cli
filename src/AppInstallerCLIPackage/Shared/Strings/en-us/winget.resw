@@ -723,7 +723,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>File does not exist:</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>Both local manifest and search query args are provided</value>
+    <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>Logs</value>
@@ -1318,7 +1318,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Portable install failed; Cleaning up...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Both `purge` and `preserve` args are provided</value>
+    <value>Both `purge` and `preserve` arguments are provided</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Portable exe has been modified; proceeding due to --force</value>

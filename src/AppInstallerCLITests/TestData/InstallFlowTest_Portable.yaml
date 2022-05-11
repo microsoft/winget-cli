@@ -1,4 +1,4 @@
-PackageIdentifier: AppInstallerCliTest.TestPortable
+PackageIdentifier: AppInstallerCliTest.TestPortableInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Portable Exe

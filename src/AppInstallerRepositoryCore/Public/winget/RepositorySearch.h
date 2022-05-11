@@ -155,15 +155,13 @@ namespace AppInstaller::Repository
         Locale,
     };
 
-    // A metadata item of a package version.
+    // A metadata item of a package version. These values are persisted and cannot be changed.
     enum class PackageVersionMetadata : int32_t
     {
         // The InstallerType of an installed package
         InstalledType,
         // The Scope of an installed package
         InstalledScope,
-        // The Architecture of an installed package
-        InstalledArchitecture,
         // The system path where the package is installed
         InstalledLocation,
         // The standard uninstall command; which may be interactive
@@ -176,6 +174,8 @@ namespace AppInstaller::Repository
         InstalledLocale,
         // The write time for the given version
         TrackingWriteTime,
+        // The Architecture of an installed package
+        InstalledArchitecture,
     };
 
     // Convert a PackageVersionMetadata to a string.

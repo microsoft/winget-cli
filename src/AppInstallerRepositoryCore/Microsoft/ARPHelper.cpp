@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ARPHelper.h"
+#include "winget/PortableARPEntry.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
+    using namespace AppInstaller::Registry::Portable;
+
     Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
         HKEY rootKey = NULL;
@@ -353,7 +356,7 @@ namespace AppInstaller::Repository::Microsoft
                     installedType = Manifest::InstallerTypeEnum::Msi;
                 }
 
-                if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, WinGetInstallerType)) == Manifest::InstallerTypeEnum::Portable)
+                if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, std::wstring{ ToString(PortableValueName::WinGetInstallerType) })) == Manifest::InstallerTypeEnum::Portable)
                 {
                     // Portable uninstall requires the installed architecture for locating the entry in the registry.
                     index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);

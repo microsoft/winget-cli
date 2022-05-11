@@ -1070,7 +1070,7 @@ namespace AppInstaller::CLI::Workflow
             else if (installer.InstallerType == Manifest::InstallerTypeEnum::Portable)
             {
                 const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + "_" + source.GetIdentifier());
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, Utility::Normalize(productCode)));
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, Utility::Normalize(productCode)));
             }
 
             if (!searchRequest.Inclusions.empty())

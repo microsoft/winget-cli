@@ -33,10 +33,13 @@ namespace AppInstaller::Registry::Portable
 
     PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode)
     {
-        if (scope == Manifest::ScopeEnum::Machine)
+        m_scope = scope;
+        m_arch = arch;
+
+        if (m_scope == Manifest::ScopeEnum::Machine)
         {
             m_root = HKEY_LOCAL_MACHINE;
-            if (arch == Utility::Architecture::X64)
+            if (m_arch == Utility::Architecture::X64)
             {
                 m_subKey = s_UninstallRegistryX64;
                 m_samDesired = KEY_WOW64_64KEY;
