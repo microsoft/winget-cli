@@ -9,6 +9,10 @@ namespace AppInstallerCLIE2ETests
 
     public class UpgradeCommand : BaseCommand
     {
+        private const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+        private const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
+        private const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
+
         [Test]
         public void UpgradePortable()
         {
@@ -52,12 +56,19 @@ namespace AppInstallerCLIE2ETests
         {
             string packageId = "AppInstallerTest.TestPortableExe";
             string productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            RegistryKey testEntry = CreateTestPortableARPEntry(productCode);
 
-            var result = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe -v 2.0.0.0");
-            testEntry.DeleteSubKey(productCode);
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Portable package from a different source already exists."));
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            // Modify packageId and sourceId to cause mismatch.
+            ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
+            ModifyPortableARPEntryValue(productCode, WinGetSourceIdentifier, "testPackageId");
+
+            var result2 = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe -v 2.0.0.0");
+            DeleteTestPortableARPEntry(productCode);
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("Portable package from a different source already exists."));
         }
 
         [Test]
@@ -69,27 +80,34 @@ namespace AppInstallerCLIE2ETests
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            CreateTestPortableARPEntry(productCode);
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            // Modify packageId and sourceId to cause mismatch.
+            ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
+            ModifyPortableARPEntryValue(productCode, WinGetSourceIdentifier, "testPackageId");
+
             var result2 = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe -v 2.0.0.0 --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
-        /// <summary>
-        /// Creates a portable ARP entry for testing purposes.
-        /// </summary>
-        /// <param name="productCode">ProductCode to be used as the entry name.</param>
-        /// <returns>The uninstall registry key containing the created entry.</returns>
-        private RegistryKey CreateTestPortableARPEntry(string productCode)
+        private void ModifyPortableARPEntryValue(string productCode, string name, string value)
         {
-            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(UninstallSubKey, true))
             {
-                RegistryKey duplicateEntry = uninstallRegistryKey.CreateSubKey(productCode, true);
-                duplicateEntry.SetValue("WinGetPackageIdentifier", "testPackageId");
-                duplicateEntry.SetValue("WinGetSourceIdentifier", "testSourceId");
-                return uninstallRegistryKey;
+                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                entry.SetValue(name, value);
+            }
+        }
+
+        private void DeleteTestPortableARPEntry(string productCode)
+        {
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(UninstallSubKey, true))
+            {
+                uninstallRegistryKey.DeleteSubKey(productCode);
             }
         }
     }

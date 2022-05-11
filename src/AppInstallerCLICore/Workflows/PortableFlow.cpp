@@ -306,10 +306,14 @@ namespace AppInstaller::CLI::Workflow
             Filesystem::RenameFile(installerPath, targetFullPath);
             AICLI_LOG(CLI, Info, << "Portable exe moved to: " << targetFullPath);
 
+            if (!uninstallEntry[PortableValueName::InstallDirectoryCreated].has_value())
+            {
+                uninstallEntry.SetValue(PortableValueName::InstallDirectoryCreated, isDirectoryCreated);
+            }
+
             uninstallEntry.SetValue(PortableValueName::PortableTargetFullPath, targetFullPath.wstring());
             uninstallEntry.SetValue(PortableValueName::InstallLocation, GetPortableTargetDirectory(context).wstring());
             uninstallEntry.SetValue(PortableValueName::SHA256, Utility::SHA256::ConvertToWideString(context.Get<Execution::Data::HashPair>().second));
-            uninstallEntry.SetValue(PortableValueName::InstallDirectoryCreated, isDirectoryCreated);
         }
 
         void RemovePortableExe(Execution::Context& context)
@@ -546,7 +550,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
-        if (installReturnCode != 0 && !isUpdate)
+        if (installReturnCode != 0 && installReturnCode != APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS && !isUpdate)
         {
             context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
             auto uninstallPortableContextPtr = context.CreateSubContext();
