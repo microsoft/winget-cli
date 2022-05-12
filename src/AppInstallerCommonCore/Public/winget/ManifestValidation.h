@@ -79,11 +79,17 @@ namespace AppInstaller::Manifest
         ValidationError(std::string message, std::string field) :
             Message(std::move(message)), Field(std::move(field)) {}
 
+        ValidationError(std::string message, std::string field, Level level) :
+            Message(std::move(message)), Field(std::move(field)), ErrorLevel(level) {}
+
         ValidationError(std::string message, std::string field, std::string_view value) :
             Message(std::move(message)), Field(std::move(field)), Value(value) {}
 
         ValidationError(std::string message, std::string field, std::string value) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
+
+        ValidationError(std::string message, std::string field, std::string value, Level level) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), ErrorLevel(level) {}
 
         ValidationError(std::string message, std::string field, std::string value, size_t line, size_t column) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
@@ -207,5 +213,5 @@ namespace AppInstaller::Manifest
 
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);
-    std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization);
+    std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);
 }
