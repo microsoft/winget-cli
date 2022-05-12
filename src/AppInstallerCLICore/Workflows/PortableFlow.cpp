@@ -370,37 +370,44 @@ namespace AppInstaller::CLI::Workflow
             if (installDirectory.has_value())
             {
                 const std::filesystem::path& installDirectoryValue = installDirectory.value().GetValue<Value::Type::UTF16String>();
-                bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+                if (std::filesystem::exists(installDirectoryValue))
+                {
+                    const auto& isDirectoryCreated = uninstallEntry[PortableValueName::InstallDirectoryCreated];
+                    const auto& isDirectoryCreatedValue = isDirectoryCreated.has_value() ? isDirectoryCreated.value().GetValue<Value::Type::DWord>() : FALSE;
 
-                if (context.Args.Contains(Execution::Args::Type::Purge) ||
-                    (!isUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
-                {
-                    context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
-                    const auto& removedFilesCount = std::filesystem::remove_all(installDirectoryValue);
-                    AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << removedFilesCount << " files or directories");
-                }
-                else
-                {
-                    if (std::filesystem::exists(installDirectoryValue))
+                    bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+
+                    if (context.Args.Contains(Execution::Args::Type::Purge) ||
+                        (!isUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
                     {
-                        if (std::filesystem::is_empty(installDirectoryValue))
+                        if (isDirectoryCreatedValue)
                         {
-                            const auto& isDirectoryCreated = uninstallEntry[PortableValueName::InstallDirectoryCreated];
-                            if (isDirectoryCreated.has_value() && isDirectoryCreated.value().GetValue<Value::Type::DWord>())
-                            {
-                                std::filesystem::remove(installDirectoryValue);
-                                AICLI_LOG(CLI, Info, << "Install directory deleted: " << installDirectoryValue);
-                            }
+                            context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
+                            const auto& removedFilesCount = std::filesystem::remove_all(installDirectoryValue);
+                            AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << removedFilesCount << " files or directories");
                         }
                         else
                         {
-                            context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectoryValue << std::endl;
+                            context.Reporter.Warn() << Resource::String::UnableToPurgeInstallDirectory << std::endl;
+                        }
+
+                    }
+                    else if (std::filesystem::is_empty(installDirectoryValue))
+                    {
+                        if (isDirectoryCreatedValue)
+                        {
+                            std::filesystem::remove(installDirectoryValue);
+                            AICLI_LOG(CLI, Info, << "Install directory deleted: " << installDirectoryValue);
                         }
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Install directory does not exist: " << installDirectoryValue);
+                        context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectoryValue << std::endl;
                     }
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Install directory does not exist: " << installDirectoryValue);
                 }
             }
             else
@@ -579,25 +586,10 @@ namespace AppInstaller::CLI::Workflow
         catch (...)
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
         }
 
-        const auto& uninstallResult = context.Get<Execution::Data::OperationReturnCode>();
-        if (uninstallResult != 0)
-        {
-            const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-            Logging::Telemetry().LogUninstallerFailure(
-                installedPackageVersion->GetProperty(PackageVersionProperty::Id),
-                installedPackageVersion->GetProperty(PackageVersionProperty::Version),
-                "PortableUninstall",
-                uninstallResult);
-
-            context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult << std::endl;
-        }
-        else
-        {
-            context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
-        }
+        // Reset termination to allow for ReportUninstallResult to process return code.
+        context.ResetTermination();
     }
 
     void EnsureSupportForPortableInstall(Execution::Context& context)

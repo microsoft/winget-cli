@@ -570,7 +570,7 @@ void OverrideForPortableInstallFlow(TestContext& context)
 
 void OverrideForPortableUninstall(TestContext& context)
 {
-    context.Override({ PortableUninstallImpl, [](TestContext&)
+    context.Override({ PortableUninstall, [](TestContext&)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestPortableUninstalled.txt";

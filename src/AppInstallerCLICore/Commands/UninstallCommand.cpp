@@ -28,6 +28,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::HashOverride), // TODO: Replace with proper name when behavior changes.
             Argument::ForType(Args::Type::Purge),
             Argument::ForType(Args::Type::Preserve),
             Argument::ForType(Args::Type::Log),

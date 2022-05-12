@@ -182,6 +182,8 @@ namespace AppInstaller
                 return "Portable package from a different source already exists.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY:
                 return "Unable to create symlink, path points to a directory.";
+            case APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED:
+                return "Failed to uninstall portable package";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:

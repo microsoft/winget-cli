@@ -45,14 +45,14 @@ namespace AppInstallerCLIE2ETests
             // Modify packageId to cause mismatch.
             ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
 
-            var upgradeResult = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe -v 2.0.0.0");
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 2.0.0.0");
 
             // Reset and perform uninstall cleanup
             ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, packageId);
             TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
 
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Portable package from a different source already exists"), $"Actual output message is: {upgradeResult.StdOut}");
+            Assert.True(upgradeResult.StdOut.Contains("Portable package from a different source already exists"));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
-            var result2 = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 3.0.0.0");
+            var result2 = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 3.0.0.0 -s {Constants.TestSourceIdentifier}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);

@@ -1334,4 +1334,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>Purging install directory...</value>
   </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>Cannot purge install directory, as it was not created by WinGet</value>
+  </data>
 </root>
