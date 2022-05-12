@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Microsoft
                 m_file = Utility::ManagedFile::OpenWriteLockedFile(path, 0);
             }
 
-            bool ValidateMsixTrustInfo(bool checkMicrosoftOrigin)
+            bool ValidateMsixTrustInfo(bool checkMicrosoftOrigin) const
             {
                 return Msix::ValidateMsixTrustInfo(m_file.GetFilePath(), checkMicrosoftOrigin);
             }
