@@ -65,7 +65,7 @@ TEST_CASE("PIPS_Add", "[pips]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
-        INFO("Test requires admin privilege. Skipped.");
+        WARN("Test requires admin privilege. Skipped.");
         return;
     }
 
@@ -103,7 +103,7 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
-        INFO("Test requires admin privilege. Skipped.");
+        WARN("Test requires admin privilege. Skipped.");
         return;
     }
 
@@ -142,7 +142,7 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
-        INFO("Test requires admin privilege. Skipped.");
+        WARN("Test requires admin privilege. Skipped.");
         return;
     }
 
@@ -191,7 +191,7 @@ TEST_CASE("PIPS_Remove", "[pips]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
-        INFO("Test requires admin privilege. Skipped.");
+        WARN("Test requires admin privilege. Skipped.");
         return;
     }
 

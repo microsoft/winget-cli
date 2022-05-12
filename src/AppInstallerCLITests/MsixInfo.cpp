@@ -18,7 +18,7 @@ constexpr std::string_view s_MsixFileSigned_1 = "index.1.0.0.0.signed.msix";
 TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
 {
     TestDataFile index(s_MsixFile_1);
-    Msix::MsixInfo msix(index.GetPath().u8string());
+    Msix::MsixInfo msix(index.GetPath());
 
     std::string expectedFullName = "AppInstallerCLITestsFakeIndex_1.0.0.0_neutral__125rzkzqaqjwj";
     std::string actualFullName = msix.GetPackageFullName();
@@ -29,7 +29,7 @@ TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
 TEST_CASE("MsixInfo_CompareToSelf", "[msixinfo]")
 {
     TestDataFile index(s_MsixFile_1);
-    Msix::MsixInfo msix(index.GetPath().u8string());
+    Msix::MsixInfo msix(index.GetPath());
 
     REQUIRE(!msix.IsNewerThan(index.GetPath().u8string()));
 }
@@ -38,7 +38,7 @@ TEST_CASE("MsixInfo_CompareToOlder", "[msixinfo]")
 {
     TestDataFile index1(s_MsixFile_1);
     TestDataFile index2(s_MsixFile_2);
-    Msix::MsixInfo msix2(index2.GetPath().u8string());
+    Msix::MsixInfo msix2(index2.GetPath());
 
     REQUIRE(msix2.IsNewerThan(index1));
 }
@@ -46,7 +46,7 @@ TEST_CASE("MsixInfo_CompareToOlder", "[msixinfo]")
 TEST_CASE("MsixInfo_WriteFile", "[msixinfo]")
 {
     TestDataFile index(s_MsixFile_1);
-    Msix::MsixInfo msix(index.GetPath().u8string());
+    Msix::MsixInfo msix(index.GetPath());
 
     TempFile file{ "msixtest_file"s, ".bin"s };
     ProgressCallback callback;
@@ -60,7 +60,7 @@ TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
-        INFO("Test requires admin privilege. Skipped.");
+        WARN("Test requires admin privilege. Skipped.");
         return;
     }
 

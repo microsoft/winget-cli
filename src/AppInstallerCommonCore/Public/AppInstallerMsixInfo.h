@@ -47,6 +47,9 @@ namespace AppInstaller::Msix
     {
         MsixInfo(std::string_view uriStr);
 
+        template<typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
+        MsixInfo(const T& path) : MsixInfo(path.u8string()) {}
+
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;
 
@@ -59,8 +62,8 @@ namespace AppInstaller::Msix
         }
 
         // Full content of AppxSignature.p7x
-        // If getRawSignature is true, returns content of converted .p7s
-        std::vector<byte> GetSignature(bool getRawSignature = false);
+        // If skipP7xFileId is true, returns content of converted .p7s
+        std::vector<byte> GetSignature(bool skipP7xFileId = false);
 
         // Gets the package full name.
         std::wstring GetPackageFullNameWide();

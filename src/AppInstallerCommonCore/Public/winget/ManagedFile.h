@@ -17,8 +17,8 @@ namespace AppInstaller::Utility
         ManagedFile(ManagedFile&&) = default;
         ManagedFile& operator=(ManagedFile&&) = default;
 
-        HANDLE GetFileHandle() { return m_fileHandle.get(); }
-        const std::filesystem::path& GetFilePath() { return m_filePath; }
+        HANDLE GetFileHandle() const { return m_fileHandle.get(); }
+        const std::filesystem::path& GetFilePath() const { return m_filePath; }
 
         // Always creates a new write locked file at the path given. desiredAccess is passed to CreateFile call.
         static ManagedFile CreateWriteLockedFile(const std::filesystem::path& path, DWORD desiredAccess, bool deleteOnExit);

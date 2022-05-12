@@ -21,6 +21,22 @@ namespace AppInstaller::Repository::Microsoft
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
 
+        struct PersistedIndexPackage
+        {
+            PersistedIndexPackage(const std::filesystem::path& path)
+            {
+                m_file = Utility::ManagedFile::OpenWriteLockedFile(path, 0);
+            }
+
+            bool ValidateMsixTrustInfo(bool checkMicrosoftOrigin)
+            {
+                return Msix::ValidateMsixTrustInfo(m_file.GetFilePath(), checkMicrosoftOrigin);
+            }
+
+        private:
+            Utility::ManagedFile m_file;
+        };
+
         // Construct the package location from the given details.
         // Currently expects that the arg is an https uri pointing to the root of the data.
         std::string GetPackageLocation(const SourceDetails& details)
@@ -370,22 +386,17 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 // Put a write exclusive lock on the index package.
-                auto indexPackageLock = Utility::ManagedFile::OpenWriteLockedFile(packageLocation, 0);
+                PersistedIndexPackage indexPackage{ packageLocation };
 
                 // Validate index package trust info.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !Msix::ValidateMsixTrustInfo(packageLocation, WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
 
                 // Create a temp lock exclusive index file.
-                GUID guid;
-                THROW_IF_FAILED(CoCreateGuid(&guid));
-                WCHAR tempFileName[256];
-                THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, tempFileName, ARRAYSIZE(tempFileName)) == 0);
-                auto tempIndexFilePath = Runtime::GetPathTo(Runtime::PathName::Temp);
-                tempIndexFilePath /= tempFileName;
+                auto tempIndexFilePath = Runtime::GetNewTempFilePath();
                 auto tempIndexFile = Utility::ManagedFile::CreateWriteLockedFile(tempIndexFilePath, GENERIC_WRITE, true);
 
                 // Populate temp index file.
-                Msix::MsixInfo packageInfo(packageLocation.u8string());
+                Msix::MsixInfo packageInfo(packageLocation);
                 packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
 
                 if (progress.IsCancelled())
@@ -425,7 +436,8 @@ namespace AppInstaller::Repository::Microsoft
                 if (std::filesystem::exists(packagePath))
                 {
                     // If we already have a trusted index package, use it to determine if we need to update or not.
-                    if (Msix::ValidateMsixTrustInfo(packagePath, WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
+                    PersistedIndexPackage indexPackage{ packagePath };
+                    if (indexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
                         !packageInfo.IsNewerThan(packagePath))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
@@ -449,15 +461,26 @@ namespace AppInstaller::Repository::Microsoft
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
                 }
-                else if (Msix::ValidateMsixTrustInfo(tempPackagePath, WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
-                {
-                    std::filesystem::rename(tempPackagePath, packagePath);
-                    AICLI_LOG(Repo, Info, << "Source update success.");
-                    updateSuccess = true;
-                }
                 else
                 {
-                    AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                    bool tempIndexPackageTrusted = false;
+
+                    {
+                        // Extra scope to release the file lock right after trust validation.
+                        PersistedIndexPackage tempIndexPackage{ tempPackagePath };
+                        tempIndexPackageTrusted = tempIndexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin));
+                    }
+
+                    if (tempIndexPackageTrusted)
+                    {
+                        std::filesystem::rename(tempPackagePath, packagePath);
+                        AICLI_LOG(Repo, Info, << "Source update success.");
+                        updateSuccess = true;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                    }
                 }
 
                 if (!updateSuccess)

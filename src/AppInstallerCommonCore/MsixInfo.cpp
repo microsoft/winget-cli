@@ -67,6 +67,8 @@ namespace AppInstaller::Msix
                         // If we got bytes, just accept them and keep going.
                         LOG_IF_FAILED(hr);
 
+                        THROW_HR_IF_MSG(E_UNEXPECTED, expectedSize && totalBytesRead + bytesRead > expectedSize, "Read more bytes than expected size");
+
                         file.write(buffer.get(), bytesRead);
                         totalBytesRead += bytesRead;
                         progress.OnProgress(totalBytesRead, expectedSize, ProgressType::Bytes);
@@ -140,7 +142,8 @@ namespace AppInstaller::Msix
                     // If we got bytes, just accept them and keep going.
                     LOG_IF_FAILED(hr);
 
-                    THROW_LAST_ERROR_IF(INVALID_SET_FILE_POINTER == SetFilePointer(target, 0, nullptr, FILE_END));
+                    THROW_HR_IF_MSG(E_UNEXPECTED, expectedSize && totalBytesRead + bytesRead > expectedSize, "Read more bytes than expected size");
+
                     DWORD bytesWritten = 0;
                     THROW_LAST_ERROR_IF(!WriteFile(target, buffer.get(), bytesRead, &bytesWritten, nullptr));
                     THROW_HR_IF(E_UNEXPECTED, bytesRead != bytesWritten);
@@ -347,7 +350,7 @@ namespace AppInstaller::Msix
     GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath)
     {
         // Retrieve raw signature from msix
-        MsixInfo msixInfo{ msixPath.u8string() };
+        MsixInfo msixInfo{ msixPath };
         auto signature = msixInfo.GetSignature(true);
 
         // Get the cert content
@@ -534,7 +537,7 @@ namespace AppInstaller::Msix
         }
     }
 
-    std::vector<byte> MsixInfo::GetSignature(bool getRawSignature)
+    std::vector<byte> MsixInfo::GetSignature(bool skipP7xFileId)
     {
         ComPtr<IAppxFile> signatureFile;
         if (m_isBundle)
@@ -558,7 +561,7 @@ namespace AppInstaller::Msix
         signatureSize = stat.cbSize.LowPart;
         THROW_HR_IF(E_UNEXPECTED, signatureSize <= P7xFileIdSize);
 
-        if (getRawSignature)
+        if (skipP7xFileId)
         {
             // Validate msix signature header
             byte headerBuffer[P7xFileIdSize];
@@ -609,7 +612,7 @@ namespace AppInstaller::Msix
     {
         THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
 
-        MsixInfo other{ otherPackage.u8string() };
+        MsixInfo other{ otherPackage };
 
         THROW_HR_IF(E_INVALIDARG, other.m_isBundle);
 
