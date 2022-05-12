@@ -290,6 +290,7 @@ PEGI
 pfn
 pfxpath
 Pherson
+pid
 pkgmgr
 pkindex
 PMS

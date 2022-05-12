@@ -49,23 +49,44 @@ namespace AppInstaller::CLI
         // Defines an argument with no alias.
         constexpr static char NoAlias = '\0';
 
+        // Defines an argument with no alternate name
+        constexpr static std::string_view NoAlternateName = "";
+
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, bool required) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, bool required) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required) {}
 
         ~Argument() = default;
 
@@ -89,6 +110,7 @@ namespace AppInstaller::CLI
         // Arguments are not localized at this time.
         Utility::LocIndView Name() const { return Utility::LocIndView{ m_name }; }
         char Alias() const { return m_alias; }
+        std::string_view AlternateName() const { return m_alternateName; }
         Execution::Args::Type ExecArgType() const { return m_execArgType; }
         const Resource::StringId& Description() const { return m_desc; }
         bool Required() const { return m_required; }
@@ -105,31 +127,56 @@ namespace AppInstaller::CLI
         // Constructors that set a Feature or Policy are private to force callers to go through the ForType() function.
         // This helps keep it all in one place to reduce chances of missing it somewhere.
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, bool required, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
+            m_name(name), m_alias(alias), m_alternateName(NoAlternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, bool required, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
+
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
         std::string_view m_name;
         char m_alias;
+        std::string_view m_alternateName;
         Execution::Args::Type m_execArgType;
         Resource::StringId m_desc;
         bool m_required = false;
