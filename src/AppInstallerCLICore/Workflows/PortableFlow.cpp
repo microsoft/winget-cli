@@ -159,7 +159,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (appsAndFeaturesEntry.DisplayName.empty())
             {
-                appsAndFeaturesEntry.DisplayName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+                appsAndFeaturesEntry.DisplayName = manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>();
             }
             if (appsAndFeaturesEntry.DisplayVersion.empty())
             {
@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::Workflow
             }
             if (appsAndFeaturesEntry.Publisher.empty())
             {
-                appsAndFeaturesEntry.Publisher = manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>();
+                appsAndFeaturesEntry.Publisher = manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>();
             }
 
             return appsAndFeaturesEntry;
@@ -248,9 +248,9 @@ namespace AppInstaller::CLI::Workflow
             const std::string& packageIdentifier = context.Get<Execution::Data::Manifest>().Id;
 
             std::string sourceIdentifier;
-            if (context.Contains(Execution::Data::Source))
+            if (context.Contains(Execution::Data::PackageVersion)) 
             {
-                sourceIdentifier = context.Get<Execution::Data::Source>().GetIdentifier();
+                sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetSource().GetIdentifier();
             }
             else
             {
@@ -488,8 +488,8 @@ namespace AppInstaller::CLI::Workflow
             uninstallEntry.SetValue(PortableValueName::DisplayVersion, entry.DisplayVersion);
             uninstallEntry.SetValue(PortableValueName::Publisher, entry.Publisher);
             uninstallEntry.SetValue(PortableValueName::InstallDate, Utility::GetCurrentDateForARP());
-            uninstallEntry.SetValue(PortableValueName::URLInfoAbout, manifest.DefaultLocalization.Get<Manifest::Localization::PackageUrl>());
-            uninstallEntry.SetValue(PortableValueName::HelpLink, manifest.DefaultLocalization.Get<Manifest::Localization::PublisherSupportUrl>());
+            uninstallEntry.SetValue(PortableValueName::URLInfoAbout, manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>());
+            uninstallEntry.SetValue(PortableValueName::HelpLink, manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>());
         }
 
         void EnsureValidArgsForPortableInstall(Execution::Context& context)

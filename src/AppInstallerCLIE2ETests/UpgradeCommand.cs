@@ -26,7 +26,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             
-            var result2 = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestPortableExe -v 2.0.0.0");
+            var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -45,7 +45,7 @@ namespace AppInstallerCLIE2ETests
             // Modify packageId to cause mismatch.
             ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
 
-            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 2.0.0.0");
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
 
             // Reset and perform uninstall cleanup
             ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, packageId);
@@ -72,7 +72,7 @@ namespace AppInstallerCLIE2ETests
             ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
             ModifyPortableARPEntryValue(productCode, WinGetSourceIdentifier, "testSourceId");
 
-            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 2.0.0.0 --force");
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
             Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -87,11 +87,11 @@ namespace AppInstallerCLIE2ETests
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
-            var result2 = TestCommon.RunAICLICommand("upgrade", $"--id {productCode} -v 3.0.0.0 -s {Constants.TestSourceIdentifier}");
+            var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 3.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -103,14 +103,6 @@ namespace AppInstallerCLIE2ETests
             {
                 RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 entry.SetValue(name, value);
-            }
-        }
-
-        private void DeleteTestPortableARPEntry(string productCode)
-        {
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(UninstallSubKey, true))
-            {
-                uninstallRegistryKey.DeleteSubKey(productCode);
             }
         }
     }
