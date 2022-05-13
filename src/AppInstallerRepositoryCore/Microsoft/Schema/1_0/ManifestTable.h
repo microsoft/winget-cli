@@ -119,14 +119,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         template <typename... Tables>
         static auto GetIdsById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            return details::ManifestTableGetIdsById_Statement(connection, id, { Tables::ValueName()... }).GetRow<Tables::id_t...>();
+            return details::ManifestTableGetIdsById_Statement(connection, id, { Tables::ValueName()... }).GetRow<typename Tables::id_t...>();
         }
 
         // Gets the values requested for the manifest with the given rowid.
         template <typename... Tables>
         static auto GetValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }).GetRow<Tables::value_t...>();
+            return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }).GetRow<typename Tables::value_t...>();
         }
 
         // Gets the values for rows that match the given ids.
@@ -144,7 +144,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::vector<std::tuple<typename ValueTables::value_t...>> result;
             while (stmt.Step())
             {
-                result.emplace_back(stmt.GetRow<ValueTables::value_t...>());
+                result.emplace_back(stmt.GetRow<typename ValueTables::value_t...>());
             }
             return result;
         }
