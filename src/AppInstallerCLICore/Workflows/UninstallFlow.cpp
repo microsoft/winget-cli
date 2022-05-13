@@ -161,11 +161,15 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
-            context << Workflow::ShellExecuteUninstallImpl;
+            context <<
+                Workflow::ShellExecuteUninstallImpl <<
+                ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
-            context << Workflow::ShellExecuteMsiExecUninstall;
+            context <<
+                Workflow::ShellExecuteMsiExecUninstall <<
+                ReportUninstallerResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             break;
         case InstallerTypeEnum::Msix:
         case InstallerTypeEnum::MSStore:
@@ -201,8 +205,8 @@ namespace AppInstaller::CLI::Workflow
             catch (const wil::ResultException& re)
             {
                 context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
-                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << re.GetErrorCode() << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+                context << ReportUninstallerResult("MSIXUninstall"sv, re.GetErrorCode(), /* isHResult */ true);
+                return;
             }
         }
 
@@ -248,7 +252,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogUninstallerFailure(
                 installedPackageVersion->GetProperty(PackageVersionProperty::Id),
                 installedPackageVersion->GetProperty(PackageVersionProperty::Version),
-                "PortableUninstall",
+                m_uninstallerType,
                 uninstallResult);
 
             if (m_isHResult)
