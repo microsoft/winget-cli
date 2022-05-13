@@ -32,10 +32,10 @@ namespace AppInstaller::Utility
 
     private:
         // Initializes the context runtime, including the log file if provided.
-        std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> Initialize(const std::filesystem::path& logFile);
+        std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(const std::filesystem::path& logFile);
 
         // Sets the collection context input and the preinstall state.
-        void CollectPreInstallState(const std::wstring& json);
+        void InitializePreinstallState(const std::wstring& json);
 
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
     };

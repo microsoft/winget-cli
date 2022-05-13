@@ -59,6 +59,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <json/json.h>
+
 #pragma warning( push )
 #pragma warning ( disable : 26495 26439 )
 #include <cpprest/http_client.h>

@@ -3,7 +3,7 @@
 #pragma once
 #include <winget/Manifest.h>
 #include <cpprest/json.h>
-#include "Rest\Schema\JsonHelper.h"
+#include <winget/JsonUtil.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {

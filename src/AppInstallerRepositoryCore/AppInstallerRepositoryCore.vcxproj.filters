@@ -201,9 +201,6 @@
     <ClInclude Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.h">
       <Filter>Rest\Schema\1_0\Json</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\JsonHelper.h">
-      <Filter>Rest\Schema</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\CommonRestConstants.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
@@ -367,9 +364,6 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_0\Json\SearchResponseDeserializer_1_0.cpp">
       <Filter>Rest\Schema\1_0\Json</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\JsonHelper.cpp">
-      <Filter>Rest\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
