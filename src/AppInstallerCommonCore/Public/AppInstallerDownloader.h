@@ -22,6 +22,7 @@ namespace AppInstaller::Utility
         Manifest,
         WinGetUtil,
         Installer,
+        InstallerMetadataCollectionInput,
     };
 
     // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).

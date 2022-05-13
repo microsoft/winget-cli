@@ -129,4 +129,47 @@ extern "C"
         WINGET_STRING versionA,
         WINGET_STRING versionB,
         INT* comparisonResult);
+
+    // A handle to the metadata collection object.
+    typedef void* WINGET_INSTALLER_METADATA_COLLECTION_HANDLE;
+
+    // Option flags for WinGetBeginInstallerMetadataCollection.
+    enum WinGetBeginInstallerMetadataCollectionOptions
+    {
+        WinGetBeginInstallerMetadataCollectionOption_None = 0,
+        // The inputJSON is a local file path, not a JSON string.
+        WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath = 0x1,
+        // The inputJSON is a remote URI, not a JSON string.
+        WinGetBeginInstallerMetadataCollectionOption_InputIsURI = 0x2,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetBeginInstallerMetadataCollectionOptions);
+
+    // Begins the installer metadata collection process.
+    // By default, inputJSON is expected to be a JSON string. See the WinGetBeginInstallerMetadataCollectionOptions for more options.
+    // logFilePath optionally specifies where to write the log file for the collection operation.
+    // The collectionHandle is owned by the caller and must be passed to WinGetCompleteInstallerMetadataCollection to free it.
+    WINGET_UTIL_API WinGetBeginInstallerMetadataCollection(
+        WINGET_STRING inputJSON,
+        WINGET_STRING logFilePath,
+        WinGetBeginInstallerMetadataCollectionOptions options,
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE* collectionHandle);
+
+    // Option flags for WinGetCompleteInstallerMetadataCollection.
+    enum WinGetCompleteInstallerMetadataCollectionOptions
+    {
+        WinGetCompleteInstallerMetadataCollectionOption_None = 0,
+        // Complete will simply free the collection handle without doing any additional work.
+        WinGetCompleteInstallerMetadataCollectionOption_Abandon = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetCompleteInstallerMetadataCollectionOptions);
+
+    // Completes the installer metadata collection process.
+    // Always frees the collectionHandle; WinGetCompleteInstallerMetadataCollection must be called exactly once for each call to WinGetBeginInstallerMetadataCollection.
+    WINGET_UTIL_API WinGetCompleteInstallerMetadataCollection(
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
+        WINGET_STRING outputFilePath,
+        WINGET_STRING diagnosticsFilePath,
+        WinGetCompleteInstallerMetadataCollectionOptions options);
 }
