@@ -161,7 +161,9 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
-            context << Workflow::ShellExecuteUninstall;
+            context <<
+                Workflow::ShellExecuteUninstallImpl <<
+                ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
@@ -174,7 +176,9 @@ namespace AppInstaller::CLI::Workflow
             context << Workflow::MsixUninstall;
             break;
         case InstallerTypeEnum::Portable:
-            context << Workflow::PortableUninstall;
+            context <<
+                Workflow::PortableUninstallImpl <<
+                ReportUninstallerResult("PortableUninstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED, true);
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -209,20 +213,6 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
-    }
-
-    void ShellExecuteUninstall(Execution::Context& context)
-    {
-        context <<
-            Workflow::ShellExecuteUninstallImpl <<
-            ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
-    }
-
-    void PortableUninstall(Execution::Context& context)
-    {
-        context <<
-            Workflow::PortableUninstallImpl <<
-            ReportUninstallerResult("PortableUninstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED, true);
     }
 
     void RecordUninstall(Context& context)

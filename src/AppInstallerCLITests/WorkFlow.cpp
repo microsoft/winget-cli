@@ -570,12 +570,14 @@ void OverrideForPortableInstallFlow(TestContext& context)
 
 void OverrideForPortableUninstall(TestContext& context)
 {
-    context.Override({ PortableUninstall, [](TestContext&)
+    context.Override({ PortableUninstallImpl, [](TestContext& context)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestPortableUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
         file.close();
+
+        context.Add<Execution::Data::OperationReturnCode>(0);
     } });
 }
 
@@ -618,7 +620,7 @@ void OverrideForDirectMsi(TestContext& context)
 
 void OverrideForExeUninstall(TestContext& context)
 {
-    context.Override({ ShellExecuteUninstall, [](TestContext& context)
+    context.Override({ ShellExecuteUninstallImpl, [](TestContext& context)
     {
         // Write out the uninstall command
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -626,6 +628,8 @@ void OverrideForExeUninstall(TestContext& context)
         std::ofstream file(temp, std::ofstream::out);
         file << context.Get<Execution::Data::UninstallString>();
         file.close();
+
+        context.Add<Execution::Data::OperationReturnCode>(0);
     } });
 }
 
