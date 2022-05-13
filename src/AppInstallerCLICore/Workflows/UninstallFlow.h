@@ -30,6 +30,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MsixUninstall(Execution::Context& context);
 
+    // Removes the Exe with shell execute.
+    // Required Args: None
+    // Inputs: UninstallString
+    // Outputs: None
+    void ShellExecuteUninstall(Execution::Context& context);
+
     // Removes the Portable package.
     // Required Args: None
     // Inputs: ProductCode, InstalledArchitecture, InstalledScope

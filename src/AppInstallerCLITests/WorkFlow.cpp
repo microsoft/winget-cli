@@ -618,7 +618,7 @@ void OverrideForDirectMsi(TestContext& context)
 
 void OverrideForExeUninstall(TestContext& context)
 {
-    context.Override({ ShellExecuteUninstallImpl, [](TestContext& context)
+    context.Override({ ShellExecuteUninstall, [](TestContext& context)
     {
         // Write out the uninstall command
         std::filesystem::path temp = std::filesystem::temp_directory_path();
