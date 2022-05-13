@@ -133,7 +133,7 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            std::vector<Mapping::item_t> items;
+            std::vector<typename Mapping::item_t> items;
             for (const auto& value : listKey->Values())
             {
                 auto item = Mapping::ReadAndValidateItem(value);
