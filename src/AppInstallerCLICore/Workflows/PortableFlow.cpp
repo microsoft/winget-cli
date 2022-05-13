@@ -35,9 +35,9 @@ namespace AppInstaller::CLI::Workflow
             const std::string& packageId = context.Get<Execution::Data::Manifest>().Id;
 
             std::string source;
-            if (context.Contains(Execution::Data::Source))
+            if (context.Contains(Execution::Data::PackageVersion))
             {
-                source = context.Get<Execution::Data::Source>().GetIdentifier();
+                source = context.Get<Execution::Data::PackageVersion>()->GetSource().GetIdentifier();
             }
             else
             {
