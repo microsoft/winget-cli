@@ -710,7 +710,6 @@ namespace AppInstaller::CLI::Workflow
         int unknownPackagesCount = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
-        std::set<std::pair<Utility::LocIndString, Utility::LocIndString>> packageIdsPrinted;
 
         for (const auto& match : searchResult.Matches)
         {
@@ -731,51 +730,32 @@ namespace AppInstaller::CLI::Workflow
                 // The only time we don't want to output a line is when filtering and no update is available.
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
-                    Utility::LocIndString availableVersion, sourceName, sourceIdentifier;
+                    Utility::LocIndString availableVersion, sourceName;
                     Utility::LocIndString packageId = match.Package->GetProperty(PackageProperty::Id);
 
                     if (latestVersion)
                     {
                         // Always show the source for correlated packages
                         sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
-                        sourceIdentifier = latestVersion->GetProperty(PackageVersionProperty::SourceIdentifier);
 
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                            if (context.Args.Contains(Execution::Args::Type::ListAll) || !packageIdsPrinted.count({ packageId, sourceIdentifier }))
-                            {
-                                // we should only add to the upgrade count if we actually showed the table entry.
-                                availableUpgradesCount++;
-                            }
+                            availableUpgradesCount++;
                         }
                     }
 
-                    if (context.Args.Contains(Execution::Args::Type::ListAll))
-                    {
-                       table.OutputLine({
-                           installedVersion->GetProperty(PackageVersionProperty::Name),
-                           match.Package->GetProperty(PackageProperty::Id),
-                           installedVersion->GetProperty(PackageVersionProperty::Version),
-                           availableVersion,
-                           shouldShowSource ? sourceName : ""s
-                       });
-                    }
-                    else
-                    {
-                        // we need to only list once per package
-                        if (!packageIdsPrinted.count({ packageId, sourceIdentifier }))
-                        {
-                            packageIdsPrinted.insert({ packageId, sourceIdentifier });
-                            table.OutputLine({
-                                match.Package->GetProperty(PackageProperty::Name),
-                                match.Package->GetProperty(PackageProperty::Id),
-                                installedVersion->GetProperty(PackageVersionProperty::Version),
-                                availableVersion,
-                                shouldShowSource ? sourceName : ""s
-                            });
-                        }
-                    }
+                    // Output using the local PackageName instead of the name in the manifest, to prevent confusion for packages that add multiple
+                    // Add/Remove Programs entries.
+                    // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
+                    table.OutputLine({
+                         installedVersion->GetProperty(PackageVersionProperty::Name),
+                         match.Package->GetProperty(PackageProperty::Id),
+                         installedVersion->GetProperty(PackageVersionProperty::Version),
+                         availableVersion,
+                         shouldShowSource ? sourceName : ""s
+                    });
+                   
                    
                 }
             }
