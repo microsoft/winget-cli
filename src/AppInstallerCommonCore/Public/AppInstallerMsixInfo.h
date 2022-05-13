@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerProgress.h>
+#include "AppInstallerProgress.h"
+#include "winget/ManagedFile.h"
+
 #include <AppxPackaging.h>
 
 #include <wrl/client.h>
@@ -99,6 +101,13 @@ namespace AppInstaller::Msix
     // Get cert context from a signed msix/msixbundle file.
     GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath);
 
-    // Validate the msix file trust info, also validate the signing cert is from Microsoft origin if verifyMicrosoftOrigin is true;
-    bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin = false);
+    struct WriteLockedMsixFile
+    {
+        WriteLockedMsixFile(const std::filesystem::path& path);
+
+        bool ValidateTrustInfo(bool checkMicrosoftOrigin) const;
+
+    private:
+        Utility::ManagedFile m_file;
+    };
 }

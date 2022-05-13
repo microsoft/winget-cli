@@ -65,24 +65,29 @@ TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
     }
 
     TestDataFile notSigned{ s_MsixFile_1 };
-    REQUIRE_FALSE(Msix::ValidateMsixTrustInfo(notSigned));
+    Msix::WriteLockedMsixFile notSignedWriteLocked{ notSigned };
+    REQUIRE_FALSE(notSignedWriteLocked.ValidateTrustInfo(false));
 
     TestDataFile testSigned{ s_MsixFileSigned_1 };
+    Msix::WriteLockedMsixFile testSignedWriteLocked{ testSigned };
 
     // Remove the cert if already trusted
     bool certExistsBeforeTest = UninstallCertFromSignedPackage(testSigned);
 
-    REQUIRE_FALSE(Msix::ValidateMsixTrustInfo(testSigned));
+    REQUIRE_FALSE(testSignedWriteLocked.ValidateTrustInfo(false));
 
     // Add the cert to trusted
     InstallCertFromSignedPackage(testSigned);
-    REQUIRE(Msix::ValidateMsixTrustInfo(testSigned));
-    REQUIRE_FALSE(Msix::ValidateMsixTrustInfo(testSigned, true));
+
+    REQUIRE(testSignedWriteLocked.ValidateTrustInfo(false));
+    REQUIRE_FALSE(testSignedWriteLocked.ValidateTrustInfo(true));
 
     TestCommon::TempFile microsoftSigned{ "testIndex"s, ".msix"s };
     ProgressCallback callback;
     Utility::Download("https://cdn.winget.microsoft.com/cache/source.msix", microsoftSigned.GetPath(), Utility::DownloadType::Index, callback);
-    REQUIRE(Msix::ValidateMsixTrustInfo(microsoftSigned, true));
+
+    Msix::WriteLockedMsixFile microsoftSignedWriteLocked{ microsoftSigned };
+    REQUIRE(microsoftSignedWriteLocked.ValidateTrustInfo(true));
 
     if (!certExistsBeforeTest)
     {

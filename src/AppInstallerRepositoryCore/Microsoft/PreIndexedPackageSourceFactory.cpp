@@ -21,22 +21,6 @@ namespace AppInstaller::Repository::Microsoft
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
 
-        struct PersistedIndexPackage
-        {
-            PersistedIndexPackage(const std::filesystem::path& path)
-            {
-                m_file = Utility::ManagedFile::OpenWriteLockedFile(path, 0);
-            }
-
-            bool ValidateMsixTrustInfo(bool checkMicrosoftOrigin) const
-            {
-                return Msix::ValidateMsixTrustInfo(m_file.GetFilePath(), checkMicrosoftOrigin);
-            }
-
-        private:
-            Utility::ManagedFile m_file;
-        };
-
         // Construct the package location from the given details.
         // Currently expects that the arg is an https uri pointing to the root of the data.
         std::string GetPackageLocation(const SourceDetails& details)
@@ -386,10 +370,10 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 // Put a write exclusive lock on the index package.
-                PersistedIndexPackage indexPackage{ packageLocation };
+                Msix::WriteLockedMsixFile indexPackage{ packageLocation };
 
                 // Validate index package trust info.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
 
                 // Create a temp lock exclusive index file.
                 auto tempIndexFilePath = Runtime::GetNewTempFilePath();
@@ -436,8 +420,8 @@ namespace AppInstaller::Repository::Microsoft
                 if (std::filesystem::exists(packagePath))
                 {
                     // If we already have a trusted index package, use it to determine if we need to update or not.
-                    PersistedIndexPackage indexPackage{ packagePath };
-                    if (indexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
+                    Msix::WriteLockedMsixFile indexPackage{ packagePath };
+                    if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
                         !packageInfo.IsNewerThan(packagePath))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
@@ -467,8 +451,8 @@ namespace AppInstaller::Repository::Microsoft
 
                     {
                         // Extra scope to release the file lock right after trust validation.
-                        PersistedIndexPackage tempIndexPackage{ tempPackagePath };
-                        tempIndexPackageTrusted = tempIndexPackage.ValidateMsixTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin));
+                        Msix::WriteLockedMsixFile tempIndexPackage{ tempPackagePath };
+                        tempIndexPackageTrusted = tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin));
                     }
 
                     if (tempIndexPackageTrusted)
