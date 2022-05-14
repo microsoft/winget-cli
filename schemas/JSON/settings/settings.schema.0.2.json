@@ -118,7 +118,7 @@
       "description": "Uninstall settings",
       "type": "object",
       "properties": {
-        "purgePortableApp": {
+        "purgePortablePackage": {
           "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType.",
           "type": "boolean",
           "default":  false

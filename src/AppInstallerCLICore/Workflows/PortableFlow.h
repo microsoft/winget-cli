@@ -11,5 +11,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void PortableInstallImpl(Execution::Context& context);
 
+    // Uninstalls the portable package.
+    // Required Args: None
+    // Inputs: ProductCode, Scope, Architecture
+    // Outputs: None
+    void PortableUninstallImpl(Execution::Context& context);
+
     void EnsureSupportForPortableInstall(Execution::Context& context);
 }

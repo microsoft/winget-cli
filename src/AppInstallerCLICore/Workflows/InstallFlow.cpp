@@ -9,7 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
-#include "PortableInstallFlow.h"
+#include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -269,6 +269,13 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
+            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            {
+                context <<
+                    GetUninstallInfo <<
+                    ExecuteUninstaller;
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+            }
             context << PortableInstall;
             break;
         default:

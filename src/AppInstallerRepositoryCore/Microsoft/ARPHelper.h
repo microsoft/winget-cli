@@ -59,6 +59,9 @@ namespace AppInstaller::Repository::Microsoft
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);
 
+        // Returns the string value if it exists.
+        static std::string GetStringValue(const Registry::Key& arpKey, const std::wstring& name);
+
         // Determines the version from an ARP entry.
         // The priority is:
         //  DisplayVersion

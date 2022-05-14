@@ -34,6 +34,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableUpgrades);
         WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
+        WINGET_DEFINE_RESOURCE_STRINGID(BothPurgeAndPreserveFlagsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
@@ -82,6 +83,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesProperty);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesStatus);
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
@@ -210,6 +212,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);
@@ -218,6 +223,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
@@ -340,6 +346,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyAdminSettingArgumentsError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
+        WINGET_DEFINE_RESOURCE_STRINGID(UnableToPurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);

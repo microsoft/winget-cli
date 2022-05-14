@@ -21,12 +21,16 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
+            Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::Version),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::HashOverride), // TODO: Replace with proper name when behavior changes.
+            Argument::ForType(Args::Type::Purge),
+            Argument::ForType(Args::Type::Preserve),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
@@ -70,6 +74,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Version:
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
+        case Execution::Args::Type::ProductCode:
             context <<
                 Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
@@ -90,12 +95,18 @@ namespace AppInstaller::CLI
              execArgs.Contains(Execution::Args::Type::Id) ||
              execArgs.Contains(Execution::Args::Type::Name) ||
              execArgs.Contains(Execution::Args::Type::Moniker) ||
+             execArgs.Contains(Execution::Args::Type::ProductCode) ||
              execArgs.Contains(Execution::Args::Type::Version) ||
              execArgs.Contains(Execution::Args::Type::Channel) ||
              execArgs.Contains(Execution::Args::Type::Source) ||
              execArgs.Contains(Execution::Args::Type::Exact)))
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::Purge) && execArgs.Contains(Execution::Args::Type::Preserve))
+        {
+            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided, "");
         }
     }
 
