@@ -731,7 +731,6 @@ namespace AppInstaller::CLI::Workflow
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
                     Utility::LocIndString availableVersion, sourceName;
-                    Utility::LocIndString packageId = match.Package->GetProperty(PackageProperty::Id);
 
                     if (latestVersion)
                     {
