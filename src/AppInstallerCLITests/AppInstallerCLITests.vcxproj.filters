@@ -440,10 +440,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
-   <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>      
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -475,6 +475,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">

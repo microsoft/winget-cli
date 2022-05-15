@@ -1,11 +1,11 @@
+# Same content with InstallFlowTest_Portable.yaml but with higher version
 PackageIdentifier: AppInstallerCliTest.TestPortableInstaller
-PackageVersion: 1.0.0.0
+PackageVersion: 2.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Portable Exe
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestPortable
 License: Test
-ProductCode: AppInstallerCliTest.TestPortable__DefaultSource
 Installers: 
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed

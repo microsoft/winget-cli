@@ -9,7 +9,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
-#include "PortableInstallFlow.h"
+#include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
@@ -119,6 +119,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context << EnsureSupportForInstall;
+        
+        // This installer cannot be run elevated, but we are running elevated.
+        // Implementation of de-elevation is complex; simply block for now.
+        if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
+        }
     }
 
     void ShowInstallationDisclaimer(Execution::Context& context)
@@ -261,6 +269,13 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
+            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            {
+                context <<
+                    GetUninstallInfo <<
+                    ExecuteUninstaller;
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+            }
             context << PortableInstall;
             break;
         default:

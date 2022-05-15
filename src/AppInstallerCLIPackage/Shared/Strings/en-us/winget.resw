@@ -723,7 +723,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>File does not exist:</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>Both local manifest and search query args are provided</value>
+    <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>Logs</value>
@@ -1287,6 +1287,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="WaitArgumentDescription" xml:space="preserve">
     <value>Prompts the user to press any key before exiting</value>
   </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>The installer will request to run as administrator, expect a prompt.</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>The installer cannot be run from an administrator context.</value>
+  </data>
   <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
     <value>Path environment variable modified; restart your shell to use the new value.</value>
   </data>
@@ -1307,5 +1313,28 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>Portable install failed; Cleaning up...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>Both `purge` and `preserve` arguments are provided</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>Portable exe has been modified; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Unable to remove Portable exe as it has been modified; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>Files remain in install directory:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>Purging install directory...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>Cannot purge install directory, as it was not created by WinGet</value>
   </data>
 </root>

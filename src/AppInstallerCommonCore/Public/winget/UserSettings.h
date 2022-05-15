@@ -89,7 +89,7 @@ namespace AppInstaller::Settings
         InstallIgnoreWarnings,
         PortableAppUserRoot,
         PortableAppMachineRoot,
-        UninstallPurgePortableApp,
+        UninstallPurgePortablePackage,
         Max
     };
 
@@ -141,7 +141,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppMachineRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortableApp, bool, bool, false, ".uninstallBehavior.purgePortableApp"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);

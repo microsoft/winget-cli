@@ -61,6 +61,40 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
+        public void UninstallPortable()
+        {
+            // Uninstall a Portable
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        [Test]
+        public void UninstallPortableWithProductCode()
+        {
+            // Uninstall a Portable
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        [Test]
         public void UninstallNotIndexed()
         {
             // Uninstalls a package found with ARP not matching any known manifest.
