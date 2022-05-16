@@ -45,15 +45,15 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition)
+    SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
     {
         AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
         switch (disposition)
         {
         case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Read:
-            return { filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None };
+            return { filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None, std::move(indexFile) };
         case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::ReadWrite:
-            return { filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None };
+            return { filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None, std::move(indexFile) };
         case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Immutable:
         {
             // Following the algorithm set forth at https://sqlite.org/uri.html [3.1] to convert to a URI path
@@ -99,15 +99,15 @@ namespace AppInstaller::Repository::Microsoft
 
             target += "?immutable=1";
 
-            return { target, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri };
+            return { target, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri, std::move(indexFile) };
         }
         default:
             THROW_HR(E_UNEXPECTED);
         }
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags) :
-        m_dbconn(SQLite::Connection::Create(target, disposition, flags))
+    SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
+        m_dbconn(SQLite::Connection::Create(target, disposition, flags)), m_indexFile(std::move(indexFile))
     {
         m_dbconn.EnableICU();
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);

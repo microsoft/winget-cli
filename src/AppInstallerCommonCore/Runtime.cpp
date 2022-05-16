@@ -504,6 +504,18 @@ namespace AppInstaller::Runtime
         return result;
     }
 
+    std::filesystem::path GetNewTempFilePath()
+    {
+        GUID guid;
+        THROW_IF_FAILED(CoCreateGuid(&guid));
+        WCHAR tempFileName[256];
+        THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, tempFileName, ARRAYSIZE(tempFileName)) == 0);
+        auto tempFilePath = Runtime::GetPathTo(Runtime::PathName::Temp);
+        tempFilePath /= tempFileName;
+
+        return tempFilePath;
+    }
+
     bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version)
     {
         DWORD versionParts[3] = {};

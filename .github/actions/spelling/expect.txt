@@ -120,6 +120,7 @@ EXEHASH
 experimentalfeatures
 fcb
 fd
+fdw
 fedorapeople
 fileinuse
 fintimes
@@ -281,7 +282,9 @@ parametermap
 pathparts
 pathpaths
 Patil
+pb
 PCs
+pcwsz
 pdp
 PEGI
 pfn

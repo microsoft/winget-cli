@@ -71,7 +71,9 @@
     <Content Include="Images\StoreLogo.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
     <None Include="Register-WingetdevAutoComplete.ps1" />
-    <PRIResource Include="Shared\Strings\en-us\winget.resw" />
+    <PRIResource Include="Shared\Strings\en-us\winget.resw">
+      <SubType>Designer</SubType>
+    </PRIResource>
     <PRIResource Include="shared\strings\de-DE\winget.resw" Condition="Exists('shared\strings\de-DE\winget.resw')" />
     <PRIResource Include="shared\strings\es-ES\winget.resw" Condition="Exists('shared\strings\es-ES\winget.resw')" />
     <PRIResource Include="shared\strings\fr-FR\winget.resw" Condition="Exists('shared\strings\fr-FR\winget.resw')" />

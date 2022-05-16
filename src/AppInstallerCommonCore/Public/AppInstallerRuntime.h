@@ -64,6 +64,9 @@ namespace AppInstaller::Runtime
     // Gets the path to the requested location.
     std::filesystem::path GetPathTo(PathName path);
 
+    // Gets a new temp file path.
+    std::filesystem::path GetNewTempFilePath();
+
     // Determines whether the current OS version is >= the given one.
     // We treat the given Version struct as a standard 4 part Windows OS version.
     bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version);
