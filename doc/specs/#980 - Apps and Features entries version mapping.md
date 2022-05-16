@@ -65,7 +65,7 @@ Installers:
     DisplayVersion: 10.0.0.4
 ```
 
-For manifest with only 1 ARP version, the only ARP version will be both the minmum and maximum version of the ARP version range.
+For manifest with only 1 ARP version, the only ARP version will be both the minimum and maximum version of the ARP version range.
 The Winget index will record the ARP version range(if present in the manifest) in its internal VersionTable. During indexing, Winget will make sure ARP version range does not collide with each other within a same package.
 
 ### How Winget maps ARP version to Winget version
@@ -98,18 +98,19 @@ ARP version 9.4 will be mapped as Winget version Unknown.
 For packages with ARP version ordered in the same order of Winget version, full mapping will be performed. For example:
 ```text
 Winget version:       1.0.0                   2.0.0                  3.0.0             4.0.0
-ARP version range:    [1.0.0, 1.0.0]          [Not provided]         [12.0, 12.5]      [13.0, 13.5]
+ARP version range:    [10.0, 10.5]            [Not provided]         [12.0, 12.5]      [13.0, 13.5]
 ```
 
 Winget will perform following mapping:
 1. Check if ARP version fall within one of the ARP version range
-2. Try to find the closest ARP version range it's less than, this is higher priority than greater than mapping because this mapping will mostly be used for package upgradability check.
+2. Try to find the closest ARP version range it's less than, this is higher priority than greater than mapping because this mapping will mostly be used for package upgrade applicability check.
 3. Try to find the closes ARP version range it's greater than
 
-ARP version 1.0.0 will be mapped as Winget version 1.0.0.
+ARP version 10.0 will be mapped as Winget version 1.0.0.
 ARP version 11.7 will be mapped as less than Winget version 3.0.0(Note: not mapped as greater than 1.0.0).
 ARP version 12.7 will be mapped as less than Winget version 4.0.0(Note: not mapped as greater than 3.0.0).
 ARP version 14.0 will be mapped as greater than Winget version 4.0.0.
+ARP version 2.0.0 will be mapped as less than Winget version 1.0.0(Once ARP version mapping logic is applied, Winget will only look at ARP version range, though 2.0.0 exactly matches one Winget version).
 
 **Note:** It is recommended for package authors to update ARP version info for all package versions of a package for better version mapping if this feature is to be used for a package.
 
