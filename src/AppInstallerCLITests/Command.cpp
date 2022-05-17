@@ -23,6 +23,18 @@ std::string GetArgumentName(const Argument& arg)
     return std::string{ arg.Name() };
 }
 
+std::string GetArgumentAlternateName(const Argument& arg)
+{
+    if (arg.AlternateName() == Argument::NoAlternateName)
+    {
+        return {};
+    }
+    else
+    {
+        return std::string{ arg.AlternateName() };
+    }
+}
+
 std::string GetArgumentAlias(const Argument& arg)
 {
     if (arg.Alias() == Argument::NoAlias)
@@ -69,6 +81,7 @@ void EnsureCommandConsistency(const Command& command)
     auto args = command.GetArguments();
     Argument::GetCommon(args);
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName);
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alternate name", args, GetArgumentAlternateName);
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias, false);
 
     // No : allowed in commands
@@ -407,6 +420,23 @@ TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
         });
 
     std::vector<std::string> values{ "--pos1=Val1" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+
+    RequireValueParsedToArg(values[0].substr(7), command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_AlternateNameWithAdjoinedValue", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', "p1", Args::Type::Channel, DefaultDesc, ArgumentType::Positional},
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+        });
+
+    std::vector<std::string> values{ "--p1=Val1" };
     Invocation inv{ std::vector<std::string>(values) };
 
     command.ParseArguments(inv, args);
