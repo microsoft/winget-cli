@@ -242,7 +242,7 @@ monicka
 MPNS
 msdn
 msdownload
-MSFT
+msft
 msftrubengu
 MSIHASH
 MSIXHASH
@@ -447,6 +447,7 @@ WZDNCRFJ
 XPLATSTR
 xsi
 yamlcreateps
+yao
 ype
 Zanollo
 zy
