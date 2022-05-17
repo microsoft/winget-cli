@@ -27,6 +27,7 @@ Versions are parsed by:
 1. Splitting the string based on the split character (`.`)
 2. Parsing a leading, positive integer from each split part
 3. Saving any remaining, non-digits as a supplemental value
+4. If a version part's value is 0 and it does not have supplemental value(non-digits), the version part is dropped(i.e. `1.0.0` will be parsed internally as version with only one part with value 1)
 
 Versions are compared by:  
  for each part in each version  
@@ -139,6 +140,8 @@ Version `> 3.0` is less than version `3.1`  (because `3.0` is less than `3.1`)
 Version `> 3.0` is greater than version `2.9`  
 
 **Note:** It is recommended for package authors to update ARP version info for all package versions of a package for better version mapping if this feature is to be used for a package.
+
+**Note:** Given the limited support for multiple component packages by Winget as of the writing, if a package has multiple components to be installed, it is recommended for package authors to only list the `DisplayName`s of the primary component for better version mapping results.
 
 ## UI/UX Design
 
