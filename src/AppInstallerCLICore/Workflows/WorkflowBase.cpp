@@ -738,23 +738,28 @@ namespace AppInstaller::CLI::Workflow
 
                     if (latestVersion)
                     {
+                        // Always show the source for correlated packages
+                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
                             availableUpgradesCount++;
                         }
-
-                        // Always show the source for correlated packages
-                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
 
+                    // Output using the local PackageName instead of the name in the manifest, to prevent confusion for packages that add multiple
+                    // Add/Remove Programs entries.
+                    // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
                     table.OutputLine({
-                        match.Package->GetProperty(PackageProperty::Name),
-                        match.Package->GetProperty(PackageProperty::Id),
-                        installedVersion->GetProperty(PackageVersionProperty::Version),
-                        availableVersion,
-                        shouldShowSource ? sourceName : ""s
-                        });
+                         installedVersion->GetProperty(PackageVersionProperty::Name),
+                         match.Package->GetProperty(PackageProperty::Id),
+                         installedVersion->GetProperty(PackageVersionProperty::Version),
+                         availableVersion,
+                         shouldShowSource ? sourceName : ""s
+                    });
+                   
+                   
                 }
             }
         }
