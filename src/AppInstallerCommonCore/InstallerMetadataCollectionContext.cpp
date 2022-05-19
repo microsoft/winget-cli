@@ -101,6 +101,8 @@ namespace AppInstaller::Utility
 
         Logging::Telemetry().SetCaller("installer-metadata-collection");
         Logging::Telemetry().LogStartup();
+
+        return threadGlobalsLifetime;
     }
 
     void InstallerMetadataCollectionContext::InitializePreinstallState(const std::wstring& json)
@@ -118,6 +120,8 @@ namespace AppInstaller::Utility
         auto threadGlobalsLifetime = m_threadGlobals.SetForCurrentThread();
 
         THROW_HR_IF(E_INVALIDARG, output.empty());
+
+        UNREFERENCED_PARAMETER(diagnostics);
 
         // Collect post-install system state
 

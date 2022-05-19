@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
 #include "InformationResponseDeserializer.h"
 
@@ -47,7 +47,7 @@ namespace AppInstaller::Repository::Rest::Schema
                 return {};
             }
 
-            std::optional<std::reference_wrapper<const web::json::value>> data = JsonHelper::GetJsonValueFromNode(dataObject, JsonHelper::GetUtilityString(Data));
+            std::optional<std::reference_wrapper<const web::json::value>> data = JSON::GetJsonValueFromNode(dataObject, JSON::GetUtilityString(Data));
             if (!data)
             {
                 AICLI_LOG(Repo, Error, << "Missing data");
@@ -55,14 +55,14 @@ namespace AppInstaller::Repository::Rest::Schema
             }
 
             const auto& dataValue = data.value().get();
-            std::optional<std::string> sourceId = JsonHelper::GetRawStringValueFromJsonNode(dataValue, JsonHelper::GetUtilityString(SourceIdentifier));
-            if (!JsonHelper::IsValidNonEmptyStringValue(sourceId))
+            std::optional<std::string> sourceId = JSON::GetRawStringValueFromJsonNode(dataValue, JSON::GetUtilityString(SourceIdentifier));
+            if (!JSON::IsValidNonEmptyStringValue(sourceId))
             {
                 AICLI_LOG(Repo, Error, << "Missing source identifier");
                 return {};
             }
 
-            std::vector<std::string> allVersions = JsonHelper::GetRawStringArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(ServerSupportedVersions));
+            std::vector<std::string> allVersions = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(ServerSupportedVersions));
             if (allVersions.size() == 0)
             {
                 AICLI_LOG(Repo, Error, << "Missing supported versions.");
@@ -71,13 +71,13 @@ namespace AppInstaller::Repository::Rest::Schema
 
             IRestClient::Information info{ std::move(sourceId.value()), std::move(allVersions) };
 
-            auto agreements = JsonHelper::GetJsonValueFromNode(dataValue, JsonHelper::GetUtilityString(SourceAgreements));
+            auto agreements = JSON::GetJsonValueFromNode(dataValue, JSON::GetUtilityString(SourceAgreements));
             if (agreements)
             {
                 const auto& agreementsValue = agreements.value().get();
 
-                auto agreementsIdentifier = JsonHelper::GetRawStringValueFromJsonNode(agreementsValue, JsonHelper::GetUtilityString(SourceAgreementsIdentifier));
-                if (!JsonHelper::IsValidNonEmptyStringValue(agreementsIdentifier))
+                auto agreementsIdentifier = JSON::GetRawStringValueFromJsonNode(agreementsValue, JSON::GetUtilityString(SourceAgreementsIdentifier));
+                if (!JSON::IsValidNonEmptyStringValue(agreementsIdentifier))
                 {
                     AICLI_LOG(Repo, Error, << "SourceAgreements node exists but AgreementsIdentifier is missing.");
                     return {};
@@ -85,27 +85,27 @@ namespace AppInstaller::Repository::Rest::Schema
 
                 info.SourceAgreementsIdentifier = std::move(agreementsIdentifier.value());
 
-                auto agreementsContent = JsonHelper::GetRawJsonArrayFromJsonNode(agreementsValue, JsonHelper::GetUtilityString(SourceAgreementsContent));
+                auto agreementsContent = JSON::GetRawJsonArrayFromJsonNode(agreementsValue, JSON::GetUtilityString(SourceAgreementsContent));
                 if (agreementsContent)
                 {
                     for (auto const& agreementNode : agreementsContent.value().get())
                     {
                         IRestClient::SourceAgreementEntry agreementEntry;
 
-                        std::optional<std::string> label = JsonHelper::GetRawStringValueFromJsonNode(agreementNode, JsonHelper::GetUtilityString(SourceAgreementLabel));
-                        if (JsonHelper::IsValidNonEmptyStringValue(label))
+                        std::optional<std::string> label = JSON::GetRawStringValueFromJsonNode(agreementNode, JSON::GetUtilityString(SourceAgreementLabel));
+                        if (JSON::IsValidNonEmptyStringValue(label))
                         {
                             agreementEntry.Label = std::move(label.value());
                         }
 
-                        std::optional<std::string> text = JsonHelper::GetRawStringValueFromJsonNode(agreementNode, JsonHelper::GetUtilityString(SourceAgreementText));
-                        if (JsonHelper::IsValidNonEmptyStringValue(text))
+                        std::optional<std::string> text = JSON::GetRawStringValueFromJsonNode(agreementNode, JSON::GetUtilityString(SourceAgreementText));
+                        if (JSON::IsValidNonEmptyStringValue(text))
                         {
                             agreementEntry.Text = std::move(text.value());
                         }
 
-                        std::optional<std::string> url = JsonHelper::GetRawStringValueFromJsonNode(agreementNode, JsonHelper::GetUtilityString(SourceAgreementUrl));
-                        if (JsonHelper::IsValidNonEmptyStringValue(url))
+                        std::optional<std::string> url = JSON::GetRawStringValueFromJsonNode(agreementNode, JSON::GetUtilityString(SourceAgreementUrl));
+                        if (JSON::IsValidNonEmptyStringValue(url))
                         {
                             agreementEntry.Url = std::move(url.value());
                         }
@@ -118,10 +118,10 @@ namespace AppInstaller::Repository::Rest::Schema
                 }
             }
 
-            info.RequiredPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(RequiredPackageMatchFields));
-            info.UnsupportedPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(UnsupportedPackageMatchFields));
-            info.RequiredQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(RequiredQueryParameters));
-            info.UnsupportedQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(UnsupportedQueryParameters));
+            info.RequiredPackageMatchFields = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(RequiredPackageMatchFields));
+            info.UnsupportedPackageMatchFields = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(UnsupportedPackageMatchFields));
+            info.RequiredQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(RequiredQueryParameters));
+            info.UnsupportedQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(UnsupportedQueryParameters));
 
             return info;
         }

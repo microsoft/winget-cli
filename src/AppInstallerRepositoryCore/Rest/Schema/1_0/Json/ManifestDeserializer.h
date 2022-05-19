@@ -18,9 +18,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         template <Manifest::Localization L>
         inline void TryParseStringLocaleField(Manifest::ManifestLocalization& manifestLocale, const web::json::value& localeJsonObject, std::string_view localeJsonFieldName) const
         {
-            auto value = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(localeJsonFieldName));
+            auto value = JSON::GetRawStringValueFromJsonNode(localeJsonObject, JSON::GetUtilityString(localeJsonFieldName));
 
-            if (JsonHelper::IsValidNonEmptyStringValue(value))
+            if (JSON::IsValidNonEmptyStringValue(value))
             {
                 manifestLocale.Add<L>(value.value());
             }

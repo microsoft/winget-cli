@@ -3,6 +3,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include <json/json.h>
+
+// Disable dllimport for cpprest JSON in any downstream consumers
+#ifndef _NO_ASYNCRTIMP
+#define _NO_ASYNCRTIMP
+#endif
 #include <cpprest/json.h>
 
 #include <optional>

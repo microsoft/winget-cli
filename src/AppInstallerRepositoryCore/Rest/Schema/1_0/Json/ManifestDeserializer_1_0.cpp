@@ -5,7 +5,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
 #include "ManifestDeserializer.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
 
 using namespace AppInstaller::Manifest;
@@ -89,9 +89,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             const web::json::value& switchesJsonObject,
             std::string_view switchJsonFieldName)
         {
-            auto value = JsonHelper::GetRawStringValueFromJsonNode(switchesJsonObject, JsonHelper::GetUtilityString(switchJsonFieldName));
+            auto value = JSON::GetRawStringValueFromJsonNode(switchesJsonObject, JSON::GetUtilityString(switchJsonFieldName));
 
-            if (JsonHelper::IsValidNonEmptyStringValue(value))
+            if (JSON::IsValidNonEmptyStringValue(value))
             {
                 installerSwitches[switchType] = value.value();
             }
@@ -120,7 +120,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         try
         {
             std::optional<std::reference_wrapper<const web::json::value>> manifestObject =
-                JsonHelper::GetJsonValueFromNode(dataJsonObject, JsonHelper::GetUtilityString(Data));
+                JSON::GetJsonValueFromNode(dataJsonObject, JSON::GetUtilityString(Data));
 
             if (!manifestObject || manifestObject.value().get().is_null())
             {
@@ -129,14 +129,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             }
 
             auto& manifestJsonObject = manifestObject.value().get();
-            std::optional<std::string> id = JsonHelper::GetRawStringValueFromJsonNode(manifestJsonObject, JsonHelper::GetUtilityString(PackageIdentifier));
-            if (!JsonHelper::IsValidNonEmptyStringValue(id))
+            std::optional<std::string> id = JSON::GetRawStringValueFromJsonNode(manifestJsonObject, JSON::GetUtilityString(PackageIdentifier));
+            if (!JSON::IsValidNonEmptyStringValue(id))
             {
                 AICLI_LOG(Repo, Error, << "Missing package identifier.");
                 return {};
             }
 
-            std::optional<std::reference_wrapper<const web::json::array>> versions = JsonHelper::GetRawJsonArrayFromJsonNode(manifestJsonObject, JsonHelper::GetUtilityString(Versions));
+            std::optional<std::reference_wrapper<const web::json::array>> versions = JSON::GetRawJsonArrayFromJsonNode(manifestJsonObject, JSON::GetUtilityString(Versions));
             if (!versions || versions.value().get().size() == 0)
             {
                 AICLI_LOG(Repo, Error, << "Missing versions in package: " << id.value());
@@ -149,19 +149,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 Manifest::Manifest manifest;
                 manifest.Id = id.value();
 
-                std::optional<std::string> packageVersion = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(PackageVersion));
-                if (!JsonHelper::IsValidNonEmptyStringValue(packageVersion))
+                std::optional<std::string> packageVersion = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(PackageVersion));
+                if (!JSON::IsValidNonEmptyStringValue(packageVersion))
                 {
                     AICLI_LOG(Repo, Error, << "Missing package version in package: " << manifest.Id);
                     return {};
                 }
                 manifest.Version = std::move(packageVersion.value());
 
-                manifest.Channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(Channel)).value_or("");
+                manifest.Channel = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(Channel)).value_or("");
 
                 // Default locale
                 std::optional<std::reference_wrapper<const web::json::value>> defaultLocale =
-                    JsonHelper::GetJsonValueFromNode(versionItem, JsonHelper::GetUtilityString(DefaultLocale));
+                    JSON::GetJsonValueFromNode(versionItem, JSON::GetUtilityString(DefaultLocale));
                 if (!defaultLocale)
                 {
                     AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
@@ -187,11 +187,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                     manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
 
                     // Moniker is in Default locale
-                    manifest.Moniker = JsonHelper::GetRawStringValueFromJsonNode(defaultLocale.value().get(), JsonHelper::GetUtilityString(Moniker)).value_or("");
+                    manifest.Moniker = JSON::GetRawStringValueFromJsonNode(defaultLocale.value().get(), JSON::GetUtilityString(Moniker)).value_or("");
                 }
 
                 // Installers
-                std::optional<std::reference_wrapper<const web::json::array>> installers = JsonHelper::GetRawJsonArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(Installers));
+                std::optional<std::reference_wrapper<const web::json::array>> installers = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Installers));
                 if (!installers || installers.value().get().size() == 0)
                 {
                     AICLI_LOG(Repo, Error, << "Missing installers in package: " << manifest.Id);
@@ -214,7 +214,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 }
 
                 // Other locales
-                std::optional<std::reference_wrapper<const web::json::array>> locales = JsonHelper::GetRawJsonArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(Locales));
+                std::optional<std::reference_wrapper<const web::json::array>> locales = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Locales));
                 if (locales)
                 {
                     for (auto& locale : locales.value().get())
@@ -252,8 +252,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         Manifest::ManifestLocalization locale;
-        std::optional<std::string> packageLocale = JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PackageLocale));
-        if (!JsonHelper::IsValidNonEmptyStringValue(packageLocale))
+        std::optional<std::string> packageLocale = JSON::GetRawStringValueFromJsonNode(localeJsonObject, JSON::GetUtilityString(PackageLocale));
+        if (!JSON::IsValidNonEmptyStringValue(packageLocale))
         {
             AICLI_LOG(Repo, Error, << "Missing package locale.");
             return {};
@@ -274,7 +274,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         TryParseStringLocaleField<Manifest::Localization::CopyrightUrl>(locale, localeJsonObject, CopyrightUrl);
         TryParseStringLocaleField<Manifest::Localization::Description>(locale, localeJsonObject, Description);
 
-        auto tags = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Tags)));
+        auto tags = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(localeJsonObject, JSON::GetUtilityString(Tags)));
         if (!tags.empty())
         {
             locale.Add<AppInstaller::Manifest::Localization::Tags>(tags);
@@ -292,38 +292,38 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         Manifest::ManifestInstaller installer;
 
-        installer.Url = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerUrl)).value_or("");
+        installer.Url = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerUrl)).value_or("");
 
-        std::optional<std::string> sha256 = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSha256));
-        if (JsonHelper::IsValidNonEmptyStringValue(sha256))
+        std::optional<std::string> sha256 = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerSha256));
+        if (JSON::IsValidNonEmptyStringValue(sha256))
         {
             installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
         }
 
-        std::optional<std::string> arch = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Architecture));
-        if (!JsonHelper::IsValidNonEmptyStringValue(arch))
+        std::optional<std::string> arch = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(Architecture));
+        if (!JSON::IsValidNonEmptyStringValue(arch))
         {
             AICLI_LOG(Repo, Error, << "Missing installer architecture.");
             return {};
         }
         installer.Arch = Utility::ConvertToArchitectureEnum(arch.value());
 
-        std::optional<std::string> installerType = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerType));
-        if (!JsonHelper::IsValidNonEmptyStringValue(installerType))
+        std::optional<std::string> installerType = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerType));
+        if (!JSON::IsValidNonEmptyStringValue(installerType))
         {
             AICLI_LOG(Repo, Error, << "Missing installer type.");
             return {};
         }
         installer.InstallerType = ConvertToInstallerType(installerType.value());
-        installer.Locale = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerLocale)).value_or("");
+        installer.Locale = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
-        std::optional<std::reference_wrapper<const web::json::array>> platforms = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Platform));
+        std::optional<std::reference_wrapper<const web::json::array>> platforms = JSON::GetRawJsonArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(Platform));
         if (platforms)
         {
             for (auto& platform : platforms.value().get())
             {
-                std::optional<std::string> platformValue = JsonHelper::GetRawStringValueFromJsonValue(platform);
+                std::optional<std::string> platformValue = JSON::GetRawStringValueFromJsonValue(platform);
                 if (platformValue)
                 {
                     installer.Platform.emplace_back(Manifest::ConvertToPlatformEnum(platformValue.value()));
@@ -331,26 +331,26 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             }
         }
 
-        installer.MinOSVersion = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(MinimumOSVersion)).value_or("");
-        std::optional<std::string> scope = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Scope));
+        installer.MinOSVersion = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(MinimumOSVersion)).value_or("");
+        std::optional<std::string> scope = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(Scope));
         if (scope)
         {
             installer.Scope = Manifest::ConvertToScopeEnum(scope.value());
         }
 
-        std::optional<std::string> signatureSha256 = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(SignatureSha256));
+        std::optional<std::string> signatureSha256 = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(SignatureSha256));
         if (signatureSha256)
         {
             installer.SignatureSha256 = Utility::SHA256::ConvertToBytes(signatureSha256.value());
         }
 
         // Install modes
-        std::optional<std::reference_wrapper<const web::json::array>> installModes = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallModes));
+        std::optional<std::reference_wrapper<const web::json::array>> installModes = JSON::GetRawJsonArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallModes));
         if (installModes)
         {
             for (auto& mode : installModes.value().get())
             {
-                std::optional<std::string> modeObject = JsonHelper::GetRawStringValueFromJsonValue(mode);
+                std::optional<std::string> modeObject = JSON::GetRawStringValueFromJsonValue(mode);
                 if (modeObject)
                 {
                     installer.InstallModes.emplace_back(Manifest::ConvertToInstallModeEnum(modeObject.value()));
@@ -361,7 +361,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // Installer Switches
         installer.Switches = Manifest::GetDefaultKnownSwitches(installer.InstallerType);
         std::optional<std::reference_wrapper<const web::json::value>> switches =
-            JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSwitches));
+            JSON::GetJsonValueFromNode(installerJsonObject, JSON::GetUtilityString(InstallerSwitches));
         if (switches)
         {
             const auto& installerSwitches = switches.value().get();
@@ -375,12 +375,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         // Installer SuccessCodes
-        std::optional<std::reference_wrapper<const web::json::array>> installSuccessCodes = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSuccessCodes));
+        std::optional<std::reference_wrapper<const web::json::array>> installSuccessCodes = JSON::GetRawJsonArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerSuccessCodes));
         if (installSuccessCodes)
         {
             for (auto& code : installSuccessCodes.value().get())
             {
-                std::optional<int> codeValue = JsonHelper::GetRawIntValueFromJsonValue(code);
+                std::optional<int> codeValue = JSON::GetRawIntValueFromJsonValue(code);
                 if (codeValue)
                 {
                     installer.InstallerSuccessCodes.emplace_back(std::move(codeValue.value()));
@@ -388,19 +388,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             }
         }
 
-        std::optional<std::string> updateBehavior = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(UpgradeBehavior));
+        std::optional<std::string> updateBehavior = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(UpgradeBehavior));
         if (updateBehavior)
         {
             installer.UpdateBehavior = Manifest::ConvertToUpdateBehaviorEnum(updateBehavior.value());
         }
 
-        installer.Commands = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Commands)));
-        installer.Protocols = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Protocols)));
-        installer.FileExtensions = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(FileExtensions)));
+        installer.Commands = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(Commands)));
+        installer.Protocols = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(Protocols)));
+        installer.FileExtensions = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(FileExtensions)));
 
         // Dependencies
         std::optional<std::reference_wrapper<const web::json::value>> dependenciesObject =
-            JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(Dependencies));
+            JSON::GetJsonValueFromNode(installerJsonObject, JSON::GetUtilityString(Dependencies));
         if (dependenciesObject)
         {
             std::optional<Manifest::DependencyList> dependencyList = DeserializeDependency(dependenciesObject.value().get());
@@ -410,10 +410,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             }
         }
 
-        installer.PackageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(PackageFamilyName)).value_or("");
-        installer.ProductCode = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(ProductCode)).value_or("");
-        installer.Capabilities = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(Capabilities)));
-        installer.RestrictedCapabilities = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(RestrictedCapabilities)));
+        installer.PackageFamilyName = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(PackageFamilyName)).value_or("");
+        installer.ProductCode = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(ProductCode)).value_or("");
+        installer.Capabilities = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(Capabilities)));
+        installer.RestrictedCapabilities = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(RestrictedCapabilities)));
 
         return installer;
     }
@@ -427,34 +427,34 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         Manifest::DependencyList dependencyList;
 
-        auto wfIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsFeatures)));
+        auto wfIds = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(dependenciesObject, JSON::GetUtilityString(WindowsFeatures)));
         for (auto&& id : wfIds)
         {
             dependencyList.Add(Dependency(DependencyType::WindowsFeature, std::move(id)));
         };
 
-        const auto& wlIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(WindowsLibraries)));
+        const auto& wlIds = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(dependenciesObject, JSON::GetUtilityString(WindowsLibraries)));
         for (auto id : wlIds)
         {
             dependencyList.Add(Dependency(DependencyType::WindowsLibrary, id));
         };
 
-        const auto& extIds = ConvertToManifestStringArray(JsonHelper::GetRawStringArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(ExternalDependencies)));
+        const auto& extIds = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(dependenciesObject, JSON::GetUtilityString(ExternalDependencies)));
         for (auto id : extIds)
         {
             dependencyList.Add(Dependency(DependencyType::External, id));
         };
 
         // Package Dependencies
-        std::optional<std::reference_wrapper<const web::json::array>> packageDependencies = JsonHelper::GetRawJsonArrayFromJsonNode(dependenciesObject, JsonHelper::GetUtilityString(PackageDependencies));
+        std::optional<std::reference_wrapper<const web::json::array>> packageDependencies = JSON::GetRawJsonArrayFromJsonNode(dependenciesObject, JSON::GetUtilityString(PackageDependencies));
         if (packageDependencies)
         {
             for (auto& packageDependency : packageDependencies.value().get())
             {
-                std::optional<std::string> id = JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(PackageIdentifier));
+                std::optional<std::string> id = JSON::GetRawStringValueFromJsonNode(packageDependency, JSON::GetUtilityString(PackageIdentifier));
                 if (id)
                 {
-                    Dependency pkg{ DependencyType::Package, std::move(id.value()) ,  JsonHelper::GetRawStringValueFromJsonNode(packageDependency, JsonHelper::GetUtilityString(MinimumVersion)).value_or("") };
+                    Dependency pkg{ DependencyType::Package, std::move(id.value()) ,  JSON::GetRawStringValueFromJsonNode(packageDependency, JSON::GetUtilityString(MinimumVersion)).value_or("") };
                     dependencyList.Add(std::move(pkg));
                 }
             }

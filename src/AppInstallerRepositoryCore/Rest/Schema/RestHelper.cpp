@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestHelper.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Rest::Schema
         }
 
         // Encode the Uri
-        return web::uri::encode_uri(JsonHelper::GetUtilityString(uri));
+        return web::uri::encode_uri(JSON::GetUtilityString(uri));
     }
 
     bool RestHelper::IsValidUri(const utility::string_t& restApiUri)
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Rest::Schema
 
     std::optional<utility::string_t> RestHelper::GetContinuationToken(const web::json::value& jsonObject)
     {
-        std::optional<std::string> continuationToken = JsonHelper::GetRawStringValueFromJsonNode(jsonObject, JsonHelper::GetUtilityString(ContinuationToken));
+        std::optional<std::string> continuationToken = JSON::GetRawStringValueFromJsonNode(jsonObject, JSON::GetUtilityString(ContinuationToken));
 
         if (continuationToken)
         {
