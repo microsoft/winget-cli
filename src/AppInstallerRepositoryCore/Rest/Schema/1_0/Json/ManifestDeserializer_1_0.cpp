@@ -157,8 +157,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
         }
 
-        const web::json::array versionNodes = versions.value().get();
-        for (auto& versionItem : versionNodes)
+        for (auto& versionItem : versions.value().get())
         {
             Manifest::Manifest manifest;
             manifest.Id = id.value();

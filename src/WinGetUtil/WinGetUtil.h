@@ -170,6 +170,5 @@ extern "C"
     WINGET_UTIL_API WinGetCompleteInstallerMetadataCollection(
         WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
         WINGET_STRING outputFilePath,
-        WINGET_STRING diagnosticsFilePath,
         WinGetCompleteInstallerMetadataCollectionOptions options);
 }

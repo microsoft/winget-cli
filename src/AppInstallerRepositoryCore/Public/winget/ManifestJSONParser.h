@@ -24,11 +24,11 @@ namespace AppInstaller::Repository::JSON
         ~ManifestJSONParser();
 
         // Parses the manifests from the REST response object root.
-        // May potentially contian multiple versions of the same package.
+        // May potentially contain multiple versions of the same package.
         std::vector<Manifest::Manifest> Deserialize(const web::json::value& response) const;
 
         // Parses the manifests from the Data field of the REST response object.
-        // May potentially contian multiple versions of the same package.
+        // May potentially contain multiple versions of the same package.
         std::vector<Manifest::Manifest> ParseData(const web::json::value& data) const;
 
     private:

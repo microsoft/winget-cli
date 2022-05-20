@@ -267,6 +267,9 @@
     <ClInclude Include="Public\winget\ManifestJSONParser.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -417,6 +420,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ManifestJSONParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InstallerMetadataCollectionContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

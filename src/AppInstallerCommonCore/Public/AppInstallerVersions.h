@@ -61,6 +61,7 @@ namespace AppInstaller::Utility
         // An individual version part in between split characters.
         struct Part
         {
+            Part() = default;
             Part(const std::string& part);
             Part(uint64_t integer, std::string other);
 
@@ -74,6 +75,9 @@ namespace AppInstaller::Utility
 
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
+
+        // Gets the part at the given index; or the implied zero part if past the end.
+        const Part& PartAt(size_t index) const;
 
     protected:
         std::string m_version;

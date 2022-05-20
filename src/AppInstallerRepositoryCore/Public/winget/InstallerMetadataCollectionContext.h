@@ -2,20 +2,58 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include <Public/AppInstallerVersions.h>
-#include <Public/AppInstallerSHA256.h>
+#include <AppInstallerVersions.h>
+#include <AppInstallerSHA256.h>
 #include <winget/Manifest.h>
 #include <winget/JsonUtil.h>
 #include <winget/ThreadGlobals.h>
 
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 
-namespace AppInstaller::Utility
+namespace AppInstaller::Repository::Metadata
 {
+    // The overall metadata that we collect.
+    struct ProductMetadata
+    {
+        ProductMetadata() = default;
+
+        // Removes all stored data.
+        void Clear();
+
+        // Load the metadata from an existing JSON blob.
+        void FromJson(const web::json::value& json);
+
+        // The installer specific metadata that we collect.
+        struct InstallerMetadata
+        {
+            int ProductRevision;
+            Utility::Version ProductVersion;
+            std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+        };
+
+        // Metadata from previous product revisions.
+        struct HistoricalMetadata
+        {
+            Utility::Version ProductVersion;
+            std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+        };
+
+    private:
+        void FromJson_1_0(const web::json::value& json);
+
+        Utility::Version m_version;
+        Utility::Version m_productVersionMin;
+        Utility::Version m_productVersionMax;
+        // Map from installer hash to metadata
+        std::map<std::string, InstallerMetadata> m_installerMetadata;
+        std::vector<HistoricalMetadata> m_historicalMetadata;
+    };
+
     // Contains the functions and data used for collecting metadata from installers.
     struct InstallerMetadataCollectionContext
     {
@@ -33,7 +71,7 @@ namespace AppInstaller::Utility
         static std::unique_ptr<InstallerMetadataCollectionContext> FromJSON(std::wstring_view json, const std::filesystem::path& logFile);
 
         // Completes the collection, writing to the given locations.
-        void Complete(const std::filesystem::path& output, const std::filesystem::path& diagnostics);
+        void Complete(const std::filesystem::path& output);
 
     private:
         // Initializes the context runtime, including the log file if provided.
@@ -48,11 +86,11 @@ namespace AppInstaller::Utility
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
 
         // Parsed input
-        Version m_supportedBlobVersion;
-        size_t m_maxBlobSize = 0;
-        web::json::value m_currentBlob; // TODO: Parse blob as well
+        Utility::Version m_supportedMetadataVersion;
+        size_t m_maxMetadataSize = 0;
+        ProductMetadata m_currentMetadata;
         int m_productRevision = 0;
-        SHA256::HashBuffer m_installerHash;
+        Utility::SHA256::HashBuffer m_installerHash;
         Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;
     };

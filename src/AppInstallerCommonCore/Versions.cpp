@@ -164,6 +164,20 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    const Version::Part& Version::PartAt(size_t index) const
+    {
+        static Part s_zero{};
+
+        if (index < m_parts.size())
+        {
+            return m_parts[index];
+        }
+        else
+        {
+            return s_zero;
+        }
+    }
+
     Version::Part::Part(const std::string& part)
     {
         const char* begin = part.c_str();

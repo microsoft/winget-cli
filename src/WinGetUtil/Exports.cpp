@@ -17,6 +17,7 @@
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Repository::Metadata;
 using namespace AppInstaller::Repository::Microsoft;
 
 namespace
@@ -383,7 +384,6 @@ extern "C"
     WINGET_UTIL_API WinGetCompleteInstallerMetadataCollection(
         WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
         WINGET_STRING outputFilePath,
-        WINGET_STRING diagnosticsFilePath,
         WinGetCompleteInstallerMetadataCollectionOptions options) try
     {
         THROW_HR_IF(E_INVALIDARG, !collectionHandle);
@@ -398,7 +398,7 @@ extern "C"
 
         THROW_HR_IF(E_INVALIDARG, !outputFilePath);
 
-        context->Complete(outputFilePath, GetPathOrEmpty(diagnosticsFilePath));
+        context->Complete(outputFilePath);
 
         return S_OK;
     }

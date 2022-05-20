@@ -273,6 +273,7 @@
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
+    <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h" />
     <ClInclude Include="Public\winget\ManifestJSONParser.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
@@ -312,6 +313,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
     <ClCompile Include="ManifestJSONParser.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
