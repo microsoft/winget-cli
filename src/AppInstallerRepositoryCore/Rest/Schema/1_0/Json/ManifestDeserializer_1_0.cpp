@@ -98,139 +98,30 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
     }
 
-    std::vector<Manifest::Manifest> ManifestDeserializer::Deserialize(const web::json::value& dataJsonObject) const
+    std::vector<Manifest::Manifest> ManifestDeserializer::Deserialize(const web::json::value& responseJsonObject) const
     {
-        // Get manifest from json output.
-        std::optional<std::vector<Manifest::Manifest>> manifests = DeserializeVersion(dataJsonObject);
-
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA, !manifests);
-
-        return manifests.value();
-    }
-
-    std::optional<std::vector<Manifest::Manifest>> ManifestDeserializer::DeserializeVersion(const web::json::value& dataJsonObject) const
-    {
-        if (dataJsonObject.is_null())
+        if (responseJsonObject.is_null())
         {
             AICLI_LOG(Repo, Error, << "Missing json object.");
-            return {};
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
         }
 
-        std::vector<Manifest::Manifest> manifests;
         try
         {
             std::optional<std::reference_wrapper<const web::json::value>> manifestObject =
-                JSON::GetJsonValueFromNode(dataJsonObject, JSON::GetUtilityString(Data));
+                JSON::GetJsonValueFromNode(responseJsonObject, JSON::GetUtilityString(Data));
 
             if (!manifestObject || manifestObject.value().get().is_null())
             {
                 AICLI_LOG(Repo, Verbose, << "No manifest results returned.");
-                return manifests;
-            }
-
-            auto& manifestJsonObject = manifestObject.value().get();
-            std::optional<std::string> id = JSON::GetRawStringValueFromJsonNode(manifestJsonObject, JSON::GetUtilityString(PackageIdentifier));
-            if (!JSON::IsValidNonEmptyStringValue(id))
-            {
-                AICLI_LOG(Repo, Error, << "Missing package identifier.");
                 return {};
             }
 
-            std::optional<std::reference_wrapper<const web::json::array>> versions = JSON::GetRawJsonArrayFromJsonNode(manifestJsonObject, JSON::GetUtilityString(Versions));
-            if (!versions || versions.value().get().size() == 0)
-            {
-                AICLI_LOG(Repo, Error, << "Missing versions in package: " << id.value());
-                return {};
-            }
-
-            const web::json::array versionNodes = versions.value().get();
-            for (auto& versionItem : versionNodes)
-            {
-                Manifest::Manifest manifest;
-                manifest.Id = id.value();
-
-                std::optional<std::string> packageVersion = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(PackageVersion));
-                if (!JSON::IsValidNonEmptyStringValue(packageVersion))
-                {
-                    AICLI_LOG(Repo, Error, << "Missing package version in package: " << manifest.Id);
-                    return {};
-                }
-                manifest.Version = std::move(packageVersion.value());
-
-                manifest.Channel = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(Channel)).value_or("");
-
-                // Default locale
-                std::optional<std::reference_wrapper<const web::json::value>> defaultLocale =
-                    JSON::GetJsonValueFromNode(versionItem, JSON::GetUtilityString(DefaultLocale));
-                if (!defaultLocale)
-                {
-                    AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
-                    return {};
-                }
-                else
-                {
-                    std::optional<Manifest::ManifestLocalization> defaultLocaleObject = DeserializeLocale(defaultLocale.value().get());
-                    if (!defaultLocaleObject)
-                    {
-                        AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
-                        return {};
-                    }
-
-                    if (!defaultLocaleObject.value().Contains(Manifest::Localization::PackageName) ||
-                        !defaultLocaleObject.value().Contains(Manifest::Localization::Publisher) ||
-                        !defaultLocaleObject.value().Contains(Manifest::Localization::ShortDescription))
-                    {
-                        AICLI_LOG(Repo, Error, << "Missing PackageName, Publisher or ShortDescription in default locale: " << manifest.Id);
-                        return {};
-                    }
-
-                    manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
-
-                    // Moniker is in Default locale
-                    manifest.Moniker = JSON::GetRawStringValueFromJsonNode(defaultLocale.value().get(), JSON::GetUtilityString(Moniker)).value_or("");
-                }
-
-                // Installers
-                std::optional<std::reference_wrapper<const web::json::array>> installers = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Installers));
-                if (!installers || installers.value().get().size() == 0)
-                {
-                    AICLI_LOG(Repo, Error, << "Missing installers in package: " << manifest.Id);
-                    return {};
-                }
-
-                for (auto& installer : installers.value().get())
-                {
-                    std::optional<Manifest::ManifestInstaller> installerObject = DeserializeInstaller(installer);
-                    if (installerObject)
-                    {
-                        manifest.Installers.emplace_back(std::move(installerObject.value()));
-                    }
-                }
-
-                if (manifest.Installers.size() == 0)
-                {
-                    AICLI_LOG(Repo, Error, << "Missing valid installers in package: " << manifest.Id);
-                    return {};
-                }
-
-                // Other locales
-                std::optional<std::reference_wrapper<const web::json::array>> locales = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Locales));
-                if (locales)
-                {
-                    for (auto& locale : locales.value().get())
-                    {
-                        std::optional<Manifest::ManifestLocalization> localeObject = DeserializeLocale(locale);
-                        if (localeObject)
-                        {
-                            manifest.Localizations.emplace_back(std::move(localeObject.value()));
-                        }
-                    }
-                }
-
-                manifests.emplace_back(std::move(manifest));
-            }
-
-            return manifests;
+            return DeserializeData(manifestObject.value());
+        }
+        catch (const wil::ResultException&)
+        {
+            throw;
         }
         catch (const std::exception& e)
         {
@@ -241,7 +132,119 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             AICLI_LOG(Repo, Error, << "Error encountered while deserializing manifest...");
         }
 
-        return {};
+        // If we make it here, there was an exception above that we didn't throw.
+        // This will convert it into our standard error.
+        THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    }
+
+    std::vector<Manifest::Manifest> ManifestDeserializer::DeserializeData(const web::json::value& dataJsonObject) const
+    {
+        THROW_HR_IF(E_INVALIDARG, dataJsonObject.is_null());
+
+        std::vector<Manifest::Manifest> manifests;
+
+        std::optional<std::string> id = JSON::GetRawStringValueFromJsonNode(dataJsonObject, JSON::GetUtilityString(PackageIdentifier));
+        if (!JSON::IsValidNonEmptyStringValue(id))
+        {
+            AICLI_LOG(Repo, Error, << "Missing package identifier.");
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+        }
+
+        std::optional<std::reference_wrapper<const web::json::array>> versions = JSON::GetRawJsonArrayFromJsonNode(dataJsonObject, JSON::GetUtilityString(Versions));
+        if (!versions || versions.value().get().size() == 0)
+        {
+            AICLI_LOG(Repo, Error, << "Missing versions in package: " << id.value());
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+        }
+
+        const web::json::array versionNodes = versions.value().get();
+        for (auto& versionItem : versionNodes)
+        {
+            Manifest::Manifest manifest;
+            manifest.Id = id.value();
+
+            std::optional<std::string> packageVersion = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(PackageVersion));
+            if (!JSON::IsValidNonEmptyStringValue(packageVersion))
+            {
+                AICLI_LOG(Repo, Error, << "Missing package version in package: " << manifest.Id);
+                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+            }
+            manifest.Version = std::move(packageVersion.value());
+
+            manifest.Channel = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(Channel)).value_or("");
+
+            // Default locale
+            std::optional<std::reference_wrapper<const web::json::value>> defaultLocale =
+                JSON::GetJsonValueFromNode(versionItem, JSON::GetUtilityString(DefaultLocale));
+            if (!defaultLocale)
+            {
+                AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
+                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+            }
+            else
+            {
+                std::optional<Manifest::ManifestLocalization> defaultLocaleObject = DeserializeLocale(defaultLocale.value().get());
+                if (!defaultLocaleObject)
+                {
+                    AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+
+                if (!defaultLocaleObject.value().Contains(Manifest::Localization::PackageName) ||
+                    !defaultLocaleObject.value().Contains(Manifest::Localization::Publisher) ||
+                    !defaultLocaleObject.value().Contains(Manifest::Localization::ShortDescription))
+                {
+                    AICLI_LOG(Repo, Error, << "Missing PackageName, Publisher or ShortDescription in default locale: " << manifest.Id);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+
+                manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
+
+                // Moniker is in Default locale
+                manifest.Moniker = JSON::GetRawStringValueFromJsonNode(defaultLocale.value().get(), JSON::GetUtilityString(Moniker)).value_or("");
+            }
+
+            // Installers
+            std::optional<std::reference_wrapper<const web::json::array>> installers = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Installers));
+            if (!installers || installers.value().get().size() == 0)
+            {
+                AICLI_LOG(Repo, Error, << "Missing installers in package: " << manifest.Id);
+                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+            }
+
+            for (auto& installer : installers.value().get())
+            {
+                std::optional<Manifest::ManifestInstaller> installerObject = DeserializeInstaller(installer);
+                if (installerObject)
+                {
+                    manifest.Installers.emplace_back(std::move(installerObject.value()));
+                }
+            }
+
+            if (manifest.Installers.size() == 0)
+            {
+                AICLI_LOG(Repo, Error, << "Missing valid installers in package: " << manifest.Id);
+                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+            }
+
+            // Other locales
+            std::optional<std::reference_wrapper<const web::json::array>> locales = JSON::GetRawJsonArrayFromJsonNode(versionItem, JSON::GetUtilityString(Locales));
+            if (locales)
+            {
+                for (auto& locale : locales.value().get())
+                {
+                    std::optional<Manifest::ManifestLocalization> localeObject = DeserializeLocale(locale);
+                    if (localeObject)
+                    {
+                        manifest.Localizations.emplace_back(std::move(localeObject.value()));
+                    }
+                }
+            }
+
+            manifests.emplace_back(std::move(manifest));
+        }
+
+        return manifests;
     }
 
     std::optional<Manifest::ManifestLocalization> ManifestDeserializer::DeserializeLocale(const web::json::value& localeJsonObject) const

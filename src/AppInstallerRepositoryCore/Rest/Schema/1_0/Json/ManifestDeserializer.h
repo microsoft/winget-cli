@@ -10,23 +10,24 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
     // Manifest Deserializer.
     struct ManifestDeserializer
     {
-        // Gets the manifest from the given json object
-        std::vector<Manifest::Manifest> Deserialize(const web::json::value& dataJsonObject) const;
+        // Gets the manifest from the given json object received from a REST request
+        std::vector<Manifest::Manifest> Deserialize(const web::json::value& responseJsonObject) const;
+
+        // Gets the manifest from the given json Data field
+        std::vector<Manifest::Manifest> DeserializeData(const web::json::value& dataJsonObject) const;
 
     protected:
 
         template <Manifest::Localization L>
         inline void TryParseStringLocaleField(Manifest::ManifestLocalization& manifestLocale, const web::json::value& localeJsonObject, std::string_view localeJsonFieldName) const
         {
-            auto value = JSON::GetRawStringValueFromJsonNode(localeJsonObject, JSON::GetUtilityString(localeJsonFieldName));
+            auto value = AppInstaller::JSON::GetRawStringValueFromJsonNode(localeJsonObject, AppInstaller::JSON::GetUtilityString(localeJsonFieldName));
 
-            if (JSON::IsValidNonEmptyStringValue(value))
+            if (AppInstaller::JSON::IsValidNonEmptyStringValue(value))
             {
                 manifestLocale.Add<L>(value.value());
             }
         }
-
-        std::optional<std::vector<Manifest::Manifest>> DeserializeVersion(const web::json::value& dataJsonObject) const;
 
         virtual std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 

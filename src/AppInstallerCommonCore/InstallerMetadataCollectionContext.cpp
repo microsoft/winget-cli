@@ -8,6 +8,9 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 
+// TODO: Move to self to repository because we can't have a layering inversion
+#include <winget/ManifestJSONParser.h>
+
 namespace AppInstaller::Utility
 {
     std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromFile(const std::filesystem::path& file, const std::filesystem::path& logFile)
@@ -128,8 +131,6 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Verbose, << "Parsing input JSON:\n" << ConvertToUTF8(json));
 
         // Parse and validate JSON
-        bool jsonException = false;
-
         try
         {
             utility::string_t versionFieldName = L"version";
@@ -149,14 +150,17 @@ namespace AppInstaller::Utility
                 // We only have one version currently, so use that as long as the major version is 1
                 ParseInputJson_1_0(inputValue);
             }
+            else
+            {
+                AICLI_LOG(Core, Error, << "Don't know how to handle version " << version.ToString());
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+            }
         }
         catch (const web::json::json_exception& exc)
         {
             AICLI_LOG(Core, Error, << "Exception parsing input JSON: " << exc.what());
-            jsonException = true;
+            throw;
         }
-
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, jsonException);
 
         // Collect pre-install system state
     }
