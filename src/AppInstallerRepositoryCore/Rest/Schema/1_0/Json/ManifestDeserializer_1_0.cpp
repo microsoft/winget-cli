@@ -246,6 +246,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         return manifests;
     }
 
+    std::vector<Manifest::AppsAndFeaturesEntry> ManifestDeserializer::DeserializeAppsAndFeaturesEntries(const web::json::array&) const
+    {
+        return {};
+    }
+
     std::optional<Manifest::ManifestLocalization> ManifestDeserializer::DeserializeLocale(const web::json::value& localeJsonObject) const
     {
         if (localeJsonObject.is_null())

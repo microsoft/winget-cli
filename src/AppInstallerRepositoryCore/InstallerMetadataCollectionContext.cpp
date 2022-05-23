@@ -98,7 +98,7 @@ namespace AppInstaller::Repository::Metadata
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
                 installerMetadata.ProductVersion = Version{ versionString.value() };
 
-                auto appsAndFeatures = AppInstaller::JSON::GetJsonValueFromNode(item, appsAndFeaturesFieldName);
+                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
                 installerMetadata.AppsAndFeaturesEntries = parser.ParseAppsAndFeaturesEntries(appsAndFeatures.value());
 
@@ -117,7 +117,7 @@ namespace AppInstaller::Repository::Metadata
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
                 historicalMetadata.ProductVersion = Version{ versionString.value() };
 
-                auto appsAndFeatures = AppInstaller::JSON::GetJsonValueFromNode(item, appsAndFeaturesFieldName);
+                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
                 historicalMetadata.AppsAndFeaturesEntries = parser.ParseAppsAndFeaturesEntries(appsAndFeatures.value());
 

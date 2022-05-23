@@ -41,6 +41,31 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         constexpr std::string_view AgreementUrl = "AgreementUrl"sv;
     }
 
+    std::vector<Manifest::AppsAndFeaturesEntry> ManifestDeserializer::DeserializeAppsAndFeaturesEntries(const web::json::array& entries) const
+    {
+        std::vector<Manifest::AppsAndFeaturesEntry> result;
+
+        for (auto& arpEntryNode : entries)
+        {
+            AppsAndFeaturesEntry arpEntry;
+            arpEntry.DisplayName = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayName)).value_or("");
+            arpEntry.Publisher = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(Publisher)).value_or("");
+            arpEntry.DisplayVersion = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayVersion)).value_or("");
+            arpEntry.ProductCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(ProductCode)).value_or("");
+            arpEntry.UpgradeCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(UpgradeCode)).value_or("");
+            arpEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
+
+            // Only add when at least one field is valid
+            if (!arpEntry.DisplayName.empty() || !arpEntry.Publisher.empty() || !arpEntry.DisplayVersion.empty() ||
+                !arpEntry.ProductCode.empty() || !arpEntry.UpgradeCode.empty() || arpEntry.InstallerType != InstallerTypeEnum::Unknown)
+            {
+                result.emplace_back(std::move(arpEntry));
+            }
+        }
+
+        return result;
+    }
+
     Manifest::InstallerTypeEnum ManifestDeserializer::ConvertToInstallerType(std::string_view in) const
     {
         std::string inStrLower = Utility::ToLower(in);
@@ -98,23 +123,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             std::optional<std::reference_wrapper<const web::json::array>> arpEntriesNode = JSON::GetRawJsonArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(AppsAndFeaturesEntries));
             if (arpEntriesNode)
             {
-                for (auto& arpEntryNode : arpEntriesNode.value().get())
-                {
-                    AppsAndFeaturesEntry arpEntry;
-                    arpEntry.DisplayName = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayName)).value_or("");
-                    arpEntry.Publisher = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(Publisher)).value_or("");
-                    arpEntry.DisplayVersion = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayVersion)).value_or("");
-                    arpEntry.ProductCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(ProductCode)).value_or("");
-                    arpEntry.UpgradeCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(UpgradeCode)).value_or("");
-                    arpEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
-
-                    // Only add when at least one field is valid
-                    if (!arpEntry.DisplayName.empty() || !arpEntry.Publisher.empty() || !arpEntry.DisplayVersion.empty() ||
-                        !arpEntry.ProductCode.empty() || !arpEntry.UpgradeCode.empty() || arpEntry.InstallerType != InstallerTypeEnum::Unknown)
-                    {
-                        installer.AppsAndFeaturesEntries.emplace_back(std::move(arpEntry));
-                    }
-                }
+                installer.AppsAndFeaturesEntries = DeserializeAppsAndFeaturesEntries(arpEntriesNode.value());
             }
 
             // Markets

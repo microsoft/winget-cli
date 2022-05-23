@@ -16,6 +16,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // Gets the manifest from the given json Data field
         std::vector<Manifest::Manifest> DeserializeData(const web::json::value& dataJsonObject) const;
 
+        // Parses the AppsAndFeaturesEntries node, returning the set of values below it.
+        virtual std::vector<Manifest::AppsAndFeaturesEntry> DeserializeAppsAndFeaturesEntries(const web::json::array& entries) const;
+
     protected:
 
         template <Manifest::Localization L>

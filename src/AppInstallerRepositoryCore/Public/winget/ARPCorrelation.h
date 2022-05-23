@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Correlation
     // Struct holding all the data from an ARP entry we use for the correlation
     struct ARPEntry
     {
-        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackage> entry, bool isNewOrUpdated) : Entry(entry), IsNewOrUpdated(isNewOrUpdated) {}
+        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackage> entry, bool isNewOrUpdated) : Entry(std::move(entry)), IsNewOrUpdated(isNewOrUpdated) {}
 
         // Data found in the ARP entry
         std::shared_ptr<AppInstaller::Repository::IPackage> Entry;

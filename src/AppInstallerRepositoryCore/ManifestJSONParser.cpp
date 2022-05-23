@@ -52,4 +52,9 @@ namespace AppInstaller::Repository::JSON
         return m_pImpl->m_deserializer->DeserializeData(data);
     }
 
+    std::vector<Manifest::AppsAndFeaturesEntry> ManifestJSONParser::ParseAppsAndFeaturesEntries(const web::json::array& data) const
+    {
+        return m_pImpl->m_deserializer->DeserializeAppsAndFeaturesEntries(data);
+    }
+
 }

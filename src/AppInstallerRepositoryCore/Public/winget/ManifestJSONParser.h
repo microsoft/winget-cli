@@ -31,6 +31,9 @@ namespace AppInstaller::Repository::JSON
         // May potentially contain multiple versions of the same package.
         std::vector<Manifest::Manifest> ParseData(const web::json::value& data) const;
 
+        // Parses the AppsAndFeaturesEntries node, returning the set of values below it.
+        std::vector<Manifest::AppsAndFeaturesEntry> ParseAppsAndFeaturesEntries(const web::json::array& data) const;
+
     private:
         struct impl;
         std::unique_ptr<impl> m_pImpl;

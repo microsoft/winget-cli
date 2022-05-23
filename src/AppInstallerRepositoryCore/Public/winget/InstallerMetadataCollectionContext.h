@@ -31,7 +31,7 @@ namespace AppInstaller::Repository::Metadata
         // The installer specific metadata that we collect.
         struct InstallerMetadata
         {
-            int ProductRevision;
+            int ProductRevision = 0;
             Utility::Version ProductVersion;
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
         };

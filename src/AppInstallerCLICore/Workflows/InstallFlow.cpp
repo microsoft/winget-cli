@@ -520,7 +520,7 @@ namespace AppInstaller::CLI::Workflow
                     return result;
                 }, true);
 
-            std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
+            std::vector<Repository::Correlation::ARPEntrySnapshot> entries;
 
             for (const auto& entry : arpSource.Search({}).Matches)
             {
