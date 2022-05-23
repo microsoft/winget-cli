@@ -198,32 +198,6 @@ namespace AppInstaller::Repository::Correlation
     {
         AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
 
-        std::vector<Correlation::ARPEntry> changedArpEntries;
-        std::vector<Correlation::ARPEntry> existingArpEntries;
-
-        for (auto& entry : arpSource.Search({}).Matches)
-        {
-            auto installed = entry.Package->GetInstalledVersion();
-
-            if (installed)
-            {
-                auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
-                    installed->GetProperty(PackageVersionProperty::Version),
-                    installed->GetProperty(PackageVersionProperty::Channel));
-
-                auto itr = std::lower_bound(arpSnapshot.begin(), arpSnapshot.end(), entryKey);
-                if (itr == arpSnapshot.end() || *itr != entryKey)
-                {
-                    changedArpEntries.emplace_back(entry.Package, true);
-                }
-                else
-                {
-                    existingArpEntries.emplace_back(entry.Package, false);
-                }
-            }
-        }
-
         // Also attempt to find the entry based on the manifest data
 
         SearchRequest manifestSearchRequest;
@@ -392,5 +366,56 @@ namespace AppInstaller::Repository::Correlation
         }
 
         return bestMatch ? bestMatch->Entry->GetInstalledVersion() : nullptr;
+    }
+
+    void ARPCorrelationData::CapturePreInstallSnapshot()
+    {
+        ProgressCallback empty;
+        Repository::Source preInstallARP = Repository::Source(PredefinedSource::ARP);
+        preInstallARP.Open(empty);
+
+        for (const auto& entry : preInstallARP.Search({}).Matches)
+        {
+            auto installed = entry.Package->GetInstalledVersion();
+            if (installed)
+            {
+                m_preInstallSnapshot.emplace_back(std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel)));
+            }
+        }
+
+        std::sort(m_preInstallSnapshot.begin(), m_preInstallSnapshot.end());
+    }
+
+    void ARPCorrelationData::CapturePostInstallSnapshot()
+    {
+        ProgressCallback empty;
+        m_postInstallSnapshotSource = Repository::Source(PredefinedSource::ARP);
+        m_postInstallSnapshotSource.Open(empty);
+
+        for (auto& entry : m_postInstallSnapshotSource.Search({}).Matches)
+        {
+            auto installed = entry.Package->GetInstalledVersion();
+
+            if (installed)
+            {
+                auto entryKey = std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel));
+
+                auto itr = std::lower_bound(m_preInstallSnapshot.begin(), m_preInstallSnapshot.end(), entryKey);
+                if (itr == m_preInstallSnapshot.end() || *itr != entryKey)
+                {
+                    m_postInstallSnapshot.emplace_back(entry.Package, true);
+                }
+                else
+                {
+                    m_postInstallSnapshot.emplace_back(entry.Package, false);
+                }
+            }
+        }
     }
 }

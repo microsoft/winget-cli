@@ -7,6 +7,7 @@
 #include <winget/Manifest.h>
 #include <winget/JsonUtil.h>
 #include <winget/ThreadGlobals.h>
+#include <winget/ARPCorrelation.h>
 
 #include <filesystem>
 #include <map>
@@ -93,5 +94,7 @@ namespace AppInstaller::Repository::Metadata
         Utility::SHA256::HashBuffer m_installerHash;
         Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;
+
+        Correlation::ARPCorrelationData m_correlationData;
     };
 }

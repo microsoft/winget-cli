@@ -274,6 +274,7 @@ namespace AppInstaller::Repository::Metadata
         }
 
         // Collect pre-install system state
+        m_correlationData.CapturePreInstallSnapshot();
     }
 
     void InstallerMetadataCollectionContext::ParseInputJson_1_0(web::json::value& input)

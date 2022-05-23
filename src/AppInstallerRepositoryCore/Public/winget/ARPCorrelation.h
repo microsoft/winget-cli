@@ -2,7 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <winget/LocIndependent.h>
 #include <winget/NameNormalization.h>
+#include <winget/RepositorySource.h>
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace AppInstaller
 {
@@ -103,4 +110,24 @@ namespace AppInstaller::Repository::Correlation
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries,
         IARPMatchConfidenceAlgorithm& algorithm);
+
+    // Holds data needed for ARP correlation, as well as functions to run correlation on the collected data.
+    struct ARPCorrelationData
+    {
+        ARPCorrelationData() = default;
+
+        // Captures the ARP state before the package installation.
+        void CapturePreInstallSnapshot();
+
+        // Captures the ARP state differences after the package installation.
+        void CapturePostInstallSnapshot();
+
+        const std::vector<ARPEntrySnapshot>& GetPreInstallSnapshot() const { return m_preInstallSnapshot; }
+
+    private:
+        std::vector<ARPEntrySnapshot> m_preInstallSnapshot;
+
+        Source m_postInstallSnapshotSource;
+        std::vector<Correlation::ARPEntry> m_postInstallSnapshot;
+    };
 }
