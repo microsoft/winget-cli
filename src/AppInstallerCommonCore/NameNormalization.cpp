@@ -215,12 +215,22 @@ namespace AppInstaller::Utility
             }
 
             // Joins all of the given strings into a single value
-            static std::wstring Join(const std::vector<std::wstring>& values)
+            static std::wstring Join(const std::vector<std::wstring>& values, const std::wstring& separator = {})
             {
                 std::wstring result;
 
+                bool isFirst = true;
                 for (const auto& v : values)
                 {
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        result += separator;
+                    }
+
                     result += v;
                 }
 
@@ -246,6 +256,7 @@ namespace AppInstaller::Utility
             Regex::Expression KBNumbers{ R"(\((KB\d+)\))", reOptions };
 
             Regex::Expression NonLettersAndDigits{ R"([^\p{L}\p{Nd}])", reOptions };
+            Regex::Expression NonLetterDigitOrSpace{ R"([^\p{L}\p{Nd}\s])", reOptions };
             Regex::Expression URIProtocol{ R"((?<!\p{L})(?:http[s]?|ftp):\/\/)", reOptions }; // remove protocol from URIs
 
             Regex::Expression VersionDelimited{ R"(((?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+([\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(RC|B|A|R|SP|K)?\p{Nd}+)+([\p{Po}\p{Pd}\p{Pc}]?[\p{L}\p{Nd}]+)*)", reOptions };
@@ -378,12 +389,17 @@ namespace AppInstaller::Utility
                 // Repeatedly remove matches for the regexes to create the minimum name
                 while (RemoveAll(ProgramNameRegexes, result.Name));
 
-                if (!PreserveWhiteSpace)
-                {
-                    auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
-                    result.Name = Join(tokens);
+                auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
 
-                    // Drop all undesired characters
+                // Re-join the tokens and drop all undesired characters
+                if (PreserveWhiteSpace)
+                {
+                    result.Name = Join(tokens, L" ");
+                    Remove(NonLetterDigitOrSpace, result.Name);
+                }
+                else
+                {
+                    result.Name = Join(tokens);
                     Remove(NonLettersAndDigits, result.Name);
                 }
 
@@ -399,12 +415,17 @@ namespace AppInstaller::Utility
 
                 while (RemoveAll(PublisherNameRegexes, result.Publisher));
 
-                if (!PreserveWhiteSpace)
-                {
-                    auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
-                    result.Publisher = Join(tokens);
+                auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
 
-                    // Drop all undesired characters
+                // Re-join the tokens and drop all undesired characters
+                if (PreserveWhiteSpace)
+                {
+                    result.Publisher = Join(tokens, L" ");
+                    Remove(NonLetterDigitOrSpace, result.Publisher);
+                }
+                else
+                {
+                    result.Publisher = Join(tokens);
                     Remove(NonLettersAndDigits, result.Publisher);
                 }
 
