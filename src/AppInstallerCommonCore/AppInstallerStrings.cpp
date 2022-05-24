@@ -87,6 +87,12 @@ namespace AppInstaller::Utility
                 return utext_char32At(m_text.get(), m_currentBrk);
             }
 
+            // Returns the status from the break rule that determined the most recently break position.
+            int32_t CurrentRuleStatus()
+            {
+                return ubrk_getRuleStatus(m_brk.get());
+            }
+
         private:
             wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
@@ -627,5 +633,28 @@ namespace AppInstaller::Utility
         std::filesystem::path path{ static_cast<std::wstring_view>(winrtUri.Path()) };
 
         return path.filename();
+    }
+
+    std::vector<std::string> SplitIntoWords(std::string_view input)
+    {
+        ICUBreakIterator itr{ input, UBRK_WORD };
+        std::size_t currentOffset = 0;
+
+        std::vector<std::string> result;
+        while (itr.Next() != UBRK_DONE)
+        {
+            std::size_t nextOffset = itr.CurrentOffset();
+
+            // Ignore spaces and punctuation, accept words and numbers
+            if (itr.CurrentRuleStatus() != UBRK_WORD_NONE)
+            {
+                auto wordSize = nextOffset - currentOffset;
+                result.emplace_back(input, currentOffset, wordSize);
+            }
+
+            currentOffset = nextOffset;
+        }
+
+        return result;
     }
 }

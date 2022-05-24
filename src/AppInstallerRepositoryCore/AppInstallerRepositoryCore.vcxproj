@@ -273,6 +273,7 @@
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
+    <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
     <ClInclude Include="Public\winget\RepositorySource.h" />
@@ -301,6 +302,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
+    <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

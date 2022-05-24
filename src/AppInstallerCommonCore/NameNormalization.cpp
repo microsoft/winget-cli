@@ -347,6 +347,8 @@ namespace AppInstaller::Utility
             // The folded and sorted version of LocaleViews.
             const std::vector<std::wstring> LegalEntitySuffixes;
 
+            const bool PreserveWhiteSpace;
+
             static std::vector<std::wstring> FoldAndSort(const std::vector<std::wstring_view>& input)
             {
                 std::vector<std::wstring> result;
@@ -376,11 +378,14 @@ namespace AppInstaller::Utility
                 // Repeatedly remove matches for the regexes to create the minimum name
                 while (RemoveAll(ProgramNameRegexes, result.Name));
 
-                auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
-                result.Name = Join(tokens);
+                if (!PreserveWhiteSpace)
+                {
+                    auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
+                    result.Name = Join(tokens);
 
-                // Drop all undesired characters
-                Remove(NonLettersAndDigits, result.Name);
+                    // Drop all undesired characters
+                    Remove(NonLettersAndDigits, result.Name);
+                }
 
                 return result;
             }
@@ -394,17 +399,20 @@ namespace AppInstaller::Utility
 
                 while (RemoveAll(PublisherNameRegexes, result.Publisher));
 
-                auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
-                result.Publisher = Join(tokens);
+                if (!PreserveWhiteSpace)
+                {
+                    auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
+                    result.Publisher = Join(tokens);
 
-                // Drop all undesired characters
-                Remove(NonLettersAndDigits, result.Publisher);
+                    // Drop all undesired characters
+                    Remove(NonLettersAndDigits, result.Publisher);
+                }
 
                 return result;
             }
 
         public:
-            NormalizationInitial() : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews))
+            NormalizationInitial(bool preserveWhiteSpace) : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews)), PreserveWhiteSpace(preserveWhiteSpace)
             {
             }
 
@@ -448,7 +456,10 @@ namespace AppInstaller::Utility
         switch (version)
         {
         case AppInstaller::Utility::NormalizationVersion::Initial:
-            m_normalizer = std::make_unique<NormalizationInitial>();
+            m_normalizer = std::make_unique<NormalizationInitial>(false);
+            break;
+        case AppInstaller::Utility::NormalizationVersion::InitialPreserveWhiteSpace:
+            m_normalizer = std::make_unique<NormalizationInitial>(true);
             break;
         default:
             THROW_HR(E_INVALIDARG);
