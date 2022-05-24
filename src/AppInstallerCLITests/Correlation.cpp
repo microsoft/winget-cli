@@ -234,7 +234,7 @@ DataSet GetDataSet_NoNoise()
     dataSet.TestCases = LoadTestData();
 
     // Arbitrary values. We should refine them as the algorithm gets better.
-    dataSet.RequiredTrueMatchRatio = 0.75;
+    dataSet.RequiredTrueMatchRatio = 0.81;
     dataSet.RequiredFalseMatchRatio = 0;
     dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
     dataSet.RequiredFalseMismatchRatio = 0.25;
@@ -251,7 +251,7 @@ DataSet GetDataSet_WithNoise()
     dataSet.TestCases = std::move(baseTestCases);
 
     // Arbitrary values. We should refine them as the algorithm gets better.
-    dataSet.RequiredTrueMatchRatio = 0.75;
+    dataSet.RequiredTrueMatchRatio = 0.81;
     dataSet.RequiredFalseMatchRatio = 0; // This should always stay at 0
     dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
     dataSet.RequiredFalseMismatchRatio = 0.25;
