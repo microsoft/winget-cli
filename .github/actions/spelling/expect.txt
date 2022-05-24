@@ -165,6 +165,7 @@ IARP
 IConfiguration
 idx
 IFACEMETHODIMP
+IFile
 IGlobal
 IHelp
 IHost
