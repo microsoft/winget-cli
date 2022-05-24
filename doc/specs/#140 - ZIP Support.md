@@ -1,7 +1,7 @@
 ---
 author: Ryan Fu @ryfu-msft
-created on: 2022-05-16
-last updated: 2022-05-16
+created on: 2022-05-24
+last updated: 2022-05-24
 issue id: 140
 ---
 
@@ -23,7 +23,6 @@ Because ZIP archive files are essentially a compressed directory containing the 
 >NOTE: The initial implementation will first support installing ZIPs that contain only basic installers (msix, msi, or exe), then portable apps.
 
 ## Manifest Changes:
-
 Addition of `NestedInstallerType`:
 - Enumeration of supported nested installerTypes contained inside an archive file.
 
@@ -50,23 +49,22 @@ The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be r
 
 > Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
 
-
 ## ZIP Threat Detection
-ZIP and other archive file types are known threat vectors for malware in the form of ZIP bombs. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware detection within the client. 
+ZIP and other archive file types are known threat vectors for malware in the form of ZIP bombs, which utilize layers of nested zip files which decompress into extremely large amounts of files. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware check within the client. 
 
 The check will be as follows:
 1. Recursively traverse through all files contained in an archive file.
-2. If a nested ZIP file is detected, and the number of zip layers extracted is less than 3, extract the contents, increment the layer count and continue traversing. Otherwise, break out of the traversal and warn the user.
+2. If a nested ZIP file is detected, and the number of zip layers currently extracted is less than 3, extract the contents, increment the layer count and continue traversing. Otherwise, break out of the traversal and warn the user.
 
 > ZIP headers are not always reliable when comparing compressed size vs uncompressed size as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers. 
 
 ## Supporting Multiple Portables
 Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a suite of portables contained inside an archive file, an additional table of information will need to be appended to the tracking catalog in order to support multiple installs under a single package. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package.
 
-The table should contain the following information for each portable to be installed from the archive file:
+The table should contain the following information for each portable-related file to be installed/copied from the archive file:
 
 - InstallerType
-- InstallPath
+- TargetPath
 - SymlinkPath
 - InstallDirectoryCreated (Flag)
 - SHA256
