@@ -12,6 +12,7 @@
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Correlation;
+using namespace AppInstaller::Utility;
 
 using namespace TestCommon;
 
@@ -120,7 +121,9 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
             auto matchName = match->GetProperty(PackageVersionProperty::Name);
             auto matchPublisher = match->GetProperty(PackageVersionProperty::Publisher);
 
-            if (matchName == testCase.ARPName && matchPublisher == testCase.ARPPublisher)
+            // The strings get normalized when added to the manifest, so we have
+            // to normalize for the comparison.
+            if (matchName == NormalizedString(testCase.ARPName) && matchPublisher == NormalizedString(testCase.ARPPublisher))
             {
                 ++result.TrueMatches;
             }
