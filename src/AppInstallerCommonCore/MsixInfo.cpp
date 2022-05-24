@@ -581,7 +581,7 @@ namespace AppInstaller::Msix
         return signatureContent;
     }
 
-    std::wstring MsixInfo::GetPackageFullNameWide()
+    ComPtr<IAppxManifestPackageId> MsixInfo::GetPackageId() const
     {
         ComPtr<IAppxManifestPackageId> packageId;
         if (m_isBundle)
@@ -597,15 +597,103 @@ namespace AppInstaller::Msix
             THROW_IF_FAILED(manifestReader->GetPackageId(&packageId));
         }
 
+        return packageId;
+    }
+
+    std::wstring MsixInfo::GetPackageFullNameWide()
+    {
         wil::unique_cotaskmem_string fullName;
-        THROW_IF_FAILED(packageId->GetPackageFullName(&fullName));
+        THROW_IF_FAILED(GetPackageId()->GetPackageFullName(&fullName));
 
         return { fullName.get() };
     }
 
     std::string MsixInfo::GetPackageFullName()
     {
+        THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
+    }
+
+    std::string MsixInfo::GetPackageFamilyName()
+    {
+        wil::unique_cotaskmem_string familyName;
+        THROW_IF_FAILED(GetPackageId()->GetPackageFamilyName(&familyName));
+        return Utility::ConvertToUTF8(familyName.get());
+    }
+
+    std::vector<std::wstring_view> GetAppPackageNames(const ComPtr<IAppxBundleReader> bundleReader)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !bundleReader);
+
+        std::vector<std::wstring_view> packageNames;
+		ComPtr<IAppxBundleManifestReader> manifestReader;
+		THROW_IF_FAILED(bundleReader->GetManifest(&manifestReader));
+
+		ComPtr<IAppxBundleManifestPackageInfoEnumerator> packageInfoItems;
+		THROW_IF_FAILED(manifestReader->GetPackageInfoItems(&packageInfoItems));
+
+		BOOL hasCurrent = FALSE;
+		THROW_IF_FAILED(packageInfoItems->GetHasCurrent(&hasCurrent));
+		while (hasCurrent)
+		{
+			ComPtr<IAppxBundleManifestPackageInfo> packageInfo;
+			THROW_IF_FAILED(packageInfoItems->GetCurrent(&packageInfo));
+
+			APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
+			THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
+
+			if (packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
+			{
+				wil::unique_cotaskmem_string fileName;
+				THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
+				packageNames.emplace_back(fileName.get());
+			}
+
+			THROW_IF_FAILED(packageInfoItems->MoveNext(&hasCurrent));
+		}
+
+        return packageNames;
+    }
+
+    std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages() const
+    {
+        if (!m_isBundle)
+        {
+            return { m_packageReader };
+        }
+
+        std::vector<ComPtr<IAppxPackageReader>> packages;
+        auto packageNames = GetAppPackageNames(m_bundleReader);
+        for (auto packageName : packageNames)
+        {
+            ComPtr<IAppxFile> packageFile;
+            THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(std::wstring(packageName).c_str(), &packageFile));
+
+            ComPtr<IStream> stream;
+            THROW_IF_FAILED(packageFile->GetStream(&stream));
+
+            ComPtr<IAppxPackageReader> packageReader;
+            if (GetPackageReader(stream.Get(), &packageReader))
+            {
+                packages.emplace_back(packageReader);
+            }
+        }
+
+        return packages;
+    }
+
+    std::vector<MsixPackageManifest> MsixInfo::GetAppPackageManifests() const
+    {
+        std::vector<MsixPackageManifest> manifests;
+        auto packages = GetAppPackages();
+        for (auto package : packages)
+        {
+            ComPtr<IAppxManifestReader> manifestReader;
+            THROW_IF_FAILED(package->GetManifest(&manifestReader));
+            manifests.emplace_back(manifestReader);
+        }
+
+        return manifests;
     }
 
     bool MsixInfo::IsNewerThan(const std::filesystem::path& otherPackage)

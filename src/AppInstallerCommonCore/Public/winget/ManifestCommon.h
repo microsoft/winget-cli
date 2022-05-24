@@ -57,11 +57,26 @@ namespace AppInstaller::Manifest
 
         bool HasExtension() const;
 
-bool HasExtension(std::string_view extension) const;
+        bool HasExtension(std::string_view extension) const;
 
     private:
         std::vector<Version> m_extensions;
     };
+
+    struct FourPartsVersionNumber : public Utility::Version
+    {
+        FourPartsVersionNumber(std::string version) : Version(version) {}
+
+        UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        UINT64 Build() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+        UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
+
+        UINT64 ToUINT64();
+    };
+
+    typedef FourPartsVersionNumber PackageVersion;
+    typedef FourPartsVersionNumber OSVersion;
 
     enum class InstallerTypeEnum
     {

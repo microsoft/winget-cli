@@ -3,8 +3,10 @@
 #pragma once
 #include "AppInstallerProgress.h"
 #include "winget/ManagedFile.h"
+#include "winget/Manifest.h"
 
 #include <AppxPackaging.h>
+#include <AppInstallerMsixManifest.h>
 
 #include <wrl/client.h>
 #include <winrt/Windows.ApplicationModel.h>
@@ -71,6 +73,9 @@ namespace AppInstaller::Msix
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
+        // Get the package family name.
+        std::string GetPackageFamilyName();
+
         // Gets a value indicating whether the referenced info is newer than the given package.
         bool IsNewerThan(const std::filesystem::path& otherPackage);
 
@@ -85,11 +90,20 @@ namespace AppInstaller::Msix
         // Writes the package file to the given file handle.
         void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
 
+        // Get application package manifests from msix and msixbundle.
+        std::vector<MsixPackageManifest> GetAppPackageManifests() const;
+
     private:
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
+
+        // Get package or bundle manifest identity.
+        Microsoft::WRL::ComPtr<IAppxManifestPackageId> GetPackageId() const;
+
+        // Get application packages.
+        std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages() const;
     };
 
     struct GetCertContextResult
