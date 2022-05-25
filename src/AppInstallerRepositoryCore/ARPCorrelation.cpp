@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/ARPCorrelation.h"
+#include "winget/ARPCorrelationAlgorithms.h"
 #include "winget/Manifest.h"
 #include "winget/NameNormalization.h"
 #include "winget/RepositorySearch.h"
@@ -19,7 +20,7 @@ namespace AppInstaller::Repository::Correlation
 
         IARPMatchConfidenceAlgorithm& InstanceInternal(std::optional<IARPMatchConfidenceAlgorithm*> algorithmOverride = {})
         {
-            static EditDistanceMatchConfidenceAlgorithm s_algorithm;
+            static WordsEditDistanceMatchConfidenceAlgorithm s_algorithm;
             static IARPMatchConfidenceAlgorithm* s_override = nullptr;
 
             if (algorithmOverride.has_value())
@@ -35,69 +36,6 @@ namespace AppInstaller::Repository::Correlation
             {
                 return s_algorithm;
             }
-        }
-
-        // A simple matrix class to hold the edit distance table without having to allocate multiple arrays.
-        struct Matrix
-        {
-            Matrix(size_t rows, size_t columns) : m_rows(rows), m_columns(columns), m_data(rows * columns) {}
-
-            double& At(size_t i, size_t j)
-            {
-                return m_data[i * m_columns + j];
-            }
-
-        private:
-            size_t m_rows;
-            size_t m_columns;
-            std::vector<double> m_data;
-        };
-
-        double EditDistanceScore(std::u32string_view sv1, std::u32string_view sv2)
-        {
-            // Naive implementation of edit distance (scaled over the string size)
-
-            // We may have empty values coming from the ARP
-            if (sv1.empty() || sv2.empty())
-            {
-                return 0;
-            }
-
-            // distance[i, j] = distance between sv1[0:i] and sv2[0:j]
-            // We don't need to hold more than two rows at a time, but it's simpler to keep the whole table.
-            Matrix distance(sv1.size(), sv2.size());
-
-            for (size_t i = 0; i < sv1.size(); ++i)
-            {
-                for (size_t j = 0; j < sv2.size(); ++j)
-                {
-                    double& d = distance.At(i, j);
-                    if (i == 0)
-                    {
-                        d = static_cast<double>(j);
-                    }
-                    else if (j == 0)
-                    {
-                        d = static_cast<double>(i);
-                    }
-                    else if (sv1[i] == sv2[j])
-                    {
-                        d = distance.At(i - 1, j - 1);
-                    }
-                    else
-                    {
-                        d = std::min(
-                            1 + distance.At(i - 1, j - 1),
-                            1 + std::min(distance.At(i, j - 1), distance.At(i - 1, j)));
-                    }
-                }
-            }
-
-            // Maximum distance is equal to the length of the longest string.
-            // We use that to scale to [0,1].
-            // A smaller distance represents a higher match, so we subtract from 1 for the final score
-            double editDistance = distance.At(sv1.size() - 1, sv2.size() - 1);
-            return 1 - editDistance / std::max(sv1.size(), sv2.size());
         }
     }
 
@@ -117,79 +55,6 @@ namespace AppInstaller::Repository::Correlation
         InstanceInternal(nullptr);
     }
 #endif
-
-    std::u32string EditDistanceMatchConfidenceAlgorithm::PrepareString(std::string_view s) const
-    {
-        return Utility::ConvertToUTF32(Utility::FoldCase(s));
-    }
-
-    std::u32string EditDistanceMatchConfidenceAlgorithm::NormalizeAndPrepareName(std::string_view name) const
-    {
-        return PrepareString(m_normalizer.NormalizeName(name).Name());
-    }
-
-    std::u32string EditDistanceMatchConfidenceAlgorithm::NormalizeAndPreparePublisher(std::string_view publisher) const
-    {
-        return PrepareString(m_normalizer.NormalizePublisher(publisher));
-    }
-
-    void EditDistanceMatchConfidenceAlgorithm::Init(const Manifest::Manifest& manifest)
-    {
-        // We will use the name and publisher from each localization.
-        m_namesAndPublishers.clear();
-
-        std::u32string defaultPublisher;
-        if (manifest.DefaultLocalization.Contains(Localization::Publisher))
-        {
-            defaultPublisher = NormalizeAndPreparePublisher(manifest.DefaultLocalization.Get<Localization::Publisher>());
-        }
-
-        if (manifest.DefaultLocalization.Contains(Localization::PackageName))
-        {
-            std::u32string defaultName = NormalizeAndPrepareName(manifest.DefaultLocalization.Get<Localization::PackageName>());
-            m_namesAndPublishers.emplace_back(defaultName, defaultPublisher, defaultName + defaultPublisher);
-
-            for (const auto& loc : manifest.Localizations)
-            {
-                if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
-                {
-                    auto name = loc.Contains(Localization::PackageName) ? NormalizeAndPrepareName(loc.Get<Localization::PackageName>()) : defaultName;
-                    auto publisher = loc.Contains(Localization::Publisher) ? NormalizeAndPreparePublisher(loc.Get<Localization::Publisher>()) : defaultPublisher;
-                    auto nameAndPublisher = publisher + name;
-
-                    m_namesAndPublishers.emplace_back(std::move(name), std::move(publisher), std::move(nameAndPublisher));
-                }
-            }
-        }
-    }
-
-    double EditDistanceMatchConfidenceAlgorithm::ComputeConfidence(const ARPEntry& arpEntry) const
-    {
-        // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
-        auto arpName = NormalizeAndPrepareName(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name).get());
-        auto arpPublisher = NormalizeAndPreparePublisher(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher).get());
-        auto arpNamePublisher = arpPublisher + arpName;
-
-        // Get the best score across all localizations
-        double bestMatchingScore = 0;
-        for (const auto& manifestNameAndPublisher : m_namesAndPublishers)
-        {
-            // Sometimes the publisher may be included in the name, for example Microsoft PowerToys as opposed to simply PowerToys.
-            // This may happen both in the ARP entry and the manifest. We try adding it in case it is in one but not in both.
-            auto nameDistance = std::max(
-                EditDistanceScore(std::get<0>(manifestNameAndPublisher), arpName),
-                std::max(
-                    EditDistanceScore(std::get<2>(manifestNameAndPublisher), arpName),
-                    EditDistanceScore(std::get<0>(manifestNameAndPublisher), arpNamePublisher)));
-            auto publisherDistance = EditDistanceScore(std::get<1>(manifestNameAndPublisher), arpPublisher);
-
-            // TODO: Consider other ways of merging the two values
-            auto score = (2 * nameDistance + publisherDistance) / 3;
-            bestMatchingScore = std::max(bestMatchingScore, score);
-        }
-
-        return bestMatchingScore;
-    }
 
     ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
         const Manifest::Manifest& manifest,

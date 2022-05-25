@@ -13,6 +13,7 @@ namespace AppInstaller::Utility
     enum class NormalizationVersion
     {
         Initial,
+        InitialPreserveWhiteSpace,
     };
 
     struct NameNormalizer;

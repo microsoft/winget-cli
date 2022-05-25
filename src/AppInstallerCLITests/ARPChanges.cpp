@@ -7,6 +7,7 @@
 #include <Workflows/WorkflowBase.h>
 #include <Workflows/InstallFlow.h>
 #include <winget/Manifest.h>
+#include <winget/ARPCorrelationAlgorithms.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
 
 using namespace TestCommon;

@@ -5,12 +5,14 @@
 #include "TestSource.h"
 
 #include <winget/ARPCorrelation.h>
+#include <winget/ARPCorrelationAlgorithms.h>
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Correlation;
+using namespace AppInstaller::Utility;
 
 using namespace TestCommon;
 
@@ -76,13 +78,18 @@ Manifest GetManifestFromTestCase(const TestCase& testCase)
     return manifest;
 }
 
-ARPEntry GetARPEntryFromTestCase(const TestCase& testCase)
+ARPEntry GetARPEntryFromTestCase(const TestCase& testCase, bool isNew)
 {
     Manifest arpManifest;
     arpManifest.DefaultLocalization.Add<Localization::PackageName>(testCase.ARPName);
     arpManifest.DefaultLocalization.Add<Localization::Publisher>(testCase.ARPPublisher);
     arpManifest.Localizations.push_back(arpManifest.DefaultLocalization);
-    return ARPEntry{ TestPackage::Make(arpManifest, TestPackage::MetadataMap{}), false };
+    return ARPEntry{ TestPackage::Make(arpManifest, TestPackage::MetadataMap{}), isNew };
+}
+
+ARPEntry GetExistingARPEntryFromTestCase(const TestCase& testCase)
+{
+    return GetARPEntryFromTestCase(testCase, /* isNew */ false);
 }
 
 void ReportMatch(std::string_view label, std::string_view appName, std::string_view appPublisher, std::string_view arpName, std::string_view arpPublisher)
@@ -105,7 +112,7 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
 
     for (const auto& testCase : dataSet.TestCases)
     {
-        arpEntries.push_back(GetARPEntryFromTestCase(testCase));
+        arpEntries.push_back(GetARPEntryFromTestCase(testCase, /* isNew */ true));
         auto match = FindARPEntryForNewlyInstalledPackageWithHeuristics(GetManifestFromTestCase(testCase), arpEntries, correlationAlgorithm);
         arpEntries.pop_back();
 
@@ -114,7 +121,9 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
             auto matchName = match->GetProperty(PackageVersionProperty::Name);
             auto matchPublisher = match->GetProperty(PackageVersionProperty::Publisher);
 
-            if (matchName == testCase.ARPName && matchPublisher == testCase.ARPPublisher)
+            // The strings get normalized when added to the manifest, so we have
+            // to normalize for the comparison.
+            if (matchName == NormalizedString(testCase.ARPName) && matchPublisher == NormalizedString(testCase.ARPPublisher))
             {
                 ++result.TrueMatches;
             }
@@ -225,10 +234,10 @@ DataSet GetDataSet_NoNoise()
     dataSet.TestCases = LoadTestData();
 
     // Arbitrary values. We should refine them as the algorithm gets better.
-    dataSet.RequiredTrueMatchRatio = 0.7;
-    dataSet.RequiredFalseMatchRatio = 0.05;
+    dataSet.RequiredTrueMatchRatio = 0.81;
+    dataSet.RequiredFalseMatchRatio = 0;
     dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
-    dataSet.RequiredFalseMismatchRatio = 0.3;
+    dataSet.RequiredFalseMismatchRatio = 0.25;
 
     return dataSet;
 }
@@ -238,14 +247,14 @@ DataSet GetDataSet_WithNoise()
     DataSet dataSet;
     auto baseTestCases = LoadTestData();
 
-    std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetARPEntryFromTestCase);
+    std::transform(baseTestCases.begin(), baseTestCases.end(), std::back_inserter(dataSet.ARPNoise), GetExistingARPEntryFromTestCase);
     dataSet.TestCases = std::move(baseTestCases);
 
     // Arbitrary values. We should refine them as the algorithm gets better.
-    dataSet.RequiredTrueMatchRatio = 0.7;
-    dataSet.RequiredFalseMatchRatio = 0.05;
+    dataSet.RequiredTrueMatchRatio = 0.81;
+    dataSet.RequiredFalseMatchRatio = 0; // This should always stay at 0
     dataSet.RequiredTrueMismatchRatio = 0; // There are no expected mismatches in this data set
-    dataSet.RequiredFalseMismatchRatio = 0.3;
+    dataSet.RequiredFalseMismatchRatio = 0.25;
 
     return dataSet;
 }
@@ -256,7 +265,7 @@ DataSet GetDataSet_WithNoise()
 // performs well.
 TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation][.]",
     EmptyMatchConfidenceAlgorithm,
-    EditDistanceMatchConfidenceAlgorithm)
+    WordsEditDistanceMatchConfidenceAlgorithm)
 {
     // Each section loads a different data set,
     // and then they are all handled the same
