@@ -23,16 +23,19 @@ namespace AppInstaller::Repository::JSON
 
         ~ManifestJSONParser();
 
-        // Parses the manifests from the REST response object root.
+        // Deserializes the manifests from the REST response object root.
         // May potentially contain multiple versions of the same package.
         std::vector<Manifest::Manifest> Deserialize(const web::json::value& response) const;
 
-        // Parses the manifests from the Data field of the REST response object.
+        // Deserializes the manifests from the Data field of the REST response object.
         // May potentially contain multiple versions of the same package.
-        std::vector<Manifest::Manifest> ParseData(const web::json::value& data) const;
+        std::vector<Manifest::Manifest> DeserializeData(const web::json::value& data) const;
 
-        // Parses the AppsAndFeaturesEntries node, returning the set of values below it.
-        std::vector<Manifest::AppsAndFeaturesEntry> ParseAppsAndFeaturesEntries(const web::json::array& data) const;
+        // Deserializes the AppsAndFeaturesEntries node, returning the set of values below it.
+        std::vector<Manifest::AppsAndFeaturesEntry> DeserializeAppsAndFeaturesEntries(const web::json::array& data) const;
+
+        // Deserializes the locale node; returning an object if a proper locale was found.
+        std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& locale) const;
 
     private:
         struct impl;

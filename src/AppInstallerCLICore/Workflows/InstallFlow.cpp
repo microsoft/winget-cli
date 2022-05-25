@@ -514,7 +514,6 @@ namespace AppInstaller::CLI::Workflow
         {
             Repository::Correlation::ARPCorrelationData data;
             data.CapturePreInstallSnapshot();
-
             context.Add<Execution::Data::ARPCorrelationData>(std::move(data));
         }
     }
@@ -531,8 +530,7 @@ namespace AppInstaller::CLI::Workflow
         auto& arpCorrelationData = context.Get<Execution::Data::ARPCorrelationData>();
 
         arpCorrelationData.CapturePostInstallSnapshot();
-
-        auto correlationResult = Correlation::FindARPEntryForNewlyInstalledPackage(manifest, arpCorrelationData.GetPreInstallSnapshot(), arpSource);
+        auto correlationResult = arpCorrelationData.CorrelateForNewlyInstalled(manifest);
 
         // Store the ARP entry found to match the package to record it in the tracking catalog later
         if (correlationResult.Package)

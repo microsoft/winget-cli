@@ -16,8 +16,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // Gets the manifest from the given json Data field
         std::vector<Manifest::Manifest> DeserializeData(const web::json::value& dataJsonObject) const;
 
-        // Parses the AppsAndFeaturesEntries node, returning the set of values below it.
+        // Deserializes the AppsAndFeaturesEntries node, returning the set of values below it.
         virtual std::vector<Manifest::AppsAndFeaturesEntry> DeserializeAppsAndFeaturesEntries(const web::json::array& entries) const;
+
+        // Deserializes the locale; requires that the PackageLocale be set to return an object.
+        virtual std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 
     protected:
 
@@ -31,8 +34,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 manifestLocale.Add<L>(value.value());
             }
         }
-
-        virtual std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 
         virtual std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const;
 

@@ -94,14 +94,6 @@ namespace AppInstaller::Repository::Correlation
         std::vector<std::tuple<std::u32string, std::u32string, std::u32string>> m_namesAndPublishers;
     };
 
-    // Finds the ARP entry in the ARP source that matches a newly installed package.
-    // Takes the package manifest, a snapshot of the ARP before the installation, and the current ARP source.
-    // Returns the entry in the ARP source, or nullptr if there was no match, plus some stats about the correlation.
-    ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
-        const AppInstaller::Manifest::Manifest& manifest,
-        const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        AppInstaller::Repository::Source& arpSource);
-
     std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries);
@@ -121,6 +113,9 @@ namespace AppInstaller::Repository::Correlation
 
         // Captures the ARP state differences after the package installation.
         void CapturePostInstallSnapshot();
+
+        // Correlates the given manifest against the data previously collected with capture calls.
+        ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest& manifest);
 
         const std::vector<ARPEntrySnapshot>& GetPreInstallSnapshot() const { return m_preInstallSnapshot; }
 

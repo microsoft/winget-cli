@@ -47,14 +47,19 @@ namespace AppInstaller::Repository::JSON
         return m_pImpl->m_deserializer->Deserialize(response);
     }
 
-    std::vector<Manifest::Manifest> ManifestJSONParser::ParseData(const web::json::value& data) const
+    std::vector<Manifest::Manifest> ManifestJSONParser::DeserializeData(const web::json::value& data) const
     {
         return m_pImpl->m_deserializer->DeserializeData(data);
     }
 
-    std::vector<Manifest::AppsAndFeaturesEntry> ManifestJSONParser::ParseAppsAndFeaturesEntries(const web::json::array& data) const
+    std::vector<Manifest::AppsAndFeaturesEntry> ManifestJSONParser::DeserializeAppsAndFeaturesEntries(const web::json::array& data) const
     {
         return m_pImpl->m_deserializer->DeserializeAppsAndFeaturesEntries(data);
+    }
+
+    std::optional<Manifest::ManifestLocalization> ManifestJSONParser::DeserializeLocale(const web::json::value& locale) const
+    {
+        return m_pImpl->m_deserializer->DeserializeLocale(locale);
     }
 
 }

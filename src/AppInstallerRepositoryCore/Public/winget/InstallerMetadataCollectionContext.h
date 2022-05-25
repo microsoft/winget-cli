@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Metadata
         // The installer specific metadata that we collect.
         struct InstallerMetadata
         {
-            int ProductRevision = 0;
+            std::string SubmissionIdentifier;
             Utility::Version ProductVersion;
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
         };
@@ -90,7 +90,7 @@ namespace AppInstaller::Repository::Metadata
         Utility::Version m_supportedMetadataVersion;
         size_t m_maxMetadataSize = 0;
         ProductMetadata m_currentMetadata;
-        int m_productRevision = 0;
+        std::string m_submissionIdentifier;
         Utility::SHA256::HashBuffer m_installerHash;
         Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;

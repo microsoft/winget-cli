@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Metadata
         utility::string_t productVersionMaxFieldName = L"productVersionMax";
         utility::string_t metadataFieldName = L"metadata";
         utility::string_t installerHashFieldName = L"installerHash";
-        utility::string_t productRevisionFieldName = L"productRevision";
+        utility::string_t submissionIdentifierFieldName = L"submissionIdentifier";
         utility::string_t versionFieldName = L"version";
         utility::string_t appsAndFeaturesFieldName = L"AppsAndFeaturesEntries";
         utility::string_t historicalFieldName = L"historical";
@@ -90,9 +90,9 @@ namespace AppInstaller::Repository::Metadata
 
                 InstallerMetadata installerMetadata;
 
-                auto productRevisionNumber = AppInstaller::JSON::GetRawIntValueFromJsonNode(item, productRevisionFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !productRevisionNumber);
-                installerMetadata.ProductRevision = productRevisionNumber.value();
+                auto submissionIdentifierString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, submissionIdentifierFieldName);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionIdentifierString);
+                installerMetadata.SubmissionIdentifier = submissionIdentifierString.value();
 
                 auto versionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, versionFieldName);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
@@ -100,7 +100,7 @@ namespace AppInstaller::Repository::Metadata
 
                 auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
-                installerMetadata.AppsAndFeaturesEntries = parser.ParseAppsAndFeaturesEntries(appsAndFeatures.value());
+                installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
                 m_installerMetadata[installerHashString.value()] = std::move(installerMetadata);
             }
@@ -119,7 +119,7 @@ namespace AppInstaller::Repository::Metadata
 
                 auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
-                historicalMetadata.AppsAndFeaturesEntries = parser.ParseAppsAndFeaturesEntries(appsAndFeatures.value());
+                historicalMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
                 m_historicalMetadata.emplace_back(std::move(historicalMetadata));
             }
@@ -285,10 +285,12 @@ namespace AppInstaller::Repository::Metadata
         utility::string_t metadataVersionFieldName = L"supportedMetadataVersion";
         utility::string_t metadataSizeFieldName = L"maximumMetadataSize";
         utility::string_t metadataFieldName = L"currentMetadata";
-        utility::string_t productRevisionFieldName = L"productRevision";
+        utility::string_t submissionIdentifierFieldName = L"submissionIdentifier";
         utility::string_t installerHashFieldName = L"installerHash";
         utility::string_t currentManifestFieldName = L"currentManifest";
-        utility::string_t incomingManifestFieldName = L"incomingManifest";
+        utility::string_t submissionDataFieldName = L"submissionData";
+        utility::string_t defaultLocaleFieldName = L"DefaultLocale";
+        utility::string_t localesFieldName = L"Locales";
 
         auto metadataVersionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, metadataVersionFieldName);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !metadataVersionString);
@@ -310,9 +312,9 @@ namespace AppInstaller::Repository::Metadata
             m_currentMetadata.FromJson(currentMetadataValue.value());
         }
 
-        auto productRevisionNumber = AppInstaller::JSON::GetRawIntValueFromJsonNode(input, productRevisionFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !productRevisionNumber);
-        m_productRevision = productRevisionNumber.value();
+        auto submissionIdentifierString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, submissionIdentifierFieldName);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionIdentifierString);
+        m_submissionIdentifier = submissionIdentifierString.value();
 
         auto installerHashString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, installerHashFieldName);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !installerHashString);
@@ -324,7 +326,7 @@ namespace AppInstaller::Repository::Metadata
         auto currentManifestValue = AppInstaller::JSON::GetJsonValueFromNode(input, currentManifestFieldName);
         if (currentManifestValue)
         {
-            std::vector<Manifest::Manifest> manifests = parser.ParseData(currentManifestValue.value());
+            std::vector<Manifest::Manifest> manifests = parser.DeserializeData(currentManifestValue.value());
 
             if (!manifests.empty())
             {
@@ -334,15 +336,32 @@ namespace AppInstaller::Repository::Metadata
             }
         }
 
-        auto incomingManifestValue = AppInstaller::JSON::GetJsonValueFromNode(input, incomingManifestFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !incomingManifestValue);
+        auto submissionDataValue = AppInstaller::JSON::GetJsonValueFromNode(input, submissionDataFieldName);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionDataValue);
         {
-            std::vector<Manifest::Manifest> manifests = parser.ParseData(currentManifestValue.value());
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, manifests.empty());
+            auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(submissionDataValue.value(), defaultLocaleFieldName);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !defaultLocaleValue);
 
-            std::sort(manifests.begin(), manifests.end(), [](const Manifest::Manifest& a, const Manifest::Manifest& b) { return a.Version < b.Version; });
-            // Latest version will be sorted to last position by Version < predicate
-            m_incomingManifest = std::move(manifests.back());
+            auto defaultLocale = parser.DeserializeLocale(defaultLocaleValue.value());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE,
+                !defaultLocale ||
+                !defaultLocale->Contains(Manifest::Localization::PackageName) ||
+                !defaultLocale->Contains(Manifest::Localization::Publisher));
+
+            m_incomingManifest.DefaultLocalization = std::move(defaultLocale).value();
+
+            auto localesArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(submissionDataValue.value(), localesFieldName);
+            if (localesArray)
+            {
+                for (const auto& locale : localesArray->get())
+                {
+                    auto localization = parser.DeserializeLocale(locale);
+                    if (localization)
+                    {
+                        m_incomingManifest.Localizations.emplace_back(std::move(localization).value());
+                    }
+                }
+            }
         }
     }
 }

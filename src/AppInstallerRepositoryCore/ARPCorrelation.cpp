@@ -191,132 +191,6 @@ namespace AppInstaller::Repository::Correlation
         return bestMatchingScore;
     }
 
-    ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
-        const Manifest::Manifest& manifest,
-        const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        Source& arpSource)
-    {
-        AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
-
-        // Also attempt to find the entry based on the manifest data
-
-        SearchRequest manifestSearchRequest;
-        AppInstaller::Manifest::Manifest::string_t defaultPublisher;
-        if (manifest.DefaultLocalization.Contains(Localization::Publisher))
-        {
-            defaultPublisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
-        }
-
-        // The default localization must contain the name or we cannot do this lookup
-        if (manifest.DefaultLocalization.Contains(Localization::PackageName))
-        {
-            AppInstaller::Manifest::Manifest::string_t defaultName = manifest.DefaultLocalization.Get<Localization::PackageName>();
-            manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, defaultName, defaultPublisher));
-
-            for (const auto& loc : manifest.Localizations)
-            {
-                if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
-                {
-                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
-                        loc.Contains(Localization::PackageName) ? loc.Get<Localization::PackageName>() : defaultName,
-                        loc.Contains(Localization::Publisher) ? loc.Get<Localization::Publisher>() : defaultPublisher));
-                }
-            }
-        }
-
-        std::vector<std::string> productCodes;
-        for (const auto& installer : manifest.Installers)
-        {
-            if (!installer.ProductCode.empty())
-            {
-                if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
-                {
-                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
-                    productCodes.emplace_back(installer.ProductCode);
-                }
-            }
-
-            for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
-            {
-                if (!appsAndFeaturesEntry.DisplayName.empty())
-                {
-                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
-                        appsAndFeaturesEntry.DisplayName,
-                        appsAndFeaturesEntry.Publisher.empty() ? defaultPublisher : appsAndFeaturesEntry.Publisher));
-                }
-            }
-        }
-
-        SearchResult findByManifest;
-
-        // Don't execute this search if it would just find everything
-        if (!manifestSearchRequest.IsForEverything())
-        {
-            findByManifest = arpSource.Search(manifestSearchRequest);
-        }
-
-        // Cross reference the changes with the search results
-        std::vector<std::shared_ptr<IPackage>> packagesInBoth;
-
-        for (const auto& change : changedArpEntries)
-        {
-            for (const auto& byManifest : findByManifest.Matches)
-            {
-                if (change.Entry->IsSame(byManifest.Package.get()))
-                {
-                    packagesInBoth.emplace_back(change.Entry);
-                    break;
-                }
-            }
-        }
-
-        // We now have all of the package changes; time to report them.
-        //
-        // The set of cases we could have for finding packages based on the manifest:
-        //  0 packages  ::  The manifest data does not match the ARP information.
-        //  1 package   ::  Golden path; this should be what we installed.
-        //  2+ packages ::  The data in the manifest is either too broad or we have
-        //                  a problem with our name normalization.
-
-        // Find the package that we are going to log
-        ARPCorrelationResult result;
-        // TODO: Find a good way to consider the other heuristics in these stats.
-        result.ChangesToARP = changedArpEntries.size();
-        result.MatchesInARP = findByManifest.Matches.size();
-        result.CountOfIntersectionOfChangesAndMatches = packagesInBoth.size();
-
-        // If there is only a single common package (changed and matches), it is almost certainly the correct one.
-        if (packagesInBoth.size() == 1)
-        {
-            result.Package = packagesInBoth[0]->GetInstalledVersion();
-        }
-        // If it wasn't changed but we still find a match, that is the best thing to report.
-        else if (findByManifest.Matches.size() == 1)
-        {
-            result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
-        }
-        else
-        {
-            // We were not able to find an exact match, so we now run some heuristics
-            // to try and match the package with some ARP entry by assigning them scores.
-            AICLI_LOG(Repo, Verbose, << "No exact ARP match found. Trying to find one with heuristics");
-
-            std::vector<ARPEntry> arpEntries;
-            for (auto&& entry : changedArpEntries)
-            {
-                arpEntries.push_back(std::move(entry));
-            }
-            for (auto&& entry : existingArpEntries)
-            {
-                arpEntries.push_back(std::move(entry));
-            }
-
-            result.Package = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, arpEntries);
-        }
-
-        return result;
-    }
-
     // Find the best match using heuristics
     std::shared_ptr<IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const Manifest::Manifest& manifest,
@@ -417,5 +291,121 @@ namespace AppInstaller::Repository::Correlation
                 }
             }
         }
+    }
+
+    ARPCorrelationResult ARPCorrelationData::CorrelateForNewlyInstalled(const Manifest::Manifest& manifest)
+    {
+        AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
+
+        // Also attempt to find the entry based on the manifest data
+
+        SearchRequest manifestSearchRequest;
+        AppInstaller::Manifest::Manifest::string_t defaultPublisher;
+        if (manifest.DefaultLocalization.Contains(Localization::Publisher))
+        {
+            defaultPublisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
+        }
+
+        // The default localization must contain the name or we cannot do this lookup
+        if (manifest.DefaultLocalization.Contains(Localization::PackageName))
+        {
+            AppInstaller::Manifest::Manifest::string_t defaultName = manifest.DefaultLocalization.Get<Localization::PackageName>();
+            manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, defaultName, defaultPublisher));
+
+            for (const auto& loc : manifest.Localizations)
+            {
+                if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
+                        loc.Contains(Localization::PackageName) ? loc.Get<Localization::PackageName>() : defaultName,
+                        loc.Contains(Localization::Publisher) ? loc.Get<Localization::Publisher>() : defaultPublisher));
+                }
+            }
+        }
+
+        std::vector<std::string> productCodes;
+        for (const auto& installer : manifest.Installers)
+        {
+            if (!installer.ProductCode.empty())
+            {
+                if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
+                    productCodes.emplace_back(installer.ProductCode);
+                }
+            }
+
+            for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
+            {
+                if (!appsAndFeaturesEntry.DisplayName.empty())
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
+                        appsAndFeaturesEntry.DisplayName,
+                        appsAndFeaturesEntry.Publisher.empty() ? defaultPublisher : appsAndFeaturesEntry.Publisher));
+                }
+            }
+        }
+
+        SearchResult findByManifest;
+
+        // Don't execute this search if it would just find everything
+        if (!manifestSearchRequest.IsForEverything())
+        {
+            findByManifest = m_postInstallSnapshotSource.Search(manifestSearchRequest);
+        }
+
+        // Cross reference the changes with the search results
+        std::vector<std::shared_ptr<IPackage>> packagesInBoth;
+
+        for (const auto& change : m_postInstallSnapshot)
+        {
+            if (change.IsNewOrUpdated)
+            {
+                for (const auto& byManifest : findByManifest.Matches)
+                {
+                    if (change.Entry->IsSame(byManifest.Package.get()))
+                    {
+                        packagesInBoth.emplace_back(change.Entry);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // We now have all of the package changes; time to report them.
+        //
+        // The set of cases we could have for finding packages based on the manifest:
+        //  0 packages  ::  The manifest data does not match the ARP information.
+        //  1 package   ::  Golden path; this should be what we installed.
+        //  2+ packages ::  The data in the manifest is either too broad or we have
+        //                  a problem with our name normalization.
+
+        // Find the package that we are going to log
+        ARPCorrelationResult result;
+        // TODO: Find a good way to consider the other heuristics in these stats.
+        result.ChangesToARP = std::count_if(m_postInstallSnapshot.begin(), m_postInstallSnapshot.end(), [](const ARPEntry& e) { return e.IsNewOrUpdated; });
+        result.MatchesInARP = findByManifest.Matches.size();
+        result.CountOfIntersectionOfChangesAndMatches = packagesInBoth.size();
+
+        // If there is only a single common package (changed and matches), it is almost certainly the correct one.
+        if (packagesInBoth.size() == 1)
+        {
+            result.Package = packagesInBoth[0]->GetInstalledVersion();
+        }
+        // If it wasn't changed but we still find a match, that is the best thing to report.
+        else if (findByManifest.Matches.size() == 1)
+        {
+            result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
+        }
+        else
+        {
+            // We were not able to find an exact match, so we now run some heuristics
+            // to try and match the package with some ARP entry by assigning them scores.
+            AICLI_LOG(Repo, Verbose, << "No exact ARP match found. Trying to find one with heuristics");
+
+            result.Package = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, m_postInstallSnapshot);
+        }
+
+        return result;
     }
 }
