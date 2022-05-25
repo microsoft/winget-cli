@@ -200,6 +200,7 @@
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
+    <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
@@ -330,6 +331,12 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerManifest\InstallerManifestValidation.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerManifest\InstallerManifestValidation.msixbundle">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <None Include="Run-TestsInPackage.ps1" />
@@ -560,7 +567,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders> 
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputNames.txt">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

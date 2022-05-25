@@ -10,50 +10,46 @@
 
 namespace AppInstaller::Msix
 {
-	using namespace Microsoft::WRL;
-	using string_t = Utility::NormalizedString;
+    using namespace Microsoft::WRL;
+    using string_t = Utility::NormalizedString;
 
-	namespace Platform
-	{
-		constexpr auto& WindowsDesktop = "windows.desktop";
-		constexpr auto& WindowsUniversal = "windows.universal";
-		
-		bool IsWindowsDesktop(std::string platformName);
-		bool IsWindowsUniversal(std::string platformName);
-	}
+    namespace Platform
+    {
+        constexpr auto& WindowsDesktop = "windows.desktop";
+        constexpr auto& WindowsUniversal = "windows.universal";
 
-	struct MsixPackageManifestIdentity
-	{
-		string_t PackageFamilyName;
-		UINT64 Version = 0;
-	};
+        bool IsWindowsDesktop(std::string platformName);
+        bool IsWindowsUniversal(std::string platformName);
+    }
 
-	struct MsixPackageManifestTargetDeviceFamily
-	{
-		string_t Name;
-		UINT64 MinVersion;
-		UINT64 MaxVersionTested;
+    struct MsixPackageManifestIdentity
+    {
+        string_t PackageFamilyName;
+        UINT64 Version = 0;
+    };
 
-		MsixPackageManifestTargetDeviceFamily(string_t name, UINT64 minVersion, UINT64 maxVersionTested)
-			: Name(name), MinVersion(minVersion), MaxVersionTested(maxVersionTested) {}
-	};
+    struct MsixPackageManifestTargetDeviceFamily
+    {
+        string_t Name;
+        UINT64 MinVersion;
+        UINT64 MaxVersionTested;
 
-	struct MsixPackageManifestDependencies
-	{
-		std::optional<MsixPackageManifestTargetDeviceFamily> WindowsDesktop;
-		std::optional<MsixPackageManifestTargetDeviceFamily> WindowsUniversal;
-	};
+        MsixPackageManifestTargetDeviceFamily(string_t name, UINT64 minVersion, UINT64 maxVersionTested)
+            : Name(name), MinVersion(minVersion), MaxVersionTested(maxVersionTested) {}
+    };
 
-	struct MsixPackageManifest
-	{
-		MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader);
-		
-		MsixPackageManifestDependencies Dependencies;
-		
-		MsixPackageManifestIdentity Identity;
-	private:
-		ComPtr<IAppxManifestReader> m_manifestReader;
-		ComPtr<IAppxManifestPackageId> m_manifestPackageId;
-		void Initialize();
-	};
+    struct MsixPackageManifestDependencies
+    {
+        std::vector<MsixPackageManifestTargetDeviceFamily> TargetDeviceFamilies;
+    };
+
+    struct MsixPackageManifest
+    {
+        MsixPackageManifestDependencies Dependencies;
+        MsixPackageManifestIdentity Identity;
+
+        MsixPackageManifest() = default;
+        MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader);
+        void Assign(ComPtr<IAppxManifestReader> manifestReader);
+    };
 }

@@ -361,6 +361,29 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(appxFactory->CreateManifestReader(inputStream, reader));
     }
 
+    void GetStreamFromURI(
+        std::string_view uriStr,
+        ComPtr<IStream> &inputStream)
+    {
+        if (Utility::IsUrlRemote(uriStr))
+        {
+            // Get an IStream from the input uri and try to create package or bundler reader.
+            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
+            IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
+
+            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
+            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
+                rasAsIUnknown,
+                IID_PPV_ARGS(inputStream.ReleaseAndGetAddressOf())));
+        }
+        else
+        {
+            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
+            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
+                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &inputStream));
+        }
+    }
+
     std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName)
     {
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
@@ -504,24 +527,7 @@ namespace AppInstaller::Msix
 
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        if (Utility::IsUrlRemote(uriStr))
-        {
-            // Get an IStream from the input uri and try to create package or bundler reader.
-            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
-            IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
-
-            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
-            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
-                rasAsIUnknown,
-                IID_PPV_ARGS(m_stream.ReleaseAndGetAddressOf())));
-        }
-        else
-        {
-            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
-            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
-                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &m_stream));
-        }
-
+        GetStreamFromURI(uriStr, m_stream);
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
@@ -610,7 +616,6 @@ namespace AppInstaller::Msix
 
     std::string MsixInfo::GetPackageFullName()
     {
-        THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
     }
 
@@ -621,40 +626,6 @@ namespace AppInstaller::Msix
         return Utility::ConvertToUTF8(familyName.get());
     }
 
-    std::vector<std::wstring_view> GetAppPackageNames(const ComPtr<IAppxBundleReader> bundleReader)
-    {
-        THROW_HR_IF(E_NOT_VALID_STATE, !bundleReader);
-
-        std::vector<std::wstring_view> packageNames;
-		ComPtr<IAppxBundleManifestReader> manifestReader;
-		THROW_IF_FAILED(bundleReader->GetManifest(&manifestReader));
-
-		ComPtr<IAppxBundleManifestPackageInfoEnumerator> packageInfoItems;
-		THROW_IF_FAILED(manifestReader->GetPackageInfoItems(&packageInfoItems));
-
-		BOOL hasCurrent = FALSE;
-		THROW_IF_FAILED(packageInfoItems->GetHasCurrent(&hasCurrent));
-		while (hasCurrent)
-		{
-			ComPtr<IAppxBundleManifestPackageInfo> packageInfo;
-			THROW_IF_FAILED(packageInfoItems->GetCurrent(&packageInfo));
-
-			APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
-			THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
-
-			if (packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
-			{
-				wil::unique_cotaskmem_string fileName;
-				THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
-				packageNames.emplace_back(fileName.get());
-			}
-
-			THROW_IF_FAILED(packageInfoItems->MoveNext(&hasCurrent));
-		}
-
-        return packageNames;
-    }
-
     std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages() const
     {
         if (!m_isBundle)
@@ -663,20 +634,46 @@ namespace AppInstaller::Msix
         }
 
         std::vector<ComPtr<IAppxPackageReader>> packages;
-        auto packageNames = GetAppPackageNames(m_bundleReader);
-        for (auto packageName : packageNames)
+
+        ComPtr<IAppxBundleManifestReader> manifestReader;
+        THROW_IF_FAILED(m_bundleReader->GetManifest(&manifestReader));
+
+        ComPtr<IAppxBundleManifestPackageInfoEnumerator> packageInfoItems;
+        THROW_IF_FAILED(manifestReader->GetPackageInfoItems(&packageInfoItems));
+
+        BOOL hasCurrent = FALSE;
+        THROW_IF_FAILED(packageInfoItems->GetHasCurrent(&hasCurrent));
+        while (hasCurrent)
         {
-            ComPtr<IAppxFile> packageFile;
-            THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(std::wstring(packageName).c_str(), &packageFile));
+            ComPtr<IAppxBundleManifestPackageInfo> packageInfo;
+            THROW_IF_FAILED(packageInfoItems->GetCurrent(&packageInfo));
 
-            ComPtr<IStream> stream;
-            THROW_IF_FAILED(packageFile->GetStream(&stream));
+            APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
+            THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
 
-            ComPtr<IAppxPackageReader> packageReader;
-            if (GetPackageReader(stream.Get(), &packageReader))
+            if (packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
             {
-                packages.emplace_back(packageReader);
+                wil::unique_cotaskmem_string fileName;
+                THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
+
+                ComPtr<IAppxFile> packageFile;
+                THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(fileName.get(), &packageFile));
+
+                ComPtr<IStream> stream;
+                THROW_IF_FAILED(packageFile->GetStream(&stream));
+
+                ComPtr<IAppxPackageReader> packageReader;
+                if (GetPackageReader(stream.Get(), &packageReader))
+                {
+                    packages.emplace_back(packageReader);
+                }
+                else
+                {
+                    // TODO Add warning
+                }
             }
+
+            THROW_IF_FAILED(packageInfoItems->MoveNext(&hasCurrent));
         }
 
         return packages;

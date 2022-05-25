@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLogging.h>
 #include <AppInstallerProgress.h>
+#include <AppxPackaging.h>
 #include <winget/UserSettings.h>
 #include <wil/result.h>
 
@@ -135,4 +136,7 @@ namespace TestCommon
     // tests calling these functions should skip when not running with admin.
     bool InstallCertFromSignedPackage(const std::filesystem::path& package);
     bool UninstallCertFromSignedPackage(const std::filesystem::path& package);
+
+    // Get manifest reader from a msix file path
+    bool GetMsixPackageManifestReader(const std::string_view testFileName, IAppxManifestReader** manifestReader);
 }

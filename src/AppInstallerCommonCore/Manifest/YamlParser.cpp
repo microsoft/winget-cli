@@ -440,7 +440,7 @@ namespace AppInstaller::Manifest::YamlParser
             }
 
             // TODO Add validation option check
-            errors = ValidateInstallerManifest(manifest);
+            errors = ValidateManifestInstallers(manifest);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Output merged manifest if requested

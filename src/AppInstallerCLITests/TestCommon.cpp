@@ -285,4 +285,20 @@ namespace TestCommon
 
         return false;
     }
+
+    bool GetMsixPackageManifestReader(const std::string_view testFileName, IAppxManifestReader** manifestReader)
+    {
+        // Locate test file
+        TestDataFile testFile(testFileName);
+        auto path = testFile.GetPath().u8string();
+
+        // Get the stream for the test file
+        Microsoft::WRL::ComPtr<IStream> stream;
+        AppInstaller::Msix::GetStreamFromURI(path, stream);
+
+        // Get manifest from package reader
+        Microsoft::WRL::ComPtr<IAppxPackageReader> packageReader;
+        return  AppInstaller::Msix::GetPackageReader(stream.Get(), &packageReader)
+            && SUCCEEDED(packageReader->GetManifest(manifestReader));
+    }
 }

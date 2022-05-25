@@ -36,6 +36,11 @@ namespace AppInstaller::Msix
         IStream* inputStream,
         IAppxManifestReader** reader);
 
+    // Function to create a stream from a uri string (url address or file system path)
+    void GetStreamFromURI(
+        std::string_view uriStr,
+        Microsoft::WRL::ComPtr<IStream> &inputStream);
+
     // Gets the package full name from the family name.
     // This will be the one registered for the current user, if any.
     std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName);

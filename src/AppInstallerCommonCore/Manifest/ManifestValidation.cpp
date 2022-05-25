@@ -242,12 +242,12 @@ namespace AppInstaller::Manifest
         Msix::MsixInfo msixInfo(installer.Url);
         auto msixManifests = msixInfo.GetAppPackageManifests();
 
-        std::shared_ptr<OSVersion> minOSVersion;
+        std::optional<OSVersion> installerMinOSVersion;
         try
         {
             if (!installer.MinOSVersion.empty())
             {
-                minOSVersion = std::make_shared<OSVersion>(installer.MinOSVersion);
+                installerMinOSVersion = std::make_optional<OSVersion>(installer.MinOSVersion);
             }
         }
         catch (const std::exception&)
@@ -261,28 +261,36 @@ namespace AppInstaller::Manifest
             if (installer.PackageFamilyName != msixManifest.Identity.PackageFamilyName)
             {
                 // TODO Fix message
-			    errors.emplace_back(ManifestError::InvalidFieldValue, "PackageFamilyName", installer.PackageFamilyName);
+                errors.emplace_back(ManifestError::InvalidFieldValue, "PackageFamilyName", installer.PackageFamilyName);
             }
 
             // Validate package version
             if (msixManifest.Identity.Version != packageVersion.ToUINT64())
             {
                 // TODO Fix message
-			    errors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", packageVersion.ToString());
+                errors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", packageVersion.ToString());
             }
 
-            // Validate minimum os version
-            if (msixManifest.Dependencies.WindowsDesktop.has_value())
+            // Find min version for the target device family
+            std::optional<UINT64> targetMinOSVersion;
+            for (auto& target : msixManifest.Dependencies.TargetDeviceFamilies)
             {
-                if (!minOSVersion)
+                if (Msix::Platform::IsWindowsDesktop(target.Name)
+                    || (Msix::Platform::IsWindowsUniversal(target.Name) && !targetMinOSVersion.has_value()))
                 {
-					// TODO Fix message
-					errors.emplace_back(ManifestError::InvalidFieldValue, "MinimumOSVersion", minOSVersion->ToString());
+                    targetMinOSVersion = target.MinVersion;
                 }
-                else if (msixManifest.Dependencies.WindowsDesktop.value().MinVersion == minOSVersion->ToUINT64())
+            }
+
+            if (targetMinOSVersion.has_value())
+            {
+                if (installerMinOSVersion.has_value() && targetMinOSVersion.value() != installerMinOSVersion.value().ToUINT64())
                 {
-					// TODO Fix message
-					errors.emplace_back(ManifestError::InvalidFieldValue, "MinimumOSVersion", minOSVersion->ToString());
+                    errors.emplace_back(ManifestError::InvalidFieldValue, "MinOSVersion", installerMinOSVersion.value().ToString());
+                }
+                else if (!installerMinOSVersion.has_value())
+                {
+                    errors.emplace_back(ManifestError::InvalidFieldValue, "MinOSVersion", std::string("Please provide a min os version"));
                 }
             }
         }
