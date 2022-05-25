@@ -29,6 +29,8 @@
     <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
     <None Remove="TestData\ImportFiles\ImportFile-Good.1.0.json" />
     <None Remove="TestData\ImportFiles\ImportFile-Good.2.0.json" />
+    <None Remove="TestData\Manifests\TestPortableInstaller.2.0.0.0.yaml" />
+    <None Remove="TestData\Manifests\TestPortableInstaller.3.0.0.0_UninstallPrevious.yaml" />
   </ItemGroup>
 
   <ItemGroup>

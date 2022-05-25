@@ -109,3 +109,4 @@ XPFPFN4LT21PZJ|Studio Dentistico Pro|Esposito Software di M. G. Caputo|Studio De
 XPFPFWMVTR0WHP|Ashampoo UnInstaller 11|Ashampoo|Ashampoo UnInstaller 11|11.00.12|Ashampoo GmbH & Co. KG|{4209F371-B84B-F321-6BD3-1D91E2505732}_is1
 XPFPFWV5JD80K2|BeeCut|网旭科技|BeeCut V1.7.7.22|1.7.7.22|Apowersoft LIMITED|{CA76BFA8-1862-49D7-B2C7-AE3D6CF40E53}_is1
 XPFPLCB36G8V8J|HttpMaster Professional|Borvid, Informacijske storitve, Janez Čas s.p.|HttpMaster Professional Edition 5.4.1|5.4.1|Borvid|{B61241AA-F5FC-42C9-A1F9-F6D72D654349}
+XP8CDJNZKFM06W|Visual Studio Community 2019|Microsoft Corporation|Microsoft Visual Studio Installer|3.1.2196.8931|Microsoft Corporation|{6F320B93-EE3C-4826-85E0-ADF79F8D4C61}

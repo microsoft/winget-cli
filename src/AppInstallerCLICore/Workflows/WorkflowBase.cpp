@@ -133,6 +133,11 @@ namespace AppInstaller::CLI::Workflow
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
             }
 
+            if (args.Contains(Execution::Args::Type::ProductCode))
+            {
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, matchType, args.GetArg(Execution::Args::Type::ProductCode)));
+            }
+
             if (args.Contains(Execution::Args::Type::Tag))
             {
                 searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
@@ -478,7 +483,6 @@ namespace AppInstaller::CLI::Workflow
             // Regardless of match type, always use an exact match for the system reference strings.
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
-
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
@@ -734,23 +738,28 @@ namespace AppInstaller::CLI::Workflow
 
                     if (latestVersion)
                     {
+                        // Always show the source for correlated packages
+                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
                             availableUpgradesCount++;
                         }
-
-                        // Always show the source for correlated packages
-                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
 
+                    // Output using the local PackageName instead of the name in the manifest, to prevent confusion for packages that add multiple
+                    // Add/Remove Programs entries.
+                    // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
                     table.OutputLine({
-                        match.Package->GetProperty(PackageProperty::Name),
-                        match.Package->GetProperty(PackageProperty::Id),
-                        installedVersion->GetProperty(PackageVersionProperty::Version),
-                        availableVersion,
-                        shouldShowSource ? sourceName : ""s
-                        });
+                         installedVersion->GetProperty(PackageVersionProperty::Name),
+                         match.Package->GetProperty(PackageProperty::Id),
+                         installedVersion->GetProperty(PackageVersionProperty::Version),
+                         availableVersion,
+                         shouldShowSource ? sourceName : ""s
+                    });
+                   
+                   
                 }
             }
         }
@@ -1063,6 +1072,11 @@ namespace AppInstaller::CLI::Workflow
             {
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
             }
+            else if (installer.InstallerType == Manifest::InstallerTypeEnum::Portable)
+            {
+                const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + "_" + source.GetIdentifier());
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, Utility::Normalize(productCode)));
+            }
 
             if (!searchRequest.Inclusions.empty())
             {
@@ -1079,7 +1093,17 @@ namespace AppInstaller::CLI::Workflow
         // If we cannot find a package using PackageFamilyName or ProductId, try manifest Id and Name pair
         SearchRequest searchRequest;
         searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
+        
         // In case there are same Ids from different sources, filter the result using package name
+        for (const auto& localization : manifest.Localizations)
+        {
+            const auto& localizedPackageName = localization.Get<Manifest::Localization::PackageName>();
+            if (!localizedPackageName.empty())
+            {
+                searchRequest.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, localizedPackageName);
+            }
+        }
+
         searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>()));
 
         context.Add<Execution::Data::SearchResult>(source.Search(searchRequest));

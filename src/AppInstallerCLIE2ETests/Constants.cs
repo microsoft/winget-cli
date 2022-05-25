@@ -27,6 +27,7 @@ namespace AppInstallerCLIE2ETests
         public const string DefaultMSStoreSourceUrl = @"https://storeedgefd.dsx.mp.microsoft.com/v9.0";
         public const string TestSourceName = @"TestSource";
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
+        public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";

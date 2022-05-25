@@ -122,6 +122,7 @@ EXEHASH
 experimentalfeatures
 fcb
 fd
+fdw
 fedorapeople
 fileinuse
 fintimes
@@ -243,7 +244,7 @@ monicka
 MPNS
 msdn
 msdownload
-MSFT
+msft
 msftrubengu
 MSIHASH
 MSIXHASH
@@ -283,7 +284,9 @@ parametermap
 pathparts
 pathpaths
 Patil
+pb
 PCs
+pcwsz
 pdp
 PEGI
 pfn
@@ -446,6 +449,7 @@ WZDNCRFJ
 XPLATSTR
 xsi
 yamlcreateps
+yao
 ype
 Zanollo
 zy

@@ -149,6 +149,9 @@ namespace AppInstaller::Utility
     // Gets the file name part of the given URI.
     std::filesystem::path GetFileNameFromURI(std::string_view uri);
 
+    // Splits the string into words.
+    std::vector<std::string> SplitIntoWords(std::string_view input);
+
     // Converts a container to a string representation of it.
     template <typename T, typename U>
     std::string ConvertContainerToString(const T& container, U toString)

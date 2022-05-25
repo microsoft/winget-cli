@@ -4,6 +4,7 @@
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/PortableARPEntry.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"
@@ -52,6 +53,7 @@ namespace AppInstaller::CLI::Execution
         Dependencies,
         DependencySource,
         AllowedArchitectures,
+        PortableARPEntry,
         Max
     };
 
@@ -213,6 +215,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::AllowedArchitectures>
         {
             using value_t = std::vector<Utility::Architecture>;
+        };
+
+        template <>
+        struct DataMapping<Data::PortableARPEntry>
+        {
+            using value_t = Registry::Portable::PortableARPEntry;
         };
     }
 }

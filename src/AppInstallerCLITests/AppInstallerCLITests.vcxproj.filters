@@ -408,7 +408,13 @@
     <CopyFileToFolders Include="TestData\index.1.0.0.0.msix">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.1.0.0.0.signed.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\index.2.0.0.0.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.2.0.0.0.signed.msix">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
@@ -440,10 +446,10 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
-   <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>      
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -475,6 +481,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix_LicenseAgreement.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">

@@ -215,12 +215,22 @@ namespace AppInstaller::Utility
             }
 
             // Joins all of the given strings into a single value
-            static std::wstring Join(const std::vector<std::wstring>& values)
+            static std::wstring Join(const std::vector<std::wstring>& values, const std::wstring& separator = {})
             {
                 std::wstring result;
 
+                bool isFirst = true;
                 for (const auto& v : values)
                 {
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        result += separator;
+                    }
+
                     result += v;
                 }
 
@@ -246,6 +256,7 @@ namespace AppInstaller::Utility
             Regex::Expression KBNumbers{ R"(\((KB\d+)\))", reOptions };
 
             Regex::Expression NonLettersAndDigits{ R"([^\p{L}\p{Nd}])", reOptions };
+            Regex::Expression NonLetterDigitOrSpace{ R"([^\p{L}\p{Nd}\s])", reOptions };
             Regex::Expression URIProtocol{ R"((?<!\p{L})(?:http[s]?|ftp):\/\/)", reOptions }; // remove protocol from URIs
 
             Regex::Expression VersionDelimited{ R"(((?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+([\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(RC|B|A|R|SP|K)?\p{Nd}+)+([\p{Po}\p{Pd}\p{Pc}]?[\p{L}\p{Nd}]+)*)", reOptions };
@@ -347,6 +358,8 @@ namespace AppInstaller::Utility
             // The folded and sorted version of LocaleViews.
             const std::vector<std::wstring> LegalEntitySuffixes;
 
+            const bool PreserveWhiteSpace;
+
             static std::vector<std::wstring> FoldAndSort(const std::vector<std::wstring_view>& input)
             {
                 std::vector<std::wstring> result;
@@ -377,10 +390,18 @@ namespace AppInstaller::Utility
                 while (RemoveAll(ProgramNameRegexes, result.Name));
 
                 auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
-                result.Name = Join(tokens);
 
-                // Drop all undesired characters
-                Remove(NonLettersAndDigits, result.Name);
+                // Re-join the tokens and drop all undesired characters
+                if (PreserveWhiteSpace)
+                {
+                    result.Name = Join(tokens, L" ");
+                    Remove(NonLetterDigitOrSpace, result.Name);
+                }
+                else
+                {
+                    result.Name = Join(tokens);
+                    Remove(NonLettersAndDigits, result.Name);
+                }
 
                 return result;
             }
@@ -395,16 +416,24 @@ namespace AppInstaller::Utility
                 while (RemoveAll(PublisherNameRegexes, result.Publisher));
 
                 auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
-                result.Publisher = Join(tokens);
 
-                // Drop all undesired characters
-                Remove(NonLettersAndDigits, result.Publisher);
+                // Re-join the tokens and drop all undesired characters
+                if (PreserveWhiteSpace)
+                {
+                    result.Publisher = Join(tokens, L" ");
+                    Remove(NonLetterDigitOrSpace, result.Publisher);
+                }
+                else
+                {
+                    result.Publisher = Join(tokens);
+                    Remove(NonLettersAndDigits, result.Publisher);
+                }
 
                 return result;
             }
 
         public:
-            NormalizationInitial() : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews))
+            NormalizationInitial(bool preserveWhiteSpace) : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews)), PreserveWhiteSpace(preserveWhiteSpace)
             {
             }
 
@@ -448,7 +477,10 @@ namespace AppInstaller::Utility
         switch (version)
         {
         case AppInstaller::Utility::NormalizationVersion::Initial:
-            m_normalizer = std::make_unique<NormalizationInitial>();
+            m_normalizer = std::make_unique<NormalizationInitial>(false);
+            break;
+        case AppInstaller::Utility::NormalizationVersion::InitialPreserveWhiteSpace:
+            m_normalizer = std::make_unique<NormalizationInitial>(true);
             break;
         default:
             THROW_HR(E_INVALIDARG);

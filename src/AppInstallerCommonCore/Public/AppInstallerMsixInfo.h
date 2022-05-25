@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerProgress.h>
+#include "AppInstallerProgress.h"
+#include "winget/ManagedFile.h"
+
 #include <AppxPackaging.h>
 
 #include <wrl/client.h>
@@ -47,6 +49,9 @@ namespace AppInstaller::Msix
     {
         MsixInfo(std::string_view uriStr);
 
+        template<typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
+        MsixInfo(const T& path) : MsixInfo(path.u8string()) {}
+
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;
 
@@ -59,14 +64,15 @@ namespace AppInstaller::Msix
         }
 
         // Full content of AppxSignature.p7x
-        std::vector<byte> GetSignature();
+        // If skipP7xFileId is true, returns content of converted .p7s
+        std::vector<byte> GetSignature(bool skipP7xFileId = false);
 
         // Gets the package full name.
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
-        // Gets a value indicating whether the referenced info is newer than the given manifest.
-        bool IsNewerThan(const std::filesystem::path& otherManifest);
+        // Gets a value indicating whether the referenced info is newer than the given package.
+        bool IsNewerThan(const std::filesystem::path& otherPackage);
 
         bool IsNewerThan(const winrt::Windows::ApplicationModel::PackageVersion& otherVersion);
 
@@ -76,10 +82,32 @@ namespace AppInstaller::Msix
         // Writes the package's manifest to the given path.
         void WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress);
 
+        // Writes the package file to the given file handle.
+        void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
+
     private:
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
+    };
+
+    struct GetCertContextResult
+    {
+        wil::unique_cert_context CertContext;
+        wil::unique_hcertstore CertStore;
+    };
+
+    // Get cert context from a signed msix/msixbundle file.
+    GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath);
+
+    struct WriteLockedMsixFile
+    {
+        WriteLockedMsixFile(const std::filesystem::path& path);
+
+        bool ValidateTrustInfo(bool checkMicrosoftOrigin) const;
+
+    private:
+        Utility::ManagedFile m_file;
     };
 }

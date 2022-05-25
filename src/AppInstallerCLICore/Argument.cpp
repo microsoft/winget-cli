@@ -113,7 +113,7 @@ namespace AppInstaller::CLI
 
     void Argument::ValidatePackageSelectionArgumentSupplied(const Execution::Args& args)
     {
-        for (Args::Type type : { Args::Type::Query, Args::Type::Manifest, Args::Type::Id, Args::Type::Name, Args::Type::Moniker, Args::Type::Tag, Args::Type::Command })
+        for (Args::Type type : { Args::Type::Query, Args::Type::Manifest, Args::Type::Id, Args::Type::Name, Args::Type::Moniker, Args::Type::ProductCode, Args::Type::Tag, Args::Type::Command })
         {
             if (args.Contains(type))
             {

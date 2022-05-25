@@ -14,7 +14,7 @@
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
-#include <Workflows/PortableInstallFlow.h>
+#include <Workflows/PortableFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/DependenciesFlow.h>
@@ -150,6 +150,21 @@ namespace
                     ResultMatch(
                         testPackage,
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
+            if (input.empty() || input == "AppInstallerCliTest.TestPortableInstaller")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestPortableInstaller")));
             }
 
             if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller")
@@ -528,6 +543,17 @@ void OverrideForShellExecute(TestContext& context, std::vector<Dependency>& inst
 
 void OverrideForPortableInstall(TestContext& context)
 {
+    context.Override({ PortableInstall, [](TestContext&)
+    {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPortableInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file.close();
+    } });
+}
+
+void OverrideForPortableInstallFlow(TestContext& context)
+{
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
         context.Add<Data::HashPair>({ {}, {} });
@@ -539,14 +565,26 @@ void OverrideForPortableInstall(TestContext& context)
     } });
 
     OverrideForUpdateInstallerMotw(context);
+    OverrideForPortableInstall(context);
+}
 
-    context.Override({ PortableInstall, [](TestContext&)
+void OverrideForPortableUninstall(TestContext& context)
+{
+    context.Override({ PortableUninstallImpl, [](TestContext& context)
     {
-        // Write out the install command
         std::filesystem::path temp = std::filesystem::temp_directory_path();
-        temp /= "TestPortableInstalled.txt";
+        temp /= "TestPortableUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
         file.close();
+
+        context.Add<Execution::Data::OperationReturnCode>(0);
+    } });
+}
+
+void OverrideForEnsureSupportForPortable(TestContext& context)
+{
+    context.Override({ EnsureSupportForPortableInstall, [](TestContext&)
+    {
     } });
 }
 
@@ -590,6 +628,8 @@ void OverrideForExeUninstall(TestContext& context)
         std::ofstream file(temp, std::ofstream::out);
         file << context.Get<Execution::Data::UninstallString>();
         file.close();
+
+        context.Add<Execution::Data::OperationReturnCode>(0);
     } });
 }
 
@@ -908,7 +948,7 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForPortableInstall(context);
+    OverrideForPortableInstallFlow(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
@@ -1453,6 +1493,41 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
+TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForEnsureSupportForPortable(context);
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Portable.yaml").GetPath().u8string());
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
 TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestMsixInstalled.txt");
@@ -1625,6 +1700,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
+    TestCommon::TempFile updatePortableResultPath("TestPortableInstalled.txt");
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
@@ -1633,6 +1709,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
+    OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::All);
 
     UpgradeCommand update({});
@@ -1643,6 +1720,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
 }
 
 TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][workflow]")
@@ -1748,6 +1826,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
+    TestCommon::TempFile updatePortableResultPath("TestPortableInstalled.txt");
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
@@ -1756,6 +1835,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
+    OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::All);
     context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
@@ -1773,6 +1853,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
 }
 
 TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
@@ -1805,6 +1886,23 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     REQUIRE_FALSE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE_FALSE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+}
+
+TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestPortableUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForPortableUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
 }
 
 TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
@@ -1922,7 +2020,7 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 3);
+    REQUIRE(exportedPackages.size() == 4);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
@@ -1934,6 +2032,10 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestPortableInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
         }));
 }
 
@@ -1958,7 +2060,7 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 3);
+    REQUIRE(exportedPackages.size() == 4);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
@@ -1970,6 +2072,10 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString() == "Latest";
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestPortableInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
         }));
 }
 

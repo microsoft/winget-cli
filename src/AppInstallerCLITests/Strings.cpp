@@ -194,3 +194,13 @@ TEST_CASE("GetFileNameFromURI", "[strings]")
     REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/README.md").u8string() == "README.md");
     REQUIRE(GetFileNameFromURI("https://microsoft.com/").u8string() == "");
 }
+
+TEST_CASE("SplitIntoWords", "[strings]")
+{
+    REQUIRE(SplitIntoWords("A B") == std::vector<std::string>{ "A", "B" });
+    REQUIRE(SplitIntoWords("Some-Thing") == std::vector<std::string>{ "Some", "Thing" });
+
+    // 私のテスト = "My test" according to an online translator
+    // Split as "私" "の" "テスト"
+    REQUIRE(SplitIntoWords("\xe7\xa7\x81\xe3\x81\xae\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88") == std::vector<std::string>{ "\xe7\xa7\x81", "\xe3\x81\xae", "\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88" });
+}

@@ -13,6 +13,8 @@
 #include <icu.h>
 #include <msi.h>
 #include <DbgHelp.h>
+#include <SoftPub.h>
+#include <WinTrust.h>
 
 #include "TraceLogging.h"
 

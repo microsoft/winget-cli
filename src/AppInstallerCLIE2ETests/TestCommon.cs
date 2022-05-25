@@ -286,38 +286,38 @@ namespace AppInstallerCLIE2ETests
             bool shouldExist)
         {
             string exePath = Path.Combine(installDir, filename);
-            FileInfo exeFile = new FileInfo(exePath);
-            Assert.AreEqual(shouldExist, exeFile.Exists, $"Expected portable exe path: {exePath}");
+            bool exeExists = File.Exists(exePath);
 
             string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
-            FileInfo symlinkFile = new FileInfo(symlinkPath);
-            Assert.AreEqual(shouldExist, symlinkFile.Exists, $"Expected portable symlink path: {symlinkPath}");
+            bool symlinkExists = File.Exists(symlinkPath);
 
+            bool portableEntryExists;
             string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
             using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
             {
                 RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
-                Assert.AreEqual(shouldExist, portableEntry != null, $"Expected {productCode} subkey in path: {subKey}");
-                // TODO: Remove delete once uninstall is implemented.
-                uninstallRegistryKey.DeleteSubKey(productCode);
+                portableEntryExists = portableEntry != null;
             }
 
+            bool isAddedToPath;
             using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
                 var portablePathValue = symlinkDirectory + ';';
-                bool isAddedToPath = currentPathValue.Contains(portablePathValue);
-                if (isAddedToPath)
-                {
-                    string initialPathValue = currentPathValue.Replace(portablePathValue, "");
-                    environmentRegistryKey.SetValue(pathName, initialPathValue);
-                }
-                Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {portablePathValue}");
+                isAddedToPath = currentPathValue.Contains(portablePathValue);
             }
 
-            // TODO: Call uninstall command for cleanup when implemented
+            if (shouldExist)
+            {
+                RunAICLICommand("uninstall", $"--product-code {productCode}");
+            }
+
+            Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
+            Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
+            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {subKey}");
+            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {symlinkDirectory}");
         }
 
         /// <summary>
