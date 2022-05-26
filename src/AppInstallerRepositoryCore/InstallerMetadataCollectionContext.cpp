@@ -14,14 +14,101 @@ using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Repository::Metadata
 {
+    namespace
+    {
+        struct ProductMetadataFields_1_0
+        {
+            utility::string_t ProductVersionMin = L"productVersionMin";
+            utility::string_t ProductVersionMax = L"productVersionMax";
+            utility::string_t Metadata = L"metadata";
+            utility::string_t InstallerHash = L"installerHash";
+            utility::string_t SubmissionIdentifier = L"submissionIdentifier";
+            utility::string_t Version = L"version";
+            utility::string_t AppsAndFeaturesEntries = L"AppsAndFeaturesEntries";
+            utility::string_t Historical = L"historical";
+
+            utility::string_t DisplayName = L"DisplayName";
+            utility::string_t Publisher = L"Publisher";
+            utility::string_t DisplayVersion = L"DisplayVersion";
+            utility::string_t ProductCode = L"ProductCode";
+            utility::string_t UpgradeCode = L"UpgradeCode";
+            utility::string_t InstallerType = L"InstallerType";
+
+            utility::string_t VersionMin = L"versionMin";
+            utility::string_t VersionMax = L"versionMax";
+            utility::string_t Names = L"names";
+            utility::string_t Publishers = L"publishers";
+            utility::string_t ProductCodes = L"productCodes";
+            utility::string_t UpgradeCodes = L"upgradeCodes";
+        };
+
+        std::string GetRequiredString(const web::json::value& value, const utility::string_t& field)
+        {
+            auto optString = AppInstaller::JSON::GetRawStringValueFromJsonNode(value, field);
+            if (!optString)
+            {
+                AICLI_LOG(Repo, Error, << "Required field '" << Utility::ConvertToUTF8(field) << "' was not present");
+                THROW_HR(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+            }
+            return std::move(optString).value();
+        }
+
+        void AddFieldIfNotEmpty(web::json::value& value, const utility::string_t& field, std::string_view string)
+        {
+            if (!string.empty())
+            {
+                value[field] = AppInstaller::JSON::GetStringValue(string);
+            }
+        }
+
+        web::json::value CreateStringArray(const std::vector<std::string>& values)
+        {
+            web::json::value result;
+            size_t index = 0;
+
+            for (const std::string& value : values)
+            {
+                result[index++] = AppInstaller::JSON::GetStringValue(value);
+            }
+
+            return result;
+        }
+
+        bool AddIfNotPresentAndNotEmpty(std::vector<std::string>& strings, const std::vector<std::string>& filter, const std::string& string)
+        {
+            if (string.empty() || std::find(filter.begin(), filter.end(), string) != filter.end())
+            {
+                return false;
+            }
+
+            strings.emplace_back(string);
+            return true;
+        }
+
+        bool AddIfNotPresentAndNotEmpty(std::vector<std::string>& strings, const std::string& string)
+        {
+            return AddIfNotPresentAndNotEmpty(strings, strings, string);
+        }
+
+        void AddIfNotPresent(std::vector<std::string>& strings, std::vector<std::string>& filter, const std::vector<std::string>& inputs)
+        {
+            for (const std::string& input : inputs)
+            {
+                if (AddIfNotPresentAndNotEmpty(strings, filter, input))
+                {
+                    filter.emplace_back(input);
+                }
+            }
+        }
+    }
 
     void ProductMetadata::Clear()
     {
-        m_version = {};
-        m_productVersionMin = {};
-        m_productVersionMax = {};
-        m_installerMetadata.clear();
-        m_historicalMetadata.clear();
+        SchemaVersion = {};
+        ProductVersionMin = {};
+        ProductVersionMax = {};
+        InstallerMetadataMap.clear();
+        HistoricalMetadataList.clear();
     }
 
     void ProductMetadata::FromJson(const web::json::value& json)
@@ -32,98 +119,277 @@ namespace AppInstaller::Repository::Metadata
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, json.is_null());
 
-        auto versionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, versionFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
+        SchemaVersion = Version{ GetRequiredString(json, versionFieldName) };
+        AICLI_LOG(Repo, Info, << "Parsing metadata JSON version " << SchemaVersion.ToString());
 
-        m_version = Version{ versionString.value() };
-        AICLI_LOG(Core, Info, << "Parsing metadata JSON version " << m_version.ToString());
-
-        if (m_version.PartAt(0).Integer == 1)
+        if (SchemaVersion.PartAt(0).Integer == 1)
         {
             // We only have one version currently, so use that as long as the major version is 1
             FromJson_1_0(json);
         }
         else
         {
-            AICLI_LOG(Core, Error, << "Don't know how to handle metadata version " << m_version.ToString());
+            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << SchemaVersion.ToString());
             THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+        }
+
+        // Sort the historical data with oldest last (thus b < a)
+        std::sort(HistoricalMetadataList.begin(), HistoricalMetadataList.end(),
+            [](const HistoricalMetadata& a, const HistoricalMetadata& b) {
+                return b.ProductVersionMin < a.ProductVersionMin;
+            });
+    }
+
+    web::json::value ProductMetadata::ToJson(const Utility::Version& version, size_t maximumSizeInBytes)
+    {
+        AICLI_LOG(Repo, Info, << "Creating metadata JSON version " << version.ToString());
+
+        using ToJsonFunctionPointer = web::json::value(ProductMetadata::*)();
+        ToJsonFunctionPointer toJsonFunction = nullptr;
+
+        if (version.PartAt(0).Integer == 1)
+        {
+            // We only have one version currently, so use that as long as the major version is 1
+            toJsonFunction = &ProductMetadata::ToJson_1_0;
+        }
+        else
+        {
+            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << version.ToString());
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+        }
+
+        // Constrain the result based on maximum size given
+        web::json::value result = (this->*toJsonFunction)();
+
+        while (maximumSizeInBytes)
+        {
+            // Determine current size
+            std::ostringstream temp;
+            result.serialize(temp);
+
+            std::string tempStr = temp.str();
+            if (tempStr.length() > maximumSizeInBytes)
+            {
+                if (!DropOldestHistoricalData())
+                {
+                    AICLI_LOG(Repo, Error, << "Could not remove any more historical data to get under " << maximumSizeInBytes << " bytes");
+                    AICLI_LOG(Repo, Info, << "  Smallest size was " << tempStr.length() << " bytes with value:\n" << tempStr);
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_FILE_TOO_LARGE));
+                }
+                result = (this->*toJsonFunction)();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    void ProductMetadata::CopyFrom(const ProductMetadata& source, std::string_view submissionIdentifier)
+    {
+        // If the source has no installer metadata, consider it empty
+        if (source.InstallerMetadataMap.empty())
+        {
+            return;
+        }
+
+        // With the same submission, just copy over all of the data
+        if (source.InstallerMetadataMap.begin()->second.SubmissionIdentifier == submissionIdentifier)
+        {
+            *this = source;
+            return;
+        }
+
+        // This is a new submission, so we must move all of the data to historical and update the older historical data
+        // First, create a new historical entry for the current metadata
+        HistoricalMetadata currentHistory;
+
+        currentHistory.ProductVersionMin = source.ProductVersionMin;
+        currentHistory.ProductVersionMax = source.ProductVersionMax;
+
+        for (const auto& metadataItem : source.InstallerMetadataMap)
+        {
+            for (const auto& entry : metadataItem.second.AppsAndFeaturesEntries)
+            {
+                AddIfNotPresentAndNotEmpty(currentHistory.Names, entry.DisplayName);
+                AddIfNotPresentAndNotEmpty(currentHistory.Publishers, entry.Publisher);
+                AddIfNotPresentAndNotEmpty(currentHistory.ProductCodes, entry.ProductCode);
+                AddIfNotPresentAndNotEmpty(currentHistory.UpgradeCodes, entry.UpgradeCode);
+            }
+        }
+
+        // Copy the data in so that we can continue using currentHistory to track all strings
+        HistoricalMetadataList.emplace_back(currentHistory);
+
+        // Now, copy over the other historical data, filtering out anything we have seen
+        for (const auto& historical : source.HistoricalMetadataList)
+        {
+            HistoricalMetadata copied;
+            copied.ProductVersionMin = historical.ProductVersionMin;
+            copied.ProductVersionMax = historical.ProductVersionMax;
+            AddIfNotPresent(copied.Names, currentHistory.Names, historical.Names);
+            AddIfNotPresent(copied.Publishers, currentHistory.Publishers, historical.Publishers);
+            AddIfNotPresent(copied.ProductCodes, currentHistory.ProductCodes, historical.ProductCodes);
+            AddIfNotPresent(copied.UpgradeCodes, currentHistory.UpgradeCodes, historical.UpgradeCodes);
+
+            if (!copied.Names.empty() || !copied.Publishers.empty() || !copied.ProductCodes.empty() || !copied.UpgradeCodes.empty())
+            {
+                HistoricalMetadataList.emplace_back(std::move(copied));
+            }
         }
     }
 
     void ProductMetadata::FromJson_1_0(const web::json::value& json)
     {
-        AICLI_LOG(Core, Info, << "Parsing metadata JSON 1.0 fields");
+        AICLI_LOG(Repo, Info, << "Parsing metadata JSON 1.0 fields");
 
-        // Field names
-        utility::string_t productVersionMinFieldName = L"productVersionMin";
-        utility::string_t productVersionMaxFieldName = L"productVersionMax";
-        utility::string_t metadataFieldName = L"metadata";
-        utility::string_t installerHashFieldName = L"installerHash";
-        utility::string_t submissionIdentifierFieldName = L"submissionIdentifier";
-        utility::string_t versionFieldName = L"version";
-        utility::string_t appsAndFeaturesFieldName = L"AppsAndFeaturesEntries";
-        utility::string_t historicalFieldName = L"historical";
+        ProductMetadataFields_1_0 fields;
 
-        auto productVersionMinString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, productVersionMinFieldName);
+        auto productVersionMinString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, fields.ProductVersionMin);
         if (productVersionMinString)
         {
-            m_productVersionMin = Version{ productVersionMinString.value() };
+            ProductVersionMin = Version{ std::move(productVersionMinString).value() };
         }
 
-        auto productVersionMaxString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, productVersionMaxFieldName);
+        auto productVersionMaxString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, fields.ProductVersionMax);
         if (productVersionMaxString)
         {
-            m_productVersionMax = Version{ productVersionMaxString.value() };
+            ProductVersionMax = Version{ std::move(productVersionMaxString).value() };
         }
 
         // The 1.0 version of metadata uses the 1.1 version of REST
         JSON::ManifestJSONParser parser{ Version{ "1.1" } };
 
-        auto metadataArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, metadataFieldName);
+        std::string submissionIdentifierVerification;
+
+        auto metadataArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, fields.Metadata);
         if (metadataArray)
         {
             for (const auto& item : metadataArray->get())
             {
-                auto installerHashString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, installerHashFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !installerHashString);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, m_installerMetadata.find(installerHashString.value()) != m_installerMetadata.end());
+                std::string installerHashString = GetRequiredString(item, fields.InstallerHash);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, InstallerMetadataMap.find(installerHashString) != InstallerMetadataMap.end());
 
                 InstallerMetadata installerMetadata;
 
-                auto submissionIdentifierString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, submissionIdentifierFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionIdentifierString);
-                installerMetadata.SubmissionIdentifier = submissionIdentifierString.value();
+                installerMetadata.SubmissionIdentifier = GetRequiredString(item, fields.SubmissionIdentifier);
+                if (submissionIdentifierVerification.empty())
+                {
+                    submissionIdentifierVerification = installerMetadata.SubmissionIdentifier;
+                }
+                else if (submissionIdentifierVerification != installerMetadata.SubmissionIdentifier)
+                {
+                    AICLI_LOG(Repo, Error, << "Different submission identifiers found in metadata: '" <<
+                        submissionIdentifierVerification << "' and '" << installerMetadata.SubmissionIdentifier << "'");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+                }
 
-                auto versionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, versionFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
-                installerMetadata.ProductVersion = Version{ versionString.value() };
-
-                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
+                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, fields.AppsAndFeaturesEntries);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
-                m_installerMetadata[installerHashString.value()] = std::move(installerMetadata);
+                InstallerMetadataMap[installerHashString] = std::move(installerMetadata);
             }
         }
 
-        auto historicalArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, historicalFieldName);
+        auto historicalArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, fields.Historical);
         if (historicalArray)
         {
             for (const auto& item : historicalArray->get())
             {
                 HistoricalMetadata historicalMetadata;
 
-                auto versionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(item, versionFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
-                historicalMetadata.ProductVersion = Version{ versionString.value() };
+                historicalMetadata.ProductVersionMin = Version{ GetRequiredString(item, fields.VersionMin) };
+                historicalMetadata.ProductVersionMax = Version{ GetRequiredString(item, fields.VersionMax) };
+                historicalMetadata.Names = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.Names);
+                historicalMetadata.Publishers = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.Publishers);
+                historicalMetadata.ProductCodes = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.ProductCodes);
+                historicalMetadata.UpgradeCodes = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.UpgradeCodes);
 
-                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, appsAndFeaturesFieldName);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
-                historicalMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
-
-                m_historicalMetadata.emplace_back(std::move(historicalMetadata));
+                HistoricalMetadataList.emplace_back(std::move(historicalMetadata));
             }
         }
+    }
+
+    web::json::value ProductMetadata::ToJson_1_0()
+    {
+        AICLI_LOG(Repo, Info, << "Creating metadata JSON 1.0 fields");
+
+        ProductMetadataFields_1_0 fields;
+
+        web::json::value result;
+
+        result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.ProductVersionMin] = AppInstaller::JSON::GetStringValue(ProductVersionMin.ToString());
+        result[fields.ProductVersionMax] = AppInstaller::JSON::GetStringValue(ProductVersionMax.ToString());
+
+        web::json::value metadataArray = web::json::value::array();
+        size_t metadataItemIndex = 0;
+        for (const auto& item : InstallerMetadataMap)
+        {
+            web::json::value itemValue;
+
+            itemValue[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(item.first);
+            itemValue[fields.SubmissionIdentifier] = AppInstaller::JSON::GetStringValue(item.second.SubmissionIdentifier);
+
+            web::json::value appsAndFeaturesArray = web::json::value::array();
+            size_t appsAndFeaturesEntryIndex = 0;
+            for (const auto& entry : item.second.AppsAndFeaturesEntries)
+            {
+                web::json::value entryValue;
+
+                AddFieldIfNotEmpty(itemValue, fields.DisplayName, entry.DisplayName);
+                AddFieldIfNotEmpty(itemValue, fields.Publisher, entry.Publisher);
+                AddFieldIfNotEmpty(itemValue, fields.DisplayVersion, entry.DisplayVersion);
+                AddFieldIfNotEmpty(itemValue, fields.ProductCode, entry.ProductCode);
+                AddFieldIfNotEmpty(itemValue, fields.UpgradeCode, entry.UpgradeCode);
+                if (entry.InstallerType != Manifest::InstallerTypeEnum::Unknown)
+                {
+                    itemValue[fields.InstallerType] = AppInstaller::JSON::GetStringValue(Manifest::InstallerTypeToString(entry.InstallerType));
+                }
+
+                appsAndFeaturesArray[appsAndFeaturesEntryIndex++] = std::move(entryValue);
+            }
+
+            itemValue[fields.AppsAndFeaturesEntries] = std::move(appsAndFeaturesArray);
+
+            metadataArray[metadataItemIndex++] = std::move(itemValue);
+        }
+
+        result[fields.AppsAndFeaturesEntries] = std::move(metadataArray);
+
+        web::json::value historicalArray = web::json::value::array();
+        size_t historicalItemIndex = 0;
+        for (const auto& item : HistoricalMetadataList)
+        {
+            web::json::value itemValue;
+
+            itemValue[fields.VersionMin] = AppInstaller::JSON::GetStringValue(item.ProductVersionMin.ToString());
+            itemValue[fields.VersionMax] = AppInstaller::JSON::GetStringValue(item.ProductVersionMax.ToString());
+            itemValue[fields.Names] = CreateStringArray(item.Names);
+            itemValue[fields.Publishers] = CreateStringArray(item.Publishers);
+            itemValue[fields.ProductCodes] = CreateStringArray(item.ProductCodes);
+            itemValue[fields.UpgradeCodes] = CreateStringArray(item.UpgradeCodes);
+
+            historicalArray[historicalItemIndex++] = std::move(itemValue);
+        }
+
+        result[fields.Historical] = std::move(historicalArray);
+
+        return result;
+    }
+
+    bool ProductMetadata::DropOldestHistoricalData()
+    {
+        if (HistoricalMetadataList.empty())
+        {
+            return false;
+        }
+
+        HistoricalMetadataList.pop_back();
+        return true;
     }
 
     std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromFile(const std::filesystem::path& file, const std::filesystem::path& logFile)
@@ -134,7 +400,7 @@ namespace AppInstaller::Repository::Metadata
         std::unique_ptr<InstallerMetadataCollectionContext> result = std::make_unique<InstallerMetadataCollectionContext>();
         auto threadGlobalsLifetime = result->InitializeLogging(logFile);
 
-        AICLI_LOG(Core, Info, << "Opening InstallerMetadataCollectionContext input file: " << file);
+        AICLI_LOG(Repo, Info, << "Opening InstallerMetadataCollectionContext input file: " << file);
         std::ifstream fileStream{ file };
 
         result->InitializePreinstallState(ConvertToUTF16(ReadEntireStream(fileStream)));
@@ -152,7 +418,7 @@ namespace AppInstaller::Repository::Metadata
         std::string utf8Uri = ConvertToUTF8(uri);
         THROW_HR_IF(E_INVALIDARG, !IsUrlRemote(utf8Uri));
 
-        AICLI_LOG(Core, Info, << "Downloading InstallerMetadataCollectionContext input file: " << utf8Uri);
+        AICLI_LOG(Repo, Info, << "Downloading InstallerMetadataCollectionContext input file: " << utf8Uri);
 
         std::ostringstream jsonStream;
         ProgressCallback emptyCallback;
@@ -171,7 +437,7 @@ namespace AppInstaller::Repository::Metadata
             {
                 if (retryCount < MaxRetryCount - 1)
                 {
-                    AICLI_LOG(Core, Info, << "  Downloading InstallerMetadataCollectionContext input failed, waiting a bit and retrying...");
+                    AICLI_LOG(Repo, Info, << "  Downloading InstallerMetadataCollectionContext input failed, waiting a bit and retrying...");
                     Sleep(500);
                 }
                 else
@@ -206,15 +472,39 @@ namespace AppInstaller::Repository::Metadata
     {
         auto threadGlobalsLifetime = m_threadGlobals.SetForCurrentThread();
 
-        THROW_HR_IF(E_INVALIDARG, output.empty());
+        THROW_HR_IF(E_INVALIDARG, !output.has_filename());
 
         // Collect post-install system state
+        m_correlationData.CapturePostInstallSnapshot();
 
-        // Compute metadata match scores
+        ComputeOutputData();
+
+        // Construct output JSON
+        web::json::value outputJSON;
+
+        AICLI_LOG(Repo, Info, << "Creating output JSON version for input version " << m_inputVersion.ToString());
+
+        if (m_inputVersion.PartAt(0).Integer == 1)
+        {
+            // We only have one version currently, so use that as long as the major version is 1
+            outputJSON = CreateOutputJson_1_0();
+        }
+        else
+        {
+            AICLI_LOG(Repo, Error, << "Don't know how to output for version " << m_inputVersion.ToString());
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+        }
 
         // Write output
+        if (output.has_parent_path())
+        {
+            std::filesystem::create_directories(output.parent_path());
+        }
 
-        // Write diagnostics
+        std::ofstream outputStream{ output };
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_OPEN_FAILED), !outputStream);
+
+        outputJSON.serialize(outputStream);
     }
 
     std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(const std::filesystem::path& logFile)
@@ -239,7 +529,7 @@ namespace AppInstaller::Repository::Metadata
 
     void InstallerMetadataCollectionContext::InitializePreinstallState(const std::wstring& json)
     {
-        AICLI_LOG(Core, Verbose, << "Parsing input JSON:\n" << ConvertToUTF8(json));
+        AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
 
         // Parse and validate JSON
         try
@@ -250,26 +540,23 @@ namespace AppInstaller::Repository::Metadata
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, inputValue.is_null());
 
-            auto versionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(inputValue, versionFieldName);
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !versionString);
+            m_inputVersion = Version{ GetRequiredString(inputValue, versionFieldName) };
+            AICLI_LOG(Repo, Info, << "Parsing input JSON version " << m_inputVersion.ToString());
 
-            Version version{ versionString.value() };
-            AICLI_LOG(Core, Info, << "Parsing input JSON version " << version.ToString());
-
-            if (version.PartAt(0).Integer == 1)
+            if (m_inputVersion.PartAt(0).Integer == 1)
             {
                 // We only have one version currently, so use that as long as the major version is 1
                 ParseInputJson_1_0(inputValue);
             }
             else
             {
-                AICLI_LOG(Core, Error, << "Don't know how to handle version " << version.ToString());
+                AICLI_LOG(Repo, Error, << "Don't know how to handle version " << m_inputVersion.ToString());
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
             }
         }
         catch (const web::json::json_exception& exc)
         {
-            AICLI_LOG(Core, Error, << "Exception parsing input JSON: " << exc.what());
+            AICLI_LOG(Repo, Error, << "Exception parsing input JSON: " << exc.what());
             throw;
         }
 
@@ -277,9 +564,19 @@ namespace AppInstaller::Repository::Metadata
         m_correlationData.CapturePreInstallSnapshot();
     }
 
+    void InstallerMetadataCollectionContext::ComputeOutputData()
+    {
+        // Copy the metadata from the current; this function takes care of moving data to historical if the submission is new.
+        m_outputMetadata.CopyFrom(m_currentMetadata, m_submissionIdentifier);
+
+        Correlation::ARPCorrelationResult correlationResult = m_correlationData.CorrelateForNewlyInstalled(m_incomingManifest);
+
+        // TODO: Update min/max version, update metadata
+    }
+
     void InstallerMetadataCollectionContext::ParseInputJson_1_0(web::json::value& input)
     {
-        AICLI_LOG(Core, Info, << "Parsing input JSON 1.0 fields");
+        AICLI_LOG(Repo, Info, << "Parsing input JSON 1.0 fields");
 
         // Field names
         utility::string_t metadataVersionFieldName = L"supportedMetadataVersion";
@@ -292,9 +589,7 @@ namespace AppInstaller::Repository::Metadata
         utility::string_t defaultLocaleFieldName = L"DefaultLocale";
         utility::string_t localesFieldName = L"Locales";
 
-        auto metadataVersionString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, metadataVersionFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !metadataVersionString);
-        m_supportedMetadataVersion = Version{ metadataVersionString.value() };
+        m_supportedMetadataVersion = Version{ GetRequiredString(input, metadataVersionFieldName) };
 
         auto metadataSizeNumber = AppInstaller::JSON::GetRawIntValueFromJsonNode(input, metadataSizeFieldName);
         if (metadataSizeNumber && metadataSizeNumber.value() > 0)
@@ -312,13 +607,8 @@ namespace AppInstaller::Repository::Metadata
             m_currentMetadata.FromJson(currentMetadataValue.value());
         }
 
-        auto submissionIdentifierString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, submissionIdentifierFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionIdentifierString);
-        m_submissionIdentifier = submissionIdentifierString.value();
-
-        auto installerHashString = AppInstaller::JSON::GetRawStringValueFromJsonNode(input, installerHashFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !installerHashString);
-        m_installerHash = SHA256::ConvertToBytes(installerHashString.value());
+        m_submissionIdentifier = GetRequiredString(input, submissionIdentifierFieldName);
+        m_installerHash = GetRequiredString(input, installerHashFieldName);
 
         // The 1.0 version of input uses the 1.1 version of REST
         JSON::ManifestJSONParser parser{ Version{ "1.1" }};
@@ -363,5 +653,48 @@ namespace AppInstaller::Repository::Metadata
                 }
             }
         }
+    }
+
+    web::json::value InstallerMetadataCollectionContext::CreateOutputJson_1_0()
+    {
+        AICLI_LOG(Repo, Info, << "Setting output JSON 1.0 fields");
+
+        // Field names
+        utility::string_t versionFieldName = L"version";
+        utility::string_t installerHashFieldName = L"installerHash";
+        utility::string_t statusFieldName = L"status";
+        utility::string_t metadataFieldName = L"metadata";
+        utility::string_t diagnosticsFieldName = L"diagnostics";
+
+        web::json::value result;
+
+        result[versionFieldName] = web::json::value::string(L"1.0");
+        result[installerHashFieldName] = AppInstaller::JSON::GetStringValue(m_installerHash);
+
+        // Limit output status to 1.0 known values
+        OutputStatus statusToUse = m_outputStatus;
+        if (statusToUse != OutputStatus::Success && statusToUse != OutputStatus::Error && statusToUse != OutputStatus::LowConfidence)
+        {
+            statusToUse = OutputStatus::Unknown;
+        }
+        result[statusFieldName] = web::json::value::string(ToString(statusToUse));
+
+        result[metadataFieldName] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
+        result[diagnosticsFieldName] = m_outputDiagnostics;
+
+        return result;
+    }
+
+    utility::string_t InstallerMetadataCollectionContext::ToString(OutputStatus status)
+    {
+        switch (status)
+        {
+        case OutputStatus::Success: return L"Success";
+        case OutputStatus::Error: return L"Error";
+        case OutputStatus::LowConfidence: return L"LowConfidence";
+        }
+
+        // For both the status value of Unknown and anything else
+        return L"Unknown";
     }
 }

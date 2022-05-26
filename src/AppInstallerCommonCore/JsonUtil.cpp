@@ -73,6 +73,11 @@ namespace AppInstaller::JSON
         return utility::conversions::to_string_t(nodeName.data());
     }
 
+    web::json::value GetStringValue(std::string_view value)
+    {
+        return web::json::value::string(Utility::ConvertToUTF16(value));
+    }
+
     std::optional<std::reference_wrapper<const web::json::value>> GetJsonValueFromNode(const web::json::value& node, const utility::string_t& keyName)
     {
         if (node.is_null() || !node.has_field(keyName))

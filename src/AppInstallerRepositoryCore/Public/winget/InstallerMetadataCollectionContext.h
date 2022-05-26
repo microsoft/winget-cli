@@ -3,7 +3,6 @@
 #pragma once
 
 #include <AppInstallerVersions.h>
-#include <AppInstallerSHA256.h>
 #include <winget/Manifest.h>
 #include <winget/JsonUtil.h>
 #include <winget/ThreadGlobals.h>
@@ -29,30 +28,45 @@ namespace AppInstaller::Repository::Metadata
         // Load the metadata from an existing JSON blob.
         void FromJson(const web::json::value& json);
 
+        // Create a JSON value for the metadata using the given schema version.
+        web::json::value ToJson(const Utility::Version& version, size_t maximumSizeInBytes);
+
+        // Copies the metadata from the source. If the given submission identifier does not match
+        // the source, it's data is moved to historical.
+        void CopyFrom(const ProductMetadata& source, std::string_view submissionIdentifier);
+
         // The installer specific metadata that we collect.
         struct InstallerMetadata
         {
             std::string SubmissionIdentifier;
-            Utility::Version ProductVersion;
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
         };
 
         // Metadata from previous product revisions.
         struct HistoricalMetadata
         {
-            Utility::Version ProductVersion;
-            std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+            Utility::Version ProductVersionMin;
+            Utility::Version ProductVersionMax;
+            std::vector<std::string> Names;
+            std::vector<std::string> Publishers;
+            std::vector<std::string> ProductCodes;
+            std::vector<std::string> UpgradeCodes;
         };
+
+        Utility::Version SchemaVersion;
+        Utility::Version ProductVersionMin;
+        Utility::Version ProductVersionMax;
+        // Map from installer hash to metadata
+        std::map<std::string, InstallerMetadata> InstallerMetadataMap;
+        std::vector<HistoricalMetadata> HistoricalMetadataList;
 
     private:
         void FromJson_1_0(const web::json::value& json);
+        web::json::value ToJson_1_0();
 
-        Utility::Version m_version;
-        Utility::Version m_productVersionMin;
-        Utility::Version m_productVersionMax;
-        // Map from installer hash to metadata
-        std::map<std::string, InstallerMetadata> m_installerMetadata;
-        std::vector<HistoricalMetadata> m_historicalMetadata;
+        // Removes the historical data with the oldest version.
+        // Returns true if something was removed; false it not.
+        bool DropOldestHistoricalData();
     };
 
     // Contains the functions and data used for collecting metadata from installers.
@@ -81,20 +95,44 @@ namespace AppInstaller::Repository::Metadata
         // Sets the collection context input and the preinstall state.
         void InitializePreinstallState(const std::wstring& json);
 
+        // Creates the output ProductMetadata and diagnostics objects for output
+        void ComputeOutputData();
+
         // Parse version 1.0 of input JSON
         void ParseInputJson_1_0(web::json::value& input);
+
+        // Create version 1.0 of output JSON
+        web::json::value CreateOutputJson_1_0();
 
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
 
         // Parsed input
+        Utility::Version m_inputVersion;
         Utility::Version m_supportedMetadataVersion;
         size_t m_maxMetadataSize = 0;
         ProductMetadata m_currentMetadata;
         std::string m_submissionIdentifier;
-        Utility::SHA256::HashBuffer m_installerHash;
+        std::string m_installerHash;
         Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;
 
         Correlation::ARPCorrelationData m_correlationData;
+
+        // Output data
+        enum class OutputStatus
+        {
+            // Version 1.0 status values
+            Unknown,
+            Success,
+            Error,
+            LowConfidence,
+        };
+
+        // Convert status to a JSON string value
+        static utility::string_t ToString(OutputStatus status);
+
+        OutputStatus m_outputStatus = OutputStatus::Unknown;
+        ProductMetadata m_outputMetadata;
+        web::json::value m_outputDiagnostics;
     };
 }

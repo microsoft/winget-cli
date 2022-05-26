@@ -51,6 +51,8 @@ namespace AppInstaller::JSON
 
     utility::string_t GetUtilityString(std::string_view nodeName);
 
+    web::json::value GetStringValue(std::string_view value);
+
     std::vector<std::string> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
