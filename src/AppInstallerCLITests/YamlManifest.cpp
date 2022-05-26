@@ -837,3 +837,45 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
 }
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
+{
+    auto testFile = TestDataFile("Manifest-Good-MsixInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_Bad", "[ManifestValidation]")
+{
+    auto testFile = TestDataFile("Manifest-Bad-MsixInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(3 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingMinOSVersion", "[ManifestValidation]")
+{
+    auto testFile = TestDataFile("Manifest-Missing-MsixInstaller-MinOSVersion.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(1 == errors.size());
+}

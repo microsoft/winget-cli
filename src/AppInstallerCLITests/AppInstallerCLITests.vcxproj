@@ -333,12 +333,6 @@
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallerManifest\InstallerManifestValidation.msix">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallerManifest\InstallerManifestValidation.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <None Include="Run-TestsInPackage.ps1" />
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
@@ -635,6 +629,21 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_DependenciesMultideclaration.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerManifestValidation.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerManifestValidation.msixbundle">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstaller-MinOSVersion.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

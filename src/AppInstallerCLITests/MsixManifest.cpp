@@ -34,18 +34,35 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]
     }
 
     Msix::MsixPackageManifest msixManifest(manifestReader);
-    REQUIRE(msixManifest.Identity.PackageFamilyName == expectedFamilyName);
-    REQUIRE(msixManifest.Identity.Version == expectedPackageVersion);
-    REQUIRE(msixManifest.Dependencies.TargetDeviceFamilies.size() == 2);
+    REQUIRE(expectedFamilyName == msixManifest.Identity.PackageFamilyName);
+    REQUIRE(expectedPackageVersion == msixManifest.Identity.Version);
+    REQUIRE(2 == msixManifest.Dependencies.TargetDeviceFamilies.size());
 
     auto& targets = msixManifest.Dependencies.TargetDeviceFamilies;
     auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsDesktop(t.Name); });
-    REQUIRE(windowsDesktop->MinVersion == expectedWindowsDesktopMinVersion);
-    REQUIRE(windowsDesktop->MaxVersionTested == expectedWindowsDesktopMaxVersionTested);
+    REQUIRE(expectedWindowsDesktopMinVersion == windowsDesktop->MinVersion);
+    REQUIRE(expectedWindowsDesktopMaxVersionTested == windowsDesktop->MaxVersionTested);
 
     auto windowsUniversal = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsUniversal(t.Name); });
-    REQUIRE(windowsUniversal->MinVersion == expectedWindowsUniversalMinVersion);
-    REQUIRE(windowsUniversal->MaxVersionTested == expectedWindowsUniversalMaxVersionTested);
+    REQUIRE(expectedWindowsUniversalMinVersion == windowsUniversal->MinVersion);
+    REQUIRE(expectedWindowsUniversalMaxVersionTested == windowsUniversal->MaxVersionTested);
+}
+
+TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
+{
+    TestDataFile testFile(installerManifestValidationMsix);
+    MsixInfo msixInfo(testFile.GetPath());
+
+    auto appPackageManifests = msixInfo.GetAppPackageManifests();
+    REQUIRE(1 == appPackageManifests.size());
+
+    auto &appPackageManifest = appPackageManifests[0];
+	REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
+	REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
+	REQUIRE(1 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
+	REQUIRE(Platform::IsWindowsDesktop(appPackageManifest.Dependencies.TargetDeviceFamilies.front().Name));
+	REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion);
+	REQUIRE(expectedWindowsDesktopMaxVersionTested == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested);
 }
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
@@ -54,16 +71,16 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
     MsixInfo msixInfo(testFile.GetPath());
     
     auto appPackageManifests = msixInfo.GetAppPackageManifests();
-    REQUIRE(appPackageManifests.size() == 2);
+    REQUIRE(2 == appPackageManifests.size());
 
     for (auto& appPackageManifest : appPackageManifests)
     {
-        REQUIRE(appPackageManifest.Identity.PackageFamilyName == expectedFamilyName);
-        REQUIRE(appPackageManifest.Identity.Version == expectedPackageVersion);
-        REQUIRE(appPackageManifest.Dependencies.TargetDeviceFamilies.size() == 1);
+        REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
+        REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
+        REQUIRE(1 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
         REQUIRE(Platform::IsWindowsDesktop(appPackageManifest.Dependencies.TargetDeviceFamilies.front().Name));
-        REQUIRE(appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion == expectedWindowsDesktopMinVersion);
-        REQUIRE(appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested == expectedWindowsDesktopMaxVersionTested);
+        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion);
+        REQUIRE(expectedWindowsDesktopMaxVersionTested == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested);
     }
 }
 

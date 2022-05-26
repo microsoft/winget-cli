@@ -35,6 +35,7 @@ namespace AppInstaller::Manifest
     {
         bool SchemaValidationOnly = false;
         bool ErrorOnVerifiedPublisherFields = false;
+        bool InstallerValidation = false;
 
         // Options not exposed in winget util
         bool FullValidation = false;
