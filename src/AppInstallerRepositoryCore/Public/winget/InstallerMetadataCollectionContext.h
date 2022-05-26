@@ -73,7 +73,8 @@ namespace AppInstaller::Repository::Metadata
     // Contains the functions and data used for collecting metadata from installers.
     struct InstallerMetadataCollectionContext
     {
-        InstallerMetadataCollectionContext() = default;
+        InstallerMetadataCollectionContext();
+        InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData);
 
         InstallerMetadataCollectionContext(const InstallerMetadataCollectionContext&) = delete;
         InstallerMetadataCollectionContext& operator=(const InstallerMetadataCollectionContext&) = delete;
@@ -132,7 +133,7 @@ namespace AppInstaller::Repository::Metadata
         Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;
 
-        Correlation::ARPCorrelationData m_correlationData;
+        std::unique_ptr<Correlation::ARPCorrelationData> m_correlationData;
 
         // Output data
         enum class OutputStatus

@@ -83,6 +83,7 @@ namespace AppInstaller::Repository::Correlation
     struct ARPCorrelationData
     {
         ARPCorrelationData() = default;
+        virtual ~ARPCorrelationData() = default;
 
         // Captures the ARP state before the package installation.
         void CapturePreInstallSnapshot();
@@ -91,7 +92,7 @@ namespace AppInstaller::Repository::Correlation
         void CapturePostInstallSnapshot();
 
         // Correlates the given manifest against the data previously collected with capture calls.
-        ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest& manifest);
+        virtual ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest& manifest);
 
         const std::vector<ARPEntrySnapshot>& GetPreInstallSnapshot() const { return m_preInstallSnapshot; }
 

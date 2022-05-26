@@ -404,6 +404,14 @@ namespace AppInstaller::Repository::Metadata
         return true;
     }
 
+    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext() :
+        m_correlationData(std::make_unique<Correlation::ARPCorrelationData>())
+    {}
+
+    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData) :
+        m_correlationData(std::move(correlationData))
+    {}
+
     std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromFile(const std::filesystem::path& file, const std::filesystem::path& logFile)
     {
         THROW_HR_IF(E_INVALIDARG, file.empty());
@@ -512,7 +520,7 @@ namespace AppInstaller::Repository::Metadata
             try
             {
                 // Collect post-install system state
-                m_correlationData.CapturePostInstallSnapshot();
+                m_correlationData->CapturePostInstallSnapshot();
 
                 ComputeOutputData();
 
@@ -602,7 +610,7 @@ namespace AppInstaller::Repository::Metadata
             }
 
             // Collect pre-install system state
-            m_correlationData.CapturePreInstallSnapshot();
+            m_correlationData->CapturePreInstallSnapshot();
         }
         catch (...)
         {
@@ -615,7 +623,7 @@ namespace AppInstaller::Repository::Metadata
         // Copy the metadata from the current; this function takes care of moving data to historical if the submission is new.
         m_outputMetadata.CopyFrom(m_currentMetadata, m_submissionIdentifier);
 
-        Correlation::ARPCorrelationResult correlationResult = m_correlationData.CorrelateForNewlyInstalled(m_incomingManifest);
+        Correlation::ARPCorrelationResult correlationResult = m_correlationData->CorrelateForNewlyInstalled(m_incomingManifest);
 
         if (correlationResult.Package)
         {
@@ -655,7 +663,7 @@ namespace AppInstaller::Repository::Metadata
             // TODO: Support upgrade code throughout the code base...
             //newEntry.UpgradeCode;
 
-            // Add or update the metadata for the installerhash
+            // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
 
             if (itr == m_outputMetadata.InstallerMetadataMap.end())

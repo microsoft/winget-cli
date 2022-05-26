@@ -191,3 +191,24 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
 {
     REQUIRE(Version::CreateUnknown() < Version::CreateLatest());
 }
+
+TEST_CASE("VersionIsEmpty", "[versions]")
+{
+    REQUIRE(Version{}.IsEmpty());
+    REQUIRE(Version{""}.IsEmpty());
+    REQUIRE(!Version{"1"}.IsEmpty());
+    REQUIRE(!Version{"0"}.IsEmpty());
+
+    Version v{ "1" };
+    REQUIRE(!v.IsEmpty());
+    v.Assign("");
+    REQUIRE(v.IsEmpty());
+}
+
+TEST_CASE("VersionPartAt", "[versions]")
+{
+    REQUIRE(Version{}.PartAt(0).Integer == 0);
+    REQUIRE(Version{"1"}.PartAt(0).Integer == 1);
+    REQUIRE(Version{"1"}.PartAt(1).Integer == 0);
+    REQUIRE(Version{"1"}.PartAt(9999).Integer == 0);
+}
