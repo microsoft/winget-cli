@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <string_view>
 
@@ -85,8 +86,11 @@ namespace AppInstaller::Repository::Metadata
         static std::unique_ptr<InstallerMetadataCollectionContext> FromURI(std::wstring_view uri, const std::filesystem::path& logFile);
         static std::unique_ptr<InstallerMetadataCollectionContext> FromJSON(std::wstring_view json, const std::filesystem::path& logFile);
 
-        // Completes the collection, writing to the given locations.
+        // Completes the collection, writing to the given location.
         void Complete(const std::filesystem::path& output);
+
+        // Completes the collection, writing to the given location.
+        void Complete(std::ostream& output);
 
     private:
         // Initializes the context runtime, including the log file if provided.
@@ -98,11 +102,23 @@ namespace AppInstaller::Repository::Metadata
         // Creates the output ProductMetadata and diagnostics objects for output
         void ComputeOutputData();
 
+        // Callers should set the thread globals before calling this.
+        void CompleteWithThreadGlobalsSet(std::ostream& output);
+
         // Parse version 1.0 of input JSON
         void ParseInputJson_1_0(web::json::value& input);
 
         // Create version 1.0 of output JSON
         web::json::value CreateOutputJson_1_0();
+
+        // Determines whether an error has occurred in the context.
+        bool ContainsError() const;
+
+        // Collects information from the exception for error reporting.
+        void CollectErrorDataFromException(std::exception_ptr exception);
+
+        // Create version 1.0 of error JSON
+        web::json::value CreateErrorJson_1_0();
 
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
 
@@ -134,5 +150,9 @@ namespace AppInstaller::Repository::Metadata
         OutputStatus m_outputStatus = OutputStatus::Unknown;
         ProductMetadata m_outputMetadata;
         web::json::value m_outputDiagnostics;
+
+        // Error data storage
+        HRESULT m_errorHR = S_OK;
+        std::string m_errorText;
     };
 }

@@ -58,6 +58,11 @@ namespace AppInstaller::Utility
         // Returns a Version that will return true for IsUnknown
         static Version CreateUnknown();
 
+        // Gets a bool indicating whether the full version string is empty.
+        // Does not indicate that Parts is empty; for instance when "0.0" is given,
+        // this will be false while GetParts().empty() would be true.
+        bool IsEmpty() const { return m_version.empty(); }
+
         // An individual version part in between split characters.
         struct Part
         {

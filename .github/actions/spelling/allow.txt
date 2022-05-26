@@ -109,6 +109,7 @@ denelon
 depersist
 deque
 deserialize
+deserializes
 Deserialize
 deserializer
 deserializing

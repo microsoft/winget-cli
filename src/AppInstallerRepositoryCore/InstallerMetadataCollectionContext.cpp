@@ -42,6 +42,18 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t UpgradeCodes = L"upgradeCodes";
         };
 
+        struct OutputFields_1_0
+        {
+            utility::string_t Version = L"version";
+            utility::string_t InstallerHash = L"installerHash";
+            utility::string_t Status = L"status";
+            utility::string_t Metadata = L"metadata";
+            utility::string_t Diagnostics = L"diagnostics";
+
+            utility::string_t ErrorHR = L"errorHR";
+            utility::string_t ErrorText = L"errorText";
+        };
+
         std::string GetRequiredString(const web::json::value& value, const utility::string_t& field)
         {
             auto optString = AppInstaller::JSON::GetRawStringValueFromJsonNode(value, field);
@@ -474,28 +486,6 @@ namespace AppInstaller::Repository::Metadata
 
         THROW_HR_IF(E_INVALIDARG, !output.has_filename());
 
-        // Collect post-install system state
-        m_correlationData.CapturePostInstallSnapshot();
-
-        ComputeOutputData();
-
-        // Construct output JSON
-        web::json::value outputJSON;
-
-        AICLI_LOG(Repo, Info, << "Creating output JSON version for input version " << m_inputVersion.ToString());
-
-        if (m_inputVersion.PartAt(0).Integer == 1)
-        {
-            // We only have one version currently, so use that as long as the major version is 1
-            outputJSON = CreateOutputJson_1_0();
-        }
-        else
-        {
-            AICLI_LOG(Repo, Error, << "Don't know how to output for version " << m_inputVersion.ToString());
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
-        }
-
-        // Write output
         if (output.has_parent_path())
         {
             std::filesystem::create_directories(output.parent_path());
@@ -504,7 +494,56 @@ namespace AppInstaller::Repository::Metadata
         std::ofstream outputStream{ output };
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_OPEN_FAILED), !outputStream);
 
-        outputJSON.serialize(outputStream);
+        CompleteWithThreadGlobalsSet(outputStream);
+    }
+
+    void InstallerMetadataCollectionContext::Complete(std::ostream& output)
+    {
+        auto threadGlobalsLifetime = m_threadGlobals.SetForCurrentThread();
+        CompleteWithThreadGlobalsSet(output);
+    }
+
+    void InstallerMetadataCollectionContext::CompleteWithThreadGlobalsSet(std::ostream& output)
+    {
+        web::json::value outputJSON;
+
+        if (!ContainsError())
+        {
+            try
+            {
+                // Collect post-install system state
+                m_correlationData.CapturePostInstallSnapshot();
+
+                ComputeOutputData();
+
+                // Construct output JSON
+                AICLI_LOG(Repo, Info, << "Creating output JSON version for input version " << m_inputVersion.ToString());
+
+                if (m_inputVersion.PartAt(0).Integer == 1)
+                {
+                    // We only have one version currently, so use that as long as the major version is 1
+                    outputJSON = CreateOutputJson_1_0();
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Error, << "Don't know how to output for version " << m_inputVersion.ToString());
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+                }
+            }
+            catch (...)
+            {
+                CollectErrorDataFromException(std::current_exception());
+            }
+        }
+
+        if (ContainsError())
+        {
+            // We only have one version currently
+            outputJSON = CreateErrorJson_1_0();
+        }
+
+        // Write output
+        outputJSON.serialize(output);
     }
 
     std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(const std::filesystem::path& logFile)
@@ -529,39 +568,46 @@ namespace AppInstaller::Repository::Metadata
 
     void InstallerMetadataCollectionContext::InitializePreinstallState(const std::wstring& json)
     {
-        AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
-
-        // Parse and validate JSON
         try
         {
-            utility::string_t versionFieldName = L"version";
+            AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
 
-            web::json::value inputValue = web::json::value::parse(json);
-
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, inputValue.is_null());
-
-            m_inputVersion = Version{ GetRequiredString(inputValue, versionFieldName) };
-            AICLI_LOG(Repo, Info, << "Parsing input JSON version " << m_inputVersion.ToString());
-
-            if (m_inputVersion.PartAt(0).Integer == 1)
+            // Parse and validate JSON
+            try
             {
-                // We only have one version currently, so use that as long as the major version is 1
-                ParseInputJson_1_0(inputValue);
+                utility::string_t versionFieldName = L"version";
+
+                web::json::value inputValue = web::json::value::parse(json);
+
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, inputValue.is_null());
+
+                m_inputVersion = Version{ GetRequiredString(inputValue, versionFieldName) };
+                AICLI_LOG(Repo, Info, << "Parsing input JSON version " << m_inputVersion.ToString());
+
+                if (m_inputVersion.PartAt(0).Integer == 1)
+                {
+                    // We only have one version currently, so use that as long as the major version is 1
+                    ParseInputJson_1_0(inputValue);
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Error, << "Don't know how to handle version " << m_inputVersion.ToString());
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+                }
             }
-            else
+            catch (const web::json::json_exception& exc)
             {
-                AICLI_LOG(Repo, Error, << "Don't know how to handle version " << m_inputVersion.ToString());
-                THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+                AICLI_LOG(Repo, Error, << "Exception parsing input JSON: " << exc.what());
+                throw;
             }
+
+            // Collect pre-install system state
+            m_correlationData.CapturePreInstallSnapshot();
         }
-        catch (const web::json::json_exception& exc)
+        catch (...)
         {
-            AICLI_LOG(Repo, Error, << "Exception parsing input JSON: " << exc.what());
-            throw;
+            CollectErrorDataFromException(std::current_exception());
         }
-
-        // Collect pre-install system state
-        m_correlationData.CapturePreInstallSnapshot();
     }
 
     void InstallerMetadataCollectionContext::ComputeOutputData()
@@ -571,7 +617,93 @@ namespace AppInstaller::Repository::Metadata
 
         Correlation::ARPCorrelationResult correlationResult = m_correlationData.CorrelateForNewlyInstalled(m_incomingManifest);
 
-        // TODO: Update min/max version, update metadata
+        if (correlationResult.Package)
+        {
+            m_outputStatus = OutputStatus::Success;
+            auto& package = correlationResult.Package;
+
+            // Update min and max versions based on the version of the correlated package
+            Version packageVersion{ package->GetProperty(PackageVersionProperty::Version) };
+
+            if (m_outputMetadata.ProductVersionMin.IsEmpty() || packageVersion < m_outputMetadata.ProductVersionMin)
+            {
+                m_outputMetadata.ProductVersionMin = packageVersion;
+            }
+
+            if (m_outputMetadata.ProductVersionMax.IsEmpty() || m_outputMetadata.ProductVersionMax < packageVersion)
+            {
+                m_outputMetadata.ProductVersionMax = packageVersion;
+            }
+
+            // Create the AppsAndFeaturesEntry that we need to add
+            Manifest::AppsAndFeaturesEntry newEntry;
+            auto packageMetadata = package->GetMetadata();
+
+            // TODO: Use some amount of normalization here to prevent things like versions being in the name from bloating the data
+            newEntry.DisplayName = package->GetProperty(PackageVersionProperty::Name).get();
+            newEntry.DisplayVersion = packageVersion.ToString();
+            if (packageMetadata.count(PackageVersionMetadata::InstalledType))
+            {
+                newEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(packageMetadata[PackageVersionMetadata::InstalledType]);
+            }
+            auto productCodes = package->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            if (!productCodes.empty())
+            {
+                newEntry.ProductCode = std::move(productCodes[0]).get();
+            }
+            newEntry.Publisher = package->GetProperty(PackageVersionProperty::Publisher).get();
+            // TODO: Support upgrade code throughout the code base...
+            //newEntry.UpgradeCode;
+
+            // Add or update the metadata for the installerhash
+            auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
+
+            if (itr == m_outputMetadata.InstallerMetadataMap.end())
+            {
+                // New entry needed
+                ProductMetadata::InstallerMetadata newMetadata;
+
+                newMetadata.SubmissionIdentifier = m_submissionIdentifier;
+                newMetadata.AppsAndFeaturesEntries.emplace_back(std::move(newEntry));
+
+                m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
+            }
+            else
+            {
+                // Existing entry for installer hash, add/update the entry
+                auto& appsAndFeatures = itr->second.AppsAndFeaturesEntries;
+
+                // Erase all duplicated data from the new entry
+                for (const auto& entry : appsAndFeatures)
+                {
+#define WINGET_ERASE_IF_SAME(_value_) if (entry._value_ == newEntry._value_) { newEntry._value_.clear(); }
+                    WINGET_ERASE_IF_SAME(DisplayName);
+                    WINGET_ERASE_IF_SAME(DisplayVersion);
+                    WINGET_ERASE_IF_SAME(ProductCode);
+                    WINGET_ERASE_IF_SAME(Publisher);
+                    WINGET_ERASE_IF_SAME(UpgradeCode);
+#undef WINGET_ERASE_IF_SAME
+
+                    if (entry.InstallerType == newEntry.InstallerType)
+                    {
+                        newEntry.InstallerType = Manifest::InstallerTypeEnum::Unknown;
+                    }
+                }
+
+                // If anything remains, add it
+                if (!newEntry.DisplayName.empty() || !newEntry.DisplayVersion.empty() || !newEntry.ProductCode.empty() ||
+                    !newEntry.Publisher.empty() || !newEntry.UpgradeCode.empty() || newEntry.InstallerType != Manifest::InstallerTypeEnum::Unknown)
+                {
+                    appsAndFeatures.emplace_back(std::move(newEntry));
+                }
+            }
+        }
+        else
+        {
+            m_outputStatus = OutputStatus::LowConfidence;
+
+            // TODO: Output diagnostics such as the top 10 entries by confidence.
+        }
     }
 
     void InstallerMetadataCollectionContext::ParseInputJson_1_0(web::json::value& input)
@@ -659,17 +791,12 @@ namespace AppInstaller::Repository::Metadata
     {
         AICLI_LOG(Repo, Info, << "Setting output JSON 1.0 fields");
 
-        // Field names
-        utility::string_t versionFieldName = L"version";
-        utility::string_t installerHashFieldName = L"installerHash";
-        utility::string_t statusFieldName = L"status";
-        utility::string_t metadataFieldName = L"metadata";
-        utility::string_t diagnosticsFieldName = L"diagnostics";
+        OutputFields_1_0 fields;
 
         web::json::value result;
 
-        result[versionFieldName] = web::json::value::string(L"1.0");
-        result[installerHashFieldName] = AppInstaller::JSON::GetStringValue(m_installerHash);
+        result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(m_installerHash);
 
         // Limit output status to 1.0 known values
         OutputStatus statusToUse = m_outputStatus;
@@ -677,10 +804,10 @@ namespace AppInstaller::Repository::Metadata
         {
             statusToUse = OutputStatus::Unknown;
         }
-        result[statusFieldName] = web::json::value::string(ToString(statusToUse));
+        result[fields.Status] = web::json::value::string(ToString(statusToUse));
 
-        result[metadataFieldName] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
-        result[diagnosticsFieldName] = m_outputDiagnostics;
+        result[fields.Metadata] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
+        result[fields.Diagnostics] = m_outputDiagnostics;
 
         return result;
     }
@@ -696,5 +823,63 @@ namespace AppInstaller::Repository::Metadata
 
         // For both the status value of Unknown and anything else
         return L"Unknown";
+    }
+
+    bool InstallerMetadataCollectionContext::ContainsError() const
+    {
+        return m_outputStatus == OutputStatus::Error;
+    }
+
+    void InstallerMetadataCollectionContext::CollectErrorDataFromException(std::exception_ptr exception)
+    {
+        m_outputStatus = OutputStatus::Error;
+
+        try
+        {
+            std::rethrow_exception(exception);
+        }
+        catch (const wil::ResultException& re)
+        {
+            m_errorHR = re.GetErrorCode();
+            m_errorText = GetUserPresentableMessage(re);
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            m_errorHR = hre.code();
+            m_errorText = GetUserPresentableMessage(hre);
+        }
+        catch (const std::exception& e)
+        {
+            m_errorHR = E_FAIL;
+            m_errorText = GetUserPresentableMessage(e);
+        }
+        catch (...)
+        {
+            m_errorHR = E_UNEXPECTED;
+            m_errorText = "An unexpected exception type was thrown.";
+        }
+    }
+
+    web::json::value InstallerMetadataCollectionContext::CreateErrorJson_1_0()
+    {
+        AICLI_LOG(Repo, Info, << "Setting error JSON 1.0 fields");
+
+        OutputFields_1_0 fields;
+
+        web::json::value result;
+
+        result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(m_installerHash);
+        result[fields.Status] = web::json::value::string(ToString(OutputStatus::Error));
+        result[fields.Metadata] = web::json::value::null();
+
+        web::json::value error;
+
+        error[fields.ErrorHR] = web::json::value::number(static_cast<int64_t>(m_errorHR));
+        error[fields.ErrorText] = AppInstaller::JSON::GetStringValue(m_errorText);
+
+        result[fields.Diagnostics] = std::move(error);
+
+        return result;
     }
 }
