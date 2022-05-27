@@ -49,24 +49,25 @@ The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be r
 
 > Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
 
+> During implementation, we will also need to ensure that this process can work under SYSTEM context.
+
 ## ZIP Threat Detection
 ZIP and other archive file types are known threat vectors for malware in the form of ZIP bombs, which utilize layers of nested zip files which decompress into extremely large amounts of files. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware check within the client. 
 
 The check will be as follows:
 1. Recursively traverse through all files contained in an archive file.
 2. If a nested ZIP file is detected, and the number of zip layers currently extracted is less than 3, extract the contents, increment the layer count and continue traversing. Otherwise, break out of the traversal and warn the user.
+ssed size vs uncompressed size as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers. 
 
-> ZIP headers are not always reliable when comparing compressed size vs uncompressed size as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers. 
+## Supporting Nested Portable(s) in an Archive
+Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, an additional table of information will need to be appended to the tracking catalog. The table will contain a list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified or not. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
 
-## Supporting Multiple Portables
-Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a suite of portables contained inside an archive file, an additional table of information will need to be appended to the tracking catalog in order to support multiple installs under a single package. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package.
+The table will contain the following information for each item that we create or place down during installation.
 
-The table should contain the following information for each portable-related file to be installed/copied from the archive file:
-
-- InstallerType
-- TargetPath
-- SymlinkPath
-- InstallDirectoryCreated (Flag)
-- SHA256
-
+| Metadata    | Description |
+| ----------- | ----------- |
+| Path      | Path to the item |
+| Flag   | Flag to indicate what type of file was placed down (directory, symlink, exe) |
+| Hash   | Hash for files with contents (exe) |
+| SymlinkTarget | Target exe for the created symlink |
 
