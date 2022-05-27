@@ -265,14 +265,12 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     if ($UseDev)
     {
-      $dependenciesToInstall = @($vcLibsUwp)
+      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)')"
     }
     else
     {
-      $dependenciesToInstall = @($vcLibsUwp, $uiLibsUwp)
+      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
     }
-    
-    $dependenciesPathsInSandbox += Join-String -InputObject $dependenciesToInstall -Property pathInSandbox -Separator ', ' -SingleQuote
 
     $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'"
 
