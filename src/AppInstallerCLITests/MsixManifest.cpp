@@ -57,12 +57,12 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
     REQUIRE(1 == appPackageManifests.size());
 
     auto &appPackageManifest = appPackageManifests[0];
-	REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
-	REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
-	REQUIRE(1 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
-	REQUIRE(Platform::IsWindowsDesktop(appPackageManifest.Dependencies.TargetDeviceFamilies.front().Name));
-	REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion);
-	REQUIRE(expectedWindowsDesktopMaxVersionTested == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested);
+    REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
+    REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
+    REQUIRE(1 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
+    REQUIRE(Platform::IsWindowsDesktop(appPackageManifest.Dependencies.TargetDeviceFamilies.front().Name));
+    REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion);
+    REQUIRE(expectedWindowsDesktopMaxVersionTested == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested);
 }
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
@@ -108,4 +108,21 @@ TEST_CASE("Platform_IsWindowsUniversal_Fail", "[MsixManifest]")
 {
     REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal("mock"));
     REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal(""));
+}
+
+TEST_CASE("MsixManifest_FourPartsVersionNumber_Success", "[MsixManifest]")
+{
+    Utility::Version versionString("1.2.3.4");
+    Msix::FourPartsVersionNumber versionNumber(0x0001000200030004);
+    REQUIRE(versionString == versionNumber);
+    REQUIRE(versionString.ToString() == versionNumber.ToString());
+}
+
+TEST_CASE("MsixManifest_FourPartsVersionNumber_Fail_OverflowComparison", "[MsixManifest]")
+{
+    Utility::Version versionString("1.0.0.65536"); // 0x1.0x0.0x0.0x10000
+    Msix::FourPartsVersionNumber versionNumber(0x0001000000000000);
+    REQUIRE(versionString != versionNumber);
+    REQUIRE("1.0.0.65536" == versionString.ToString());
+    REQUIRE("1.0.0.0" == versionNumber.ToString());
 }
