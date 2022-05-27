@@ -643,7 +643,7 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstaller-MinOSVersion.yaml">
+    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstallerFields.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

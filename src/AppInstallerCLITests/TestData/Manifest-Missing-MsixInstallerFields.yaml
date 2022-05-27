@@ -3,9 +3,9 @@ PackageVersion: 43690.48059.52428.56797
 PackageLocale: es-MX
 PackageName: es-MX package name
 Publisher: es-MX publisher
-PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj
-# MinimumOSVersion: 10.0.16299.0                            # < Missing min OS version but
-InstallerType: msix                                         #   available in the msix installer
+# PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj    # Missing field
+# MinimumOSVersion: 10.0.16299.0                              # Missing field
+InstallerType: msix
 Installers: 
     - Architecture: x64
       InstallerUrl: InstallerManifestValidation.msix

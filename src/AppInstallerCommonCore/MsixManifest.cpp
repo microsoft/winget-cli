@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include <pch.h>
 #include <AppInstallerMsixManifest.h>
+#include <AppInstallerMsixInfo.h>
 
 namespace AppInstaller::Msix
 {
@@ -65,5 +66,37 @@ namespace AppInstaller::Msix
                 THROW_IF_FAILED(targetDeviceFamilies->MoveNext(&hasCurrent));
             }
         }
+    }
+
+    const std::vector<MsixPackageManifest>& MsixPackageManifestManager::GetAppPackageManifests(std::string url)
+    {
+        // If an installer url has already been processed, then use the memoized result
+        auto installerIter = m_msixManifests.find(url);
+        if (installerIter != m_msixManifests.end())
+        {
+            return installerIter->second;
+        }
+
+        MsixInfo msixInfo(url);
+
+        // Memoize installer url result
+        m_msixManifests[url] = msixInfo.GetAppPackageManifests();
+        return m_msixManifests[url];
+    }
+
+    FourPartsVersionNumber::FourPartsVersionNumber(UINT64 version)
+    {
+        UINT64 mask16 = (1 << 16) - 1;
+        UINT64 revision = version & mask16;
+        UINT64 build = (version >> 0x10) & mask16;
+        UINT64 minor = (version >> 0x20) & mask16;
+        UINT64 major = (version >> 0x30) & mask16;
+
+        std::stringstream ssVersion;
+        ssVersion << major
+            << Version::DefaultSplitChars << minor
+            << Version::DefaultSplitChars << build
+            << Version::DefaultSplitChars << revision;
+        Assign(ssVersion.str());
     }
 }

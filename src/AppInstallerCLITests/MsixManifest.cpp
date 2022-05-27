@@ -19,11 +19,11 @@ constexpr std::string_view installerManifestValidationMsixBundle = "InstallerMan
 
 // Expected 
 constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
-UINT64 expectedPackageVersion = 0xAAAABBBBCCCCDDDD;
-UINT64 expectedWindowsDesktopMinVersion = 0x000a00003FAB0000; // 10.0.16299.0
-UINT64 expectedWindowsDesktopMaxVersionTested = 0x000a0000476F0000; // 10.0.18287.0
-UINT64 expectedWindowsUniversalMinVersion = 0x000a000000000000; // 10.0.0.0
-UINT64 expectedWindowsUniversalMaxVersionTested = 0x000a000000000000; // 10.0.0.0
+PackageVersion expectedPackageVersion = { 0xAAAABBBBCCCCDDDD };
+OSVersion expectedWindowsDesktopMinVersion = { 0x000a00003FAB0000 }; // 10.0.16299.0
+OSVersion expectedWindowsDesktopMaxVersionTested = { 0x000a0000476F0000 }; // 10.0.18287.0
+OSVersion expectedWindowsUniversalMinVersion = { 0x000a000000000000 }; // 10.0.0.0
+OSVersion expectedWindowsUniversalMaxVersionTested = { 0x000a000000000000 }; // 10.0.0.0
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]")
 {

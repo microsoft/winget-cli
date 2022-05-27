@@ -117,15 +117,6 @@ namespace AppInstaller::Manifest
         return false;
     }
 
-    UINT64 FourPartsVersionNumber::ToUINT64()
-    {
-        UINT64 result = Major();
-        result = (result << 0x10) | Minor();
-        result = (result << 0x10) | Build();
-        result = (result << 0x10) | Revision();
-        return result;
-    }
-
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in)
     {
         std::string inStrLower = Utility::ToLower(in);

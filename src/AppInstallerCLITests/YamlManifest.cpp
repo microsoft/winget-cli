@@ -864,11 +864,26 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Bad", "[ManifestValidation]")
 
     auto errors = ValidateManifestInstallers(manifest);
     REQUIRE(3 == errors.size());
+
+    // Package family name
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
+    REQUIRE("PackageFamilyName" == errors[0].Field);
+
+    // Package version
+    REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
+    REQUIRE("PackageVersion" == errors[1].Field);
+
+    // Min OS version
+    REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
+    REQUIRE("MinimumOSVersion" == errors[2].Field);
 }
 
-TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingMinOSVersion", "[ManifestValidation]")
+TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Missing-MsixInstaller-MinOSVersion.yaml");
+    auto testFile = TestDataFile("Manifest-Missing-MsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
@@ -877,5 +892,15 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingMinOSVersion", "[Manifes
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     auto errors = ValidateManifestInstallers(manifest);
-    REQUIRE(1 == errors.size());
+    REQUIRE(2 == errors.size());
+
+    // Package family name
+    REQUIRE(ValidationError::Level::Warning == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::OptionalFieldMissing == errors[0].Message);
+    REQUIRE("PackageFamilyName" == errors[0].Field);
+
+    // Min OS version
+    REQUIRE(ValidationError::Level::Warning == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
+    REQUIRE("MinimumOSVersion" == errors[1].Field);
 }

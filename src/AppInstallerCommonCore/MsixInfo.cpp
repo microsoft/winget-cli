@@ -657,7 +657,7 @@ namespace AppInstaller::Msix
                 }
                 else
                 {
-                    // TODO Add warning
+                    AICLI_LOG(Core, Warning, << "Could not get package reader for bundle payload.");
                 }
             }
 

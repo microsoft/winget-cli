@@ -600,7 +600,7 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstaller-MinOSVersion.yaml">
+    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstallerFields.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
