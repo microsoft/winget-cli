@@ -236,7 +236,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    std::vector<ValidationError> ValidateMsixManifest(PackageVersion packageVersion, const ManifestInstaller& installer)
+    std::vector<ValidationError> ValidateMsixManifest(MsixPackageVersion packageVersion, const ManifestInstaller& installer)
     {
         std::vector<ValidationError> errors;
         Msix::MsixInfo msixInfo(installer.Url);
@@ -258,20 +258,30 @@ namespace AppInstaller::Manifest
         for (auto msixManifest : msixManifests)
         {
             // Validate package family name
-            if (installer.PackageFamilyName != msixManifest.Identity.PackageFamilyName)
+            if (!installer.PackageFamilyName.empty() && !msixManifest.Identity.PackageFamilyName.empty())
             {
-                // TODO Fix message
-                errors.emplace_back(ManifestError::InvalidFieldValue, "PackageFamilyName", installer.PackageFamilyName);
+                if (installer.PackageFamilyName != msixManifest.Identity.PackageFamilyName)
+                {
+                    std::stringstream ss;
+                    ss << "'" << installer.PackageFamilyName << "' and '" << msixManifest.Identity.PackageFamilyName << "'";
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageFamilyName", ss.str());
+                }
+            }
+            // Yaml manifest missing package family name
+            else if (!msixManifest.Identity.PackageFamilyName.empty())
+            {
+                errors.emplace_back(ManifestError::OptionalFieldMissing, "PackageFamilyName", ValidationError::Level::Warning);
             }
 
             // Validate package version
             if (msixManifest.Identity.Version != packageVersion.ToUINT64())
             {
-                // TODO Fix message
-                errors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", packageVersion.ToString());
+                std::stringstream ss;
+                ss << "'" << packageVersion.ToUINT64() << "' and '" << msixManifest.Identity.Version << "'";
+                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", ss.str());
             }
 
-            // Find min version for the target device family
+            // Find min OS version for the target device family
             std::optional<UINT64> targetMinOSVersion;
             for (auto& target : msixManifest.Dependencies.TargetDeviceFamilies)
             {
@@ -282,16 +292,19 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (targetMinOSVersion.has_value())
+            // Validate min OS version
+            if (targetMinOSVersion.has_value() && installerMinOSVersion.has_value())
             {
-                if (installerMinOSVersion.has_value() && targetMinOSVersion.value() != installerMinOSVersion.value().ToUINT64())
+                if (targetMinOSVersion.value() != installerMinOSVersion.value().ToUINT64())
                 {
-                    errors.emplace_back(ManifestError::InvalidFieldValue, "MinOSVersion", installerMinOSVersion.value().ToString());
+                    std::stringstream ss;
+                    ss << "'" << targetMinOSVersion.value() << "' and '" << installerMinOSVersion.value().ToString() << "'";
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", ss.str());
                 }
-                else if (!installerMinOSVersion.has_value())
-                {
-                    errors.emplace_back(ManifestError::InvalidFieldValue, "MinOSVersion", std::string("Please provide a min os version"));
-                }
+            }
+            else if (targetMinOSVersion.has_value())
+            {
+                errors.emplace_back(ManifestError::OptionalFieldMissing, "MinimumOSVersion", ValidationError::Level::Warning);
             }
         }
 

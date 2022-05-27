@@ -94,14 +94,3 @@ TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
         UninstallCertFromSignedPackage(testSigned);
     }
 }
-
-TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
-{
-    TestDataFile index(s_MsixFile_1);
-    Msix::MsixInfo msix(index.GetPath());
-
-    std::string expectedFamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
-    std::string actualFamilyName = msix.GetPackageFamilyName();
-
-    REQUIRE(expectedFamilyName == actualFamilyName);
-}

@@ -78,9 +78,6 @@ namespace AppInstaller::Msix
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
-        // Get the package family name.
-        std::string GetPackageFamilyName();
-
         // Gets a value indicating whether the referenced info is newer than the given package.
         bool IsNewerThan(const std::filesystem::path& otherPackage);
 
@@ -103,9 +100,6 @@ namespace AppInstaller::Msix
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
-
-        // Get package or bundle manifest identity.
-        Microsoft::WRL::ComPtr<IAppxManifestPackageId> GetPackageId() const;
 
         // Get application packages.
         std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages() const;

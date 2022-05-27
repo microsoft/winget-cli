@@ -587,7 +587,7 @@ namespace AppInstaller::Msix
         return signatureContent;
     }
 
-    ComPtr<IAppxManifestPackageId> MsixInfo::GetPackageId() const
+    std::wstring MsixInfo::GetPackageFullNameWide()
     {
         ComPtr<IAppxManifestPackageId> packageId;
         if (m_isBundle)
@@ -603,13 +603,8 @@ namespace AppInstaller::Msix
             THROW_IF_FAILED(manifestReader->GetPackageId(&packageId));
         }
 
-        return packageId;
-    }
-
-    std::wstring MsixInfo::GetPackageFullNameWide()
-    {
         wil::unique_cotaskmem_string fullName;
-        THROW_IF_FAILED(GetPackageId()->GetPackageFullName(&fullName));
+        THROW_IF_FAILED(packageId->GetPackageFullName(&fullName));
 
         return { fullName.get() };
     }
@@ -617,13 +612,6 @@ namespace AppInstaller::Msix
     std::string MsixInfo::GetPackageFullName()
     {
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
-    }
-
-    std::string MsixInfo::GetPackageFamilyName()
-    {
-        wil::unique_cotaskmem_string familyName;
-        THROW_IF_FAILED(GetPackageId()->GetPackageFamilyName(&familyName));
-        return Utility::ConvertToUTF8(familyName.get());
     }
 
     std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages() const

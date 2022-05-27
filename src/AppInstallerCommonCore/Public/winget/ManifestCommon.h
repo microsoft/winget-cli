@@ -76,7 +76,7 @@ namespace AppInstaller::Manifest
         UINT64 ToUINT64();
     };
 
-    typedef FourPartsVersionNumber PackageVersion;
+    typedef FourPartsVersionNumber MsixPackageVersion;
     typedef FourPartsVersionNumber OSVersion;
 
     enum class InstallerTypeEnum
