@@ -6,6 +6,8 @@ Param(
 $resultFile = Join-Path $ResultsPath "results.csv"
 $failedFile = Join-Path $ResultsPath "failed.csv"
 
+Write-Host "Result file: $resultFile"
+
 if (Test-Path $resultFile)
 {
     Remove-Item $resultFile -Force
