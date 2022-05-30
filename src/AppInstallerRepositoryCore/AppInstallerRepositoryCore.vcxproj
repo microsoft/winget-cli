@@ -263,6 +263,8 @@
     <ClInclude Include="Microsoft\Schema\1_3\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_4\DependenciesTable.h" />
     <ClInclude Include="Microsoft\Schema\1_4\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_5\ArpVersionVirtualTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_5\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -333,6 +335,7 @@
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp" />
     <ClCompile Include="Microsoft\Schema\1_4\DependenciesTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

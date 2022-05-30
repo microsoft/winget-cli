@@ -20,7 +20,11 @@ namespace AppInstaller::Manifest
         try
         {
             // Version value should be successfully parsed
-            Utility::Version test{ manifest.Version };
+            Utility::Version testVersion{ manifest.Version };
+            if (testVersion.IsApproximateVersion())
+            {
+                resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "PackageVersion", manifest.Version);
+            }
         }
         catch (const std::exception&)
         {
@@ -196,6 +200,19 @@ namespace AppInstaller::Manifest
 
                     // Stop checking to avoid repeated errors
                     break;
+                }
+            }
+
+            // Check no approximate version declared for DisplayVersion in AppsAndFeatureEntries
+            for (auto const& entry : installer.AppsAndFeaturesEntries)
+            {
+                if (!entry.DisplayVersion.empty())
+                {
+                    Utility::Version displayVersion{ entry.DisplayVersion };
+                    if (displayVersion.IsApproximateVersion())
+                    {
+                        resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
+                    }
                 }
             }
         }

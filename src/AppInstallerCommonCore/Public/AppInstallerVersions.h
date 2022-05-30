@@ -72,12 +72,59 @@ namespace AppInstaller::Utility
             std::string Other;
         };
 
+        // Used in approximate version to indicate the relation to the base version.
+        enum class ApproximateComparator
+        {
+            None,
+            LessThan,
+            GreaterThan,
+        };
+
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
+        // Returns if the version is an approximate version.
+        bool IsApproximateVersion() const { return m_approximateComparator != ApproximateComparator::None; }
+
+        // Static methods to create an approximate version from a base version.
+        static Version CreateLessThanApproximateVersion(const Version& base);
+        static Version CreateGreaterThanApproximateVersion(const Version& base);
+
     protected:
+
+        bool IsBaseVersionLatest() const;
+        bool IsBaseVersionUnknown() const;
+
         std::string m_version;
         std::vector<Part> m_parts;
+        ApproximateComparator m_approximateComparator = ApproximateComparator::None;
+    };
+
+    // Version range represented by a min version and max version, both inclusive.
+    struct VersionRange
+    {
+        VersionRange() { m_isEmpty = true; };
+        VersionRange(Version minVersion, Version maxVersion);
+
+        bool IsEmpty() const { return m_isEmpty; }
+
+        // Checks if version ranges overlap. Empty version range does not overlap with any version range.
+        bool HasOverlapWith(const VersionRange& other) const;
+        bool HasOverlapWith(const std::vector<VersionRange>& others) const;
+
+        // Checks if the version range is effectively the same as a single version.
+        bool IsSameAsSingleVersion(const Version& version) const;
+
+        // < operator will thow if compared with an empty range or an overlapped range
+        bool operator<(const VersionRange& other) const;
+
+        const Version& GetMinVersion() const;
+        const Version& GetMaxVersion() const;
+
+    private:
+        Version m_minVersion;
+        Version m_maxVersion;
+        bool m_isEmpty = false;
     };
 
     // A channel string; existing solely to give a type.

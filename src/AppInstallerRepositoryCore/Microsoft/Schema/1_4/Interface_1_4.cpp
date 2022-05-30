@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_4/Interface.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
-#include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_4/DependenciesTable.h"
 

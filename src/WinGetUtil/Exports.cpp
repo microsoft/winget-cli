@@ -173,7 +173,14 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
-        bool result = reinterpret_cast<SQLiteIndex*>(index)->CheckConsistency(true);
+        auto sqliteIndex = reinterpret_cast<SQLiteIndex*>(index);
+        bool result = sqliteIndex->CheckConsistency(true);
+
+        // Check arp version ranges do not overlap
+        if (result && sqliteIndex->GetVersion() >= Schema::Version{ 1, 5 })
+        {
+
+        }
 
         *succeeded = (result ? TRUE : FALSE);
 
