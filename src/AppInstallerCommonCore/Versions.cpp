@@ -377,6 +377,16 @@ namespace AppInstaller::Utility
         return m_minVersion == version && m_maxVersion == version;
     }
 
+    bool VersionRange::ContainsVersion(const Version& version) const
+    {
+        if (IsEmpty())
+        {
+            return false;
+        }
+
+        return version >= m_minVersion && version <= m_maxVersion;
+    }
+
     bool VersionRange::operator<(const VersionRange& other) const
     {
         THROW_HR_IF(E_INVALIDARG, IsEmpty() || other.IsEmpty() || HasOverlapWith(other));

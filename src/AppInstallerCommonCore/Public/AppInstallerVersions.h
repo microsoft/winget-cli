@@ -115,6 +115,8 @@ namespace AppInstaller::Utility
         // Checks if the version range is effectively the same as a single version.
         bool IsSameAsSingleVersion(const Version& version) const;
 
+        bool ContainsVersion(const Version& version) const;
+
         // < operator will thow if compared with an empty range or an overlapped range
         bool operator<(const VersionRange& other) const;
 
@@ -173,4 +175,6 @@ namespace AppInstaller::Utility
         Version m_version;
         Channel m_channel;
     };
+
+    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& rabges);
 }

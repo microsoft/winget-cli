@@ -119,15 +119,122 @@ namespace AppInstaller::Repository
             return result;
         }
 
-        // A composite package installed version that allows us to override the source of the version.
+        std::string GetMappedInstalledVersion(const std::string& installedVersion, const std::shared_ptr<IPackage>& availablePackage)
+        {
+            // Construct a map between manifest version and arp version range. The map is ordered in descending by package version.
+            std::vector<std::pair<std::string, Utility::VersionRange>> arpVersionMap;
+            auto versionKeys = availablePackage->GetAvailableVersionKeys();
+
+            for (auto const& versionKey : versionKeys)
+            {
+                auto availableVersion = availablePackage->GetAvailableVersion(versionKey);
+                auto arpMinVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMinVersion);
+                auto arpMaxVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMaxVersion);
+                Utility::VersionRange arpVersionRange;
+                if (!arpMinVersion.empty() && !arpMaxVersion.empty())
+                {
+                    arpVersionRange = { Utility::Version(arpMinVersion), Utility::Version(arpMaxVersion) };
+                }
+                arpVersionMap.emplace_back(std::make_pair(versionKey.Version, std::move(arpVersionRange)));
+            }
+
+            // Go through the arp version map and determine what mapping should be performed.
+            // shouldPerformMapping is true when at least 1 arp version range is different from the package version.
+            bool shouldPerformMapping = false;
+            bool isArpVersionRangeInDescendingOrder = true;
+            Utility::VersionRange previousVersionRange;
+
+            for (auto const& pair : arpVersionMap)
+            {
+                if (!pair.second.IsEmpty())
+                {
+                    // If arp version range is not same as package version, should perform mapping
+                    if (!shouldPerformMapping && !pair.second.IsSameAsSingleVersion(Utility::Version{ pair.first }))
+                    {
+                        shouldPerformMapping = true;
+                    }
+
+                    if (previousVersionRange.IsEmpty())
+                    {
+                        // This is the first non empty arp version range
+                        previousVersionRange = pair.second;
+                    }
+                    else if (isArpVersionRangeInDescendingOrder)
+                    {
+                        // The arp version range should be less than previous range
+                        if (pair.second < previousVersionRange)
+                        {
+                            previousVersionRange = pair.second;
+                        }
+                        else
+                        {
+                            isArpVersionRangeInDescendingOrder = false;
+                        }
+                    }
+                }
+            }
+
+            // Now perform arp version mapping
+            if (shouldPerformMapping)
+            {
+                Utility::Version installed{ installedVersion };
+                for (auto const& pair : arpVersionMap)
+                {
+                    // If the installed version is in the arp version range
+                    if (!pair.second.IsEmpty() && pair.second.ContainsVersion(installed))
+                    {
+                        return pair.first;
+                    }
+                }
+
+                // At this point, no mapping found. Perform approximate mapping if applicable.
+                // We'll start from end of the vector because we try to find closest less than version if possible.
+                if (isArpVersionRangeInDescendingOrder)
+                {
+                    std::string lastGreaterThanVersion;
+                    auto it = arpVersionMap.rbegin();
+                    while (it != arpVersionMap.rend())
+                    {
+                        const auto& pair = *it;
+                        if (!pair.second.IsEmpty())
+                        {
+                            if (installed < pair.second.GetMinVersion())
+                            {
+                                return Utility::Version::CreateLessThanApproximateVersion(Utility::Version{ pair.first }).ToString();
+                            }
+                            else
+                            {
+                                lastGreaterThanVersion = pair.first;
+                            }
+                        }
+                        
+                        it++;
+                    }
+
+                    // No approximate less than version found, approximate greater than version will be returned.
+                    return Utility::Version::CreateGreaterThanApproximateVersion(Utility::Version{ lastGreaterThanVersion }).ToString();
+                }
+            }
+
+            // return the input installed version if no mapping is performed or found.
+            return installedVersion;
+        }
+
+        // A composite package installed version that allows us to override the source or the version.
         struct CompositeInstalledVersion : public IPackageVersion
         {
-            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource) :
-                m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource))
+            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource, std::optional<std::string> overrideVersion = std::nullopt) :
+                m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource)), m_overrideVersion(std::move(overrideVersion))
             {}
 
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
             {
+                // If there is an override version, use it.
+                if (property == PackageVersionProperty::Version && m_overrideVersion.has_value())
+                {
+                    return Utility::LocIndString{ m_overrideVersion.value() };
+                }
+
                 return m_baseInstalledVersion->GetProperty(property);
             }
 
@@ -160,6 +267,7 @@ namespace AppInstaller::Repository
         private:
             std::shared_ptr<IPackageVersion> m_baseInstalledVersion;
             Source m_trackingSource;
+            std::optional<std::string> m_overrideVersion;
         };
 
         // A composite package for the CompositeSource.
@@ -206,14 +314,12 @@ namespace AppInstaller::Repository
             {
                 if (m_installedPackage)
                 {
-                    if (m_trackingSource)
+                    if (m_availablePackage && !m_overrideInstalledVersion.has_value())
                     {
-                        return std::make_shared<CompositeInstalledVersion>(m_installedPackage->GetInstalledVersion(), m_trackingSource);
+                        m_overrideInstalledVersion = GetMappedInstalledVersion(m_installedPackage->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version), m_availablePackage);
                     }
-                    else
-                    {
-                        return m_installedPackage->GetInstalledVersion();
-                    }
+
+                    return std::make_shared<CompositeInstalledVersion>(m_installedPackage->GetInstalledVersion(), m_trackingSource, m_overrideInstalledVersion);
                 }
 
                 return {};
@@ -314,6 +420,7 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackage> m_availablePackage;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
+            mutable std::optional<std::string> m_overrideInstalledVersion;
         };
 
         // The comparator compares the ResultMatch by MatchType first, then Field in a predefined order.
