@@ -46,7 +46,6 @@ namespace AppInstaller::CLI
                 ManifestValidateOption validateOption;
                 validateOption.FullValidation = true;
                 validateOption.ThrowOnWarning = true;
-                validateOption.InstallerValidation = true;
                 auto manifest = YamlParser::CreateFromPath(inputFile, validateOption);
 
                 context.Add<Execution::Data::Manifest>(manifest);
