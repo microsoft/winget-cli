@@ -359,7 +359,8 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     $outputFileBlockerPath = Join-Path $outPath "done.txt"
 
-    $waitTimeout = [System.TimeSpan]::new(0, 10, 0)
+    # The correlation program should time out on its own after 10m.
+    $waitTimeout = [System.TimeSpan]::new(0, 15, 0)
     $startWaitTime = Get-Date
 
     while (-not (Test-Path $outputFileBlockerPath))
