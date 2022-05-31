@@ -354,19 +354,6 @@ namespace AppInstaller::Utility
             (m_maxVersion >= other.m_minVersion && m_maxVersion <= other.m_maxVersion);
     }
 
-    bool VersionRange::HasOverlapWith(const std::vector<VersionRange>& others) const
-    {
-        for (auto const& range : others)
-        {
-            if (HasOverlapWith(range))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     bool VersionRange::IsSameAsSingleVersion(const Version& version) const
     {
         if (IsEmpty())
@@ -404,5 +391,21 @@ namespace AppInstaller::Utility
     {
         THROW_HR_IF(E_NOT_VALID_STATE, IsEmpty());
         return m_maxVersion;
+    }
+
+    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges)
+    {
+        for (size_t i = 0; i < ranges.size(); i++)
+        {
+            for (size_t j = i + 1; j < ranges.size(); j++)
+            {
+                if (ranges[i].HasOverlapWith(ranges[j]))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

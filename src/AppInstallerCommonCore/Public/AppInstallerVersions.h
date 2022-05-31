@@ -110,11 +110,11 @@ namespace AppInstaller::Utility
 
         // Checks if version ranges overlap. Empty version range does not overlap with any version range.
         bool HasOverlapWith(const VersionRange& other) const;
-        bool HasOverlapWith(const std::vector<VersionRange>& others) const;
 
         // Checks if the version range is effectively the same as a single version.
         bool IsSameAsSingleVersion(const Version& version) const;
 
+        // Checks if a version is within the version range
         bool ContainsVersion(const Version& version) const;
 
         // < operator will thow if compared with an empty range or an overlapped range
@@ -176,5 +176,6 @@ namespace AppInstaller::Utility
         Channel m_channel;
     };
 
-    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& rabges);
+    // Checks if there are overlaps within the list of version ranges
+    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges);
 }

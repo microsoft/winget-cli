@@ -279,6 +279,9 @@
     <ClInclude Include="Microsoft\Schema\1_5\Interface.h">
       <Filter>Microsoft\Schema\1_5</Filter>
     </ClInclude>
+    <ClInclude Include="ArpVersionValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -436,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp">
       <Filter>Microsoft\Schema\1_5</Filter>
+    </ClCompile>
+    <ClCompile Include="ArpVersionValidation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -52,6 +52,8 @@ namespace AppInstaller::Manifest
         const char* const ExceededCommandsLimit = "Only zero or one value for Commands may be specified for InstallerType portable.";
         const char* const ScopeNotSupported = "Scope is not supported for InstallerType portable.";
         const char* const ApproximateVersionNotAllowed = "Approximate version not allowed.";
+        const char* const ArpVersionOverlapWithIndex = "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: ";
+        const char* const ArpVersionValidationInternalError = "Encountered internal error during DisplayVersion validation against index.";
     }
 
     struct ValidationError

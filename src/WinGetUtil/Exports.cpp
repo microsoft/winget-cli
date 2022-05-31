@@ -10,8 +10,9 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
-#include <PackageDependenciesValidation.h>
 #include <winget/ThreadGlobals.h>
+#include <PackageDependenciesValidation.h>
+#include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -179,7 +180,7 @@ extern "C"
         // Check arp version ranges do not overlap
         if (result && sqliteIndex->GetVersion() >= Schema::Version{ 1, 5 })
         {
-
+            result = ValidateArpVersionConsistency(sqliteIndex);
         }
 
         *succeeded = (result ? TRUE : FALSE);

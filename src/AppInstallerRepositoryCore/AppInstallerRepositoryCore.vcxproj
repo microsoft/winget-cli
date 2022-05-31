@@ -230,6 +230,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
@@ -305,6 +306,7 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
+    <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft
                 default:
                     // Values coming from the index will always be localized/independent.
                     std::optional<std::string> optValue = GetReferenceSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property);
-                    return LocIndString{ optValue ? optValue.value() :std::string{} };
+                    return LocIndString{ optValue ? optValue.value() : std::string{} };
                 }
             }
 

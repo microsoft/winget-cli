@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Microsoft/SQLiteIndex.h>
-#include <AppInstallerVersions.h>
+#include "Microsoft/SQLiteIndex.h"
 #include <winget/Manifest.h>
-#include <SQLiteWrapper.h>
 
 namespace AppInstaller::Repository
 {
