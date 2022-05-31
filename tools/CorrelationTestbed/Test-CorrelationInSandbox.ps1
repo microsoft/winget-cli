@@ -45,7 +45,7 @@ if ($UseDev)
   {
     $DevPackagePath = Join-Path $PSScriptRoot "..\..\src\AppInstallerCLIPackage\bin\x64\Release\AppX"
   }
-  
+
   $DevPackagePath = [System.IO.Path]::GetFullPath($DevPackagePath)
 
   if ($DevPackagePath.ToLower().Contains("debug"))
@@ -55,7 +55,7 @@ The Debug dev package does not work for unknown reasons.
 Use the Release build or figure out how to make debug work and fix the scripts.
 "@
   }
-  
+
   if (-not (Test-Path (Join-Path $DevPackagePath "AppxManifest.xml")))
   {
     Write-Error -Category InvalidArgument -Message @"
@@ -67,7 +67,8 @@ Either build the local dev package, or provide the location using -DevPackagePat
 
 # Check if Windows Sandbox is enabled
 
-if (-Not (Get-Command 'WindowsSandbox' -ErrorAction SilentlyContinue)) {
+if (-Not (Get-Command 'WindowsSandbox' -ErrorAction SilentlyContinue))
+{
   Write-Error -Category NotInstalled -Message @'
 Windows Sandbox does not seem to be available. Check the following URL for prerequisites and further details:
 https://docs.microsoft.com/windows/security/threat-protection/windows-sandbox/windows-sandbox-overview
@@ -81,7 +82,8 @@ $ Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClien
 
 function Close-WindowsSandbox {
     $sandbox = Get-Process 'WindowsSandboxClient' -ErrorAction SilentlyContinue
-    if ($sandbox) {
+    if ($sandbox)
+    {
       Write-Host '--> Closing Windows Sandbox'
 
       $sandboxServer = Get-Process 'WindowsSandbox' -ErrorAction SilentlyContinue
@@ -163,75 +165,89 @@ $vcLibsUwp = @{
   fileName = 'Microsoft.VCLibs.x64.14.00.Desktop.appx'
   url      = 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
   hash     = 'A39CEC0E70BE9E3E48801B871C034872F1D7E5E8EEBE986198C019CF2C271040'
+  folderInLocal = Join-Path ${env:ProgramFiles(x86)} "Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64"
 }
 $uiLibsUwp = @{
-    fileName = 'Microsoft.UI.Xaml.2.7.zip'
-    url = 'https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.0'
-    hash = "422FD24B231E87A842C4DAEABC6A335112E0D35B86FAC91F5CE7CF327E36A591"
+  fileName = 'Microsoft.UI.Xaml.2.7.zip'
+  url = 'https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.0'
+  hash = "422FD24B231E87A842C4DAEABC6A335112E0D35B86FAC91F5CE7CF327E36A591"
 }
 
 if ($UseDev)
 {
-  $devVCLibsFileName = "Microsoft.VCLibs.x64.14.00.Desktop.appx"
-  $devVCLibsPath = Join-Path ${env:ProgramFiles(x86)} "Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64"
-  $devVCLibsPath = Join-Path $devVCLibsPath $devVCLibsFileName
-
-  Copy-Item -Path $devVCLibsPath -Destination $tempFolder -Force
-
-  $devVCLibsPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $devVCLibsFileName)
+  $dependencies = @($vcLibsUwp)
 }
 else
 {
-
   $dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
+}
 
-  # Clean temp directory
+# Clean temp directory
 
-  Get-ChildItem $tempFolder -Recurse -Exclude $dependencies.fileName | Remove-Item -Force -Recurse
+Get-ChildItem $tempFolder -Recurse -Exclude $dependencies.fileName | Remove-Item -Force -Recurse
 
-  if (-Not [String]::IsNullOrWhiteSpace($Manifest)) {
-    Copy-Item -Path $Manifest -Recurse -Destination $tempFolder
-  }
+# Download dependencies
 
-  # Download dependencies
+Write-Host '--> Checking dependencies'
 
-  Write-Host '--> Checking dependencies'
+foreach ($dependency in $dependencies)
+{
+  $dependency.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $dependency.fileName)
 
-  foreach ($dependency in $dependencies) {
-    $dependency.file = Join-Path -Path $tempFolder -ChildPath $dependency.fileName
-    $dependency.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath $dependency.fileName)
-
-    # Only download if the file does not exist, or its hash does not match.
-    if (-Not ((Test-Path -Path $dependency.file -PathType Leaf) -And $dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
-      Write-Host @"
-    - Downloading:
-      $($dependency.url)
-"@
-
-      try {
-        $WebClient.DownloadFile($dependency.url, $dependency.file)
-      }
-      catch {
-        #Pass the exception as an inner exception
-        throw [System.Net.WebException]::new("Error downloading $($dependency.url).",$_.Exception)
-      }
-      if (-not ($dependency.hash -eq $(Get-FileHash $dependency.file).Hash)) {
-        throw [System.Activities.VersionMismatchException]::new('Dependency hash does not match the downloaded file')
-      }
+  # First see if the file exists locally to copy instead of downloading
+  if ($dependency.folderInLocal -ne $null)
+  {
+    $dependencyFilePath = Join-Path -Path $dependency.folderInLocal -ChildPath $dependency.fileName
+    if (Test-Path -Path $dependencyFilePath -PathType Leaf)
+    {
+      $dependencyFilePath
+      $tempFolder
+      Copy-Item -Path $dependencyFilePath -Destination $tempFolder -Force
+      continue
     }
   }
 
+  # File does not exist locally, we need to download
+
+  $dependency.file = Join-Path -Path $tempFolder -ChildPath $dependency.fileName
+
+  # Only download if the file does not exist, or its hash does not match.
+  if (-Not ((Test-Path -Path $dependency.file -PathType Leaf) -And $dependency.hash -eq $(Get-FileHash $dependency.file).Hash))
+  {
+    Write-Host @"
+  - Downloading:
+    $($dependency.url)
+"@
+
+    try
+    {
+      $WebClient.DownloadFile($dependency.url, $dependency.file)
+    }
+    catch
+    {
+      #Pass the exception as an inner exception
+      throw [System.Net.WebException]::new("Error downloading $($dependency.url).",$_.Exception)
+    }
+    if (-not ($dependency.hash -eq $(Get-FileHash $dependency.file).Hash))
+    {
+      throw [System.Activities.VersionMismatchException]::new('Dependency hash does not match the downloaded file')
+    }
+  }
+}
+
+if (-not $UseDev)
+{
   # Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
   # This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
 
-  if (-Not (Test-Path (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx))){
+  if (-Not (Test-Path (Join-Path -Path $tampFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)))
+  {
     Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
-  }  
+  }
   $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
   $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
   Write-Host
-
-} # !$UseDev
+}
 
 # Copy main script
 
@@ -249,17 +265,23 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     if ($UseDev)
     {
-      $bootstrapPs1Content = @"
-.\$mainPs1FileName -DesktopAppInstallerDependencyPath @('$devVCLibsPathInSandbox') -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -UseDev
-"@
+      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)')"
     }
     else
     {
-      $bootstrapPs1Content = @"
-.\$mainPs1FileName -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)' -DesktopAppInstallerDependencyPath @('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)') -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'
-"@
+      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
     }
 
+    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'"
+
+    if ($UseDev)
+    {
+      $bootstrapPs1Content += " -UseDev"
+    }
+    else
+    {
+      $bootstrapPs1Content += " -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)'"
+    }
 
     $bootstrapPs1FileName = 'Bootstrap.ps1'
     $bootstrapPs1Content | Out-File (Join-Path $tempFolder $bootstrapPs1FileName) -Force
@@ -337,7 +359,8 @@ foreach ($packageIdentifier in $PackageIdentifiers)
 
     $outputFileBlockerPath = Join-Path $outPath "done.txt"
 
-    $waitTimeout = [System.TimeSpan]::new(0, 10, 0)
+    # The correlation program should time out on its own after 10m.
+    $waitTimeout = [System.TimeSpan]::new(0, 15, 0)
     $startWaitTime = Get-Date
 
     while (-not (Test-Path $outputFileBlockerPath))
