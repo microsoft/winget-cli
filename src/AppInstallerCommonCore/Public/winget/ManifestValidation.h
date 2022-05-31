@@ -51,8 +51,9 @@ namespace AppInstaller::Manifest
         const char* const ExceededAppsAndFeaturesEntryLimit = "Only zero or one entry for Apps and Features may be specified for InstallerType portable.";
         const char* const ExceededCommandsLimit = "Only zero or one value for Commands may be specified for InstallerType portable.";
         const char* const ScopeNotSupported = "Scope is not supported for InstallerType portable.";
-        const char* const InstallerMsixInconsistencies = "During validation, the MSIX package was evaluated. There were either inconsistencies or values not present in the manifest. Please adjust the manifest accordingly.";
+        const char* const InstallerMsixInconsistencies = "Inconsistent value in the manifest.";
         const char* const OptionalFieldMissing = "Optional field missing.";
+        const char* const InstallerFailedToProcess = "Failed to process installer.";
     }
 
     struct ValidationError
