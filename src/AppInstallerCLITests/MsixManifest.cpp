@@ -115,20 +115,3 @@ TEST_CASE("Platform_IsWindowsUniversal_Fail", "[MsixManifest]")
     REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal("mock"));
     REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal(""));
 }
-
-TEST_CASE("MsixManifest_FourPartsVersionNumber_Success", "[MsixManifest]")
-{
-    Utility::Version versionString("1.2.3.4");
-    Msix::FourPartsVersionNumber versionNumber(0x0001000200030004);
-    REQUIRE(versionString == versionNumber);
-    REQUIRE(versionString.ToString() == versionNumber.ToString());
-}
-
-TEST_CASE("MsixManifest_FourPartsVersionNumber_Fail_OverflowComparison", "[MsixManifest]")
-{
-    Utility::Version versionString("1.0.0.65536"); // 0x1.0x0.0x0.0x10000
-    Msix::FourPartsVersionNumber versionNumber(0x0001000000000000);
-    REQUIRE(versionString != versionNumber);
-    REQUIRE("1.0.0.65536" == versionString.ToString());
-    REQUIRE("1.0.0.0" == versionNumber.ToString());
-}

@@ -14,6 +14,9 @@ namespace AppInstaller::Msix
     using namespace Microsoft::WRL;
     using string_t = Utility::NormalizedString;
 
+    typedef Utility::FourPartsVersionNumber PackageVersion;
+    typedef Utility::FourPartsVersionNumber OSVersion;
+
     namespace Platform
     {
         constexpr auto& WindowsDesktop = "windows.desktop";
@@ -22,22 +25,6 @@ namespace AppInstaller::Msix
         bool IsWindowsDesktop(std::string platformName);
         bool IsWindowsUniversal(std::string platformName);
     }
-
-    // Four parts version number: 16-bits.16-bits.16-bits.16-bits
-    struct FourPartsVersionNumber : public Utility::Version
-    {
-        FourPartsVersionNumber() = default;
-        FourPartsVersionNumber(std::string version) : Version(version) {}
-        FourPartsVersionNumber(UINT64 version);
-
-        UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
-        UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
-        UINT64 Build() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
-        UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
-    };
-
-    typedef FourPartsVersionNumber PackageVersion;
-    typedef FourPartsVersionNumber OSVersion;
 
     struct MsixPackageManifestIdentity
     {

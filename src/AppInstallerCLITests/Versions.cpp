@@ -191,3 +191,39 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
 {
     REQUIRE(Version::CreateUnknown() < Version::CreateLatest());
 }
+
+TEST_CASE("FourPartsVersionNumber_Success_FourParts", "[versions]")
+{
+    Version versionString("1.2.3.4");
+    FourPartsVersionNumber versionNumber(0x0001000200030004);
+    REQUIRE(versionString == versionNumber);
+    REQUIRE(versionString.ToString() == versionNumber.ToString());
+}
+
+TEST_CASE("FourPartsVersionNumber_Success_LessThanFourParts", "[versions]")
+{
+    Version versionString("1.2.3");
+    FourPartsVersionNumber versionNumber(0x0001000200030000);
+    REQUIRE(versionString == versionNumber);
+    REQUIRE("1.2.3" == versionString.ToString());
+    REQUIRE("1.2.3.0" == versionNumber.ToString());
+}
+
+TEST_CASE("FourPartsVersionNumber_Fail_OverflowComparison", "[versions]")
+{
+    Version versionString("1.0.0.65536"); // 0x1.0x0.0x0.0x10000
+    FourPartsVersionNumber versionNumber(0x0001000000000000);
+    REQUIRE(versionString != versionNumber);
+    REQUIRE("1.0.0.65536" == versionString.ToString());
+    REQUIRE("1.0.0.0" == versionNumber.ToString());
+}
+
+TEST_CASE("FourPartsVersionNumber_Fail_MoreThanFourParts", "[versions]")
+{
+    REQUIRE_THROWS(FourPartsVersionNumber("1.0.0.0.1"));
+}
+
+TEST_CASE("FourPartsVersionNumber_Fail_NonNumeric", "[versions]")
+{
+    REQUIRE_THROWS(FourPartsVersionNumber("1.0.0.a"));
+}

@@ -83,20 +83,4 @@ namespace AppInstaller::Msix
         m_msixManifests[url] = msixInfo.GetAppPackageManifests();
         return m_msixManifests[url];
     }
-
-    FourPartsVersionNumber::FourPartsVersionNumber(UINT64 version)
-    {
-        UINT64 mask16 = (1 << 16) - 1;
-        UINT64 revision = version & mask16;
-        UINT64 build = (version >> 0x10) & mask16;
-        UINT64 minor = (version >> 0x20) & mask16;
-        UINT64 major = (version >> 0x30) & mask16;
-
-        std::stringstream ssVersion;
-        ssVersion << major
-            << Version::DefaultSplitChars << minor
-            << Version::DefaultSplitChars << build
-            << Version::DefaultSplitChars << revision;
-        Assign(ssVersion.str());
-    }
 }

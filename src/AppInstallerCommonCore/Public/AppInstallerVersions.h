@@ -34,7 +34,7 @@ namespace AppInstaller::Utility
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Resets the version's value to the input.
-        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        virtual void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
@@ -78,6 +78,23 @@ namespace AppInstaller::Utility
     protected:
         std::string m_version;
         std::vector<Part> m_parts;
+    };
+
+    // Four parts version number: 16-bits.16-bits.16-bits.16-bits
+    struct FourPartsVersionNumber : public Version
+    {
+        FourPartsVersionNumber() = default;
+        FourPartsVersionNumber(UINT64 version);
+        FourPartsVersionNumber(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        FourPartsVersionNumber(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
+            FourPartsVersionNumber(std::string(version), splitChars) {}
+
+        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars) override;
+
+        UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        UINT64 Build() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+        UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
     };
 
     // A channel string; existing solely to give a type.
