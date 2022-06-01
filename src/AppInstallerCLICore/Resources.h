@@ -33,7 +33,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableUpgrades);
-        WINGET_DEFINE_RESOURCE_STRINGID(BothDisplayAndSuppressNotesFlagsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(BothPurgeAndPreserveFlagsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
@@ -56,7 +55,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowContainsLoop);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(DisplayNotesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
@@ -229,6 +227,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
@@ -263,6 +262,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelExternalDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallationNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
@@ -339,7 +339,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
-        WINGET_DEFINE_RESOURCE_STRINGID(SuppressNotesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);

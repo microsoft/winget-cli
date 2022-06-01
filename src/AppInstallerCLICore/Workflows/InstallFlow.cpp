@@ -24,8 +24,6 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Utility::literals;
-
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -148,15 +146,14 @@ namespace AppInstaller::CLI::Workflow
 
     void DisplayInstallationNotes(Execution::Context& context)
     {
-        if (context.Args.Contains(Execution::Args::Type::DisplayNotes) ||
-            !context.Args.Contains(Execution::Args::Type::SuppressNotes) && !Settings::User().Get<Settings::Setting::SuppressInstallNotes>())
+        if (!Settings::User().Get<Settings::Setting::DisableInstallNotes>())
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
 
             if (!installationNotes.empty())
             {
-                context.Reporter.Info() << Resource::String::Notes << ": "_liv << installationNotes << std::endl;
+                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
             }
         }
     }
@@ -393,6 +390,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
                 context.Reporter.Error() << returnCode.Message << std::endl;
+
+                auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
+                if (!returnResponseUrl.empty())
+                {
+                    context.Reporter.Error() << Resource::String::RelatedLink << ' ' << returnResponseUrl << std::endl;
+                }
+
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
@@ -421,7 +425,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller;
+            Workflow::RemoveInstaller << 
+            Workflow::DisplayInstallationNotes;
     }
 
     void DownloadSinglePackage(Execution::Context& context)
@@ -439,8 +444,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::DownloadSinglePackage <<
-            Workflow::InstallPackageInstaller <<
-            Workflow::DisplayInstallationNotes;
+            Workflow::InstallPackageInstaller;
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
@@ -497,9 +501,9 @@ namespace AppInstaller::CLI::Workflow
                 {
                     installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
                 }
-                installContext << Workflow::DownloadInstaller;
-                installContext << Workflow::InstallPackageInstaller;
-                installContext << Workflow::DisplayInstallationNotes;
+                installContext <<
+                    Workflow::DownloadInstaller <<
+                    Workflow::InstallPackageInstaller;
             }
             catch (...)
             {

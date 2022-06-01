@@ -1337,16 +1337,13 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>Cannot purge install directory, as it was not created by WinGet</value>
   </data>
-  <data name="BothDisplayAndSuppressNotesFlagsProvided" xml:space="preserve">
-    <value>Both `display-notes` and `suppress-notes` arguments are provided</value>
-  </data>
-  <data name="DisplayNotesArgumentDescription" xml:space="preserve">
-    <value>Displays the installation notes</value>
-  </data>
-  <data name="SuppressNotesArgumentDescription" xml:space="preserve">
-    <value>Suppresses the installation notes</value>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>Related Link</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>Notes</value>
+    <value>Notes:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>

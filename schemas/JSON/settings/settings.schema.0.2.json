@@ -102,8 +102,8 @@
           "type": "boolean",
           "default": false
         },
-        "suppressInstallNotes": {
-          "description": "Controls whether installation notes are suppressed after a successful install",
+        "disableInstallNotes": {
+          "description": "Controls whether installation notes are shown after a successful install",
           "type": "boolean",
           "default":  false
         },
