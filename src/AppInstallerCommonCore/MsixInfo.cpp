@@ -648,7 +648,7 @@ namespace AppInstaller::Msix
     {
         std::vector<MsixPackageManifest> manifests;
         auto packages = GetAppPackages();
-        for (auto package : packages)
+        for (const auto& package : packages)
         {
             ComPtr<IAppxManifestReader> manifestReader;
             THROW_IF_FAILED(package->GetManifest(&manifestReader));
