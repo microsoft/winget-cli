@@ -24,6 +24,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 
 namespace AppInstaller::CLI::Workflow
@@ -147,15 +148,15 @@ namespace AppInstaller::CLI::Workflow
 
     void DisplayInstallationNotes(Execution::Context& context)
     {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
-
-        if (!context.IsTerminated() && !installationNotes.empty())
+        if (context.Args.Contains(Execution::Args::Type::DisplayNotes) ||
+            !context.Args.Contains(Execution::Args::Type::SuppressNotes) && !Settings::User().Get<Settings::Setting::SuppressInstallNotes>())
         {
-            if (context.Args.Contains(Execution::Args::Type::DisplayNotes) ||
-                !context.Args.Contains(Execution::Args::Type::SuppressNotes) && !Settings::User().Get<Settings::Setting::SuppressInstallNotes>())
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
+
+            if (!installationNotes.empty())
             {
-                context.Reporter.Info() << std::endl << installationNotes << std::endl;
+                context.Reporter.Info() << Resource::String::Notes << ": "_liv << installationNotes << std::endl;
             }
         }
     }
@@ -498,6 +499,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 installContext << Workflow::DownloadInstaller;
                 installContext << Workflow::InstallPackageInstaller;
+                installContext << Workflow::DisplayInstallationNotes;
             }
             catch (...)
             {

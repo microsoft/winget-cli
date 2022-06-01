@@ -1346,4 +1346,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="SuppressNotesArgumentDescription" xml:space="preserve">
     <value>Suppresses the installation notes</value>
   </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
 </root>
