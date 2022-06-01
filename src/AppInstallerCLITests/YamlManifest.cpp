@@ -869,16 +869,19 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Bad", "[ManifestValidation]")
     REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
     REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
     REQUIRE("PackageFamilyName" == errors[0].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
 
     // Package version
     REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
     REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
     REQUIRE("PackageVersion" == errors[1].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[1].Value);
 
     // Min OS version
     REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
     REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
     REQUIRE("MinimumOSVersion" == errors[2].Field);
+    REQUIRE("10.0.0.0" == errors[2].Value);
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
@@ -898,9 +901,11 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValid
     REQUIRE(ValidationError::Level::Warning == errors[0].ErrorLevel);
     REQUIRE(ManifestError::OptionalFieldMissing == errors[0].Message);
     REQUIRE("PackageFamilyName" == errors[0].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
 
     // Min OS version
     REQUIRE(ValidationError::Level::Warning == errors[1].ErrorLevel);
     REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
     REQUIRE("MinimumOSVersion" == errors[1].Field);
+    REQUIRE("10.0.0.0" == errors[1].Value);
 }

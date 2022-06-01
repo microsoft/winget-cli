@@ -17,44 +17,38 @@ namespace AppInstaller::Msix
     typedef Utility::FourPartsVersionNumber PackageVersion;
     typedef Utility::FourPartsVersionNumber OSVersion;
 
-    namespace Platform
-    {
-        constexpr auto& WindowsDesktop = "windows.desktop";
-        constexpr auto& WindowsUniversal = "windows.universal";
-
-        bool IsWindowsDesktop(std::string platformName);
-        bool IsWindowsUniversal(std::string platformName);
-    }
-
+    // Package identity for a msix manifest
     struct MsixPackageManifestIdentity
     {
-        string_t PackageFamilyName;
-        PackageVersion Version;
+        MsixPackageManifestIdentity(ComPtr<IAppxManifestPackageId> packageId);
+
+        string_t GetPackageFamilyName() const;
+        PackageVersion GetVersion() const;
+    private:
+        ComPtr<IAppxManifestPackageId> m_packageId;
     };
 
+    // Target device family for a msix manifest
     struct MsixPackageManifestTargetDeviceFamily
     {
-        string_t Name;
-        OSVersion MinVersion;
-        OSVersion MaxVersionTested;
+        MsixPackageManifestTargetDeviceFamily(ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily);
 
-        MsixPackageManifestTargetDeviceFamily(string_t name, UINT64 minVersion, UINT64 maxVersionTested)
-            : Name(name), MinVersion(minVersion), MaxVersionTested(maxVersionTested) {}
+        string_t GetName() const;
+        OSVersion GetMinVersion() const;
+    private:
+        ComPtr<IAppxManifestTargetDeviceFamily> m_targetDeviceFamily;
     };
 
-    struct MsixPackageManifestDependencies
-    {
-        std::vector<MsixPackageManifestTargetDeviceFamily> TargetDeviceFamilies;
-    };
-
+    // Msix manifest
     struct MsixPackageManifest
     {
-        MsixPackageManifestDependencies Dependencies;
-        MsixPackageManifestIdentity Identity;
-
-        MsixPackageManifest() = default;
         MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader);
-        void Assign(ComPtr<IAppxManifestReader> manifestReader);
+
+        std::vector<MsixPackageManifestTargetDeviceFamily> GetTargetDeviceFamilies() const;
+        MsixPackageManifestIdentity GetIdentity() const;
+        std::optional<OSVersion> GetMinimumOSVersion() const;
+    private:
+        ComPtr<IAppxManifestReader> m_manifestReader;
     };
 
     class MsixPackageManifestManager

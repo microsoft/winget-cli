@@ -20,10 +20,9 @@ constexpr std::string_view installerManifestValidationMsixBundle = "InstallerMan
 // Expected 
 constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
 PackageVersion expectedPackageVersion = { 0xAAAABBBBCCCCDDDD };
+constexpr std::string_view expectedWindowsDesktopName = "Windows.Desktop";
 OSVersion expectedWindowsDesktopMinVersion = { 0x000a00003FAB0000 }; // 10.0.16299.0
-OSVersion expectedWindowsDesktopMaxVersionTested = { 0x000a0000476F0000 }; // 10.0.18287.0
 OSVersion expectedWindowsUniversalMinVersion = { 0x000a000000000000 }; // 10.0.0.0
-OSVersion expectedWindowsUniversalMaxVersionTested = { 0x000a000000000000 }; // 10.0.0.0
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]")
 {
@@ -34,18 +33,17 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]
     }
 
     Msix::MsixPackageManifest msixManifest(manifestReader);
-    REQUIRE(expectedFamilyName == msixManifest.Identity.PackageFamilyName);
-    REQUIRE(expectedPackageVersion == msixManifest.Identity.Version);
-    REQUIRE(2 == msixManifest.Dependencies.TargetDeviceFamilies.size());
+    REQUIRE(expectedFamilyName == msixManifest.GetIdentity().GetPackageFamilyName());
+    REQUIRE(expectedPackageVersion == msixManifest.GetIdentity().GetVersion());
+    REQUIRE(2 == msixManifest.GetTargetDeviceFamilies().size());
+    REQUIRE(expectedWindowsUniversalMinVersion == msixManifest.GetMinimumOSVersion().value());
 
-    auto& targets = msixManifest.Dependencies.TargetDeviceFamilies;
-    auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsDesktop(t.Name); });
-    REQUIRE(expectedWindowsDesktopMinVersion == windowsDesktop->MinVersion);
-    REQUIRE(expectedWindowsDesktopMaxVersionTested == windowsDesktop->MaxVersionTested);
+    auto targets = msixManifest.GetTargetDeviceFamilies();
+    auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
+    REQUIRE(windowsDesktop != targets.end());
 
-    auto windowsUniversal = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsUniversal(t.Name); });
-    REQUIRE(expectedWindowsUniversalMinVersion == windowsUniversal->MinVersion);
-    REQUIRE(expectedWindowsUniversalMaxVersionTested == windowsUniversal->MaxVersionTested);
+    auto windowsUniversal = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsUniversalMinVersion; });
+    REQUIRE(windowsUniversal != targets.end());
 }
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
@@ -57,18 +55,17 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
     REQUIRE(1 == appPackageManifests.size());
 
     auto &appPackageManifest = appPackageManifests[0];
-    REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
-    REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
-    REQUIRE(2 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
+    REQUIRE(expectedFamilyName == appPackageManifest.GetIdentity().GetPackageFamilyName());
+    REQUIRE(expectedPackageVersion == appPackageManifest.GetIdentity().GetVersion());
+    REQUIRE(2 == appPackageManifest.GetTargetDeviceFamilies().size());
+    REQUIRE(expectedWindowsUniversalMinVersion == appPackageManifest.GetMinimumOSVersion().value());
 
-    auto& targets = appPackageManifest.Dependencies.TargetDeviceFamilies;
-    auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsDesktop(t.Name); });
-    REQUIRE(expectedWindowsDesktopMinVersion == windowsDesktop->MinVersion);
-    REQUIRE(expectedWindowsDesktopMaxVersionTested == windowsDesktop->MaxVersionTested);
+    auto targets = appPackageManifest.GetTargetDeviceFamilies();
+    auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
+    REQUIRE(windowsDesktop != targets.end());
 
-    auto windowsUniversal = std::find_if(targets.begin(), targets.end(), [](auto& t) { return Platform::IsWindowsUniversal(t.Name); });
-    REQUIRE(expectedWindowsUniversalMinVersion == windowsUniversal->MinVersion);
-    REQUIRE(expectedWindowsUniversalMaxVersionTested == windowsUniversal->MaxVersionTested);
+    auto windowsUniversal = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsUniversalMinVersion; });
+    REQUIRE(windowsUniversal != targets.end());
 }
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
@@ -81,37 +78,11 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
 
     for (auto& appPackageManifest : appPackageManifests)
     {
-        REQUIRE(expectedFamilyName == appPackageManifest.Identity.PackageFamilyName);
-        REQUIRE(expectedPackageVersion == appPackageManifest.Identity.Version);
-        REQUIRE(1 == appPackageManifest.Dependencies.TargetDeviceFamilies.size());
-        REQUIRE(Platform::IsWindowsDesktop(appPackageManifest.Dependencies.TargetDeviceFamilies.front().Name));
-        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MinVersion);
-        REQUIRE(expectedWindowsDesktopMaxVersionTested == appPackageManifest.Dependencies.TargetDeviceFamilies.front().MaxVersionTested);
+        REQUIRE(expectedFamilyName == appPackageManifest.GetIdentity().GetPackageFamilyName());
+        REQUIRE(expectedPackageVersion == appPackageManifest.GetIdentity().GetVersion());
+        REQUIRE(1 == appPackageManifest.GetTargetDeviceFamilies().size());
+        REQUIRE(expectedWindowsDesktopName == appPackageManifest.GetTargetDeviceFamilies().front().GetName());
+        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetTargetDeviceFamilies().front().GetMinVersion());
+        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion().value());
     }
-}
-
-TEST_CASE("Platform_IsWindowsDesktop_Success", "[MsixManifest]")
-{
-    REQUIRE(Msix::Platform::IsWindowsDesktop("Windows.Desktop"));
-    REQUIRE(Msix::Platform::IsWindowsDesktop("WINDOWS.DESKTOP"));
-    REQUIRE(Msix::Platform::IsWindowsDesktop("windows.desktop"));
-}
-
-TEST_CASE("Platform_IsWindowsDesktop_Fail", "[MsixManifest]")
-{
-    REQUIRE_FALSE(Msix::Platform::IsWindowsDesktop("mock"));
-    REQUIRE_FALSE(Msix::Platform::IsWindowsDesktop(""));
-}
-
-TEST_CASE("Platform_IsWindowsUniversal_Success", "[MsixManifest]")
-{
-    REQUIRE(Msix::Platform::IsWindowsUniversal("Windows.Universal"));
-    REQUIRE(Msix::Platform::IsWindowsUniversal("WINDOWS.UNIVERSAL"));
-    REQUIRE(Msix::Platform::IsWindowsUniversal("windows.universal"));
-}
-
-TEST_CASE("Platform_IsWindowsUniversal_Fail", "[MsixManifest]")
-{
-    REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal("mock"));
-    REQUIRE_FALSE(Msix::Platform::IsWindowsUniversal(""));
 }

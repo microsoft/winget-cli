@@ -270,42 +270,34 @@ namespace AppInstaller::Manifest
         for (auto msixManifest : msixManifests)
         {
             // Validate package family name
-            if (!installer.PackageFamilyName.empty() && !msixManifest.Identity.PackageFamilyName.empty())
+            auto msixManifestIdentity = msixManifest.GetIdentity();
+            auto msixPackageFamilyName = msixManifestIdentity.GetPackageFamilyName();
+            if (!installer.PackageFamilyName.empty() && !msixPackageFamilyName.empty())
             {
-                if (installer.PackageFamilyName != msixManifest.Identity.PackageFamilyName)
+                if (installer.PackageFamilyName != msixPackageFamilyName)
                 {
-                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageFamilyName", msixManifest.Identity.PackageFamilyName);
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageFamilyName", msixPackageFamilyName);
                 }
             }
             // Yaml manifest missing package family name
-            else if (!msixManifest.Identity.PackageFamilyName.empty())
+            else if (!msixPackageFamilyName.empty())
             {
                 errors.emplace_back(
                     ManifestError::OptionalFieldMissing,
                     "PackageFamilyName",
-                    msixManifest.Identity.PackageFamilyName,
+                    msixPackageFamilyName,
                     ValidationError::Level::Warning);
             }
 
             // Validate package version
-            if (msixManifest.Identity.Version != packageVersion)
+            auto msixVersion = msixManifestIdentity.GetVersion();
+            if (msixVersion != packageVersion)
             {
-                auto msixManifestPackageVersion = Msix::PackageVersion(msixManifest.Identity.Version);
-                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixManifestPackageVersion.ToString());
-            }
-
-            // Find min OS version for the target device family
-            std::optional<Msix::OSVersion> targetMinOSVersion;
-            for (auto& target : msixManifest.Dependencies.TargetDeviceFamilies)
-            {
-                if (Msix::Platform::IsWindowsDesktop(target.Name)
-                    || (Msix::Platform::IsWindowsUniversal(target.Name) && !targetMinOSVersion.has_value()))
-                {
-                    targetMinOSVersion = target.MinVersion;
-                }
+                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixVersion.ToString());
             }
 
             // Validate min OS version
+            auto targetMinOSVersion = msixManifest.GetMinimumOSVersion();
             if (targetMinOSVersion.has_value() && installerMinOSVersion.has_value())
             {
                 if (targetMinOSVersion.value() != installerMinOSVersion.value())
