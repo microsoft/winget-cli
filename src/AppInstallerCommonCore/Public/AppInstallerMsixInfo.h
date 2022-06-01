@@ -4,9 +4,9 @@
 #include "AppInstallerProgress.h"
 #include "winget/ManagedFile.h"
 #include "winget/Manifest.h"
+#include "winget/MsixManifest.h"
 
 #include <AppxPackaging.h>
-#include <AppInstallerMsixManifest.h>
 
 #include <wrl/client.h>
 #include <winrt/Windows.ApplicationModel.h>

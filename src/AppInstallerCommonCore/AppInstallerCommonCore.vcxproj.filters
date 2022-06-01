@@ -198,7 +198,7 @@
     <ClInclude Include="Public\winget\ManagedFile.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerMsixManifest.h">
+    <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

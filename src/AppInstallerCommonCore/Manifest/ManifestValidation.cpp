@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerMsixInfo.h"
-#include "AppInstallerMsixManifest.h"
+#include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
 #include "winget/Locale.h"
 

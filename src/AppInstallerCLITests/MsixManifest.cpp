@@ -3,9 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerMsixInfo.h>
-#include <AppInstallerMsixManifest.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
+#include <winget/MsixManifest.h>
 
 using namespace std;
 using namespace TestCommon;
