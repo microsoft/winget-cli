@@ -6,7 +6,7 @@
 #include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
-
+#include "Public/AppInstallerDownloader.h"
 
 using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
@@ -361,29 +361,6 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(appxFactory->CreateManifestReader(inputStream, reader));
     }
 
-    void GetStreamFromURI(
-        std::string_view uriStr,
-        ComPtr<IStream> &inputStream)
-    {
-        if (Utility::IsUrlRemote(uriStr))
-        {
-            // Get an IStream from the input uri and try to create package or bundler reader.
-            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
-            IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
-
-            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
-            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
-                rasAsIUnknown,
-                IID_PPV_ARGS(inputStream.ReleaseAndGetAddressOf())));
-        }
-        else
-        {
-            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
-            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
-                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &inputStream));
-        }
-    }
-
     std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName)
     {
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
@@ -527,7 +504,7 @@ namespace AppInstaller::Msix
 
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        GetStreamFromURI(uriStr, m_stream);
+        m_stream = Utility::GetStreamFromURI(uriStr);
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;

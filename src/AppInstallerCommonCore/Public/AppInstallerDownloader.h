@@ -74,4 +74,7 @@ namespace AppInstaller::Utility
     // If IAttachmentExecute::Save is successfully invoked and the scan failed, the failure HRESULT is returned.
     // zoneIfScanFailure: URLZONE to apply if IAttachmentExecute::Save scan failed.
     HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure);
+
+    // Function to create a stream from a uri string (url address or file system path)
+    Microsoft::WRL::ComPtr<IStream> GetStreamFromURI(std::string_view uriStr);
 }

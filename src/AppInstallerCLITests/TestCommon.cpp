@@ -6,6 +6,7 @@
 #include <winget/GroupPolicy.h>
 #include <winget/UserSettings.h>
 #include <AppInstallerMsixInfo.h>
+#include <AppInstallerDownloader.h>
 
 namespace TestCommon
 {
@@ -293,8 +294,7 @@ namespace TestCommon
         auto path = testFile.GetPath().u8string();
 
         // Get the stream for the test file
-        Microsoft::WRL::ComPtr<IStream> stream;
-        AppInstaller::Msix::GetStreamFromURI(path, stream);
+        auto stream = AppInstaller::Utility::GetStreamFromURI(path);
 
         // Get manifest from package reader
         Microsoft::WRL::ComPtr<IAppxPackageReader> packageReader;
