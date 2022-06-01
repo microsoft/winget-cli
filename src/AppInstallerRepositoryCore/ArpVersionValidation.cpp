@@ -9,13 +9,21 @@ namespace AppInstaller::Repository
 {
     namespace
     {
-        std::vector<Utility::VersionRange> GetArpVersionRangesByPackageRowId(Microsoft::SQLiteIndex* index, Microsoft::SQLiteIndex::IdType packageRowId)
+        std::vector<Utility::VersionRange> GetArpVersionRangesByPackageRowId(Microsoft::SQLiteIndex* index, Microsoft::SQLiteIndex::IdType packageRowId, const Utility::VersionAndChannel& excludeVersionAndChannel = {})
         {
             std::vector<Utility::VersionRange> result;
 
             auto versionKeys = index->GetVersionKeysById(packageRowId);
             for (auto const& versionKey : versionKeys)
             {
+                // For manifest update, the manifest to be updated does not need to be checked.
+                // In unlikely cases if both version 1.0.0 and 1.0 of the same package exist, we compare raw values here as what sqlite index does.
+                if (versionKey.GetVersion().ToString() == excludeVersionAndChannel.GetVersion().ToString() &&
+                    versionKey.GetChannel().ToString() == excludeVersionAndChannel.GetChannel().ToString())
+                {
+                    continue;
+                }
+
                 std::optional<Microsoft::SQLiteIndex::IdType> manifestRowId = index->GetManifestIdByKey(packageRowId, versionKey.GetVersion().ToString(), versionKey.GetChannel().ToString());
                 if (manifestRowId)
                 {
@@ -54,7 +62,7 @@ namespace AppInstaller::Repository
                 return;
             }
 
-            auto arpVersionRangesInIndex = GetArpVersionRangesByPackageRowId(index, searchResult.Matches[0].first);
+            auto arpVersionRangesInIndex = GetArpVersionRangesByPackageRowId(index, searchResult.Matches[0].first, { Utility::Version{ manifest.Version }, Utility::Channel{ manifest.Channel } });
             for (auto const& arpInIndex : arpVersionRangesInIndex)
             {
                 if (manifestArpVersionRange.HasOverlapWith(arpInIndex))

@@ -24,6 +24,36 @@ extern "C"
         ErrorOnVerifiedPublisherFields = 0x2,
     };
 
+    enum WinGetValidateManifestOptionV2
+    {
+        // Below options define what validations to be performed
+ 
+        // No validation, caller will get E_INVALIDARG
+        None = 0,
+        // Only validate against json schema
+        SchemaValidation = 0x1,
+        // Validate against schema and also perform semantic validation
+        SchemaAndSemanticValidation = 0x2,
+        // Dependencies validation against index
+        DependenciesValidation = 0x4,
+        // Arp version validation against index
+        ArpVersionValidation = 0x8,
+        // Installer validation
+        InstallerValidation = 0x10, 
+
+        // Below options are additional validation behaviors if needed
+
+        // Return error on manifest fields that require verified publishers, used during semantic validation
+        ReturnErrorOnVerifiedPublisherFields = 0x1000,
+    };
+
+    enum WinGetValidateManifestOperationType
+    {
+        Add = 0,
+        Update = 1,
+        Delete = 2,
+    };
+
     enum WinGetValidateManifestDependenciesOption
     {
         DefaultValidation = 0,

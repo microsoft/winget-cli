@@ -255,6 +255,124 @@ extern "C"
     }
     CATCH_RETURN()
 
+    WINGET_UTIL_API WinGetValidateManifestV3(
+        WINGET_STRING inputPath,
+        WINGET_SQLITE_INDEX_HANDLE index,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        WinGetValidateManifestOptionV2 option,
+        WinGetValidateManifestOperationType operationType) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+        // Index should be provided if DependenciesValidation or ArpVersionValidation is to be performed
+        THROW_HR_IF(E_INVALIDARG, !index && (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation) || WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation)));
+        THROW_HR_IF(E_INVALIDARG, option == WinGetValidateManifestOptionV2::None);
+        // ErrorOnVerifiedPublisherFields can only be used with SchemaAndSemanticValidation
+        THROW_HR_IF(E_INVALIDARG, (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ReturnErrorOnVerifiedPublisherFields) && WI_IsFlagClear(option, WinGetValidateManifestOptionV2::SchemaAndSemanticValidation)));
+
+        *succeeded = FALSE;
+
+        std::string validationMessage;
+        bool manifestValidationResult = false;
+        bool dependenciesValidationResult = false;
+        bool arpVersionValidationResult = false;
+
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::SchemaValidation) || WI_IsFlagSet(option, WinGetValidateManifestOptionV2::SchemaAndSemanticValidation))
+        {
+            try
+            {
+                ManifestValidateOption validateOption;
+                validateOption.FullValidation = true;
+                validateOption.ThrowOnWarning = true;
+                validateOption.SchemaValidationOnly = WI_IsFlagClear(option, WinGetValidateManifestOptionV2::SchemaAndSemanticValidation);
+                validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ReturnErrorOnVerifiedPublisherFields);
+
+                (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
+
+                manifestValidationResult = true;
+            }
+            catch (const ManifestException& e)
+            {
+                manifestValidationResult = e.IsWarningOnly();
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+        else
+        {
+            manifestValidationResult = true;
+        }
+
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation))
+        {
+            try
+            {
+                Manifest manifest = YamlParser::CreateFromPath(inputPath);
+                SQLiteIndex* sqliteIndex(reinterpret_cast<SQLiteIndex*>(index));
+
+                if (operationType == WinGetValidateManifestOperationType::Delete)
+                {
+                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(sqliteIndex, manifest);
+                }
+                else
+                {
+                    PackageDependenciesValidation::ValidateManifestDependencies(sqliteIndex, manifest);
+                }
+
+                dependenciesValidationResult = true;
+            }
+            catch (const ManifestException& e)
+            {
+                dependenciesValidationResult = e.IsWarningOnly();
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+        else
+        {
+            dependenciesValidationResult = true;
+        }
+        
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation))
+        {
+            try
+            {
+                Manifest manifest = YamlParser::CreateFromPath(inputPath);
+                SQLiteIndex* sqliteIndex(reinterpret_cast<SQLiteIndex*>(index));
+                ValidateManifestArpVersion(sqliteIndex, manifest);
+
+                arpVersionValidationResult = true;
+            }
+            catch (const ManifestException& e)
+            {
+                arpVersionValidationResult = e.IsWarningOnly();
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+        else
+        {
+            arpVersionValidationResult = true;
+        }
+
+        *succeeded = (manifestValidationResult && dependenciesValidationResult && arpVersionValidationResult) ? TRUE : FALSE;
+        if (message)
+        {
+            *message = ::SysAllocString(ConvertToUTF16(validationMessage).c_str());
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
     WINGET_UTIL_API WinGetValidateManifestDependencies(
         WINGET_STRING inputPath,
         BOOL* succeeded,
