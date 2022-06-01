@@ -1339,5 +1339,6 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="ShowLabelDocumentations" xml:space="preserve">
     <value>Documentations:</value>
+    <comment>Label for the list of documentation links relevant to the package</comment>
   </data>
 </root>

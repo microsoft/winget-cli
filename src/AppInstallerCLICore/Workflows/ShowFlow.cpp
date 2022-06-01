@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!documentation.DocumentLabel.empty())
                 {
                     info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
-;               }
+                }
 
                 if (!documentation.DocumentUrl.empty())
                 {
