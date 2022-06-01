@@ -93,7 +93,7 @@ namespace AppInstaller::CLI::Execution
             AcceptSourceAgreements, // Accept all source agreements
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
             Wait, // Prompts the user to press any key before exiting
-            DisplayNotes, // Showss the installation notes after a successful install
+            DisplayNotes, // Shows the installation notes after a successful install
             SuppressNotes, // Suppresses the installation notes from being shown after a successful install.
 
             // Used for demonstration purposes
