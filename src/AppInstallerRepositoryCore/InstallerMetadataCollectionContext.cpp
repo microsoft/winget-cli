@@ -408,9 +408,12 @@ namespace AppInstaller::Repository::Metadata
         m_correlationData(std::make_unique<Correlation::ARPCorrelationData>())
     {}
 
-    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData) :
+    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json) :
         m_correlationData(std::move(correlationData))
-    {}
+    {
+        auto threadGlobalsLifetime = InitializeLogging({});
+        InitializePreinstallState(json);
+    }
 
     std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromFile(const std::filesystem::path& file, const std::filesystem::path& logFile)
     {
@@ -477,13 +480,13 @@ namespace AppInstaller::Repository::Metadata
         return result;
     }
 
-    std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromJSON(std::wstring_view json, const std::filesystem::path& logFile)
+    std::unique_ptr<InstallerMetadataCollectionContext> InstallerMetadataCollectionContext::FromJSON(const std::wstring& json, const std::filesystem::path& logFile)
     {
         THROW_HR_IF(E_INVALIDARG, json.empty());
 
         std::unique_ptr<InstallerMetadataCollectionContext> result = std::make_unique<InstallerMetadataCollectionContext>();
         auto threadGlobalsLifetime = result->InitializeLogging(logFile);
-        result->InitializePreinstallState(std::wstring{ json });
+        result->InitializePreinstallState(json);
 
         return result;
     }

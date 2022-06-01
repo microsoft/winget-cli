@@ -191,6 +191,9 @@
     <ClCompile Include="Correlation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InstallerMetadataCollectionContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Metadata
     struct InstallerMetadataCollectionContext
     {
         InstallerMetadataCollectionContext();
-        InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData);
+        InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json);
 
         InstallerMetadataCollectionContext(const InstallerMetadataCollectionContext&) = delete;
         InstallerMetadataCollectionContext& operator=(const InstallerMetadataCollectionContext&) = delete;
@@ -85,7 +85,7 @@ namespace AppInstaller::Repository::Metadata
         // Create from various forms of JSON input to prevent type collisions on constructor.
         static std::unique_ptr<InstallerMetadataCollectionContext> FromFile(const std::filesystem::path& file, const std::filesystem::path& logFile);
         static std::unique_ptr<InstallerMetadataCollectionContext> FromURI(std::wstring_view uri, const std::filesystem::path& logFile);
-        static std::unique_ptr<InstallerMetadataCollectionContext> FromJSON(std::wstring_view json, const std::filesystem::path& logFile);
+        static std::unique_ptr<InstallerMetadataCollectionContext> FromJSON(const std::wstring& json, const std::filesystem::path& logFile);
 
         // Completes the collection, writing to the given location.
         void Complete(const std::filesystem::path& output);
