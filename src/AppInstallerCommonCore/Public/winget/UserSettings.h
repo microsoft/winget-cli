@@ -87,6 +87,7 @@ namespace AppInstaller::Settings
         EnableSelfInitiatedMinidump,
         LoggingLevelPreference,
         InstallIgnoreWarnings,
+        SuppressInstallNotes,
         PortableAppUserRoot,
         PortableAppMachineRoot,
         UninstallPurgePortablePackage,
@@ -139,6 +140,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::SuppressInstallNotes, bool, bool, false, ".installBehavior.suppressInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);

@@ -97,6 +97,10 @@ namespace AppInstaller::CLI
             return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
+        case Args::Type::DisplayNotes:
+            return Argument{ "display-notes", NoAlias, Args::Type::DisplayNotes, Resource::String::DisplayNotesArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::SuppressNotes:
+            return Argument{ "suppress-notes", NoAlias, Args::Type::SuppressNotes, Resource::String::SuppressNotesArgumentDescription, ArgumentType::Flag, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

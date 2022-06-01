@@ -46,6 +46,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
+            Argument::ForType(Args::Type::DisplayNotes),
+            Argument::ForType(Args::Type::SuppressNotes),
         };
     }
 
@@ -136,6 +138,11 @@ namespace AppInstaller::CLI
             {
                 throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
             }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::DisplayNotes) && execArgs.Contains(Execution::Args::Type::SuppressNotes))
+        {
+            throw CommandException(Resource::String::BothDisplayAndSuppressNotesFlagsProvided, "");
         }
     }
 

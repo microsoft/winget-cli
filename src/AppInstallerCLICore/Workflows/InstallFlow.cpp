@@ -145,6 +145,21 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void DisplayInstallationNotes(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
+
+        if (!context.IsTerminated() && !installationNotes.empty())
+        {
+            if (context.Args.Contains(Execution::Args::Type::DisplayNotes) ||
+                !context.Args.Contains(Execution::Args::Type::SuppressNotes) && !Settings::User().Get<Settings::Setting::SuppressInstallNotes>())
+            {
+                context.Reporter.Info() << std::endl << installationNotes << std::endl;
+            }
+        }
+    }
+
     void ShowPackageAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -423,7 +438,8 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::DownloadSinglePackage <<
-            Workflow::InstallPackageInstaller;
+            Workflow::InstallPackageInstaller <<
+            Workflow::DisplayInstallationNotes;
     }
 
     void EnsureSupportForInstall(Execution::Context& context)

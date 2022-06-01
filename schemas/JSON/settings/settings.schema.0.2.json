@@ -102,6 +102,11 @@
           "type": "boolean",
           "default": false
         },
+        "suppressInstallNotes": {
+          "description": "Controls whether installation notes are suppressed after a successful install",
+          "type": "boolean",
+          "default":  false
+        },
         "PortablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",
