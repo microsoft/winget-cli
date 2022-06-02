@@ -129,6 +129,36 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void CheckForUnsupportedArgs(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        const auto& unsupportedArgs = manifest.DefaultInstallerInfo.UnsupportedArguments;
+        bool unsupportedArgFound = false;
+
+        if (!unsupportedArgs.empty())
+        {
+            for (auto unsupportedArg : unsupportedArgs)
+            {
+                if (unsupportedArg == UnsupportedArgumentEnum::Log && context.Args.Contains(Execution::Args::Type::Log))
+                {
+                    unsupportedArgFound = true;
+                    context.Reporter.Error() << Resource::String::LogArgumentNotSupported << std::endl;
+                }
+
+                if (unsupportedArg == UnsupportedArgumentEnum::Location && context.Args.Contains(Execution::Args::Type::InstallLocation))
+                {
+                    unsupportedArgFound = true;
+                    context.Reporter.Error() << Resource::String::LocationArgumentNotSupported << std::endl;
+                }
+            }
+        }
+
+        if (unsupportedArgFound)
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+        }
+    }
+
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
         auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
