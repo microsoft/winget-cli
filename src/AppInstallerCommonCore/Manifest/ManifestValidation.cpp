@@ -208,10 +208,17 @@ namespace AppInstaller::Manifest
             {
                 if (!entry.DisplayVersion.empty())
                 {
-                    Utility::Version displayVersion{ entry.DisplayVersion };
-                    if (displayVersion.IsApproximateVersion())
+                    try
                     {
-                        resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
+                        Utility::Version displayVersion{ entry.DisplayVersion };
+                        if (displayVersion.IsApproximateVersion())
+                        {
+                            resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
+                        }
+                    }
+                    catch (const std::exception&)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidFieldValue, "DisplayVersion", entry.DisplayVersion);
                     }
                 }
             }
