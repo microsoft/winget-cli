@@ -226,6 +226,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
@@ -259,7 +260,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyrightUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDocumentations);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDocumentation);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);

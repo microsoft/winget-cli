@@ -90,25 +90,24 @@ namespace AppInstaller::CLI::Workflow
         {
             info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl << ' ' << releaseNotesUrl << std::endl;
         }
-        auto documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
+        const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())
         {
-            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDocumentations << std::endl;
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDocumentation << std::endl;
             for (const auto& documentation : documentations)
             {
-                if (!documentation.DocumentLabel.empty())
-                {
-                    info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
-                }
-
                 if (!documentation.DocumentUrl.empty())
                 {
+                    if (!documentation.DocumentLabel.empty())
+                    {
+                        info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
+                    }
+
                     info << documentation.DocumentUrl << std::endl;
                 }
             }
         }
-
-        auto agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
+        const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
             context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;

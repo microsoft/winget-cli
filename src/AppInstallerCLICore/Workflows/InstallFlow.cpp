@@ -24,7 +24,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -377,6 +377,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
                 context.Reporter.Error() << returnCode.Message << std::endl;
+
+                auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
+                if (!returnResponseUrl.empty())
+                {
+                    context.Reporter.Error() << Resource::String::RelatedLink << ": "_liv << returnResponseUrl << std::endl;
+                }
+
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
