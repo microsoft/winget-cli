@@ -616,7 +616,11 @@ namespace AppInstaller::Msix
             APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
             THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
 
-            if (packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
+            UINT64 offset;
+            THROW_IF_FAILED(packageInfo->GetOffset(&offset));
+            const bool isContained = offset != 0;
+
+            if (isContained && packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
             {
                 wil::unique_cotaskmem_string fileName;
                 THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
