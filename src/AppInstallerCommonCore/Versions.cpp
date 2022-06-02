@@ -66,7 +66,7 @@ namespace AppInstaller::Utility
 
     bool Version::operator<(const Version& other) const
     {
-        // If base versions are same, result is baed on approximate comparator
+        // If base versions are same, result is based on approximate comparator
         Version thisBase = *this;
         thisBase.m_approximateComparator = ApproximateComparator::None;
         Version otherBase = other;
