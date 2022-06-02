@@ -894,18 +894,22 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValid
     auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
-    auto errors = ValidateManifestInstallers(manifest);
-    REQUIRE(2 == errors.size());
+    for (bool treatErrorAsWarning : { false, true })
+    {
+        auto errors = ValidateManifestInstallers(manifest, treatErrorAsWarning);
+        auto expectedLevel = treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error;
+        REQUIRE(2 == errors.size());
 
-    // Package family name
-    REQUIRE(ValidationError::Level::Warning == errors[0].ErrorLevel);
-    REQUIRE(ManifestError::OptionalFieldMissing == errors[0].Message);
-    REQUIRE("PackageFamilyName" == errors[0].Field);
-    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
+        // Package family name
+        REQUIRE(expectedLevel == errors[0].ErrorLevel);
+        REQUIRE(ManifestError::OptionalFieldMissing == errors[0].Message);
+        REQUIRE("PackageFamilyName" == errors[0].Field);
+        REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
 
-    // Min OS version
-    REQUIRE(ValidationError::Level::Warning == errors[1].ErrorLevel);
-    REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
-    REQUIRE("MinimumOSVersion" == errors[1].Field);
-    REQUIRE("10.0.0.0" == errors[1].Value);
+        // Min OS version
+        REQUIRE(expectedLevel == errors[1].ErrorLevel);
+        REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
+        REQUIRE("MinimumOSVersion" == errors[1].Field);
+        REQUIRE("10.0.0.0" == errors[1].Value);
+    }
 }

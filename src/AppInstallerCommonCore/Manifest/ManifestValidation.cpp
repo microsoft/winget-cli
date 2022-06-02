@@ -241,7 +241,8 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateMsixManifest(
         const Msix::PackageVersion packageVersion,
         const ManifestInstaller& installer,
-        Msix::MsixPackageManifestManager& msixManifestsManager)
+        Msix::MsixPackageManifestManager& msixManifestsManager,
+        bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
         std::optional<Msix::OSVersion> installerMinOSVersion;
@@ -286,7 +287,7 @@ namespace AppInstaller::Manifest
                     ManifestError::OptionalFieldMissing,
                     "PackageFamilyName",
                     msixPackageFamilyName,
-                    ValidationError::Level::Warning);
+                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
             }
 
             // Validate package version
@@ -312,14 +313,14 @@ namespace AppInstaller::Manifest
                     ManifestError::OptionalFieldMissing,
                     "MinimumOSVersion",
                     targetMinOSVersion.value().ToString(),
-                    ValidationError::Level::Warning);
+                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
             }
         }
 
         return errors;
     }
 
-    std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest)
+    std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
         Msix::MsixPackageManifestManager msixManifestsManager;
@@ -328,7 +329,7 @@ namespace AppInstaller::Manifest
             // Installer msix or msixbundle
             if (installer.InstallerType == InstallerTypeEnum::Msix)
             {
-                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsManager);
+                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsManager, treatErrorAsWarning);
                 std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
             }
         }

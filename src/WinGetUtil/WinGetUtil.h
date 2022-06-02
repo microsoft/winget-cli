@@ -22,7 +22,7 @@ extern "C"
         Default = 0,
         SchemaValidationOnly = 0x1,
         ErrorOnVerifiedPublisherFields = 0x2,
-        InstallerValidation = 0x10,
+        InstallerValidation = 0x4,
     };
 
     enum WinGetValidateManifestDependenciesOption
