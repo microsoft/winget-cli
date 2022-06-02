@@ -1,8 +1,8 @@
 PackageIdentifier: AppInstallerTest.TestArpVersionOppositeOrder
 PackageVersion: 1.0
-PackageName: TestArpVersionOppositeOrder
+PackageName: AppInstallerTestExeInstaller
 PackageLocale: en-US
-Publisher: AppInstallerTest
+Publisher: Microsoft Corporation
 License: Test
 ShortDescription: E2E test for arp version test.
 Installers:
