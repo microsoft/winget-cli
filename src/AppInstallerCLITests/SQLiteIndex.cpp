@@ -34,7 +34,7 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version::Latest());
+        version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version::Latest());
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -67,6 +67,16 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
         Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 });
 
         if (version != Schema::Version{ 1, 4 })
+        {
+            index.ForceVersion(version);
+            return version;
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 5 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version{ 1, 5 });
+
+        if (version != Schema::Version{ 1, 5 })
         {
             index.ForceVersion(version);
             return version;
@@ -302,6 +312,12 @@ bool AreManifestHashesSupported(const SQLiteIndex& index, const Schema::Version&
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
     return (index.GetVersion() >= Schema::Version{ 1, 3 } && testVersion >= Schema::Version{ 1, 3 });
+}
+
+bool AreArpVersionsSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 5 } && testVersion >= Schema::Version{ 1, 5 });
 }
 
 std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
@@ -2864,4 +2880,109 @@ TEST_CASE("SQLiteIndex_ManifestHash_Missing", "[sqliteindex]")
     auto hashResult = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ManifestSHA256Hash);
 
     REQUIRE(!hashResult);
+}
+
+TEST_CASE("SQLiteIndex_ManifestArpVersion_Present", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile);
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "Bar";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+    
+    // Test add
+    {
+        index.AddManifest(manifest, "path");
+
+        Schema::Version testVersion = TestPrepareForRead(index);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+
+        auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
+        auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+
+        if (AreArpVersionsSupported(index, testVersion))
+        {
+            REQUIRE(arpMin);
+            REQUIRE(arpMin.value() == "1.0");
+            REQUIRE(arpMax);
+            REQUIRE(arpMax.value() == "1.1");
+        }
+        else
+        {
+            REQUIRE_FALSE(arpMin);
+            REQUIRE_FALSE(arpMax);
+        }
+    }
+
+    // Test update
+    {
+        manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.1";
+
+        index.UpdateManifest(manifest, "path");
+
+        Schema::Version testVersion = TestPrepareForRead(index);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+
+        auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
+        auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+
+        if (AreArpVersionsSupported(index, testVersion))
+        {
+            REQUIRE(arpMin);
+            REQUIRE(arpMin.value() == "1.1");
+            REQUIRE(arpMax);
+            REQUIRE(arpMax.value() == "1.1");
+        }
+        else
+        {
+            REQUIRE_FALSE(arpMin);
+            REQUIRE_FALSE(arpMax);
+        }
+    }
+}
+
+TEST_CASE("SQLiteIndex_ManifestArpVersion_Empty", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile);
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "Bar";
+    index.AddManifest(manifest, "path");
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
+    auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+
+    if (AreArpVersionsSupported(index, testVersion))
+    {
+        REQUIRE(arpMin);
+        REQUIRE(arpMin.value() == "");
+        REQUIRE(arpMax);
+        REQUIRE(arpMax.value() == "");
+    }
+    else
+    {
+        REQUIRE_FALSE(arpMin);
+        REQUIRE_FALSE(arpMax);
+    }
 }
