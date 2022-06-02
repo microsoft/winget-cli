@@ -255,29 +255,29 @@ extern "C"
     }
     CATCH_RETURN()
 
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
+
     WINGET_UTIL_API WinGetValidateManifestV3(
         WINGET_STRING inputPath,
         WINGET_SQLITE_INDEX_HANDLE index,
-        BOOL* succeeded,
+        WinGetValidateManifestResult* result,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
         WinGetValidateManifestOptionV2 option,
         WinGetValidateManifestOperationType operationType) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
-        THROW_HR_IF(E_INVALIDARG, !succeeded);
+        THROW_HR_IF(E_INVALIDARG, !result);
         // Index should be provided if DependenciesValidation or ArpVersionValidation is to be performed
         THROW_HR_IF(E_INVALIDARG, !index && (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation) || WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation)));
         THROW_HR_IF(E_INVALIDARG, option == WinGetValidateManifestOptionV2::None);
         // ErrorOnVerifiedPublisherFields can only be used with SchemaAndSemanticValidation
         THROW_HR_IF(E_INVALIDARG, (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ReturnErrorOnVerifiedPublisherFields) && WI_IsFlagClear(option, WinGetValidateManifestOptionV2::SchemaAndSemanticValidation)));
 
-        *succeeded = FALSE;
+        *result = WinGetValidateManifestResult::InternalError;
 
         std::string validationMessage;
-        bool manifestValidationResult = false;
-        bool dependenciesValidationResult = false;
-        bool arpVersionValidationResult = false;
+        auto validationResult = WinGetValidateManifestResult::Success;
 
         if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::SchemaValidation) || WI_IsFlagSet(option, WinGetValidateManifestOptionV2::SchemaAndSemanticValidation))
         {
@@ -290,21 +290,15 @@ extern "C"
                 validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ReturnErrorOnVerifiedPublisherFields);
 
                 (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
-
-                manifestValidationResult = true;
             }
             catch (const ManifestException& e)
             {
-                manifestValidationResult = e.IsWarningOnly();
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::ManifestValidationFailure, !e.IsWarningOnly());
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();
                 }
             }
-        }
-        else
-        {
-            manifestValidationResult = true;
         }
 
         if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation))
@@ -314,7 +308,7 @@ extern "C"
                 Manifest manifest = YamlParser::CreateFromPath(inputPath);
                 SQLiteIndex* sqliteIndex(reinterpret_cast<SQLiteIndex*>(index));
 
-                if (operationType == WinGetValidateManifestOperationType::Delete)
+                if (operationType == WinGetValidateManifestOperationType::OperationTypeDelete)
                 {
                     PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(sqliteIndex, manifest);
                 }
@@ -322,21 +316,15 @@ extern "C"
                 {
                     PackageDependenciesValidation::ValidateManifestDependencies(sqliteIndex, manifest);
                 }
-
-                dependenciesValidationResult = true;
             }
             catch (const ManifestException& e)
             {
-                dependenciesValidationResult = e.IsWarningOnly();
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::DependenciesValidationFailure, !e.IsWarningOnly());
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();
                 }
             }
-        }
-        else
-        {
-            dependenciesValidationResult = true;
         }
         
         if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation))
@@ -346,24 +334,18 @@ extern "C"
                 Manifest manifest = YamlParser::CreateFromPath(inputPath);
                 SQLiteIndex* sqliteIndex(reinterpret_cast<SQLiteIndex*>(index));
                 ValidateManifestArpVersion(sqliteIndex, manifest);
-
-                arpVersionValidationResult = true;
             }
             catch (const ManifestException& e)
             {
-                arpVersionValidationResult = e.IsWarningOnly();
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::ArpVersionValidationFailure, !e.IsWarningOnly());
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();
                 }
             }
         }
-        else
-        {
-            arpVersionValidationResult = true;
-        }
 
-        *succeeded = (manifestValidationResult && dependenciesValidationResult && arpVersionValidationResult) ? TRUE : FALSE;
+        *result = validationResult;
         if (message)
         {
             *message = ::SysAllocString(ConvertToUTF16(validationMessage).c_str());

@@ -49,9 +49,23 @@ extern "C"
 
     enum WinGetValidateManifestOperationType
     {
-        Add = 0,
-        Update = 1,
-        Delete = 2,
+        OperationTypeAdd = 0,
+        OperationTypeUpdate = 1,
+        OperationTypeDelete = 2,
+    };
+
+    enum WinGetValidateManifestResult
+    {
+        Success = 0,
+
+        // Each validation step should have an enum for corresponding failure.
+        ManifestValidationFailure = 0x1,
+        DependenciesValidationFailure = 0x2,
+        ArpVersionValidationFailure = 0x4,
+        InstallerValidationFailure = 0x8,
+
+        // Internal error meaning validation does not complete as desired.
+        InternalError = 0x1000,
     };
 
     enum WinGetValidateManifestDependenciesOption
