@@ -282,6 +282,9 @@
     <ClInclude Include="ArpVersionValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

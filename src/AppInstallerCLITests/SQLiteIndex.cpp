@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
 #include <PackageDependenciesValidation.h>
+#include <ArpVersionValidation.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
 #include <AppInstallerStrings.h>
@@ -970,8 +971,6 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 
     // Checking consistency will also uncover issues, but not potentially the same ones as below.
     REQUIRE(index.CheckConsistency(true));
-
-    
 
     // Repeat search to ensure consistent ids
     result = index.Search(request);
@@ -2882,7 +2881,7 @@ TEST_CASE("SQLiteIndex_ManifestHash_Missing", "[sqliteindex]")
     REQUIRE(!hashResult);
 }
 
-TEST_CASE("SQLiteIndex_ManifestArpVersion_Present", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_Add", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -2893,63 +2892,78 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Present", "[sqliteindex]")
     manifest.Id = "Foo";
     manifest.Version = "Bar";
     manifest.Installers.push_back({});
+    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
     
-    // Test add
+    index.AddManifest(manifest, "path");
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
+    auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+
+    if (AreArpVersionsSupported(index, testVersion))
     {
-        index.AddManifest(manifest, "path");
-
-        Schema::Version testVersion = TestPrepareForRead(index);
-
-        auto results = index.Search({});
-        REQUIRE(results.Matches.size() == 1);
-
-        auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
-        auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
-
-        if (AreArpVersionsSupported(index, testVersion))
-        {
-            REQUIRE(arpMin);
-            REQUIRE(arpMin.value() == "1.0");
-            REQUIRE(arpMax);
-            REQUIRE(arpMax.value() == "1.1");
-        }
-        else
-        {
-            REQUIRE_FALSE(arpMin);
-            REQUIRE_FALSE(arpMax);
-        }
+        REQUIRE(arpMin);
+        REQUIRE(arpMin.value() == "1.0");
+        REQUIRE(arpMax);
+        REQUIRE(arpMax.value() == "1.1");
     }
-
-    // Test update
+    else
     {
-        manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.1";
+        REQUIRE_FALSE(arpMin);
+        REQUIRE_FALSE(arpMax);
+    }
+}
 
-        index.UpdateManifest(manifest, "path");
+TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_AddThenUpdate", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
 
-        Schema::Version testVersion = TestPrepareForRead(index);
+    SQLiteIndex index = CreateTestIndex(tempFile);
 
-        auto results = index.Search({});
-        REQUIRE(results.Matches.size() == 1);
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "Bar";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
 
-        auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
-        auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+    index.AddManifest(manifest, "path");
 
-        if (AreArpVersionsSupported(index, testVersion))
-        {
-            REQUIRE(arpMin);
-            REQUIRE(arpMin.value() == "1.1");
-            REQUIRE(arpMax);
-            REQUIRE(arpMax.value() == "1.1");
-        }
-        else
-        {
-            REQUIRE_FALSE(arpMin);
-            REQUIRE_FALSE(arpMax);
-        }
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.1";
+
+    index.UpdateManifest(manifest, "path");
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    auto arpMin = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
+    auto arpMax = index.GetPropertyByManifestId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
+
+    if (AreArpVersionsSupported(index, testVersion))
+    {
+        REQUIRE(arpMin);
+        REQUIRE(arpMin.value() == "1.1");
+        REQUIRE(arpMax);
+        REQUIRE(arpMax.value() == "1.1");
+    }
+    else
+    {
+        REQUIRE_FALSE(arpMin);
+        REQUIRE_FALSE(arpMax);
     }
 }
 
@@ -2984,5 +2998,53 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Empty", "[sqliteindex]")
     {
         REQUIRE_FALSE(arpMin);
         REQUIRE_FALSE(arpMax);
+    }
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestArpVersionKeepUsedDeleteUnused", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile, Schema::Version::Latest());
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "10.0";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+
+    index.AddManifest(manifest, "path");
+
+    Manifest manifest2;
+    manifest2.Id = "Foo2";
+    manifest2.Version = "1.0";
+    manifest2.Installers.push_back({});
+    manifest2.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest2.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest2.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "10.0";
+
+    index.AddManifest(manifest2, "path2");
+
+    // Before removing, "10.0", "1.0" and "1.1" should all exist.
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "10.0").has_value());
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "1.0").has_value());
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "1.1").has_value());
+    }
+
+    index.RemoveManifest(manifest);
+
+    // After removing the first manifest, "10.0" and "1.0" should still stay, "1.1" should be removed.
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "10.0").has_value());
+        REQUIRE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "1.0").has_value());
+        REQUIRE_FALSE(Schema::V1_0::VersionTable::SelectIdByValue(connection, "1.1").has_value());
     }
 }

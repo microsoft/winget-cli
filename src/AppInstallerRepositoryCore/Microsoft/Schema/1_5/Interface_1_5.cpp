@@ -23,8 +23,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
         V1_4::Interface::CreateTables(connection, options);
 
-        V1_0::ManifestTable::AddColumn(connection, { ArpMinVersionVirtualTable::ValueName(), SQLite::Builder::Type::Int64 });
-        V1_0::ManifestTable::AddColumn(connection, { ArpMaxVersionVirtualTable::ValueName(), SQLite::Builder::Type::Int64 });
+        V1_0::ManifestTable::AddColumn(connection, { ArpMinVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::Int64});
+        V1_0::ManifestTable::AddColumn(connection, { ArpMaxVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::Int64 });
 
         savepoint.Commit();
     }
@@ -54,39 +54,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
         auto [indexModified, manifestId] = V1_4::Interface::UpdateManifest(connection, manifest, relativePath);
 
-        auto [arpMinVersionInIndex, arpMaxVersionInIndex] =
-            V1_0::ManifestTable::GetValuesById<ArpMinVersionVirtualTable, ArpMaxVersionVirtualTable>(connection, manifestId);
+        auto [oldMinVersionId, oldMaxVersionId] =
+            V1_0::ManifestTable::GetIdsById<ArpMinVersionVirtualTable, ArpMaxVersionVirtualTable>(connection, manifestId);
 
         auto arpVersionRange = manifest.GetArpVersionRange();
         Manifest::string_t arpMinVersion = arpVersionRange.IsEmpty() ? "" : arpVersionRange.GetMinVersion().ToString();
         Manifest::string_t arpMaxVersion = arpVersionRange.IsEmpty() ? "" : arpVersionRange.GetMaxVersion().ToString();
 
+        SQLite::rowid_t arpMinVersionId = V1_0::VersionTable::EnsureExists(connection, arpMinVersion);
+        SQLite::rowid_t arpMaxVersionId = V1_0::VersionTable::EnsureExists(connection, arpMaxVersion);
+
         // For cleaning up the old entries after update if applicable
-        V1_0::VersionTable::id_t oldMinVersionId = -1;
-        V1_0::VersionTable::id_t oldMaxVersionId = -1;
+        bool cleanOldMinVersionId = false;
+        bool cleanOldMaxVersionId = false;
 
-        if (arpMinVersionInIndex != arpMinVersion)
+        if (arpMinVersionId != oldMinVersionId)
         {
-            oldMinVersionId = std::get<0>(V1_0::ManifestTable::GetIdsById<ArpMinVersionVirtualTable>(connection, manifestId));
-            SQLite::rowid_t arpMinVersionId = V1_0::VersionTable::EnsureExists(connection, arpMinVersion);
             V1_0::ManifestTable::UpdateValueIdById<ArpMinVersionVirtualTable>(connection, manifestId, arpMinVersionId);
+            cleanOldMinVersionId = true;
             indexModified = true;
         }
 
-        if (arpMaxVersionInIndex != arpMaxVersion)
+        if (arpMaxVersionId != oldMaxVersionId)
         {
-            oldMaxVersionId = std::get<0>(V1_0::ManifestTable::GetIdsById<ArpMaxVersionVirtualTable>(connection, manifestId));
-            SQLite::rowid_t arpMaxVersionId = V1_0::VersionTable::EnsureExists(connection, arpMaxVersion);
             V1_0::ManifestTable::UpdateValueIdById<ArpMaxVersionVirtualTable>(connection, manifestId, arpMaxVersionId);
+            cleanOldMaxVersionId = true;
             indexModified = true;
         }
 
-        if (oldMinVersionId >= 0 && NotNeeded(connection, V1_0::VersionTable::TableName(), V1_0::VersionTable::ValueName(), oldMinVersionId))
+        if (cleanOldMinVersionId && NotNeeded(connection, V1_0::VersionTable::TableName(), V1_0::VersionTable::ValueName(), oldMinVersionId))
         {
             V1_0::VersionTable::DeleteById(connection, oldMinVersionId);
         }
 
-        if (oldMaxVersionId >= 0 && oldMaxVersionId != oldMinVersionId && NotNeeded(connection, V1_0::VersionTable::TableName(), V1_0::VersionTable::ValueName(), oldMaxVersionId))
+        if (cleanOldMaxVersionId && oldMaxVersionId != oldMinVersionId && NotNeeded(connection, V1_0::VersionTable::TableName(), V1_0::VersionTable::ValueName(), oldMaxVersionId))
         {
             V1_0::VersionTable::DeleteById(connection, oldMaxVersionId);
         }
@@ -131,13 +132,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
             {
                 result = !V1_0::ManifestTable::IsValueReferenced(connection, V1_0::VersionTable::ValueName(), id) && result;
             }
-            if (valueName != ArpMinVersionVirtualTable::ValueName())
+            if (valueName != ArpMinVersionVirtualTable::ManifestColumnName())
             {
-                result = !V1_0::ManifestTable::IsValueReferenced(connection, ArpMinVersionVirtualTable::ValueName(), id) && result;
+                result = !V1_0::ManifestTable::IsValueReferenced(connection, ArpMinVersionVirtualTable::ManifestColumnName(), id) && result;
             }
-            if (valueName != ArpMaxVersionVirtualTable::ValueName())
+            if (valueName != ArpMaxVersionVirtualTable::ManifestColumnName())
             {
-                result = !V1_0::ManifestTable::IsValueReferenced(connection, ArpMaxVersionVirtualTable::ValueName(), id) && result;
+                result = !V1_0::ManifestTable::IsValueReferenced(connection, ArpMaxVersionVirtualTable::ManifestColumnName(), id) && result;
             }
         }
 

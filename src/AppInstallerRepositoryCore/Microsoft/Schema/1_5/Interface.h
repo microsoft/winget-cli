@@ -18,9 +18,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
-        bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const override;
 
     protected:
+
+        bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const override;
+
         // Gets a property already knowing that the manifest id is valid.
         std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
     };
