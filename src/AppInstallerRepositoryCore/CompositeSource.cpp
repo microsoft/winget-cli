@@ -223,16 +223,16 @@ namespace AppInstaller::Repository
         // A composite package installed version that allows us to override the source or the version.
         struct CompositeInstalledVersion : public IPackageVersion
         {
-            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource, std::optional<std::string> overrideVersion = std::nullopt) :
+            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource, std::string overrideVersion = {}) :
                 m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource)), m_overrideVersion(std::move(overrideVersion))
             {}
 
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
             {
                 // If there is an override version, use it.
-                if (property == PackageVersionProperty::Version && m_overrideVersion.has_value())
+                if (property == PackageVersionProperty::Version && !m_overrideVersion.empty())
                 {
-                    return Utility::LocIndString{ m_overrideVersion.value() };
+                    return Utility::LocIndString{ m_overrideVersion };
                 }
 
                 return m_baseInstalledVersion->GetProperty(property);
@@ -267,7 +267,7 @@ namespace AppInstaller::Repository
         private:
             std::shared_ptr<IPackageVersion> m_baseInstalledVersion;
             Source m_trackingSource;
-            std::optional<std::string> m_overrideVersion;
+            std::string m_overrideVersion;
         };
 
         // A composite package for the CompositeSource.
@@ -314,9 +314,15 @@ namespace AppInstaller::Repository
             {
                 if (m_installedPackage)
                 {
-                    if (m_availablePackage && !m_overrideInstalledVersion.has_value())
+                    if (m_availablePackage && !m_isOverrideInstalledVersionInitialized)
                     {
-                        m_overrideInstalledVersion = GetMappedInstalledVersion(m_installedPackage->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version), m_availablePackage);
+                        auto installedType = Manifest::ConvertToInstallerTypeEnum(m_installedPackage->GetInstalledVersion()->GetMetadata()[PackageVersionMetadata::InstalledType]);
+                        if (Manifest::DoesInstallerTypeWriteAppsAndFeaturesEntry(installedType) && installedType != Manifest::InstallerTypeEnum::Portable)
+                        {
+                            m_overrideInstalledVersion = GetMappedInstalledVersion(m_installedPackage->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version), m_availablePackage);
+                        }
+                        
+                        m_isOverrideInstalledVersionInitialized = true;
                     }
 
                     return std::make_shared<CompositeInstalledVersion>(m_installedPackage->GetInstalledVersion(), m_trackingSource, m_overrideInstalledVersion);
@@ -420,7 +426,8 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackage> m_availablePackage;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
-            mutable std::optional<std::string> m_overrideInstalledVersion;
+            mutable std::atomic_bool m_isOverrideInstalledVersionInitialized = false;
+            mutable std::string m_overrideInstalledVersion;
         };
 
         // The comparator compares the ResultMatch by MatchType first, then Field in a predefined order.

@@ -191,3 +191,70 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
 {
     REQUIRE(Version::CreateUnknown() < Version::CreateLatest());
 }
+
+TEST_CASE("ApproximateVersionParse", "[versions]")
+{
+    Version v1_0{ "1.0" };
+    Version v1_0_LessThan = Version::CreateLessThanApproximateVersion(v1_0);
+    Version v1_0_GreaterThan = Version::CreateGreaterThanApproximateVersion(v1_0);
+
+    Version v1_0_LessThanFromString = Version{ "< 1.0" };
+    Version v1_0_GreaterThanFromString = Version{ "> 1.0" };
+
+    REQUIRE_FALSE(v1_0.IsApproximateVersion());
+    REQUIRE(v1_0_LessThanFromString.IsApproximateVersion());
+    REQUIRE(v1_0_GreaterThanFromString.IsApproximateVersion());
+
+    REQUIRE(v1_0_LessThan == v1_0_LessThanFromString);
+    REQUIRE(v1_0_GreaterThan == v1_0_GreaterThanFromString);
+}
+
+TEST_CASE("ApproximateVersionCompare", "[versions]")
+{
+    RequireEqual("< 1.0", "< 1.0");
+    RequireEqual("< 1.0", "< 1.0.0");
+    RequireEqual("> 1.0", "> 1.0");
+    RequireEqual("> 1.0", "> 1.0.0");
+
+    RequireLessThan("< 1.0", "1.0");
+    RequireLessThan("< 1.0", "> 1.0");
+    RequireLessThan("1.0", "> 1.0");
+    RequireLessThan("0.9", "< 1.0");
+    RequireLessThan("> 1.0", "1.1");
+
+    // With latest
+    RequireLessThan("< latest", "latest");
+    RequireLessThan("latest", "> latest");
+    RequireLessThan("9999", "< latest");
+
+    // With unknown
+    RequireLessThan("< unknown", "unknown");
+    RequireLessThan("unknown", "> unknown");
+    RequireLessThan("> unknown", "0.0.1");
+}
+
+TEST_CASE("VersionRange", "[versions]")
+{
+    // Create
+    REQUIRE_NOTHROW(VersionRange{ Version{ "1.0" }, Version{ "2.0" } });
+    REQUIRE_NOTHROW(VersionRange{ Version{ "1.0" }, Version{ "1.0" } });
+    REQUIRE_THROWS(VersionRange{ Version{ "2.0" }, Version{ "1.0" } });
+
+    // Overlaps
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "2.0" }, Version{ "3.0" } }));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "1.0" }, Version{ "1.0" } }));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "0.5" }, Version{ "1.5" } }));
+    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "2.1" }, Version{ "3.0" } }));
+    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{}));
+
+    // Empty
+    REQUIRE(VersionRange{}.IsEmpty());
+    REQUIRE_THROWS(VersionRange{}.GetMinVersion());
+    REQUIRE_THROWS(VersionRange{}.GetMaxVersion());
+
+    // Less than compare
+    REQUIRE_THROWS(VersionRange{ Version{ "0.5" }, Version{ "1.0" } } < VersionRange{ Version{ "1.0" }, Version{ "2.0" } });
+    REQUIRE_THROWS(VersionRange{} < VersionRange{ Version{ "1.0" }, Version{ "2.0" } });
+    REQUIRE(VersionRange{ Version{ "0.5" }, Version{ "1.0" } } < VersionRange{ Version{ "1.5" }, Version{ "2.0" } });
+    REQUIRE_FALSE(VersionRange{ Version{ "1.5" }, Version{ "2.0" } } < VersionRange{ Version{ "0.5" }, Version{ "1.0" } });
+}

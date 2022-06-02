@@ -94,28 +94,31 @@ namespace AppInstaller::Manifest
 
         for (auto const& installer : Installers)
         {
-            for (auto const& entry : installer.AppsAndFeaturesEntries)
+            if (DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType) && installer.InstallerType != InstallerTypeEnum::Portable)
             {
-                if (!entry.DisplayVersion.empty())
+                for (auto const& entry : installer.AppsAndFeaturesEntries)
                 {
-                    Utility::Version arpVersion{ entry.DisplayVersion };
+                    if (!entry.DisplayVersion.empty())
+                    {
+                        Utility::Version arpVersion{ entry.DisplayVersion };
 
-                    if (!arpVersionFound)
-                    {
-                        // This is the first arp version found, populate both min and max version
-                        minVersion = arpVersion;
-                        maxVersion = arpVersion;
-                        arpVersionFound = true;
-                        continue;
-                    }
+                        if (!arpVersionFound)
+                        {
+                            // This is the first arp version found, populate both min and max version
+                            minVersion = arpVersion;
+                            maxVersion = arpVersion;
+                            arpVersionFound = true;
+                            continue;
+                        }
 
-                    if (arpVersion < minVersion)
-                    {
-                        minVersion = arpVersion;
-                    }
-                    else if (arpVersion > maxVersion)
-                    {
-                        maxVersion = arpVersion;
+                        if (arpVersion < minVersion)
+                        {
+                            minVersion = arpVersion;
+                        }
+                        else if (arpVersion > maxVersion)
+                        {
+                            maxVersion = arpVersion;
+                        }
                     }
                 }
             }
