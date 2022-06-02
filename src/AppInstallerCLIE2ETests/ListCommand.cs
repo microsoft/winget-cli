@@ -43,21 +43,21 @@ namespace AppInstallerCLIE2ETests
         public void ListWithArpVersionMapping()
         {
             // No mapping performed
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameVersion", "0.5", "0.5", "< 1.0");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameVersion", "TestArpVersionSameVersion", "0.5", "0.5", "< 1.0");
 
             // Partial mapping performed(i.e. only if version falls within arp version range)
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "10.1", "1.0", "10.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "9.9", "9.9", "> 2.0");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "10.1", "1.0", "10.1");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "9.9", "9.9", "> 2.0");
 
             // Full mapping performed
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "7.0", "< 1.0", "7.0");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "10.1", "1.0", "10.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "10.7", "< 2.0", "10.7");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "11.1", "2.0", "11.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "12.0", "> 2.0", "12.0");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "7.0", "< 1.0", "7.0");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.1", "1.0", "10.1");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.7", "< 2.0", "10.7");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "11.1", "2.0", "11.1");
+            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "12.0", "> 2.0", "12.0");
         }
 
-        private void ArpVersionMappingTest(string packageIdentifier, string installVersionOverride, string expectedListVersion, string notExpectedListVersion = "")
+        private void ArpVersionMappingTest(string packageIdentifier, string displayNameOverride, string displayVersionOverride, string expectedListVersion, string notExpectedListVersion = "")
         {
             System.Guid guid = System.Guid.NewGuid();
             string productCode = guid.ToString();
@@ -66,7 +66,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            result = TestCommon.RunAICLICommand("install", $"{packageIdentifier} --override \"/InstallDir {installDir} /ProductID {productCode} /Version {installVersionOverride}\"");
+            result = TestCommon.RunAICLICommand("install", $"{packageIdentifier} --override \"/InstallDir {installDir} /ProductID {productCode} /DisplayName {displayNameOverride} /Version {displayVersionOverride}\"");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);

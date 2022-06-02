@@ -2,7 +2,7 @@ PackageIdentifier: AppInstallerTest.TestArpVersionSameOrder
 PackageVersion: 2.0
 PackageName: TestArpVersionSameOrder
 PackageLocale: en-US
-Publisher: AppInstallerTest
+Publisher: Microsoft
 License: Test
 ShortDescription: E2E test for arp version test.
 Installers:
