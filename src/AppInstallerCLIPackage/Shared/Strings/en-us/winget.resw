@@ -1343,4 +1343,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelDocumentation" xml:space="preserve">
     <value>Documentation:</value>
   </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
+  </data>
 </root>

@@ -90,6 +90,11 @@ namespace AppInstaller::CLI::Workflow
         {
             info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl << ' ' << releaseNotesUrl << std::endl;
         }
+        auto installationNotes = manifest.CurrentLocalization.Get<Manifest::Localization::InstallationNotes>();
+        if (!installationNotes.empty())
+        {
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallationNotes << ' ' << installationNotes << std::endl;
+        }
         const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())
         {
