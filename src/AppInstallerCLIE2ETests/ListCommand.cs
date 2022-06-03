@@ -66,14 +66,14 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            result = TestCommon.RunAICLICommand("install", $"{packageIdentifier} --verbose-logs --override \"/InstallDir {installDir} /ProductID {productCode} /DisplayName {displayNameOverride} /Version {displayVersionOverride}\"");
+            result = TestCommon.RunAICLICommand("install", $"{packageIdentifier} --override \"/InstallDir {installDir} /ProductID {productCode} /DisplayName {displayNameOverride} /Version {displayVersionOverride}\"");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             Assert.True(result.StdOut.Contains(packageIdentifier));
-            Assert.True(result.StdOut.Contains("expectedListVersion"));
+            Assert.True(result.StdOut.Contains(expectedListVersion));
             if (!string.IsNullOrEmpty(notExpectedListVersion))
             {
                 Assert.False(result.StdOut.Contains(notExpectedListVersion));
