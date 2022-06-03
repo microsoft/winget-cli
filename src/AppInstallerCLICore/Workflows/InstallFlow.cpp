@@ -158,6 +158,17 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void DisplayWarning(Execution::Context& context)
+    {
+        auto displayInstallWarnings = context.Get<Execution::Data::Installer>().value().DisplayInstallWarnings;
+
+        if (displayInstallWarnings && )
+        {
+            // Prompt User before continuing and also check for flag 
+            context.Reporter.Info() << Execution::PromptEmphasis << Resource::String::InstallWarning << std::endl;
+        }
+    }
+
     void ShowPackageAgreements::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -442,6 +453,7 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallSinglePackage(Execution::Context& context)
     {
+        // Check if user wants to accept
         context <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
