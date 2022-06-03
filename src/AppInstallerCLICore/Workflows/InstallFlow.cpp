@@ -25,7 +25,6 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 
-
 namespace AppInstaller::CLI::Workflow
 {
     namespace
@@ -131,8 +130,7 @@ namespace AppInstaller::CLI::Workflow
 
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        const auto& unsupportedArgs = manifest.DefaultInstallerInfo.UnsupportedArguments;
+        const auto& unsupportedArgs = context.Get<Execution::Data::Installer>().value().UnsupportedArguments;
         bool unsupportedArgFound = false;
 
         if (!unsupportedArgs.empty())
@@ -172,6 +170,20 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() <<
                 Resource::String::InstallationDisclaimer1 << std::endl <<
                 Resource::String::InstallationDisclaimer2 << std::endl;
+        }
+    }
+
+    void DisplayInstallationNotes(Execution::Context& context)
+    {
+        if (!Settings::User().Get<Settings::Setting::DisableInstallNotes>())
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
+
+            if (!installationNotes.empty())
+            {
+                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
+            }
         }
     }
 
@@ -407,6 +419,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
                 context.Reporter.Error() << returnCode.Message << std::endl;
+
+                auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
+                if (!returnResponseUrl.empty())
+                {
+                    context.Reporter.Error() << Resource::String::RelatedLink << ' ' << returnResponseUrl << std::endl;
+                }
+
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
@@ -435,7 +454,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller;
+            Workflow::RemoveInstaller << 
+            Workflow::DisplayInstallationNotes;
     }
 
     void DownloadSinglePackage(Execution::Context& context)
@@ -510,8 +530,9 @@ namespace AppInstaller::CLI::Workflow
                 {
                     installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
                 }
-                installContext << Workflow::DownloadInstaller;
-                installContext << Workflow::InstallPackageInstaller;
+                installContext <<
+                    Workflow::DownloadInstaller <<
+                    Workflow::InstallPackageInstaller;
             }
             catch (...)
             {

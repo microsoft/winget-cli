@@ -16,6 +16,7 @@
 
 using namespace std::string_view_literals;
 using namespace winrt::Microsoft::Management::Deployment;
+using namespace winrt::Windows::Foundation;
 
 template <typename T>
 struct JSONPair
@@ -339,8 +340,16 @@ struct Main
                 installOptions.PackageInstallMode(PackageInstallMode::Silent);
 
                 std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
-                auto installResult = packageManager.InstallPackageAsync(package, installOptions).get();
+                auto installOperation = packageManager.InstallPackageAsync(package, installOptions);
 
+                if (installOperation.wait_for(std::chrono::minutes(10)) != AsyncStatus::Completed)
+                {
+                    hr = E_FAIL;
+                    error = "Install operation timed out";
+                    return;
+                }
+
+                auto installResult = installOperation.GetResults();
                 if (installResult.Status() != InstallResultStatus::Ok)
                 {
                     hr = installResult.ExtendedErrorCode();

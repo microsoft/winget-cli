@@ -92,7 +92,7 @@ namespace AppInstaller::CLI::Execution
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
-            Wait, // Prompts the user to press any key before exiting.
+            Wait, // Prompts the user to press any key before exiting
 
             // Used for demonstration purposes
             ExperimentalArg,

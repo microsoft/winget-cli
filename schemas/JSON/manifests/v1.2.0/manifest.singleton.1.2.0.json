@@ -611,7 +611,7 @@
         },
         "UnsupportedArguments": {
           "$ref": " #/definitions/UnsupportedArguments"
-        }
+        },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
         },

@@ -795,6 +795,45 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InstallationNotes.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify installation notes are displayed
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find("testInstallationNotes") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_UnsupportedArguments", "[InstallFlow][workflow]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Log);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify install failed with unsupported arguments error message
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LogArgumentNotSupported).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LocationArgumentNotSupported).get()) != std::string::npos);
+}
+
 TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -814,6 +853,7 @@ TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallFlowReturnCodeContactSupport).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("https://TestReturnResponseUrl") != std::string::npos);
 }
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")

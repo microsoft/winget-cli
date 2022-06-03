@@ -23,7 +23,7 @@ foreach ($result in (Get-ChildItem $ResultsPath -Directory))
     {
         continue
     }
-    
+
     $resultObj = (Get-Content -Path $resultJSON -Encoding utf8 | ConvertFrom-Json)
 
     if ($resultObj.HRESULT -eq 0)

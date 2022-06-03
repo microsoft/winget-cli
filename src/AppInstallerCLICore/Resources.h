@@ -196,6 +196,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
+        WINGET_DEFINE_RESOURCE_STRINGID(Notes);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
@@ -228,6 +229,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
@@ -261,7 +263,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyrightUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDocumentation);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelExternalDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallationNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);

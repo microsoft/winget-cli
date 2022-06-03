@@ -466,9 +466,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
     {
         REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 2);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
     }
 
     if (isSingleton)
@@ -545,6 +544,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE_FALSE(installer1.DisplayInstallWarnings);
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+        REQUIRE(installer1.UnsupportedArguments.size() == 1);
+        REQUIRE(installer1.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
     }
 
     if (!isSingleton)
@@ -590,6 +591,9 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
             REQUIRE_FALSE(installer3.DisplayInstallWarnings);
+            REQUIRE(installer3.UnsupportedArguments.size() == 2);
+            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+            REQUIRE(installer3.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
         }
 
         // Localization
