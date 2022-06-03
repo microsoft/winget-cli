@@ -29,6 +29,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void DisplayInstallationNotes(Execution::Context& context);
 
+    // Displays the install warnings if applicable.
+    // Required Args: None
+    // Inputs: DisplayInstallWarnings
+    // Outputs: None
+    void DisplayInstallWarnings(Execution::Context& context);
+
     // Shows the license agreements if the application has them.
     // Required Args: None
     // Inputs: Manifest

@@ -435,6 +435,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_DisplayInstallWarnings.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\InstallFlowTest_LicenseAgreement.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

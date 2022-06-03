@@ -158,14 +158,18 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void DisplayWarning(Execution::Context& context)
+    void DisplayInstallWarnings(Execution::Context& context)
     {
         auto displayInstallWarnings = context.Get<Execution::Data::Installer>().value().DisplayInstallWarnings;
 
-        if (displayInstallWarnings && )
+        if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreWarnings) && !Settings::User().Get<Settings::Setting::InstallIgnoreWarnings>())
         {
-            // Prompt User before continuing and also check for flag 
-            context.Reporter.Info() << Execution::PromptEmphasis << Resource::String::InstallWarning << std::endl;
+            bool ignoreWarning = context.Reporter.PromptForBoolResponse(Resource::String::InstallWarning);
+            if (!ignoreWarning)
+            {
+                context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER);
+            }
         }
     }
 
@@ -453,8 +457,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallSinglePackage(Execution::Context& context)
     {
-        // Check if user wants to accept
         context <<
+            Workflow::DisplayInstallWarnings <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

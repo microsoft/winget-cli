@@ -95,6 +95,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpForDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreWarningsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
