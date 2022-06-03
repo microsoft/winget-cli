@@ -591,9 +591,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
             REQUIRE_FALSE(installer3.DisplayInstallWarnings);
-            REQUIRE(installer3.UnsupportedArguments.size() == 2);
-            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-            REQUIRE(installer3.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
+            REQUIRE(installer3.UnsupportedArguments.size() == 1);
+            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
         }
 
         // Localization
