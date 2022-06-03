@@ -194,28 +194,29 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
 
 TEST_CASE("FourPartsVersionNumber_Success_FourParts", "[versions]")
 {
-    Version versionString("1.2.3.4");
-    FourPartsVersionNumber versionNumber(0x0001000200030004);
-    REQUIRE(versionString == versionNumber);
-    REQUIRE(versionString.ToString() == versionNumber.ToString());
+    Version expectedVersion("1.2.3.4");
+    FourPartsVersionNumber versionNumberFromNumber(0x0001000200030004);
+    FourPartsVersionNumber versionNumberFromString("1.2.3.4");
+    REQUIRE(expectedVersion == versionNumberFromNumber);
+    REQUIRE(expectedVersion == versionNumberFromString);
+    REQUIRE(expectedVersion.ToString() == versionNumberFromNumber.ToString());
+    REQUIRE(expectedVersion.ToString() == versionNumberFromString.ToString());
 }
 
 TEST_CASE("FourPartsVersionNumber_Success_LessThanFourParts", "[versions]")
 {
-    Version versionString("1.2.3");
-    FourPartsVersionNumber versionNumber(0x0001000200030000);
-    REQUIRE(versionString == versionNumber);
-    REQUIRE("1.2.3" == versionString.ToString());
-    REQUIRE("1.2.3.0" == versionNumber.ToString());
+    FourPartsVersionNumber versionNumberFromNumber(0x0001000200030000);
+    FourPartsVersionNumber versionNumberFromString("1.2.3");
+    REQUIRE(versionNumberFromNumber == versionNumberFromString);
 }
 
 TEST_CASE("FourPartsVersionNumber_Fail_OverflowComparison", "[versions]")
 {
-    Version versionString("1.0.0.65536"); // 0x1.0x0.0x0.0x10000
-    FourPartsVersionNumber versionNumber(0x0001000000000000);
-    REQUIRE(versionString != versionNumber);
-    REQUIRE("1.0.0.65536" == versionString.ToString());
-    REQUIRE("1.0.0.0" == versionNumber.ToString());
+    FourPartsVersionNumber versionNumberFromString("1.0.0.65536"); // 65536 => 0x10000
+    FourPartsVersionNumber versionNumberFromNumber(0x0001000000000000); // 1.0.0.0
+    REQUIRE(versionNumberFromString != versionNumberFromNumber);
+    REQUIRE("1.0.0.65536" == versionNumberFromString.ToString());
+    REQUIRE("1.0.0.0" == versionNumberFromNumber.ToString());
 }
 
 TEST_CASE("FourPartsVersionNumber_Fail_MoreThanFourParts", "[versions]")
