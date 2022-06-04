@@ -352,14 +352,14 @@ namespace AppInstaller::Repository::Metadata
             {
                 web::json::value entryValue;
 
-                AddFieldIfNotEmpty(itemValue, fields.DisplayName, entry.DisplayName);
-                AddFieldIfNotEmpty(itemValue, fields.Publisher, entry.Publisher);
-                AddFieldIfNotEmpty(itemValue, fields.DisplayVersion, entry.DisplayVersion);
-                AddFieldIfNotEmpty(itemValue, fields.ProductCode, entry.ProductCode);
-                AddFieldIfNotEmpty(itemValue, fields.UpgradeCode, entry.UpgradeCode);
+                AddFieldIfNotEmpty(entryValue, fields.DisplayName, entry.DisplayName);
+                AddFieldIfNotEmpty(entryValue, fields.Publisher, entry.Publisher);
+                AddFieldIfNotEmpty(entryValue, fields.DisplayVersion, entry.DisplayVersion);
+                AddFieldIfNotEmpty(entryValue, fields.ProductCode, entry.ProductCode);
+                AddFieldIfNotEmpty(entryValue, fields.UpgradeCode, entry.UpgradeCode);
                 if (entry.InstallerType != Manifest::InstallerTypeEnum::Unknown)
                 {
-                    itemValue[fields.InstallerType] = AppInstaller::JSON::GetStringValue(Manifest::InstallerTypeToString(entry.InstallerType));
+                    entryValue[fields.InstallerType] = AppInstaller::JSON::GetStringValue(Manifest::InstallerTypeToString(entry.InstallerType));
                 }
 
                 appsAndFeaturesArray[appsAndFeaturesEntryIndex++] = std::move(entryValue);
@@ -370,7 +370,7 @@ namespace AppInstaller::Repository::Metadata
             metadataArray[metadataItemIndex++] = std::move(itemValue);
         }
 
-        result[fields.AppsAndFeaturesEntries] = std::move(metadataArray);
+        result[fields.Metadata] = std::move(metadataArray);
 
         web::json::value historicalArray = web::json::value::array();
         size_t historicalItemIndex = 0;
@@ -817,7 +817,11 @@ namespace AppInstaller::Repository::Metadata
         }
         result[fields.Status] = web::json::value::string(ToString(statusToUse));
 
-        result[fields.Metadata] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
+        if (m_outputStatus == OutputStatus::Success)
+        {
+            result[fields.Metadata] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
+        }
+
         result[fields.Diagnostics] = m_outputDiagnostics;
 
         return result;

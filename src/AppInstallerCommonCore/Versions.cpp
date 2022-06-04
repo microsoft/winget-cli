@@ -16,7 +16,7 @@ namespace AppInstaller::Utility
         Assign(std::move(version), splitChars);
     }
 
-    void Version::Assign(std::string&& version, std::string_view splitChars)
+    void Version::Assign(std::string version, std::string_view splitChars)
     {
         m_version = std::move(version);
         size_t pos = 0;

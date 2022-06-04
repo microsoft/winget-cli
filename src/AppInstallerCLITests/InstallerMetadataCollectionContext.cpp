@@ -33,6 +33,23 @@ namespace
             SubmissionData->DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
         }
 
+        TestInput(MinimalDefaults_t, const std::string& productVersion, const std::string& productCode, Manifest::InstallerTypeEnum installerType) : TestInput(MinimalDefaults)
+        {
+            CurrentMetadata = std::make_optional<ProductMetadata>();
+            CurrentMetadata->SchemaVersion.Assign("1.0");
+            CurrentMetadata->ProductVersionMin.Assign(productVersion);
+            CurrentMetadata->ProductVersionMax.Assign(productVersion);
+            auto& installerMetadata = CurrentMetadata->InstallerMetadataMap[InstallerHash.value()];
+            installerMetadata.SubmissionIdentifier = SubmissionIdentifier.value();
+            installerMetadata.AppsAndFeaturesEntries.push_back({});
+            auto& entry = installerMetadata.AppsAndFeaturesEntries.back();
+            entry.DisplayName = SubmissionData->DefaultLocalization.Get<Manifest::Localization::PackageName>();
+            entry.Publisher = SubmissionData->DefaultLocalization.Get<Manifest::Localization::Publisher>();
+            entry.DisplayVersion = productVersion;
+            entry.ProductCode = productCode;
+            entry.InstallerType = installerType;
+        }
+
         std::optional<std::string> Version;
         std::optional<std::string> SupportedMetadataVersion;
         std::optional<size_t> MaximumMetadataSize;
@@ -140,7 +157,7 @@ namespace
             }
 
             auto metadataValue = JSON::GetJsonValueFromNode(input, L"metadata");
-            if (metadataValue)
+            if (metadataValue && !metadataValue->get().is_null())
             {
                 Metadata = std::make_optional<ProductMetadata>();
                 Metadata->FromJson(metadataValue->get());
@@ -149,13 +166,13 @@ namespace
             auto diagnosticsValue = JSON::GetJsonValueFromNode(input, L"diagnostics");
             if (diagnosticsValue)
             {
-                auto errorHRNumber = JSON::GetRawIntValueFromJsonNode(input, L"errorHR");
+                auto errorHRNumber = JSON::GetRawIntValueFromJsonNode(diagnosticsValue.value(), L"errorHR");
                 if (errorHRNumber)
                 {
                     ErrorHR = std::move(errorHRNumber);
                 }
 
-                auto errorTextString = JSON::GetRawStringValueFromJsonNode(input, L"errorText");
+                auto errorTextString = JSON::GetRawStringValueFromJsonNode(diagnosticsValue.value(), L"errorText");
                 if (errorTextString)
                 {
                     ErrorText = std::move(errorTextString);
@@ -291,7 +308,7 @@ TEST_CASE("NewPackage", "[metadata_collection]")
     manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Test Publisher");
     manifest.Version = "1.2.3";
     manifest.Installers.push_back({});
-    manifest.Installers[0].ProductCode = "{GUID}";
+    manifest.Installers[0].ProductCode = "{guid}";
 
     IPackageVersion::Metadata metadata;
     metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
@@ -321,6 +338,61 @@ TEST_CASE("NewPackage", "[metadata_collection]")
 
 TEST_CASE("SameSubmission_SameInstaller", "[metadata_collection]")
 {
+    std::string version = "1.3.5";
+    std::string productCode = "{guid}";
+    Manifest::InstallerTypeEnum installerType = Manifest::InstallerTypeEnum::Msi;
+
+    TestInput input(MinimalDefaults, version, productCode, installerType);
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Different Language Name");
+    // Same publisher
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(input.CurrentMetadata->InstallerMetadataMap.begin()->second.AppsAndFeaturesEntries[0].Publisher);
+    manifest.Version = version;
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = productCode;
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(installerType);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == output.Metadata->ProductVersionMax.ToString());
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == manifest.Version);
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+    REQUIRE(entry.SubmissionIdentifier == input.SubmissionIdentifier.value());
+    REQUIRE(entry.AppsAndFeaturesEntries.size() == 2);
+
+    // One should have all values, and the other should have just a different name
+    // Base which one is which off of whether Publisher is set
+    for (const auto& featureEntry : entry.AppsAndFeaturesEntries)
+    {
+        if (featureEntry.Publisher.empty())
+        {
+            REQUIRE(featureEntry.DisplayName == manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+            REQUIRE(featureEntry.DisplayVersion.empty());
+            REQUIRE(featureEntry.ProductCode.empty());
+            REQUIRE(featureEntry.InstallerType == Manifest::InstallerTypeEnum::Unknown);
+        }
+        else
+        {
+            REQUIRE(featureEntry.DisplayName == input.CurrentMetadata->InstallerMetadataMap.begin()->second.AppsAndFeaturesEntries[0].DisplayName);
+            REQUIRE(featureEntry.Publisher == manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+            REQUIRE(featureEntry.DisplayVersion == manifest.Version);
+            REQUIRE(featureEntry.ProductCode == manifest.Installers[0].ProductCode);
+            REQUIRE(featureEntry.InstallerType == Manifest::InstallerTypeEnum::Msi);
+        }
+    }
+    REQUIRE(output.Metadata->HistoricalMetadataList.empty());
 }
 
 TEST_CASE("SameSubmission_NewInstaller", "[metadata_collection]")
