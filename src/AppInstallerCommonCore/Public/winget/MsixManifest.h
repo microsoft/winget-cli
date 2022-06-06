@@ -11,50 +11,51 @@
 
 namespace AppInstaller::Msix
 {
-    using namespace Microsoft::WRL;
     using string_t = Utility::NormalizedString;
+    using PackageVersion = Utility::FourPartsVersionNumber;
+    using OSVersion = Utility::FourPartsVersionNumber;
 
-    typedef Utility::FourPartsVersionNumber PackageVersion;
-    typedef Utility::FourPartsVersionNumber OSVersion;
-
-    // Package identity for a msix manifest
+    // Package identity for an MSIX manifest
     struct MsixPackageManifestIdentity
     {
-        MsixPackageManifestIdentity(ComPtr<IAppxManifestPackageId> packageId);
+        MsixPackageManifestIdentity(Microsoft::WRL::ComPtr<IAppxManifestPackageId> packageId);
 
         string_t GetPackageFamilyName() const;
         PackageVersion GetVersion() const;
     private:
-        ComPtr<IAppxManifestPackageId> m_packageId;
+        Microsoft::WRL::ComPtr<IAppxManifestPackageId> m_packageId;
     };
 
-    // Target device family for a msix manifest
+    // Target device family for an MSIX manifest
     struct MsixPackageManifestTargetDeviceFamily
     {
-        MsixPackageManifestTargetDeviceFamily(ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily);
+        MsixPackageManifestTargetDeviceFamily(Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily);
 
         string_t GetName() const;
         OSVersion GetMinVersion() const;
     private:
-        ComPtr<IAppxManifestTargetDeviceFamily> m_targetDeviceFamily;
+        Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> m_targetDeviceFamily;
     };
 
-    // Msix manifest
+    // MSIX manifest
     struct MsixPackageManifest
     {
-        MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader);
+        MsixPackageManifest(Microsoft::WRL::ComPtr<IAppxManifestReader> manifestReader);
 
         std::vector<MsixPackageManifestTargetDeviceFamily> GetTargetDeviceFamilies() const;
         MsixPackageManifestIdentity GetIdentity() const;
         std::optional<OSVersion> GetMinimumOSVersion() const;
     private:
-        ComPtr<IAppxManifestReader> m_manifestReader;
+        Microsoft::WRL::ComPtr<IAppxManifestReader> m_manifestReader;
     };
 
-    class MsixPackageManifestManager
+    // MSIX manifest cache
+    class MsixPackageManifestCache
     {
         std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
     public:
+
+        // Construct MSIX manifest or fetch it from cache
         const std::vector<MsixPackageManifest>& GetAppPackageManifests(std::string url);
     };
 }

@@ -4,6 +4,8 @@
 #include <AppInstallerMsixInfo.h>
 #include <winget/MsixManifest.h>
 
+using namespace Microsoft::WRL;
+
 namespace AppInstaller::Msix
 {
     MsixPackageManifest::MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader)
@@ -69,22 +71,21 @@ namespace AppInstaller::Msix
     {
         std::vector<MsixPackageManifestTargetDeviceFamily> targetDeviceFamilies;
         ComPtr<IAppxManifestReader3> manifest3;
-        if (SUCCEEDED(m_manifestReader->QueryInterface(IID_PPV_ARGS(&manifest3))))
+        THROW_IF_FAILED(m_manifestReader->QueryInterface(IID_PPV_ARGS(&manifest3)));
+
+        ComPtr<IAppxManifestTargetDeviceFamiliesEnumerator> targetDeviceFamiliesIter;
+        THROW_IF_FAILED(manifest3->GetTargetDeviceFamilies(&targetDeviceFamiliesIter));
+
+        BOOL hasCurrent = FALSE;
+        THROW_IF_FAILED(targetDeviceFamiliesIter->GetHasCurrent(&hasCurrent));
+        while (hasCurrent)
         {
-            ComPtr<IAppxManifestTargetDeviceFamiliesEnumerator> targetDeviceFamiliesIter;
-            THROW_IF_FAILED(manifest3->GetTargetDeviceFamilies(&targetDeviceFamiliesIter));
+            ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily;
+            THROW_IF_FAILED(targetDeviceFamiliesIter->GetCurrent(&targetDeviceFamily));
 
-            BOOL hasCurrent = FALSE;
-            THROW_IF_FAILED(targetDeviceFamiliesIter->GetHasCurrent(&hasCurrent));
-            while (hasCurrent)
-            {
-                ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily;
-                THROW_IF_FAILED(targetDeviceFamiliesIter->GetCurrent(&targetDeviceFamily));
+            targetDeviceFamilies.emplace_back(targetDeviceFamily);
 
-                targetDeviceFamilies.emplace_back(targetDeviceFamily);
-
-                THROW_IF_FAILED(targetDeviceFamiliesIter->MoveNext(&hasCurrent));
-            }
+            THROW_IF_FAILED(targetDeviceFamiliesIter->MoveNext(&hasCurrent));
         }
 
         return targetDeviceFamilies;
@@ -104,9 +105,9 @@ namespace AppInstaller::Msix
         return OSVersion{ minVersion };
     }
 
-    const std::vector<MsixPackageManifest>& MsixPackageManifestManager::GetAppPackageManifests(std::string url)
+    const std::vector<MsixPackageManifest>& MsixPackageManifestCache::GetAppPackageManifests(std::string url)
     {
-        // If an installer url has already been processed, then use the memoized result
+        // If an installer url has already been processed, then use the cached result
         auto installerIter = m_msixManifests.find(url);
         if (installerIter != m_msixManifests.end())
         {
@@ -115,7 +116,7 @@ namespace AppInstaller::Msix
 
         MsixInfo msixInfo(url);
 
-        // Memoize installer url result
+        // Cache installer url result
         m_msixManifests[url] = msixInfo.GetAppPackageManifests();
         return m_msixManifests[url];
     }

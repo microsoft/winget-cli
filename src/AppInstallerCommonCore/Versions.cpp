@@ -278,7 +278,7 @@ namespace AppInstaller::Utility
 
     FourPartsVersionNumber::FourPartsVersionNumber(UINT64 version)
     {
-        UINT64 mask16 = (1 << 16) - 1;
+        const UINT64 mask16 = (1 << 16) - 1;
         UINT64 revision = version & mask16;
         UINT64 build = (version >> 0x10) & mask16;
         UINT64 minor = (version >> 0x20) & mask16;
@@ -289,7 +289,7 @@ namespace AppInstaller::Utility
             << Version::DefaultSplitChars << minor
             << Version::DefaultSplitChars << build
             << Version::DefaultSplitChars << revision;
-        Assign(ssVersion.str(), Version::DefaultSplitChars);
+        Assign(std::move(ssVersion.str()), Version::DefaultSplitChars);
     }
 
     FourPartsVersionNumber::FourPartsVersionNumber(std::string&& version, std::string_view splitChars)
@@ -299,7 +299,7 @@ namespace AppInstaller::Utility
 
     void FourPartsVersionNumber::Assign(std::string&& version, std::string_view splitChars)
     {
-        Version::Assign(std::move(version), std::move(splitChars));
+        Version::Assign(std::move(version), splitChars);
         THROW_HR_IF(E_UNEXPECTED, m_parts.size() > 4);
         for (const auto& part : m_parts)
         {

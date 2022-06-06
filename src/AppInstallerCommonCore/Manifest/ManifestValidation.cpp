@@ -241,7 +241,7 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateMsixManifest(
         const Msix::PackageVersion packageVersion,
         const ManifestInstaller& installer,
-        Msix::MsixPackageManifestManager& msixManifestsManager,
+        Msix::MsixPackageManifestCache& msixManifestsCache,
         bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
@@ -261,7 +261,7 @@ namespace AppInstaller::Manifest
 
         std::vector<Msix::MsixPackageManifest> msixManifests;
         try {
-            msixManifests = msixManifestsManager.GetAppPackageManifests(installer.Url);
+            msixManifests = msixManifestsCache.GetAppPackageManifests(installer.Url);
         }
         catch (...)
         {
@@ -323,13 +323,13 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
-        Msix::MsixPackageManifestManager msixManifestsManager;
+        Msix::MsixPackageManifestCache msixManifestsCache;
         for (const auto& installer : manifest.Installers)
         {
             // Installer msix or msixbundle
             if (installer.InstallerType == InstallerTypeEnum::Msix)
             {
-                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsManager, treatErrorAsWarning);
+                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsCache, treatErrorAsWarning);
                 std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
             }
         }
