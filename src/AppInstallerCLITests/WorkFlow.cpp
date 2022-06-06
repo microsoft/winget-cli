@@ -826,15 +826,37 @@ TEST_CASE("InstallFlow_UnsupportedArguments", "[InstallFlow][workflow]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Log, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify unsupported arguments error message is shown only for --log argument
+    // Verify unsupported arguments error message is shown
     REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --log") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --location") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify unsupported arguments error message is not shown when not provided
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --log") == std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --location") == std::string::npos);
 }
 
