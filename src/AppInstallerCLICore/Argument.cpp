@@ -97,8 +97,8 @@ namespace AppInstaller::CLI
             return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
-        case Args::Type::IgnoreWarnings:
-            return Argument{ "ignore-warnings", NoAlias, Args::Type::IgnoreWarnings, Resource::String::IgnoreWarningsArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::IgnoreInstallWarnings:
+            return Argument{ "ignore-install-warnings", NoAlias, Args::Type::IgnoreInstallWarnings, Resource::String::IgnoreInstallWarningsArgumentDescription, ArgumentType::Flag, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

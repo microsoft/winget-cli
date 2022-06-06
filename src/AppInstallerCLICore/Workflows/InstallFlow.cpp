@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto displayInstallWarnings = context.Get<Execution::Data::Installer>().value().DisplayInstallWarnings;
 
-        if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreWarnings) && !Settings::User().Get<Settings::Setting::InstallIgnoreWarnings>())
+        if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreInstallWarnings) && !Settings::User().Get<Settings::Setting::InstallIgnoreWarnings>())
         {
             bool ignoreWarning = context.Reporter.PromptForBoolResponse(Resource::String::InstallWarning);
             if (!ignoreWarning)
@@ -518,6 +518,7 @@ namespace AppInstaller::CLI::Workflow
                     installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
                 }
                 installContext <<
+                    Workflow::DisplayInstallWarnings <<
                     Workflow::DownloadInstaller <<
                     Workflow::InstallPackageInstaller;
             }

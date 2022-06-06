@@ -47,6 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
         bool m_allowUpgradeToUnknownVersion = false;
+        bool m_ignoreInstallWarnings = false;
 #endif
     };
 }

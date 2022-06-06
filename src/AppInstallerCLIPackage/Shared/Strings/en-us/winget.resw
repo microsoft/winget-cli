@@ -1349,8 +1349,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>InstallationNotes:</value>
   </data>
-  <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
-    <value>Disables warning prompts</value>
+  <data name="IgnoreInstallWarningsArgumentDescription" xml:space="preserve">
+    <value>Disables install warning prompts</value>
   </data>
   <data name="InstallWarning" xml:space="preserve">
     <value>This installer is known to interfere with running applications. Would you like to continue?</value>
