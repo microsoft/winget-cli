@@ -27,7 +27,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !fullValidation);
         std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
