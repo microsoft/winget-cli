@@ -817,9 +817,12 @@ TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
 
 TEST_CASE("InstallFlow_UnsupportedArguments", "[InstallFlow][workflow]")
 {
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Log);
     context.Args.AddArg(Execution::Args::Type::InstallLocation);
@@ -828,10 +831,11 @@ TEST_CASE("InstallFlow_UnsupportedArguments", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify install failed with unsupported arguments error message
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LogArgumentNotSupported).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::LocationArgumentNotSupported).get()) != std::string::npos);
+    // Verify Unsupported arguments error message is shown
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --log") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " --location") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")

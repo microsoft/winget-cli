@@ -7,8 +7,8 @@ Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
 UnsupportedArguments:
-  - log
-  - location
+    - log
+    - location
 Installers:
     - Architecture: x86
       InstallerUrl: https://ThisIsNotUsed

@@ -164,9 +164,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocaleArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(Logs);
         WINGET_DEFINE_RESOURCE_STRINGID(MainCopyrightNotice);
         WINGET_DEFINE_RESOURCE_STRINGID(MainHomepage);
@@ -362,6 +360,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);

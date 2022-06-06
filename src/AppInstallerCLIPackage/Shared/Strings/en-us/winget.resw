@@ -1349,12 +1349,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>InstallationNotes:</value>
   </data>
-  <data name="LocationArgumentNotSupported" xml:space="preserve">
-    <value>The argument --location is not supported for this package</value>
-    <comment>{Locked="--location"}</comment>
-  </data>
-  <data name="LogArgumentNotSupported" xml:space="preserve">
-    <value>The argument --log is not supported for this package</value>
-    <comment>{Locked="--log"}</comment>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>This argument is not supported for this package:</value>
   </data>
 </root>

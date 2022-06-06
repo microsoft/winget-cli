@@ -265,6 +265,8 @@ bool HasExtension(std::string_view extension) const;
 
     std::string_view ScopeToString(ScopeEnum scope);
 
+    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArg);
+
     // Gets a value indicating whether the given installer type uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
 

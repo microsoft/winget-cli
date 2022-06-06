@@ -57,6 +57,19 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArg)
+        {
+            switch (unsupportedArg)
+            {
+            case UnsupportedArgumentEnum::Log:
+                return Execution::Args::Type::Log;
+            case UnsupportedArgumentEnum::Location:
+                return Execution::Args::Type::InstallLocation;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
         struct ExpectedReturnCode
         {
             ExpectedReturnCode(ExpectedReturnCodeEnum installerReturnCode, HRESULT hr, Resource::StringId message) :
@@ -131,29 +144,16 @@ namespace AppInstaller::CLI::Workflow
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
         const auto& unsupportedArgs = context.Get<Execution::Data::Installer>().value().UnsupportedArguments;
-        bool unsupportedArgFound = false;
 
         if (!unsupportedArgs.empty())
         {
             for (auto unsupportedArg : unsupportedArgs)
             {
-                if (unsupportedArg == UnsupportedArgumentEnum::Log && context.Args.Contains(Execution::Args::Type::Log))
+                if (context.Args.Contains(GetUnsupportedArgumentType(unsupportedArg)))
                 {
-                    unsupportedArgFound = true;
-                    context.Reporter.Error() << Resource::String::LogArgumentNotSupported << std::endl;
-                }
-
-                if (unsupportedArg == UnsupportedArgumentEnum::Location && context.Args.Contains(Execution::Args::Type::InstallLocation))
-                {
-                    unsupportedArgFound = true;
-                    context.Reporter.Error() << Resource::String::LocationArgumentNotSupported << std::endl;
+                    context.Reporter.Error() << Resource::String::UnsupportedArgument << " --" << UnsupportedArgumentToString(unsupportedArg) << std::endl;
                 }
             }
-        }
-
-        if (unsupportedArgFound)
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
         }
     }
 
