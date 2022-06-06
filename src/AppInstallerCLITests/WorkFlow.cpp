@@ -818,14 +818,15 @@ TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_UnsupportedArguments", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TempDirectory tempDirectory("TempDirectory", false);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::Log);
-    context.Args.AddArg(Execution::Args::Type::InstallLocation);
+    context.Args.AddArg(Execution::Args::Type::Log, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     InstallCommand install({});
     install.Execute(context);
