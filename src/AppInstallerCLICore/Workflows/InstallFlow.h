@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Workflow
     
     // Checks if there are any included arguments that are not supported for the package.
     // Required Args: None
-    // Inputs: Installer, UnsupportedArguments
+    // Inputs: Installer
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 

@@ -24,6 +24,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -143,16 +144,13 @@ namespace AppInstaller::CLI::Workflow
 
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
-        const auto& unsupportedArgs = context.Get<Execution::Data::Installer>().value().UnsupportedArguments;
+        const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
 
-        if (!unsupportedArgs.empty())
+        for (auto unsupportedArg : unsupportedArgs)
         {
-            for (auto unsupportedArg : unsupportedArgs)
+            if (context.Args.Contains(GetUnsupportedArgumentType(unsupportedArg)))
             {
-                if (context.Args.Contains(GetUnsupportedArgumentType(unsupportedArg)))
-                {
-                    context.Reporter.Error() << Resource::String::UnsupportedArgument << " --" << UnsupportedArgumentToString(unsupportedArg) << std::endl;
-                }
+                context.Reporter.Warn() << Resource::String::UnsupportedArgument << " --"_liv << UnsupportedArgumentToString(unsupportedArg) << std::endl;
             }
         }
     }
