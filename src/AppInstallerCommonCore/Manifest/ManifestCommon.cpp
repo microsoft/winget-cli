@@ -417,19 +417,6 @@ namespace AppInstaller::Manifest
         return "Unknown"sv;
     }
 
-    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArg)
-    {
-        switch (unsupportedArg)
-        {
-        case UnsupportedArgumentEnum::Log:
-            return "log"sv;
-        case UnsupportedArgumentEnum::Location:
-            return "location"sv;
-        }
-
-        return "Unknown"sv;
-    }
-
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);
