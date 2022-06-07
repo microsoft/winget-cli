@@ -229,7 +229,7 @@ extern "C"
             validateOption.ThrowOnWarning = true;
             validateOption.SchemaValidationOnly = WI_IsFlagSet(option, WinGetValidateManifestOption::SchemaValidationOnly);
             validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
-            validateOption.InstallerValidation = WI_IsFlagSet(option, WinGetValidateManifestOption::InstallerValidation);
+            validateOption.InstallerValidation = WI_IsFlagSet(option, WinGetValidateManifestOption::InstallerValidations);
 
             (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
 

@@ -640,10 +640,10 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-MsixInstaller.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller.yaml">
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixInstallerFields.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Missing-MsixInstallerFields.yaml">
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

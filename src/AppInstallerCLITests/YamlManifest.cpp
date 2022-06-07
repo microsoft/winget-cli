@@ -852,9 +852,9 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]
     REQUIRE(0 == errors.size());
 }
 
-TEST_CASE("ReadManifestAndValidateMsixInstallers_Bad", "[ManifestValidation]")
+TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Bad-MsixInstaller.yaml");
+    auto testFile = TestDataFile("Manifest-Bad-InconsistentMsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
@@ -886,7 +886,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Bad", "[ManifestValidation]")
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Missing-MsixInstallerFields.yaml");
+    auto testFile = TestDataFile("Manifest-Bad-MissingMsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing

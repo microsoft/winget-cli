@@ -8,24 +8,6 @@ using namespace Microsoft::WRL;
 
 namespace AppInstaller::Msix
 {
-    MsixPackageManifest::MsixPackageManifest(ComPtr<IAppxManifestReader> manifestReader)
-    {
-        THROW_HR_IF(E_INVALIDARG, !manifestReader);
-        m_manifestReader = manifestReader;
-    }
-
-    MsixPackageManifestIdentity::MsixPackageManifestIdentity(ComPtr<IAppxManifestPackageId> packageId)
-    {
-        THROW_HR_IF(E_INVALIDARG, !packageId);
-        m_packageId = packageId;
-    }
-
-    MsixPackageManifestTargetDeviceFamily::MsixPackageManifestTargetDeviceFamily(ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily)
-    {
-        THROW_HR_IF(E_INVALIDARG, !targetDeviceFamily);
-        m_targetDeviceFamily = targetDeviceFamily;
-    }
-
     string_t MsixPackageManifestIdentity::GetPackageFamilyName() const
     {
         wil::unique_cotaskmem_string familyName;
@@ -35,7 +17,7 @@ namespace AppInstaller::Msix
 
     PackageVersion MsixPackageManifestIdentity::GetVersion() const
     {
-        UINT64 version;
+        UINT64 version = 0;
         THROW_IF_FAILED(m_packageId->GetVersion(&version));
         return PackageVersion{ version };
     }
@@ -100,7 +82,7 @@ namespace AppInstaller::Msix
 
     OSVersion MsixPackageManifestTargetDeviceFamily::GetMinVersion() const
     {
-        UINT64 minVersion;
+        UINT64 minVersion = 0;
         THROW_IF_FAILED(m_targetDeviceFamily->GetMinVersion(&minVersion));
         return OSVersion{ minVersion };
     }

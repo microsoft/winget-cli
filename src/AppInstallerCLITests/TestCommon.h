@@ -138,5 +138,5 @@ namespace TestCommon
     bool UninstallCertFromSignedPackage(const std::filesystem::path& package);
 
     // Get manifest reader from a msix file path
-    bool GetMsixPackageManifestReader(const std::string_view testFileName, IAppxManifestReader** manifestReader);
+    bool GetMsixPackageManifestReader(std::string_view testFileName, IAppxManifestReader** manifestReader);
 }

@@ -18,7 +18,8 @@ namespace AppInstaller::Msix
     // Package identity for an MSIX manifest
     struct MsixPackageManifestIdentity
     {
-        MsixPackageManifestIdentity(Microsoft::WRL::ComPtr<IAppxManifestPackageId> packageId);
+        MsixPackageManifestIdentity(Microsoft::WRL::ComPtr<IAppxManifestPackageId> packageId)
+            : m_packageId(packageId) {}
 
         string_t GetPackageFamilyName() const;
         PackageVersion GetVersion() const;
@@ -29,7 +30,8 @@ namespace AppInstaller::Msix
     // Target device family for an MSIX manifest
     struct MsixPackageManifestTargetDeviceFamily
     {
-        MsixPackageManifestTargetDeviceFamily(Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily);
+        MsixPackageManifestTargetDeviceFamily(Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily)
+            : m_targetDeviceFamily(targetDeviceFamily) {}
 
         string_t GetName() const;
         OSVersion GetMinVersion() const;
@@ -40,7 +42,8 @@ namespace AppInstaller::Msix
     // MSIX manifest
     struct MsixPackageManifest
     {
-        MsixPackageManifest(Microsoft::WRL::ComPtr<IAppxManifestReader> manifestReader);
+        MsixPackageManifest(Microsoft::WRL::ComPtr<IAppxManifestReader> manifestReader)
+            : m_manifestReader(manifestReader) {}
 
         std::vector<MsixPackageManifestTargetDeviceFamily> GetTargetDeviceFamilies() const;
         MsixPackageManifestIdentity GetIdentity() const;
@@ -50,12 +53,11 @@ namespace AppInstaller::Msix
     };
 
     // MSIX manifest cache
-    class MsixPackageManifestCache
+    struct MsixPackageManifestCache
     {
-        std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
-    public:
-
         // Construct MSIX manifest or fetch it from cache
         const std::vector<MsixPackageManifest>& GetAppPackageManifests(std::string url);
+    private:
+        std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
     };
 }

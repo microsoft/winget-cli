@@ -1,4 +1,4 @@
-PackageIdentifier: AppInstallerCliTest.BadMsixInstaller
+PackageIdentifier: AppInstallerCliTest.InconsistentMsixInstallerFields
 PackageVersion: 1.2.3.4                           # Mismatching value with msix installer
 PackageLocale: es-MX
 PackageName: es-MX package name

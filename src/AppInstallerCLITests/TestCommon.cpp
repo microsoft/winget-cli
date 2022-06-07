@@ -287,7 +287,7 @@ namespace TestCommon
         return false;
     }
 
-    bool GetMsixPackageManifestReader(const std::string_view testFileName, IAppxManifestReader** manifestReader)
+    bool GetMsixPackageManifestReader(std::string_view testFileName, IAppxManifestReader** manifestReader)
     {
         // Locate test file
         TestDataFile testFile(testFileName);
