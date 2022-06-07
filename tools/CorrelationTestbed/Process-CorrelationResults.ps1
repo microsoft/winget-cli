@@ -59,6 +59,7 @@ foreach ($result in (Get-ChildItem $ResultsPath -Directory))
 }
 
 # Write some stats to a file for quick evaluation
+$stats.CompletedRatio = $stats.Completed / $stats.Total
 $stats.CorrelateArchiveRatio = $stats.CorrelateArchive / $stats.Completed
 $stats.CorrelatePackageKnownRatio = $stats.CorrelatePackageKnown / $stats.Completed
 $stats | ConvertTo-Json | Out-File $statsFile -Force
