@@ -48,10 +48,9 @@ std::string GetArgumentAlias(const Argument& arg)
 }
 
 template <typename Enumerable, typename Op>
-void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
+void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
 {
     INFO(info);
-    std::unordered_set<std::string> values;
 
     for (const auto& val : e)
     {
@@ -74,14 +73,25 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
     }
 }
 
+template <typename Enumerable, typename Op>
+void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
+{
+    std::unordered_set<std::string> values;
+    EnsureStringsAreLowercaseAndNoCollisions(info, e, op, values, requireLower);
+}
+
 void EnsureCommandConsistency(const Command& command)
 {
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName);
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alternate name", args, GetArgumentAlternateName);
+
+    // Argument names and alternate names exist in the same space, so both need to be checked as a set
+    std::unordered_set<std::string> allArgumentNames;
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName, allArgumentNames);
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alternate name", args, GetArgumentAlternateName, allArgumentNames);
+    // Argument aliases use a different space than the names and can be checked separately
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias, false);
 
     // No : allowed in commands
