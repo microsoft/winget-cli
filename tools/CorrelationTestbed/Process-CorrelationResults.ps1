@@ -18,7 +18,7 @@ if (Test-Path $failedFile)
 
 foreach ($result in (Get-ChildItem $ResultsPath -Directory))
 {
-    $resultJSON = Join-Path $result "install_and_correlate.json"
+    $resultJSON = Join-Path $result.FullName "install_and_correlate.json"
     if (-not (Test-Path $resultJSON))
     {
         continue
