@@ -1306,7 +1306,7 @@ TEST_CASE("InstallFlow_DisplayInstallWarnings_IgnoreWarnings", "[InstallFlow][wo
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_DisplayInstallWarnings.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::IgnoreWarnings);
+    context.Args.AddArg(Execution::Args::Type::IgnoreInstallWarnings);
 
     InstallCommand install({});
     install.Execute(context);

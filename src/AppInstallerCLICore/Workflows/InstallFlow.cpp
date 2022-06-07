@@ -164,11 +164,11 @@ namespace AppInstaller::CLI::Workflow
 
         if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreInstallWarnings) && !Settings::User().Get<Settings::Setting::InstallIgnoreWarnings>())
         {
-            bool ignoreWarning = context.Reporter.PromptForBoolResponse(Resource::String::InstallWarning);
-            if (!ignoreWarning)
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::HideInstallWarningPrompt) ||
+                !context.Reporter.PromptForBoolResponse(Resource::String::InstallWarning))
             {
                 context.Reporter.Error() << Resource::String::Cancelled << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_WARNINGS_NOT_ACCEPTED);
             }
         }
     }
@@ -433,6 +433,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
+            Workflow::DisplayInstallWarnings <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
@@ -458,7 +459,6 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
-            Workflow::DisplayInstallWarnings <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }
