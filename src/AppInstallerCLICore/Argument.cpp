@@ -96,7 +96,7 @@ namespace AppInstaller::CLI
         case Args::Type::Wait:
             return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
-            return Argument{ "product-code", NoAlias, "pid", Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
+            return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }
