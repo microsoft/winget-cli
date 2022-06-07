@@ -14,6 +14,7 @@
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
+#include <Argument.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
@@ -24,7 +25,6 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -58,14 +58,25 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArg)
+        bool ShouldErrorForUnsupportedArgument(UnsupportedArgumentEnum arg)
         {
-            switch (unsupportedArg)
+            switch (arg)
+            {
+            case UnsupportedArgumentEnum::Location:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        AppInstaller::CLI::Argument GetUnsupportedArgument(UnsupportedArgumentEnum arg)
+        {
+            switch (arg)
             {
             case UnsupportedArgumentEnum::Log:
-                return Execution::Args::Type::Log;
+                return AppInstaller::CLI::Argument::ForType(Execution::Args::Type::Log);
             case UnsupportedArgumentEnum::Location:
-                return Execution::Args::Type::InstallLocation;
+                return AppInstaller::CLI::Argument::ForType(Execution::Args::Type::InstallLocation);
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -145,12 +156,21 @@ namespace AppInstaller::CLI::Workflow
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
         const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
-
         for (auto unsupportedArg : unsupportedArgs)
         {
-            if (context.Args.Contains(GetUnsupportedArgumentType(unsupportedArg)))
+            const auto& argument = GetUnsupportedArgument(unsupportedArg);
+            if (context.Args.Contains(argument.ExecArgType()))
             {
-                context.Reporter.Warn() << Resource::String::UnsupportedArgument << " --"_liv << UnsupportedArgumentToString(unsupportedArg) << std::endl;
+                const auto& usageString = argument.GetUsageString();
+                if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                {
+                    context.Reporter.Error() << Resource::String::UnsupportedArgument << ' ' <<  usageString << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+                }
+                else
+                {
+                    context.Reporter.Warn() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
+                }
             }
         }
     }

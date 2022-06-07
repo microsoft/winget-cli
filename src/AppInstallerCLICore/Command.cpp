@@ -223,14 +223,7 @@ namespace AppInstaller::CLI
             size_t maxArgNameLength = 0;
             for (const auto& arg : arguments)
             {
-                std::ostringstream strstr;
-                if (arg.Alias() != Argument::NoAlias)
-                {
-                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
-                }
-                strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
-
-                argNames.emplace_back(strstr.str());
+                argNames.emplace_back(arg.GetUsageString());
                 maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
             }
 

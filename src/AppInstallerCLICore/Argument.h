@@ -86,6 +86,9 @@ namespace AppInstaller::CLI
         // Requires that some form of package selection argument is present
         static void ValidatePackageSelectionArgumentSupplied(const Execution::Args& args);
 
+        // Gets the argument usage string in the format of "--name,-alias".
+        std::string GetUsageString() const;
+
         // Arguments are not localized at this time.
         Utility::LocIndView Name() const { return Utility::LocIndView{ m_name }; }
         char Alias() const { return m_alias; }
