@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "SQLiteIndex.h"
 #include "Schema/MetadataTable.h"
+#include "ArpVersionValidation.h"
 #include <winget/ManifestYamlParser.h>
 
 namespace AppInstaller::Repository::Microsoft
@@ -253,6 +254,12 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Checking index consistency...");
 
         bool result = m_interface->CheckConsistency(m_dbconn, log);
+
+        // Check arp version ranges do not overlap
+        if ((result || log) && GetVersion() >= Schema::Version{ 1, 5 })
+        {
+            result = ValidateArpVersionConsistency(this) && result;
+        }
 
         AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
 

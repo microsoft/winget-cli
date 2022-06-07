@@ -102,7 +102,7 @@ namespace AppInstaller::Repository
         }
     };
 
-    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         using namespace Manifest;
 
@@ -169,7 +169,7 @@ namespace AppInstaller::Repository
         return true;
     }
 
-    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         auto dependentsSet = index->GetDependentsById(manifest.Id);
 

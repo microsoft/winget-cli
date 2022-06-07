@@ -195,8 +195,8 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
 TEST_CASE("ApproximateVersionParse", "[versions]")
 {
     Version v1_0{ "1.0" };
-    Version v1_0_LessThan = Version::CreateLessThanApproximateVersion(v1_0);
-    Version v1_0_GreaterThan = Version::CreateGreaterThanApproximateVersion(v1_0);
+    Version v1_0_LessThan{ v1_0, Version::ApproximateComparator::LessThan };
+    Version v1_0_GreaterThan{ v1_0, Version::ApproximateComparator::GreaterThan };
 
     Version v1_0_LessThanFromString = Version{ "< 1.0" };
     Version v1_0_GreaterThanFromString = Version{ "> 1.0" };
@@ -207,6 +207,9 @@ TEST_CASE("ApproximateVersionParse", "[versions]")
 
     REQUIRE(v1_0_LessThan == v1_0_LessThanFromString);
     REQUIRE(v1_0_GreaterThan == v1_0_GreaterThanFromString);
+
+    REQUIRE_THROWS(Version{ v1_0_LessThan, Version::ApproximateComparator::LessThan });
+    REQUIRE_THROWS(Version{ Version::CreateUnknown(), Version::ApproximateComparator::LessThan });
 }
 
 TEST_CASE("ApproximateVersionCompare", "[versions]")
@@ -226,11 +229,6 @@ TEST_CASE("ApproximateVersionCompare", "[versions]")
     RequireLessThan("< latest", "latest");
     RequireLessThan("latest", "> latest");
     RequireLessThan("9999", "< latest");
-
-    // With unknown
-    RequireLessThan("< unknown", "unknown");
-    RequireLessThan("unknown", "> unknown");
-    RequireLessThan("> unknown", "0.0.1");
 }
 
 TEST_CASE("VersionRange", "[versions]")

@@ -11,7 +11,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     // To let the template codes better determine virtual tables, the following struct is created.
 
     // Struct used as the base for virtual tables.
-    // Future virtual tables reusing an existing table should drive from this and implement
+    // Future virtual tables reusing an existing table should derive from this and implement
     //    static std::string_view ManifestColumnName();
     // in addition to regular table info methods.
     struct VirtualTableBase

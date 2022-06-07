@@ -94,7 +94,7 @@ namespace AppInstaller::Manifest
 
         for (auto const& installer : Installers)
         {
-            if (DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType) && installer.InstallerType != InstallerTypeEnum::Portable)
+            if (DoesInstallerTypeSupportArpVersionRange(installer.InstallerType))
             {
                 for (auto const& entry : installer.AppsAndFeaturesEntries)
                 {

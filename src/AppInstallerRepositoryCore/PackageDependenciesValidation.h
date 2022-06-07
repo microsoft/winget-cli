@@ -11,8 +11,8 @@ namespace AppInstaller::Repository
     struct PackageDependenciesValidation
     {
         // Validate the dependencies of the given manifest.
-        static bool ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest manifest);
+        static bool ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest& manifest);
 
-        static bool VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest manifest);
+        static bool VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest& manifest);
     };
 }

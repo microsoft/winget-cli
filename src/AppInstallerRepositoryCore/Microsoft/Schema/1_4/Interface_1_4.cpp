@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         DependenciesTable::RemoveDependencies(connection, manifestId);
 
         // Removes the manifest.
-        V1_2::Interface::RemoveManifestById(connection, manifestId);
+        V1_3::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove the versions that are not needed.
         for (auto minVersion : minVersions)
@@ -94,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_4");
 
-        V1_2::Interface::PrepareForPackaging(connection, false);
+        V1_3::Interface::PrepareForPackaging(connection, false);
 
         DependenciesTable::PrepareForPackaging(connection);
 
@@ -112,7 +112,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
     {
-        bool result = V1_2::Interface::CheckConsistency(connection, log);
+        bool result = V1_3::Interface::CheckConsistency(connection, log);
 
         // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
         if (result || log)

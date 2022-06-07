@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
             std::initializer_list<std::string_view> manifestColumnNames)
         {
-            THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != 0 && manifestColumnNames.size() != columns.size());
+            THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != columns.size());
 
             using QCol = SQLite::Builder::QualifiedColumn;
 

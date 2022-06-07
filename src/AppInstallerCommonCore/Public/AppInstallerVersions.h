@@ -11,9 +11,10 @@ namespace AppInstaller::Utility
 
     // Creates a comparable version object from a string.
     // Versions are parsed by:
-    //  1. Splitting the string based on the given splitChars (or DefaultSplitChars)
-    //  2. Parsing a leading, positive integer from each split part
-    //  3. Saving any remaining, non-digits as a supplemental value
+    //  1. Parse approximate comparator sign if applicable
+    //  2. Splitting the string based on the given splitChars (or DefaultSplitChars)
+    //  3. Parsing a leading, positive integer from each split part
+    //  4. Saving any remaining, non-digits as a supplemental value
     //
     // Versions are compared by:
     //  for each part in each version
@@ -22,8 +23,20 @@ namespace AppInstaller::Utility
     //      else if integers not equal, return comparison of integers
     //      else if only one side has a non-empty string part, it is less
     //      else if string parts not equal, return comparison of strings
+    //  if all parts are same, use approximate comparator if applicable
+    //
+    //  Note: approximate to another approximate version is invalid.
+    //        approximate to Unknown is invalid.
     struct Version
     {
+        // Used in approximate version to indicate the relation to the base version.
+        enum class ApproximateComparator
+        {
+            None,
+            LessThan,
+            GreaterThan,
+        };
+
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
@@ -32,6 +45,9 @@ namespace AppInstaller::Utility
         Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+
+        // Constructing an approximate version from a base version.
+        Version(const Version& baseVersion, ApproximateComparator approximateComparator);
 
         // Resets the version's value to the input.
         void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
@@ -72,23 +88,11 @@ namespace AppInstaller::Utility
             std::string Other;
         };
 
-        // Used in approximate version to indicate the relation to the base version.
-        enum class ApproximateComparator
-        {
-            None,
-            LessThan,
-            GreaterThan,
-        };
-
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
         // Returns if the version is an approximate version.
         bool IsApproximateVersion() const { return m_approximateComparator != ApproximateComparator::None; }
-
-        // Static methods to create an approximate version from a base version.
-        static Version CreateLessThanApproximateVersion(const Version& base);
-        static Version CreateGreaterThanApproximateVersion(const Version& base);
 
     protected:
 

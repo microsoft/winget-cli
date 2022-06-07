@@ -9,7 +9,7 @@ namespace AppInstaller::Repository
 {
     namespace
     {
-        std::vector<Utility::VersionRange> GetArpVersionRangesByPackageRowId(Microsoft::SQLiteIndex* index, Microsoft::SQLiteIndex::IdType packageRowId, const Utility::VersionAndChannel& excludeVersionAndChannel = {})
+        std::vector<Utility::VersionRange> GetArpVersionRangesByPackageRowId(const Microsoft::SQLiteIndex* index, Microsoft::SQLiteIndex::IdType packageRowId, const Utility::VersionAndChannel& excludeVersionAndChannel = {})
         {
             std::vector<Utility::VersionRange> result;
 
@@ -44,7 +44,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    void ValidateManifestArpVersion(Microsoft::SQLiteIndex* index, const Manifest::Manifest& manifest)
+    void ValidateManifestArpVersion(const Microsoft::SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         try
         {
@@ -90,7 +90,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool ValidateArpVersionConsistency(Microsoft::SQLiteIndex* index)
+    bool ValidateArpVersionConsistency(const Microsoft::SQLiteIndex* index)
     {
         try
         {
