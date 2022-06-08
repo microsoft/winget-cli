@@ -451,7 +451,7 @@ TEST_CASE("ParseArguments_AlternateNameWithAdjoinedValue", "[command]")
 
     command.ParseArguments(inv, args);
 
-    RequireValueParsedToArg(values[0].substr(7), command.m_args[0], args);
+    RequireValueParsedToArg(values[0].substr(5), command.m_args[0], args);
 }
 
 TEST_CASE("ParseArguments_NameFlag", "[command]")
