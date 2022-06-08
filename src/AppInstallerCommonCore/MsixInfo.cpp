@@ -504,7 +504,7 @@ namespace AppInstaller::Msix
 
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        m_stream = Utility::GetStreamFromURI(uriStr);
+        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
@@ -634,7 +634,7 @@ namespace AppInstaller::Msix
                 ComPtr<IAppxPackageReader> packageReader;
                 if (GetPackageReader(stream.Get(), &packageReader))
                 {
-                    packages.emplace_back(packageReader);
+                    packages.emplace_back(std::move(packageReader));
                 }
                 else
                 {
@@ -656,7 +656,7 @@ namespace AppInstaller::Msix
         {
             ComPtr<IAppxManifestReader> manifestReader;
             THROW_IF_FAILED(package->GetManifest(&manifestReader));
-            manifests.emplace_back(manifestReader);
+            manifests.emplace_back(std::move(manifestReader));
         }
 
         return manifests;

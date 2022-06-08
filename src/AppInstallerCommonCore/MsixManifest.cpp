@@ -26,7 +26,7 @@ namespace AppInstaller::Msix
     {
         ComPtr<IAppxManifestPackageId> manifestPackageId;
         THROW_IF_FAILED(m_manifestReader->GetPackageId(&manifestPackageId));
-        return MsixPackageManifestIdentity{ manifestPackageId };
+        return MsixPackageManifestIdentity{ std::move(manifestPackageId) };
     }
 
     std::optional<OSVersion> MsixPackageManifest::GetMinimumOSVersion() const
@@ -52,11 +52,11 @@ namespace AppInstaller::Msix
     std::vector<MsixPackageManifestTargetDeviceFamily> MsixPackageManifest::GetTargetDeviceFamilies() const
     {
         std::vector<MsixPackageManifestTargetDeviceFamily> targetDeviceFamilies;
-        ComPtr<IAppxManifestReader3> manifest3;
-        THROW_IF_FAILED(m_manifestReader->QueryInterface(IID_PPV_ARGS(&manifest3)));
+        ComPtr<IAppxManifestReader3> manifestReader3;
+        THROW_IF_FAILED(m_manifestReader.As(&manifestReader3));
 
         ComPtr<IAppxManifestTargetDeviceFamiliesEnumerator> targetDeviceFamiliesIter;
-        THROW_IF_FAILED(manifest3->GetTargetDeviceFamilies(&targetDeviceFamiliesIter));
+        THROW_IF_FAILED(manifestReader3->GetTargetDeviceFamilies(&targetDeviceFamiliesIter));
 
         BOOL hasCurrent = FALSE;
         THROW_IF_FAILED(targetDeviceFamiliesIter->GetHasCurrent(&hasCurrent));
@@ -65,7 +65,7 @@ namespace AppInstaller::Msix
             ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily;
             THROW_IF_FAILED(targetDeviceFamiliesIter->GetCurrent(&targetDeviceFamily));
 
-            targetDeviceFamilies.emplace_back(targetDeviceFamily);
+            targetDeviceFamilies.emplace_back(std::move(targetDeviceFamily));
 
             THROW_IF_FAILED(targetDeviceFamiliesIter->MoveNext(&hasCurrent));
         }

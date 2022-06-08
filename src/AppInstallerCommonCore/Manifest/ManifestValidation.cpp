@@ -239,7 +239,7 @@ namespace AppInstaller::Manifest
 
     // Validate msix and msixbundle installer manifest
     std::vector<ValidationError> ValidateMsixManifest(
-        const Msix::PackageVersion packageVersion,
+        const Msix::PackageVersion& packageVersion,
         const ManifestInstaller& installer,
         Msix::MsixPackageManifestCache& msixManifestsCache,
         bool treatErrorAsWarning)
@@ -260,7 +260,8 @@ namespace AppInstaller::Manifest
         }
 
         std::vector<Msix::MsixPackageManifest> msixManifests;
-        try {
+        try
+        {
             msixManifests = msixManifestsCache.GetAppPackageManifests(installer.Url);
         }
         catch (...)

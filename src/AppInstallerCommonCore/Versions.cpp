@@ -300,10 +300,10 @@ namespace AppInstaller::Utility
     void FourPartsVersionNumber::Assign(std::string&& version, std::string_view splitChars)
     {
         Version::Assign(std::move(version), splitChars);
-        THROW_HR_IF(E_UNEXPECTED, m_parts.size() > 4);
+        THROW_HR_IF(E_INVALIDARG, m_parts.size() > 4);
         for (const auto& part : m_parts)
         {
-            THROW_HR_IF(E_UNEXPECTED, !part.Other.empty());
+            THROW_HR_IF(E_INVALIDARG, !part.Other.empty());
         }
     }
 }

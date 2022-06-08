@@ -294,7 +294,7 @@ namespace TestCommon
         auto path = testFile.GetPath().u8string();
 
         // Get the stream for the test file
-        auto stream = AppInstaller::Utility::GetStreamFromURI(path);
+        auto stream = AppInstaller::Utility::GetReadOnlyStreamFromURI(path);
 
         // Get manifest from package reader
         Microsoft::WRL::ComPtr<IAppxPackageReader> packageReader;

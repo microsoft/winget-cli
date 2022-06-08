@@ -368,7 +368,7 @@ namespace AppInstaller::Utility
         return aesSaveResult;
     }
 
-    Microsoft::WRL::ComPtr<IStream> GetStreamFromURI(std::string_view uriStr)
+    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr)
     {
         Microsoft::WRL::ComPtr<IStream> inputStream;
         if (Utility::IsUrlRemote(uriStr))

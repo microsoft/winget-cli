@@ -7,30 +7,31 @@
 #include <AppInstallerRuntime.h>
 #include <winget/MsixManifest.h>
 
-using namespace std;
 using namespace TestCommon;
 using namespace AppInstaller;
 using namespace AppInstaller::Msix;
 using namespace Microsoft::WRL;
 
-// Input values
-constexpr std::string_view installerManifestValidationMsix = "InstallerManifestValidation.msix";
-constexpr std::string_view installerManifestValidationMsixBundle = "InstallerManifestValidation.msixbundle";
+constexpr std::string_view Remove = "InstallerManifestValidation.msix";
 
-// Expected 
-constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
-PackageVersion expectedPackageVersion = { 0xAAAABBBBCCCCDDDD };
-constexpr std::string_view expectedWindowsDesktopName = "Windows.Desktop";
-OSVersion expectedWindowsDesktopMinVersion = { 0x000a00003FAB0000 }; // 10.0.16299.0
-OSVersion expectedWindowsUniversalMinVersion = { 0x000a000000000000 }; // 10.0.0.0
+namespace
+{
+    // Input values
+    constexpr std::string_view installerManifestValidationMsix = "InstallerManifestValidation.msix";
+    constexpr std::string_view installerManifestValidationMsixBundle = "InstallerManifestValidation.msixbundle";
+
+    // Expected
+    constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
+    PackageVersion expectedPackageVersion = { 0xAAAABBBBCCCCDDDD };
+    constexpr std::string_view expectedWindowsDesktopName = "Windows.Desktop";
+    OSVersion expectedWindowsDesktopMinVersion = { 0x000a00003FAB0000 }; // 10.0.16299.0
+    OSVersion expectedWindowsUniversalMinVersion = { 0x000a000000000000 }; // 10.0.0.0
+}
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]")
 {
     ComPtr<IAppxManifestReader> manifestReader;
-    if (!GetMsixPackageManifestReader(installerManifestValidationMsix, &manifestReader))
-    {
-        FAIL();
-    }
+    REQUIRE(GetMsixPackageManifestReader(installerManifestValidationMsix, &manifestReader));
 
     Msix::MsixPackageManifest msixManifest(manifestReader);
     REQUIRE(expectedFamilyName == msixManifest.GetIdentity().GetPackageFamilyName());

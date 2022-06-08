@@ -840,12 +840,12 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Good-MsixInstaller.yaml");
+    TestDataFile testFile("Manifest-Good-MsixInstaller.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
     REQUIRE(1 == manifest.Installers.size());
-    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     auto errors = ValidateManifestInstallers(manifest);
@@ -854,12 +854,12 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Bad-InconsistentMsixInstallerFields.yaml");
+    TestDataFile testFile("Manifest-Bad-InconsistentMsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
     REQUIRE(1 == manifest.Installers.size());
-    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     auto errors = ValidateManifestInstallers(manifest);
@@ -886,12 +886,12 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[Manifest
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
 {
-    auto testFile = TestDataFile("Manifest-Bad-MissingMsixInstallerFields.yaml");
+    TestDataFile testFile("Manifest-Bad-MissingMsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
     REQUIRE(1 == manifest.Installers.size());
-    auto msixFile = TestDataFile(manifest.Installers[0].Url.c_str());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     for (bool treatErrorAsWarning : { false, true })

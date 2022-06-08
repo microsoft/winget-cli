@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include <AppxPackaging.h>
-#include <AppInstallerStrings.h>
-#include <AppInstallerVersions.h>
-#include <wrl/client.h>
+#include "AppInstallerStrings.h"
+#include "AppInstallerVersions.h"
 
-#include <string>
+#include <AppxPackaging.h>
+#include <wrl/client.h>
 
 namespace AppInstaller::Msix
 {
@@ -58,6 +57,7 @@ namespace AppInstaller::Msix
         // Construct MSIX manifest or fetch it from cache
         const std::vector<MsixPackageManifest>& GetAppPackageManifests(std::string url);
     private:
+        // Map installer url to a vector of msix package manifests
         std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
     };
 }
