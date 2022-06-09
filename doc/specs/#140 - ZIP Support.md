@@ -52,7 +52,16 @@ The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be r
 > During implementation, we will also need to ensure that this process can work under SYSTEM context.
 
 ## ZIP Threat Detection
-ZIP and other archive file types are known threat vectors for malware in the form of ZIP bombs, which utilize layers of nested zip files which decompress into extremely large amounts of files. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware check within the client. 
+ZIP and other archive file types are known threat vectors for malware in the form of ZIP compression bombs. Two of the most common types of compression bombs are multi-layered (recursive) and single-layered (non-recursive). Zip bombs rely on a repetition of identical files that have extremely large compression ratios. 
+
+1. **Multi-layered (recursive)**:
+A zip file containing multiple layers of nested zip files that achieve high compression ratios when the layers are decompressed recursively. This technique is often used to bypass compression ratio checks performed by zip parseres for a given layer.
+
+2. **Single-Layered (non-recursive)**
+A zip bomb that expands fully after a single round of decompression. The extremely high compression ratio of the zip bomb is achieved by overlapping files within the zip container. 
+
+
+Two of the most common types of compression bombs are rec, which utilize layers of nested zip files which decompress into extremely large amounts of files. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware check within the client. 
 
 The check will be as follows:
 1. Recursively traverse through all files contained in an archive file.
