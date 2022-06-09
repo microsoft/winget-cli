@@ -17,7 +17,6 @@
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Filesystem;
-using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Utility
 {
