@@ -8,11 +8,11 @@ using namespace Microsoft::WRL;
 
 namespace AppInstaller::Msix
 {
-    string_t MsixPackageManifestIdentity::GetPackageFamilyName() const
+    Utility::NormalizedString MsixPackageManifestIdentity::GetPackageFamilyName() const
     {
         wil::unique_cotaskmem_string familyName;
         THROW_IF_FAILED(m_packageId->GetPackageFamilyName(&familyName));
-        return Utility::ConvertToUTF8(familyName.get());
+        return { familyName.get() };
     }
 
     PackageVersion MsixPackageManifestIdentity::GetVersion() const
@@ -73,7 +73,7 @@ namespace AppInstaller::Msix
         return targetDeviceFamilies;
     }
 
-    string_t MsixPackageManifestTargetDeviceFamily::GetName() const
+    std::string MsixPackageManifestTargetDeviceFamily::GetName() const
     {
         wil::unique_cotaskmem_string name;
         THROW_IF_FAILED(m_targetDeviceFamily->GetName(&name));

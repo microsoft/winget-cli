@@ -10,7 +10,6 @@
 
 namespace AppInstaller::Msix
 {
-    using string_t = Utility::NormalizedString;
     using PackageVersion = Utility::FourPartsVersionNumber;
     using OSVersion = Utility::FourPartsVersionNumber;
 
@@ -20,7 +19,7 @@ namespace AppInstaller::Msix
         MsixPackageManifestIdentity(Microsoft::WRL::ComPtr<IAppxManifestPackageId> packageId)
             : m_packageId(packageId) {}
 
-        string_t GetPackageFamilyName() const;
+        Utility::NormalizedString GetPackageFamilyName() const;
         PackageVersion GetVersion() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestPackageId> m_packageId;
@@ -32,7 +31,7 @@ namespace AppInstaller::Msix
         MsixPackageManifestTargetDeviceFamily(Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily)
             : m_targetDeviceFamily(targetDeviceFamily) {}
 
-        string_t GetName() const;
+        std::string GetName() const;
         OSVersion GetMinVersion() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> m_targetDeviceFamily;
