@@ -964,7 +964,6 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
 
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFPortableInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
