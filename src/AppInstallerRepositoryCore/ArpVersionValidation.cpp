@@ -35,7 +35,7 @@ namespace AppInstaller::Repository
 
                     if (!arpMinVersion.empty() && !arpMaxVersion.empty())
                     {
-                        result.emplace_back(Utility::VersionRange{ Utility::Version{ arpMinVersion }, Utility::Version{ arpMaxVersion } });
+                        result.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
                     }
                 }
             }
@@ -87,32 +87,6 @@ namespace AppInstaller::Repository
             THROW_EXCEPTION(Manifest::ManifestException(
                 { Manifest::ValidationError(Manifest::ManifestError::ArpVersionValidationInternalError) },
                 APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
-        }
-    }
-
-    bool ValidateArpVersionConsistency(const Microsoft::SQLiteIndex* index)
-    {
-        try
-        {
-            // Search everything
-            SearchRequest request;
-            auto searchResult = index->Search(request);
-            for (auto const& match : searchResult.Matches)
-            {
-                auto arpVersionRangesInIndex = GetArpVersionRangesByPackageRowId(index, match.first);
-                if (Utility::HasOverlapInVersionRanges(arpVersionRangesInIndex))
-                {
-                    AICLI_LOG(Repo, Error, << "Overlapped Arp version ranges found for package. PackageRowId: " << match.first);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        catch (...)
-        {
-            AICLI_LOG(Repo, Error, << "ValidateArpVersionConsistency() encountered internal error. Returning false.");
-            return false;
         }
     }
 }

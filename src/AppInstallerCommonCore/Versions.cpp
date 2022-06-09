@@ -19,14 +19,14 @@ namespace AppInstaller::Utility
         Assign(std::move(version), splitChars);
     }
 
-    Version::Version(const Version& baseVersion, ApproximateComparator approximateComparator) : Version(baseVersion)
+    Version::Version(Version baseVersion, ApproximateComparator approximateComparator) : Version(std::move(baseVersion))
     {
         if (approximateComparator == ApproximateComparator::None)
         {
             return;
         }
 
-        THROW_HR_IF(E_INVALIDARG, baseVersion.IsApproximateVersion() || baseVersion.IsUnknown());
+        THROW_HR_IF(E_INVALIDARG, this->IsApproximateVersion() || this->IsUnknown());
 
         m_approximateComparator = approximateComparator;
         if (approximateComparator == ApproximateComparator::LessThan)
@@ -92,9 +92,13 @@ namespace AppInstaller::Utility
         bool thisIsLatest = IsBaseVersionLatest();
         bool otherIsLatest = other.IsBaseVersionLatest();
 
-        if (thisIsLatest || otherIsLatest)
+        if (thisIsLatest && otherIsLatest)
         {
-            // If at least one is latest, this can only be less than if the other is and this is not.
+            return ApproximateCompareLessThan(other);
+        }
+        else if (thisIsLatest || otherIsLatest)
+        {
+            // If only one is latest, this can only be less than if the other is and this is not.
             return (otherIsLatest && !thisIsLatest);
         }
 
@@ -102,7 +106,12 @@ namespace AppInstaller::Utility
         bool thisIsUnknown = IsBaseVersionUnknown();
         bool otherIsUnknown = other.IsBaseVersionUnknown();
 
-        if (thisIsUnknown || otherIsUnknown)
+        if (thisIsUnknown && otherIsUnknown)
+        {
+            // This code path should always return false as we disable approximate version for Unknown for now
+            return ApproximateCompareLessThan(other);
+        }
+        else if (thisIsUnknown || otherIsUnknown)
         {
             // If at least one is unknown, this can only be less than if it is and the other is not.
             return (thisIsUnknown && !otherIsUnknown);
@@ -133,9 +142,7 @@ namespace AppInstaller::Utility
         // All parts tested were equal
         if (m_parts.size() == other.m_parts.size())
         {
-            // Only true if this is less than, other is not, OR this is none, other is greater than
-            return (m_approximateComparator == ApproximateComparator::LessThan && other.m_approximateComparator != ApproximateComparator::LessThan) ||
-                (m_approximateComparator == ApproximateComparator::None && other.m_approximateComparator == ApproximateComparator::GreaterThan);
+            return ApproximateCompareLessThan(other);
         }
         else
         {
@@ -228,6 +235,13 @@ namespace AppInstaller::Utility
     bool Version::IsBaseVersionUnknown() const
     {
         return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Unknown));
+    }
+
+    bool Version::ApproximateCompareLessThan(const Version& other) const
+    {
+        // Only true if this is less than, other is not, OR this is none, other is greater than
+        return (m_approximateComparator == ApproximateComparator::LessThan && other.m_approximateComparator != ApproximateComparator::LessThan) ||
+            (m_approximateComparator == ApproximateComparator::None && other.m_approximateComparator == ApproximateComparator::GreaterThan);
     }
 
     Version::Part::Part(const std::string& part)

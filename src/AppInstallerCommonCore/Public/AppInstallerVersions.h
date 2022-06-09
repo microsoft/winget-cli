@@ -47,7 +47,7 @@ namespace AppInstaller::Utility
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Constructing an approximate version from a base version.
-        Version(const Version& baseVersion, ApproximateComparator approximateComparator);
+        Version(Version baseVersion, ApproximateComparator approximateComparator);
 
         // Resets the version's value to the input.
         void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
@@ -98,6 +98,8 @@ namespace AppInstaller::Utility
 
         bool IsBaseVersionLatest() const;
         bool IsBaseVersionUnknown() const;
+        // Called by overloaded less than operator implementation when base version already compared and equal, less than determined by approximate comparator.
+        bool ApproximateCompareLessThan(const Version& other) const;
 
         std::string m_version;
         std::vector<Part> m_parts;

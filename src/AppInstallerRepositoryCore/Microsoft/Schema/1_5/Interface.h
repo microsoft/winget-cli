@@ -25,5 +25,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
         // Gets a property already knowing that the manifest id is valid.
         std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
+
+    private:
+        // Semantic check to validate all arp version ranges within the index
+        bool ValidateArpVersionConsistency(const SQLite::Connection& connection) const;
     };
 }

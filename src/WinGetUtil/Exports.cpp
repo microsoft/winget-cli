@@ -252,7 +252,7 @@ extern "C"
     WINGET_UTIL_API WinGetCreateManifest(
         WINGET_STRING inputPath,
         BOOL* succeeded,
-        WINGET_SQLITE_MANIFEST_HANDLE* manifest,
+        WINGET_MANIFEST_HANDLE* manifest,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
         WinGetCreateManifestOption option) try
@@ -280,7 +280,7 @@ extern "C"
 
             std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L""));
 
-            *manifest = static_cast<WINGET_SQLITE_MANIFEST_HANDLE>(result.release());
+            *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
         }
         catch (const ManifestException& e)
         {
@@ -296,7 +296,7 @@ extern "C"
     CATCH_RETURN()
 
     WINGET_UTIL_API WinGetCloseManifest(
-        WINGET_SQLITE_MANIFEST_HANDLE manifest) try
+        WINGET_MANIFEST_HANDLE manifest) try
     {
         THROW_HR_IF(E_INVALIDARG, !manifest);
 
@@ -309,7 +309,7 @@ extern "C"
     DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
 
     WINGET_UTIL_API WinGetValidateManifestV3(
-        WINGET_SQLITE_MANIFEST_HANDLE manifest,
+        WINGET_MANIFEST_HANDLE manifest,
         WINGET_SQLITE_INDEX_HANDLE index,
         WinGetValidateManifestResult* result,
         WINGET_STRING_OUT* message,
@@ -328,11 +328,7 @@ extern "C"
         auto validationResult = WinGetValidateManifestResult::Success;
 
         Manifest* manifestPtr = reinterpret_cast<Manifest*>(manifest);
-        SQLiteIndex* sqliteIndex = nullptr;
-        if (index)
-        {
-            sqliteIndex = reinterpret_cast<SQLiteIndex*>(index);
-        }
+        SQLiteIndex* sqliteIndex = reinterpret_cast<SQLiteIndex*>(index);
 
         if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation))
         {

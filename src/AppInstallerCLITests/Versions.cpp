@@ -208,6 +208,7 @@ TEST_CASE("ApproximateVersionParse", "[versions]")
     REQUIRE(v1_0_LessThan == v1_0_LessThanFromString);
     REQUIRE(v1_0_GreaterThan == v1_0_GreaterThanFromString);
 
+    REQUIRE_THROWS(Version{ "< Unknown" });
     REQUIRE_THROWS(Version{ v1_0_LessThan, Version::ApproximateComparator::LessThan });
     REQUIRE_THROWS(Version{ Version::CreateUnknown(), Version::ApproximateComparator::LessThan });
 }

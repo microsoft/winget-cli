@@ -8,7 +8,7 @@ extern "C"
     typedef void* WINGET_SQLITE_INDEX_HANDLE;
 
     // A handle to the manifest.
-    typedef void* WINGET_SQLITE_MANIFEST_HANDLE;
+    typedef void* WINGET_MANIFEST_HANDLE;
 
     // A string taken in by the utility; in UTF16.
     typedef wchar_t const* const WINGET_STRING;
@@ -163,25 +163,24 @@ extern "C"
     WINGET_UTIL_API WinGetCreateManifest(
         WINGET_STRING inputPath,
         BOOL* succeeded,
-        WINGET_SQLITE_MANIFEST_HANDLE* manifest,
+        WINGET_MANIFEST_HANDLE* manifest,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
         WinGetCreateManifestOption option);
 
-    // Validates a given manifest. Returns a bool for validation result and
-    // a string representing validation errors if validation failed.
-    // If mergedManifestPath is provided, this method will write a merged manifest
-    // to the location specified by mergedManifestPath
-    WINGET_UTIL_API WinGetValidateManifestV2(
-        WINGET_STRING inputPath,
-        BOOL* succeeded,
-        WINGET_STRING_OUT* message,
-        WINGET_STRING mergedManifestPath,
-        WinGetValidateManifestOption option);
-
     // Closes a given manifest.
     WINGET_UTIL_API WinGetCloseManifest(
-        WINGET_SQLITE_MANIFEST_HANDLE manifest);
+        WINGET_MANIFEST_HANDLE manifest);
+
+    // Validates a given manifest. Returns a bool for validation result and
+    // a string representing validation errors if validation failed.
+    WINGET_UTIL_API WinGetValidateManifestV3(
+        WINGET_MANIFEST_HANDLE manifest,
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetValidateManifestResult* result,
+        WINGET_STRING_OUT* message,
+        WinGetValidateManifestOptionV2 option,
+        WinGetValidateManifestOperationType operationType);
 
     // Validates a given manifest with dependencies. Returns a bool for validation result and
     // a string representing validation errors if validation failed.

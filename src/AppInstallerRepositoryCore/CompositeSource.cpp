@@ -119,6 +119,8 @@ namespace AppInstaller::Repository
             return result;
         }
 
+        // TODO: Note: Currently this function assumes the all versions in the available package is from one source.
+        // If one day we start adding support for available package from multiple sources, this function needs to be revisited.
         std::string GetMappedInstalledVersion(const std::string& installedVersion, const std::shared_ptr<IPackage>& availablePackage)
         {
             // Stores raw versions value strings to run a preliminary check whether version mapping is needed.
@@ -129,18 +131,19 @@ namespace AppInstaller::Repository
             for (auto const& versionKey : versionKeys)
             {
                 auto availableVersion = availablePackage->GetAvailableVersion(versionKey);
-                auto arpMinVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMinVersion);
-                auto arpMaxVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMaxVersion);
-                rawVersionValues.emplace_back(std::make_tuple(versionKey.Version, std::move(arpMinVersion), std::move(arpMaxVersion)));
-            }
+                std::string arpMinVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMinVersion);
+                std::string arpMaxVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMaxVersion);
 
-            for (auto const& tuple : rawVersionValues)
-            {
-                auto& [version, arpMin, arpMax] = tuple;
-                if (!arpMin.empty() && !arpMax.empty() && arpMin != version && arpMax != version)
+                if (!arpMinVersion.empty() && !arpMaxVersion.empty())
                 {
-                    shouldTryPerformMapping = true;
-                    break;
+                    std::string manifestVersion = versionKey.Version;
+
+                    if (!shouldTryPerformMapping && (arpMinVersion != manifestVersion || arpMaxVersion != manifestVersion))
+                    {
+                        shouldTryPerformMapping = true;
+                    }
+
+                    rawVersionValues.emplace_back(std::make_tuple(std::move(manifestVersion), std::move(arpMinVersion), std::move(arpMaxVersion)));
                 }
             }
 
@@ -154,12 +157,9 @@ namespace AppInstaller::Repository
 
             for (auto& tuple : rawVersionValues)
             {
-                auto&& [version, arpMin, arpMax] = tuple;
-                if (!arpMin.empty() && !arpMax.empty())
-                {
-                    Utility::VersionRange arpVersionRange{ Utility::Version(std::move(arpMin)), Utility::Version(std::move(arpMax)) };
-                    arpVersionMap.emplace_back(std::make_pair(Utility::Version{ std::move(version) }, std::move(arpVersionRange)));
-                }
+                auto&& [manifestVersion, arpMinVersion, arpMaxVersion] = std::move(tuple);
+                Utility::VersionRange arpVersionRange{ Utility::Version(std::move(arpMinVersion)), Utility::Version(std::move(arpMaxVersion)) };
+                arpVersionMap.emplace_back(std::make_pair(Utility::Version{ std::move(manifestVersion) }, std::move(arpVersionRange)));
             }
 
             // Go through the arp version map and determine what mapping should be performed.

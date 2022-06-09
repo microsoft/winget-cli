@@ -160,6 +160,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
             result = V1_0::ManifestTable::CheckConsistency<ArpMaxVersionVirtualTable>(connection, log) && result;
         }
 
+        if (result || log)
+        {
+            result = ValidateArpVersionConsistency(connection) && result;
+        }
+
         return result;
     }
 
@@ -173,6 +178,53 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
             return std::get<0>(V1_0::ManifestTable::GetValuesById<ArpMaxVersionVirtualTable>(connection, manifestId));
         default:
             return V1_4::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
+        }
+    }
+
+    bool Interface::ValidateArpVersionConsistency(const SQLite::Connection& connection) const
+    {
+        try
+        {
+            // Search everything
+            SearchRequest request;
+            auto searchResult = Search(connection, request);
+            for (auto const& match : searchResult.Matches)
+            {
+                // Get arp version ranges for each package to check
+                std::vector<Utility::VersionRange> ranges;
+                auto versionKeys = GetVersionKeysById(connection, match.first);
+                for (auto const& versionKey : versionKeys)
+                {
+                    auto manifestRowId = GetManifestIdByKey(connection, match.first, versionKey.GetVersion().ToString(), versionKey.GetChannel().ToString());
+                    if (manifestRowId)
+                    {
+                        auto arpMinVersion = GetPropertyByManifestId(connection, manifestRowId.value(), PackageVersionProperty::ArpMinVersion).value_or("");
+                        auto arpMaxVersion = GetPropertyByManifestId(connection, manifestRowId.value(), PackageVersionProperty::ArpMaxVersion).value_or("");
+
+                        // Either both empty or both not empty
+                        THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
+
+                        if (!arpMinVersion.empty() && !arpMaxVersion.empty())
+                        {
+                            ranges.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
+                        }
+                    }
+                }
+
+                // Check overlap
+                if (Utility::HasOverlapInVersionRanges(ranges))
+                {
+                    AICLI_LOG(Repo, Error, << "Overlapped Arp version ranges found for package. PackageRowId: " << match.first);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Repo, Error, << "ValidateArpVersionConsistency() encountered internal error. Returning false.");
+            return false;
         }
     }
 }

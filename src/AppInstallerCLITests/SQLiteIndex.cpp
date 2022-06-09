@@ -3059,6 +3059,8 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
     Manifest manifest;
     manifest.Id = "Foo";
     manifest.Version = "10.0";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("ArpVersionCheckConsistencyTest");
+    manifest.Moniker = "testmoniker";
     manifest.Installers.push_back({});
     manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -3068,14 +3070,14 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
 
     index.AddManifest(manifest, "path");
 
-    REQUIRE(ValidateArpVersionConsistency(&index));
+    REQUIRE(index.CheckConsistency(true));
 
     // Add a conflicting one
     manifest.Version = "10.1";
 
     index.AddManifest(manifest, "path2");
 
-    REQUIRE_FALSE(ValidateArpVersionConsistency(&index));
+    REQUIRE_FALSE(index.CheckConsistency(true));
 }
 
 TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqliteindex]")
