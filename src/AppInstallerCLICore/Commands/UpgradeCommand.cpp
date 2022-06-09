@@ -252,7 +252,9 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << InstallSinglePackage;
+            context <<
+                CheckForUnsupportedArgs <<
+                InstallSinglePackage;
         }
     }
 }

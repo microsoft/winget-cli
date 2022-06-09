@@ -15,6 +15,7 @@
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <Argument.h>
+#include <Command.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
@@ -69,17 +70,23 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        AppInstaller::CLI::Argument GetUnsupportedArgument(UnsupportedArgumentEnum arg)
+        Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
         {
-            switch (arg)
+            Execution::Args::Type execArg;
+
+            switch (unsupportedArgument)
             {
             case UnsupportedArgumentEnum::Log:
-                return AppInstaller::CLI::Argument::ForType(Execution::Args::Type::Log);
+                execArg = Execution::Args::Type::Log;
+                break;
             case UnsupportedArgumentEnum::Location:
-                return AppInstaller::CLI::Argument::ForType(Execution::Args::Type::InstallLocation);
+                execArg = Execution::Args::Type::InstallLocation;
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
+
+            return execArg;
         }
 
         struct ExpectedReturnCode
@@ -158,18 +165,26 @@ namespace AppInstaller::CLI::Workflow
         const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
         for (auto unsupportedArg : unsupportedArgs)
         {
-            const auto& argument = GetUnsupportedArgument(unsupportedArg);
-            if (context.Args.Contains(argument.ExecArgType()))
+            const auto& unsupportedArgType = GetUnsupportedArgumentType(unsupportedArg);
+            if (context.Args.Contains(unsupportedArgType))
             {
-                const auto& usageString = argument.GetUsageString();
-                if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                const auto& commandArguments = context.GetExecutingCommand()->GetArguments();
+                for (const auto& argument : commandArguments)
                 {
-                    context.Reporter.Error() << Resource::String::UnsupportedArgument << ' ' <<  usageString << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
-                }
-                else
-                {
-                    context.Reporter.Warn() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
+                    if (unsupportedArgType == argument.ExecArgType())
+                    {
+                        const auto& usageString = argument.GetUsageString();
+                        if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                        {
+                            context.Reporter.Error() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
+                            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+                        }
+                        else
+                        {
+                            context.Reporter.Warn() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
+                            break;
+                        }
+                    }
                 }
             }
         }

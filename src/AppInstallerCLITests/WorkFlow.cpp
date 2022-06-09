@@ -241,6 +241,21 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
+            if (input == "TestExeInstallerWithUnsupportedArguments")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_UnsupportedArgs.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            }
+
             if (input == "TestExeInstallerWithNothingInstalled")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
@@ -828,6 +843,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Warn", "[InstallFlow][workflow]")
     context.Args.AddArg(Execution::Args::Type::Log, tempDirectory);
 
     InstallCommand install({});
+    context.SetExecutingCommand(&install);
     install.Execute(context);
     INFO(installOutput.str());
 
@@ -849,6 +865,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     InstallCommand install({});
+    context.SetExecutingCommand(&install);
     install.Execute(context);
     INFO(installOutput.str());
 
@@ -869,6 +886,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string());
 
     InstallCommand install({});
+    context.SetExecutingCommand(&install);
     install.Execute(context);
     INFO(installOutput.str());
 
@@ -1593,6 +1611,29 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     update.Execute(context);
     INFO(updateOutput.str());
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    TestCommon::TempDirectory tempDirectory("TempDirectory", false);
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnsupportedArguments"sv);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify unsupported arguments error message is shown 
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -l,--location") != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")

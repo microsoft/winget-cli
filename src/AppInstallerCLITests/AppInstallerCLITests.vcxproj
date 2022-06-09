@@ -555,6 +555,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_UnsupportedArgs.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>         
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
