@@ -105,6 +105,7 @@ namespace AppInstaller::CLI
     void Argument::GetCommon(std::vector<Argument>& args)
     {
         args.push_back(ForType(Args::Type::Help));
+        args.push_back(ForType(Args::Type::Wait));
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));

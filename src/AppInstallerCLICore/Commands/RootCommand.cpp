@@ -160,6 +160,11 @@ namespace AppInstaller::CLI
         {
             ExecuteInternal(context);
         }
+
+        if (context.Args.Contains(Execution::Args::Type::Wait))
+        {
+            system("pause");
+        }
     }
 
     void RootCommand::ExecuteInternal(Execution::Context& context) const
@@ -198,7 +203,7 @@ namespace AppInstaller::CLI
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << 'v' << Runtime::GetClientVersion();
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
         }
         else
         {
