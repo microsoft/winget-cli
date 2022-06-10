@@ -61,6 +61,7 @@ namespace AppInstaller::Utility
         // An individual version part in between split characters.
         struct Part
         {
+            Part(uint64_t integer) : Integer(integer) {}
             Part(const std::string& part);
             Part(uint64_t integer, std::string other);
 
@@ -78,18 +79,22 @@ namespace AppInstaller::Utility
     protected:
         std::string m_version;
         std::vector<Part> m_parts;
+
+        // Remove trailing empty parts (0 or empty)
+        void Trim();
     };
 
     // Four parts version number: 16-bits.16-bits.16-bits.16-bits
-    struct FourPartsVersionNumber : public Version
+    struct UInt64Version : public Version
     {
-        FourPartsVersionNumber() = default;
-        FourPartsVersionNumber(UINT64 version);
-        FourPartsVersionNumber(std::string&& version, std::string_view splitChars = DefaultSplitChars);
-        FourPartsVersionNumber(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
-            FourPartsVersionNumber(std::string(version), splitChars) {}
+        UInt64Version() = default;
+        UInt64Version(UINT64 version);
+        UInt64Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        UInt64Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
+            UInt64Version(std::string(version), splitChars) {}
 
         void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars) override;
+        void Assign(UINT64 version);
 
         UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
         UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }

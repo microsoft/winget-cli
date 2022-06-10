@@ -31,7 +31,12 @@ namespace AppInstaller::Utility
             pos += length + 1;
         }
 
-        // Remove trailing empty versions (0 or empty)
+        // Trim version parts
+        Trim();
+    }
+
+    void Version::Trim()
+    {
         while (!m_parts.empty())
         {
             const Part& part = m_parts.back();
@@ -41,7 +46,7 @@ namespace AppInstaller::Utility
             }
             else
             {
-                break;
+                return;
             }
         }
     }
@@ -276,7 +281,12 @@ namespace AppInstaller::Utility
         return m_version < other.m_version;
     }
 
-    FourPartsVersionNumber::FourPartsVersionNumber(UINT64 version)
+    UInt64Version::UInt64Version(UINT64 version)
+    {
+        Assign(version);
+    }
+
+    void UInt64Version::Assign(UINT64 version)
     {
         const UINT64 mask16 = (1 << 16) - 1;
         UINT64 revision = version & mask16;
@@ -284,26 +294,40 @@ namespace AppInstaller::Utility
         UINT64 minor = (version >> 0x20) & mask16;
         UINT64 major = (version >> 0x30) & mask16;
 
+        // Construct a string representation of the provided version
         std::stringstream ssVersion;
         ssVersion << major
             << Version::DefaultSplitChars << minor
             << Version::DefaultSplitChars << build
             << Version::DefaultSplitChars << revision;
-        Assign(std::move(ssVersion.str()), Version::DefaultSplitChars);
+        m_version = ssVersion.str();
+
+        // Construct the 4 parts
+        m_parts = { major, minor, build, revision };
+
+        // Trim version parts
+        Trim();
     }
 
-    FourPartsVersionNumber::FourPartsVersionNumber(std::string&& version, std::string_view splitChars)
+    UInt64Version::UInt64Version(std::string&& version, std::string_view splitChars)
     {
         Assign(std::move(version), splitChars);
     }
 
-    void FourPartsVersionNumber::Assign(std::string&& version, std::string_view splitChars)
+    void UInt64Version::Assign(std::string&& version, std::string_view splitChars)
     {
         Version::Assign(std::move(version), splitChars);
+
+        // After trimming trailing parts (0 or empty),
+        // at most 4 parts must be present
         THROW_HR_IF(E_INVALIDARG, m_parts.size() > 4);
         for (const auto& part : m_parts)
         {
+            // Check for non-empty Other part
             THROW_HR_IF(E_INVALIDARG, !part.Other.empty());
+
+            // Check for overflow Integer part
+            THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
         }
     }
 }

@@ -10,8 +10,8 @@
 
 namespace AppInstaller::Msix
 {
-    using PackageVersion = Utility::FourPartsVersionNumber;
-    using OSVersion = Utility::FourPartsVersionNumber;
+    using PackageVersion = Utility::UInt64Version;
+    using OSVersion = Utility::UInt64Version;
 
     // Package identity for an MSIX manifest
     struct MsixPackageManifestIdentity
