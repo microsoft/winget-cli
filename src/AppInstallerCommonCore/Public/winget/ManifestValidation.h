@@ -54,6 +54,7 @@ namespace AppInstaller::Manifest
         const char* const InstallerMsixInconsistencies = "Inconsistent value in the manifest.";
         const char* const OptionalFieldMissing = "Optional field missing.";
         const char* const InstallerFailedToProcess = "Failed to process installer.";
+        const char* const NoSuitableMinOSVersion = "No Suitable Minimum OS Version.";
     }
 
     struct ValidationError

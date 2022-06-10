@@ -37,7 +37,7 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]
     REQUIRE(expectedFamilyName == msixManifest.GetIdentity().GetPackageFamilyName());
     REQUIRE(expectedPackageVersion == msixManifest.GetIdentity().GetVersion());
     REQUIRE(2 == msixManifest.GetTargetDeviceFamilies().size());
-    REQUIRE(expectedWindowsUniversalMinVersion == msixManifest.GetMinimumOSVersion().value());
+    REQUIRE(expectedWindowsDesktopMinVersion == msixManifest.GetMinimumOSVersion());
 
     auto targets = msixManifest.GetTargetDeviceFamilies();
     auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
@@ -59,7 +59,7 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
     REQUIRE(expectedFamilyName == appPackageManifest.GetIdentity().GetPackageFamilyName());
     REQUIRE(expectedPackageVersion == appPackageManifest.GetIdentity().GetVersion());
     REQUIRE(2 == appPackageManifest.GetTargetDeviceFamilies().size());
-    REQUIRE(expectedWindowsUniversalMinVersion == appPackageManifest.GetMinimumOSVersion().value());
+    REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion());
 
     auto targets = appPackageManifest.GetTargetDeviceFamilies();
     auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
@@ -84,6 +84,6 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
         REQUIRE(1 == appPackageManifest.GetTargetDeviceFamilies().size());
         REQUIRE(expectedWindowsDesktopName == appPackageManifest.GetTargetDeviceFamilies().front().GetName());
         REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetTargetDeviceFamilies().front().GetMinVersion());
-        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion().value());
+        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion());
     }
 }

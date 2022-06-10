@@ -29,24 +29,36 @@ namespace AppInstaller::Msix
         return MsixPackageManifestIdentity{ std::move(manifestPackageId) };
     }
 
-    std::optional<OSVersion> MsixPackageManifest::GetMinimumOSVersion() const
+    OSVersion MsixPackageManifest::GetMinimumOSVersion() const
     {
         std::optional<OSVersion> minOSVersion;
         auto targetDeviceFamilies = GetTargetDeviceFamilies();
+
         for (const auto& targetDeviceFamily : targetDeviceFamilies)
         {
-            auto targetDeviceFamilyMinOSVersion = targetDeviceFamily.GetMinVersion();
-            if (!minOSVersion.has_value())
+            auto platform = targetDeviceFamily.GetPlatform();
+            auto minVersion = targetDeviceFamily.GetMinVersion();
+            if (platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop)
             {
-                minOSVersion = targetDeviceFamilyMinOSVersion;
+                return minVersion;
             }
-            else if(targetDeviceFamilyMinOSVersion < minOSVersion.value())
+
+            if (platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal)
             {
-                minOSVersion = targetDeviceFamilyMinOSVersion;
+                minOSVersion = minVersion;
             }
         }
 
-        return minOSVersion;
+        // If target device family "Windows.Desktop" was not present,
+        // get minimum OS version from "Windows.Universal"
+        if (minOSVersion.has_value())
+        {
+            return minOSVersion.value();
+        }
+
+        // Can't get min OS version because none of the provided
+        // target device family names are supported
+        THROW_HR(E_UNEXPECTED);
     }
 
     std::vector<MsixPackageManifestTargetDeviceFamily> MsixPackageManifest::GetTargetDeviceFamilies() const
@@ -85,6 +97,22 @@ namespace AppInstaller::Msix
         UINT64 minVersion = 0;
         THROW_IF_FAILED(m_targetDeviceFamily->GetMinVersion(&minVersion));
         return OSVersion{ minVersion };
+    }
+
+    MsixPackageManifestTargetDeviceFamily::Platform MsixPackageManifestTargetDeviceFamily::GetPlatform() const
+    {
+        auto name = GetName();
+        if (Utility::CaseInsensitiveEquals(name, WindowsDesktopName))
+        {
+            return WindowsDesktop;
+        }
+
+        if (Utility::CaseInsensitiveEquals(name, WindowsUniversalName))
+        {
+            return WindowsUniversal;
+        }
+
+        return Other;
     }
 
     const std::vector<MsixPackageManifest>& MsixPackageManifestCache::GetAppPackageManifests(std::string url)

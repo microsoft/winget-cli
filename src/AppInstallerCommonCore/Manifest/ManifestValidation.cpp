@@ -298,23 +298,30 @@ namespace AppInstaller::Manifest
                 errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixVersion.ToString());
             }
 
-            // Validate min OS version
-            auto targetMinOSVersion = msixManifest.GetMinimumOSVersion();
-            if (targetMinOSVersion.has_value() && installerMinOSVersion.has_value())
+            try
             {
-                if (targetMinOSVersion.value() != installerMinOSVersion.value())
+                // Validate min OS version
+                auto targetMinOSVersion = msixManifest.GetMinimumOSVersion();
+                if (installerMinOSVersion.has_value())
                 {
-                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.value().ToString());
+                    if (targetMinOSVersion != installerMinOSVersion.value())
+                    {
+                        errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.ToString());
+                    }
+                }
+                // Yaml manifest missing min OS version
+                else
+                {
+                    errors.emplace_back(
+                        ManifestError::OptionalFieldMissing,
+                        "MinimumOSVersion",
+                        targetMinOSVersion.ToString(),
+                        treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
                 }
             }
-            // Yaml manifest missing min OS version
-            else if (targetMinOSVersion.has_value())
+            catch (...)
             {
-                errors.emplace_back(
-                    ManifestError::OptionalFieldMissing,
-                    "MinimumOSVersion",
-                    targetMinOSVersion.value().ToString(),
-                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
+                errors.emplace_back(ManifestError::NoSuitableMinOSVersion, "InstallerUrl", installer.Url);
             }
         }
 

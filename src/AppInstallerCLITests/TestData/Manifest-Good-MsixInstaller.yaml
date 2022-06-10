@@ -4,7 +4,7 @@ PackageLocale: es-MX
 PackageName: es-MX package name
 Publisher: es-MX publisher
 PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj
-MinimumOSVersion: 10.0.0.0
+MinimumOSVersion: 10.0.16299.0
 InstallerType: msix
 Installers: 
     - Architecture: x64

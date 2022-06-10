@@ -28,11 +28,23 @@ namespace AppInstaller::Msix
     // Target device family for an MSIX manifest
     struct MsixPackageManifestTargetDeviceFamily
     {
+        // Target device family names
+        static constexpr std::string_view WindowsDesktopName = "Windows.Desktop";
+        static constexpr std::string_view WindowsUniversalName = "Windows.Universal";
+
+        enum Platform
+        {
+            WindowsDesktop,
+            WindowsUniversal,
+            Other,
+        };
+
         MsixPackageManifestTargetDeviceFamily(Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> targetDeviceFamily)
             : m_targetDeviceFamily(targetDeviceFamily) {}
 
         std::string GetName() const;
         OSVersion GetMinVersion() const;
+        Platform GetPlatform() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestTargetDeviceFamily> m_targetDeviceFamily;
     };
@@ -45,7 +57,7 @@ namespace AppInstaller::Msix
 
         std::vector<MsixPackageManifestTargetDeviceFamily> GetTargetDeviceFamilies() const;
         MsixPackageManifestIdentity GetIdentity() const;
-        std::optional<OSVersion> GetMinimumOSVersion() const;
+        OSVersion GetMinimumOSVersion() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestReader> m_manifestReader;
     };
