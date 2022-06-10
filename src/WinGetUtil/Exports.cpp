@@ -10,8 +10,9 @@
 #include <AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
-#include <PackageDependenciesValidation.h>
 #include <winget/ThreadGlobals.h>
+#include <PackageDependenciesValidation.h>
+#include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -173,7 +174,8 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
-        bool result = reinterpret_cast<SQLiteIndex*>(index)->CheckConsistency(true);
+        auto sqliteIndex = reinterpret_cast<SQLiteIndex*>(index);
+        bool result = sqliteIndex->CheckConsistency(true);
 
         *succeeded = (result ? TRUE : FALSE);
 
@@ -241,6 +243,136 @@ extern "C"
             {
                 *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
             }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetCreateManifest(
+        WINGET_STRING inputPath,
+        BOOL* succeeded,
+        WINGET_MANIFEST_HANDLE* manifest,
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        WinGetCreateManifestOption option) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+        THROW_HR_IF(E_INVALIDARG, !!*manifest);
+        // ErrorOnVerifiedPublisherFields can only be used with SchemaAndSemanticValidation
+        THROW_HR_IF(E_INVALIDARG, (WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnVerifiedPublisherFields) && WI_IsFlagClear(option, WinGetCreateManifestOption::SchemaAndSemanticValidation)));
+
+        *succeeded = false;
+        *manifest = nullptr;
+
+        try
+        {
+            ManifestValidateOption validateOption;
+
+            if (WI_IsFlagSet(option, WinGetCreateManifestOption::SchemaValidation) || WI_IsFlagSet(option, WinGetCreateManifestOption::SchemaAndSemanticValidation))
+            {
+                validateOption.FullValidation = true;
+                validateOption.ThrowOnWarning = true;
+                validateOption.SchemaValidationOnly = WI_IsFlagClear(option, WinGetCreateManifestOption::SchemaAndSemanticValidation);
+                validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnVerifiedPublisherFields);
+            }
+
+            std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L""));
+
+            *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = e.IsWarningOnly();
+            if (message)
+            {
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetCloseManifest(
+        WINGET_MANIFEST_HANDLE manifest) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !manifest);
+
+        std::unique_ptr<Manifest> toClose{ reinterpret_cast<Manifest*>(manifest) };
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
+
+    WINGET_UTIL_API WinGetValidateManifestV3(
+        WINGET_MANIFEST_HANDLE manifest,
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetValidateManifestResult* result,
+        WINGET_STRING_OUT* message,
+        WinGetValidateManifestOptionV2 option,
+        WinGetValidateManifestOperationType operationType) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !manifest);
+        THROW_HR_IF(E_INVALIDARG, !result);
+        // Index should be provided if DependenciesValidation or ArpVersionValidation is to be performed
+        THROW_HR_IF(E_INVALIDARG, !index && (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation) || WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation)));
+        THROW_HR_IF(E_INVALIDARG, option == WinGetValidateManifestOptionV2::None);
+        
+        *result = WinGetValidateManifestResult::InternalError;
+
+        std::string validationMessage;
+        auto validationResult = WinGetValidateManifestResult::Success;
+
+        Manifest* manifestPtr = reinterpret_cast<Manifest*>(manifest);
+        SQLiteIndex* sqliteIndex = reinterpret_cast<SQLiteIndex*>(index);
+
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::DependenciesValidation))
+        {
+            try
+            {
+                if (operationType == WinGetValidateManifestOperationType::OperationTypeDelete)
+                {
+                    PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(sqliteIndex, *manifestPtr);
+                }
+                else
+                {
+                    PackageDependenciesValidation::ValidateManifestDependencies(sqliteIndex, *manifestPtr);
+                }
+            }
+            catch (const ManifestException& e)
+            {
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::DependenciesValidationFailure, !e.IsWarningOnly());
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+        
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::ArpVersionValidation))
+        {
+            try
+            {
+                ValidateManifestArpVersion(sqliteIndex, *manifestPtr);
+            }
+            catch (const ManifestException& e)
+            {
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::ArpVersionValidationFailure, !e.IsWarningOnly());
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+
+        *result = validationResult;
+        if (message)
+        {
+            *message = ::SysAllocString(ConvertToUTF16(validationMessage).c_str());
         }
 
         return S_OK;

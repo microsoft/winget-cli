@@ -15,3 +15,6 @@ EXPORTS
     WinGetCompareVersions
     WinGetValidateManifestV2
     WinGetValidateManifestDependencies
+    WinGetCreateManifest
+    WinGetCloseManifest
+    WinGetValidateManifestV3
