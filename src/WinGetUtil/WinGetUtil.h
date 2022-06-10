@@ -172,8 +172,10 @@ extern "C"
     WINGET_UTIL_API WinGetCloseManifest(
         WINGET_MANIFEST_HANDLE manifest);
 
-    // Validates a given manifest. Returns a bool for validation result and
+    // Validates a given manifest. Returns WinGetValidateManifestResult for validation result and
     // a string representing validation errors if validation failed.
+    // If result is 0, it is success. Otherwise, caller can check the result with flags to see
+    // which phases failed.
     WINGET_UTIL_API WinGetValidateManifestV3(
         WINGET_MANIFEST_HANDLE manifest,
         WINGET_SQLITE_INDEX_HANDLE index,

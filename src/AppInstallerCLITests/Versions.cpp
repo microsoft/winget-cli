@@ -201,9 +201,9 @@ TEST_CASE("ApproximateVersionParse", "[versions]")
     Version v1_0_LessThanFromString = Version{ "< 1.0" };
     Version v1_0_GreaterThanFromString = Version{ "> 1.0" };
 
-    REQUIRE_FALSE(v1_0.IsApproximateVersion());
-    REQUIRE(v1_0_LessThanFromString.IsApproximateVersion());
-    REQUIRE(v1_0_GreaterThanFromString.IsApproximateVersion());
+    REQUIRE_FALSE(v1_0.IsApproximate());
+    REQUIRE(v1_0_LessThanFromString.IsApproximate());
+    REQUIRE(v1_0_GreaterThanFromString.IsApproximate());
 
     REQUIRE(v1_0_LessThan == v1_0_LessThanFromString);
     REQUIRE(v1_0_GreaterThan == v1_0_GreaterThanFromString);
@@ -240,11 +240,11 @@ TEST_CASE("VersionRange", "[versions]")
     REQUIRE_THROWS(VersionRange{ Version{ "2.0" }, Version{ "1.0" } });
 
     // Overlaps
-    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "2.0" }, Version{ "3.0" } }));
-    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "1.0" }, Version{ "1.0" } }));
-    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "0.5" }, Version{ "1.5" } }));
-    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{ Version{ "2.1" }, Version{ "3.0" } }));
-    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.HasOverlapWith(VersionRange{}));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "2.0" }, Version{ "3.0" } }));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "1.0" }, Version{ "1.0" } }));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "0.5" }, Version{ "1.5" } }));
+    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "2.1" }, Version{ "3.0" } }));
+    REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{}));
 
     // Empty
     REQUIRE(VersionRange{}.IsEmpty());

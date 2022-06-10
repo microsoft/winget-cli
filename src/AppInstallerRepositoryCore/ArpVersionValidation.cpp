@@ -65,7 +65,7 @@ namespace AppInstaller::Repository
             auto arpVersionRangesInIndex = GetArpVersionRangesByPackageRowId(index, searchResult.Matches[0].first, { Utility::Version{ manifest.Version }, Utility::Channel{ manifest.Channel } });
             for (auto const& arpInIndex : arpVersionRangesInIndex)
             {
-                if (manifestArpVersionRange.HasOverlapWith(arpInIndex))
+                if (manifestArpVersionRange.Overlaps(arpInIndex))
                 {
                     std::string errorMsg = Manifest::ManifestError::ArpVersionOverlapWithIndex;
                     errorMsg.append("[" + arpInIndex.GetMinVersion().ToString() + ", " + arpInIndex.GetMaxVersion().ToString() + "]");

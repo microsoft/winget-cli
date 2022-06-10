@@ -92,7 +92,7 @@ namespace AppInstaller::Utility
         const std::vector<Part>& GetParts() const { return m_parts; }
 
         // Returns if the version is an approximate version.
-        bool IsApproximateVersion() const { return m_approximateComparator != ApproximateComparator::None; }
+        bool IsApproximate() const { return m_approximateComparator != ApproximateComparator::None; }
 
     protected:
 
@@ -115,7 +115,7 @@ namespace AppInstaller::Utility
         bool IsEmpty() const { return m_isEmpty; }
 
         // Checks if version ranges overlap. Empty version range does not overlap with any version range.
-        bool HasOverlapWith(const VersionRange& other) const;
+        bool Overlaps(const VersionRange& other) const;
 
         // Checks if the version range is effectively the same as a single version.
         bool IsSameAsSingleVersion(const Version& version) const;

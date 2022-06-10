@@ -26,7 +26,7 @@ namespace AppInstaller::Utility
             return;
         }
 
-        THROW_HR_IF(E_INVALIDARG, this->IsApproximateVersion() || this->IsUnknown());
+        THROW_HR_IF(E_INVALIDARG, this->IsApproximate() || this->IsUnknown());
 
         m_approximateComparator = approximateComparator;
         if (approximateComparator == ApproximateComparator::LessThan)
@@ -363,7 +363,7 @@ namespace AppInstaller::Utility
         m_maxVersion = std::move(maxVersion);
     }
 
-    bool VersionRange::HasOverlapWith(const VersionRange& other) const
+    bool VersionRange::Overlaps(const VersionRange& other) const
     {
         // No overlap if either is an empty range.
         if (IsEmpty() || other.IsEmpty())
@@ -396,7 +396,7 @@ namespace AppInstaller::Utility
 
     bool VersionRange::operator<(const VersionRange& other) const
     {
-        THROW_HR_IF(E_INVALIDARG, IsEmpty() || other.IsEmpty() || HasOverlapWith(other));
+        THROW_HR_IF(E_INVALIDARG, IsEmpty() || other.IsEmpty() || Overlaps(other));
         
         return m_minVersion < other.m_minVersion;
     }
@@ -419,7 +419,7 @@ namespace AppInstaller::Utility
         {
             for (size_t j = i + 1; j < ranges.size(); j++)
             {
-                if (ranges[i].HasOverlapWith(ranges[j]))
+                if (ranges[i].Overlaps(ranges[j]))
                 {
                     return true;
                 }

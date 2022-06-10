@@ -21,7 +21,7 @@ namespace AppInstaller::Manifest
         {
             // Version value should be successfully parsed
             Utility::Version testVersion{ manifest.Version };
-            if (testVersion.IsApproximateVersion())
+            if (testVersion.IsApproximate())
             {
                 resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "PackageVersion", manifest.Version);
             }
@@ -211,7 +211,7 @@ namespace AppInstaller::Manifest
                     try
                     {
                         Utility::Version displayVersion{ entry.DisplayVersion };
-                        if (displayVersion.IsApproximateVersion())
+                        if (displayVersion.IsApproximate())
                         {
                             resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
                         }
