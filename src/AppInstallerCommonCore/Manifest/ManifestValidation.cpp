@@ -321,7 +321,7 @@ namespace AppInstaller::Manifest
             }
             catch (...)
             {
-                errors.emplace_back(ManifestError::NoSuitableMinOSVersion, "InstallerUrl", installer.Url);
+                errors.emplace_back(ManifestError::NoSuitablePlatform, "InstallerUrl", installer.Url);
             }
         }
 
