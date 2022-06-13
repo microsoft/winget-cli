@@ -282,6 +282,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
+        { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. Field: PackageVersion" },
+        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. Field: DisplayVersion" },
     };
 
     for (auto const& testCase : TestCases)
@@ -839,4 +841,20 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
+{
+    Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));
+    REQUIRE(manifestNoArp.GetArpVersionRange().IsEmpty());
+    
+    Manifest manifestSingleArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SingleArpVersionDeclared.yaml"));
+    auto arpRangeSingleArp = manifestSingleArp.GetArpVersionRange();
+    REQUIRE(arpRangeSingleArp.GetMinVersion().ToString() == "11.0");
+    REQUIRE(arpRangeSingleArp.GetMaxVersion().ToString() == "11.0");
+
+    Manifest manifestMultiArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultipleArpVersionDeclared.yaml"));
+    auto arpRangeMultiArp = manifestMultiArp.GetArpVersionRange();
+    REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
+    REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
 }

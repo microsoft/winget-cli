@@ -184,13 +184,16 @@ namespace
 
             if (input.empty() || input == "AppInstallerCliTest.TestMSStoreInstaller")
             {
-                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MSStore.yaml"));
+                auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MSStore.yaml"));
+                auto available = installed;
+                // Override the installed version to not be Latest
+                installed.Version = "1.0.0.0";
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
-                            manifest,
+                            installed,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
-                            std::vector<Manifest>{ manifest },
+                            std::vector<Manifest>{ available },
                             shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
@@ -1046,7 +1049,6 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
 
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFPortableInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -2197,7 +2199,7 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
         }));
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
-            return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString() == "Latest";
+            return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
         }));
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {

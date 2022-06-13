@@ -1,0 +1,16 @@
+PackageIdentifier: AppInstallerTest.TestArpVersionSameVersion
+PackageVersion: 1.0
+PackageName: TestArpVersionSameVersion
+PackageLocale: en-US
+Publisher: Microsoft
+License: Test
+ShortDescription: E2E test for arp version test.
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    AppsAndFeaturesEntries:
+    - DisplayVersion: "1.0"
+ManifestType: singleton
+ManifestVersion: 1.2.0

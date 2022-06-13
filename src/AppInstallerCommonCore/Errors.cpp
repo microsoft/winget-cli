@@ -182,8 +182,12 @@ namespace AppInstaller
                 return "Portable package from a different source already exists.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY:
                 return "Unable to create symlink, path points to a directory.";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
+                return "The installer cannot be run from an administrator context.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED:
                 return "Failed to uninstall portable package";
+            case APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED:
+                return "Failed to validate DisplayVersion values against index.";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
@@ -214,8 +218,8 @@ namespace AppInstaller
                 return "A higher version of this application is already installed.";
             case APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY:
                 return "Organization policies are preventing installation. Contact your admin.";
-            case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
-                return "The installer cannot be run from an administrator context.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES:
+                return "Failed to install package dependencies.";
             default:
                 return "Unknown Error Code";
             }

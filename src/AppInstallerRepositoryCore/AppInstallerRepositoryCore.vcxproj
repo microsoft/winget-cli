@@ -230,6 +230,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h" />
     <ClInclude Include="Microsoft\Schema\1_1\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_1\ManifestMetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\1_1\PackageFamilyNameTable.h" />
@@ -263,6 +265,8 @@
     <ClInclude Include="Microsoft\Schema\1_3\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_4\DependenciesTable.h" />
     <ClInclude Include="Microsoft\Schema\1_4\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_5\ArpVersionVirtualTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_5\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -303,6 +307,7 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
+    <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -333,6 +338,7 @@
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp" />
     <ClCompile Include="Microsoft\Schema\1_4\DependenciesTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_4\Interface_1_4.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
