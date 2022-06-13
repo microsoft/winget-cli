@@ -1349,4 +1349,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>InstallationNotes:</value>
   </data>
+  <data name="SymlinkModified" xml:space="preserve">
+    <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
+  </data>
 </root>
