@@ -71,6 +71,8 @@ namespace AppInstaller::Utility
 
         // Trim version parts
         Trim();
+
+        THROW_HR_IF(E_INVALIDARG, m_approximateComparator != ApproximateComparator::None && IsBaseVersionUnknown());
     }
 
     void Version::Trim()
@@ -87,8 +89,6 @@ namespace AppInstaller::Utility
                 return;
             }
         }
-
-        THROW_HR_IF(E_INVALIDARG, m_approximateComparator != ApproximateComparator::None && IsBaseVersionUnknown());
     }
 
     bool Version::operator<(const Version& other) const
