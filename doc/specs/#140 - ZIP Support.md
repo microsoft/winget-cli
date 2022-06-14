@@ -52,24 +52,32 @@ The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be r
 > During implementation, we will also need to ensure that this process can work under SYSTEM context.
 
 ## ZIP Threat Detection
-ZIP and other archive file types are known threat vectors for malware in the form of ZIP compression bombs. Two of the most common types of compression bombs are multi-layered (recursive) and single-layered (non-recursive). Zip bombs rely on a repetition of identical files that have extremely large compression ratios. 
+ZIP and other archive file types are known threat vectors for malware in the form of ZIP compression bombs. Two of the most common types of compression bombs are multi-layered (recursive) and single-layered (non-recursive). ZIP bombs rely on a repetition of identical files that have extremely large compression ratios. 
 
 1. **Multi-layered (recursive)**:
-A zip file containing multiple layers of nested zip files that achieve high compression ratios when the layers are decompressed recursively. This technique is often used to bypass compression ratio checks performed by zip parseres for a given layer.
+A ZIP file containing multiple layers of nested ZIP files that achieve high compression ratios when decompressed recursively. This technique is often used to bypass compression ratio checks performed by ZIP parsers for a single layer.
 
 2. **Single-Layered (non-recursive)**
-A zip bomb that expands fully after a single round of decompression. The extremely high compression ratio of the zip bomb is achieved by overlapping files within the zip container. 
+A ZIP bomb that expands fully after a single round of decompression. The extremely high compression ratio of the ZIP bomb is achieved by overlapping files within the ZIP container. 
 
+In order to protect our users from these possible threats, we will need to implement several basic checks to verify whether it is safe to proceed with the contents of the ZIP archive file.
 
-Two of the most common types of compression bombs are rec, which utilize layers of nested zip files which decompress into extremely large amounts of files. In order to protect our users and warn them before installing from any suspicious ZIP files, we will need to implement a basic archive file malware check within the client. 
+>Compression Ratio is defined as the sum of the sizes of all the files contained within a ZIP file, divided by the size of the ZIP file.
 
 The check will be as follows:
-1. Recursively traverse through all files contained in an archive file.
-2. If a nested ZIP file is detected, and the number of zip layers currently extracted is less than 3, extract the contents, increment the layer count and continue traversing. Otherwise, break out of the traversal and warn the user.
-ssed size vs uncompressed size as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers. 
+
+1. For any archive file, we will check that the compression ratio is no greater than 5:1 (20%). Any file that has a better compression ratio will be deemed as "suspicious". Lossless compression of common data files tend achieve compression ratios of around ~2:1 (50%) simply because of their intrinsic entropy of data. 
+
+>Note: The compression ratio threshold is not permanent and can be changed based on community feedback.
+ 
+2. If a ZIP archive file contains nested archive files, we will support decompressing up to a maximum of 3 layers (2 additional layers including the initial ZIP file). 
+
+If the number of nested ZIP layers exceeds 3 or fails to satisfy the compression ratio threshold, the process will terminate and a warning will be displayed to the user. If the user chooses to proceeds, installation will continue.
+
+> Although ZIP headers can contain information about the decompressed size of the file, they are not reliable sources of information as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers when possible.
 
 ## Supporting Nested Portable(s) in an Archive
-Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, an additional table of information will need to be appended to the tracking catalog. The table will contain a list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified or not. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
+Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, an additional table of information will need to be appended to the tracking catalog. The table will contain a list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
 
 The table will contain the following information for each item that we create or place down during installation.
 
@@ -78,5 +86,5 @@ The table will contain the following information for each item that we create or
 | Path      | Path to the item |
 | Flag   | Flag to indicate what type of file was placed down (directory, symlink, exe) |
 | Hash   | Hash for files with contents (exe) |
-| SymlinkTarget | Target exe for the created symlink |
+| SymlinkTarget | Target exe for the created symlink (only applies to symlink files) |
 
