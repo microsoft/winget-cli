@@ -11,9 +11,10 @@ namespace AppInstaller::Utility
 
     // Creates a comparable version object from a string.
     // Versions are parsed by:
-    //  1. Splitting the string based on the given splitChars (or DefaultSplitChars)
-    //  2. Parsing a leading, positive integer from each split part
-    //  3. Saving any remaining, non-digits as a supplemental value
+    //  1. Parse approximate comparator sign if applicable
+    //  2. Splitting the string based on the given splitChars (or DefaultSplitChars)
+    //  3. Parsing a leading, positive integer from each split part
+    //  4. Saving any remaining, non-digits as a supplemental value
     //
     // Versions are compared by:
     //  for each part in each version
@@ -22,8 +23,20 @@ namespace AppInstaller::Utility
     //      else if integers not equal, return comparison of integers
     //      else if only one side has a non-empty string part, it is less
     //      else if string parts not equal, return comparison of strings
+    //  if all parts are same, use approximate comparator if applicable
+    //
+    //  Note: approximate to another approximate version is invalid.
+    //        approximate to Unknown is invalid.
     struct Version
     {
+        // Used in approximate version to indicate the relation to the base version.
+        enum class ApproximateComparator
+        {
+            None,
+            LessThan,
+            GreaterThan,
+        };
+
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
@@ -32,6 +45,9 @@ namespace AppInstaller::Utility
         Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+
+        // Constructing an approximate version from a base version.
+        Version(Version baseVersion, ApproximateComparator approximateComparator);
 
         // Resets the version's value to the input.
         virtual void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
@@ -76,11 +92,21 @@ namespace AppInstaller::Utility
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
+        // Returns if the version is an approximate version.
+        bool IsApproximate() const { return m_approximateComparator != ApproximateComparator::None; }
+
     protected:
+
+        bool IsBaseVersionLatest() const;
+        bool IsBaseVersionUnknown() const;
+        // Called by overloaded less than operator implementation when base version already compared and equal, less than determined by approximate comparator.
+        bool ApproximateCompareLessThan(const Version& other) const;
+
         std::string m_version;
         std::vector<Part> m_parts;
+        ApproximateComparator m_approximateComparator = ApproximateComparator::None;
 
-        // Remove trailing empty parts (0 or empty)
+      // Remove trailing empty parts (0 or empty)
         void Trim();
     };
 
@@ -100,6 +126,35 @@ namespace AppInstaller::Utility
         UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
         UINT64 Build() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
         UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
+    };
+
+    // Version range represented by a min version and max version, both inclusive.
+    struct VersionRange
+    {
+        VersionRange() { m_isEmpty = true; };
+        VersionRange(Version minVersion, Version maxVersion);
+
+        bool IsEmpty() const { return m_isEmpty; }
+
+        // Checks if version ranges overlap. Empty version range does not overlap with any version range.
+        bool Overlaps(const VersionRange& other) const;
+
+        // Checks if the version range is effectively the same as a single version.
+        bool IsSameAsSingleVersion(const Version& version) const;
+
+        // Checks if a version is within the version range
+        bool ContainsVersion(const Version& version) const;
+
+        // < operator will thow if compared with an empty range or an overlapped range
+        bool operator<(const VersionRange& other) const;
+
+        const Version& GetMinVersion() const;
+        const Version& GetMaxVersion() const;
+
+    private:
+        Version m_minVersion;
+        Version m_maxVersion;
+        bool m_isEmpty = false;
     };
 
     // A channel string; existing solely to give a type.
@@ -148,4 +203,7 @@ namespace AppInstaller::Utility
         Version m_version;
         Channel m_channel;
     };
+
+    // Checks if there are overlaps within the list of version ranges
+    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges);
 }

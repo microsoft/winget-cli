@@ -201,6 +201,12 @@
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ApproximateVersionInArpVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ApproximateVersionInPackageVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -396,7 +402,16 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-MultiLocale.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MultipleArpVersionDeclared.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-NoArpVersionDeclared.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SingleArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
@@ -447,6 +462,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InstallationNotes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

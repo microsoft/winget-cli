@@ -131,3 +131,11 @@ TEST_CASE("NameNorm_KBNumbers", "[name_norm]")
 
     REQUIRE(normer.Normalize("Fix for (KB42)", {}).Name() == "FixforKB42");
 }
+
+TEST_CASE("NameNorm_Initial_PreserveWhitespace", "[name_norm]")
+{
+    NameNormalizer normer(NormalizationVersion::InitialPreserveWhiteSpace);
+
+    REQUIRE(normer.NormalizeName("Some Name").Name() == "Some Name");
+    REQUIRE(normer.NormalizePublisher("Some Publisher Corp") == "Some Publisher");
+}

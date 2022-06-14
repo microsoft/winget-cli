@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include <winget/NameNormalization.h>
-
 namespace AppInstaller
 {
     namespace Manifest
@@ -63,28 +61,6 @@ namespace AppInstaller::Repository::Correlation
         static void OverrideInstance(IARPMatchConfidenceAlgorithm* algorithmOverride);
         static void ResetInstance();
 #endif
-    };
-
-    struct EmptyMatchConfidenceAlgorithm : public IARPMatchConfidenceAlgorithm
-    {
-        void Init(const AppInstaller::Manifest::Manifest&) override {}
-        double ComputeConfidence(const ARPEntry&) const override { return 0; }
-    };
-
-    // Measures the correlation with the edit distance between the normalized name and publisher strings.
-    struct EditDistanceMatchConfidenceAlgorithm : public IARPMatchConfidenceAlgorithm
-    {
-        void Init(const AppInstaller::Manifest::Manifest& manifest) override;
-        double ComputeConfidence(const ARPEntry& entry) const override;
-
-    private:
-        std::u32string PrepareString(std::string_view s) const;
-        std::u32string NormalizeAndPrepareName(std::string_view name) const;
-        std::u32string NormalizeAndPreparePublisher(std::string_view publisher) const;
-
-        AppInstaller::Utility::NameNormalizer m_normalizer{ AppInstaller::Utility::NormalizationVersion::Initial };
-        // Each entry is a tuple { name, publisher, name + publisher }
-        std::vector<std::tuple<std::u32string, std::u32string, std::u32string>> m_namesAndPublishers;
     };
 
     // Finds the ARP entry in the ARP source that matches a newly installed package.

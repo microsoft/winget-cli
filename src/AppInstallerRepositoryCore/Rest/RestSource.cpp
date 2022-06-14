@@ -203,8 +203,28 @@ namespace AppInstaller::Repository::Rest
                     return Utility::LocIndString{ m_versionInfo.VersionAndChannel.GetChannel().ToString() };
                 case PackageVersionProperty::Publisher:
                     return Utility::LocIndString{ m_package->PackageInfo().Publisher };
+                case PackageVersionProperty::ArpMinVersion:
+                    if (m_versionInfo.Manifest)
+                    {
+                        auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
+                        return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMinVersion().ToString() };
+                    }
+                    else
+                    {
+                        return {};
+                    }
+                case PackageVersionProperty::ArpMaxVersion:
+                    if (m_versionInfo.Manifest)
+                    {
+                        auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
+                        return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMaxVersion().ToString() };
+                    }
+                    else
+                    {
+                        return {};
+                    }
                 default:
-                    return Utility::LocIndString{};
+                    return {};
                 }
             }
 

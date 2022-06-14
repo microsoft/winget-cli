@@ -599,7 +599,6 @@ namespace AppInstaller::CLI::Workflow
         if (installerType == InstallerTypeEnum::Portable)
         {
             context <<
-                Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::PortableInstall) <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }

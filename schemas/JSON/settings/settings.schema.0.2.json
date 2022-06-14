@@ -102,6 +102,11 @@
           "type": "boolean",
           "default": false
         },
+        "disableInstallNotes": {
+          "description": "Controls whether installation notes are shown after a successful install",
+          "type": "boolean",
+          "default":  false
+        },
         "PortablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",
@@ -182,11 +187,6 @@
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
           "default": false
-        },
-        "portableInstall": {
-          "description": "Enable support for installing portable packages.",
-          "type": "boolean",
-          "default":  false
         }
       }
     }

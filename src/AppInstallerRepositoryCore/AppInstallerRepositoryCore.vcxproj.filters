@@ -61,6 +61,9 @@
     <Filter Include="Microsoft\Schema\1_4">
       <UniqueIdentifier>{dcae9c55-cdd7-4381-8acd-3554896608a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_5">
+      <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -267,6 +270,21 @@
     <ClInclude Include="Public\winget\ARPCorrelation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_5\ArpVersionVirtualTable.h">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_5\Interface.h">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClInclude>
+    <ClInclude Include="ArpVersionValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -417,6 +435,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ARPCorrelation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ARPCorrelationAlgorithms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClCompile>
+    <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

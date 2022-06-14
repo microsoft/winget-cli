@@ -55,6 +55,9 @@ namespace AppInstaller::Manifest
         const char* const OptionalFieldMissing = "Optional field missing.";
         const char* const InstallerFailedToProcess = "Failed to process installer.";
         const char* const NoSuitablePlatform = "No Suitable Platform.";
+        const char* const ApproximateVersionNotAllowed = "Approximate version not allowed.";
+        const char* const ArpVersionOverlapWithIndex = "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: ";
+        const char* const ArpVersionValidationInternalError = "Internal error while validating DisplayVersion against index.";
     }
 
     struct ValidationError
