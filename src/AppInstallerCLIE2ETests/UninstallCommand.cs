@@ -108,16 +108,16 @@ namespace AppInstallerCLIE2ETests
 
             // Replace symlink with modified symlink
             File.Delete(symlinkPath);
-            File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
+            FileSystemInfo modifiedSymlinkInfo = File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
 
             // Remove modified symlink as to not interfere with other tests
-            bool modifiedSymlinkExists = File.Exists(symlinkPath);
-            File.Delete(symlinkPath);
+            bool modifiedSymlinkExists = modifiedSymlinkInfo.Exists;
+            modifiedSymlinkInfo.Delete();
 
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(result.StdOut.Contains("Portable symlink not deleted as it points to a target exe that is different than expected"));
+            Assert.True(result.StdOut.Contains("Portable symlink not deleted as it was modified and points to a different target exe"));
             Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
         }
 
