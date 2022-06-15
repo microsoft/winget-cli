@@ -306,8 +306,6 @@ extern "C"
     }
     CATCH_RETURN()
 
-    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
-
     WINGET_UTIL_API WinGetValidateManifestV3(
         WINGET_MANIFEST_HANDLE manifest,
         WINGET_SQLITE_INDEX_HANDLE index,

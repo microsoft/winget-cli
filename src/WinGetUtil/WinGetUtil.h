@@ -27,6 +27,8 @@ extern "C"
         ErrorOnVerifiedPublisherFields = 0x2,
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
+
     enum WinGetCreateManifestOption
     {
         // Just create the manifest without any validation
@@ -42,6 +44,8 @@ extern "C"
         ReturnErrorOnVerifiedPublisherFields = 0x1000,
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetCreateManifestOption);
+
     enum WinGetValidateManifestOptionV2
     {
         // No validation, caller will get E_INVALIDARG
@@ -53,6 +57,8 @@ extern "C"
         // Installer validation
         InstallerValidation = 0x4,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOptionV2);
 
     enum WinGetValidateManifestOperationType
     {
@@ -74,13 +80,15 @@ extern "C"
         InternalError = 0x1000,
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
+
     enum WinGetValidateManifestDependenciesOption
     {
         DefaultValidation = 0,
         ForDelete = 0x1,
     };
 
-    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestDependenciesOption);
 
     // Initializes the logging infrastructure.
     WINGET_UTIL_API WinGetLoggingInit(
