@@ -100,6 +100,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::IgnoreInstallWarnings),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag }

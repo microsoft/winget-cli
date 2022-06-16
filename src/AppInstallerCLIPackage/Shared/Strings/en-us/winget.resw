@@ -1349,10 +1349,16 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>InstallationNotes:</value>
   </data>
-  <data name="IgnoreInstallWarningsArgumentDescription" xml:space="preserve">
-    <value>Disables install warning prompts</value>
-  </data>
-  <data name="InstallWarning" xml:space="preserve">
+  <data name="InstallWarningsPrompt" xml:space="preserve">
     <value>This installer is known to interfere with running applications. Would you like to continue?</value>
+  </data>
+  <data name="IgnoreInstallWarningsArgumentDescription" xml:space="preserve">
+    <value>Disables install warnings</value>
+  </data>
+  <data name="InstallWarningsDisplay" xml:space="preserve">
+    <value>This installer is known to interfere with running applications. Installation will begin shortly...</value>
+  </data>
+  <data name="InstallWarningsNotAccepted" xml:space="preserve">
+    <value>Install warnings were not accepted. Operation cancelled.</value>
   </data>
 </root>

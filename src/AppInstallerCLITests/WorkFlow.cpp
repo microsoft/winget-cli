@@ -1248,7 +1248,7 @@ TEST_CASE("InstallFlow_LicenseAgreement_NotAccepted", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAgreementsNotAgreedTo).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_DisplayInstallWarnings_Prompt", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_InstallWarnings_Prompt", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1261,18 +1261,21 @@ TEST_CASE("InstallFlow_DisplayInstallWarnings_Prompt", "[InstallFlow][workflow]"
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_DisplayInstallWarnings.yaml").GetPath().u8string());
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallWarningsLevelPreference>(InstallWarningsPreference::Prompt);
+
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
     // Verify prompt was shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarning).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsPrompt).get()) != std::string::npos);
 
     // Verify Installer is called.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
 }
 
-TEST_CASE("InstallFlow_DisplayInstallWarnings_Cancelled", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_InstallWarnings_Cancelled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1284,20 +1287,72 @@ TEST_CASE("InstallFlow_DisplayInstallWarnings_Cancelled", "[InstallFlow][workflo
     auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_DisplayInstallWarnings.yaml").GetPath().u8string());
 
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallWarningsLevelPreference>(InstallWarningsPreference::Prompt);
+
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
     // Verify prompt was shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarning).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsPrompt).get()) != std::string::npos);
 
     // Verify installation failed
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_WARNINGS_NOT_ACCEPTED);
     REQUIRE_FALSE(std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::Cancelled).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsNotAccepted).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_DisplayInstallWarnings_IgnoreWarnings", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_InstallWarnings_Display", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_DisplayInstallWarnings.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallWarningsLevelPreference>(InstallWarningsPreference::Display);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify prompt was shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsDisplay).get()) != std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_InstallWarnings_Ignore", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_DisplayInstallWarnings.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::InstallWarningsLevelPreference>(InstallWarningsPreference::Ignore);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify prompt was not shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsPrompt).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsDisplay).get()) == std::string::npos);
+
+    // Verify Installer is called.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_InstallWarnings_IgnoreWithArgument", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1313,7 +1368,8 @@ TEST_CASE("InstallFlow_DisplayInstallWarnings_IgnoreWarnings", "[InstallFlow][wo
     INFO(installOutput.str());
 
     // Verify prompt was not shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarning).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsPrompt).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallWarningsDisplay).get()) == std::string::npos);
 
     // Verify Installer is called.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));

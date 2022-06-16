@@ -349,11 +349,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
-            if (options.AcceptInstallWarnings())
+            if (options.IgnoreInstallWarnings())
             {
                 context->Args.AddArg(Execution::Args::Type::IgnoreInstallWarnings);
             }
-
             // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
             if (options.PackageInstallScope() == PackageInstallScope::System)
             {
@@ -540,7 +539,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
         }
 
-        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::HideInstallWarningPrompt);
         return Execution::OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext), isUpgrade);
     }
 

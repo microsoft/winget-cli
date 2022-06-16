@@ -162,13 +162,22 @@ namespace AppInstaller::CLI::Workflow
     {
         auto displayInstallWarnings = context.Get<Execution::Data::Installer>().value().DisplayInstallWarnings;
 
-        if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreInstallWarnings) && !Settings::User().Get<Settings::Setting::InstallIgnoreWarnings>())
+        if (displayInstallWarnings && !context.Args.Contains(Execution::Args::Type::IgnoreInstallWarnings))
         {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::HideInstallWarningPrompt) ||
-                !context.Reporter.PromptForBoolResponse(Resource::String::InstallWarning))
+            InstallWarningsPreference level = Settings::User().Get<Settings::Setting::InstallWarningsLevelPreference>();
+            if (level == InstallWarningsPreference::Prompt)
             {
-                context.Reporter.Error() << Resource::String::Cancelled << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_WARNINGS_NOT_ACCEPTED);
+                if (!context.Reporter.PromptForBoolResponse(Resource::String::InstallWarningsPrompt))
+                {
+                    context.Reporter.Error() << Resource::String::InstallWarningsNotAccepted << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_WARNINGS_NOT_ACCEPTED);
+                }
+            }
+            else if (level == InstallWarningsPreference::Display)
+            {
+                context.Reporter.Warn() << Resource::String::InstallWarningsDisplay << std::endl;
+                Sleep(3000);
+
             }
         }
     }
@@ -433,7 +442,6 @@ namespace AppInstaller::CLI::Workflow
     void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
-            Workflow::DisplayInstallWarnings <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
@@ -459,6 +467,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            Workflow::DisplayInstallWarnings <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

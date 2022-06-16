@@ -98,11 +98,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         throw hresult_not_implemented();
     }
-    bool InstallOptions::AcceptInstallWarnings()
+    bool InstallOptions::IgnoreInstallWarnings()
     {
         throw hresult_not_implemented();
     }
-    void InstallOptions::AcceptInstallWarnings(bool)
+    void InstallOptions::IgnoreInstallWarnings(bool)
     {
         throw hresult_not_implemented();
     }

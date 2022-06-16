@@ -51,6 +51,14 @@ namespace AppInstaller::Settings
         Machine,
     };
 
+    // The preferred level for install warnings.
+    enum class InstallWarningsPreference
+    {
+        Ignore,
+        Display,
+        Prompt,
+    };
+
     // The download code to use for *installers*.
     enum class InstallerDownloader
     {
@@ -86,7 +94,7 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EnableSelfInitiatedMinidump,
         LoggingLevelPreference,
-        InstallIgnoreWarnings,
+        InstallWarningsLevelPreference,
         DisableInstallNotes,
         PortableAppUserRoot,
         PortableAppMachineRoot,
@@ -139,7 +147,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallWarningsLevelPreference, std::string, InstallWarningsPreference, InstallWarningsPreference::Display, ".installBehavior.installWarnings.level"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppMachineRoot"sv);

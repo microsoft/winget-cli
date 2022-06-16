@@ -231,6 +231,28 @@ namespace AppInstaller::Settings
             return {};
         }
 
+        WINGET_VALIDATE_SIGNATURE(InstallWarningsLevelPreference)
+        {
+            static constexpr std::string_view s_installWarnings_Ignore = "ignore";
+            static constexpr std::string_view s_installWarnings_Display = "display";
+            static constexpr std::string_view s_installWarnings_Prompt = "prompt";
+
+            if (Utility::CaseInsensitiveEquals(value, s_installWarnings_Ignore))
+            {
+                return InstallWarningsPreference::Ignore;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_installWarnings_Display))
+            {
+                return InstallWarningsPreference::Display;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_installWarnings_Prompt))
+            {
+                return InstallWarningsPreference::Prompt;
+            }
+
+            return {};
+        }
+
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
@@ -238,7 +260,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
-        WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
 

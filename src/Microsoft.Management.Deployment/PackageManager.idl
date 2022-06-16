@@ -610,8 +610,9 @@ namespace Microsoft.Management.Deployment
         {
             /// Allow the upgrade to continue for upgrade packages with manifest versions Unknown.
             Boolean AllowUpgradeToUnknownVersion;
-            // Accepts the install warnings and continues the install.
-            Boolean AcceptInstallWarnings;
+            
+            /// Ignores warnings displayed to the user if an installer is known to interfere with running applications.
+            Boolean IgnoreInstallWarnings;
         }
     }
 

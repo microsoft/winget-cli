@@ -112,13 +112,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowUpgradeToUnknownVersion = value;
     }
-    bool InstallOptions::AcceptInstallWarnings()
+    bool InstallOptions::IgnoreInstallWarnings()
     {
-        return m_acceptInstallWarnings;
+        return m_ignoreInstallWarnings;
     }
-    void InstallOptions::AcceptInstallWarnings(bool value)
+    void InstallOptions::IgnoreInstallWarnings(bool value)
     {
-        m_acceptInstallWarnings = value;
+        m_ignoreInstallWarnings = value;
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
