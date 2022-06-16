@@ -426,7 +426,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             .LeftOuterJoin(VersionTable::TableName())
             .On(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_MinVersion_Column_Name), QCol(VersionTable::TableName(), SQLite::RowIDName))
             .Where(QCol(ManifestTable::TableName(), SQLite::RowIDName)).IsNull()
-            .Or(QCol(VersionTable::TableName(), SQLite::RowIDName)).IsNull()
+            .Or(QCol(VersionTable::TableName(), SQLite::RowIDName)).IsNull().And(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_MinVersion_Column_Name)).IsNotNull()
             .Or(QCol(IdTable::TableName(), SQLite::RowIDName)).IsNull();
 
         SQLite::Statement select = builder.Prepare(connection);
