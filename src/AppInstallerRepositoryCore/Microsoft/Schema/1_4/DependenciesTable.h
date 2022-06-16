@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // The dependencies table and corresponding index are dropped.
         static void PrepareForPackaging(SQLite::Connection& connection);
 
-        // Get all min version values of the given manifest's dependencies, used for VersionTable cleanup when updaing or removing a manifest.
+        // Get all min version values of the given manifest's dependencies, used for VersionTable cleanup when updating or removing a manifest.
         static std::vector<SQLite::rowid_t> GetDependenciesMinVersionsRowIdByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId);
 
         // Get all dependencies with min versions in the dependencies table, used during consistency check. Returning a list of <PackageRowId, VersionString> pair.
