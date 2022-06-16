@@ -451,14 +451,14 @@ namespace AppInstaller::CLI::Workflow
             const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
             if (symlinkPath.has_value())
             {
-                const std::filesystem::path& symlinkPathValue = symlinkPath.value().GetValue<Value::Type::UTF16String>();
+                const std::filesystem::path& symlinkPathValue = symlinkPath->GetValue<Value::Type::UTF16String>();
                 if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPathValue)))
                 {
                     const auto& targetPath = uninstallEntry[PortableValueName::PortableTargetFullPath];
                     if (targetPath.has_value())
                     {
                         const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlinkPathValue);
-                        const std::filesystem::path& targetPathValue = targetPath.value().GetValue<Value::Type::UTF16String>();
+                        const std::filesystem::path& targetPathValue = targetPath->GetValue<Value::Type::UTF16String>();
                         if (symlinkTargetPath != targetPathValue)
                         {
                             AICLI_LOG(CLI, Warning, << "Portable symlink not deleted; Symlink points to a different target exe: " << symlinkTargetPath <<
