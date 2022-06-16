@@ -1,0 +1,17 @@
+PackageIdentifier: AppInstallerTest.TestArpVersionOppositeOrder
+PackageVersion: 1.0
+PackageName: TestArpVersionOppositeOrder
+PackageLocale: en-US
+Publisher: Microsoft
+License: Test
+ShortDescription: E2E test for arp version test.
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    AppsAndFeaturesEntries:
+    - DisplayVersion: "10.0"
+    - DisplayVersion: "10.5"
+ManifestType: singleton
+ManifestVersion: 1.2.0

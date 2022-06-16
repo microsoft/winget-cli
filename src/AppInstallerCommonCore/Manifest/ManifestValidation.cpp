@@ -20,14 +20,18 @@ namespace AppInstaller::Manifest
         try
         {
             // Version value should be successfully parsed
-            Utility::Version test{ manifest.Version };
+            Utility::Version testVersion{ manifest.Version };
+            if (testVersion.IsApproximate())
+            {
+                resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "PackageVersion", manifest.Version);
+            }
         }
         catch (const std::exception&)
         {
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !fullValidation);
         std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
@@ -196,6 +200,26 @@ namespace AppInstaller::Manifest
 
                     // Stop checking to avoid repeated errors
                     break;
+                }
+            }
+
+            // Check no approximate version declared for DisplayVersion in AppsAndFeatureEntries
+            for (auto const& entry : installer.AppsAndFeaturesEntries)
+            {
+                if (!entry.DisplayVersion.empty())
+                {
+                    try
+                    {
+                        Utility::Version displayVersion{ entry.DisplayVersion };
+                        if (displayVersion.IsApproximate())
+                        {
+                            resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
+                        }
+                    }
+                    catch (const std::exception&)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidFieldValue, "DisplayVersion", entry.DisplayVersion);
+                    }
                 }
             }
         }

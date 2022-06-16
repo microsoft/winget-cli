@@ -149,6 +149,14 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INVALID_TABLE_COLUMN = unchecked((int)0x8A15004E);
             public const int ERROR_UPGRADE_VERSION_NOT_NEWER = unchecked((int)0x8A15004F);
             public const int ERROR_UPGRADE_VERSION_UNKNOWN = unchecked((int)0x8A150050);
+            public const int ERROR_ICU_CONVERSION_ERROR = unchecked((int)0x8A150051);
+            public const int ERROR_PORTABLE_INSTALL_FAILED = unchecked((int)0x8A150052);
+            public const int ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED = unchecked((int)0x8A150053);
+            public const int ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS = unchecked((int)0x8A150054);
+            public const int ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY = unchecked((int)0x8A150055);
+            public const int ERROR_INSTALLER_PROHIBITS_ELEVATION = unchecked((int)0x8A150056);
+            public const int ERROR_PORTABLE_UNINSTALL_FAILED = unchecked((int)0x8A150057);
+            public const int ERROR_ARP_VERSION_VALIDATION_FAILED = unchecked((int)0x8A150058);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
@@ -165,6 +173,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8A15010D);
             public const int ERROR_INSTALL_DOWNGRADE = unchecked((int)0x8A15010E);
             public const int ERROR_INSTALL_BLOCKED_BY_POLICY = unchecked((int)0x8A15010F);
+            public const int ERROR_INSTALL_DEPENDENCIES = unchecked((int)0x8A150110);
         }
     }
 }

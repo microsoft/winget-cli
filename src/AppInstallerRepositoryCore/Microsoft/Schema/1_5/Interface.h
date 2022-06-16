@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "Microsoft/Schema/1_3/Interface.h"
+#include "Microsoft/Schema/1_4/Interface.h"
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_4
+namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 {
     // Interface to this schema version exposed through ISQLiteIndex.
-    struct Interface : public V1_3::Interface
+    struct Interface : public V1_4::Interface
     {
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
@@ -18,12 +18,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
-        void PrepareForPackaging(SQLite::Connection& connection, bool vacuum) override;
-
-        std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
-        std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
 
     protected:
+
         bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const override;
+
+        // Gets a property already knowing that the manifest id is valid.
+        std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
+
+    private:
+        // Semantic check to validate all arp version ranges within the index
+        bool ValidateArpVersionConsistency(const SQLite::Connection& connection) const;
     };
 }

@@ -135,6 +135,8 @@ namespace AppInstaller::Repository
         // Returned in hexadecimal format
         ManifestSHA256Hash,
         Publisher,
+        ArpMinVersion,
+        ArpMaxVersion,
     };
 
     // A property of a package version that can have multiple values.

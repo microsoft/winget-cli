@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool IsUpdateVersionApplicable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
-            return (installedVersion < updateVersion || updateVersion.IsLatest());
+            return installedVersion < updateVersion;
         }
 
         void AddToPackagesToInstallIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packagesToInstall, std::unique_ptr<Execution::Context> packageContext)

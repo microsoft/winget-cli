@@ -198,11 +198,6 @@
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
           "default": false
-        },
-        "portableInstall": {
-          "description": "Enable support for installing portable packages.",
-          "type": "boolean",
-          "default":  false
         }
       }
     }
