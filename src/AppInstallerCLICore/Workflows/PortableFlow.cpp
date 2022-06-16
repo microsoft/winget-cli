@@ -461,7 +461,7 @@ namespace AppInstaller::CLI::Workflow
                         const std::filesystem::path& targetPathValue = targetPath.value().GetValue<Value::Type::UTF16String>();
                         if (symlinkTargetPath != targetPathValue)
                         {
-                            AICLI_LOG(CLI, Info, << "Portable symlink not deleted; Symlink points to a different target exe: " << symlinkTargetPath <<
+                            AICLI_LOG(CLI, Warning, << "Portable symlink not deleted; Symlink points to a different target exe: " << symlinkTargetPath <<
                                 "; Expected target exe: " << targetPathValue);
                             context.Reporter.Warn() << Resource::String::SymlinkModified << std::endl;
                         }
