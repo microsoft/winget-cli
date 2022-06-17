@@ -171,4 +171,18 @@ extern "C"
         WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
         WINGET_STRING outputFilePath,
         WinGetCompleteInstallerMetadataCollectionOptions options);
+
+    // Option flags for WinGetMergeInstallerMetadata.
+    enum WinGetMergeInstallerMetadataOptions
+    {
+        WinGetMergeInstallerMetadataOptions_None = 0,
+    };
+
+    // Merges the given JSON metadata documents into a single one.
+    WINGET_UTIL_API WinGetMergeInstallerMetadata(
+        WINGET_STRING inputJSON,
+        WINGET_STRING_OUT* outputJSON,
+        UINT32 maximumOutputSizeInBytes,
+        WINGET_STRING logFilePath,
+        WinGetMergeInstallerMetadataOptions options);
 }
