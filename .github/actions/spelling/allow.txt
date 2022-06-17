@@ -110,9 +110,8 @@ denelon
 depersist
 deque
 deserialize
-deserializes
-Deserialize
 deserializer
+deserializes
 deserializing
 dest
 devblogs

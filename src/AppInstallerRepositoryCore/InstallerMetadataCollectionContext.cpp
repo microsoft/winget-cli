@@ -73,7 +73,7 @@ namespace AppInstaller::Repository::Metadata
             }
         }
 
-        web::json::value CreateStringArray(const std::vector<std::string>& values)
+        web::json::value CreateStringArray(const std::set<std::string>& values)
         {
             web::json::value result;
             size_t index = 0;
@@ -86,29 +86,29 @@ namespace AppInstaller::Repository::Metadata
             return result;
         }
 
-        bool AddIfNotPresentAndNotEmpty(std::vector<std::string>& strings, const std::vector<std::string>& filter, const std::string& string)
+        bool AddIfNotPresentAndNotEmpty(std::set<std::string>& strings, const std::set<std::string>& filter, const std::string& string)
         {
-            if (string.empty() || std::find(filter.begin(), filter.end(), string) != filter.end())
+            if (string.empty() || filter.find(string) != filter.end())
             {
                 return false;
             }
 
-            strings.emplace_back(string);
+            strings.emplace(string);
             return true;
         }
 
-        bool AddIfNotPresentAndNotEmpty(std::vector<std::string>& strings, const std::string& string)
+        bool AddIfNotPresentAndNotEmpty(std::set<std::string>& strings, const std::string& string)
         {
             return AddIfNotPresentAndNotEmpty(strings, strings, string);
         }
 
-        void AddIfNotPresent(std::vector<std::string>& strings, std::vector<std::string>& filter, const std::vector<std::string>& inputs)
+        void AddIfNotPresent(std::set<std::string>& strings, std::set<std::string>& filter, const std::set<std::string>& inputs)
         {
             for (const std::string& input : inputs)
             {
                 if (AddIfNotPresentAndNotEmpty(strings, filter, input))
                 {
-                    filter.emplace_back(input);
+                    filter.emplace(input);
                 }
             }
         }
@@ -152,21 +152,21 @@ namespace AppInstaller::Repository::Metadata
             });
     }
 
-    web::json::value ProductMetadata::ToJson(const Utility::Version& version, size_t maximumSizeInBytes)
+    web::json::value ProductMetadata::ToJson(const Utility::Version& schemaVersion, size_t maximumSizeInBytes)
     {
-        AICLI_LOG(Repo, Info, << "Creating metadata JSON version " << version.ToString());
+        AICLI_LOG(Repo, Info, << "Creating metadata JSON version " << schemaVersion.ToString());
 
         using ToJsonFunctionPointer = web::json::value(ProductMetadata::*)();
         ToJsonFunctionPointer toJsonFunction = nullptr;
 
-        if (version.PartAt(0).Integer == 1)
+        if (schemaVersion.PartAt(0).Integer == 1)
         {
             // We only have one version currently, so use that as long as the major version is 1
             toJsonFunction = &ProductMetadata::ToJson_1_0;
         }
         else
         {
-            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << version.ToString());
+            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << schemaVersion.ToString());
             THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
         }
 
@@ -315,10 +315,10 @@ namespace AppInstaller::Repository::Metadata
 
                 historicalMetadata.ProductVersionMin = Version{ GetRequiredString(item, fields.VersionMin) };
                 historicalMetadata.ProductVersionMax = Version{ GetRequiredString(item, fields.VersionMax) };
-                historicalMetadata.Names = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.Names);
-                historicalMetadata.Publishers = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.Publishers);
-                historicalMetadata.ProductCodes = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.ProductCodes);
-                historicalMetadata.UpgradeCodes = AppInstaller::JSON::GetRawStringArrayFromJsonNode(item, fields.UpgradeCodes);
+                historicalMetadata.Names = AppInstaller::JSON::GetRawStringSetFromJsonNode(item, fields.Names);
+                historicalMetadata.Publishers = AppInstaller::JSON::GetRawStringSetFromJsonNode(item, fields.Publishers);
+                historicalMetadata.ProductCodes = AppInstaller::JSON::GetRawStringSetFromJsonNode(item, fields.ProductCodes);
+                historicalMetadata.UpgradeCodes = AppInstaller::JSON::GetRawStringSetFromJsonNode(item, fields.UpgradeCodes);
 
                 HistoricalMetadataList.emplace_back(std::move(historicalMetadata));
             }
@@ -449,12 +449,10 @@ namespace AppInstaller::Repository::Metadata
         const int MaxRetryCount = 2;
         for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
         {
-            bool success = false;
             try
             {
                 auto downloadHash = DownloadToStream(utf8Uri, jsonStream, DownloadType::InstallerMetadataCollectionInput, emptyCallback);
-
-                success = true;
+                break;
             }
             catch (...)
             {
@@ -467,11 +465,6 @@ namespace AppInstaller::Repository::Metadata
                 {
                     throw;
                 }
-            }
-
-            if (success)
-            {
-                break;
             }
         }
 
@@ -664,7 +657,6 @@ namespace AppInstaller::Repository::Metadata
             }
             newEntry.Publisher = package->GetProperty(PackageVersionProperty::Publisher).get();
             // TODO: Support upgrade code throughout the code base...
-            //newEntry.UpgradeCode;
 
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
@@ -810,10 +802,10 @@ namespace AppInstaller::Repository::Metadata
         result[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(m_installerHash);
 
         // Limit output status to 1.0 known values
-        OutputStatus statusToUse = m_outputStatus;
-        if (statusToUse != OutputStatus::Success && statusToUse != OutputStatus::Error && statusToUse != OutputStatus::LowConfidence)
+        OutputStatus statusToUse = OutputStatus::Unknown;
+        if (m_outputStatus == OutputStatus::Success || m_outputStatus == OutputStatus::Error || m_outputStatus == OutputStatus::LowConfidence)
         {
-            statusToUse = OutputStatus::Unknown;
+            statusToUse = m_outputStatus;
         }
         result[fields.Status] = web::json::value::string(ToString(statusToUse));
 

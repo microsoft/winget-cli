@@ -1,4 +1,3 @@
-#pragma once
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
@@ -16,7 +15,7 @@
 
 namespace AppInstaller::JSON
 {
-    // For JSON CPP LIb
+    // For JSON CPP Lib
     template<class T>
     std::optional<T> GetValue(const Json::Value& node);
 
@@ -45,6 +44,9 @@ namespace AppInstaller::JSON
 
     std::optional<std::reference_wrapper<const web::json::array>> GetRawJsonArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
+    std::vector<std::string> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
+    std::set<std::string> GetRawStringSetFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
+
     std::optional<int> GetRawIntValueFromJsonValue(const web::json::value& value);
 
     std::optional<int> GetRawIntValueFromJsonNode(const web::json::value& value, const utility::string_t& keyName);
@@ -52,8 +54,6 @@ namespace AppInstaller::JSON
     utility::string_t GetUtilityString(std::string_view nodeName);
 
     web::json::value GetStringValue(std::string_view value);
-
-    std::vector<std::string> GetRawStringArrayFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
 }

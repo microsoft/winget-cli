@@ -509,9 +509,9 @@ TEST_CASE("MetadataCollection_NewSubmission", "[metadata_collection]")
     REQUIRE(historicalEntry.ProductVersionMax.ToString() == input.CurrentMetadata->ProductVersionMax.ToString());
     const auto& appsAndFeaturesEntry = input.CurrentMetadata->InstallerMetadataMap.begin()->second.AppsAndFeaturesEntries.front();
     REQUIRE(historicalEntry.Names.size() == 1);
-    REQUIRE(historicalEntry.Names[0] == appsAndFeaturesEntry.DisplayName);
+    REQUIRE(*historicalEntry.Names.begin() == appsAndFeaturesEntry.DisplayName);
     REQUIRE(historicalEntry.ProductCodes.size() == 1);
-    REQUIRE(historicalEntry.ProductCodes[0] == appsAndFeaturesEntry.ProductCode);
+    REQUIRE(*historicalEntry.ProductCodes.begin() == appsAndFeaturesEntry.ProductCode);
     REQUIRE(historicalEntry.Publishers.size() == 1);
-    REQUIRE(historicalEntry.Publishers[0] == appsAndFeaturesEntry.Publisher);
+    REQUIRE(*historicalEntry.Publishers.begin() == appsAndFeaturesEntry.Publisher);
 }

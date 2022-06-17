@@ -189,6 +189,29 @@ namespace AppInstaller::JSON
         return result;
     }
 
+    std::set<std::string> GetRawStringSetFromJsonNode(
+        const web::json::value& node, const utility::string_t& keyName)
+    {
+        std::optional<std::reference_wrapper<const web::json::array>> arrayValue = GetRawJsonArrayFromJsonNode(node, keyName);
+
+        std::set<std::string> result;
+        if (!arrayValue)
+        {
+            return result;
+        }
+
+        for (auto& value : arrayValue.value().get())
+        {
+            std::optional<std::string> item = GetRawStringValueFromJsonValue(value);
+            if (item)
+            {
+                result.emplace(std::move(item.value()));
+            }
+        }
+
+        return result;
+    }
+
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
     {
         if (Utility::IsEmptyOrWhitespace(value.value_or("")))

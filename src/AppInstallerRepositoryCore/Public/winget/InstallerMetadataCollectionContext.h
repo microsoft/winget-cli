@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Metadata
         void FromJson(const web::json::value& json);
 
         // Create a JSON value for the metadata using the given schema version.
-        web::json::value ToJson(const Utility::Version& version, size_t maximumSizeInBytes);
+        web::json::value ToJson(const Utility::Version& schemaVersion, size_t maximumSizeInBytes);
 
         // Copies the metadata from the source. If the given submission identifier does not match
         // the source, it's data is moved to historical.
@@ -48,10 +48,10 @@ namespace AppInstaller::Repository::Metadata
         {
             Utility::Version ProductVersionMin;
             Utility::Version ProductVersionMax;
-            std::vector<std::string> Names;
-            std::vector<std::string> Publishers;
-            std::vector<std::string> ProductCodes;
-            std::vector<std::string> UpgradeCodes;
+            std::set<std::string> Names;
+            std::set<std::string> Publishers;
+            std::set<std::string> ProductCodes;
+            std::set<std::string> UpgradeCodes;
         };
 
         Utility::Version SchemaVersion;
