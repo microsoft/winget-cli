@@ -73,7 +73,6 @@ namespace AppInstaller::Settings
         EFExperimentalCmd,
         EFExperimentalArg,
         EFDependencies,
-        EFPortableInstall,
         TelemetryDisable,
         InstallScopePreference,
         InstallScopeRequirement,
@@ -87,6 +86,7 @@ namespace AppInstaller::Settings
         EnableSelfInitiatedMinidump,
         LoggingLevelPreference,
         InstallIgnoreWarnings,
+        DisableInstallNotes,
         PortableAppUserRoot,
         PortableAppMachineRoot,
         UninstallPurgePortablePackage,
@@ -128,7 +128,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFPortableInstall, bool, bool, false, ".experimentalFeatures.portableInstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitecturePreference, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.preferences.architectures"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitectureRequirement, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.requirements.architectures"sv);
@@ -139,6 +138,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);

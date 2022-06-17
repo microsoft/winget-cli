@@ -448,6 +448,18 @@ namespace AppInstaller::Manifest
             );
     }
 
+    bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Exe ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Wix ||
+            installerType == InstallerTypeEnum::Burn
+            );
+    }
+
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
     {
         // Unknown type cannot be compatible with any other

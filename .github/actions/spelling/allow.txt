@@ -58,6 +58,7 @@ cla
 CLASSNOTAVAILABLE
 CLSCTX
 cmake
+cmd
 cmdlet
 cmdlets
 cmp

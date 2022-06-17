@@ -52,6 +52,10 @@ namespace TestCommon
             return LocIndString{ Source.lock()->GetIdentifier() };
         case PackageVersionProperty::Publisher:
             return LocIndString{ VersionManifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::Publisher>() };
+        case PackageVersionProperty::ArpMinVersion:
+            return LocIndString{ VersionManifest.GetArpVersionRange().IsEmpty() ? "" : VersionManifest.GetArpVersionRange().GetMinVersion().ToString() };
+        case PackageVersionProperty::ArpMaxVersion:
+            return LocIndString{ VersionManifest.GetArpVersionRange().IsEmpty() ? "" : VersionManifest.GetArpVersionRange().GetMaxVersion().ToString() };
         default:
             return {};
         }

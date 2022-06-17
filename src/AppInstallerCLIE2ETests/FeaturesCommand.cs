@@ -3,10 +3,6 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
-    using System.IO;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
     public class FeaturesCommand : BaseCommand

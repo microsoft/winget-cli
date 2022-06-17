@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerSHA256.h>
+#include <AppInstallerVersions.h>
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
@@ -44,6 +45,9 @@ namespace AppInstaller::Manifest
 
         // Get all commands across installers
         std::vector<string_t> GetAggregatedCommands() const;
+
+        // Gets ARP version range if declared, otherwise an empty range is returned
+        Utility::VersionRange GetArpVersionRange() const;
 
         // If not empty, the SHA256 hash of the manifest stream itself.
         Utility::SHA256::HashBuffer StreamSha256;
