@@ -162,27 +162,38 @@ namespace AppInstaller::CLI::Workflow
 
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
+        bool messageDisplayed = false;
         const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
         for (auto unsupportedArg : unsupportedArgs)
         {
             const auto& unsupportedArgType = GetUnsupportedArgumentType(unsupportedArg);
             if (context.Args.Contains(unsupportedArgType))
             {
-                const auto& commandArguments = context.GetExecutingCommand()->GetArguments();
-                for (const auto& argument : commandArguments)
+                if (!messageDisplayed)
                 {
-                    if (unsupportedArgType == argument.ExecArgType())
+                    context.Reporter.Warn() << Resource::String::UnsupportedArgument << std::endl;
+                    messageDisplayed = true;
+                }
+
+                const auto& executingCommand = context.GetExecutingCommand();
+                if (executingCommand != nullptr)
+                {
+                    const auto& commandArguments = executingCommand->GetArguments();
+                    for (const auto& argument : commandArguments)
                     {
-                        const auto& usageString = argument.GetUsageString();
-                        if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                        if (unsupportedArgType == argument.ExecArgType())
                         {
-                            context.Reporter.Error() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
-                            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
-                        }
-                        else
-                        {
-                            context.Reporter.Warn() << Resource::String::UnsupportedArgument << ' ' << usageString << std::endl;
-                            break;
+                            const auto& usageString = argument.GetUsageString();
+                            if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                            {
+                                context.Reporter.Error() << usageString << std::endl;
+                                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+                            }
+                            else
+                            {
+                                context.Reporter.Warn() << usageString << std::endl;
+                                break;
+                            }
                         }
                     }
                 }
@@ -505,6 +516,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            Workflow::CheckForUnsupportedArgs <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

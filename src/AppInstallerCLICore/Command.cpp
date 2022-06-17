@@ -542,7 +542,8 @@ namespace AppInstaller::CLI
         {
             // This is an arg name, find it and process its value if needed.
             // Skip the double arg identifier chars.
-            std::string_view argName = currArg.substr(2);
+            size_t argStart = currArg.find_first_not_of(APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR);
+            std::string_view argName = currArg.substr(argStart);
             bool argFound = false;
 
             bool hasValue = false;
@@ -557,7 +558,10 @@ namespace AppInstaller::CLI
 
             for (const auto& arg : m_arguments)
             {
-                if (Utility::CaseInsensitiveEquals(argName, arg.Name()))
+                if (
+                    Utility::CaseInsensitiveEquals(argName, arg.Name()) ||
+                    Utility::CaseInsensitiveEquals(argName, arg.AlternateName())
+                   )
                 {
                     if (arg.Type() == ArgumentType::Flag)
                     {

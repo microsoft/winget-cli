@@ -853,7 +853,8 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Warn", "[InstallFlow][workflow]")
     // Verify unsupported arguments warn message is shown
     REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -o,--log") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("-o,--log") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
@@ -875,7 +876,8 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     // Verify unsupported arguments error message is shown 
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -l,--location") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("-l,--location") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")

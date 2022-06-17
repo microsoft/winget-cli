@@ -253,7 +253,6 @@ namespace AppInstaller::CLI
             }
 
             context <<
-                CheckForUnsupportedArgs <<
                 InstallSinglePackage;
         }
     }

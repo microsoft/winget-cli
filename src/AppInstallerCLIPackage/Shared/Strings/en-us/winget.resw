@@ -1350,6 +1350,6 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>InstallationNotes:</value>
   </data>
   <data name="UnsupportedArgument" xml:space="preserve">
-    <value>This argument is not supported for this package:</value>
+    <value>A provided argument is not supported for this package</value>
   </data>
 </root>
