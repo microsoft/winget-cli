@@ -535,4 +535,21 @@ extern "C"
         return S_OK;
     }
     CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetMergeInstallerMetadata(
+        WINGET_STRING inputJSON,
+        WINGET_STRING_OUT* outputJSON,
+        UINT32 maximumOutputSizeInBytes,
+        WINGET_STRING logFilePath,
+        WinGetMergeInstallerMetadataOptions) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputJSON);
+        THROW_HR_IF(E_INVALIDARG, !outputJSON);
+
+        std::wstring merged = InstallerMetadataCollectionContext::Merge(inputJSON, maximumOutputSizeInBytes, GetPathOrEmpty(logFilePath));
+        *outputJSON = ::SysAllocString(merged.c_str());
+
+        return S_OK;
+    }
+    CATCH_RETURN()
 }

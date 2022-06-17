@@ -45,6 +45,7 @@ namespace AppInstaller::Repository::Metadata
         struct OutputFields_1_0
         {
             utility::string_t Version = L"version";
+            utility::string_t SubmissionData = L"submissionData";
             utility::string_t InstallerHash = L"installerHash";
             utility::string_t Status = L"status";
             utility::string_t Metadata = L"metadata";
@@ -507,6 +508,51 @@ namespace AppInstaller::Repository::Metadata
         CompleteWithThreadGlobalsSet(output);
     }
 
+    std::wstring InstallerMetadataCollectionContext::Merge(const std::wstring& json, size_t maximumSizeInBytes, const std::filesystem::path& logFile)
+    {
+        ThreadLocalStorage::ThreadGlobals threadGlobals;
+        auto globalsLifetime = InitializeLogging(threadGlobals, logFile);
+
+        AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
+
+        // Parse and validate JSON
+        try
+        {
+            utility::string_t versionFieldName = L"version";
+
+            web::json::value inputValue = web::json::value::parse(json);
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, inputValue.is_null());
+
+            Version inputVersion = Version{ GetRequiredString(inputValue, versionFieldName) };
+            AICLI_LOG(Repo, Info, << "Parsing input JSON version " << inputVersion.ToString());
+
+            web::json::value mergedResult;
+
+            if (inputVersion.PartAt(0).Integer == 1)
+            {
+                mergedResult = Merge_1_0(inputValue, maximumSizeInBytes);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Error, << "Don't know how to handle version " << inputVersion.ToString());
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
+            }
+
+            std::wostringstream outputStream;
+            mergedResult.serialize(outputStream);
+
+            return std::move(outputStream).str();
+        }
+        catch (const web::json::json_exception& exc)
+        {
+            AICLI_LOG(Repo, Error, << "Exception parsing input JSON: " << exc.what());
+        }
+
+        // We will return within the try or throw a non-json exception, so if we get here it was a json exception.
+        THROW_HR(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+    }
+
     void InstallerMetadataCollectionContext::CompleteWithThreadGlobalsSet(std::ostream& output)
     {
         web::json::value outputJSON;
@@ -550,9 +596,9 @@ namespace AppInstaller::Repository::Metadata
         outputJSON.serialize(output);
     }
 
-    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(const std::filesystem::path& logFile)
+    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(ThreadLocalStorage::ThreadGlobals& threadGlobals, const std::filesystem::path& logFile)
     {
-        auto threadGlobalsLifetime = m_threadGlobals.SetForCurrentThread();
+        auto threadGlobalsLifetime = threadGlobals.SetForCurrentThread();
 
         Logging::Log().SetLevel(Logging::Level::Info);
         Logging::Log().EnableChannel(Logging::Channel::All);
@@ -568,6 +614,11 @@ namespace AppInstaller::Repository::Metadata
         Logging::Telemetry().LogStartup();
 
         return threadGlobalsLifetime;
+    }
+
+    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(const std::filesystem::path& logFile)
+    {
+        return InitializeLogging(m_threadGlobals, logFile);
     }
 
     void InstallerMetadataCollectionContext::InitializePreinstallState(const std::wstring& json)
@@ -715,26 +766,16 @@ namespace AppInstaller::Repository::Metadata
 
         // Field names
         utility::string_t metadataVersionFieldName = L"supportedMetadataVersion";
-        utility::string_t metadataSizeFieldName = L"maximumMetadataSize";
         utility::string_t metadataFieldName = L"currentMetadata";
-        utility::string_t submissionIdentifierFieldName = L"submissionIdentifier";
-        utility::string_t installerHashFieldName = L"installerHash";
-        utility::string_t currentManifestFieldName = L"currentManifest";
         utility::string_t submissionDataFieldName = L"submissionData";
+        utility::string_t submissionIdentifierFieldName = L"submissionIdentifier";
+        utility::string_t packageDataFieldName = L"packageData";
+        utility::string_t installerHashFieldName = L"installerHash";
         utility::string_t defaultLocaleFieldName = L"DefaultLocale";
         utility::string_t localesFieldName = L"Locales";
 
+        // root fields
         m_supportedMetadataVersion = Version{ GetRequiredString(input, metadataVersionFieldName) };
-
-        auto metadataSizeNumber = AppInstaller::JSON::GetRawIntValueFromJsonNode(input, metadataSizeFieldName);
-        if (metadataSizeNumber && metadataSizeNumber.value() > 0)
-        {
-            m_maxMetadataSize = static_cast<size_t>(metadataSizeNumber.value());
-        }
-        else
-        {
-            m_maxMetadataSize = std::numeric_limits<size_t>::max();
-        }
 
         auto currentMetadataValue = AppInstaller::JSON::GetJsonValueFromNode(input, metadataFieldName);
         if (currentMetadataValue)
@@ -742,29 +783,24 @@ namespace AppInstaller::Repository::Metadata
             m_currentMetadata.FromJson(currentMetadataValue.value());
         }
 
-        m_submissionIdentifier = GetRequiredString(input, submissionIdentifierFieldName);
-        m_installerHash = GetRequiredString(input, installerHashFieldName);
+        // submissionData fields
+        auto submissionDataValue = AppInstaller::JSON::GetJsonValueFromNode(input, submissionDataFieldName);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionDataValue);
+        m_submissionData = submissionDataValue.value();
+
+        m_submissionIdentifier = GetRequiredString(m_submissionData, submissionIdentifierFieldName);
+
+        // packageData fields
+        auto packageDataValue = AppInstaller::JSON::GetJsonValueFromNode(input, packageDataFieldName);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !packageDataValue);
+
+        m_installerHash = GetRequiredString(packageDataValue.value(), installerHashFieldName);
 
         // The 1.0 version of input uses the 1.1 version of REST
         JSON::ManifestJSONParser parser{ Version{ "1.1" }};
 
-        auto currentManifestValue = AppInstaller::JSON::GetJsonValueFromNode(input, currentManifestFieldName);
-        if (currentManifestValue)
         {
-            std::vector<Manifest::Manifest> manifests = parser.DeserializeData(currentManifestValue.value());
-
-            if (!manifests.empty())
-            {
-                std::sort(manifests.begin(), manifests.end(), [](const Manifest::Manifest& a, const Manifest::Manifest& b) { return a.Version < b.Version; });
-                // Latest version will be sorted to last position by Version < predicate
-                m_currentManifest = std::move(manifests.back());
-            }
-        }
-
-        auto submissionDataValue = AppInstaller::JSON::GetJsonValueFromNode(input, submissionDataFieldName);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !submissionDataValue);
-        {
-            auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(submissionDataValue.value(), defaultLocaleFieldName);
+            auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(packageDataValue.value(), defaultLocaleFieldName);
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !defaultLocaleValue);
 
             auto defaultLocale = parser.DeserializeLocale(defaultLocaleValue.value());
@@ -775,7 +811,7 @@ namespace AppInstaller::Repository::Metadata
 
             m_incomingManifest.DefaultLocalization = std::move(defaultLocale).value();
 
-            auto localesArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(submissionDataValue.value(), localesFieldName);
+            auto localesArray = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(packageDataValue.value(), localesFieldName);
             if (localesArray)
             {
                 for (const auto& locale : localesArray->get())
@@ -799,6 +835,7 @@ namespace AppInstaller::Repository::Metadata
         web::json::value result;
 
         result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.SubmissionData] = m_submissionData;
         result[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(m_installerHash);
 
         // Limit output status to 1.0 known values
@@ -811,7 +848,7 @@ namespace AppInstaller::Repository::Metadata
 
         if (m_outputStatus == OutputStatus::Success)
         {
-            result[fields.Metadata] = m_outputMetadata.ToJson(m_supportedMetadataVersion, m_maxMetadataSize);
+            result[fields.Metadata] = m_outputMetadata.ToJson(m_supportedMetadataVersion, 0);
         }
 
         result[fields.Diagnostics] = m_outputDiagnostics;
@@ -888,5 +925,46 @@ namespace AppInstaller::Repository::Metadata
         result[fields.Diagnostics] = std::move(error);
 
         return result;
+    }
+
+    web::json::value InstallerMetadataCollectionContext::Merge_1_0(web::json::value& input, size_t maximumSizeInBytes)
+    {
+        AICLI_LOG(Repo, Info, << "Merging 1.0 input metadatas");
+
+        utility::string_t metadatasFieldName = L"metadatas";
+
+        auto metadatasValue = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(input, metadatasFieldName);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !metadatasValue);
+
+        std::vector<ProductMetadata> metadatas;
+        for (const auto& value : metadatasValue->get())
+        {
+            ProductMetadata current;
+            current.FromJson(value);
+            metadatas.emplace_back(std::move(current));
+        }
+
+        THROW_HR_IF(E_NOT_SET, metadatas.empty());
+
+        Version maximumSchemaVersion;
+
+        // Require that all merging values use the same submission (and extract the maximum schema version being used)
+        for (const ProductMetadata& metadata : metadatas)
+        {
+            const std::string& firstSubmission = metadatas[0].InstallerMetadataMap.begin()->second.SubmissionIdentifier;
+            const std::string& metadataSubmission = metadata.InstallerMetadataMap.begin()->second.SubmissionIdentifier;
+            if (firstSubmission != metadataSubmission)
+            {
+                AICLI_LOG(Repo, Info, << "Found submission identifier mismatch: " << firstSubmission << " != " << metadataSubmission);
+                THROW_HR(E_NOT_VALID_STATE);
+            }
+
+            if (maximumSchemaVersion < metadata.SchemaVersion)
+            {
+                maximumSchemaVersion = metadata.SchemaVersion;
+            }
+        }
+
+        // Do the actual merging
     }
 }

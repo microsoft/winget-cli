@@ -93,8 +93,11 @@ namespace AppInstaller::Repository::Metadata
         // Completes the collection, writing to the given location.
         void Complete(std::ostream& output);
 
+        static std::wstring Merge(const std::wstring& json, size_t maximumSizeInBytes, const std::filesystem::path& logFile);
+
     private:
         // Initializes the context runtime, including the log file if provided.
+        static std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(ThreadLocalStorage::ThreadGlobals& threadGlobals, const std::filesystem::path& logFile);
         std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(const std::filesystem::path& logFile);
 
         // Sets the collection context input and the preinstall state.
@@ -121,16 +124,18 @@ namespace AppInstaller::Repository::Metadata
         // Create version 1.0 of error JSON
         web::json::value CreateErrorJson_1_0();
 
+        // Merge using merge input verision 1.0
+        static web::json::value Merge_1_0(web::json::value& input, size_t maximumSizeInBytes);
+
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
 
         // Parsed input
         Utility::Version m_inputVersion;
         Utility::Version m_supportedMetadataVersion;
-        size_t m_maxMetadataSize = 0;
         ProductMetadata m_currentMetadata;
+        web::json::value m_submissionData;
         std::string m_submissionIdentifier;
         std::string m_installerHash;
-        Manifest::Manifest m_currentManifest;
         Manifest::Manifest m_incomingManifest;
 
         std::unique_ptr<Correlation::ARPCorrelationData> m_correlationData;
