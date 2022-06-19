@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelTags << std::endl;
             for (const auto& tag : tags)
             {
-                info << ' ' << " "_liv << tag << std::endl;
+                info << "  "_liv << tag << std::endl;
             }
         }
         const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
