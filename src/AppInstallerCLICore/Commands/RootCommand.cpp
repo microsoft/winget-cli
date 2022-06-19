@@ -163,7 +163,7 @@ namespace AppInstaller::CLI
 
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
-            system("pause");
+            context.Reporter.PromptForAnyKey(Resource::String::PressAnyKeyToContinue);
         }
     }
 
