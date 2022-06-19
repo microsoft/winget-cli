@@ -73,6 +73,7 @@ comparand
 conemu
 config
 Configurability
+conio
 constexpr
 contosa
 contosainstaller
@@ -185,6 +186,7 @@ fstream
 func
 gcount
 gdi
+getch
 getline
 github
 githubusercontent
