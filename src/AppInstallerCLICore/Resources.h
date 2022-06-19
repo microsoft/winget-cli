@@ -282,6 +282,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelTags);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsLibrariesDependencies);
