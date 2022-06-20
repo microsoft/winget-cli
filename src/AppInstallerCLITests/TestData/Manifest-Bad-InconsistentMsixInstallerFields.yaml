@@ -8,6 +8,6 @@ MinimumOSVersion: 5.6.7.8                         # Mismatching value with msix 
 InstallerType: msix
 Installers: 
     - Architecture: x64
-      InstallerUrl: InstallerManifestValidation.msix
+      InstallerUrl: Installer-Good.msix
 ManifestType: merged
 ManifestVersion: 1.0.0

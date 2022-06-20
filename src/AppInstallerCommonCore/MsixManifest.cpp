@@ -29,36 +29,28 @@ namespace AppInstaller::Msix
         return MsixPackageManifestIdentity{ std::move(manifestPackageId) };
     }
 
-    OSVersion MsixPackageManifest::GetMinimumOSVersion() const
+    std::optional<OSVersion> MsixPackageManifest::GetMinimumOSVersionForSupportedPlatforms() const
     {
         std::optional<OSVersion> minOSVersion;
         auto targetDeviceFamilies = GetTargetDeviceFamilies();
+        std::map<MsixPackageManifestTargetDeviceFamily::Platform, OSVersion> targetOSVersion;
 
         for (const auto& targetDeviceFamily : targetDeviceFamilies)
         {
-            auto platform = targetDeviceFamily.GetPlatform();
-            auto minVersion = targetDeviceFamily.GetMinVersion();
-            if (platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop)
-            {
-                return minVersion;
-            }
-
-            if (platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal)
-            {
-                minOSVersion = minVersion;
-            }
+            targetOSVersion.emplace(targetDeviceFamily.GetPlatform(), targetDeviceFamily.GetMinVersion());
         }
 
-        // If target device family "Windows.Desktop" was not present,
-        // get minimum OS version from "Windows.Universal"
-        if (minOSVersion.has_value())
+        if (targetOSVersion.find(MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop) != targetOSVersion.end())
         {
-            return minOSVersion.value();
+            return targetOSVersion[MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop];
         }
 
-        // Can't get min OS version because none of the provided
-        // target device family names are supported
-        THROW_HR(E_UNEXPECTED);
+        if (targetOSVersion.find(MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal) != targetOSVersion.end())
+        {
+            return targetOSVersion[MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal];
+        }
+
+        return std::nullopt;
     }
 
     std::vector<MsixPackageManifestTargetDeviceFamily> MsixPackageManifest::GetTargetDeviceFamilies() const

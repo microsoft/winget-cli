@@ -8,6 +8,6 @@ Publisher: es-MX publisher
 InstallerType: msix
 Installers: 
     - Architecture: x64
-      InstallerUrl: InstallerManifestValidation.msix
+      InstallerUrl: Installer-Good.msix
 ManifestType: merged
 ManifestVersion: 1.0.0

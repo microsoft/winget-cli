@@ -298,7 +298,7 @@ namespace AppInstaller::Manifest
             // Validate package family name
             auto msixManifestIdentity = msixManifest.GetIdentity();
             auto msixPackageFamilyName = msixManifestIdentity.GetPackageFamilyName();
-            if (!installer.PackageFamilyName.empty() && !msixPackageFamilyName.empty())
+            if (!installer.PackageFamilyName.empty())
             {
                 if (installer.PackageFamilyName != msixPackageFamilyName)
                 {
@@ -306,7 +306,7 @@ namespace AppInstaller::Manifest
                 }
             }
             // Yaml manifest missing package family name
-            else if (!msixPackageFamilyName.empty())
+            else
             {
                 errors.emplace_back(
                     ManifestError::OptionalFieldMissing,
@@ -322,30 +322,27 @@ namespace AppInstaller::Manifest
                 errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixVersion.ToString());
             }
 
-            try
+            // Validate min OS version
+            auto targetMinOSVersion = msixManifest.GetMinimumOSVersionForSupportedPlatforms();
+            if (targetMinOSVersion.has_value() && installerMinOSVersion.has_value())
             {
-                // Validate min OS version
-                auto targetMinOSVersion = msixManifest.GetMinimumOSVersion();
-                if (installerMinOSVersion.has_value())
+                if (targetMinOSVersion.value() != installerMinOSVersion.value())
                 {
-                    if (targetMinOSVersion != installerMinOSVersion.value())
-                    {
-                        errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.ToString());
-                    }
-                }
-                // Yaml manifest missing min OS version
-                else
-                {
-                    errors.emplace_back(
-                        ManifestError::OptionalFieldMissing,
-                        "MinimumOSVersion",
-                        targetMinOSVersion.ToString(),
-                        treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.value().ToString());
                 }
             }
-            catch (...)
+            // Yaml manifest missing min OS version
+            else if(targetMinOSVersion.has_value())
             {
-                errors.emplace_back(ManifestError::NoSuitablePlatform, "InstallerUrl", installer.Url);
+                errors.emplace_back(
+                    ManifestError::OptionalFieldMissing,
+                    "MinimumOSVersion",
+                    targetMinOSVersion.value().ToString(),
+                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
+            }
+            else
+            {
+                errors.emplace_back(ManifestError::NoSupportedPlatforms, "InstallerUrl", installer.Url);
             }
         }
 

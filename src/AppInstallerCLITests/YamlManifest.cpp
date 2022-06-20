@@ -886,6 +886,26 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[Manifest
     REQUIRE("10.0.16299.0" == errors[2].Value);
 }
 
+TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[ManifestValidation]")
+{
+    auto testFileName = "Manifest-Bad-NoSupportedPlatforms.yaml";
+    TestDataFile testFile(testFileName);
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(1 == errors.size());
+
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::NoSupportedPlatforms == errors[0].Message);
+    REQUIRE("InstallerUrl" == errors[0].Field);
+    REQUIRE(manifest.Installers.front().Url == errors[0].Value);
+}
+
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Bad-MissingMsixInstallerFields.yaml");

@@ -12,13 +12,11 @@ using namespace AppInstaller;
 using namespace AppInstaller::Msix;
 using namespace Microsoft::WRL;
 
-constexpr std::string_view Remove = "InstallerManifestValidation.msix";
-
 namespace
 {
     // Input values
-    constexpr std::string_view installerManifestValidationMsix = "InstallerManifestValidation.msix";
-    constexpr std::string_view installerManifestValidationMsixBundle = "InstallerManifestValidation.msixbundle";
+    constexpr std::string_view installerGoodMsix = "Installer-Good.msix";
+    constexpr std::string_view installerGoodMsixBundle = "Installer-Good.msixbundle";
 
     // Expected
     constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
@@ -31,13 +29,13 @@ namespace
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]")
 {
     ComPtr<IAppxManifestReader> manifestReader;
-    REQUIRE(GetMsixPackageManifestReader(installerManifestValidationMsix, &manifestReader));
+    REQUIRE(GetMsixPackageManifestReader(installerGoodMsix, &manifestReader));
 
     Msix::MsixPackageManifest msixManifest(manifestReader);
     REQUIRE(expectedFamilyName == msixManifest.GetIdentity().GetPackageFamilyName());
     REQUIRE(expectedPackageVersion == msixManifest.GetIdentity().GetVersion());
     REQUIRE(2 == msixManifest.GetTargetDeviceFamilies().size());
-    REQUIRE(expectedWindowsDesktopMinVersion == msixManifest.GetMinimumOSVersion());
+    REQUIRE(expectedWindowsDesktopMinVersion == msixManifest.GetMinimumOSVersionForSupportedPlatforms().value());
 
     auto targets = msixManifest.GetTargetDeviceFamilies();
     auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
@@ -49,7 +47,7 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
 {
-    TestDataFile testFile(installerManifestValidationMsix);
+    TestDataFile testFile(installerGoodMsix);
     MsixInfo msixInfo(testFile.GetPath());
 
     auto appPackageManifests = msixInfo.GetAppPackageManifests();
@@ -59,7 +57,7 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
     REQUIRE(expectedFamilyName == appPackageManifest.GetIdentity().GetPackageFamilyName());
     REQUIRE(expectedPackageVersion == appPackageManifest.GetIdentity().GetVersion());
     REQUIRE(2 == appPackageManifest.GetTargetDeviceFamilies().size());
-    REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion());
+    REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersionForSupportedPlatforms().value());
 
     auto targets = appPackageManifest.GetTargetDeviceFamilies();
     auto windowsDesktop = std::find_if(targets.begin(), targets.end(), [](auto& t) { return t.GetMinVersion() == expectedWindowsDesktopMinVersion; });
@@ -71,7 +69,7 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsix", "[MsixManifest]")
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
 {
-    TestDataFile testFile(installerManifestValidationMsixBundle);
+    TestDataFile testFile(installerGoodMsixBundle);
     MsixInfo msixInfo(testFile.GetPath());
     
     auto appPackageManifests = msixInfo.GetAppPackageManifests();
@@ -84,6 +82,6 @@ TEST_CASE("MsixManifest_ValidateFieldsParsedFromMsixBundle", "[MsixManifest]")
         REQUIRE(1 == appPackageManifest.GetTargetDeviceFamilies().size());
         REQUIRE(expectedWindowsDesktopName == appPackageManifest.GetTargetDeviceFamilies().front().GetName());
         REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetTargetDeviceFamilies().front().GetMinVersion());
-        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersion());
+        REQUIRE(expectedWindowsDesktopMinVersion == appPackageManifest.GetMinimumOSVersionForSupportedPlatforms().value());
     }
 }

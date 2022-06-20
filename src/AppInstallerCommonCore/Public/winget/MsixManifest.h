@@ -57,7 +57,7 @@ namespace AppInstaller::Msix
 
         std::vector<MsixPackageManifestTargetDeviceFamily> GetTargetDeviceFamilies() const;
         MsixPackageManifestIdentity GetIdentity() const;
-        OSVersion GetMinimumOSVersion() const;
+        std::optional<OSVersion> GetMinimumOSVersionForSupportedPlatforms() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestReader> m_manifestReader;
     };
