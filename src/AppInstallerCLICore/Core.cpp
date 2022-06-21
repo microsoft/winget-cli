@@ -121,7 +121,7 @@ namespace AppInstaller::CLI
             }
 
             context.UpdateForArgs();
-
+            context.SetExecutingCommand(command.get());
             command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
