@@ -665,6 +665,13 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>適用可能な更新は見つかりませんでした。</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>インストールされたパッケージ リスト、またはマニフェストから直接検索し、選択されたパッケージをアップグレードします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。引数が指定されていない場合は、利用可能なアップグレードを含むパッケージが表示されます</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>利用可能なアップグレードの表示と実行</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用状況</value>
     <comment>The way to use the software</comment>
@@ -716,7 +723,7 @@
     <value>ファイルが存在しません。</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>ローカル マニフェストと検索クエリ引数の両方が提供されている</value>
+    <value>ローカル マニフェストと検索クエリ引数の両方が指定されています</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>ログ</value>
@@ -1267,5 +1274,79 @@
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>システム アーキテクチャ</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>パッケージ (ポータブル) によって作成されたすべてのファイルとディレクトリを保持します</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>パッケージ ディレクトリ (ポータブル) 内のすべてのファイルとディレクトリを削除します</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>実行可能ファイルの名前を変更する値 (ポータブル)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>終了する前に任意のキーを押すプロンプトをユーザーに表示します</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>インストーラーは管理者として実行するように要求するため、プロンプトが表示されます。</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>管理者コンテキストからインストーラーを実行することはできません。</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>パス環境変数が変更されました; 新しい値を使用するにはシェルを再起動してください。</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>製品コードを使用したフィルター</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>同じ名前で、別のソースからのポータブル パッケージが既に存在します; --force が原因で続行しています</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>ボリュームは再パース ポイントをサポートしていません</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>指定されたファイル名は有効なファイル名ではありません</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>既存のファイルを上書きしています:</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>パッケージ選択引数が指定されていません; パッケージの検索の詳細については、ヘルプを参照してください。</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>ポータブル インストールに失敗しました; クリーンアップしています...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>'purge' と 'preserve' 引数の両方が指定されています</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>ポータブル exe ファイルが変更されました; --force が原因で続行しています</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>これまでに変更されているため、ポータブル exe ファイルは削除できません; このチェックをオーバーライドするには、--force を使用してください</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>ファイルはインストール ディレクトリに残ります:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>インストール ディレクトリを破棄しています...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>WinGet によって作成されていないため、インストール ディレクトリを破棄することができません</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>関連リンク</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>Documentation:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>メモ:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>
