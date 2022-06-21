@@ -324,25 +324,24 @@ namespace AppInstaller::Manifest
 
             // Validate min OS version
             auto targetMinOSVersion = msixManifest.GetMinimumOSVersionForSupportedPlatforms();
-            if (targetMinOSVersion.has_value() && installerMinOSVersion.has_value())
+            if (!targetMinOSVersion.has_value())
+            {
+                errors.emplace_back(ManifestError::NoSupportedPlatforms, "InstallerUrl", installer.Url);
+            }
+            else if (installerMinOSVersion.has_value())
             {
                 if (targetMinOSVersion.value() != installerMinOSVersion.value())
                 {
                     errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.value().ToString());
                 }
             }
-            // Yaml manifest missing min OS version
-            else if(targetMinOSVersion.has_value())
+            else
             {
                 errors.emplace_back(
                     ManifestError::OptionalFieldMissing,
                     "MinimumOSVersion",
                     targetMinOSVersion.value().ToString(),
                     treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
-            }
-            else
-            {
-                errors.emplace_back(ManifestError::NoSupportedPlatforms, "InstallerUrl", installer.Url);
             }
         }
 
