@@ -665,6 +665,13 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No se encontraron actualizaciones aplicables.</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Actualiza el paquete seleccionado, ya sea buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir sin distinción entre mayúsculas y minúsculas con el identificador, el nombre o el moniker del paquete. Se pueden usar otros campos pasando su opción adecuada. Cuando no se proporciona ningún argumento, muestra los paquetes con actualizaciones disponibles</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Muestra y realiza actualizaciones disponibles</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
     <comment>The way to use the software</comment>
@@ -716,7 +723,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>No existe el archivo:</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>Se proporcionan tanto el manifiesto local como los argumentos de la consulta de búsqueda</value>
+    <value>Se proporcionan los argumentos de consulta de búsqueda y manifiesto local</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>Registros</value>
@@ -1267,5 +1274,79 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>Arquitectura del sistema</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>Conserva todos los archivos y directorios creados por el paquete (archivo portátil)</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>Elimina todos los archivos y directorios del directorio del paquete (archivo portátil)</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>Valor para cambiar el nombre del archivo ejecutable (archivo portátil)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>Pide al usuario que presione cualquier tecla antes de salir</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>El instalador solicitará que se ejecute como administrador; se espera un mensaje.</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>El instalador no se puede ejecutar desde un contexto de administrador.</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>Variable de entorno PATH modificada; reinicie el shell para usar el nuevo valor.</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>Filtros con el código de producto</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>Ya existe un paquete portátil con el mismo nombre pero de otro origen; continuar debido a --force</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>El volumen no admite puntos de análisis</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>El nombre de archivo especificado no es un nombre de archivo válido</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>Sobrescribiendo archivo existente:</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>No se ha proporcionado ningún argumento de selección de paquete; vea la ayuda para obtener más información sobre cómo buscar un paquete.</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>Error en la instalación del archivo portátil; Limpiando...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>Se proporcionan los argumentos "purge" y "preserve"</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>Se ha modificado el archivo EXE portátil; continuar debido a --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>No se puede quitar el archivo EXE portátil porque se ha modificado; para invalidar esta comprobación, use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>Los archivos permanecen en el directorio de instalación:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>Purgando directorio de instalación...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>No se puede purgar el directorio de instalación porque WinGet no lo ha creado</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>Vínculo relacionado</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>Documentación:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notas:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>
