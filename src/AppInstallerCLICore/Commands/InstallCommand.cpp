@@ -148,6 +148,7 @@ namespace AppInstaller::CLI
             Workflow::GetManifest <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::CheckForUnsupportedArgs <<
             Workflow::InstallSinglePackage;
     }
 }

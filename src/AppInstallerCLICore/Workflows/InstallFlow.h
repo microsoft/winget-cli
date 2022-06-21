@@ -28,6 +28,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallationNotes
     // Outputs: None
     void DisplayInstallationNotes(Execution::Context& context);
+    
+    // Checks if there are any included arguments that are not supported for the package.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void CheckForUnsupportedArgs(Execution::Context& context);
 
     // Shows the license agreements if the application has them.
     // Required Args: None
