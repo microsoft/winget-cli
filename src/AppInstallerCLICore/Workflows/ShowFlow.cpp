@@ -113,6 +113,15 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
         }
+        const auto& tags = manifest.CurrentLocalization.Get<Manifest::Localization::Tags>();
+        if (!tags.empty())
+        {
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelTags << std::endl;
+            for (const auto& tag : tags)
+            {
+                info << "  "_liv << tag << std::endl;
+            }
+        }
         const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {

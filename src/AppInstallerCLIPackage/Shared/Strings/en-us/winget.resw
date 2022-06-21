@@ -1060,6 +1060,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Publisher:</value>
   </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>Tags:</value>
+  </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Version:</value>
   </data>
