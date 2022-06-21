@@ -119,6 +119,10 @@ namespace AppInstaller::CLI
             strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alias << ',';
         }
         strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_name;
+        if (m_alternateName != Argument::NoAlternateName)
+        {
+            strstr << ',' << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alternateName;
+        }
         return strstr.str();
     }
 
