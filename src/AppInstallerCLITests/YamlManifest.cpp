@@ -883,7 +883,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[Manifest
     REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
     REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
     REQUIRE("MinimumOSVersion" == errors[2].Field);
-    REQUIRE("10.0.16299.0" == errors[2].Value);
+    REQUIRE("10.0.0.0" == errors[2].Value);
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[ManifestValidation]")
@@ -932,7 +932,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValid
         REQUIRE(expectedLevel == errors[1].ErrorLevel);
         REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
         REQUIRE("MinimumOSVersion" == errors[1].Field);
-        REQUIRE("10.0.16299.0" == errors[1].Value);
+        REQUIRE("10.0.0.0" == errors[1].Value);
     }
 }
 

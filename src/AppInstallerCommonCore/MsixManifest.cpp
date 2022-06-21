@@ -8,6 +8,12 @@ using namespace Microsoft::WRL;
 
 namespace AppInstaller::Msix
 {
+    bool IsSupportedPlatform(MsixPackageManifestTargetDeviceFamily::Platform platform)
+    {
+        return platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop
+            || platform == MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal;
+    }
+
     Utility::NormalizedString MsixPackageManifestIdentity::GetPackageFamilyName() const
     {
         wil::unique_cotaskmem_string familyName;
@@ -33,24 +39,20 @@ namespace AppInstaller::Msix
     {
         std::optional<OSVersion> minOSVersion;
         auto targetDeviceFamilies = GetTargetDeviceFamilies();
-        std::map<MsixPackageManifestTargetDeviceFamily::Platform, OSVersion> targetOSVersion;
 
         for (const auto& targetDeviceFamily : targetDeviceFamilies)
         {
-            targetOSVersion.emplace(targetDeviceFamily.GetPlatform(), targetDeviceFamily.GetMinVersion());
+            if (IsSupportedPlatform(targetDeviceFamily.GetPlatform()))
+            {
+                auto targetDeviceFamilyMinVersion = targetDeviceFamily.GetMinVersion();
+                if (!minOSVersion.has_value() || targetDeviceFamilyMinVersion < minOSVersion.value())
+                {
+                    minOSVersion = targetDeviceFamilyMinVersion;
+                }
+            }
         }
 
-        if (targetOSVersion.find(MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop) != targetOSVersion.end())
-        {
-            return targetOSVersion[MsixPackageManifestTargetDeviceFamily::Platform::WindowsDesktop];
-        }
-
-        if (targetOSVersion.find(MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal) != targetOSVersion.end())
-        {
-            return targetOSVersion[MsixPackageManifestTargetDeviceFamily::Platform::WindowsUniversal];
-        }
-
-        return std::nullopt;
+        return minOSVersion;
     }
 
     std::vector<MsixPackageManifestTargetDeviceFamily> MsixPackageManifest::GetTargetDeviceFamilies() const
