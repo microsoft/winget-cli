@@ -301,6 +301,7 @@ MContext
 mday
 memset
 metadata
+metadatas
 microsoft
 mimetype
 Minimatch

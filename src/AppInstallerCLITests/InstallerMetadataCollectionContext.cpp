@@ -27,10 +27,10 @@ namespace
             SupportedMetadataVersion = "1.0";
             SubmissionIdentifier = "1";
             InstallerHash = "ABCD";
-            SubmissionData = std::make_optional<Manifest::Manifest>();
-            SubmissionData->DefaultLocalization.Locale = "en-us";
-            SubmissionData->DefaultLocalization.Add<Manifest::Localization::PackageName>("Name");
-            SubmissionData->DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
+            PackageData = std::make_optional<Manifest::Manifest>();
+            PackageData->DefaultLocalization.Locale = "en-us";
+            PackageData->DefaultLocalization.Add<Manifest::Localization::PackageName>("Name");
+            PackageData->DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
         }
 
         TestInput(MinimalDefaults_t, const std::string& productVersion, const std::string& productCode, Manifest::InstallerTypeEnum installerType) : TestInput(MinimalDefaults)
@@ -43,8 +43,8 @@ namespace
             installerMetadata.SubmissionIdentifier = SubmissionIdentifier.value();
             installerMetadata.AppsAndFeaturesEntries.push_back({});
             auto& entry = installerMetadata.AppsAndFeaturesEntries.back();
-            entry.DisplayName = SubmissionData->DefaultLocalization.Get<Manifest::Localization::PackageName>();
-            entry.Publisher = SubmissionData->DefaultLocalization.Get<Manifest::Localization::Publisher>();
+            entry.DisplayName = PackageData->DefaultLocalization.Get<Manifest::Localization::PackageName>();
+            entry.Publisher = PackageData->DefaultLocalization.Get<Manifest::Localization::Publisher>();
             entry.DisplayVersion = productVersion;
             entry.ProductCode = productCode;
             entry.InstallerType = installerType;
@@ -52,14 +52,12 @@ namespace
 
         std::optional<std::string> Version;
         std::optional<std::string> SupportedMetadataVersion;
-        std::optional<size_t> MaximumMetadataSize;
         std::optional<ProductMetadata> CurrentMetadata;
+        std::optional<web::json::value> SubmissionData;
         std::optional<std::string> SubmissionIdentifier;
         std::optional<std::string> InstallerHash;
-        // Not currently used
-        // std::optional<Manifest::Manifest> CurrentManifest;
         // Schema 1.0 only cares about DefaultLocale and Locales
-        std::optional<Manifest::Manifest> SubmissionData;
+        std::optional<Manifest::Manifest> PackageData;
 
         std::wstring ToJSON()
         {
@@ -75,35 +73,39 @@ namespace
                 json[L"supportedMetadataVersion"] = JSON::GetStringValue(SupportedMetadataVersion.value());
             }
 
-            if (MaximumMetadataSize)
-            {
-                json[L"maximumMetadataSize"] = MaximumMetadataSize.value();
-            }
-
             if (CurrentMetadata)
             {
                 json[L"currentMetadata"] = CurrentMetadata->ToJson(Utility::Version{ "1.0" }, 0);
             }
 
-            if (SubmissionIdentifier)
-            {
-                json[L"submissionIdentifier"] = JSON::GetStringValue(SubmissionIdentifier.value());
-            }
-
-            if (InstallerHash)
-            {
-                json[L"installerHash"] = JSON::GetStringValue(InstallerHash.value());
-            }
-
             if (SubmissionData)
             {
+                json[L"submissionData"] = SubmissionData.value();
+            }
+            else if (SubmissionIdentifier)
+            {
                 web::json::value submissionData;
-
-                submissionData[L"DefaultLocale"] = LocaleToJSON(SubmissionData->DefaultLocalization);
-
-                // TODO: Implement other locales
-
+                submissionData[L"submissionIdentifier"] = JSON::GetStringValue(SubmissionIdentifier.value());
                 json[L"submissionData"] = std::move(submissionData);
+            }
+
+            if (InstallerHash || PackageData)
+            {
+                web::json::value packageData;
+
+                if (InstallerHash)
+                {
+                    packageData[L"installerHash"] = JSON::GetStringValue(InstallerHash.value());
+                }
+
+                if (PackageData)
+                {
+                    packageData[L"DefaultLocale"] = LocaleToJSON(PackageData->DefaultLocalization);
+
+                    // TODO: Implement other locales
+                }
+
+                json[L"packageData"] = std::move(packageData);
             }
 
             return json.serialize();
@@ -134,7 +136,7 @@ namespace
 
     struct TestOutput
     {
-        TestOutput(const std::string& json)
+        TestOutput(const std::string& json) : OriginalJSON(json)
         {
             web::json::value input = web::json::value::parse(Utility::ConvertToUTF16(json));
 
@@ -142,6 +144,12 @@ namespace
             if (versionString)
             {
                 Version = std::move(versionString);
+            }
+
+            auto submissionDataValue = JSON::GetJsonValueFromNode(input, L"submissionData");
+            if (submissionDataValue)
+            {
+                SubmissionData = submissionDataValue.value();
             }
 
             auto installerHashString = JSON::GetRawStringValueFromJsonNode(input, L"installerHash");
@@ -180,7 +188,10 @@ namespace
             }
         }
 
+        std::string OriginalJSON;
+
         std::optional<std::string> Version;
+        std::optional<web::json::value> SubmissionData;
         std::optional<std::string> InstallerHash;
         std::optional<std::string> Status;
         std::optional<ProductMetadata> Metadata;
@@ -205,6 +216,7 @@ namespace
         void ValidateFieldPresence() const
         {
             REQUIRE(Version);
+            REQUIRE(SubmissionData);
             REQUIRE(InstallerHash);
             REQUIRE(Status);
 
@@ -255,6 +267,71 @@ namespace
         REQUIRE(output.IsError());
         output.ValidateFieldPresence();
     }
+
+    ProductMetadata MakeProductMetadata(std::string_view submissionIdentifier = "Submission 1", const std::string& installerHash = "ABCD")
+    {
+        ProductMetadata result;
+        result.SchemaVersion.Assign("1.0");
+        result.ProductVersionMin.Assign("1.0");
+        result.ProductVersionMax.Assign("1.0");
+        auto& installerMetadata = result.InstallerMetadataMap[installerHash];
+        installerMetadata.SubmissionIdentifier = submissionIdentifier;
+        installerMetadata.AppsAndFeaturesEntries.push_back({});
+        auto& entry = installerMetadata.AppsAndFeaturesEntries.back();
+        entry.DisplayName = "Name";
+        entry.Publisher = "Publisher";
+        entry.DisplayVersion = "1.0";
+        entry.ProductCode = "{guid}";
+        entry.InstallerType = Manifest::InstallerTypeEnum::Msi;
+        return result;
+    }
+
+    struct TestMerge
+    {
+        TestMerge() = default;
+
+        TestMerge(MinimalDefaults_t)
+        {
+            Version = "1.0";
+            Metadatas = std::make_optional<std::vector<ProductMetadata>>();
+            Metadatas->emplace_back(MakeProductMetadata());
+        }
+
+        std::optional<std::string> Version;
+        std::optional<std::vector<ProductMetadata>> Metadatas;
+
+        std::wstring ToJSON()
+        {
+            web::json::value json;
+
+            if (Version)
+            {
+                json[L"version"] = JSON::GetStringValue(Version.value());
+            }
+
+            if (Metadatas)
+            {
+                web::json::value metadatasArray;
+
+                if (Metadatas->empty())
+                {
+                    metadatasArray = web::json::value::array();
+                }
+                else
+                {
+                    size_t index = 0;
+                    for (auto& value : Metadatas.value())
+                    {
+                        metadatasArray[index++] = value.ToJson(value.SchemaVersion, 0);
+                    }
+                }
+
+                json[L"metadatas"] = std::move(metadatasArray);
+            }
+
+            return json.serialize();
+        }
+    };
 }
 
 TEST_CASE("MetadataCollection_MinimumInput", "[metadata_collection]")
@@ -266,6 +343,29 @@ TEST_CASE("MetadataCollection_MinimumInput", "[metadata_collection]")
 
     REQUIRE(output.Version.value() == input.Version.value());
     REQUIRE(output.InstallerHash.value() == input.InstallerHash.value());
+}
+
+TEST_CASE("MetadataCollection_SubmissionDataCopied", "[metadata_collection]")
+{
+    TestInput input(MinimalDefaults);
+
+    web::json::value submissionData;
+    std::wstring testValueName = L"testValueName";
+    std::string testValueValue = "Test value value";
+    submissionData[L"submissionIdentifier"] = JSON::GetStringValue("Required identifier");
+    submissionData[testValueName] = JSON::GetStringValue(testValueValue);
+
+    input.SubmissionData = submissionData;
+
+    TestOutput output = GetOutput(input);
+    REQUIRE(!output.IsError());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Version.value() == input.Version.value());
+    REQUIRE(output.InstallerHash.value() == input.InstallerHash.value());
+    auto outputValue = JSON::GetRawStringValueFromJsonNode(output.SubmissionData.value(), testValueName);
+    REQUIRE(outputValue);
+    REQUIRE(outputValue.value() == testValueValue);
 }
 
 TEST_CASE("MetadataCollection_BadInput", "[metadata_collection]")
@@ -283,7 +383,7 @@ TEST_CASE("MetadataCollection_BadInput", "[metadata_collection]")
     RESET_FIELD_SECTION(SupportedMetadataVersion);
     RESET_FIELD_SECTION(SubmissionIdentifier);
     RESET_FIELD_SECTION(InstallerHash);
-    RESET_FIELD_SECTION(SubmissionData);
+    RESET_FIELD_SECTION(PackageData);
 
 #undef RESET_FIELD_SECTION
 }
@@ -514,4 +614,64 @@ TEST_CASE("MetadataCollection_NewSubmission", "[metadata_collection]")
     REQUIRE(*historicalEntry.ProductCodes.begin() == appsAndFeaturesEntry.ProductCode);
     REQUIRE(historicalEntry.Publishers.size() == 1);
     REQUIRE(*historicalEntry.Publishers.begin() == appsAndFeaturesEntry.Publisher);
+}
+
+TEST_CASE("MetadataCollection_Merge_Empty", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->clear();
+
+    REQUIRE_THROWS_HR(InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {}), E_NOT_SET);
+}
+
+TEST_CASE("MetadataCollection_Merge_SubmissionMismatch", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata("Submission 2"));
+
+    REQUIRE_THROWS_HR(InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {}), E_NOT_VALID_STATE);
+}
+
+TEST_CASE("MetadataCollection_Merge_DifferentInstallers", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata(mergeData.Metadatas->at(0).InstallerMetadataMap.begin()->second.SubmissionIdentifier, "EFGH"));
+
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 2);
+    for (const auto& item : mergeMetadata.InstallerMetadataMap)
+    {
+        REQUIRE(item.second.AppsAndFeaturesEntries.size() == 1);
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].DisplayName.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].Publisher.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].DisplayVersion.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].ProductCode.empty());
+    }
+}
+
+TEST_CASE("MetadataCollection_Merge_SameInstaller", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata());
+
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    for (const auto& item : mergeMetadata.InstallerMetadataMap)
+    {
+        REQUIRE(item.second.AppsAndFeaturesEntries.size() == 1);
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].DisplayName.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].Publisher.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].DisplayVersion.empty());
+        REQUIRE(!item.second.AppsAndFeaturesEntries[0].ProductCode.empty());
+    }
 }

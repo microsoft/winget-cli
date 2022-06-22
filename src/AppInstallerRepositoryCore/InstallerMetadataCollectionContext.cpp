@@ -113,6 +113,33 @@ namespace AppInstaller::Repository::Metadata
                 }
             }
         }
+
+        void FilterAndAddToEntries(Manifest::AppsAndFeaturesEntry&& newEntry, std::vector<Manifest::AppsAndFeaturesEntry>& entries)
+        {
+            // Erase all duplicated data from the new entry
+            for (const auto& entry : entries)
+            {
+#define WINGET_ERASE_IF_SAME(_value_) if (entry._value_ == newEntry._value_) { newEntry._value_.clear(); }
+                WINGET_ERASE_IF_SAME(DisplayName);
+                WINGET_ERASE_IF_SAME(DisplayVersion);
+                WINGET_ERASE_IF_SAME(ProductCode);
+                WINGET_ERASE_IF_SAME(Publisher);
+                WINGET_ERASE_IF_SAME(UpgradeCode);
+#undef WINGET_ERASE_IF_SAME
+
+                if (entry.InstallerType == newEntry.InstallerType)
+                {
+                    newEntry.InstallerType = Manifest::InstallerTypeEnum::Unknown;
+                }
+            }
+
+            // If anything remains, add it
+            if (!newEntry.DisplayName.empty() || !newEntry.DisplayVersion.empty() || !newEntry.ProductCode.empty() ||
+                !newEntry.Publisher.empty() || !newEntry.UpgradeCode.empty() || newEntry.InstallerType != Manifest::InstallerTypeEnum::Unknown)
+            {
+                entries.emplace_back(std::move(newEntry));
+            }
+        }
     }
 
     void ProductMetadata::Clear()
@@ -725,31 +752,7 @@ namespace AppInstaller::Repository::Metadata
             else
             {
                 // Existing entry for installer hash, add/update the entry
-                auto& appsAndFeatures = itr->second.AppsAndFeaturesEntries;
-
-                // Erase all duplicated data from the new entry
-                for (const auto& entry : appsAndFeatures)
-                {
-#define WINGET_ERASE_IF_SAME(_value_) if (entry._value_ == newEntry._value_) { newEntry._value_.clear(); }
-                    WINGET_ERASE_IF_SAME(DisplayName);
-                    WINGET_ERASE_IF_SAME(DisplayVersion);
-                    WINGET_ERASE_IF_SAME(ProductCode);
-                    WINGET_ERASE_IF_SAME(Publisher);
-                    WINGET_ERASE_IF_SAME(UpgradeCode);
-#undef WINGET_ERASE_IF_SAME
-
-                    if (entry.InstallerType == newEntry.InstallerType)
-                    {
-                        newEntry.InstallerType = Manifest::InstallerTypeEnum::Unknown;
-                    }
-                }
-
-                // If anything remains, add it
-                if (!newEntry.DisplayName.empty() || !newEntry.DisplayVersion.empty() || !newEntry.ProductCode.empty() ||
-                    !newEntry.Publisher.empty() || !newEntry.UpgradeCode.empty() || newEntry.InstallerType != Manifest::InstallerTypeEnum::Unknown)
-                {
-                    appsAndFeatures.emplace_back(std::move(newEntry));
-                }
+                FilterAndAddToEntries(std::move(newEntry), itr->second.AppsAndFeaturesEntries);
             }
         }
         else
@@ -913,6 +916,7 @@ namespace AppInstaller::Repository::Metadata
         web::json::value result;
 
         result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.SubmissionData] = m_submissionData;
         result[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(m_installerHash);
         result[fields.Status] = web::json::value::string(ToString(OutputStatus::Error));
         result[fields.Metadata] = web::json::value::null();
@@ -946,9 +950,7 @@ namespace AppInstaller::Repository::Metadata
 
         THROW_HR_IF(E_NOT_SET, metadatas.empty());
 
-        Version maximumSchemaVersion;
-
-        // Require that all merging values use the same submission (and extract the maximum schema version being used)
+        // Require that all merging values use the same submission
         for (const ProductMetadata& metadata : metadatas)
         {
             const std::string& firstSubmission = metadatas[0].InstallerMetadataMap.begin()->second.SubmissionIdentifier;
@@ -958,13 +960,52 @@ namespace AppInstaller::Repository::Metadata
                 AICLI_LOG(Repo, Info, << "Found submission identifier mismatch: " << firstSubmission << " != " << metadataSubmission);
                 THROW_HR(E_NOT_VALID_STATE);
             }
-
-            if (maximumSchemaVersion < metadata.SchemaVersion)
-            {
-                maximumSchemaVersion = metadata.SchemaVersion;
-            }
         }
 
         // Do the actual merging
+        ProductMetadata resultMetadata;
+
+        // The historical data should be the same across the board, so we can just copy the first one.
+        resultMetadata.HistoricalMetadataList = metadatas[0].HistoricalMetadataList;
+
+        for (const ProductMetadata& metadata : metadatas)
+        {
+            // Get the minimum and maximum versions from the individual values
+            if (resultMetadata.ProductVersionMin.IsEmpty() || metadata.ProductVersionMin < resultMetadata.ProductVersionMin)
+            {
+                resultMetadata.ProductVersionMin = metadata.ProductVersionMin;
+            }
+
+            if (resultMetadata.ProductVersionMax < metadata.ProductVersionMax)
+            {
+                resultMetadata.ProductVersionMax = metadata.ProductVersionMax;
+            }
+
+            if (resultMetadata.SchemaVersion < metadata.SchemaVersion)
+            {
+                resultMetadata.SchemaVersion = metadata.SchemaVersion;
+            }
+
+            for (const auto& installerMetadata : metadata.InstallerMetadataMap)
+            {
+                auto itr = resultMetadata.InstallerMetadataMap.find(installerMetadata.first);
+                if (itr == resultMetadata.InstallerMetadataMap.end())
+                {
+                    // Installer hash not in the result, so just copy it
+                    resultMetadata.InstallerMetadataMap.emplace(installerMetadata);
+                }
+                else
+                {
+                    // Merge into existing installer data
+                    for (const auto& targetEntry : installerMetadata.second.AppsAndFeaturesEntries)
+                    {
+                        FilterAndAddToEntries(Manifest::AppsAndFeaturesEntry{ targetEntry }, itr->second.AppsAndFeaturesEntries);
+                    }
+                }
+            }
+        }
+
+        // Convert to JSON
+        return resultMetadata.ToJson(resultMetadata.SchemaVersion, maximumSizeInBytes);
     }
 }

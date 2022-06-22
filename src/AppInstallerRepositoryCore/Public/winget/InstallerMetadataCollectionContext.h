@@ -124,7 +124,7 @@ namespace AppInstaller::Repository::Metadata
         // Create version 1.0 of error JSON
         web::json::value CreateErrorJson_1_0();
 
-        // Merge using merge input verision 1.0
+        // Merge using merge input version 1.0
         static web::json::value Merge_1_0(web::json::value& input, size_t maximumSizeInBytes);
 
         ThreadLocalStorage::ThreadGlobals m_threadGlobals;
