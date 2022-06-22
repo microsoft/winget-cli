@@ -810,7 +810,7 @@ namespace AppInstaller::CLI
         }
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
-            context.Reporter.PromptForAnyKey(Resource::String::PressAnyKeyToContinue);
+            context.Reporter.PromptForEnter();
         }
     }
 

@@ -99,8 +99,8 @@ namespace AppInstaller::CLI::Execution
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info);
 
-        // Prompts the user, returns the key they pressed
-        int PromptForAnyKey(Resource::LocString message, Level level = Level::Info);
+        // Prompts the user, continues when Enter is pressed
+        void PromptForEnter(Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.

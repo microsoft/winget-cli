@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionReporter.h"
-#include <conio.h>
 
 
 namespace AppInstaller::CLI::Execution
@@ -156,11 +155,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    int Reporter::PromptForAnyKey(Resource::LocString message, Level level)
+    void Reporter::PromptForEnter(Level level)
     {
         auto out = GetOutputStream(level);
-        out << message << std::endl;
-        return _getch();
+        out << std::endl << Resource::String::PressEnterToContinue << std::endl;
+        m_in.get();
     }
 
     void Reporter::ShowIndefiniteProgress(bool running)
