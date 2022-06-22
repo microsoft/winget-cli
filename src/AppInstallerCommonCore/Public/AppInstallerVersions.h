@@ -50,7 +50,7 @@ namespace AppInstaller::Utility
         Version(Version baseVersion, ApproximateComparator approximateComparator);
 
         // Resets the version's value to the input.
-        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        virtual void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
@@ -77,6 +77,7 @@ namespace AppInstaller::Utility
         // An individual version part in between split characters.
         struct Part
         {
+            Part(uint64_t integer) : Integer(integer) {}
             Part(const std::string& part);
             Part(uint64_t integer, std::string other);
 
@@ -104,6 +105,27 @@ namespace AppInstaller::Utility
         std::string m_version;
         std::vector<Part> m_parts;
         ApproximateComparator m_approximateComparator = ApproximateComparator::None;
+
+      // Remove trailing empty parts (0 or empty)
+        void Trim();
+    };
+
+    // Four parts version number: 16-bits.16-bits.16-bits.16-bits
+    struct UInt64Version : public Version
+    {
+        UInt64Version() = default;
+        UInt64Version(UINT64 version);
+        UInt64Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        UInt64Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
+            UInt64Version(std::string(version), splitChars) {}
+
+        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars) override;
+        void Assign(UINT64 version);
+
+        UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        UINT64 Build() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+        UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
     };
 
     // Version range represented by a min version and max version, both inclusive.

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerMsixInfo.h"
+#include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
 #include "winget/Locale.h"
 
@@ -257,5 +259,109 @@ namespace AppInstaller::Manifest
         }
 
         return resultErrors;
+    }
+
+    // Validate msix and msixbundle installer manifest
+    std::vector<ValidationError> ValidateMsixManifest(
+        const Msix::PackageVersion& packageVersion,
+        const ManifestInstaller& installer,
+        Msix::MsixPackageManifestCache& msixManifestsCache,
+        bool treatErrorAsWarning)
+    {
+        std::vector<ValidationError> errors;
+        std::optional<Msix::OSVersion> installerMinOSVersion;
+
+        try
+        {
+            if (!installer.MinOSVersion.empty())
+            {
+                installerMinOSVersion = std::make_optional<Msix::OSVersion>(installer.MinOSVersion);
+            }
+        }
+        catch (const std::exception&)
+        {
+            errors.emplace_back(ManifestError::InvalidFieldValue, "MinimumOSVersion", installer.MinOSVersion);
+        }
+
+        std::vector<Msix::MsixPackageManifest> msixManifests;
+        try
+        {
+            msixManifests = msixManifestsCache.GetAppPackageManifests(installer.Url);
+        }
+        catch (...)
+        {
+            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installer.Url);
+        }
+
+        for (auto msixManifest : msixManifests)
+        {
+            // Validate package family name
+            auto msixManifestIdentity = msixManifest.GetIdentity();
+            auto msixPackageFamilyName = msixManifestIdentity.GetPackageFamilyName();
+            if (!installer.PackageFamilyName.empty())
+            {
+                if (installer.PackageFamilyName != msixPackageFamilyName)
+                {
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageFamilyName", msixPackageFamilyName);
+                }
+            }
+            // Yaml manifest missing package family name
+            else
+            {
+                errors.emplace_back(
+                    ManifestError::OptionalFieldMissing,
+                    "PackageFamilyName",
+                    msixPackageFamilyName,
+                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
+            }
+
+            // Validate package version
+            auto msixVersion = msixManifestIdentity.GetVersion();
+            if (msixVersion != packageVersion)
+            {
+                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixVersion.ToString());
+            }
+
+            // Validate min OS version
+            auto targetMinOSVersion = msixManifest.GetMinimumOSVersionForSupportedPlatforms();
+            if (!targetMinOSVersion.has_value())
+            {
+                errors.emplace_back(ManifestError::NoSupportedPlatforms, "InstallerUrl", installer.Url);
+            }
+            else if (installerMinOSVersion.has_value())
+            {
+                if (targetMinOSVersion.value() != installerMinOSVersion.value())
+                {
+                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.value().ToString());
+                }
+            }
+            else
+            {
+                errors.emplace_back(
+                    ManifestError::OptionalFieldMissing,
+                    "MinimumOSVersion",
+                    targetMinOSVersion.value().ToString(),
+                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
+            }
+        }
+
+        return errors;
+    }
+
+    std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
+    {
+        std::vector<ValidationError> errors;
+        Msix::MsixPackageManifestCache msixManifestsCache;
+        for (const auto& installer : manifest.Installers)
+        {
+            // Installer msix or msixbundle
+            if (installer.InstallerType == InstallerTypeEnum::Msix)
+            {
+                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsCache, treatErrorAsWarning);
+                std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
+            }
+        }
+
+        return errors;
     }
 }
