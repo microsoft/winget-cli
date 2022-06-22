@@ -162,7 +162,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
         if (result || log)
         {
-            result = ValidateArpVersionConsistency(connection) && result;
+            result = ValidateArpVersionConsistency(connection, log) && result;
         }
 
         return result;
@@ -181,10 +181,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         }
     }
 
-    bool Interface::ValidateArpVersionConsistency(const SQLite::Connection& connection) const
+    bool Interface::ValidateArpVersionConsistency(const SQLite::Connection& connection, bool log) const
     {
         try
         {
+            bool result = true;
+
             // Search everything
             SearchRequest request;
             auto searchResult = Search(connection, request);
@@ -215,11 +217,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
                 if (Utility::HasOverlapInVersionRanges(ranges))
                 {
                     AICLI_LOG(Repo, Error, << "Overlapped Arp version ranges found for package. PackageRowId: " << match.first);
-                    return false;
+                    result = false;
+
+                    if (!log)
+                    {
+                        break;
+                    }
                 }
             }
 
-            return true;
+            return result;
         }
         catch (...)
         {

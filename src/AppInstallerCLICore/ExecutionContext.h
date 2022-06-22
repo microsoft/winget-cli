@@ -39,6 +39,11 @@
 // Also returns the specified value from the current function.
 #define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
+namespace AppInstaller::CLI
+{
+    struct Command;
+}
+
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
@@ -137,6 +142,12 @@ namespace AppInstaller::CLI::Execution
 
         std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
+        // Gets the executing command
+        AppInstaller::CLI::Command* GetExecutingCommand() { return m_executingCommand; }
+
+        // Sets the executing command
+        void SetExecutingCommand(AppInstaller::CLI::Command* command) { m_executingCommand = command; }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
@@ -156,5 +167,6 @@ namespace AppInstaller::CLI::Execution
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::ThreadGlobals m_threadGlobals;
+        AppInstaller::CLI::Command* m_executingCommand = nullptr;
     };
 }

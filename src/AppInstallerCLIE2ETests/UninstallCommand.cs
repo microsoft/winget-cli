@@ -80,7 +80,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UninstallPortableWithProductCode()
         {
-            // Uninstall a Portable
+            // Uninstall a Portable with ProductCode
             string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -92,6 +92,33 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        [Test]
+        public void UninstallPortableModifiedSymlink()
+        {
+            string packageId, commandAlias;  
+            packageId = "AppInstallerTest.TestPortableExe";
+            commandAlias = "AppInstallerTestExeInstaller.exe";
+
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+
+            // Replace symlink with modified symlink
+            File.Delete(symlinkPath);
+            FileSystemInfo modifiedSymlinkInfo = File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+
+            // Remove modified symlink as to not interfere with other tests
+            bool modifiedSymlinkExists = modifiedSymlinkInfo.Exists;
+            modifiedSymlinkInfo.Delete();
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(result.StdOut.Contains("Portable symlink not deleted as it was modified and points to a different target exe"));
+            Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
         }
 
         [Test]

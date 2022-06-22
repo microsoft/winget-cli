@@ -282,6 +282,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelTags);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsLibrariesDependencies);
@@ -341,6 +342,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
+        WINGET_DEFINE_RESOURCE_STRINGID(SymlinkModified);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
@@ -360,6 +362,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);

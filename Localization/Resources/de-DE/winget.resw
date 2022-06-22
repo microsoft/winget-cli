@@ -665,6 +665,13 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Aktualisiert das ausgewählte Paket, entweder durch Durchsuchen der Liste der installierten Pakete oder direkt aus einem Manifest. Standardmäßig muss die Abfrage ohne Berücksichtigung der Groß-/Kleinschreibung mit der ID, dem Namen oder dem Linkpfad des Pakets übereinstimmen. Andere Felder können verwendet werden, indem sie die entsprechende Option übergeben. Wenn keine Argumente angegeben werden, werden die Pakete mit verfügbaren Upgrades angezeigt.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Zeigt verfügbare Upgrades an und führt sie aus.</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>Nutzung</value>
     <comment>The way to use the software</comment>
@@ -1267,5 +1274,79 @@ Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>Systemarchitektur</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>Behält alle vom Paket erstellten Dateien und Verzeichnisse bei (portabel)</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>Löscht alle Dateien und Verzeichnisse im Paketverzeichnis (portabel)</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>Der Wert zum Umbenennen der ausführbaren Datei (portabel)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>Fordert den Benutzer auf, vor dem Beenden eine beliebige Taste zu drücken</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>Das Installationsprogramm fordert die Ausführung als Administrator an. Es wird eine Eingabeaufforderung erwartet.</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>Das Installationsprogramm kann nicht in einem Administratorkontext ausgeführt werden.</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>Pfadumgebungsvariable geändert; Starten Sie Ihre Shell neu, um den neuen Wert zu verwenden.</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>Filtert nach dem Produktcode</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>Es existiert bereits ein portables Paket mit demselben Namen, aber aus einer anderen Quelle; Fortfahren wegen --force</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>Das Volume unterstützt keine Analysepunkte</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>Der angegebene Dateiname ist kein gültiger Dateiname.</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>Vorhandene Datei überschreiben:</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>Es wurde kein Paketauswahlargument angegeben; Einzelheiten zum Suchen eines Pakets finden Sie in der Hilfe.</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>Portable Installation fehlgeschlagen; Aufräumen...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>Es werden sowohl "Purge"- als auch "Preserve"-Argumente bereitgestellt</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>Portable exe wurde geändert; Fortfahren wegen --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Portable exe kann nicht entfernt werden, da es geändert wurde; Um diese Prüfung außer Kraft zu setzen, verwenden Sie --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>Dateien verbleiben im Installationsverzeichnis:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>Installationsverzeichnis löschen...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>Installationsverzeichnis kann nicht gelöscht werden, da es nicht von WinGet erstellt wurde</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>Verwandter Link</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>Dokumentation:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notizen:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>Installationshinweise:</value>
   </data>
 </root>

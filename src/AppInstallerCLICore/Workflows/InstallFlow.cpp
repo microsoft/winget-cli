@@ -14,6 +14,8 @@
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
+#include <Argument.h>
+#include <Command.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
@@ -55,6 +57,36 @@ namespace AppInstaller::CLI::Workflow
             default:
                 return false;
             }
+        }
+
+        bool ShouldErrorForUnsupportedArgument(UnsupportedArgumentEnum arg)
+        {
+            switch (arg)
+            {
+            case UnsupportedArgumentEnum::Location:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
+        {
+            Execution::Args::Type execArg;
+
+            switch (unsupportedArgument)
+            {
+            case UnsupportedArgumentEnum::Log:
+                execArg = Execution::Args::Type::Log;
+                break;
+            case UnsupportedArgumentEnum::Location:
+                execArg = Execution::Args::Type::InstallLocation;
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            return execArg;
         }
 
         struct ExpectedReturnCode
@@ -125,6 +157,47 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
+        }
+    }
+
+    void CheckForUnsupportedArgs(Execution::Context& context)
+    {
+        bool messageDisplayed = false;
+        const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
+        for (auto unsupportedArg : unsupportedArgs)
+        {
+            const auto& unsupportedArgType = GetUnsupportedArgumentType(unsupportedArg);
+            if (context.Args.Contains(unsupportedArgType))
+            {
+                if (!messageDisplayed)
+                {
+                    context.Reporter.Warn() << Resource::String::UnsupportedArgument << std::endl;
+                    messageDisplayed = true;
+                }
+
+                const auto& executingCommand = context.GetExecutingCommand();
+                if (executingCommand != nullptr)
+                {
+                    const auto& commandArguments = executingCommand->GetArguments();
+                    for (const auto& argument : commandArguments)
+                    {
+                        if (unsupportedArgType == argument.ExecArgType())
+                        {
+                            const auto& usageString = argument.GetUsageString();
+                            if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                            {
+                                context.Reporter.Error() << usageString << std::endl;
+                                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+                            }
+                            else
+                            {
+                                context.Reporter.Warn() << usageString << std::endl;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -443,6 +516,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            Workflow::CheckForUnsupportedArgs <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }

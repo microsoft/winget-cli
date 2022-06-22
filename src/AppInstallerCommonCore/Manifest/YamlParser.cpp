@@ -439,6 +439,12 @@ namespace AppInstaller::Manifest::YamlParser
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             }
 
+            if (validateOption.InstallerValidation)
+            {
+                errors = ValidateManifestInstallers(manifest);
+                std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            }
+
             // Output merged manifest if requested
             if (!mergedManifestPath.empty())
             {

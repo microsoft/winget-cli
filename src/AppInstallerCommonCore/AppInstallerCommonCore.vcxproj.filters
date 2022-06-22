@@ -198,6 +198,9 @@
     <ClInclude Include="Public\winget\ManagedFile.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\MsixManifest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -342,6 +345,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ManagedFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MsixManifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

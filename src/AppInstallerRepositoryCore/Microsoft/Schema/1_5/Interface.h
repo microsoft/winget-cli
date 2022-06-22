@@ -28,6 +28,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
     private:
         // Semantic check to validate all arp version ranges within the index
-        bool ValidateArpVersionConsistency(const SQLite::Connection& connection) const;
+        bool ValidateArpVersionConsistency(const SQLite::Connection& connection, bool log) const;
     };
 }

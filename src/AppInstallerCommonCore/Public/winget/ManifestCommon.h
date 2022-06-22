@@ -35,6 +35,7 @@ namespace AppInstaller::Manifest
     {
         bool SchemaValidationOnly = false;
         bool ErrorOnVerifiedPublisherFields = false;
+        bool InstallerValidation = false;
 
         // Options not exposed in winget util
         bool FullValidation = false;
@@ -57,7 +58,7 @@ namespace AppInstaller::Manifest
 
         bool HasExtension() const;
 
-bool HasExtension(std::string_view extension) const;
+        bool HasExtension(std::string_view extension) const;
 
     private:
         std::vector<Version> m_extensions;

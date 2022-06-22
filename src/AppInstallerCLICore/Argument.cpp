@@ -111,6 +111,17 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::VerboseLogs));
     }
 
+    std::string Argument::GetUsageString() const
+    {
+        std::ostringstream strstr;
+        if (m_alias != Argument::NoAlias)
+        {
+            strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alias << ',';
+        }
+        strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_name;
+        return strstr.str();
+    }
+
     void Argument::ValidatePackageSelectionArgumentSupplied(const Execution::Args& args)
     {
         for (Args::Type type : { Args::Type::Query, Args::Type::Manifest, Args::Type::Id, Args::Type::Name, Args::Type::Moniker, Args::Type::ProductCode, Args::Type::Tag, Args::Type::Command })

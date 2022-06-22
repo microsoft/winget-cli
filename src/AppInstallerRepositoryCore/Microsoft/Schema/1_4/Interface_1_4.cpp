@@ -120,6 +120,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             result = DependenciesTable::DependenciesTableCheckConsistency(connection, log) && result;
         }
 
+        if (result || log)
+        {
+            result = ValidateDependenciesWithMinVersions(connection, log) && result;
+        }
+
         return result;
     }
 
@@ -131,5 +136,46 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const
     {
         return DependenciesTable::GetDependentsById(connection, packageId);
+    }
+
+    bool Interface::ValidateDependenciesWithMinVersions(const SQLite::Connection& connection, bool log) const
+    {
+        try
+        {
+            bool result = true;
+            // A map to store already checked dependency package latest versions.
+            std::map<SQLite::rowid_t, Utility::Version> checkedVersions;
+
+            auto dependencies = DependenciesTable::GetAllDependenciesWithMinVersions(connection);
+            for (auto const& dependency : dependencies)
+            {
+                // If the dependency package has not been checked yet, add to the map.
+                if (checkedVersions.find(dependency.first) == checkedVersions.end())
+                {
+                    auto versionKeys = GetVersionKeysById(connection, dependency.first);
+                    THROW_HR_IF(E_UNEXPECTED, versionKeys.empty());
+                    checkedVersions.emplace(dependency.first, versionKeys[0].GetVersion());
+                }
+
+                // If the latest version is less than min version required, fail the validation.
+                if (checkedVersions[dependency.first] < Utility::Version{ dependency.second })
+                {
+                    AICLI_LOG(Repo, Error, << "Dependency with min version not satisfied. Dependency package row id: " << dependency.first << " min version: " << dependency.second);
+                    result = false;
+
+                    if (!log)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Repo, Error, << "ValidateDependenciesWithMinVersions() encountered internal error. Returning false.");
+            return false;
+        }
     }
 }
