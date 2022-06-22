@@ -62,17 +62,17 @@ A ZIP bomb that expands fully after a single round of decompression. The extreme
 
 In order to protect our users from these possible threats, we will need to implement several basic checks to verify whether it is safe to proceed with the contents of the ZIP archive file.
 
->Compression Ratio is defined as the sum of the sizes of all the files contained within a ZIP file, divided by the size of the ZIP file.
+>Compression Ratio is defined as the sum of the sizes of all the items contained within a ZIP file, divided by the size of the ZIP file.
 
 The check will be as follows:
 
-1. For any archive file, we will check that the compression ratio is no greater than 5:1 (20%). Any file that has a better compression ratio will be deemed as "suspicious". Lossless compression of common data files tend achieve compression ratios of around ~2:1 (50%) simply because of their intrinsic entropy of data. 
+1. For any archive file, we will start by using Windows Shell APIs which treat ZIP files as a Folder object that can be utilized for viewing the contents (we are not extracting to a specified location, yet). We will iterate through each item and determine the cumulative sum of the sizes of all items contained in the zip and compare that value with the size of the ZIP file. **The check will verify that the compression ratio is no greater than 5:1 (20%)**. Any file that has a larger compression ratio (<20%) will be deemed as "suspicious" and a warning will be displayed to the user. Lossless compression of common data files tend to achieve compression ratios of ~2:1 (50%). Any extraction or copying of files will not take place until this check is passed.
 
->Note: The compression ratio threshold is not permanent and can be changed based on community feedback.
- 
 2. If a ZIP archive file contains nested archive files, we will support decompressing up to a maximum of 3 layers (2 additional layers including the initial ZIP file). 
 
-If the number of nested ZIP layers exceeds 3 or fails to satisfy the compression ratio threshold, the process will terminate and a warning will be displayed to the user. If the user chooses to proceeds, installation will continue.
+If either of these checks fail, the process will terminate and a warning will be displayed to the user. The user can include `--force` to bypass this check and continue installation at their own risk.
+
+>Note: The compression ratio threshold and the number of supported zip layers is not permanent and can be changed based on community feedback.
 
 > Although ZIP headers can contain information about the decompressed size of the file, they are not reliable sources of information as they can be modified externally. ZIP headers also differ from that of .cab or .tar.gz headers, therefore we should avoid taking a dependency on the data acquired from headers when possible.
 
