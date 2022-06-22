@@ -426,7 +426,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             .LeftOuterJoin(VersionTable::TableName())
             .On(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_MinVersion_Column_Name), QCol(VersionTable::TableName(), SQLite::RowIDName))
             .Where(QCol(ManifestTable::TableName(), SQLite::RowIDName)).IsNull()
-            .Or(QCol(VersionTable::TableName(), SQLite::RowIDName)).IsNull()
+            .Or(QCol(VersionTable::TableName(), SQLite::RowIDName)).IsNull().And(QCol(s_DependenciesTable_Table_Name, s_DependenciesTable_MinVersion_Column_Name)).IsNotNull()
             .Or(QCol(IdTable::TableName(), SQLite::RowIDName)).IsNull();
 
         SQLite::Statement select = builder.Prepare(connection);
@@ -510,6 +510,48 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             if (!select.GetColumnIsNull(0))
             {
                 result.emplace_back(select.GetColumn<SQLite::rowid_t>(0));
+            }
+        }
+
+        return result;
+    }
+
+    std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> DependenciesTable::GetAllDependenciesWithMinVersions(const SQLite::Connection& connection)
+    {
+        if (!Exists(connection))
+        {
+            return {};
+        }
+
+        std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> result;
+
+        constexpr std::string_view depTableAlias = "dep";
+        constexpr std::string_view minVersionAlias = "minV";
+
+        StatementBuilder builder;
+
+        // SELECT [dep].[package_id], [minV].[version] FROM [dependencies] AS [dep] 
+        // JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version]
+        builder.Select()
+            .Column(QCol(depTableAlias, s_DependenciesTable_PackageId_Column_Name))
+            .Column(QCol(minVersionAlias, VersionTable::ValueName()))
+            .From({ s_DependenciesTable_Table_Name }).As(depTableAlias)
+            .Join({ VersionTable::TableName() }).As(minVersionAlias)
+            .On(QCol(minVersionAlias, SQLite::RowIDName), QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name));
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        while (select.Step())
+        {
+            Utility::NormalizedString version = "";
+            if (!select.GetColumnIsNull(1))
+            {
+                version = select.GetColumn<std::string>(1);
+            }
+
+            if (!version.empty())
+            {
+                result.emplace_back(std::make_pair(select.GetColumn<SQLite::rowid_t>(0), version));
             }
         }
 

@@ -307,8 +307,6 @@ extern "C"
     }
     CATCH_RETURN()
 
-    DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestResult);
-
     WINGET_UTIL_API WinGetValidateManifestV3(
         WINGET_MANIFEST_HANDLE manifest,
         WINGET_SQLITE_INDEX_HANDLE index,
@@ -363,6 +361,27 @@ extern "C"
             catch (const ManifestException& e)
             {
                 WI_SetFlagIf(validationResult, WinGetValidateManifestResult::ArpVersionValidationFailure, !e.IsWarningOnly());
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::InstallerValidation))
+        {
+            try
+            {
+                auto errors = ValidateManifestInstallers(*manifestPtr);
+                if (errors.size() > 0)
+                {
+                    // Throw the errors as ManifestExceptions to get processed errors and message.
+                    THROW_EXCEPTION(ManifestException({ std::move(errors) }));
+                }
+            }
+            catch (const ManifestException& e)
+            {
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::InstallerValidationFailure, !e.IsWarningOnly());
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();

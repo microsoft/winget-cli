@@ -25,5 +25,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     protected:
         bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const override;
+
+    private:
+        // Semantic check to validate dependencies with min versions are satisfied.
+        bool ValidateDependenciesWithMinVersions(const SQLite::Connection& connection, bool log) const;
     };
 }

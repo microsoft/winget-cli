@@ -159,7 +159,12 @@ namespace AppInstaller::Repository
             {
                 auto&& [manifestVersion, arpMinVersion, arpMaxVersion] = std::move(tuple);
                 Utility::VersionRange arpVersionRange{ Utility::Version(std::move(arpMinVersion)), Utility::Version(std::move(arpMaxVersion)) };
-                arpVersionMap.emplace_back(std::make_pair(Utility::Version{ std::move(manifestVersion) }, std::move(arpVersionRange)));
+                Utility::Version manifestVer{ std::move(manifestVersion) };
+                // Skip mapping to unknown version
+                if (!manifestVer.IsUnknown())
+                {
+                    arpVersionMap.emplace_back(std::make_pair(std::move(manifestVer), std::move(arpVersionRange)));
+                }
             }
 
             // Go through the arp version map and determine what mapping should be performed.
