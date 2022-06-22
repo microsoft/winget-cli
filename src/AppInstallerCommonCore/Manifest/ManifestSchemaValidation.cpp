@@ -99,8 +99,8 @@ namespace AppInstaller::Manifest::YamlParser
 
     Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType)
     {
-        WORD idx = 0;
-        std::map<ManifestTypeEnum, WORD> resourceMap;
+        int idx = MANIFESTSCHEMA_NO_RESOURCE;
+        std::map<ManifestTypeEnum, int> resourceMap;
         
         if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
         {
@@ -147,7 +147,7 @@ namespace AppInstaller::Manifest::YamlParser
             idx = IDX_MANIFEST_SCHEMA_PREVIEW;
         }
 
-        if (idx == 0)
+        if (idx == MANIFESTSCHEMA_NO_RESOURCE)
         {
             auto iter = resourceMap.find(manifestType);
             if (iter != resourceMap.end())

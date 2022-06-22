@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 
-// Do not use 0 as this will cause load schema to fail.
+// 0 is reserved to represent when there is no resource.
+#define MANIFESTSCHEMA_NO_RESOURCE                      0
+
 #define MANIFESTSCHEMA_RESOURCE_TYPE                  200
 
 #define IDX_MANIFEST_SCHEMA_PREVIEW                   201
