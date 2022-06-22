@@ -1,0 +1,13 @@
+PackageIdentifier: AppInstallerCliTest.NoSupportedPlatforms
+PackageVersion: 43690.48059.52428.56797
+PackageLocale: es-MX
+PackageName: es-MX package name
+Publisher: es-MX publisher
+PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj
+MinimumOSVersion: 10.0.16299.0
+InstallerType: msix
+Installers: 
+    - Architecture: x64
+      InstallerUrl: Installer-Bad-NoSupportedPlatforms.msix
+ManifestType: merged
+ManifestVersion: 1.0.0

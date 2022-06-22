@@ -665,6 +665,13 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>找不到適用的更新。</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>可透過搜尋已安裝的套件或直接從資訊清單中，升級已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。未提供引數時，顯示具有可用升級的套件</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>顯示並執行可用的升級</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用</value>
     <comment>The way to use the software</comment>
@@ -716,7 +723,7 @@
     <value>檔案不存在:</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>系統同時提供本機資訊清單與搜尋查詢參數</value>
+    <value>提供本地顯示和搜尋查詢引數</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>記錄檔</value>
@@ -1267,5 +1274,79 @@
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>系統架構</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>保留套件 (可攜式) 建立的所有檔案和目錄</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>刪除封裝目錄中的所有檔案和目錄(可攜式)</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>對可執行檔 (可攜式) 重新命名的值</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>在結束之前，提示使用者按下按鍵</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>安裝程式會要求以系統管理員身分執行，並預期收到提示。</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>無法從系統管理員內容執行安裝程式。</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>已修改路徑環境變數；重新啟動命令介面以使用新值。</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>使用產品代碼篩選</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>具有相同名稱但來源不同的可攜式套件存在；正在繼續，因為 --force</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>磁碟區不支援重新分析點</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>指定的檔案名稱不是有效的檔案名稱</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>正在覆寫現有的檔案：</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>未提供套件選取引數；請參閱說明以取得有關尋找套件的詳細資訊。</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>可攜式安裝失敗；正在清除...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>已同時提供 'purge' 和 'preserve' 引數</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>已修改可攜式 exe；正在繼續，因為 --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>無法移除可攜式 exe，因為它已遭到修改；覆寫此檢查使用 --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>檔案仍保留在安裝目錄中：</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>正在清除安裝目錄...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>無法清除安裝目錄，因為它不是由 WinGet 所建立</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>相關連結</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>文件:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>備註:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>

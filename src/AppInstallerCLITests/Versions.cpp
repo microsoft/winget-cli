@@ -192,6 +192,45 @@ TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
     REQUIRE(Version::CreateUnknown() < Version::CreateLatest());
 }
 
+TEST_CASE("UInt64Version_Success_FourParts", "[versions]")
+{
+    Version expectedVersion("1.2.3.4");
+    UInt64Version versionNumberFromNumber(0x0001000200030004);
+    UInt64Version versionNumberFromString("1.2.3.4");
+    REQUIRE(expectedVersion == versionNumberFromNumber);
+    REQUIRE(expectedVersion == versionNumberFromString);
+    REQUIRE(expectedVersion.ToString() == versionNumberFromNumber.ToString());
+    REQUIRE(expectedVersion.ToString() == versionNumberFromString.ToString());
+}
+
+TEST_CASE("UInt64Version_Success_LessThanFourParts", "[versions]")
+{
+    UInt64Version versionNumberFromNumber(0x0001000200030000);
+    UInt64Version versionNumberFromString("1.2.3");
+    REQUIRE(versionNumberFromNumber == versionNumberFromString);
+}
+
+TEST_CASE("UInt64Version_Success_NoOverflow", "[versions]")
+{
+    REQUIRE_NOTHROW(UInt64Version("65535.65535.65535.65535")); // 65535 => 0xffff
+    REQUIRE_NOTHROW(UInt64Version(0xffffffffffffffff));
+}
+
+TEST_CASE("UInt64Version_Fail_Overflow", "[versions]")
+{
+    REQUIRE_THROWS(UInt64Version("1.0.0.65536")); // 65536 => 0x10000
+}
+
+TEST_CASE("UInt64Version_Fail_MoreThanFourParts", "[versions]")
+{
+    REQUIRE_THROWS(UInt64Version("1.0.0.0.1"));
+}
+
+TEST_CASE("UInt64Version_Fail_NonNumeric", "[versions]")
+{
+    REQUIRE_THROWS(UInt64Version("1.0.0.a"));
+}
+
 TEST_CASE("ApproximateVersionParse", "[versions]")
 {
     Version v1_0{ "1.0" };

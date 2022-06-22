@@ -69,7 +69,14 @@ namespace AppInstaller::Utility
             pos += length + 1;
         }
 
-        // Remove trailing empty versions (0 or empty)
+        // Trim version parts
+        Trim();
+
+        THROW_HR_IF(E_INVALIDARG, m_approximateComparator != ApproximateComparator::None && IsBaseVersionUnknown());
+    }
+
+    void Version::Trim()
+    {
         while (!m_parts.empty())
         {
             const Part& part = m_parts.back();
@@ -79,11 +86,9 @@ namespace AppInstaller::Utility
             }
             else
             {
-                break;
+                return;
             }
         }
-
-        THROW_HR_IF(E_INVALIDARG, m_approximateComparator != ApproximateComparator::None && IsBaseVersionUnknown());
     }
 
     bool Version::operator<(const Version& other) const
@@ -356,6 +361,56 @@ namespace AppInstaller::Utility
         return m_version < other.m_version;
     }
 
+    UInt64Version::UInt64Version(UINT64 version)
+    {
+        Assign(version);
+    }
+
+    void UInt64Version::Assign(UINT64 version)
+    {
+        const UINT64 mask16 = (1 << 16) - 1;
+        UINT64 revision = version & mask16;
+        UINT64 build = (version >> 0x10) & mask16;
+        UINT64 minor = (version >> 0x20) & mask16;
+        UINT64 major = (version >> 0x30) & mask16;
+
+        // Construct a string representation of the provided version
+        std::stringstream ssVersion;
+        ssVersion << major
+            << Version::DefaultSplitChars << minor
+            << Version::DefaultSplitChars << build
+            << Version::DefaultSplitChars << revision;
+        m_version = ssVersion.str();
+
+        // Construct the 4 parts
+        m_parts = { major, minor, build, revision };
+
+        // Trim version parts
+        Trim();
+    }
+
+    UInt64Version::UInt64Version(std::string&& version, std::string_view splitChars)
+    {
+        Assign(std::move(version), splitChars);
+    }
+
+    void UInt64Version::Assign(std::string&& version, std::string_view splitChars)
+    {
+        Version::Assign(std::move(version), splitChars);
+
+        // After trimming trailing parts (0 or empty),
+        // at most 4 parts must be present
+        THROW_HR_IF(E_INVALIDARG, m_parts.size() > 4);
+        for (const auto& part : m_parts)
+        {
+            // Check for non-empty Other part
+            THROW_HR_IF(E_INVALIDARG, !part.Other.empty());
+
+            // Check for overflow Integer part
+            THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
+        }
+    }
+      
     VersionRange::VersionRange(Version minVersion, Version maxVersion)
     {
         THROW_HR_IF(E_INVALIDARG, minVersion > maxVersion);

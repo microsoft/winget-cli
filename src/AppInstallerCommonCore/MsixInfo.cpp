@@ -6,7 +6,7 @@
 #include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
-
+#include "Public/AppInstallerDownloader.h"
 
 using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
@@ -504,24 +504,7 @@ namespace AppInstaller::Msix
 
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        if (Utility::IsUrlRemote(uriStr))
-        {
-            // Get an IStream from the input uri and try to create package or bundler reader.
-            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
-            IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
-
-            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
-            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
-                rasAsIUnknown,
-                IID_PPV_ARGS(m_stream.ReleaseAndGetAddressOf())));
-        }
-        else
-        {
-            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
-            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
-                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &m_stream));
-        }
-
+        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
@@ -606,6 +589,77 @@ namespace AppInstaller::Msix
     std::string MsixInfo::GetPackageFullName()
     {
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
+    }
+
+    std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages() const
+    {
+        if (!m_isBundle)
+        {
+            return { m_packageReader };
+        }
+
+        std::vector<ComPtr<IAppxPackageReader>> packages;
+
+        ComPtr<IAppxBundleManifestReader> manifestReader;
+        THROW_IF_FAILED(m_bundleReader->GetManifest(&manifestReader));
+
+        ComPtr<IAppxBundleManifestPackageInfoEnumerator> packageInfoItems;
+        THROW_IF_FAILED(manifestReader->GetPackageInfoItems(&packageInfoItems));
+
+        BOOL hasCurrent = FALSE;
+        THROW_IF_FAILED(packageInfoItems->GetHasCurrent(&hasCurrent));
+        while (hasCurrent)
+        {
+            ComPtr<IAppxBundleManifestPackageInfo> packageInfo;
+            THROW_IF_FAILED(packageInfoItems->GetCurrent(&packageInfo));
+
+            APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
+            THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
+
+            UINT64 offset;
+            THROW_IF_FAILED(packageInfo->GetOffset(&offset));
+            const bool isContained = offset != 0;
+
+            if (isContained && packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
+            {
+                wil::unique_cotaskmem_string fileName;
+                THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
+
+                ComPtr<IAppxFile> packageFile;
+                THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(fileName.get(), &packageFile));
+
+                ComPtr<IStream> stream;
+                THROW_IF_FAILED(packageFile->GetStream(&stream));
+
+                ComPtr<IAppxPackageReader> packageReader;
+                if (GetPackageReader(stream.Get(), &packageReader))
+                {
+                    packages.emplace_back(std::move(packageReader));
+                }
+                else
+                {
+                    AICLI_LOG(Core, Warning, << "Could not get package reader for bundle payload.");
+                }
+            }
+
+            THROW_IF_FAILED(packageInfoItems->MoveNext(&hasCurrent));
+        }
+
+        return packages;
+    }
+
+    std::vector<MsixPackageManifest> MsixInfo::GetAppPackageManifests() const
+    {
+        std::vector<MsixPackageManifest> manifests;
+        auto packages = GetAppPackages();
+        for (const auto& package : packages)
+        {
+            ComPtr<IAppxManifestReader> manifestReader;
+            THROW_IF_FAILED(package->GetManifest(&manifestReader));
+            manifests.emplace_back(std::move(manifestReader));
+        }
+
+        return manifests;
     }
 
     bool MsixInfo::IsNewerThan(const std::filesystem::path& otherPackage)
