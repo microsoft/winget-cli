@@ -368,6 +368,27 @@ extern "C"
             }
         }
 
+        if (WI_IsFlagSet(option, WinGetValidateManifestOptionV2::InstallerValidation))
+        {
+            try
+            {
+                auto errors = ValidateManifestInstallers(*manifestPtr);
+                if (errors.size() > 0)
+                {
+                    // Throw the errors as ManifestExceptions to get processed errors and message.
+                    THROW_EXCEPTION(ManifestException({ std::move(errors) }));
+                }
+            }
+            catch (const ManifestException& e)
+            {
+                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::InstallerValidationFailure, !e.IsWarningOnly());
+                if (message)
+                {
+                    validationMessage += e.GetManifestErrorMessage();
+                }
+            }
+        }
+
         *result = validationResult;
         if (message)
         {
