@@ -35,4 +35,6 @@ extern "C"
         REFCLSID rclsid,
         REFIID riid,
         LPVOID* ppv);
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(void* classId, void** factory);
 }

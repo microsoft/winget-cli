@@ -11,10 +11,29 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Msix.Utils" Version="2.0.3" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
+
+  <!-- CsWinRT -->
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>local</CsWinRTWindowsMetadata>
+    <CsWinRTFilters>
+        -include Microsoft.Management.Deployment
+        -include Windows.Foundation
+        -include Windows.System.ProcessorArchitecture
+        -exclude Windows.Foundation.Diagnostics
+    </CsWinRTFilters>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MicrosoftManagementDeployment>Microsoft.Management.Deployment</MicrosoftManagementDeployment>
+    <MicrosoftManagementDeploymentInProc>$(MicrosoftManagementDeployment).InProc</MicrosoftManagementDeploymentInProc>
+    <WindowsPackageManager>WindowsPackageManager</WindowsPackageManager>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
 
   <ItemGroup>
     <Content Include="TestData\**">
@@ -30,6 +49,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,5 +58,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Copy SourceFiles="$(TargetDir)..\$(MicrosoftManagementDeploymentInProc)\$(MicrosoftManagementDeploymentInProc).dll" DestinationFiles="$(TargetDir)\$(MicrosoftManagementDeployment).dll" />
+      <Copy SourceFiles="$(TargetDir)..\$(WindowsPackageManager)\$(WindowsPackageManager).dll" DestinationFiles="$(TargetDir)\$(WindowsPackageManager).dll" />
+  </Target>
 
 </Project>
