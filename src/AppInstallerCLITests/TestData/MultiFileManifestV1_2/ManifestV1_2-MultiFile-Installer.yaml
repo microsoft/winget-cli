@@ -139,6 +139,8 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    UnsupportedArguments:
+      - location
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
@@ -155,7 +157,5 @@ Installers:
      - InstallerReturnCode: 11
        ReturnResponse: custom
        ReturnResponseUrl: https://defaultReturnResponseUrl.com
-    UnsupportedArguments:
-      - location    
 ManifestType: installer
 ManifestVersion: 1.2.0
