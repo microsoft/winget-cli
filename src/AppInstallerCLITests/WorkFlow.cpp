@@ -1637,7 +1637,8 @@ TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
     // Verify unsupported arguments error message is shown 
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -l,--location") != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find("-l,--location") != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
