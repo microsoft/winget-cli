@@ -898,8 +898,9 @@ TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")
     // Verify unsupported arguments error message is not shown when not provided
     REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -o,--log") == std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get() + " -l,--location") == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find("-o,--log") == std::string::npos);
+    REQUIRE(installOutput.str().find("-l,--location") == std::string::npos);
 }
 
 TEST_CASE("InstallFlow_ExpectedReturnCodes", "[InstallFlow][workflow]")
