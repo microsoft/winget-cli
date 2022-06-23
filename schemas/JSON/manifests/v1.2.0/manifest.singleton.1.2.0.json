@@ -610,7 +610,7 @@
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
         "UnsupportedArguments": {
-          "$ref": " #/definitions/UnsupportedArguments"
+          "$ref": "#/definitions/UnsupportedArguments"
         },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
