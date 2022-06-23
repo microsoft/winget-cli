@@ -5,7 +5,7 @@ last updated: 2022-05-24
 issue id: 140
 ---
 
-# Support ZIP/Archive installerTypes
+# Support ZIP/Archive InstallerTypes
 
 For [#140](https://github.com/microsoft/winget-cli/issues/140)
 
@@ -45,7 +45,9 @@ The initial implementation of this feature will only support the following insta
 - Single or multiple portable exes bundled as a suite inside an archive file.
 
 ## ZIP Extraction
-The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation). If the `NestedInstallerType` is non-portable, the installer file will be copied to a temporary location and used during execution of the installation flow. If the `NestedInstallerType` is portable, all files will be moved to the appropriate install location and symlinks will be created for each `NestedInstallerFile` entry.
+The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation). 
+
+In our initial implementation, we will only support extracting the top level archive to a temporary location. This means that the `NestedInstallerFile` must not be contained in any nested archives. The appropriate install flow will proceed based on the `NestedInstallerType`. 
 
 > Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
 
