@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Execution
         PackagesToInstall,
         // On import: Sources for the imported packages
         Sources,
-        ARPSnapshot,
+        ARPCorrelationData,
         CorrelatedAppsAndFeaturesEntries,
         Dependencies,
         DependencySource,
@@ -188,9 +188,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::ARPSnapshot>
+        struct DataMapping<Data::ARPCorrelationData>
         {
-            using value_t = std::vector<Repository::Correlation::ARPEntrySnapshot>;
+            using value_t = Repository::Correlation::ARPCorrelationData;
         };
 
         template <>

@@ -39,7 +39,7 @@ namespace AppInstaller::Utility
         }
     }
 
-    void Version::Assign(std::string&& version, std::string_view splitChars)
+    void Version::Assign(std::string version, std::string_view splitChars)
     {
         m_version = std::move(version);
 
@@ -232,6 +232,20 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    const Version::Part& Version::PartAt(size_t index) const
+    {
+        static Part s_zero{};
+
+        if (index < m_parts.size())
+        {
+            return m_parts[index];
+        }
+        else
+        {
+            return s_zero;
+        }
+    }
+    
     bool Version::IsBaseVersionLatest() const
     {
         return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Latest));
@@ -394,7 +408,7 @@ namespace AppInstaller::Utility
         Assign(std::move(version), splitChars);
     }
 
-    void UInt64Version::Assign(std::string&& version, std::string_view splitChars)
+    void UInt64Version::Assign(std::string version, std::string_view splitChars)
     {
         Version::Assign(std::move(version), splitChars);
 

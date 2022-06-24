@@ -11,13 +11,23 @@
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ThreadGlobals.h>
+#include <winget/InstallerMetadataCollectionContext.h>
 #include <PackageDependenciesValidation.h>
 #include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Repository::Metadata;
 using namespace AppInstaller::Repository::Microsoft;
+
+namespace
+{
+    std::filesystem::path GetPathOrEmpty(WINGET_STRING potentiallyNullPath)
+    {
+        return potentiallyNullPath ? std::filesystem::path{ potentiallyNullPath } : std::filesystem::path{};
+    }
+}
 
 extern "C"
 {
@@ -144,7 +154,8 @@ extern "C"
 
     WINGET_UTIL_API WinGetSQLiteIndexRemoveManifest(
         WINGET_SQLITE_INDEX_HANDLE index, 
-        WINGET_STRING manifestPath, WINGET_STRING relativePath) try
+        WINGET_STRING manifestPath,
+        WINGET_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -483,6 +494,80 @@ extern "C"
         Version vB{ ConvertToUTF8(versionB) };
 
         *comparisonResult = vA < vB ? -1 : (vA == vB ? 0 : 1);
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetBeginInstallerMetadataCollection(
+        WINGET_STRING inputJSON,
+        WINGET_STRING logFilePath,
+        WinGetBeginInstallerMetadataCollectionOptions options,
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE* collectionHandle) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputJSON);
+        THROW_HR_IF(E_INVALIDARG, !collectionHandle);
+        THROW_HR_IF(E_INVALIDARG, !!*collectionHandle);
+        // Flags specifying what inputJSON means are mutually exclusive
+        THROW_HR_IF(E_INVALIDARG, !WI_IsClearOrSingleFlagSetInMask(options,
+            WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath | WinGetBeginInstallerMetadataCollectionOption_InputIsURI));
+
+        std::unique_ptr<InstallerMetadataCollectionContext> result;
+
+        if (WI_IsFlagSet(options, WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath))
+        {
+            result = InstallerMetadataCollectionContext::FromFile(inputJSON, GetPathOrEmpty(logFilePath));
+        }
+        else if (WI_IsFlagSet(options, WinGetBeginInstallerMetadataCollectionOption_InputIsURI))
+        {
+            result = InstallerMetadataCollectionContext::FromURI(inputJSON, GetPathOrEmpty(logFilePath));
+        }
+        else
+        {
+            result = InstallerMetadataCollectionContext::FromJSON(inputJSON, GetPathOrEmpty(logFilePath));
+        }
+
+        *collectionHandle = static_cast<WINGET_INSTALLER_METADATA_COLLECTION_HANDLE>(result.release());
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetCompleteInstallerMetadataCollection(
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
+        WINGET_STRING outputFilePath,
+        WinGetCompleteInstallerMetadataCollectionOptions options) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !collectionHandle);
+
+        // Since we always free the handle from calling this function, we can just store it in a unique_ptr from the start
+        std::unique_ptr<InstallerMetadataCollectionContext> context{ reinterpret_cast<InstallerMetadataCollectionContext*>(collectionHandle) };
+
+        if (WI_IsFlagSet(options, WinGetCompleteInstallerMetadataCollectionOption_Abandon))
+        {
+            return S_OK;
+        }
+
+        THROW_HR_IF(E_INVALIDARG, !outputFilePath);
+
+        context->Complete(outputFilePath);
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetMergeInstallerMetadata(
+        WINGET_STRING inputJSON,
+        WINGET_STRING_OUT* outputJSON,
+        UINT32 maximumOutputSizeInBytes,
+        WINGET_STRING logFilePath,
+        WinGetMergeInstallerMetadataOptions) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputJSON);
+        THROW_HR_IF(E_INVALIDARG, !outputJSON);
+
+        std::wstring merged = InstallerMetadataCollectionContext::Merge(inputJSON, maximumOutputSizeInBytes, GetPathOrEmpty(logFilePath));
+        *outputJSON = ::SysAllocString(merged.c_str());
 
         return S_OK;
     }

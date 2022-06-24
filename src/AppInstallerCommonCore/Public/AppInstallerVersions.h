@@ -50,7 +50,7 @@ namespace AppInstaller::Utility
         Version(Version baseVersion, ApproximateComparator approximateComparator);
 
         // Resets the version's value to the input.
-        virtual void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        virtual void Assign(std::string version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
@@ -74,9 +74,15 @@ namespace AppInstaller::Utility
         // Returns a Version that will return true for IsUnknown
         static Version CreateUnknown();
 
+        // Gets a bool indicating whether the full version string is empty.
+        // Does not indicate that Parts is empty; for instance when "0.0" is given,
+        // this will be false while GetParts().empty() would be true.
+        bool IsEmpty() const { return m_version.empty(); }
+
         // An individual version part in between split characters.
         struct Part
         {
+            Part() = default;
             Part(uint64_t integer) : Integer(integer) {}
             Part(const std::string& part);
             Part(uint64_t integer, std::string other);
@@ -92,6 +98,9 @@ namespace AppInstaller::Utility
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
+        // Gets the part at the given index; or the implied zero part if past the end.
+        const Part& PartAt(size_t index) const;
+        
         // Returns if the version is an approximate version.
         bool IsApproximate() const { return m_approximateComparator != ApproximateComparator::None; }
 
@@ -119,7 +128,7 @@ namespace AppInstaller::Utility
         UInt64Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             UInt64Version(std::string(version), splitChars) {}
 
-        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars) override;
+        void Assign(std::string version, std::string_view splitChars = DefaultSplitChars) override;
         void Assign(UINT64 version);
 
         UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }

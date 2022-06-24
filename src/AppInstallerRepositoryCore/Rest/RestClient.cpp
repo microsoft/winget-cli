@@ -5,8 +5,8 @@
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/1_1/Interface.h"
 #include "Rest/Schema/HttpClientHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/InformationResponseDeserializer.h"
-#include "Rest/Schema/JsonHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/RestHelper.h"
 
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Rest
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH, customHeader.value().size() > WindowsPackageManagerHeaderMaxLength);
 
             std::unordered_map<utility::string_t, utility::string_t> headers;
-            headers.emplace(JsonHelper::GetUtilityString(WindowsPackageManagerHeader), JsonHelper::GetUtilityString(customHeader.value()));
+            headers.emplace(JSON::GetUtilityString(WindowsPackageManagerHeader), JSON::GetUtilityString(customHeader.value()));
             return headers;
         }
     }
@@ -68,7 +68,7 @@ namespace AppInstaller::Repository::Rest
         const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const HttpClientHelper& clientHelper)
     {
         // Call information endpoint
-        utility::string_t endpoint = RestHelper::AppendPathToUri(restApi, JsonHelper::GetUtilityString(InformationGetEndpoint));
+        utility::string_t endpoint = RestHelper::AppendPathToUri(restApi, JSON::GetUtilityString(InformationGetEndpoint));
         std::optional<web::json::value> response = clientHelper.HandleGet(endpoint, additionalHeaders);
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);

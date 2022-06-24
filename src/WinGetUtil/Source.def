@@ -18,3 +18,6 @@ EXPORTS
     WinGetCreateManifest
     WinGetCloseManifest
     WinGetValidateManifestV3
+    WinGetBeginInstallerMetadataCollection
+    WinGetCompleteInstallerMetadataCollection
+    WinGetMergeInstallerMetadata
