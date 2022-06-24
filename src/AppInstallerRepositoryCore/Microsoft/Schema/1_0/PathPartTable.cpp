@@ -396,6 +396,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             AICLI_LOG(Repo, Info, << "  [INVALID] pathparts [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << s_PathPartTable_ParentValue_Name << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
         }
 
+        if (!result && !log)
+        {
+            return result;
+        }
+
+        // Build a select statement to find values that contain an embedded null character
+        // Such as:
+        // Select count(*) from table where instrt(value,char(0))>0
+        SQLite::Builder::StatementBuilder builder;
+        builder.
+            Select({ SQLite::RowIDName, s_PathPartTable_PartValue_Name }).
+            From(s_PathPartTable_Table_Name).
+            WhereValueContainsEmbeddedNullCharacter(s_PathPartTable_PartValue_Name);
+
+        SQLite::Statement select = builder.Prepare(connection);
+        bool result = true;
+
+        while (select.Step())
+        {
+            result = false;
+
+            if (!log)
+            {
+                break;
+            }
+
+            AICLI_LOG(Repo, Info, << "  [INVALID] value in table [" << s_PathPartTable_Table_Name << "] at row [" << select.GetColumn<SQLite::rowid_t>(0) << "] contains an embedded null character and starts with [" << select.GetColumn<std::string>(1) << "]");
+        }
+
         return result;
     }
 
