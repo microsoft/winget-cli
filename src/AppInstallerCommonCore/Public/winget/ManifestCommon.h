@@ -28,6 +28,9 @@ namespace AppInstaller::Manifest
     // V1.2 manifest version
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
+    // V1.3 manifest version
+    constexpr std::string_view s_ManifestVersionV1_3 = "1.3.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
