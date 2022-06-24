@@ -144,20 +144,19 @@ namespace AppInstaller::Manifest::YamlParser
         }
         else
         {
-            idx = IDX_MANIFEST_SCHEMA_PREVIEW;
+            resourceMap = {
+                { ManifestTypeEnum::Preview, IDX_MANIFEST_SCHEMA_PREVIEW },
+            };
         }
 
-        if (idx == MANIFESTSCHEMA_NO_RESOURCE)
+        auto iter = resourceMap.find(manifestType);
+        if (iter != resourceMap.end())
         {
-            auto iter = resourceMap.find(manifestType);
-            if (iter != resourceMap.end())
-            {
-                idx = iter->second;
-            }
-            else
-            {
-                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-            }
+            idx = iter->second;
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
         std::string schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(idx), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
