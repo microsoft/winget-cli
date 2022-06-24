@@ -101,6 +101,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 // Get the last version in the list (the highest version) and its rowid
                 const std::string& latestVersion = versions.back().ToString();
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
+
+                if (!versionIdOpt)
+                {
+                    AICLI_LOG(Repo, Warning, << "Did not find a Version row for the latest version { " << latestVersion << " }");
+                }
             }
             else
             {
@@ -109,7 +114,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!versionIdOpt)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Version { " << version << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a Version for { " << version << " }");
                 return {};
             }
 
