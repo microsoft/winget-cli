@@ -1,7 +1,7 @@
 ---
 author: Ryan Fu @ryfu-msft
 created on: 2022-05-24
-last updated: 2022-05-24
+last updated: 2022-06-23
 issue id: 140
 ---
 
@@ -75,7 +75,7 @@ These checks will only applied in the following scenarios to minimize unnecessar
 -  Untrusted source (i.e. installing from a local manifest, private source or third-party REST sources)
 
 ## Supporting Nested Portable(s) in an Archive
-Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, we will need to create a separate file that will be stored with the extracted files. This separate file contains a table recording the list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
+Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, we will need to create a separate record that will be stored with the extracted files. This record will contain a table capturing the list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
 
 The table will contain the following information for each item that we create or place down during installation.
 
