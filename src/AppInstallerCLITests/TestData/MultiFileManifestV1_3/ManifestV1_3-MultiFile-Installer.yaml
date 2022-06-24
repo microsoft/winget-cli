@@ -74,7 +74,6 @@ ExpectedReturnCodes:
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
-  - location
 
 Installers:
   - Architecture: x86
@@ -140,6 +139,8 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    UnsupportedArguments:
+      - location
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe

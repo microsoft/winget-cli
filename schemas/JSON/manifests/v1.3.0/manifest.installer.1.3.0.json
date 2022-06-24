@@ -79,7 +79,7 @@
         "neutral"
       ],
       "description": "The installer target architecture"
-    },   
+    },
     "Scope": {
       "type": [ "string", "null" ],
       "enum": [
@@ -201,7 +201,7 @@
           },
           "ReturnResponseUrl": {
             "$ref": "#/definitions/Url",
-            "description": "The return response url to provide additional guidance for expected return codes"            
+            "description": "The return response url to provide additional guidance for expected return codes"
           }
         }
       },
@@ -571,6 +571,9 @@
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
+        "UnsupportedArguments": {
+          "$ref": "#/definitions/UnsupportedArguments"
+        },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
         },
@@ -667,6 +670,9 @@
     },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"
+    },
+    "UnsupportedArguments": {
+      "$ref": "#/definitions/UnsupportedArguments"
     },
     "AppsAndFeaturesEntries": {
       "$ref": "#/definitions/AppsAndFeaturesEntries"

@@ -103,7 +103,6 @@ ExpectedReturnCodes:
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
-  - location
 
 Installers:
   - Architecture: x86
@@ -159,7 +158,6 @@ Installers:
     DisplayInstallWarnings: false
     ElevationRequirement: elevationRequired
     UnsupportedArguments:
-      - log
       - location
     UnsupportedOSArchitectures:
       - arm64

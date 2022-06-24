@@ -47,7 +47,7 @@
         },
         "DocumentUrl": {
           "$ref": "#/definitions/Url",
-          "description": "The documentation URL."          
+          "description": "The documentation URL."
         }
       }
     }
@@ -177,7 +177,7 @@
       "type": [ "string", "null" ],
       "minLength": 1,
       "maxLength": 256,
-      "description": "The notes displayed to the user upon completion of a package installation."      
+      "description": "The notes displayed to the user upon completion of a package installation."
     },
     "Documentations": {
       "type": [ "array", "null" ],
