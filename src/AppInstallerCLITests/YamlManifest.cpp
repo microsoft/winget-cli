@@ -547,7 +547,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
         REQUIRE(installer1.UnsupportedArguments.size() == 1);
-        REQUIRE(installer1.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
+        REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
     }
 
     if (!isSingleton)
@@ -594,7 +594,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
             REQUIRE_FALSE(installer3.DisplayInstallWarnings);
             REQUIRE(installer3.UnsupportedArguments.size() == 1);
-            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
+            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
         }
 
         // Localization
