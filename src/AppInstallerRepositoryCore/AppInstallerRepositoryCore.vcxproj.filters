@@ -61,6 +61,9 @@
     <Filter Include="Microsoft\Schema\1_4">
       <UniqueIdentifier>{dcae9c55-cdd7-4381-8acd-3554896608a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_5">
+      <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -201,9 +204,6 @@
     <ClInclude Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.h">
       <Filter>Rest\Schema\1_0\Json</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\JsonHelper.h">
-      <Filter>Rest\Schema</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\CommonRestConstants.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
@@ -267,8 +267,26 @@
     <ClInclude Include="Public\winget\ARPCorrelation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ManifestJSONParser.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_5\ArpVersionVirtualTable.h">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_5\Interface.h">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClInclude>
+    <ClInclude Include="ArpVersionValidation.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -371,9 +389,6 @@
     <ClCompile Include="Rest\Schema\1_0\Json\SearchResponseDeserializer_1_0.cpp">
       <Filter>Rest\Schema\1_0\Json</Filter>
     </ClCompile>
-    <ClCompile Include="Rest\Schema\JsonHelper.cpp">
-      <Filter>Rest\Schema</Filter>
-    </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_3\Interface_1_3.cpp">
       <Filter>Microsoft\Schema\1_3</Filter>
     </ClCompile>
@@ -422,7 +437,19 @@
     <ClCompile Include="ARPCorrelation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ManifestJSONParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InstallerMetadataCollectionContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ARPCorrelationAlgorithms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp">
+      <Filter>Microsoft\Schema\1_5</Filter>
+    </ClCompile>
+    <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include "AppInstallerRuntime.h"
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerLogging.h"
-#include "JsonUtil.h"
+#include "winget/JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
 
@@ -17,6 +17,7 @@ namespace AppInstaller::Settings
     using namespace Runtime;
     using namespace Utility;
     using namespace Logging;
+    using namespace JSON;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -234,11 +235,11 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
-        WINGET_VALIDATE_PASS_THROUGH(EFPortableInstall)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
+        WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
 
         WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)

@@ -139,6 +139,7 @@ namespace AppInstaller::CLI::Execution
             std::string response;
             if (!std::getline(m_in, response))
             {
+                m_in.get();
                 THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
             }
 

@@ -12,6 +12,7 @@
 #include "Public/winget/UserSettings.h"
 #include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
+#include "HttpStream/HttpRandomAccessStream.h"
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
@@ -167,7 +168,7 @@ namespace AppInstaller::Utility
 
         // Only Installers should be downloaded with DO currently, as:
         //  - Index :: Constantly changing blob at same location is not what DO is for
-        //  - Manifest :: DO overhead is not needed for small files
+        //  - Manifest / InstallerMetadataCollectionInput :: DO overhead is not needed for small files
         //  - WinGetUtil :: Intentionally not using DO at this time
         if (type == DownloadType::Installer)
         {
@@ -364,5 +365,29 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
 
         return aesSaveResult;
+    }
+
+    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr)
+    {
+        Microsoft::WRL::ComPtr<IStream> inputStream;
+        if (Utility::IsUrlRemote(uriStr))
+        {
+            // Get an IStream from the input uri and try to create package or bundler reader.
+            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
+            auto randomAccessStream = HttpStream::HttpRandomAccessStream::CreateAsync(uri).get();
+
+            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
+            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
+                rasAsIUnknown,
+                IID_PPV_ARGS(inputStream.ReleaseAndGetAddressOf())));
+        }
+        else
+        {
+            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
+            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
+                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &inputStream));
+        }
+
+        return inputStream;
     }
 }

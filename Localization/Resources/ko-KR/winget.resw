@@ -665,6 +665,13 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>적용 가능한 업데이트를 찾을 수 없습니다.</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 업그레이드합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모니커와 대/소문자를 구분하지 않아야 합니다. 다른 필드는 적절한 옵션을 전달하여 사용할 수 있습니다. 인수가 지정되지 않은 경우 업그레이드를 사용할 수 있는 패키지가 표시됩니다.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>사용 가능한 업그레이드를 표시하고 수행합니다.</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>사용</value>
     <comment>The way to use the software</comment>
@@ -716,7 +723,7 @@
     <value>파일이 없는 경우:</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
-    <value>로컬 매니페스트 및 검색 쿼리 에개가 모두 제공됩니다.</value>
+    <value>로컬 매니페스트 및 검색 쿼리 인수가 모두 제공되었습니다.</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>로그</value>
@@ -1267,5 +1274,79 @@
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>시스템 아키텍처</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>패키지에서 만든 모든 파일 및 디렉터리를 유지합니다(이식 가능).</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>패키지 디렉터리의 모든 파일 및 디렉터리를 삭제합니다(이식 가능).</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>실행 파일의 이름을 바꿀 값입니다(이식 가능).</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>종료하기 전에 아무 키나 누르라는 메시지를 사용자에게 표시합니다.</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>설치 관리자가 관리자 권한으로 실행을 요청합니다. 프롬프트가 필요합니다.</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>관리자 컨텍스트에서 설치 관리자를 실행할 수 없습니다.</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>경로 환경 변수 수정됨; 셸을 다시 시작하여 새 값을 사용합니다.</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>제품 코드를 사용하여 필터링</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>이름이 같지만 다른 원본의 이식 가능한 패키지가 이미 있습니다. --force로 인해 계속 진행 중</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>볼륨에서 다시 지점 구문 분석을 지원하지 않습니다.</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>지정한 파일 이름이 올바른 파일 이름이 아닙니다.</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>기존 파일 덮어쓰기:</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>패키지 선택 인수가 제공되지 않았습니다. 패키지 찾기에 대한 자세한 내용은 도움말을 참조하세요.</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>이식 가능한 설치에 실패했습니다. 정리 중...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>'purge' 및 'preserve' 인수가 모두 제공됩니다.</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>이식 가능한 exe가 수정되었습니다. --force로 인해 계속 진행 중</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>이식 가능한 exe가 수정되었으므로 제거할 수 없습니다. 이 검사를 재정의하려면 --force 사용하세요.</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>파일은 설치 디렉터리에 남아 있습니다.</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>설치 디렉터리를 제거하는 중...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>WinGet에서 만들지 않았으므로 설치 디렉터리를 제거할 수 없습니다.</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>관련 링크</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>설명서:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>메모:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>

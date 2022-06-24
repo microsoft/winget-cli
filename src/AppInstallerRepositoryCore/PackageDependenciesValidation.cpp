@@ -2,20 +2,12 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include <AppInstallerVersions.h>
-#include <winget/Manifest.h>
+#include "PackageDependenciesValidation.h"
 #include <winget/ManifestValidation.h>
-#include <SQLiteWrapper.h>
-#include <PackageDependenciesValidation.h>
-#include <Microsoft/Schema/1_4/DependenciesTable.h>
-#include "Microsoft/Schema/1_0/ManifestTable.h"
 #include <winget/DependenciesGraph.h>
 
 namespace AppInstaller::Repository
 {
-    using namespace Microsoft::Schema::V1_4;
-    using namespace Microsoft::Schema::V1_0;
-
     namespace
     {
         struct DependentManifestInfo
@@ -110,7 +102,7 @@ namespace AppInstaller::Repository
         }
     };
 
-    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         using namespace Manifest;
 
@@ -177,7 +169,7 @@ namespace AppInstaller::Repository
         return true;
     }
 
-    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         auto dependentsSet = index->GetDependentsById(manifest.Id);
 

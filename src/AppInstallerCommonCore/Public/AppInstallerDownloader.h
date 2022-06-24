@@ -22,6 +22,7 @@ namespace AppInstaller::Utility
         Manifest,
         WinGetUtil,
         Installer,
+        InstallerMetadataCollectionInput,
     };
 
     // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).
@@ -74,4 +75,7 @@ namespace AppInstaller::Utility
     // If IAttachmentExecute::Save is successfully invoked and the scan failed, the failure HRESULT is returned.
     // zoneIfScanFailure: URLZONE to apply if IAttachmentExecute::Save scan failed.
     HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure);
+
+    // Function to read-only create a stream from a uri string (url address or file system path)
+    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr);
 }

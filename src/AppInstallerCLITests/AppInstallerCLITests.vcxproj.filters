@@ -194,6 +194,12 @@
     <ClCompile Include="Correlation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InstallerMetadataCollectionContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MsixManifest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -201,6 +207,12 @@
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ApproximateVersionInArpVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ApproximateVersionInPackageVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -396,7 +408,16 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-MultiLocale.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MultipleArpVersionDeclared.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-NoArpVersionDeclared.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SingleArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
@@ -447,12 +468,18 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InstallationNotes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>   
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -477,6 +504,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2_LicenseAgreement.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_UnsupportedArgs.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -603,5 +633,24 @@
     <CopyFileToFolders Include="TestData\InputARPData.txt">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixInstaller.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixInstallerFields.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Good.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix" />
   </ItemGroup>
 </Project>

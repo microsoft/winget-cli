@@ -2,6 +2,13 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <winget/LocIndependent.h>
+#include <winget/RepositorySource.h>
+
+#include <memory>
+#include <utility>
+#include <vector>
+
 namespace AppInstaller
 {
     namespace Manifest
@@ -26,7 +33,7 @@ namespace AppInstaller::Repository::Correlation
     // Struct holding all the data from an ARP entry we use for the correlation
     struct ARPEntry
     {
-        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackage> entry, bool isNewOrUpdated) : Entry(entry), IsNewOrUpdated(isNewOrUpdated) {}
+        ARPEntry(std::shared_ptr<AppInstaller::Repository::IPackage> entry, bool isNewOrUpdated) : Entry(std::move(entry)), IsNewOrUpdated(isNewOrUpdated) {}
 
         // Data found in the ARP entry
         std::shared_ptr<AppInstaller::Repository::IPackage> Entry;
@@ -63,14 +70,6 @@ namespace AppInstaller::Repository::Correlation
 #endif
     };
 
-    // Finds the ARP entry in the ARP source that matches a newly installed package.
-    // Takes the package manifest, a snapshot of the ARP before the installation, and the current ARP source.
-    // Returns the entry in the ARP source, or nullptr if there was no match, plus some stats about the correlation.
-    ARPCorrelationResult FindARPEntryForNewlyInstalledPackage(
-        const AppInstaller::Manifest::Manifest& manifest,
-        const std::vector<ARPEntrySnapshot>& arpSnapshot,
-        AppInstaller::Repository::Source& arpSource);
-
     std::shared_ptr<AppInstaller::Repository::IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries);
@@ -79,4 +78,28 @@ namespace AppInstaller::Repository::Correlation
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries,
         IARPMatchConfidenceAlgorithm& algorithm);
+
+    // Holds data needed for ARP correlation, as well as functions to run correlation on the collected data.
+    struct ARPCorrelationData
+    {
+        ARPCorrelationData() = default;
+        virtual ~ARPCorrelationData() = default;
+
+        // Captures the ARP state before the package installation.
+        void CapturePreInstallSnapshot();
+
+        // Captures the ARP state differences after the package installation.
+        void CapturePostInstallSnapshot();
+
+        // Correlates the given manifest against the data previously collected with capture calls.
+        virtual ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest& manifest);
+
+        const std::vector<ARPEntrySnapshot>& GetPreInstallSnapshot() const { return m_preInstallSnapshot; }
+
+    private:
+        std::vector<ARPEntrySnapshot> m_preInstallSnapshot;
+
+        Source m_postInstallSnapshotSource;
+        std::vector<Correlation::ARPEntry> m_postInstallSnapshot;
+    };
 }

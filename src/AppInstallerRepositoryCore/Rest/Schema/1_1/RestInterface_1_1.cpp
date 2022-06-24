@@ -4,7 +4,7 @@
 #include "Rest/Schema/1_1/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/1_1/Json/ManifestDeserializer.h"
@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders,
         const HttpClientHelper& httpClientHelper) : V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
     {
-        m_requiredRestApiHeaders[JsonHelper::GetUtilityString(ContractVersion)] = JsonHelper::GetUtilityString(Version_1_1_0.ToString());
+        m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_1_0.ToString());
 
         if (!additionalHeaders.empty())
         {
@@ -140,8 +140,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         if (result.Matches.size() == 0)
         {
-            auto requiredPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(RequiredPackageMatchFields));
-            auto unsupportedPackageMatchFields = JsonHelper::GetRawStringArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(UnsupportedPackageMatchFields));
+            auto requiredPackageMatchFields = JSON::GetRawStringArrayFromJsonNode(searchResponseObject, JSON::GetUtilityString(RequiredPackageMatchFields));
+            auto unsupportedPackageMatchFields = JSON::GetRawStringArrayFromJsonNode(searchResponseObject, JSON::GetUtilityString(UnsupportedPackageMatchFields));
 
             if (requiredPackageMatchFields.size() != 0 || unsupportedPackageMatchFields.size() != 0)
             {
@@ -160,8 +160,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         if (result.size() == 0)
         {
-            auto requiredQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(manifestsResponseObject, JsonHelper::GetUtilityString(RequiredQueryParameters));
-            auto unsupportedQueryParameters = JsonHelper::GetRawStringArrayFromJsonNode(manifestsResponseObject, JsonHelper::GetUtilityString(UnsupportedQueryParameters));
+            auto requiredQueryParameters = JSON::GetRawStringArrayFromJsonNode(manifestsResponseObject, JSON::GetUtilityString(RequiredQueryParameters));
+            auto unsupportedQueryParameters = JSON::GetRawStringArrayFromJsonNode(manifestsResponseObject, JSON::GetUtilityString(UnsupportedQueryParameters));
 
             if (requiredQueryParameters.size() != 0 || unsupportedQueryParameters.size() != 0)
             {

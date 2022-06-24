@@ -1060,6 +1060,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Publisher:</value>
   </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>Tags:</value>
+  </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Version:</value>
   </data>
@@ -1336,5 +1339,23 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>Cannot purge install directory, as it was not created by WinGet</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>Related Link</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>Documentation:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
+  </data>
+  <data name="SymlinkModified" xml:space="preserve">
+    <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>A provided argument is not supported for this package</value>
   </data>
 </root>

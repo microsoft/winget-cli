@@ -16,6 +16,7 @@ ignore$
 \.mod$
 \.mp[34]$
 \.msix$
+\.msixbundle$
 \.png$
 \.vcxitems$
 \.vcxproj$

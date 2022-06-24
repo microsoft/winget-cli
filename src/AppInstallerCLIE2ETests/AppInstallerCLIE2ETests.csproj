@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
@@ -20,17 +20,6 @@
     <Content Include="TestData\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-Invalid.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackage.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackageVersion.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Good.1.0.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Good.2.0.json" />
-    <None Remove="TestData\Manifests\TestPortableInstaller.2.0.0.0.yaml" />
-    <None Remove="TestData\Manifests\TestPortableInstaller.3.0.0.0_UninstallPrevious.yaml" />
   </ItemGroup>
 
   <ItemGroup>

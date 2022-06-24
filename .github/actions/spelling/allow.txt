@@ -58,6 +58,7 @@ cla
 CLASSNOTAVAILABLE
 CLSCTX
 cmake
+cmd
 cmdlet
 cmdlets
 cmp
@@ -109,8 +110,8 @@ denelon
 depersist
 deque
 deserialize
-Deserialize
 deserializer
+deserializes
 deserializing
 dest
 devblogs
@@ -300,6 +301,7 @@ MContext
 mday
 memset
 metadata
+metadatas
 microsoft
 mimetype
 Minimatch

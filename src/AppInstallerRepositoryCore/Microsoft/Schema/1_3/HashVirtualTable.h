@@ -22,7 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
             return "hash"sv;
         }
 
-        // The name of the column.
+        // The value type of the column.
         static constexpr SQLite::Builder::Type SQLiteType()
         {
             return SQLite::Builder::Type::Blob;

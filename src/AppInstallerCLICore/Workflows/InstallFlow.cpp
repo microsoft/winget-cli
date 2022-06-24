@@ -14,6 +14,8 @@
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
+#include <Argument.h>
+#include <Command.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
@@ -24,7 +26,6 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -56,6 +57,36 @@ namespace AppInstaller::CLI::Workflow
             default:
                 return false;
             }
+        }
+
+        bool ShouldErrorForUnsupportedArgument(UnsupportedArgumentEnum arg)
+        {
+            switch (arg)
+            {
+            case UnsupportedArgumentEnum::Location:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
+        {
+            Execution::Args::Type execArg;
+
+            switch (unsupportedArgument)
+            {
+            case UnsupportedArgumentEnum::Log:
+                execArg = Execution::Args::Type::Log;
+                break;
+            case UnsupportedArgumentEnum::Location:
+                execArg = Execution::Args::Type::InstallLocation;
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            return execArg;
         }
 
         struct ExpectedReturnCode
@@ -129,6 +160,47 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void CheckForUnsupportedArgs(Execution::Context& context)
+    {
+        bool messageDisplayed = false;
+        const auto& unsupportedArgs = context.Get<Execution::Data::Installer>()->UnsupportedArguments;
+        for (auto unsupportedArg : unsupportedArgs)
+        {
+            const auto& unsupportedArgType = GetUnsupportedArgumentType(unsupportedArg);
+            if (context.Args.Contains(unsupportedArgType))
+            {
+                if (!messageDisplayed)
+                {
+                    context.Reporter.Warn() << Resource::String::UnsupportedArgument << std::endl;
+                    messageDisplayed = true;
+                }
+
+                const auto& executingCommand = context.GetExecutingCommand();
+                if (executingCommand != nullptr)
+                {
+                    const auto& commandArguments = executingCommand->GetArguments();
+                    for (const auto& argument : commandArguments)
+                    {
+                        if (unsupportedArgType == argument.ExecArgType())
+                        {
+                            const auto& usageString = argument.GetUsageString();
+                            if (ShouldErrorForUnsupportedArgument(unsupportedArg))
+                            {
+                                context.Reporter.Error() << usageString << std::endl;
+                                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+                            }
+                            else
+                            {
+                                context.Reporter.Warn() << usageString << std::endl;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
         auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
@@ -142,6 +214,20 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() <<
                 Resource::String::InstallationDisclaimer1 << std::endl <<
                 Resource::String::InstallationDisclaimer2 << std::endl;
+        }
+    }
+
+    void DisplayInstallationNotes(Execution::Context& context)
+    {
+        if (!Settings::User().Get<Settings::Setting::DisableInstallNotes>())
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            auto installationNotes = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::InstallationNotes>();
+
+            if (!installationNotes.empty())
+            {
+                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
+            }
         }
     }
 
@@ -377,6 +463,13 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
                 context.Reporter.Error() << returnCode.Message << std::endl;
+
+                auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
+                if (!returnResponseUrl.empty())
+                {
+                    context.Reporter.Error() << Resource::String::RelatedLink << ' ' << returnResponseUrl << std::endl;
+                }
+
                 AICLI_TERMINATE_CONTEXT(returnCode.HResult);
             }
 
@@ -405,7 +498,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller;
+            Workflow::RemoveInstaller << 
+            Workflow::DisplayInstallationNotes;
     }
 
     void DownloadSinglePackage(Execution::Context& context)
@@ -422,6 +516,7 @@ namespace AppInstaller::CLI::Workflow
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
+            Workflow::CheckForUnsupportedArgs <<
             Workflow::DownloadSinglePackage <<
             Workflow::InstallPackageInstaller;
     }
@@ -480,8 +575,9 @@ namespace AppInstaller::CLI::Workflow
                 {
                     installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
                 }
-                installContext << Workflow::DownloadInstaller;
-                installContext << Workflow::InstallPackageInstaller;
+                installContext <<
+                    Workflow::DownloadInstaller <<
+                    Workflow::InstallPackageInstaller;
             }
             catch (...)
             {
@@ -519,55 +615,25 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && MightWriteToARP(installer->InstallerType))
         {
-            Source arpSource = context.Reporter.ExecuteWithProgress(
-                [](IProgressCallback& progress)
-                {
-                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                    result.Open(progress);
-                    return result;
-                }, true);
-
-            std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
-
-            for (const auto& entry : arpSource.Search({}).Matches)
-            {
-                auto installed = entry.Package->GetInstalledVersion();
-                if (installed)
-                {
-                    entries.emplace_back(std::make_tuple(
-                        entry.Package->GetProperty(PackageProperty::Id),
-                        installed->GetProperty(PackageVersionProperty::Version),
-                        installed->GetProperty(PackageVersionProperty::Channel)));
-                }
-            }
-
-            std::sort(entries.begin(), entries.end());
-
-            context.Add<Execution::Data::ARPSnapshot>(std::move(entries));
+            Repository::Correlation::ARPCorrelationData data;
+            data.CapturePreInstallSnapshot();
+            context.Add<Execution::Data::ARPCorrelationData>(std::move(data));
         }
     }
     CATCH_LOG()
 
     void ReportARPChanges(Execution::Context& context) try
     {
-        if (!context.Contains(Execution::Data::ARPSnapshot))
+        if (!context.Contains(Execution::Data::ARPCorrelationData))
         {
             return;
         }
 
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        const auto& arpSnapshot = context.Get<Execution::Data::ARPSnapshot>();
+        auto& arpCorrelationData = context.Get<Execution::Data::ARPCorrelationData>();
 
-        // Open the ARP source again to get the (potentially) changed ARP entries
-        Source arpSource = context.Reporter.ExecuteWithProgress(
-            [](IProgressCallback& progress)
-            {
-                Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                result.Open(progress);
-                return result;
-            }, true);
-
-        auto correlationResult = Correlation::FindARPEntryForNewlyInstalledPackage(manifest, arpSnapshot, arpSource);
+        arpCorrelationData.CapturePostInstallSnapshot();
+        auto correlationResult = arpCorrelationData.CorrelateForNewlyInstalled(manifest);
 
         // Store the ARP entry found to match the package to record it in the tracking catalog later
         if (correlationResult.Package)

@@ -31,6 +31,7 @@ ashpatil
 Ashwini
 asm
 ASwitch
+ASYNCRTIMP
 Atest
 ATL
 AType
@@ -99,6 +100,7 @@ deleteifnotneeded
 desktopappinstaller
 dirs
 diskfull
+dllimport
 dnld
 Dobbeleer
 dsc
@@ -107,6 +109,7 @@ dvinns
 dw
 ecfr
 ecfrbrowse
+efgh
 endian
 enr
 enums

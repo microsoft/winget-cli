@@ -122,6 +122,7 @@ namespace AppInstaller::CLI::Execution
     {
         auto clone = std::make_unique<Context>(Reporter, m_threadGlobals);
         clone->m_flags = m_flags;
+        clone->m_executingCommand = m_executingCommand;
         // If the parent is hooked up to the CTRL signal, have the clone be as well
         if (m_disableCtrlHandlerOnExit)
         {

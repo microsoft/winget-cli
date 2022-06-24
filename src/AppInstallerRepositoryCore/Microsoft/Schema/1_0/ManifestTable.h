@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "SQLiteStatementBuilder.h"
+#include "Microsoft/Schema/1_0/VirtualTableBase.h"
 #include <initializer_list>
 #include <optional>
 #include <string_view>
@@ -13,6 +14,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
+        template<typename Table>
+        std::string_view GetManifestTableColumnName()
+        {
+            if constexpr (std::is_base_of<VirtualTableBase, Table>())
+            {
+                return Table::ManifestColumnName();
+            }
+            else
+            {
+                return Table::ValueName();
+            }
+        }
+
         // Selects a manifest by the given value id.
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
             const SQLite::Connection& connection,
@@ -29,7 +43,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetValuesById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns);
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
+            std::initializer_list<std::string_view> manifestColumnNames);
 
         // Gets all values for rows that match the given ids.
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
@@ -61,7 +76,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
-        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, bool log);
+        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, std::string_view manifestColumnName, bool log);
     }
 
     // Info on the manifest columns.
@@ -119,14 +134,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         template <typename... Tables>
         static auto GetIdsById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            return details::ManifestTableGetIdsById_Statement(connection, id, { Tables::ValueName()... }).GetRow<typename Tables::id_t...>();
+            return details::ManifestTableGetIdsById_Statement(connection, id, { details::GetManifestTableColumnName<Tables>()...}).GetRow<typename Tables::id_t...>();
         }
 
         // Gets the values requested for the manifest with the given rowid.
         template <typename... Tables>
         static auto GetValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }).GetRow<typename Tables::value_t...>();
+            return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }, { details::GetManifestTableColumnName<Tables>()... }).GetRow<typename Tables::value_t...>();
         }
 
         // Gets the values for rows that match the given ids.
@@ -162,7 +177,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         template <typename Table>
         static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, const typename Table::id_t& value)
         {
-            auto stmt = details::ManifestTableUpdateValueIdById_Statement(connection, Table::ValueName());
+            auto stmt = details::ManifestTableUpdateValueIdById_Statement(connection, details::GetManifestTableColumnName<Table>());
             stmt.Bind(1, value);
             stmt.Bind(2, id);
             stmt.Execute();
@@ -185,7 +200,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         template <typename Table>
         static bool CheckConsistency(const SQLite::Connection& connection, bool log)
         {
-            return details::ManifestTableCheckConsistency(connection, SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }, log);
+            return details::ManifestTableCheckConsistency(
+                connection, SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }, details::GetManifestTableColumnName<Table>(), log);
         }
 
         // Determines if the table is empty.

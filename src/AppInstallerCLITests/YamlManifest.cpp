@@ -282,6 +282,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
+        { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. Field: PackageVersion" },
+        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. Field: DisplayVersion" },
     };
 
     for (auto const& testCase : TestCases)
@@ -466,9 +468,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
     {
         REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 2);
+        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(1) == UnsupportedArgumentEnum::Location);
     }
 
     if (isSingleton)
@@ -545,6 +546,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE_FALSE(installer1.DisplayInstallWarnings);
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
         REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+        REQUIRE(installer1.UnsupportedArguments.size() == 1);
+        REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
     }
 
     if (!isSingleton)
@@ -590,6 +593,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
             REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
             REQUIRE_FALSE(installer3.DisplayInstallWarnings);
+            REQUIRE(installer3.UnsupportedArguments.size() == 1);
+            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
         }
 
         // Localization
@@ -861,4 +866,116 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Good-MsixInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentFields", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Bad-InconsistentMsixInstallerFields.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(3 == errors.size());
+
+    // Package family name
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
+    REQUIRE("PackageFamilyName" == errors[0].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
+
+    // Package version
+    REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
+    REQUIRE("PackageVersion" == errors[1].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[1].Value);
+
+    // Min OS version
+    REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
+    REQUIRE("MinimumOSVersion" == errors[2].Field);
+    REQUIRE("10.0.0.0" == errors[2].Value);
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[ManifestValidation]")
+{
+    auto testFileName = "Manifest-Bad-NoSupportedPlatforms.yaml";
+    TestDataFile testFile(testFileName);
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(1 == errors.size());
+
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::NoSupportedPlatforms == errors[0].Message);
+    REQUIRE("InstallerUrl" == errors[0].Field);
+    REQUIRE(manifest.Installers.front().Url == errors[0].Value);
+}
+
+TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Bad-MissingMsixInstallerFields.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    for (bool treatErrorAsWarning : { false, true })
+    {
+        auto errors = ValidateManifestInstallers(manifest, treatErrorAsWarning);
+        auto expectedLevel = treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error;
+        REQUIRE(2 == errors.size());
+
+        // Package family name
+        REQUIRE(expectedLevel == errors[0].ErrorLevel);
+        REQUIRE(ManifestError::OptionalFieldMissing == errors[0].Message);
+        REQUIRE("PackageFamilyName" == errors[0].Field);
+        REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[0].Value);
+
+        // Min OS version
+        REQUIRE(expectedLevel == errors[1].ErrorLevel);
+        REQUIRE(ManifestError::OptionalFieldMissing == errors[1].Message);
+        REQUIRE("MinimumOSVersion" == errors[1].Field);
+        REQUIRE("10.0.0.0" == errors[1].Value);
+    }
+}
+
+TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
+{
+    Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));
+    REQUIRE(manifestNoArp.GetArpVersionRange().IsEmpty());
+    
+    Manifest manifestSingleArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SingleArpVersionDeclared.yaml"));
+    auto arpRangeSingleArp = manifestSingleArp.GetArpVersionRange();
+    REQUIRE(arpRangeSingleArp.GetMinVersion().ToString() == "11.0");
+    REQUIRE(arpRangeSingleArp.GetMaxVersion().ToString() == "11.0");
+
+    Manifest manifestMultiArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultipleArpVersionDeclared.yaml"));
+    auto arpRangeMultiArp = manifestMultiArp.GetArpVersionRange();
+    REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
+    REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
 }

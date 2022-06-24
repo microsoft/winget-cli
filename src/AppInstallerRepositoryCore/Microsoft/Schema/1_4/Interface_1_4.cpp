@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_4/Interface.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
-#include <AppInstallerSHA256.h>
 
 #include "Microsoft/Schema/1_4/DependenciesTable.h"
 
@@ -70,7 +69,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         DependenciesTable::RemoveDependencies(connection, manifestId);
 
         // Removes the manifest.
-        V1_2::Interface::RemoveManifestById(connection, manifestId);
+        V1_3::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove the versions that are not needed.
         for (auto minVersion : minVersions)
@@ -95,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_4");
 
-        V1_2::Interface::PrepareForPackaging(connection, false);
+        V1_3::Interface::PrepareForPackaging(connection, false);
 
         DependenciesTable::PrepareForPackaging(connection);
 
@@ -113,12 +112,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
     {
-        bool result = V1_2::Interface::CheckConsistency(connection, log);
+        bool result = V1_3::Interface::CheckConsistency(connection, log);
 
         // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
         if (result || log)
         {
             result = DependenciesTable::DependenciesTableCheckConsistency(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ValidateDependenciesWithMinVersions(connection, log) && result;
         }
 
         return result;
@@ -132,5 +136,46 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const
     {
         return DependenciesTable::GetDependentsById(connection, packageId);
+    }
+
+    bool Interface::ValidateDependenciesWithMinVersions(const SQLite::Connection& connection, bool log) const
+    {
+        try
+        {
+            bool result = true;
+            // A map to store already checked dependency package latest versions.
+            std::map<SQLite::rowid_t, Utility::Version> checkedVersions;
+
+            auto dependencies = DependenciesTable::GetAllDependenciesWithMinVersions(connection);
+            for (auto const& dependency : dependencies)
+            {
+                // If the dependency package has not been checked yet, add to the map.
+                if (checkedVersions.find(dependency.first) == checkedVersions.end())
+                {
+                    auto versionKeys = GetVersionKeysById(connection, dependency.first);
+                    THROW_HR_IF(E_UNEXPECTED, versionKeys.empty());
+                    checkedVersions.emplace(dependency.first, versionKeys[0].GetVersion());
+                }
+
+                // If the latest version is less than min version required, fail the validation.
+                if (checkedVersions[dependency.first] < Utility::Version{ dependency.second })
+                {
+                    AICLI_LOG(Repo, Error, << "Dependency with min version not satisfied. Dependency package row id: " << dependency.first << " min version: " << dependency.second);
+                    result = false;
+
+                    if (!log)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Repo, Error, << "ValidateDependenciesWithMinVersions() encountered internal error. Returning false.");
+            return false;
+        }
     }
 }

@@ -4,8 +4,8 @@
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
-#include "Rest/Schema/JsonHelper.h"
-#include "winget/ManifestValidation.h"
+#include <winget/JsonUtil.h>
+#include <winget/ManifestValidation.h>
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/1_0/Json/ManifestDeserializer.h"
@@ -25,16 +25,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            return RestHelper::AppendPathToUri(JsonHelper::GetUtilityString(restApiUri), JsonHelper::GetUtilityString(ManifestSearchPostEndpoint));
+            return RestHelper::AppendPathToUri(JSON::GetUtilityString(restApiUri), JSON::GetUtilityString(ManifestSearchPostEndpoint));
         }
 
         utility::string_t GetManifestByVersionEndpoint(
             const std::string& restApiUri, const std::string& packageId, const std::map<std::string_view, std::string>& queryParameters)
         {
             utility::string_t getManifestEndpoint = RestHelper::AppendPathToUri(
-                JsonHelper::GetUtilityString(restApiUri), JsonHelper::GetUtilityString(ManifestByVersionAndChannelGetEndpoint));
+                JSON::GetUtilityString(restApiUri), JSON::GetUtilityString(ManifestByVersionAndChannelGetEndpoint));
 
-            utility::string_t getManifestWithPackageIdPath = RestHelper::AppendPathToUri(getManifestEndpoint, JsonHelper::GetUtilityString(packageId));
+            utility::string_t getManifestWithPackageIdPath = RestHelper::AppendPathToUri(getManifestEndpoint, JSON::GetUtilityString(packageId));
 
             // Create the endpoint with query parameters
             return RestHelper::AppendQueryParamsToUri(getManifestWithPackageIdPath, queryParameters);
@@ -43,10 +43,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
     {
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JSON::GetUtilityString(restApi)));
 
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
-        m_requiredRestApiHeaders.emplace(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(Version_1_0_0.ToString()));
+        m_requiredRestApiHeaders.emplace(JSON::GetUtilityString(ContractVersion), JSON::GetUtilityString(Version_1_0_0.ToString()));
     }
 
     Utility::Version Interface::GetVersion() const
@@ -80,7 +80,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             if (!continuationToken.empty())
             {
                 AICLI_LOG(Repo, Verbose, << "Received continuation token. Retrieving more results.");
-                searchHeaders.insert_or_assign(JsonHelper::GetUtilityString(ContinuationToken), continuationToken);
+                searchHeaders.insert_or_assign(JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
             std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders);

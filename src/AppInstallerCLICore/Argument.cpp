@@ -28,7 +28,7 @@ namespace AppInstaller::CLI
         case Args::Type::Tag:
             return Argument{ "tag", NoAlias, Args::Type::Tag, Resource::String::TagArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Command:
-            return Argument{ "command", NoAlias, Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "command", NoAlias, "cmd", Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Source:
             return Argument{ "source", 's', Args::Type::Source, Resource::String::SourceArgumentDescription, ArgumentType::Standard };
         case Args::Type::DependencySource:
@@ -54,9 +54,9 @@ namespace AppInstaller::CLI
         case Args::Type::InstallLocation:
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ "force", Argument::NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+            return Argument{ "force", NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
         case Args::Type::AcceptPackageAgreements:
-            return Argument{ "accept-package-agreements", Argument::NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
+            return Argument{ "accept-package-agreements", NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
             return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:
@@ -80,7 +80,7 @@ namespace AppInstaller::CLI
         case Args::Type::RetroStyle:
             return Argument{ "retro", NoAlias, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
-            return Argument{ "verbose-logs", NoAlias, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
+            return Argument{ "verbose-logs", NoAlias, "verbose", Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag};
         case Args::Type::CustomHeader:
             return Argument{ "header", NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
@@ -109,6 +109,17 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
         args.push_back(ForType(Args::Type::VerboseLogs));
+    }
+
+    std::string Argument::GetUsageString() const
+    {
+        std::ostringstream strstr;
+        if (m_alias != Argument::NoAlias)
+        {
+            strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alias << ',';
+        }
+        strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_name;
+        return strstr.str();
     }
 
     void Argument::ValidatePackageSelectionArgumentSupplied(const Execution::Args& args)
