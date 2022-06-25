@@ -307,6 +307,15 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+            {
+                std::vector<FieldProcessInfo> fields_v_1_3 =
+                {
+                    { "NestedInstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+                    { "NestedInstallerFiles", [this](const YAML::Node& value)->ValidationErrors { return ProcessNestedInstallerFilesNode(value); } },
+                };
+            }
         }
 
         return result;
@@ -559,6 +568,22 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        {
+            result =
+            {
+                { "RelativeFilePath", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "PortableCommandAlias", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->PortableCommandAlias = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos)
@@ -753,6 +778,30 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    ValidationErrors ManifestYamlPopulator::ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !nestedInstallerFilesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<NestedInstallerFile> nestedInstallerFiles;
+
+        for (auto const& entry : nestedInstallerFilesNode.Sequence())
+        {
+            NestedInstallerFile nestedInstallerFile;
+            m_p_nestedInstallerFile = &nestedInstallerFile;
+            auto errors = ValidateAndProcessFields(entry, NestedInstallerFileFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            nestedInstallerFiles.emplace_back(std::move(nestedInstallerFile));
+        }
+
+        if (!nestedInstallerFiles.empty())
+        {
+            m_p_installer->NestedInstallerFiles = nestedInstallerFiles;
+        }
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(
         const YAML::Node& rootNode,
         Manifest& manifest,
@@ -777,6 +826,7 @@ namespace AppInstaller::Manifest
         MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
         DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
+        NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;

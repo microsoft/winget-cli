@@ -47,6 +47,12 @@ namespace AppInstaller::Manifest
         string_t DocumentUrl;
     };
 
+    struct NestedInstallerFile
+    {
+        string_t RelativeFilePath;
+        string_t PortableCommandAlias;
+    };
+
     namespace details
     {
         template <Localization L>

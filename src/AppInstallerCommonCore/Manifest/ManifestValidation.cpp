@@ -175,6 +175,22 @@ namespace AppInstaller::Manifest
                 }
             }
 
+            if (installer.InstallerType == InstallerTypeEnum::Zip)
+            {
+                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerType");
+                }
+                if (installer.NestedInstallerFiles.size() == 0)
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldEmpty, "NestedInstallerFiles");
+                }
+                if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
+                }
+            }
+
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
             if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
             {

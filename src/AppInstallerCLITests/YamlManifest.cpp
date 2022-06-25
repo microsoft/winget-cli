@@ -472,6 +472,14 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    {
+        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
+        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
+        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
+    }
+
     if (isSingleton)
     {
         REQUIRE(manifest.Installers.size() == 1);

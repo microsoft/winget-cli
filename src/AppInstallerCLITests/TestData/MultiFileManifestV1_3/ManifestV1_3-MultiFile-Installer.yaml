@@ -74,6 +74,10 @@ ExpectedReturnCodes:
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
+NestedInstallerType: msi
+NestedInstallerFiles:
+  - RelativeFilePath: RelativeFilePath
+    PortableCommandAlias: PortableCommandAlias
 
 Installers:
   - Architecture: x86
