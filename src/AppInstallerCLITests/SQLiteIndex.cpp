@@ -3154,3 +3154,30 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqlit
     manifest.Version = "10.1";
     REQUIRE_THROWS(ValidateManifestArpVersion(&index, manifest));
 }
+
+TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile, Schema::Version::Latest());
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "10.0";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+
+    index.AddManifest(manifest, "path");
+
+    // Inject a null character using SQL without binding since we block it
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+    Statement update = Statement::Create(connection, "Update versions set version = '10.0'||char(0)||'After Null' where version = '10.0'");
+    update.Execute();
+
+    REQUIRE(!index.CheckConsistency(true));
+}

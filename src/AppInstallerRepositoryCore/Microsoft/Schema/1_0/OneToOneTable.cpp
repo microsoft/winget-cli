@@ -181,7 +181,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             // Build a select statement to find values that contain an embedded null character
             // Such as:
-            // Select count(*) from table where instrt(value,char(0))>0
+            // Select count(*) from table where instr(value,char(0))>0
             SQLite::Builder::StatementBuilder builder;
             builder.
                 Select({ SQLite::RowIDName, valueName }).
