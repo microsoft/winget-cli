@@ -70,7 +70,7 @@ In order to protect our users from these possible threats, we will need to scan 
 
 If the Pure library functions that are called on a given ZIP file detect malware, the process will terminate and a warning will be displayed to the user. The user can include `--override-archive-malware-checks` to bypass this check and continue installation at their own risk.
 
-These checks will only applied in the following scenarios to minimize unnecessary costs on performance during installation. 
+To minimize unnecessary costs on performance during installation, these checks will only be applied when any of the following conditions are met:
 -  Hash mismatch was overridden
 -  Untrusted source (i.e. installing from a local manifest, private source or third-party REST sources)
 
