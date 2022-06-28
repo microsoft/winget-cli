@@ -16,6 +16,7 @@
             public static Guid PackageManagerSettings => Guid.Parse("80CF9D63-5505-4342-B9B4-BB87895CA8BB");
         }
 
+        // Non-prod (a.k.a WinGetDev)
         public static class OutOfProcess
         {
             public static Guid PackageManager => Guid.Parse("74CB3139-B7C5-4B9E-9388-E6616DEA288C");

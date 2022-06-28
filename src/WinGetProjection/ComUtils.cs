@@ -40,14 +40,15 @@
             return moduleHandle;
         }
 
-        public static unsafe void* GetProcAddress(IntPtr moduleHandle, string procName)
+        public static unsafe IntPtr GetProcAddress(IntPtr moduleHandle, string procName)
         {
             if (moduleHandle == IntPtr.Zero)
             {
                 throw new ArgumentException("Module handle cannot be empty");
             }
 
-            return Platform.GetProcAddress(moduleHandle, procName);
+            void* procNamePtr = Platform.GetProcAddress(moduleHandle, procName);
+            return new IntPtr(procNamePtr);
         }
     }
 }

@@ -6,7 +6,7 @@
     {
         public static void Main()
         {
-            var init = new ActivationFactoryInitializer();
+            var init = new ClassObjectInitializer("Microsoft.Management.Deployment.dll");
             var factory = new WinGetProjectionFactory(init);
             var pm = factory.CreatePackageManager();
             var pc = pm.GetPackageCatalogs();
