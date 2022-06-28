@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
         {
             packageManager = new PackageManager();
             installDir = TestCommon.GetRandomTestDir();
-        }   
+        }
 
         [Test]
         public void InstallAppDoesNotExist()

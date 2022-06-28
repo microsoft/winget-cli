@@ -136,6 +136,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment.InProc", "Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj", "{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinGetProjection", "WinGetProjection\WinGetProjection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
@@ -1026,6 +1028,32 @@ Global
 		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x64.Build.0 = Release|x64
 		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x86.ActiveCfg = Release|Win32
 		{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}.TestRelease|x86.Build.0 = Release|Win32
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|ARM.ActiveCfg = Debug|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|ARM64.ActiveCfg = Debug|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|x64.ActiveCfg = Debug|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|x64.Build.0 = Debug|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|x86.ActiveCfg = Debug|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Debug|x86.Build.0 = Debug|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|Any CPU.ActiveCfg = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|Any CPU.Build.0 = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|ARM.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|ARM64.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|x64.ActiveCfg = Release|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Fuzzing|x86.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|Any CPU.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|ARM.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|ARM64.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|x64.ActiveCfg = Release|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|x64.Build.0 = Release|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|x86.ActiveCfg = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.Release|x86.Build.0 = Release|x86
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|Any CPU.ActiveCfg = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|Any CPU.Build.0 = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|ARM.ActiveCfg = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|ARM64.ActiveCfg = TestOnly|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|x64.ActiveCfg = Release|x64
+		{0B104762-5CD8-47EE-A904-71C1C3F84DCD}.TestRelease|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
