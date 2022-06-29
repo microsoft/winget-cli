@@ -409,6 +409,15 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>       
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>        
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>        
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-DefaultScope.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

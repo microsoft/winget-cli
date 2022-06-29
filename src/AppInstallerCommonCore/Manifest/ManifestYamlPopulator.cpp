@@ -310,11 +310,13 @@ namespace AppInstaller::Manifest
 
             if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
             {
-                std::vector<FieldProcessInfo> fields_v_1_3 =
+                std::vector<FieldProcessInfo> fields_v1_3 =
                 {
                     { "NestedInstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
                     { "NestedInstallerFiles", [this](const YAML::Node& value)->ValidationErrors { return ProcessNestedInstallerFilesNode(value); } },
                 };
+
+                std::move(fields_v1_3.begin(), fields_v1_3.end(), std::inserter(result, result.end()));
             }
         }
 
@@ -850,6 +852,9 @@ namespace AppInstaller::Manifest
             installer.AppsAndFeaturesEntries.clear();
             // Clear dependencies as installer overrides root dependencies
             installer.Dependencies.Clear();
+            // Clear nested installers as it should only be copied for zip installerType.
+            installer.NestedInstallerType = InstallerTypeEnum::Unknown;
+            installer.NestedInstallerFiles.clear();
 
             m_p_installer = &installer;
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos);
@@ -869,6 +874,19 @@ namespace AppInstaller::Manifest
             if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
             {
                 installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
+            }
+
+            if (installer.InstallerType == InstallerTypeEnum::Zip)
+            {
+                if (installer.NestedInstallerFiles.empty())
+                {
+                    installer.NestedInstallerFiles = manifest.DefaultInstallerInfo.NestedInstallerFiles;
+                }
+
+                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
+                {
+                    installer.NestedInstallerType = manifest.DefaultInstallerInfo.NestedInstallerType;
+                }
             }
 
             // If there are no dependencies on installer use default ones

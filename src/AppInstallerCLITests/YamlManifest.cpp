@@ -257,6 +257,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml", "Only zero or one entry for Apps and Features may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml", "Only zero or one value for Commands may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidScope.yaml", "Scope is not supported for InstallerType portable." },
+        { "Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml", "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes." },
+        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml", "Required field with empty value." },
+        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml", "Required field missing." },
         { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
@@ -486,7 +489,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        {
+            REQUIRE(manifest.Installers.size() == 4);
+
+        }
+        else if (manifestVer == ManifestVer{ s_ManifestVersionV1_2 })
         {
             REQUIRE(manifest.Installers.size() == 3);
         }
@@ -558,6 +566,13 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    {
+        // NestedInstaller metadata should not be populated unless the InstallerType is zip.
+        REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
+        REQUIRE(installer1.NestedInstallerFiles.size() == 0);
+    }
+
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
@@ -603,6 +618,21 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE_FALSE(installer3.DisplayInstallWarnings);
             REQUIRE(installer3.UnsupportedArguments.size() == 1);
             REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        {
+            ManifestInstaller installer4 = manifest.Installers.at(3);
+            REQUIRE(installer4.InstallerType == InstallerTypeEnum::Zip);
+            REQUIRE(installer4.Arch == Architecture::X64);
+            REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+            REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(installer4.NestedInstallerFiles.size() == 2);
+            REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
+            REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
+            REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
+            REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
         }
 
         // Localization

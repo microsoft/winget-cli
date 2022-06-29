@@ -247,6 +247,12 @@ namespace AppInstaller::Manifest
         std::vector<string_t> ExcludedMarkets;
     };
 
+    struct NestedInstallerFile
+    {
+        string_t RelativeFilePath;
+        string_t PortableCommandAlias;
+    };
+
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
     UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
