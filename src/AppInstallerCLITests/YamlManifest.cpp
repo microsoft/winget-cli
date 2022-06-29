@@ -712,6 +712,31 @@ TEST_CASE("ValidateV1_2GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_2 });
 }
 
+TEST_CASE("ValidateV1_3GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_3-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_3 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_3-MultiFile-Version.yaml",
+        "ManifestV1_3-MultiFile-Installer.yaml",
+        "ManifestV1_3-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_3-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+}
+
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
 {
     YamlManifestInfo result;
