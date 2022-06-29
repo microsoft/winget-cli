@@ -492,7 +492,6 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
         {
             REQUIRE(manifest.Installers.size() == 4);
-
         }
         else if (manifestVer == ManifestVer{ s_ManifestVersionV1_2 })
         {
