@@ -99,6 +99,10 @@ TEST_CASE("NormalizedString", "[strings]")
     // Ligature fi => f + i
     std::string_view input2 = u8"\xFB01";
     REQUIRE(NormalizedString(input2) == u8"fi");
+
+    // Embedded null
+    std::string_view input3{ "Test\0Case", 9 };
+    REQUIRE(NormalizedString(input3) == "Test Case");
 }
 
 TEST_CASE("Trim", "[strings]")
@@ -203,4 +207,12 @@ TEST_CASE("SplitIntoWords", "[strings]")
     // 私のテスト = "My test" according to an online translator
     // Split as "私" "の" "テスト"
     REQUIRE(SplitIntoWords("\xe7\xa7\x81\xe3\x81\xae\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88") == std::vector<std::string>{ "\xe7\xa7\x81", "\xe3\x81\xae", "\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88" });
+}
+
+TEST_CASE("ReplaceEmbeddedNullCharacters", "[strings]")
+{
+    std::string test = "Test Parts";
+    test[4] = '\0';
+    ReplaceEmbeddedNullCharacters(test);
+    REQUIRE(test == "Test Parts");
 }
