@@ -341,5 +341,44 @@ namespace AppInstallerCLIE2ETests
                 TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
         }
+
+        public static bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
+        {
+            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(expectedContent))
+            {
+                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
+                return content.Contains(expectedContent);
+            }
+
+            RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+            return true;
+        }
+
+        public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
+        {
+            if (!File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe)))
+            {
+                return false;
+            }
+
+            return RunCommand("msiexec.exe", $"/qn /x {Constants.MsiInstallerProductCode}");
+        }
+
+        public static bool VerifyTestMsixInstalledAndCleanup()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsiInstallerName}");
+
+            if (!result.StdOut.Contains(Constants.MsiInstallerName))
+            {
+                return false;
+            }
+
+            return RemoveMsix(Constants.MsiInstaller);
+        }
     }
 }

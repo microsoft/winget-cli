@@ -44,8 +44,3 @@ STDAPI DllCanUnloadNow()
 {
     return WindowsPackageManagerInProcModuleTerminate() ? S_OK : S_FALSE;
 }
-
-STDAPI DllGetActivationFactory(void* classId, void** factory)
-{
-    return WindowsPackageManagerInProcModuleGetActivationFactory(classId, factory);
-}

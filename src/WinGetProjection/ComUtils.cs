@@ -9,7 +9,8 @@
         private enum CLSCTX : uint
         {
             CLSCTX_INPROC_SERVER = 0x1,
-            CLSCTX_LOCAL_SERVER = 0x4
+            CLSCTX_LOCAL_SERVER = 0x4,
+            CLSCTX_ALLOW_LOWER_TRUST_REGISTRATION = 0x4000000
         }
 
         private static unsafe IntPtr CoCreateInstance(Guid clsid, CLSCTX clsContext, Guid iid)
@@ -27,7 +28,7 @@
 
         public static IntPtr CoCreateInstanceLocalServer(Guid clsid, Guid iid)
         {
-            return CoCreateInstance(clsid, CLSCTX.CLSCTX_LOCAL_SERVER, iid);
+            return CoCreateInstance(clsid, CLSCTX.CLSCTX_LOCAL_SERVER | CLSCTX.CLSCTX_ALLOW_LOWER_TRUST_REGISTRATION, iid);
         }
 
         public static IntPtr LoadModule(string fileName)

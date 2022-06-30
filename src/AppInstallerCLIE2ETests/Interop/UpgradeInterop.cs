@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace AppInstallerCLIE2ETests
+namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
@@ -12,7 +12,7 @@ namespace AppInstallerCLIE2ETests
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class COMUpgradeCommand : BaseCommand
+    public class UpgradeInterop : BaseCommand
     {
         private PackageManager packageManager;
         private PackageCatalogReference packageCatalogReference;

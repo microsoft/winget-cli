@@ -8,4 +8,4 @@ EXPORTS
     WindowsPackageManagerInProcModuleInitialize
     WindowsPackageManagerInProcModuleTerminate
     WindowsPackageManagerInProcModuleGetClassObject
-    WindowsPackageManagerInProcModuleGetActivationFactory
+    WindowsPackageManagerInProcModuleGetActivationFactory = WINRT_GetActivationFactory

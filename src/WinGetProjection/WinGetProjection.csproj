@@ -14,11 +14,12 @@
   </ItemGroup>
 
     <!-- CsWinRT -->
-    <PropertyGroup>
-      <CsWinRTWindowsMetadata>local</CsWinRTWindowsMetadata>
-      <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
-      <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
-    </PropertyGroup>
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>local</CsWinRTWindowsMetadata>
+    <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
+    <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
@@ -26,10 +27,23 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <!--
+      Make a copy of the dll with a different name to align with the expected search pattern required to execute the Activation factory example.
+      More details in ActivationFactoryInitializer.cs
+      -->
+      <Copy SourceFiles="$(TargetDir)Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
+  </Target>
 </Project>

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace AppInstallerCLIE2ETests
+namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
     using NUnit.Framework;
@@ -11,7 +11,7 @@ namespace AppInstallerCLIE2ETests
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class COMUninstallCommand : BaseCommand
+    public class UninstallInterop : BaseCommand
     {
         // Custom product code for overriding the default in the test exe
         private const string CustomProductCode = "{f08fc03c-0b7e-4fca-9b3c-3a384d18a9f3}";

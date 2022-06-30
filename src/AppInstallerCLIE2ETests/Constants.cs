@@ -44,12 +44,19 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
+        // Installer filename
+        public const string TestCommandExe = "testCommand.exe";
+        public const string AppInstallerTestExeInstallerExe = "AppInstallerTestExeInstaller.exe";
+
         // Test installers' package IDs
         public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
         public const string MsiInstallerPackageId = "AppInstallerTest.TestMsiInstaller";
         public const string MsixInstallerPackageId = "AppInstallerTest.TestMsixInstaller";
+        public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";
+        public const string PortableExeWithCommandPackageId = "AppInstallerTest.TestPortableExeWithCommand";
 
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
+        public const string MsiInstallerName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
 
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
@@ -57,6 +64,10 @@ namespace AppInstallerCLIE2ETests
 
         // Locations
         public const string LocalAppData = "LocalAppData";
+
+        // Package dir
+        public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";
+        public const string PortableExeWithCommandPackageDirName =  $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
 
         public class ErrorCode
         {
