@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <binver/version.h>
+#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/winget/UserSettings.h"
@@ -269,217 +270,260 @@ namespace AppInstaller::Runtime
         s_runtimePathStateName.emplace(std::move(suitablePathPart));
     }
 
+    // The permissions granted to a specific ACE
+    enum class ACEPermissions
+    {
+        // This is not "Deny All", but rather, "Not mentioned"
+        None = 0x0,
+        Read = 0x1,
+        Write = 0x2,
+        Execute = 0x4,
+        ReadWrite = Read | Write,
+        ReadWriteExecute = Read | Write | Execute,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
+
+    // Information about one of the paths that we use and how to set it up.
+    struct PathDetails
+    {
+        std::filesystem::path Path;
+        // Default to creating the directory with read/write permissions for the current effective user
+        bool Create = true;
+        ACEPermissions CurrentUser = ACEPermissions::ReadWrite;
+        ACEPermissions Admins = ACEPermissions::None;
+        ACEPermissions Users = ACEPermissions::None;
+    };
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    PathDetails GetPathDetailsForPackagedContext(PathName path)
+    {
+        PathDetails result;
+
+        auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
+
+        switch (path)
+        {
+        case PathName::Temp:
+        {
+            result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
+        }
+        break;
+        case PathName::LocalState:
+        case PathName::UserFileSettings:
+            result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            break;
+        case PathName::DefaultLogLocation:
+        case PathName::DefaultLogLocationForDisplay:
+            // To enable UIF collection through Feedback hub, we must put our logs here.
+            result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            result.Path /= WINGET_DEFAULT_LOG_DIRECTORY;
+
+            if (path == PathName::DefaultLogLocationForDisplay)
+            {
+                std::filesystem::path localAppData = GetKnownFolderPath(FOLDERID_LocalAppData);
+
+                auto ladItr = localAppData.begin();
+                auto resultItr = result.Path.begin();
+
+                while (ladItr != localAppData.end() && resultItr != result.Path.end())
+                {
+                    if (*ladItr != *resultItr)
+                    {
+                        break;
+                    }
+
+                    ++ladItr;
+                    ++resultItr;
+                }
+
+                if (ladItr == localAppData.end())
+                {
+                    localAppData.assign("%LOCALAPPDATA%");
+
+                    for (; resultItr != result.Path.end(); ++resultItr)
+                    {
+                        localAppData /= *resultItr;
+                    }
+
+                    result.Path = std::move(localAppData);
+                }
+            }
+            break;
+        case PathName::StandardSettings:
+            result.Create = false;
+            break;
+        case PathName::SecureSettings:
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramData);
+            result.Path /= s_SecureSettings_Base;
+            result.Path /= GetUserSID();
+            result.Path /= s_SecureSettings_UserRelative;
+            result.Path /= s_SecureSettings_Relative_Packaged;
+            result.Path /= GetPackageName();
+            result.Create = false;
+            break;
+        case PathName::UserProfile:
+            result.Path = GetKnownFolderPath(FOLDERID_Profile);
+            result.Create = false;
+            break;
+        case PathName::PortablePackageUserRoot:
+            result.Path = Settings::User().Get<Setting::PortableAppUserRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result.Path /= s_PortablePackageUserRoot_Base;
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortablePackageMachineRootX64:
+            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortablePackageMachineRootX86:
+            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortableLinksUserLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+            result.Path /= s_PortablePackageUserRoot_Base;
+            result.Path /= s_PortablePackageRoot;
+            result.Path /= s_LinksDirectory;
+            result.Create = true;
+            break;
+        case PathName::PortableLinksMachineLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+            result.Path /= s_PortablePackageRoot;
+            result.Path /= s_LinksDirectory;
+            result.Create = true;
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        return result;
+    }
+#endif
+
+    PathDetails GetPathDetailsForUnpackagedContext(PathName path)
+    {
+        PathDetails result;
+
+        switch (path)
+        {
+        case PathName::Temp:
+        case PathName::DefaultLogLocation:
+        {
+            result.Path = GetPathToUserTemp();
+            result.Path /= s_DefaultTempDirectory;
+            result.Path /= GetRuntimePathStateName();
+        }
+        break;
+        case PathName::DefaultLogLocationForDisplay:
+            result.Path.assign("%TEMP%");
+            result.Path /= s_DefaultTempDirectory;
+            result.Path /= GetRuntimePathStateName();
+            result.Create = false;
+            break;
+        case PathName::LocalState:
+            result.Path = GetPathToAppDataDir(s_AppDataDir_State);
+            result.Path /= GetRuntimePathStateName();
+            break;
+        case PathName::StandardSettings:
+        case PathName::UserFileSettings:
+            result.Path = GetPathToAppDataDir(s_AppDataDir_Settings);
+            result.Path /= GetRuntimePathStateName();
+            break;
+        case PathName::SecureSettings:
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramData);
+            result.Path /= s_SecureSettings_Base;
+            result.Path /= GetUserSID();
+            result.Path /= s_SecureSettings_UserRelative;
+            result.Path /= s_SecureSettings_Relative_Unpackaged;
+            result.Path /= GetRuntimePathStateName();
+            result.Create = false;
+            break;
+        case PathName::UserProfile:
+            result.Path = GetKnownFolderPath(FOLDERID_Profile);
+            result.Create = false;
+            break;
+        case PathName::PortablePackageUserRoot:
+            result.Path = Settings::User().Get<Setting::PortableAppUserRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result.Path /= s_PortablePackageUserRoot_Base;
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortablePackageMachineRootX64:
+            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortablePackageMachineRootX86:
+            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
+                result.Path /= s_PortablePackageRoot;
+                result.Path /= s_PortablePackagesDirectory;
+            }
+            result.Create = true;
+            break;
+        case PathName::PortableLinksUserLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+            result.Path /= s_PortablePackageUserRoot_Base;
+            result.Path /= s_PortablePackageRoot;
+            result.Path /= s_LinksDirectory;
+            result.Create = true;
+            break;
+        case PathName::PortableLinksMachineLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+            result.Path /= s_PortablePackageRoot;
+            result.Path /= s_LinksDirectory;
+            result.Create = true;
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        return result;
+    }
+
     std::filesystem::path GetPathTo(PathName path)
     {
-        std::filesystem::path result;
-        bool create = true;
+        PathDetails details;
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
-            auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
-
-            switch (path)
-            {
-            case PathName::Temp:
-            {
-                result = GetPathToUserTemp();
-                result /= s_DefaultTempDirectory;
-            }
-                break;
-            case PathName::LocalState:
-            case PathName::UserFileSettings:
-                result.assign(appStorage.LocalFolder().Path().c_str());
-                break;
-            case PathName::DefaultLogLocation:
-            case PathName::DefaultLogLocationForDisplay:
-                // To enable UIF collection through Feedback hub, we must put our logs here.
-                result.assign(appStorage.LocalFolder().Path().c_str());
-                result /= WINGET_DEFAULT_LOG_DIRECTORY;
-
-                if (path == PathName::DefaultLogLocationForDisplay)
-                {
-                    std::filesystem::path localAppData = GetKnownFolderPath(FOLDERID_LocalAppData);
-
-                    auto ladItr = localAppData.begin();
-                    auto resultItr = result.begin();
-
-                    while (ladItr != localAppData.end() && resultItr != result.end())
-                    {
-                        if (*ladItr != *resultItr)
-                        {
-                            break;
-                        }
-
-                        ++ladItr;
-                        ++resultItr;
-                    }
-
-                    if (ladItr == localAppData.end())
-                    {
-                        localAppData.assign("%LOCALAPPDATA%");
-                        
-                        for (;resultItr != result.end(); ++resultItr)
-                        {
-                            localAppData /= *resultItr;
-                        }
-
-                        result = std::move(localAppData);
-                    }
-                }
-                break;
-            case PathName::StandardSettings:
-                create = false;
-                break;
-            case PathName::SecureSettings:
-                result = GetKnownFolderPath(FOLDERID_ProgramData);
-                result /= s_SecureSettings_Base;
-                result /= GetUserSID();
-                result /= s_SecureSettings_UserRelative;
-                result /= s_SecureSettings_Relative_Packaged;
-                result /= GetPackageName();
-                create = false;
-                break;
-            case PathName::UserProfile:
-                result = GetKnownFolderPath(FOLDERID_Profile);
-                create = false;
-                break;
-            case PathName::PortablePackageUserRoot:
-                result = Settings::User().Get<Setting::PortableAppUserRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortablePackageUserRoot_Base;
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortablePackageMachineRootX64:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortablePackageMachineRootX86:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortableLinksUserLocation:
-                result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result /= s_PortablePackageUserRoot_Base;
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            case PathName::PortableLinksMachineLocation:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
+            details = GetPathDetailsForPackagedContext(path);
         }
         else
 #endif
         {
-            switch (path)
-            {
-            case PathName::Temp:
-            case PathName::DefaultLogLocation:
-            {
-                result = GetPathToUserTemp();
-                result /= s_DefaultTempDirectory;
-                result /= GetRuntimePathStateName();
-            }
-                break;
-            case PathName::DefaultLogLocationForDisplay:
-                result.assign("%TEMP%");
-                result /= s_DefaultTempDirectory;
-                result /= GetRuntimePathStateName();
-                create = false;
-                break;
-            case PathName::LocalState:
-                result = GetPathToAppDataDir(s_AppDataDir_State);
-                result /= GetRuntimePathStateName();
-                break;
-            case PathName::StandardSettings:
-            case PathName::UserFileSettings:
-                result = GetPathToAppDataDir(s_AppDataDir_Settings);
-                result /= GetRuntimePathStateName();
-                break;
-            case PathName::SecureSettings:
-                result = GetKnownFolderPath(FOLDERID_ProgramData);
-                result /= s_SecureSettings_Base;
-                result /= GetUserSID();
-                result /= s_SecureSettings_UserRelative;
-                result /= s_SecureSettings_Relative_Unpackaged;
-                result /= GetRuntimePathStateName();
-                create = false;
-                break;
-            case PathName::UserProfile:
-                result = GetKnownFolderPath(FOLDERID_Profile);
-                create = false;
-                break;
-            case PathName::PortablePackageUserRoot:
-                result = Settings::User().Get<Setting::PortableAppUserRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                    result /= s_PortablePackageUserRoot_Base;
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortablePackageMachineRootX64:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortablePackageMachineRootX86:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
-                if (result.empty())
-                {
-                    result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                    result /= s_PortablePackageRoot;
-                    result /= s_PortablePackagesDirectory;
-                }
-                create = true;
-                break;
-            case PathName::PortableLinksUserLocation:
-                result = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result /= s_PortablePackageUserRoot_Base;
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            case PathName::PortableLinksMachineLocation:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result /= s_PortablePackageRoot;
-                result /= s_LinksDirectory;
-                create = true;
-                break;
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
+            details = GetPathDetailsForUnpackagedContext(path);
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -487,21 +531,28 @@ namespace AppInstaller::Runtime
         auto itr = s_Path_TestHook_Overrides.find(path);
         if (itr != s_Path_TestHook_Overrides.end())
         {
-            result = itr->second;
+            details.Path = itr->second;
         }
 #endif
 
-        if (create && result.is_absolute())
+        if (details.Create)
         {
-            if (std::filesystem::exists(result) && !std::filesystem::is_directory(result))
+            if (details.Path.is_absolute())
             {
-                std::filesystem::remove(result);
-            }
+                if (std::filesystem::exists(details.Path) && !std::filesystem::is_directory(details.Path))
+                {
+                    std::filesystem::remove(details.Path);
+                }
 
-            std::filesystem::create_directories(result);
+                std::filesystem::create_directories(details.Path);
+            }
+            else
+            {
+                AICLI_LOG(Core, Warning, << "GetPathTo directory creation requested for [" << path << "], but path was not absolute: " << details.Path);
+            }
         }
 
-        return result;
+        return std::move(details.Path);
     }
 
     std::filesystem::path GetNewTempFilePath()
