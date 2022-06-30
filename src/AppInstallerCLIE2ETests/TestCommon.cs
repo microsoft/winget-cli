@@ -371,14 +371,30 @@ namespace AppInstallerCLIE2ETests
 
         public static bool VerifyTestMsixInstalledAndCleanup()
         {
-            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsiInstallerName}");
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
 
-            if (!result.StdOut.Contains(Constants.MsiInstallerName))
+            if (!result.StdOut.Contains(Constants.MsixInstallerName))
             {
                 return false;
             }
 
             return RemoveMsix(Constants.MsiInstaller);
+        }
+
+        public static bool VerifyTestExeUninstalled(string installDir)
+        {
+            return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledileName));
+        }
+
+        public static bool VerifyTestMsiUninstalled(string installDir)
+        {
+            return !File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        public static bool VerifyTestMsixUninstalled()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
+            return string.IsNullOrWhiteSpace(result.StdOut);
         }
     }
 }

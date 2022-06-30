@@ -14,9 +14,9 @@ namespace AppInstallerCLIE2ETests.Interop
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
     public class InstallInterop : BaseInterop
     {
+        private string installDir;
         private PackageManager packageManager;
         private PackageCatalogReference testSource;
-        private string installDir;
 
         public InstallInterop(IInstanceInitializer initializer) : base(initializer) { }
 

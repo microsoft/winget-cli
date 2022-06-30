@@ -30,14 +30,19 @@ namespace AppInstallerCLIE2ETests.Interop
             PackageFieldMatchOption option,
             string value)
         {
-            var findPackageOptions = TestFactory.CreateFindPackagesOptions();
-            findPackageOptions.Filters.Add(new()
-            {
-                Field = field,
-                Option = option,
-                Value = value
-            });
+            Assert.NotNull(packageCatalogReference, "Package catalog reference cannot be null");
 
+            // Prepare filter
+            var filter = TestFactory.CreatePackageMatchFilter();
+            filter.Field = field;
+            filter.Option = option;
+            filter.Value = value;
+
+            // Add filter
+            var findPackageOptions = TestFactory.CreateFindPackagesOptions();
+            findPackageOptions.Filters.Add(filter);
+
+            // Connect and find package
             var source = packageCatalogReference.Connect().PackageCatalog;
             return source.FindPackages(findPackageOptions).Matches;
         }
