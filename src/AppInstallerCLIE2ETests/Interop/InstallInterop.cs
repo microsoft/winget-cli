@@ -341,28 +341,22 @@ namespace AppInstallerCLIE2ETests.Interop
             string fileName = Constants.AppInstallerTestExeInstallerExe;
             string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
 
-            try
-            {
-                // Create a directory with the same name as the symlink in order to cause install to fail.
-                Directory.CreateDirectory(conflictDirectory);
+            // Create a directory with the same name as the symlink in order to cause install to fail.
+            Directory.CreateDirectory(conflictDirectory);
 
-                // Find package
-                var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.PortableExePackageId);
-                
-                // Configure installation
-                var installOptions = TestFactory.CreateInstallOptions();
-            
-                // Install
-                var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-                
-                // Assert
-                Assert.AreEqual(InstallResultStatus.InstallError, installResult.Status);
-                TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
-            }
-            finally
-            {
-                Directory.Delete(conflictDirectory, true);
-            }
+            // Find package
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.PortableExePackageId);
+
+            // Configure installation
+            var installOptions = TestFactory.CreateInstallOptions();
+
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.InstallError, installResult.Status);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+            Directory.Delete(conflictDirectory, true);
         }
     }
 }
