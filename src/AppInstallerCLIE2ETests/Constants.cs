@@ -70,6 +70,10 @@ namespace AppInstallerCLIE2ETests
         public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";
         public const string PortableExeWithCommandPackageDirName =  $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
 
+        // Registry keys
+        public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
+        public const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
+
         public class ErrorCode
         {
             public const int S_OK = 0;

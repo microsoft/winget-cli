@@ -4,24 +4,22 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
-    using Microsoft.Win32;
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
+    using WinGetProjection;
 
-    public class UpgradeInterop : BaseCommand
+    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
+    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
+    public class UpgradeInterop : BaseInterop
     {
         private PackageManager packageManager;
-        private PackageCatalogReference packageCatalogReference;
+        private PackageCatalogReference compositeSource;
 
-        private const string TestPackageCatalog = "TestSource";
+        public UpgradeInterop(IInstanceInitializer initializer) : base(initializer) { }
 
-        private const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-        private const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
-        private const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -32,194 +30,201 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void Init()
         {
-            packageManager = new PackageManager();
+            packageManager = TestFactory.CreatePackageManager();
 
-            var testPackageCatalogReference = packageManager.GetPackageCatalogByName(TestPackageCatalog);
-            Assert.NotNull(testPackageCatalogReference, $"Ensure that {TestPackageCatalog} is added");
-            
-            var options = new CreateCompositePackageCatalogOptions();
-            options.Catalogs.Add(testPackageCatalogReference);
-            options.CompositeSearchBehavior = CompositeSearchBehavior.RemotePackagesFromAllCatalogs;
-            packageCatalogReference = packageManager.CreateCompositePackageCatalog(options);
+            // Create composite package catalog source
+            var options = TestFactory.CreateCreateCompositePackageCatalogOptions();
+            var testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
+            Assert.NotNull(testSource, $"{Constants.TestSourceName} cannot be null");
+            options.Catalogs.Add(testSource);
+            options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
+            compositeSource = packageManager.CreateCompositePackageCatalog(options);
         }   
 
         [Test]
         public async Task UpgradePortable()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string packageId = Constants.PortableExePackageId;
+            string packageDirName = Constants.PortableExePackageDirName;
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = Constants.AppInstallerTestExeInstallerExe;
+            string fileName = Constants.AppInstallerTestExeInstallerExe;
 
-            try
-            {
-                var searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.Null(searchResult.CatalogPackage.InstalledVersion);
+            // Find package
+            var searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
 
-                var installResult = await Install(searchResult.CatalogPackage, "1.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            // Configure install options
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "1.0.0.0"));
 
-                searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
-                var upgradeResult = await Upgrade(searchResult.CatalogPackage, "2.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
-            }
-            finally
-            {
-                TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            }
+            // Find package again, but this time it should detect the installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+
+            // Configure upgrade options
+            var upgradeOptions = TestFactory.CreateInstallOptions();
+            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "2.0.0.0"));
+
+            // Upgrade
+            var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
+
+            // Find package again, but this time it should detect the upgraded installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "2.0.0.0");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
         [Test]
         public async Task UpgradePortableARPMismatch()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string packageId = Constants.PortableExePackageId;
+            string packageDirName = Constants.PortableExePackageDirName;
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = Constants.AppInstallerTestExeInstallerExe;
+            string fileName = Constants.AppInstallerTestExeInstallerExe;
 
-            try
-            {
-                var searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.Null(searchResult.CatalogPackage.InstalledVersion);
+            // Find package
+            var searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
 
-                var installResult = await Install(searchResult.CatalogPackage, "1.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            // Configure install options
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "1.0.0.0"));
 
-                // Modify packageId to cause mismatch.
-                ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
-                searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            // Modify packageId to cause mismatch.
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
 
-                var upgradeResult = await Upgrade(searchResult.CatalogPackage, "2.0.0.0");
-                Assert.AreEqual(InstallResultStatus.InstallError, upgradeResult.Status);
-                Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, (int)upgradeResult.InstallerErrorCode);
-            }
-            finally
-            {
-                TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            }
+            // Find package again, but this time it should detect the installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+
+            // Configure upgrade options
+            var upgradeOptions = TestFactory.CreateInstallOptions();
+            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "2.0.0.0"));
+
+            // Upgrade
+            var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
+            Assert.AreEqual(InstallResultStatus.InstallError, upgradeResult.Status);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, (int)upgradeResult.InstallerErrorCode);
+
+            // Find package again, it should have not been upgraded
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
         [Test]
         public async Task UpgradePortableForcedOverride()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string packageId = Constants.PortableExePackageId;
+            string packageDirName = Constants.PortableExePackageDirName;
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = Constants.AppInstallerTestExeInstallerExe;
+            string fileName = Constants.AppInstallerTestExeInstallerExe;
 
-            try
-            {
-                var searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.Null(searchResult.CatalogPackage.InstalledVersion);
+            // Find package
+            var searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
 
-                var installResult = await Install(searchResult.CatalogPackage, "1.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            // Configure install options
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "1.0.0.0"));
 
-                // Modify packageId and sourceId to cause mismatch.
-                ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
-                ModifyPortableARPEntryValue(productCode, WinGetSourceIdentifier, "testSourceId");
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
-                searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            // Modify packageId and sourceId to cause mismatch.
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetSourceIdentifier, "testSourceId");
 
-                var upgradeResult = await Upgrade(searchResult.CatalogPackage, "2.0.0.0", force: true);
-                Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
-            }
-            finally
-            {
-                TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            }
+            // Find package again, but this time it should detect the installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+
+            // Configure upgrade options
+            var upgradeOptions = TestFactory.CreateInstallOptions();
+            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "2.0.0.0"));
+            upgradeOptions.AllowHashMismatch = true;
+
+            // Upgrade
+            var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
+
+            // Find package again, but this time it should detect the upgraded installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "2.0.0.0");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
         [Test]
         public async Task UpgradePortableUninstallPrevious()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string packageId = Constants.PortableExePackageId;
+            string packageDirName = Constants.PortableExePackageDirName;
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = Constants.AppInstallerTestExeInstallerExe;
+            string fileName = Constants.AppInstallerTestExeInstallerExe;
 
-            try
-            {
-                var searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.Null(searchResult.CatalogPackage.InstalledVersion);
+            // Find package
+            var searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
 
-                var installResult = await Install(searchResult.CatalogPackage, "1.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-
-                searchResult = FindOnePackage(PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-                Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
-
-                var upgradeResult = await Upgrade(searchResult.CatalogPackage, "3.0.0.0");
-                Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
-            }
-            finally
-            {
-                TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            }
-        }
-
-        private void ModifyPortableARPEntryValue(string productCode, string name, string value)
-        {
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(UninstallSubKey, true))
-            {
-                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
-                entry.SetValue(name, value);
-            }
-        }
-
-        public IReadOnlyList<MatchResult> FindAllPackages(
-            PackageMatchField field,
-            PackageFieldMatchOption option,
-            string value)
-        {
-            var findPackageOptions = new FindPackagesOptions();
-            findPackageOptions.Filters.Add(new()
-            {
-                Field = field,
-                Option = option,
-                Value = value
-            });
-
-            var owcSource = packageCatalogReference.Connect().PackageCatalog;
-            return owcSource.FindPackages(findPackageOptions).Matches;
-        }
-
-        public MatchResult FindOnePackage(
-            PackageMatchField field,
-            PackageFieldMatchOption option,
-            string value)
-        {
-            var findPackages = FindAllPackages(field, option, value);
-            Assert.True(1 == findPackages.Count);
-            return findPackages.First();
-        }
-
-        public async Task<InstallResult> Install(CatalogPackage package, string version)
-        {
             // Configure install options
-            var installOptions = new InstallOptions();
-            installOptions.PackageVersionId = package.AvailableVersions.First(i => i.Version == version);
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "1.0.0.0"));
 
-            return await packageManager.InstallPackageAsync(package, installOptions);
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+
+            // Find package again, but this time it should detect the installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+
+            // Configure upgrade options
+            var upgradeOptions = TestFactory.CreateInstallOptions();
+            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "3.0.0.0"));
+
+            // Upgrade
+            var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
+            Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
+
+            // Find package again, but this time it should detect the upgraded installed version
+            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "3.0.0.0");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
-        public async Task<InstallResult> Upgrade(CatalogPackage package, string version, bool force = false)
+        public T First<T>(IReadOnlyList<T> list, Func<T, bool> condition)
         {
-            // Configure install options
-            var installOptions = new InstallOptions();
-            installOptions.AllowHashMismatch = force;
-            installOptions.PackageVersionId = package.AvailableVersions.First(i => i.Version == version);
+            if (list == null || condition == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            return await packageManager.UpgradePackageAsync(package, installOptions);
+            // Note: Using a regular loop on IVector based properties as iterable based statements (e.g. foreach)
+            // and expressions (e.g. Linq style query) throw an exception when running in out-of-process context;
+            for (int i = 0; i < list.Count; ++i)
+            {
+                var item = list[i];
+                if (condition(item))
+                {
+                    return item;
+                }
+            }
+
+            throw new InvalidOperationException("No element satisfies the condition");
         }
     }
 }

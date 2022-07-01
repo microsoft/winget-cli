@@ -3,16 +3,11 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using Microsoft.Win32;
     using NUnit.Framework;
     using System.IO;
 
     public class UpgradeCommand : BaseCommand
     {
-        private const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-        private const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
-        private const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
-
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
@@ -49,12 +44,12 @@ namespace AppInstallerCLIE2ETests
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
 
             // Modify packageId to cause mismatch.
-            ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
 
             var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
 
             // Reset and perform uninstall cleanup
-            ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, packageId);
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, packageId);
             TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
 
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
@@ -75,8 +70,8 @@ namespace AppInstallerCLIE2ETests
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
 
             // Modify packageId and sourceId to cause mismatch.
-            ModifyPortableARPEntryValue(productCode, WinGetPackageIdentifier, "testPackageId");
-            ModifyPortableARPEntryValue(productCode, WinGetSourceIdentifier, "testSourceId");
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
+            TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetSourceIdentifier, "testSourceId");
 
             var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
@@ -101,15 +96,6 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-        }
-
-        private void ModifyPortableARPEntryValue(string productCode, string name, string value)
-        {
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(UninstallSubKey, true))
-            {
-                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
-                entry.SetValue(name, value);
-            }
         }
     }
 }

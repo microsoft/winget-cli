@@ -396,5 +396,15 @@ namespace AppInstallerCLIE2ETests
             var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
             return string.IsNullOrWhiteSpace(result.StdOut);
         }
+
+        public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
+        {
+            const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(uninstallSubKey, true))
+            {
+                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                entry.SetValue(name, value);
+            }
+        }
     }
 }

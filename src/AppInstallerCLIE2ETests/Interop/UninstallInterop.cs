@@ -27,7 +27,7 @@ namespace AppInstallerCLIE2ETests.Interop
             installDir = TestCommon.GetRandomTestDir();
 
             // Create composite package catalog source
-            var options = new CreateCompositePackageCatalogOptions();
+            var options = TestFactory.CreateCreateCompositePackageCatalogOptions();
             var testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
             Assert.NotNull(testSource, $"{Constants.TestSourceName} cannot be null");
             options.Catalogs.Add(testSource);
@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
@@ -84,7 +84,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestMsiUninstalled(installDir));
         }
@@ -107,7 +107,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestMsixUninstalled());
         }
@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
@@ -165,7 +165,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
@@ -197,7 +197,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
 
@@ -226,7 +226,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, new UninstallOptions());
+            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
