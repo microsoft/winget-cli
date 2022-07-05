@@ -294,6 +294,18 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-MissingRelativeFilePath.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

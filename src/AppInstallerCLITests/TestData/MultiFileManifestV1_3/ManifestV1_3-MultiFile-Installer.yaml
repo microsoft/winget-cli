@@ -74,6 +74,10 @@ ExpectedReturnCodes:
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
+NestedInstallerType: msi
+NestedInstallerFiles:
+  - RelativeFilePath: RelativeFilePath
+    PortableCommandAlias: PortableCommandAlias
 
 Installers:
   - Architecture: x86
@@ -154,8 +158,18 @@ Installers:
     Commands:
       - standalone
     ExpectedReturnCodes:
-     - InstallerReturnCode: 11
-       ReturnResponse: custom
-       ReturnResponseUrl: https://defaultReturnResponseUrl.com
+      - InstallerReturnCode: 11
+        ReturnResponse: custom
+        ReturnResponseUrl: https://defaultReturnResponseUrl.com
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: relativeFilePath1
+        PortableCommandAlias: portableAlias1
+      - RelativeFilePath: relativeFilePath2
+        PortableCommandAlias: portableAlias2
 ManifestType: installer
 ManifestVersion: 1.3.0
