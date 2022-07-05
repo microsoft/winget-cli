@@ -876,7 +876,7 @@ namespace AppInstaller::Manifest
                 installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::Zip)
+            if (IsArchiveType(installer.InstallerType))
             {
                 if (installer.NestedInstallerFiles.empty())
                 {

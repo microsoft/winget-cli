@@ -175,7 +175,7 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::Zip)
+            if (IsArchiveType(installer.InstallerType))
             {
                 if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
                 {
