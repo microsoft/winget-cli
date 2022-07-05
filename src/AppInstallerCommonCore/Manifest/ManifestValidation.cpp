@@ -183,11 +183,19 @@ namespace AppInstaller::Manifest
                 }
                 if (installer.NestedInstallerFiles.size() == 0)
                 {
-                    resultErrors.emplace_back(ManifestError::RequiredFieldEmpty, "NestedInstallerFiles");
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerFiles");
                 }
                 if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
+                }
+
+                for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
+                {
+                    if (nestedInstallerFile.RelativeFilePath.empty())
+                    {
+                        resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "RelativeFilePath");
+                    }
                 }
             }
 

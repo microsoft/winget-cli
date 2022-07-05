@@ -133,13 +133,13 @@
         "title": "NestedInstallerFile",
         "properties": {
           "RelativeFilePath": {
-            "type": [ "string", "null" ],
+            "type": "string",
             "minLength": 1,
             "maxLength": 512,
             "description": "The relative path to the nested installer file"
           },
           "PortableCommandAlias": {
-            "type": "string",
+            "type": [ "string", "null" ],
             "minLength": 1,
             "maxLength": 40,
             "description": "The command alias to be used for calling the package. Only applies to the nested portable package"
