@@ -50,11 +50,11 @@ struct ComponentTestSource : public TestSource
 // A helper to create the sources used by the majority of tests in this file.
 struct CompositeTestSetup
 {
-    CompositeTestSetup() : Composite("*Tests")
+    CompositeTestSetup(CompositeSearchBehavior behavior = CompositeSearchBehavior::Installed) : Composite("*Tests")
     {
         Installed = std::make_shared<ComponentTestSource>("InstalledTestSource1");
         Available = std::make_shared<ComponentTestSource>("AvailableTestSource1");
-        Composite.SetInstalledSource(Source{ Installed });
+        Composite.SetInstalledSource(Source{ Installed }, behavior);
         Composite.AddAvailableSource(Source{ Available });
     }
 
@@ -941,4 +941,24 @@ TEST_CASE("CompositeSource_TrackingFound_NotInstalled", "[CompositeSource]")
     SearchResult result = setup.Search();
 
     REQUIRE(result.Matches.empty());
+}
+
+TEST_CASE("CompositeSource_NullInstalledVersion", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(MakeAvailable(), Criteria());
+
+    // We are mostly testing to see if a null installed version causes an AV or not
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 0);
+}
+
+TEST_CASE("CompositeSource_NullAvailableVersion", "[CompositeSource]")
+{
+    CompositeTestSetup setup{ CompositeSearchBehavior::AvailablePackages };
+    setup.Available->Everything.Matches.emplace_back(MakeInstalled(), Criteria());
+
+    // We are mostly testing to see if a null available version causes an AV or not
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 1);
 }

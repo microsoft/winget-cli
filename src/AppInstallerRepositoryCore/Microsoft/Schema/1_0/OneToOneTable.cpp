@@ -176,5 +176,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             builder.Execute(connection);
         }
+
+        bool OneToOneTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)
+        {
+            // Build a select statement to find values that contain an embedded null character
+            // Such as:
+            // Select count(*) from table where instr(value,char(0))>0
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ SQLite::RowIDName, valueName }).
+                From(tableName).
+                WhereValueContainsEmbeddedNullCharacter(valueName);
+
+            SQLite::Statement select = builder.Prepare(connection);
+            bool result = true;
+
+            while (select.Step())
+            {
+                result = false;
+
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] value in table [" << tableName << "] at row [" << select.GetColumn<SQLite::rowid_t>(0) << "] contains an embedded null character and starts with [" << select.GetColumn<std::string>(1) << "]");
+            }
+
+            return result;
+        }
     }
 }

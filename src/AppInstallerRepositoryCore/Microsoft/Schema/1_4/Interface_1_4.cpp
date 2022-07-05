@@ -117,7 +117,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
         if (result || log)
         {
-            result = DependenciesTable::DependenciesTableCheckConsistency(connection, log) && result;
+            result = DependenciesTable::CheckConsistency(connection, log) && result;
         }
 
         if (result || log)

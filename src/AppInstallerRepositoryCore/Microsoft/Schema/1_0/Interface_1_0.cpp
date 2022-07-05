@@ -393,53 +393,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         bool result = true;
 
+#define AICLI_CHECK_CONSISTENCY(_check_) \
+        if (result || log) \
+        { \
+            result = _check_ && result; \
+        }
+
         // Check the manifest table references to it's 1:1 tables
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<IdTable>(connection, log) && result;
-        }
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<IdTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<NameTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<MonikerTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<VersionTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<ChannelTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<PathPartTable>(connection, log));
 
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<NameTable>(connection, log) && result;
-        }
+        // Check the 1:1 tables' consistency
+        AICLI_CHECK_CONSISTENCY(IdTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(NameTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(MonikerTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(VersionTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(ChannelTable::CheckConsistency(connection, log));
 
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<MonikerTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<VersionTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<ChannelTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<PathPartTable>(connection, log) && result;
-        }
-
-        // Check the pathpaths table for consistency
-        if (result || log)
-        {
-            result = PathPartTable::CheckConsistency(connection, log) && result;
-        }
+        // Check the pathparts table for consistency
+        AICLI_CHECK_CONSISTENCY(PathPartTable::CheckConsistency(connection, log));
 
         // Check the 1:N map tables for consistency
-        if (result || log)
-        {
-            result = TagsTable::CheckConsistency(connection, log) && result;
-        }
+        AICLI_CHECK_CONSISTENCY(TagsTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(CommandsTable::CheckConsistency(connection, log));
 
-        if (result || log)
-        {
-            result = CommandsTable::CheckConsistency(connection, log) && result;
-        }
+#undef AICLI_CHECK_CONSISTENCY
 
         return result;
     }

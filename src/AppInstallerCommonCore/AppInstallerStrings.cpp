@@ -333,6 +333,17 @@ namespace AppInstaller::Utility
         }
     }
 
+    void ReplaceEmbeddedNullCharacters(std::string& s, char c)
+    {
+        for (size_t i = 0; i < s.length(); ++i)
+        {
+            if (s[i] == '\0')
+            {
+                s[i] = c;
+            }
+        }
+    }
+
     std::string ToLower(std::string_view in)
     {
         std::string result(in);

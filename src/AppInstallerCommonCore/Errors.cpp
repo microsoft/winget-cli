@@ -220,6 +220,8 @@ namespace AppInstaller
                 return "Organization policies are preventing installation. Contact your admin.";
             case APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES:
                 return "Failed to install package dependencies.";
+            case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
+                return "Embedded null characters are disallowed for SQLite";
             default:
                 return "Unknown Error Code";
             }
