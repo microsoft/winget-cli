@@ -958,7 +958,7 @@ TEST_CASE("CompositeSource_NullAvailableVersion", "[CompositeSource]")
     CompositeTestSetup setup{ CompositeSearchBehavior::AvailablePackages };
     setup.Available->Everything.Matches.emplace_back(MakeInstalled(), Criteria());
 
-    // We are mostly testing to see if a null installed version causes an AV or not
+    // We are mostly testing to see if a null available version causes an AV or not
     SearchResult result = setup.Search();
     REQUIRE(result.Matches.size() == 1);
 }
