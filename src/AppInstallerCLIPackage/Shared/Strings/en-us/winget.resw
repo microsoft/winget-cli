@@ -1031,19 +1031,19 @@ Do you agree to the terms?</value>
     <value>Installer:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Locale:</value>
+    <value>Installer Locale:</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store Product Id:</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
+    <value>Installer SHA256:</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Type:</value>
+    <value>Installer Type:</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Download Url:</value>
+    <value>Installer Url:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>License:</value>
@@ -1055,7 +1055,7 @@ Do you agree to the terms?</value>
     <value>Moniker:</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
-    <value>Homepage:</value>
+    <value>Package Url:</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Publisher:</value>
@@ -1353,7 +1353,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Notes:</value>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
+    <value>Installation Notes:</value>
   </data>
   <data name="SymlinkModified" xml:space="preserve">
     <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
