@@ -13,7 +13,10 @@
         // Use WinGetDev.exe to run OutOfProcess tests
         public static IInstanceInitializer[] OutOfProcess =
         {
-            new LocalServerInitializer()
+            new LocalServerInitializer(useDevClsids: true)
+            {
+                AllowLowerTrustRegistration = true
+            }
         };
     }
 }

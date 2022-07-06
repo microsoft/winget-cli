@@ -8,5 +8,10 @@
         /// <typeparam name="T">Projected class typ</typeparam>
         /// <returns>Projected class intance</returns>
         public T CreateInstance<T>() where T : new();
+
+        /// <summary>
+        /// CLSID context.
+        /// </summary>
+        public ClsidContext Context { get; }
     }
 }

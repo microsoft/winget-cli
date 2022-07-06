@@ -26,30 +26,15 @@
             return CoCreateInstance(clsid, CLSCTX.CLSCTX_INPROC_SERVER, iid);
         }
 
-        public static IntPtr CoCreateInstanceLocalServer(Guid clsid, Guid iid)
+        public static IntPtr CoCreateInstanceLocalServer(Guid clsid, Guid iid, bool allowLowerTrustReg = false)
         {
-            return CoCreateInstance(clsid, CLSCTX.CLSCTX_LOCAL_SERVER | CLSCTX.CLSCTX_ALLOW_LOWER_TRUST_REGISTRATION, iid);
-        }
-
-        public static IntPtr LoadModule(string fileName)
-        {
-            var moduleHandle = Platform.LoadLibraryExW(fileName, IntPtr.Zero, /* LOAD_WITH_ALTERED_SEARCH_PATH */ 8);
-            if (moduleHandle == IntPtr.Zero)
+            CLSCTX clsctx = CLSCTX.CLSCTX_LOCAL_SERVER;
+            if (allowLowerTrustReg)
             {
-                throw new ArgumentException($"Module not found: {fileName}");
-            }
-            return moduleHandle;
-        }
-
-        public static unsafe IntPtr GetProcAddress(IntPtr moduleHandle, string procName)
-        {
-            if (moduleHandle == IntPtr.Zero)
-            {
-                throw new ArgumentException("Module handle cannot be empty");
+                clsctx |= CLSCTX.CLSCTX_ALLOW_LOWER_TRUST_REGISTRATION;
             }
 
-            void* procNamePtr = Platform.GetProcAddress(moduleHandle, procName);
-            return new IntPtr(procNamePtr);
+            return CoCreateInstance(clsid, clsctx, iid);
         }
     }
 }

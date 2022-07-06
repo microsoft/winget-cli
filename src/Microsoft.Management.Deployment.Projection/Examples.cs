@@ -48,7 +48,10 @@
             RunExample(() =>
             {
                 Console.WriteLine("Local server initializer example");
-                initializer = new LocalServerInitializer();
+                initializer = new LocalServerInitializer(useDevClsids: true)
+                {
+                    AllowLowerTrustRegistration = true
+                };
                 factory = new WinGetProjectionFactory(initializer);
                 packageManager = factory.CreatePackageManager();
                 Debug.Assert(packageManager != null);
