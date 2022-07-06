@@ -83,7 +83,8 @@ namespace AppInstaller::CLI::Workflow
         auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
         if (!releaseNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes << ' ' << releaseNotes << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes << std::endl;
+            info << "  " << std::regex_replace(releaseNotes, std::regex("\n"), "\n  ") << std::endl;
         }
         auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
         if (!releaseNotesUrl.empty())
