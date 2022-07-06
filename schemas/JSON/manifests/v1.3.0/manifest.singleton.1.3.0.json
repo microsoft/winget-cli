@@ -145,6 +145,7 @@
             "description": "The command alias to be used for calling the package. Only applies to the nested portable package"
           }
         },
+        "required": [ "RelativeFilePath" ],
         "description": "A nested installer file contained inside an archive"
       },
       "maxItems": 1024,
