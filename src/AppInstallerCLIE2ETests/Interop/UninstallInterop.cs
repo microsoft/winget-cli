@@ -4,11 +4,11 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
+    using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using WinGetProjection;
 
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]

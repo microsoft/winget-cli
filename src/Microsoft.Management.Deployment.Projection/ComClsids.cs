@@ -1,6 +1,5 @@
-﻿namespace WinGetProjection
+﻿namespace Microsoft.Management.Deployment.Projection
 {
-    using Microsoft.Management.Deployment;
     using System;
 
     public static class ComClsids

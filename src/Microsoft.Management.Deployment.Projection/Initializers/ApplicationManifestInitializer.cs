@@ -1,4 +1,4 @@
-﻿namespace WinGetProjection
+﻿namespace Microsoft.Management.Deployment.Projection
 {
     using WinRT;
 

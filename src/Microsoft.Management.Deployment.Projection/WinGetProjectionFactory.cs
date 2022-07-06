@@ -1,6 +1,4 @@
-﻿using Microsoft.Management.Deployment;
-
-namespace WinGetProjection
+﻿namespace Microsoft.Management.Deployment.Projection
 {
     public class WinGetProjectionFactory
     {

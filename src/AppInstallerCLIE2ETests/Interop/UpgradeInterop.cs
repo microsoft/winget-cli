@@ -4,12 +4,12 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
+    using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using WinGetProjection;
 
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
@@ -213,8 +213,8 @@ namespace AppInstallerCLIE2ETests.Interop
                 throw new ArgumentNullException();
             }
 
-            // Note: Using a regular loop on IVector based properties as iterable based statements (e.g. foreach)
-            // and expressions (e.g. Linq style query) throw an exception when running in out-of-process context;
+            // Cannot use foreach on out-of-process IVector
+            // Bug: https://github.com/microsoft/CsWinRT/issues/1205
             for (int i = 0; i < list.Count; ++i)
             {
                 var item = list[i];

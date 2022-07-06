@@ -58,7 +58,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\WinGetProjection\WinGetProjection.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj" />
   </ItemGroup>
 
   <ItemGroup>

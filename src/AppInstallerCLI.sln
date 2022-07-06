@@ -136,7 +136,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COMServer", "COMServer\COMS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment.InProc", "Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj", "{9AC3C6A4-1875-4D3E-BF9C-C31E81EFF6B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinGetProjection", "WinGetProjection\WinGetProjection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Management.Deployment.Projection", "Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

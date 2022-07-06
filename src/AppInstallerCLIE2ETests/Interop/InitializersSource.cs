@@ -1,7 +1,7 @@
-﻿using WinGetProjection;
-
-namespace AppInstallerCLIE2ETests.Interop
+﻿namespace AppInstallerCLIE2ETests.Interop
 {
+    using Microsoft.Management.Deployment.Projection;
+
     internal class InitializersSource
     {
         // Use <buildDir>\winget.exe to run InProcess tests

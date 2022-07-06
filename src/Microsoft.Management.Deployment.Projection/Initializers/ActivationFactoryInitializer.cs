@@ -1,5 +1,4 @@
-﻿
-namespace WinGetProjection
+﻿namespace Microsoft.Management.Deployment.Projection
 {
     // Activation factory initializer requires that:
     // - DllGetActivationFactory is exported

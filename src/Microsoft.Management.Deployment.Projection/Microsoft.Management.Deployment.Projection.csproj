@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\WinGetProjection\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Microsoft.Management.Deployment.Projection\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Exe</OutputType>
-    <ApplicationManifest>WinGetProjection.manifest</ApplicationManifest>
+    <ApplicationManifest>Microsoft.Management.Deployment.Projection.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

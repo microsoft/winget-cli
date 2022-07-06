@@ -2,10 +2,10 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
+    using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
     using System.Collections.Generic;
     using System.Linq;
-    using WinGetProjection;
 
     public class BaseInterop : BaseCommand
     {
@@ -62,7 +62,7 @@ namespace AppInstallerCLIE2ETests.Interop
             string value)
         {
             var findPackages = FindAllPackages(packageCatalogReference, field, option, value);
-            Assert.True(1 == findPackages.Count, $"Expected exactly one package but found {findPackages.Count}");
+            Assert.AreEqual(1, findPackages.Count, $"Expected exactly one package but found {findPackages.Count}");
             return findPackages.First();
         }
     }

@@ -1,8 +1,7 @@
-﻿namespace WinGetProjection
+﻿namespace Microsoft.Management.Deployment.Projection
 {
     using System;
     using System.Diagnostics;
-    using Microsoft.Management.Deployment;
 
     internal class Examples
     {
