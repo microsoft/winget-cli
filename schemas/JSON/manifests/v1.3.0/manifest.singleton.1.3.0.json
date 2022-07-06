@@ -555,6 +555,31 @@
       ],
       "description": "The installer's elevation requirement"
     },
+    "InstalledLocation": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 2048,
+      "description": "Represents an installed package location. Used for deeper installation detection."
+    },
+    "InstalledFile": {
+      "type": "object",
+      "title": "InstalledFile",
+      "properties": {
+        "RelativeFilePath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "The relative path to the installed file"
+        },
+        "FileSha256": {
+          "type": [ "string", "null" ],
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "Sha256 is optional. Sha256 of the installed file"
+        }
+      },
+      "required": [ "RelativeFilePath" ],
+      "description": "Represents an installed file. Used for deeper installation detection."
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -652,6 +677,9 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
@@ -663,6 +691,12 @@
         },
         "ElevationRequirement": {
           "$ref": "#/definitions/ElevationRequirement"
+        },
+        "DefaultInstallLocation": {
+          "$ref": "#/definitions/InstalledLocation"
+        },
+        "PrimaryExecutableFile": {
+          "$ref": "#/definitions/InstalledFile"
         }
       },
       "required": [
@@ -874,6 +908,9 @@
     "RequireExplicitUpgrade": {
       "$ref": "#/definitions/RequireExplicitUpgrade"
     },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
+    },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"
     },
@@ -885,6 +922,12 @@
     },
     "ElevationRequirement": {
       "$ref": "#/definitions/ElevationRequirement"
+    },
+    "DefaultInstallLocation": {
+      "$ref": "#/definitions/InstalledLocation"
+    },
+    "PrimaryExecutableFile": {
+      "$ref": "#/definitions/InstalledFile"
     },
     "Installers": {
       "type": "array",
