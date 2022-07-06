@@ -47,15 +47,6 @@
 
             RunExample(() =>
             {
-                Console.WriteLine("Class object initializer example");
-                initializer = new ClassObjectInitializer("Microsoft.Management.Deployment.InProc.dll");
-                factory = new WinGetProjectionFactory(initializer);
-                packageManager = factory.CreatePackageManager();
-                Debug.Assert(packageManager != null);
-            });
-
-            RunExample(() =>
-            {
                 Console.WriteLine("Local server initializer example");
                 initializer = new LocalServerInitializer();
                 factory = new WinGetProjectionFactory(initializer);
