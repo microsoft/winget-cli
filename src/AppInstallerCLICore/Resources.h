@@ -219,6 +219,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PressEnterToContinue);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
         WINGET_DEFINE_RESOURCE_STRINGID(ProductCodeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
