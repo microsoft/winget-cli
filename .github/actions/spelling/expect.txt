@@ -1,7 +1,7 @@
 abcd
 accepteula
-adjacents
 activatable
+adjacents
 adml
 admx
 affle
@@ -162,8 +162,8 @@ hmodule
 hre
 hresults
 htm
-IAttachment
 IARP
+IAttachment
 IConfiguration
 idx
 IFACEMETHODIMP
@@ -236,8 +236,8 @@ megamorf
 memcpy
 middleware
 midl
-minidump
 minexample
+minidump
 minschema
 missingdependency
 MMmmbbbb
@@ -277,8 +277,8 @@ NX
 objbase
 objidl
 ofile
-Outptr
 OSVERSION
+Outptr
 Packagedx
 packageinuse
 parametermap
