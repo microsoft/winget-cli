@@ -5,6 +5,20 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Handles all opened source(s) agreements if needed.
+    // Required Args: The source to be checked for agreements
+    // Inputs: None
+    // Outputs: None
+    struct HandleSourceAgreements : public WorkflowTask
+    {
+        HandleSourceAgreements(Repository::Source source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::Source m_source;
+    };
+
     // Shows all the prompts required for a single package, e.g. for package agreements
     // Required Args: None
     // Inputs: Manifest, Installer

@@ -372,20 +372,6 @@ namespace AppInstaller::CLI::Workflow
     private:
         ExecutionStage m_stage;
     };
-
-    // Handles all opened source(s) agreements if needed.
-    // Required Args: The source to be checked for agreements
-    // Inputs: None
-    // Outputs: None
-    struct HandleSourceAgreements : public WorkflowTask
-    {
-        HandleSourceAgreements(Repository::Source source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        Repository::Source m_source;
-    };
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.
