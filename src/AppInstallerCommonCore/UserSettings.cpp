@@ -189,6 +189,17 @@ namespace AppInstaller::Settings
             // Use folding to call each setting validate function.
             (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
         }
+
+        std::optional<std::filesystem::path> ValidatePathValue(std::string_view value)
+        {
+            std::filesystem::path path = ConvertToUTF16(value);
+            if (!path.is_absolute())
+            {
+                return {};
+            }
+
+            return path;
+        }
     }
 
     namespace details
@@ -246,18 +257,12 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
         {
-            std::filesystem::path root = ConvertToUTF16(value);
-            if (!root.is_absolute())
-            {
-                return {};
-            }
-
-            return root;
+            return ValidatePathValue(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
         {
-            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
+            return ValidatePathValue(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
@@ -321,9 +326,7 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)
         {
-            // TODO: Check valid
-            // TODO: Allow environment variables?
-            return std::filesystem::path{ value };
+            return ValidatePathValue(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(NetworkDownloader)
