@@ -2,7 +2,7 @@
 {
     using WinRT;
 
-    // Out-of-process COM server (WindowsPackageManagerServer.exe)
+    // Out-of-process COM client instance initializer.
     public class LocalServerInitializer : IInstanceInitializer
     {
         /// <summary>

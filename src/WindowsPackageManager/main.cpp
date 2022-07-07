@@ -87,4 +87,10 @@ extern "C"
         RETURN_HR(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().GetClassObject(redirectedClsid, riid, ppv));
     }
     CATCH_RETURN();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(void* classId, void** factory) try
+    {
+        return WINRT_GetActivationFactory(classId, factory);
+    }
+    CATCH_RETURN();
 }

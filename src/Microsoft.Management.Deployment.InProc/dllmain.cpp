@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <WindowsPackageManager.h>
-#include <hstring.h>
 
 EXTERN_C BOOL WINAPI DllMain(
     HMODULE /* hModule */,
@@ -43,4 +42,9 @@ STDAPI DllGetClassObject(
 STDAPI DllCanUnloadNow()
 {
     return WindowsPackageManagerInProcModuleTerminate() ? S_OK : S_FALSE;
+}
+
+STDAPI DllGetActivationFactory(void* classId, void** factory)
+{
+    return WindowsPackageManagerInProcModuleGetActivationFactory(classId, factory);
 }

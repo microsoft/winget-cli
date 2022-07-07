@@ -3,15 +3,15 @@
     public interface IInstanceInitializer
     {
         /// <summary>
-        /// Create an in or out-of process COM instance
+        /// CLSID context.
+        /// </summary>
+        public ClsidContext Context { get; }
+
+        /// <summary>
+        /// Create an in-process or out-of process instance.
         /// </summary>
         /// <typeparam name="T">Projected class typ</typeparam>
         /// <returns>Projected class intance</returns>
         public T CreateInstance<T>() where T : new();
-
-        /// <summary>
-        /// CLSID context.
-        /// </summary>
-        public ClsidContext Context { get; }
     }
 }

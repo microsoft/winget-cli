@@ -26,10 +26,10 @@
             return CoCreateInstance(clsid, CLSCTX.CLSCTX_INPROC_SERVER, iid);
         }
 
-        public static IntPtr CoCreateInstanceLocalServer(Guid clsid, Guid iid, bool allowLowerTrustReg = false)
+        public static IntPtr CoCreateInstanceLocalServer(Guid clsid, Guid iid, bool allowLowerTrustRegistration = false)
         {
             CLSCTX clsctx = CLSCTX.CLSCTX_LOCAL_SERVER;
-            if (allowLowerTrustReg)
+            if (allowLowerTrustRegistration)
             {
                 clsctx |= CLSCTX.CLSCTX_ALLOW_LOWER_TRUST_REGISTRATION;
             }

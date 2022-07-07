@@ -36,5 +36,6 @@ extern "C"
         REFIID riid,
         LPVOID* ppv);
 
+    // DllGetActivationFactory for in-proc cpp winrt runtime classes.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(void* classId, void** factory);
 }

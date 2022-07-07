@@ -17,6 +17,8 @@
 
         /// <summary>
         /// Calls default projected class constructor implemented by CsWinRT.
+        /// Default constructor uses DllGetActivationFactory to create an object
+        /// based on the full name of the projected class.
         /// </summary>
         /// <typeparam name="T">Projected class type</typeparam>
         /// <returns>Instance of the provided type.</returns>

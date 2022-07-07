@@ -1,7 +1,14 @@
 ﻿namespace Microsoft.Management.Deployment.Projection
 {
-    // Registration-Free COM Interop using provided application manifest
-    // deployed side-by-side of the coresponding assemblies
+    /// <summary>
+    /// Registration-Free COM Interop using provided application manifest
+    /// deployed side-by-side of the coresponding assemblies. Manifest should contain:
+    /// <code>
+    /// &lt;dependentAssembly&gt;
+    ///   &lt;assemblyIdentity name="Microsoft.Management.Deployment.InProc.dll" version="0.0.0.0" /&gt;
+    /// &lt;/dependentAssembly&gt;
+    /// </code>
+    /// </summary>
     public class ApplicationManifestInitializer : IInstanceInitializer
     {
         /// <summary>

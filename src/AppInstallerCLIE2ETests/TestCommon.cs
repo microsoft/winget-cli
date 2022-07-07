@@ -383,7 +383,7 @@ namespace AppInstallerCLIE2ETests
 
         public static bool VerifyTestExeUninstalled(string installDir)
         {
-            return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledileName));
+            return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledFileName));
         }
 
         public static bool VerifyTestMsiUninstalled(string installDir)

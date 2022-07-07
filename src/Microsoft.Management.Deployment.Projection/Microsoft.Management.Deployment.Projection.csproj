@@ -6,7 +6,6 @@
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Exe</OutputType>
-    <ApplicationManifest>Microsoft.Management.Deployment.Projection.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

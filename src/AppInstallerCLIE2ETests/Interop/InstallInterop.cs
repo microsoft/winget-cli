@@ -28,25 +28,6 @@ namespace AppInstallerCLIE2ETests.Interop
             installDir = TestCommon.GetRandomTestDir();
         }
 
-        public void InstallAppDoesNotExist()
-        {
-            // Find package
-            var searchResult = FindAllPackages(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "DoesNotExist");
-            
-            // Assert
-            Assert.AreEqual(0, searchResult.Count);
-        }
-
-        [Test]
-        public void InstallWithMultipleAppsMatchingQuery()
-        {
-            // Find package
-            var searchResult = FindAllPackages(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestExeInstaller");
-            
-            // Assert
-            Assert.AreEqual(2, searchResult.Count);
-        }
-
         [Test]
         public async Task InstallExe()
         {

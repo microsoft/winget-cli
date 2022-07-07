@@ -19,6 +19,7 @@
 
   <!-- CsWinRT -->
   <PropertyGroup>
+    <!-- Local %WinDir%\System32\WinMetadata folder-->
     <CsWinRTWindowsMetadata>local</CsWinRTWindowsMetadata>
   </PropertyGroup>
 

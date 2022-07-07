@@ -61,7 +61,7 @@ namespace AppInstallerCLIE2ETests
 
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
-        public const string TestExeUninstalledileName = "TestExeUninstalled.txt";
+        public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
 
         // Locations
         public const string LocalAppData = "LocalAppData";

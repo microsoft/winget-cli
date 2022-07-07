@@ -1,5 +1,4 @@
-﻿
-namespace AppInstallerCLIE2ETests.Interop
+﻿namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;

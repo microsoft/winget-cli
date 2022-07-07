@@ -2,15 +2,18 @@
 {
     using Microsoft.Management.Deployment.Projection;
 
-    internal class InitializersSource
+    /// <summary>
+    /// Source class for running tests in-process and out-of-process
+    /// </summary>
+    public class InitializersSource
     {
-        // Use <buildDir>\winget.exe to run InProcess tests
+        // List of in-process initializers passed as argument to the test class constructor
         public static IInstanceInitializer[] InProcess =
         {
             new ActivationFactoryInitializer()
         };
 
-        // Use WinGetDev.exe to run OutOfProcess tests
+        // List of out-of-process initializers passed as argument to the test class constructor
         public static IInstanceInitializer[] OutOfProcess =
         {
             new LocalServerInitializer(useDevClsids: true)
