@@ -103,6 +103,7 @@ diskfull
 dllimport
 dnld
 Dobbeleer
+Dsc
 Dst
 dustojnikhummer
 dvinns
@@ -110,6 +111,7 @@ dw
 ebug
 ecfr
 ecfrbrowse
+EFGH
 endian
 enums
 EQU
@@ -148,6 +150,7 @@ gitlab
 gity
 Google
 guiddef
+Hackathon
 hashtable
 helplib
 helplibrary
@@ -275,6 +278,7 @@ objidl
 ofile
 Outptr
 packageinuse
+PARAMETERMAP
 paramref
 pathparts
 Patil
@@ -391,6 +395,7 @@ uec
 uild
 uintptr
 ul
+uninitialize
 uninstallation
 uninstaller
 uninstallprevious
@@ -424,6 +429,7 @@ Webserver
 website
 WERSJA
 wesome
+Whatif
 windir
 windowsdeveloper
 winerror
