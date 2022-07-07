@@ -235,9 +235,9 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
+        WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFZipInstall)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
-        WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
@@ -316,6 +316,13 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)
+        {
+            // TODO: Check valid
+            // TODO: Allow environment variables?
+            return std::filesystem::path{ value };
         }
 
         WINGET_VALIDATE_SIGNATURE(NetworkDownloader)

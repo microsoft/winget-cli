@@ -178,6 +178,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALLER_PROHIBITS_ELEVATION = unchecked((int)0x8A150056);
             public const int ERROR_PORTABLE_UNINSTALL_FAILED = unchecked((int)0x8A150057);
             public const int ERROR_ARP_VERSION_VALIDATION_FAILED = unchecked((int)0x8A150058);
+            public const int ERROR_UNSUPPORTED_ARGUMENT = unchecked((int)0x8A150059);
+            public const int ERROR_BIND_WITH_EMBEDDED_NULL = unchecked((int)0x8A15005A);
+            public const int ERROR_INSTALL_LOCATION_REQUIRED = unchecked((int)0x8A15005B);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

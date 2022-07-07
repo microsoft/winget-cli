@@ -31,14 +31,23 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id)
+        void ReportIdentity(
+            Execution::Context& context,
+            Utility::LocIndString label,
+            std::string_view name,
+            std::string_view id,
+            std::string_view version = {},
+            Execution::Reporter::Level level = Execution::Reporter::Level::Info)
         {
-            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
-        }
+            auto out = context.Reporter.GetOutputStream(level);
+            out << label << ' ' << Execution::NameEmphasis << name << " ["_liv << Execution::IdEmphasis << id << ']';
 
-        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id, std::string_view version)
-        {
-            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
+            if (!version.empty())
+            {
+                out << ' ' << Resource::String::ShowVersion << ' ' << version;
+            }
+
+            out << std::endl;
         }
 
         Repository::Source OpenNamedSource(Execution::Context& context, std::string_view sourceName)
@@ -945,19 +954,19 @@ namespace AppInstaller::CLI::Workflow
     void ReportPackageIdentity(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
-        ReportIdentity(context, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
+        ReportIdentity(context, Resource::LocString{ Resource::String::ReportIdentityFound }, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, Resource::LocString{ Resource::String::ReportIdentityFound }, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
     }
 
-    void ReportManifestIdentityWithVersion(Execution::Context& context)
+    void ReportManifestIdentityWithVersion::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
+        ReportIdentity(context, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
     }
 
     void GetManifest(Execution::Context& context)

@@ -12,7 +12,8 @@
 #include "ArchiveFlow.h"
 #include "PortableFlow.h"
 #include "WorkflowBase.h"
-#include "Workflows/DependenciesFlow.h"
+#include "DependenciesFlow.h"
+#include "PromptFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/Archive.h>
@@ -28,6 +29,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -513,7 +515,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
-            Workflow::ReportManifestIdentityWithVersion <<
+            Workflow::ReportManifestIdentityWithVersion() <<
             Workflow::ShowInstallationDisclaimer;
     }
 
@@ -535,7 +537,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
@@ -561,11 +563,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
-        if (m_ensurePackageAgreements)
-        {
-            // Show all license agreements before installing anything
-            context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
-        }
+        // Show all prompts needed for every package before installing anything
+        context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
 
         if (context.IsTerminated())
         {
@@ -592,7 +591,7 @@ namespace AppInstaller::CLI::Workflow
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
             packagesProgress++;
-            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
+            context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
 
             // We want to do best effort to install all packages regardless of previous failures
             Execution::Context& installContext = *packageContext;

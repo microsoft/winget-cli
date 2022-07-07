@@ -116,6 +116,11 @@
           "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%PROGRAMFILES%/WinGet/Packages/"
+        },
+        "defaultInstallRoot": {
+          "description": "Default install location to use for packages that require it when not specified",
+          "type": "string",
+          "maxLength": "1024"
         }
       }
     },

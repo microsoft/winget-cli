@@ -119,6 +119,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
@@ -131,6 +132,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerRequiresInstallLocation);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallersRequireInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowRegistrationDeferred);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeAlreadyInstalled);
@@ -150,6 +154,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
@@ -228,15 +233,22 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PressEnterToContinue);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
         WINGET_DEFINE_RESOURCE_STRINGID(ProductCodeArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptForInstallRoot);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
+        WINGET_DEFINE_RESOURCE_STRINGID(PromptToProceed);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityForAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);

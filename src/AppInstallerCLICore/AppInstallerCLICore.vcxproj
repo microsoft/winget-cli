@@ -283,6 +283,7 @@
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
     <ClInclude Include="Workflows\PortableFlow.h" />
+    <ClInclude Include="Workflows\PromptFlow.h" />
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
@@ -336,6 +337,7 @@
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
+    <ClCompile Include="Workflows\PromptFlow.cpp" />
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />

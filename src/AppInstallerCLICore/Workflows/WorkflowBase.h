@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionArgs.h"
+#include "ExecutionReporter.h"
 #include <winget/ExperimentalFeature.h>
 #include <winget/RepositorySearch.h>
 
@@ -300,7 +301,19 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    void ReportManifestIdentityWithVersion(Execution::Context& context);
+    struct ReportManifestIdentityWithVersion : public WorkflowTask
+    {
+        ReportManifestIdentityWithVersion(Utility::LocIndView label, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+            WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
+        ReportManifestIdentityWithVersion(Resource::LocString label = Resource::String::ReportIdentityFound, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+            WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Utility::LocIndString m_label;
+        Execution::Reporter::Level m_level;
+    };
 
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
