@@ -615,55 +615,25 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && MightWriteToARP(installer->InstallerType))
         {
-            Source arpSource = context.Reporter.ExecuteWithProgress(
-                [](IProgressCallback& progress)
-                {
-                    Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                    result.Open(progress);
-                    return result;
-                }, true);
-
-            std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
-
-            for (const auto& entry : arpSource.Search({}).Matches)
-            {
-                auto installed = entry.Package->GetInstalledVersion();
-                if (installed)
-                {
-                    entries.emplace_back(std::make_tuple(
-                        entry.Package->GetProperty(PackageProperty::Id),
-                        installed->GetProperty(PackageVersionProperty::Version),
-                        installed->GetProperty(PackageVersionProperty::Channel)));
-                }
-            }
-
-            std::sort(entries.begin(), entries.end());
-
-            context.Add<Execution::Data::ARPSnapshot>(std::move(entries));
+            Repository::Correlation::ARPCorrelationData data;
+            data.CapturePreInstallSnapshot();
+            context.Add<Execution::Data::ARPCorrelationData>(std::move(data));
         }
     }
     CATCH_LOG()
 
     void ReportARPChanges(Execution::Context& context) try
     {
-        if (!context.Contains(Execution::Data::ARPSnapshot))
+        if (!context.Contains(Execution::Data::ARPCorrelationData))
         {
             return;
         }
 
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        const auto& arpSnapshot = context.Get<Execution::Data::ARPSnapshot>();
+        auto& arpCorrelationData = context.Get<Execution::Data::ARPCorrelationData>();
 
-        // Open the ARP source again to get the (potentially) changed ARP entries
-        Source arpSource = context.Reporter.ExecuteWithProgress(
-            [](IProgressCallback& progress)
-            {
-                Repository::Source result = Repository::Source(PredefinedSource::ARP);
-                result.Open(progress);
-                return result;
-            }, true);
-
-        auto correlationResult = Correlation::FindARPEntryForNewlyInstalledPackage(manifest, arpSnapshot, arpSource);
+        arpCorrelationData.CapturePostInstallSnapshot();
+        auto correlationResult = arpCorrelationData.CorrelateForNewlyInstalled(manifest);
 
         // Store the ARP entry found to match the package to record it in the tracking catalog later
         if (correlationResult.Package)

@@ -28,6 +28,9 @@ namespace AppInstaller::Manifest
     // V1.2 manifest version
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
+    // V1.3 manifest version
+    constexpr std::string_view s_ManifestVersionV1_3 = "1.3.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -244,6 +247,12 @@ namespace AppInstaller::Manifest
         std::vector<string_t> ExcludedMarkets;
     };
 
+    struct NestedInstallerFile
+    {
+        string_t RelativeFilePath;
+        string_t PortableCommandAlias;
+    };
+
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
     UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
@@ -277,6 +286,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer type supports ARP version range.
     bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer type is an archive.
+    bool IsArchiveType(InstallerTypeEnum installerType);
 
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);

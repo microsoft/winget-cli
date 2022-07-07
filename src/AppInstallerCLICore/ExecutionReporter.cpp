@@ -139,6 +139,7 @@ namespace AppInstaller::CLI::Execution
             std::string response;
             if (!std::getline(m_in, response))
             {
+                m_in.get();
                 THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
             }
 
@@ -153,6 +154,13 @@ namespace AppInstaller::CLI::Execution
                 }
             }
         }
+    }
+
+    void Reporter::PromptForEnter(Level level)
+    {
+        auto out = GetOutputStream(level);
+        out << std::endl << Resource::String::PressEnterToContinue << std::endl;
+        m_in.get();
     }
 
     void Reporter::ShowIndefiniteProgress(bool running)

@@ -217,6 +217,11 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Where(std::string_view column);
         StatementBuilder& Where(const QualifiedColumn& column);
 
+        // A full filter clause looking for an embedded null character.
+        // Is extremely specific to consistency checks, and so a more detailed construct is not required.
+        StatementBuilder& WhereValueContainsEmbeddedNullCharacter(std::string_view column);
+        StatementBuilder& WhereValueContainsEmbeddedNullCharacter(const QualifiedColumn& column);
+
         // Indicate the operation of the filter clause.
         template <typename ValueType>
         StatementBuilder& Equals(const ValueType& value)

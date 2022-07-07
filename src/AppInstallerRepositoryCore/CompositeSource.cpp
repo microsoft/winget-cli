@@ -159,7 +159,12 @@ namespace AppInstaller::Repository
             {
                 auto&& [manifestVersion, arpMinVersion, arpMaxVersion] = std::move(tuple);
                 Utility::VersionRange arpVersionRange{ Utility::Version(std::move(arpMinVersion)), Utility::Version(std::move(arpMaxVersion)) };
-                arpVersionMap.emplace_back(std::make_pair(Utility::Version{ std::move(manifestVersion) }, std::move(arpVersionRange)));
+                Utility::Version manifestVer{ std::move(manifestVersion) };
+                // Skip mapping to unknown version
+                if (!manifestVer.IsUnknown())
+                {
+                    arpVersionMap.emplace_back(std::make_pair(std::move(manifestVer), std::move(arpVersionRange)));
+                }
             }
 
             // Go through the arp version map and determine what mapping should be performed.
@@ -338,7 +343,11 @@ namespace AppInstaller::Repository
             {
                 if (m_installedPackage)
                 {
-                    return std::make_shared<CompositeInstalledVersion>(m_installedPackage->GetInstalledVersion(), m_trackingSource, m_overrideInstalledVersion);
+                    auto installedVersion = m_installedPackage->GetInstalledVersion();
+                    if (installedVersion)
+                    {
+                        return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, m_overrideInstalledVersion);
+                    }
                 }
 
                 return {};
@@ -439,10 +448,14 @@ namespace AppInstaller::Repository
             {
                 if (m_installedPackage && m_availablePackage)
                 {
-                    auto installedType = Manifest::ConvertToInstallerTypeEnum(m_installedPackage->GetInstalledVersion()->GetMetadata()[PackageVersionMetadata::InstalledType]);
-                    if (Manifest::DoesInstallerTypeSupportArpVersionRange(installedType))
+                    auto installedVersion = m_installedPackage->GetInstalledVersion();
+                    if (installedVersion)
                     {
-                        m_overrideInstalledVersion = GetMappedInstalledVersion(m_installedPackage->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version), m_availablePackage);
+                        auto installedType = Manifest::ConvertToInstallerTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
+                        if (Manifest::DoesInstallerTypeSupportArpVersionRange(installedType))
+                        {
+                            m_overrideInstalledVersion = GetMappedInstalledVersion(installedVersion->GetProperty(PackageVersionProperty::Version), m_availablePackage);
+                        }
                     }
                 }
             }

@@ -609,6 +609,54 @@ TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_4]
 
         REQUIRE(!index.CheckConsistency(true));
     }
+
+    TempFile tempFile2{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile2.GetPath());
+
+    {
+        SQLiteIndex index = CreateTestIndex(tempFile2, Schema::Version::Latest());
+
+        Manifest manifest;
+        manifest.Id = "Foo";
+        manifest.Version = "10.0";
+
+        index.AddManifest(manifest, "path");
+
+        REQUIRE(index.CheckConsistency(true));
+
+        // Add dependency that does not require min version
+        Manifest manifestWithDependency1;
+        manifestWithDependency1.Id = "Bar1";
+        manifestWithDependency1.Version = "10.0";
+        manifestWithDependency1.Installers.push_back({});
+        manifestWithDependency1.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, manifest.Id));
+
+        index.AddManifest(manifestWithDependency1, "path1");
+
+        REQUIRE(index.CheckConsistency(true));
+
+        // Add dependency with min version satisfied
+        Manifest manifestWithDependency2;
+        manifestWithDependency2.Id = "Bar2";
+        manifestWithDependency2.Version = "10.0";
+        manifestWithDependency2.Installers.push_back({});
+        manifestWithDependency2.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, manifest.Id, "1.0"));
+
+        index.AddManifest(manifestWithDependency2, "path2");
+
+        REQUIRE(index.CheckConsistency(true));
+
+        // Add dependency with min version not satisfied
+        Manifest manifestWithDependency3;
+        manifestWithDependency3.Id = "Bar3";
+        manifestWithDependency3.Version = "10.0";
+        manifestWithDependency3.Installers.push_back({});
+        manifestWithDependency3.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, manifest.Id, "11.0"));
+
+        index.AddManifest(manifestWithDependency3, "path3");
+
+        REQUIRE_FALSE(index.CheckConsistency(true));
+    }
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
@@ -3105,4 +3153,31 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqlit
     // Add different version should result in failure.
     manifest.Version = "10.1";
     REQUIRE_THROWS(ValidateManifestArpVersion(&index, manifest));
+}
+
+TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile, Schema::Version::Latest());
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "10.0";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+
+    index.AddManifest(manifest, "path");
+
+    // Inject a null character using SQL without binding since we block it
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+    Statement update = Statement::Create(connection, "Update versions set version = '10.0'||char(0)||'After Null' where version = '10.0'");
+    update.Execute();
+
+    REQUIRE(!index.CheckConsistency(true));
 }

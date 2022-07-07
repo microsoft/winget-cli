@@ -168,7 +168,7 @@ namespace AppInstaller::Utility
 
         // Only Installers should be downloaded with DO currently, as:
         //  - Index :: Constantly changing blob at same location is not what DO is for
-        //  - Manifest :: DO overhead is not needed for small files
+        //  - Manifest / InstallerMetadataCollectionInput :: DO overhead is not needed for small files
         //  - WinGetUtil :: Intentionally not using DO at this time
         if (type == DownloadType::Installer)
         {

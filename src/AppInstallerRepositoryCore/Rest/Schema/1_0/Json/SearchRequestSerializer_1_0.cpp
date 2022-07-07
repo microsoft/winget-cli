@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Rest/Schema/IRestClient.h"
 #include "SearchRequestSerializer.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
@@ -62,12 +62,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             web::json::value json_body;
             if (searchRequest.MaximumResults > 0)
             {
-                json_body[JsonHelper::GetUtilityString(MaximumResults)] = searchRequest.MaximumResults;
+                json_body[JSON::GetUtilityString(MaximumResults)] = searchRequest.MaximumResults;
             }
 
             if (searchRequest.IsForEverything())
             {
-                json_body[JsonHelper::GetUtilityString(FetchAllManifests)] = web::json::value::boolean(true);
+                json_body[JSON::GetUtilityString(FetchAllManifests)] = web::json::value::boolean(true);
                 return json_body;
             }
 
@@ -78,7 +78,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(requestMatch);
                 if (requestMatchJson)
                 {
-                    json_body[JsonHelper::GetUtilityString(Query)] = std::move(requestMatchJson.value());
+                    json_body[JSON::GetUtilityString(Query)] = std::move(requestMatchJson.value());
                 }
             }
 
@@ -97,7 +97,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                     }
                 }
 
-                json_body[JsonHelper::GetUtilityString(Filters)] = filters;
+                json_body[JSON::GetUtilityString(Filters)] = filters;
             }
 
             if (!searchRequest.Inclusions.empty())
@@ -115,7 +115,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                     }
                 }
 
-                json_body[JsonHelper::GetUtilityString(Inclusions)] = inclusions;
+                json_body[JSON::GetUtilityString(Inclusions)] = inclusions;
             }
 
             return json_body;
@@ -143,7 +143,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             return {};
         }
 
-        filter[JsonHelper::GetUtilityString(PackageMatchField)] = web::json::value::string(JsonHelper::GetUtilityString(matchField.value()));
+        filter[JSON::GetUtilityString(PackageMatchField)] = web::json::value::string(JSON::GetUtilityString(matchField.value()));
         std::optional<web::json::value> requestMatchJson = GetRequestMatchJsonObject(packageMatchFilter);
 
         if (!requestMatchJson)
@@ -152,14 +152,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             return {};
         }
 
-        filter[JsonHelper::GetUtilityString(RequestMatch)] = std::move(requestMatchJson.value());
+        filter[JSON::GetUtilityString(RequestMatch)] = std::move(requestMatchJson.value());
         return filter;
     }
 
     std::optional<web::json::value> SearchRequestSerializer::GetRequestMatchJsonObject(const AppInstaller::Repository::RequestMatch& requestMatch) const
     {
         web::json::value match = web::json::value::object();
-        match[JsonHelper::GetUtilityString(KeyWord)] = web::json::value::string(JsonHelper::GetUtilityString(requestMatch.Value));
+        match[JSON::GetUtilityString(KeyWord)] = web::json::value::string(JSON::GetUtilityString(requestMatch.Value));
 
         std::optional<std::string_view> matchType = ConvertMatchTypeToString(requestMatch.Type);
         if (!matchType)
@@ -168,7 +168,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             return {};
         }
 
-        match[JsonHelper::GetUtilityString(MatchType)] = web::json::value::string(JsonHelper::GetUtilityString(matchType.value()));
+        match[JSON::GetUtilityString(MatchType)] = web::json::value::string(JSON::GetUtilityString(matchType.value()));
         return match;
     }
 
