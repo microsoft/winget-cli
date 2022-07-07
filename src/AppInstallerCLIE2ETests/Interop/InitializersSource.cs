@@ -7,18 +7,23 @@
     /// </summary>
     public class InitializersSource
     {
-        // List of in-process initializers passed as argument to the test class constructor
-        public static IInstanceInitializer[] InProcess =
+        /// <summary>
+        /// List of in-process initializers passed as argument to the test class constructor
+        /// </summary>
+        public static readonly IInstanceInitializer[] InProcess =
         {
             new ActivationFactoryInitializer()
         };
 
-        // List of out-of-process initializers passed as argument to the test class constructor
-        public static IInstanceInitializer[] OutOfProcess =
+        /// <summary>
+        /// List of out-of-process initializers passed as argument to the test class constructor
+        /// </summary>
+        public static readonly IInstanceInitializer[] OutOfProcess =
         {
-            new LocalServerInitializer(useDevClsids: true)
+            new LocalServerInitializer()
             {
-                AllowLowerTrustRegistration = true
+                AllowLowerTrustRegistration = true,
+                UseDevClsids = true
             }
         };
     }

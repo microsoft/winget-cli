@@ -4,7 +4,7 @@
     using System.Runtime.InteropServices;
     using WinRT;
 
-    public static class ComUtils
+    internal static class ComUtils
     {
         private enum CLSCTX : uint
         {

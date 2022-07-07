@@ -8,7 +8,7 @@
         /// <summary>
         /// Out-of-process context.
         /// </summary>
-        public ClsidContext Context { get; } = ClsidContext.OutOfProc;
+        public ClsidContext Context => UseDevClsids ? ClsidContext.OutOfProcDev : ClsidContext.OutOfProc;
 
         /// <summary>
         /// Allow lower trust registration.
@@ -17,16 +17,9 @@
         public bool AllowLowerTrustRegistration { init; get; }
 
         /// <summary>
-        /// Create a local server initializer
+        /// Use Prod or Dev Clsids
         /// </summary>
-        /// <param name="useDevClsids">Use development Clsids.</param>
-        public LocalServerInitializer(bool useDevClsids = false)
-        {
-            if (useDevClsids)
-            {
-                Context = ClsidContext.OutOfProcDev;
-            }
-        }
+        public bool UseDevClsids { init; get; }
 
         /// <summary>
         /// Create instance of the provided type.
@@ -36,8 +29,8 @@
         public T CreateInstance<T>()
             where T : new()
         {
-            var clsid = Projections.GetClsid<T>(Context);
-            var iid = Projections.GetIid<T>();
+            var clsid = ClassesDefinition.GetClsid<T>(Context);
+            var iid = ClassesDefinition.GetIid<T>();
 
             var instanceInPtr = ComUtils.CoCreateInstanceLocalServer(clsid, iid, AllowLowerTrustRegistration);
             return MarshalGeneric<T>.FromAbi(instanceInPtr);

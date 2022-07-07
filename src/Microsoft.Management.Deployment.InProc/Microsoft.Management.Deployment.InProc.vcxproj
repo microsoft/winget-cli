@@ -298,7 +298,7 @@
     <None Include="Source.def" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders  Include="Microsoft.Management.Deployment.InProc.dll.manifest">
+    <CopyFileToFolders Include="Microsoft.Management.Deployment.InProc.dll.manifest">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

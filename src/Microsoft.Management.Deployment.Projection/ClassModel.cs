@@ -16,12 +16,12 @@ namespace Microsoft.Management.Deployment.Projection
         OutOfProcDev
     }
 
-    public class ProjectionDefinition
+    internal class ClassModel
     {
         /// <summary>
         /// Interface type corresponding to the object's IID
         /// </summary>
-        public Type Interface { init;  get; }
+        public Type InterfaceType { init;  get; }
 
         /// <summary>
         /// Projected class type by CsWinRT
@@ -31,7 +31,7 @@ namespace Microsoft.Management.Deployment.Projection
         /// <summary>
         /// Clsids for each context (e.g. InProc, OutOfProc, OutOfProcDev)
         /// </summary>
-        public Dictionary<ClsidContext, Guid> Clsids { init; get; }
+        public IReadOnlyDictionary<ClsidContext, Guid> Clsids { init; get; }
 
         /// <summary>
         /// Get CLSID based on the provided context
@@ -55,7 +55,7 @@ namespace Microsoft.Management.Deployment.Projection
         /// <returns>IID.</returns>
         public Guid GetIid()
         {
-            return Interface.GUID;
+            return InterfaceType.GUID;
         }
     }
 }

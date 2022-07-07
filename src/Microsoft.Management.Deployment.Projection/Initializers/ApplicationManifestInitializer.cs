@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Management.Deployment.Projection
 {
+    using WinRT;
+
     /// <summary>
     /// Registration-Free COM Interop using provided application manifest
     /// deployed side-by-side of the coresponding assemblies. Manifest should contain:
@@ -24,11 +26,11 @@
         public T CreateInstance<T>()
             where T : new()
         {
-            var clsid = Projections.GetClsid<T>(Context);
-            var iid = Projections.GetIid<T>();
+            var clsid = ClassesDefinition.GetClsid<T>(Context);
+            var iid = ClassesDefinition.GetIid<T>();
 
             var instanceInPtr = ComUtils.CoCreateInstanceInProcServer(clsid, iid);
-            return WinRT.MarshalGeneric<T>.FromAbi(instanceInPtr);
+            return MarshalGeneric<T>.FromAbi(instanceInPtr);
         }
     }
 }

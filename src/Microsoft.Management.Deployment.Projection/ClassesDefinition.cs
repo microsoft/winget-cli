@@ -4,15 +4,15 @@ namespace Microsoft.Management.Deployment.Projection
     using System;
     using System.Collections.Generic;
 
-    public static class Projections
+    internal static class ClassesDefinition
     {
-        private static Dictionary<Type, ProjectionDefinition> Definitions { get; set; } = new()
+        private static Dictionary<Type, ClassModel> Classes { get; set; } = new()
         {
             [typeof(PackageManager)] = new()
             {
                 ProjectedClassType = typeof(PackageManager),
-                Interface = typeof(IPackageManager),
-                Clsids = new()
+                InterfaceType = typeof(IPackageManager),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("2DDE4456-64D9-4673-8F7E-A4F19A2E6CC3"),
                     [ClsidContext.OutOfProc] = new Guid("C53A4F16-787E-42A4-B304-29EFFB4BF597"),
@@ -23,8 +23,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(FindPackagesOptions)] = new()
             {
                 ProjectedClassType = typeof(FindPackagesOptions),
-                Interface = typeof(IFindPackagesOptions),
-                Clsids = new()
+                InterfaceType = typeof(IFindPackagesOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("96B9A53A-9228-4DA0-B013-BB1B2031AB3D"),
                     [ClsidContext.OutOfProc] = new Guid("572DED96-9C60-4526-8F92-EE7D91D38C1A"),
@@ -35,8 +35,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(CreateCompositePackageCatalogOptions)] = new()
             {
                 ProjectedClassType = typeof(CreateCompositePackageCatalogOptions),
-                Interface = typeof(ICreateCompositePackageCatalogOptions),
-                Clsids = new()
+                InterfaceType = typeof(ICreateCompositePackageCatalogOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("768318A6-2EB5-400D-84D0-DF3534C30F5D"),
                     [ClsidContext.OutOfProc] = new Guid("526534B8-7E46-47C8-8416-B1685C327D37"),
@@ -47,8 +47,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(InstallOptions)] = new()
             {
                 ProjectedClassType = typeof(InstallOptions),
-                Interface = typeof(IInstallOptions),
-                Clsids = new()
+                InterfaceType = typeof(IInstallOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("E2AF3BA8-8A88-4766-9DDA-AE4013ADE286"),
                     [ClsidContext.OutOfProc] = new Guid("1095F097-EB96-453B-B4E6-1613637F3B14"),
@@ -59,8 +59,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(UninstallOptions)] = new()
             {
                 ProjectedClassType = typeof(UninstallOptions),
-                Interface = typeof(IUninstallOptions),
-                Clsids = new()
+                InterfaceType = typeof(IUninstallOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("869CB959-EB54-425C-A1E4-1A1C291C64E9"),
                     [ClsidContext.OutOfProc] = new Guid("E1D9A11E-9F85-4D87-9C17-2B93143ADB8D"),
@@ -71,8 +71,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(PackageMatchFilter)] = new()
             {
                 ProjectedClassType = typeof(PackageMatchFilter),
-                Interface = typeof(IPackageMatchFilter),
-                Clsids = new()
+                InterfaceType = typeof(IPackageMatchFilter),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("57DC8962-7343-42CD-B91C-04F6A25DB1D0"),
                     [ClsidContext.OutOfProc] = new Guid("D02C9DAF-99DC-429C-B503-4E504E4AB000"),
@@ -83,8 +83,8 @@ namespace Microsoft.Management.Deployment.Projection
             [typeof(PackageManagerSettings)] = new()
             {
                 ProjectedClassType = typeof(PackageManagerSettings),
-                Interface = typeof(IPackageManagerSettings),
-                Clsids = new()
+                InterfaceType = typeof(IPackageManagerSettings),
+                Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("80CF9D63-5505-4342-B9B4-BB87895CA8BB"),
                 }
@@ -100,7 +100,7 @@ namespace Microsoft.Management.Deployment.Projection
         public static Guid GetClsid<T>(ClsidContext context)
         {
             ValidateType(typeof(T));
-            return Definitions[typeof(T)].GetClsid(context);
+            return Classes[typeof(T)].GetClsid(context);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Microsoft.Management.Deployment.Projection
         public static Guid GetIid<T>()
         {
             ValidateType(typeof(T));
-            return Definitions[typeof(T)].GetIid();
+            return Classes[typeof(T)].GetIid();
         }
 
         /// <summary>
@@ -121,9 +121,9 @@ namespace Microsoft.Management.Deployment.Projection
         /// <exception cref="InvalidOperationException"></exception>
         private static void ValidateType(Type type)
         {
-            if (!Definitions.ContainsKey(type))
+            if (!Classes.ContainsKey(type))
             {
-                throw new InvalidOperationException($"{type.FullName} is not a projected class type.");
+                throw new InvalidOperationException($"{type.Name} is not a projected class type.");
             }
         }
     }

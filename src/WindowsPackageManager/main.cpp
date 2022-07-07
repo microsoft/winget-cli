@@ -88,7 +88,7 @@ extern "C"
     }
     CATCH_RETURN();
 
-    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(void* classId, void** factory) try
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(HSTRING classId, void** factory) try
     {
         return WINRT_GetActivationFactory(classId, factory);
     }
