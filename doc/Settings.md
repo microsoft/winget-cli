@@ -193,6 +193,20 @@ The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait w
    }
 ```
 
+## Interactivity
+
+The `interactivity` settings control whether winget may show interactive prompts during execution. Note that this refers only to prompts shown by winget itself and not to those shown by package installers.
+
+### disable
+
+```json
+    "interactivity": {
+        "disable": true
+    },
+```
+
+If set to true, the `interactivity.disable` setting will prevent any interactive prompt from being shown.
+
 ## Experimental Features
 
 To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 

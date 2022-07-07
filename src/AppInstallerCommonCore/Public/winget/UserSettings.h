@@ -68,14 +68,19 @@ namespace AppInstaller::Settings
     // Validate will be called by ValidateAll without any more changes.
     enum class Setting : size_t
     {
+        // Visual
         ProgressBarVisualStyle,
+        // Source
         AutoUpdateTimeInMinutes,
+        // Experimental
         EFExperimentalCmd,
         EFExperimentalArg,
         EFDependencies,
         EFDirectMSI,
         EFZipInstall,
+        // Telemetry
         TelemetryDisable,
+        // Install behavior
         InstallScopePreference,
         InstallScopeRequirement,
         InstallArchitecturePreference,
@@ -83,15 +88,21 @@ namespace AppInstaller::Settings
         InstallLocalePreference,
         InstallLocaleRequirement,
         InstallDefaultRoot,
-        NetworkDownloader,
-        NetworkDOProgressTimeoutInSeconds,
-        EnableSelfInitiatedMinidump,
-        LoggingLevelPreference,
         InstallIgnoreWarnings,
         DisableInstallNotes,
         PortableAppUserRoot,
         PortableAppMachineRoot,
+        // Network
+        NetworkDownloader,
+        NetworkDOProgressTimeoutInSeconds,
+        // Logging
+        LoggingLevelPreference,
+        // Uninstall behavior
         UninstallPurgePortablePackage,
+        // Interactivity
+        InteractivityDisable,
+        // Debug
+        EnableSelfInitiatedMinidump,
         Max
     };
 
@@ -125,14 +136,19 @@ namespace AppInstaller::Settings
 #define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
         SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, ValuePolicy::None)
 
+        // Visual
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
+        // Source
         SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
+        // Experimental
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFZipInstall, bool, bool, false, ".experimentalFeatures.zipInstall"sv);
+        // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
+        // Install behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitecturePreference, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.preferences.architectures"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitectureRequirement, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.requirements.architectures"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
@@ -143,14 +159,19 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortableAppMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portableAppMachineRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);
+        // Uninstall behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
+        // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
+        // Debug
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
-
+        // Interactivity
+        SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
+        
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, typename SettingMapping<static_cast<Setting>(I)>::value_t...>{}; }

@@ -169,6 +169,17 @@
         }
       }
     },
+    "Interactivity": {
+      "description": "Interactivity settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether interactive prompts are shown by the Windows Package Manager client",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "Experimental": {
       "description": "Experimental Features",
       "type": "object",
@@ -235,6 +246,12 @@
     {
       "properties": {
         "network": { "$ref": "#/definitions/Network" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "interactivity": { "$ref": "#/definitions/Interactivity" }
       },
       "additionalItems": true
     },
