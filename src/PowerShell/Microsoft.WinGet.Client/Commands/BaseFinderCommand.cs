@@ -67,7 +67,7 @@ namespace Microsoft.WinGet.Client.Commands
         public string[] Query { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicataing whether to match exactly against package fields.
+        /// Gets or sets a value indicating whether to match exactly against package fields.
         /// </summary>
         [Parameter(
             ParameterSetName = Constants.FoundSet,
