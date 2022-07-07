@@ -1404,4 +1404,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="InstallLocationNotProvided" xml:space="preserve">
     <value>Install location is required by the package but it was not provided</value>
   </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>Disable interactive prompts</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
 </root>
