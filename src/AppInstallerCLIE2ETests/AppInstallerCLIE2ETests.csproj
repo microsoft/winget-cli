@@ -35,24 +35,16 @@
     </Content>
   </ItemGroup>
 
- <ItemGroup>
-   <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
-   <ProjectReference Include="..\Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj" />
- </ItemGroup>
-
- <ItemGroup>
-   <!-- Include Microsoft.Management.Deployment.InProc.dll and WindowsPackageManager.dll in output directory -->
-   <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
-     <OutputItemType>Content</OutputItemType>
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
-   </ProjectReference>
-   <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
-     <OutputItemType>Content</OutputItemType>
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
-   </ProjectReference>
- </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Test.runsettings">
@@ -62,6 +54,7 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
       <!-- Rename dll to align with the expected search pattern performed by CsWinRT -->
-    <Move SourceFiles="$(TargetDir)Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
+    <Copy SourceFiles="$(TargetDir)..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
+    <Copy SourceFiles="$(TargetDir)..\WindowsPackageManager\WindowsPackageManager.dll" DestinationFiles="$(TargetDir)WindowsPackageManager.dll" />
   </Target>
 </Project>
