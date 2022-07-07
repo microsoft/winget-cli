@@ -1,6 +1,5 @@
 abcd
 accepteula
-activatable
 adjacents
 adml
 admx
@@ -20,7 +19,6 @@ apicontract
 apiset
 appinstallertest
 appname
-Archs
 arget
 argumentlist
 ARMNT
@@ -56,6 +54,7 @@ BOMs
 boundparms
 brk
 Buf
+buildtransitive
 BUILTINS
 cancelledbyuser
 casemap
@@ -81,6 +80,7 @@ COMGLB
 commandline
 Concat
 contactsupport
+contentfiles
 contoso
 contractversion
 count'th
@@ -103,20 +103,20 @@ diskfull
 dllimport
 dnld
 Dobbeleer
-dsc
+Dst
 dustojnikhummer
 dvinns
 dw
+ebug
 ecfr
 ecfrbrowse
-efgh
 endian
-enr
 enums
 EQU
 ERANGE
 errno
 ESRB
+estination
 etest
 execustom
 EXEHASH
@@ -139,7 +139,6 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
-FWW
 fzanollo
 gcpi
 GES
@@ -147,10 +146,8 @@ GESMBH
 GHS
 gitlab
 gity
-Globals
 Google
 guiddef
-hackathon
 hashtable
 helplib
 helplibrary
@@ -214,6 +211,7 @@ learnxinyminutes
 lhs
 libsolv
 libyaml
+Lifecycle
 Linq
 liv
 liwpx
@@ -226,7 +224,6 @@ LPWSTR
 LSTATUS
 LTDA
 lw
-lww
 lz
 malware
 maxvalue
@@ -258,7 +255,6 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
 NETFX
 netlify
 Newtonsoft
@@ -277,13 +273,10 @@ NX
 objbase
 objidl
 ofile
-OSVERSION
 Outptr
-Packagedx
 packageinuse
-parametermap
+paramref
 pathparts
-pathpaths
 Patil
 pb
 PCs
@@ -303,6 +296,7 @@ pri
 processthreads
 productcode
 pscustomobject
+psd
 pseudocode
 psm
 psobject
@@ -361,6 +355,7 @@ standalone
 startswith
 streambuf
 strtoull
+stylecop
 subdir
 subkey
 superstring
@@ -369,7 +364,6 @@ SUSE
 swervy
 SYD
 SYG
-symlink
 sysrefcomp
 Tagit
 TCpp
@@ -388,6 +382,7 @@ TResult
 trimstart
 TState
 TStatus
+typeof
 UCase
 ucasemap
 UChars
@@ -396,7 +391,6 @@ uec
 uild
 uintptr
 ul
-Uninitialize
 uninstallation
 uninstaller
 uninstallprevious
@@ -425,13 +419,11 @@ vscode
 vstest
 vy
 wcslen
-WDAG
 webpages
 Webserver
 website
 WERSJA
 wesome
-whatif
 windir
 windowsdeveloper
 winerror
@@ -441,7 +433,6 @@ winreg
 withstarts
 wn
 Workflows
-wsb
 wsl
 wsv
 wto
