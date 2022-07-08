@@ -35,44 +35,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 
-    // Shows the license agreements if the application has them.
-    // Required Args: None
-    // Inputs: Manifest
-    // Outputs: None
-    struct ShowPackageAgreements : public WorkflowTask
-    {
-        ShowPackageAgreements(bool ensureAcceptance) : WorkflowTask("ShowPackageAgreements"), m_ensureAcceptance(ensureAcceptance) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        // Whether we need to ensure that the agreements are accepted, or only show them.
-        bool m_ensureAcceptance;
-    };
-
-    // Ensure the user accepted the license agreements.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    struct EnsurePackageAgreementsAcceptance : public WorkflowTask
-    {
-        EnsurePackageAgreementsAcceptance(bool showPrompt) : WorkflowTask("EnsurePackageAgreementsAcceptance"), m_showPrompt(showPrompt) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        // Whether to show an interactive prompt
-        bool m_showPrompt;
-    };
-
-    // Ensure that the user accepted all the license agreements when there are
-    // multiple installers.
-    // Required Args: None
-    // Inputs: PackagesToInstall
-    // Outputs: None
-    void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context);
-
-    // Starts execution of the installer.
+    // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath
     // Outputs: None
