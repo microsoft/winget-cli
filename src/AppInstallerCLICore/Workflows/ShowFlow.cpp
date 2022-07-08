@@ -8,6 +8,7 @@
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
@@ -52,7 +53,16 @@ namespace AppInstaller::CLI::Workflow
         }
         if (!description.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDescription << ' ' << description << std::endl;
+            bool isMultiLine = RegexFindAndReplace(description, std::regex("\n"), "\n  ");
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDescription;
+            if (isMultiLine)
+            {
+                info << std::endl << "  " << description << std::endl;
+            }
+            else
+            {
+                info << ' ' << description << std::endl;
+            }
         }
         auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         if (!homepage.empty())
@@ -83,8 +93,16 @@ namespace AppInstaller::CLI::Workflow
         auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
         if (!releaseNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes << std::endl;
-            info << "  " << std::regex_replace(releaseNotes, std::regex("\n"), "\n  ") << std::endl;
+            bool isMultiLine = RegexFindAndReplace(releaseNotes, std::regex("\n"), "\n  ");
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes;
+            if (isMultiLine)
+            {
+                info << std::endl << "  " << releaseNotes << std::endl;
+            }
+            else
+            {
+                info << ' ' << releaseNotes << std::endl;
+            }
         }
         auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
         if (!releaseNotesUrl.empty())
@@ -94,7 +112,16 @@ namespace AppInstaller::CLI::Workflow
         auto installationNotes = manifest.CurrentLocalization.Get<Manifest::Localization::InstallationNotes>();
         if (!installationNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallationNotes << ' ' << installationNotes << std::endl;
+            bool isMultiLine = RegexFindAndReplace(installationNotes, std::regex("\n"), "\n  ");
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallationNotes;
+            if (isMultiLine)
+            {
+                info << std::endl << "  " << installationNotes << std::endl;
+            }
+            else
+            {
+                info << ' ' << installationNotes << std::endl;
+            }
         }
         const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())
