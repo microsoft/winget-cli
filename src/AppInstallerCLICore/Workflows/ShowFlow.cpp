@@ -247,7 +247,7 @@ namespace AppInstaller::CLI::Workflow
         table.Complete();
     }
 
-    void ShowMultiLineField(AppInstaller::CLI::Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value)
+    void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, std::string& value)
     {
         bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
         outputStream << Execution::ManifestInfoEmphasis << label;
