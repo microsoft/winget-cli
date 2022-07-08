@@ -11,6 +11,22 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
+namespace {
+    void ShowMultiLineField(Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value)
+    {
+        bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
+        outputStream << Execution::ManifestInfoEmphasis << label;
+        if (isMultiLine)
+        {
+            outputStream << std::endl << "  "_liv << value << std::endl;
+        }
+        else
+        {
+            outputStream << ' ' << value << std::endl;
+        }
+    }
+}
+
 namespace AppInstaller::CLI::Workflow
 {
     void ShowManifestInfo(Execution::Context& context)
@@ -245,19 +261,5 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ version.Version, version.Channel });
         }
         table.Complete();
-    }
-
-    void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, std::string& value)
-    {
-        bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
-        outputStream << Execution::ManifestInfoEmphasis << label;
-        if (isMultiLine)
-        {
-            outputStream << std::endl << "  "_liv << value << std::endl;
-        }
-        else
-        {
-            outputStream << ' ' << value << std::endl;
-        }
     }
 }
