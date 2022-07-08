@@ -6,8 +6,6 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerSHA256.h"
 
-#include <regex>
-
 namespace AppInstaller::Utility
 {
     // Same as std::isspace(char)
@@ -441,13 +439,6 @@ namespace AppInstaller::Utility
             inputStr.replace(pos, token.length(), value);
             pos += value.length();
         }
-        return result;
-    }
-
-    bool RegexFindAndReplace(std::string& inputStr, std::regex pattern, const char* value)
-    {
-        bool result = std::regex_search(inputStr, pattern);
-        inputStr = std::regex_replace(inputStr, pattern, value);
         return result;
     }
 

@@ -34,4 +34,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult [only operates on first match]
     // Outputs: None
     void ShowAppVersions(Execution::Context& context);
+
+    // Shows a manifest field, indenting if the field-value contains multiple lines
+    // Required Args: None
+    // Inputs: Label, Field Value
+    // Outputs: None
+    void ShowMultiLineField(AppInstaller::CLI::Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value);
 }

@@ -6,7 +6,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <regex>
 
 namespace AppInstaller::Utility
 {
@@ -149,10 +148,6 @@ namespace AppInstaller::Utility
     // Find token in the input string and replace with value.
     // Returns a value indicating whether a replacement occurred.
     bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value);
-
-    // Find pattern in the input string and replace with value.
-    // Returns a value indicating whether a replacement occurred.
-    bool RegexFindAndReplace(std::string& inputStr, std::regex pattern, const char* value);
 
     // Replaces the token in the input string with value while copying to a new result.
     std::wstring ReplaceWhileCopying(std::wstring_view input, std::wstring_view token, std::wstring_view value);
