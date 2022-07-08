@@ -223,6 +223,7 @@ jobs:
       testRunTitle: 'E2E Packaged'
       testSelector: 'testAssemblies'
       testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      testFiltercriteria: "Category!=InProcess&Category!=OutOfProcess"
       runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
