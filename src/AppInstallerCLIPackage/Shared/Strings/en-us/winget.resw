@@ -1361,4 +1361,13 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="UnsupportedArgument" xml:space="preserve">
     <value>A provided argument is not supported for this package</value>
   </data>
+  <data name="PortableInstallFromArchiveNotSupported" xml:space="preserve">
+    <value>Installing a portable package from an archive is not yet supported</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>Failed to extract the contents of the archive</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
+  </data>
 </root>

@@ -64,6 +64,7 @@ namespace AppInstaller::CLI::Execution
         // TODO: Remove when the source interface is refactored.
         TreatSourceFailuresAsWarning = 0x10,
         ShowSearchResultsOnPartialFailure = 0x20,
+        InstallerExtractedFromArchive = 0x40,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

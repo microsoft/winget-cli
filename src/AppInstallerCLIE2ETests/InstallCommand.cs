@@ -271,6 +271,35 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        [Test]
+        public void InstallZipWithExe()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
+        }
+
+        [Test]
+        public void InstallZipWithMsi()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
+        }
+
+        [Test]
+        public void InstallZipWithMsix()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsix");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(VerifyTestMsixInstalledAndCleanup());
+        }
+
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))

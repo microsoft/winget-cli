@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using Microsoft.Msix.Utils.ProcessRunner;
 
 namespace AppInstallerCLIE2ETests
@@ -40,6 +41,8 @@ namespace AppInstallerCLIE2ETests
             {
                 CopyMsixInstallerToTestDirectory();
             }
+
+            CreateZipInstallerInTestDirectory();
 
             TestHashHelper.HashInstallers();
 
@@ -90,7 +93,7 @@ namespace AppInstallerCLIE2ETests
             // Set Exe Test Installer Path
             string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
-            string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
+            string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, Constants.ExeInstallerFileName);
 
             // Copy Exe Test Installer to Destination Path
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
@@ -107,7 +110,7 @@ namespace AppInstallerCLIE2ETests
             DirectoryInfo msiInstallerDestDir = Directory.CreateDirectory(msiInstallerDestPath);
 
             // Copy MSI Test Installer to Destination Path
-            string msiInstallerFullName = Path.Combine(msiInstallerDestDir.FullName, "AppInstallerTestMsiInstaller.msi");
+            string msiInstallerFullName = Path.Combine(msiInstallerDestDir.FullName, Constants.MsiInstallerFileName);
 
             File.Copy(TestCommon.MsiInstallerPath, msiInstallerFullName, true);
             TestCommon.MsiInstallerPath = msiInstallerFullName;
@@ -123,13 +126,42 @@ namespace AppInstallerCLIE2ETests
             DirectoryInfo msixInstallerDestDir = Directory.CreateDirectory(msixInstallerDestPath);
 
             // Copy Msix Test Installer to Destination Path
-            string msixInstallerFullName = Path.Combine(msixInstallerDestDir.FullName, "AppInstallerTestMsixInstaller.msix");
+            string msixInstallerFullName = Path.Combine(msixInstallerDestDir.FullName, Constants.MsixInstallerFileName);
 
             File.Copy(TestCommon.MsixInstallerPath, msixInstallerFullName, true);
             TestCommon.MsixInstallerPath = msixInstallerFullName;
 
             // Sign MSIX Installer File
             SignFile(TestCommon.MsixInstallerPath);
+        }
+
+        private static void CreateZipInstallerInTestDirectory()
+        {
+            DirectoryInfo zipInstallerDir = Directory.CreateDirectory(Path.Combine(TestCommon.StaticFileRootPath, Constants.ZipInstaller));
+            string zipSourceDirFullPath = Directory.CreateDirectory(TestCommon.GetRandomTestDir()).FullName;
+
+            string exeInstallerSourceDestPath = Path.Combine(zipSourceDirFullPath, Constants.ExeInstallerFileName);
+            string msiInstallerSourceDestPath = Path.Combine(zipSourceDirFullPath, Constants.MsiInstallerFileName);
+            string msixInstallerSourceDestPath = Path.Combine(zipSourceDirFullPath, Constants.MsixInstallerFileName);
+
+            if (File.Exists(TestCommon.ExeInstallerPath))
+            {
+                File.Copy(TestCommon.ExeInstallerPath, exeInstallerSourceDestPath, true);
+            }
+
+            if (File.Exists(TestCommon.MsiInstallerPath))
+            {
+                File.Copy(TestCommon.ExeInstallerPath, msiInstallerSourceDestPath, true);
+            }
+
+            if (File.Exists(TestCommon.MsixInstallerPath))
+            {
+                File.Copy(TestCommon.ExeInstallerPath, msixInstallerSourceDestPath, true);
+            }
+
+            string destArchiveFullPath = Path.Combine(zipInstallerDir.FullName, Constants.ZipInstallerFileName); ;
+            ZipFile.CreateFromDirectory(zipSourceDirFullPath, destArchiveFullPath);
+            TestCommon.ZipInstallerPath = destArchiveFullPath;
         }
 
         private static void SetupLocalTestDirectory(string staticFileRootPath)

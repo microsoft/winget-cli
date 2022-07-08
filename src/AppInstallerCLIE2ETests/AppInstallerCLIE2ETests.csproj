@@ -23,6 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="TestData\Manifests\TestZipInstaller_Exe.yaml" />
+    <None Remove="TestData\Manifests\TestZipInstaller_Msi.yaml" />
+    <None Remove="TestData\Manifests\TestZipInstaller_Msix.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -303,6 +303,7 @@
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\winget\Archive.h" />    
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
@@ -389,6 +390,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp" />
+    <ClCompile Include="Archive.cpp" />    
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="PortableARPEntry.cpp" />

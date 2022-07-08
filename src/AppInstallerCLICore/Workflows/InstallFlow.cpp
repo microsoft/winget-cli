@@ -9,11 +9,13 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
+#include "ArchiveFlow.h"
 #include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/Archive.h>
 #include <Argument.h>
 #include <Command.h>
 
@@ -322,7 +324,18 @@ namespace AppInstaller::CLI::Workflow
 
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
-        switch (installer.InstallerType)
+        InstallerTypeEnum installerType;
+
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExtractedFromArchive))
+        {
+            installerType = installer.NestedInstallerType;
+        }
+        else
+        {
+            installerType = installer.InstallerType;
+        }
+
+        switch (installerType)
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:
@@ -337,7 +350,7 @@ namespace AppInstaller::CLI::Workflow
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            if (ShouldUseDirectMSIInstall(installer.InstallerType, context.Args.Contains(Execution::Args::Type::Silent)))
+            if (ShouldUseDirectMSIInstall(installerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
                 context << DirectMSIInstall;
             }
@@ -364,9 +377,20 @@ namespace AppInstaller::CLI::Workflow
             }
             context << PortableInstall;
             break;
+        case InstallerTypeEnum::Zip:
+            context << ArchiveInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+    }
+
+    void ArchiveInstall(Execution::Context& context)
+    {
+        context <<
+            ExtractInstallerFromArchive <<
+            VerifyAndSetNestedInstaller <<
+            ExecuteInstaller;
     }
 
     void ShellExecuteInstall(Execution::Context& context)
@@ -524,7 +548,8 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureSupportForPortableInstall;
+            Workflow::EnsureSupportForPortableInstall <<
+            Workflow::EnsureNonPortableTypeForArchiveInstall;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const
