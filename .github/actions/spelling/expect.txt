@@ -130,6 +130,7 @@ fintimes
 Fixfor
 flargle
 flexera
+FOF
 foldc
 foldcase
 FOLDERID
@@ -166,7 +167,9 @@ IAttachment
 IARP
 IConfiguration
 idx
+IEnum
 IFACEMETHODIMP
+IFile
 IGlobal
 IHelp
 IHost
@@ -186,6 +189,7 @@ IPersist
 IRead
 IService
 ISettings
+IShell
 ishelp
 ISQ
 issuecomment
@@ -222,6 +226,7 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
+LPITEMIDLIST
 LPWSTR
 LSTATUS
 LTDA
@@ -259,11 +264,13 @@ mylog
 mysilent
 mysilentwithprogress
 mytool
+NESTEDINSTALLER
 NETFX
 netlify
 Newtonsoft
 NOEXPAND
 nonetwork
+NONFOLDERS
 nonterminated
 normer
 NOSEPARATOR
@@ -293,6 +300,8 @@ PEGI
 pfn
 pfxpath
 Pherson
+pidl
+PIDLIST
 pkgmgr
 pkindex
 PMS
@@ -346,6 +355,8 @@ seof
 serializer
 setmetadatabymanifestid
 SETTINGMAPPING
+SHCONTF
+SHGDN
 Shlobj
 sid
 SIGNATUREHASH
