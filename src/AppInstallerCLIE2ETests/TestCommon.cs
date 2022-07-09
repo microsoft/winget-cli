@@ -378,7 +378,7 @@ namespace AppInstallerCLIE2ETests
                 return false;
             }
 
-            return RemoveMsix(Constants.MsiInstaller);
+            return RemoveMsix(Constants.MsixInstallerName);
         }
 
         public static bool VerifyTestExeUninstalled(string installDir)

@@ -198,7 +198,7 @@ namespace AppInstallerCLIE2ETests.Interop
             
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace AppInstallerCLIE2ETests.Interop
             
             // Assert
             Assert.AreEqual(InstallResultStatus.InstallError, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]

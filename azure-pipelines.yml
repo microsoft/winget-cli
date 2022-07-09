@@ -223,9 +223,27 @@ jobs:
       testRunTitle: 'E2E Packaged'
       testSelector: 'testAssemblies'
       testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      testFiltercriteria: "Category!=InProcess&Category!=OutOfProcess"
+      testFiltercriteria: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
       runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
+                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
+                                  -AICLIPath AppInstallerCLI\winget.exe
+                                  -LooseFileRegistration true
+                                  -InvokeCommandInDesktopPackage true
+                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
+                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+
+  - task: VSTest@2
+    displayName: Run In-process E2E Tests Unpackaged
+    inputs:
+      testRunTitle: 'E2E Unpackaged'
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      testFiltercriteria: "TestCategory=InProcess"
+      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
                                   -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
