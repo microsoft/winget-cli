@@ -5,9 +5,9 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Filesystem.h"
 #include "Public/winget/UserSettings.h"
 
-#include <optional>
 
 #define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
 
@@ -90,7 +90,7 @@ namespace AppInstaller::Runtime
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        static std::map<PathName, std::filesystem::path> s_Path_TestHook_Overrides;
+        static std::map<PathName, PathDetails> s_Path_TestHook_Overrides;
 #endif
 
         std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
@@ -123,7 +123,6 @@ namespace AppInstaller::Runtime
         }
 
         // Gets the path to the app data relative directory.
-        // Creates the directory if it does not already exist.
         std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative)
         {
             THROW_HR_IF(E_INVALIDARG, !relative.has_relative_path());
@@ -159,6 +158,66 @@ namespace AppInstaller::Runtime
             if (Utility::IsEmptyOrWhitespace(result))
             {
                 result = s_RuntimePath_Unpackaged_DefaultState;
+            }
+
+            return result;
+        }
+
+        // If `source` begins with all of `prefix`, replace that with `replacement`.
+        void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
+        {
+            auto prefixItr = prefix.begin();
+            auto sourceItr = source.begin();
+
+            while (prefixItr != prefix.end() && sourceItr != source.end())
+            {
+                if (*prefixItr != *sourceItr)
+                {
+                    break;
+                }
+
+                ++prefixItr;
+                ++sourceItr;
+            }
+
+            // Only replace source if we found all of prefix
+            if (prefixItr == prefix.end())
+            {
+                std::filesystem::path temp{ replacement };
+
+                for (; sourceItr != source.end(); ++sourceItr)
+                {
+                    temp /= *sourceItr;
+                }
+
+                source = std::move(temp);
+            }
+        }
+
+        DWORD AccessPermissionsFrom(ACEPermissions permissions)
+        {
+            DWORD result = 0;
+
+            if (permissions == ACEPermissions::Owner)
+            {
+                result |= GENERIC_ALL;
+            }
+            else
+            {
+                if (WI_IsFlagSet(permissions, ACEPermissions::Read))
+                {
+                    result |= GENERIC_READ;
+                }
+
+                if (WI_IsFlagSet(permissions, ACEPermissions::Write))
+                {
+                    result |= GENERIC_WRITE | FILE_DELETE_CHILD;
+                }
+
+                if (WI_IsFlagSet(permissions, ACEPermissions::Execute))
+                {
+                    result |= GENERIC_EXECUTE;
+                }
             }
 
             return result;
@@ -270,98 +329,86 @@ namespace AppInstaller::Runtime
         s_runtimePathStateName.emplace(std::move(suitablePathPart));
     }
 
-    // The permissions granted to a specific ACE
-    enum class ACEPermissions
+    bool PathDetails::ShouldApplyACL() const
     {
-        // This is not "Deny All", but rather, "Not mentioned"
-        None = 0x0,
-        Read = 0x1,
-        Write = 0x2,
-        Execute = 0x4,
-        ReadWrite = Read | Write,
-        ReadWriteExecute = Read | Write | Execute,
-    };
+        // Could be expanded to actually check the current owner/ACL on the path, but isn't worth it currently
+        return (CurrentUser != ACEPermissions::None || Admins != ACEPermissions::None);
+    }
 
-    DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
-
-    // Information about one of the paths that we use and how to set it up.
-    struct PathDetails
+    void PathDetails::ApplyACL() const
     {
-        std::filesystem::path Path;
-        // Default to creating the directory with read/write permissions for the current effective user
-        bool Create = true;
-        ACEPermissions CurrentUser = ACEPermissions::ReadWrite;
-        ACEPermissions Admins = ACEPermissions::None;
-        ACEPermissions Users = ACEPermissions::None;
-    };
+        ULONG entries = 0;
+        EXPLICIT_ACCESS_W explicitAccess[2];
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
-    PathDetails GetPathDetailsForPackagedContext(PathName path)
+        decltype(wil::get_token_information<TOKEN_USER>()) userToken;
+        auto adminSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+        PSID ownerSID = nullptr;
+
+        if (CurrentUser != ACEPermissions::None)
+        {
+            userToken = wil::get_token_information<TOKEN_USER>();
+
+            if (CurrentUser == ACEPermissions::Owner)
+            {
+                ownerSID = userToken->User.Sid;
+            }
+
+            EXPLICIT_ACCESS_W& entry = explicitAccess[entries++];
+            entry = {};
+
+            entry.grfAccessPermissions = AccessPermissionsFrom(CurrentUser);
+            entry.grfAccessMode = SET_ACCESS;
+            entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
+
+            entry.Trustee.pMultipleTrustee = nullptr;
+            entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+            entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+            entry.Trustee.TrusteeType = TRUSTEE_IS_USER;
+            entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(userToken->User.Sid);
+        }
+
+        if (Admins != ACEPermissions::None)
+        {
+            if (Admins == ACEPermissions::Owner)
+            {
+                ownerSID = adminSID.get();
+            }
+
+            EXPLICIT_ACCESS_W& entry = explicitAccess[entries++];
+            entry = {};
+
+            entry.grfAccessPermissions = AccessPermissionsFrom(Admins);
+            entry.grfAccessMode = SET_ACCESS;
+            entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
+
+            entry.Trustee.pMultipleTrustee = nullptr;
+            entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+            entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+            entry.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+            entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(adminSID.get());
+        }
+
+        wil::unique_any<PACL, decltype(&::LocalFree), ::LocalFree> acl;
+        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entries, explicitAccess, nullptr, &acl));
+
+        std::wstring path = Path.wstring();
+        SECURITY_INFORMATION securityInformation = DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION;
+
+        if (ownerSID)
+        {
+            securityInformation |= OWNER_SECURITY_INFORMATION;
+        }
+
+        THROW_IF_WIN32_ERROR(SetNamedSecurityInfoW(&path[0], SE_FILE_OBJECT, securityInformation, ownerSID, nullptr, acl.get(), nullptr));
+    }
+
+    // Contains all of the paths that are common between the runtime contexts.
+    PathDetails GetPathDetailsCommon(PathName path)
     {
         PathDetails result;
 
-        auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
-
         switch (path)
         {
-        case PathName::Temp:
-        {
-            result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
-        }
-        break;
-        case PathName::LocalState:
-        case PathName::UserFileSettings:
-            result.Path.assign(appStorage.LocalFolder().Path().c_str());
-            break;
-        case PathName::DefaultLogLocation:
-        case PathName::DefaultLogLocationForDisplay:
-            // To enable UIF collection through Feedback hub, we must put our logs here.
-            result.Path.assign(appStorage.LocalFolder().Path().c_str());
-            result.Path /= WINGET_DEFAULT_LOG_DIRECTORY;
-
-            if (path == PathName::DefaultLogLocationForDisplay)
-            {
-                std::filesystem::path localAppData = GetKnownFolderPath(FOLDERID_LocalAppData);
-
-                auto ladItr = localAppData.begin();
-                auto resultItr = result.Path.begin();
-
-                while (ladItr != localAppData.end() && resultItr != result.Path.end())
-                {
-                    if (*ladItr != *resultItr)
-                    {
-                        break;
-                    }
-
-                    ++ladItr;
-                    ++resultItr;
-                }
-
-                if (ladItr == localAppData.end())
-                {
-                    localAppData.assign("%LOCALAPPDATA%");
-
-                    for (; resultItr != result.Path.end(); ++resultItr)
-                    {
-                        localAppData /= *resultItr;
-                    }
-
-                    result.Path = std::move(localAppData);
-                }
-            }
-            break;
-        case PathName::StandardSettings:
-            result.Create = false;
-            break;
-        case PathName::SecureSettings:
-            result.Path = GetKnownFolderPath(FOLDERID_ProgramData);
-            result.Path /= s_SecureSettings_Base;
-            result.Path /= GetUserSID();
-            result.Path /= s_SecureSettings_UserRelative;
-            result.Path /= s_SecureSettings_Relative_Packaged;
-            result.Path /= GetPackageName();
-            result.Create = false;
-            break;
         case PathName::UserProfile:
             result.Path = GetKnownFolderPath(FOLDERID_Profile);
             result.Create = false;
@@ -375,7 +422,6 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackageRoot;
                 result.Path /= s_PortablePackagesDirectory;
             }
-            result.Create = true;
             break;
         case PathName::PortablePackageMachineRootX64:
             result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
@@ -385,7 +431,6 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackageRoot;
                 result.Path /= s_PortablePackagesDirectory;
             }
-            result.Create = true;
             break;
         case PathName::PortablePackageMachineRootX86:
             result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
@@ -395,20 +440,81 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackageRoot;
                 result.Path /= s_PortablePackagesDirectory;
             }
-            result.Create = true;
             break;
         case PathName::PortableLinksUserLocation:
             result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
             result.Path /= s_PortablePackageUserRoot_Base;
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
-            result.Create = true;
             break;
         case PathName::PortableLinksMachineLocation:
             result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
-            result.Create = true;
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        return result;
+    }
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    PathDetails GetPathDetailsForPackagedContext(PathName path)
+    {
+        PathDetails result;
+
+        auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
+
+        switch (path)
+        {
+        case PathName::Temp:
+            result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
+            result.CurrentUser = ACEPermissions::Owner;
+            break;
+        case PathName::LocalState:
+        case PathName::UserFileSettings:
+            result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            break;
+        case PathName::DefaultLogLocation:
+        case PathName::DefaultLogLocationForDisplay:
+            // To enable UIF collection through Feedback hub, we must put our logs here.
+            result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            result.Path /= WINGET_DEFAULT_LOG_DIRECTORY;
+
+            if (path == PathName::DefaultLogLocationForDisplay)
+            {
+                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+            }
+            break;
+        case PathName::StandardSettings:
+            result.Create = false;
+            break;
+        case PathName::SecureSettingsForRead:
+        case PathName::SecureSettingsForWrite:
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramData);
+            result.Path /= s_SecureSettings_Base;
+            result.Path /= GetUserSID();
+            result.Path /= s_SecureSettings_UserRelative;
+            result.Path /= s_SecureSettings_Relative_Packaged;
+            result.Path /= GetPackageName();
+            if (path == PathName::SecureSettingsForWrite)
+            {
+                result.Admins = ACEPermissions::Owner;
+                result.CurrentUser = ACEPermissions::ReadExecute;
+            }
+            else
+            {
+                result.Create = false;
+            }
+            break;
+        case PathName::UserProfile:
+        case PathName::PortablePackageUserRoot:
+        case PathName::PortablePackageMachineRootX64:
+        case PathName::PortablePackageMachineRootX86:
+        case PathName::PortableLinksUserLocation:
+        case PathName::PortableLinksMachineLocation:
+            result = GetPathDetailsCommon(path);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
@@ -430,6 +536,10 @@ namespace AppInstaller::Runtime
             result.Path = GetPathToUserTemp();
             result.Path /= s_DefaultTempDirectory;
             result.Path /= GetRuntimePathStateName();
+            if (path == PathName::Temp)
+            {
+                result.CurrentUser = ACEPermissions::Owner;
+            }
         }
         break;
         case PathName::DefaultLogLocationForDisplay:
@@ -441,68 +551,39 @@ namespace AppInstaller::Runtime
         case PathName::LocalState:
             result.Path = GetPathToAppDataDir(s_AppDataDir_State);
             result.Path /= GetRuntimePathStateName();
+            result.CurrentUser = ACEPermissions::Owner;
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
             result.Path = GetPathToAppDataDir(s_AppDataDir_Settings);
             result.Path /= GetRuntimePathStateName();
+            result.CurrentUser = ACEPermissions::Owner;
             break;
-        case PathName::SecureSettings:
+        case PathName::SecureSettingsForRead:
+        case PathName::SecureSettingsForWrite:
             result.Path = GetKnownFolderPath(FOLDERID_ProgramData);
             result.Path /= s_SecureSettings_Base;
             result.Path /= GetUserSID();
             result.Path /= s_SecureSettings_UserRelative;
             result.Path /= s_SecureSettings_Relative_Unpackaged;
             result.Path /= GetRuntimePathStateName();
-            result.Create = false;
+            if (path == PathName::SecureSettingsForWrite)
+            {
+                result.Admins = ACEPermissions::Owner;
+                result.CurrentUser = ACEPermissions::ReadExecute;
+            }
+            else
+            {
+                result.Create = false;
+            }
             break;
         case PathName::UserProfile:
-            result.Path = GetKnownFolderPath(FOLDERID_Profile);
-            result.Create = false;
-            break;
         case PathName::PortablePackageUserRoot:
-            result.Path = Settings::User().Get<Setting::PortableAppUserRoot>();
-            if (result.Path.empty())
-            {
-                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result.Path /= s_PortablePackageUserRoot_Base;
-                result.Path /= s_PortablePackageRoot;
-                result.Path /= s_PortablePackagesDirectory;
-            }
-            result.Create = true;
-            break;
         case PathName::PortablePackageMachineRootX64:
-            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
-            if (result.Path.empty())
-            {
-                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-                result.Path /= s_PortablePackageRoot;
-                result.Path /= s_PortablePackagesDirectory;
-            }
-            result.Create = true;
-            break;
         case PathName::PortablePackageMachineRootX86:
-            result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
-            if (result.Path.empty())
-            {
-                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
-                result.Path /= s_PortablePackageRoot;
-                result.Path /= s_PortablePackagesDirectory;
-            }
-            result.Create = true;
-            break;
         case PathName::PortableLinksUserLocation:
-            result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
-            result.Path /= s_PortablePackageUserRoot_Base;
-            result.Path /= s_PortablePackageRoot;
-            result.Path /= s_LinksDirectory;
-            result.Create = true;
-            break;
         case PathName::PortableLinksMachineLocation:
-            result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
-            result.Path /= s_PortablePackageRoot;
-            result.Path /= s_LinksDirectory;
-            result.Create = true;
+            result = GetPathDetailsCommon(path);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
@@ -511,19 +592,19 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    std::filesystem::path GetPathTo(PathName path)
+    PathDetails GetPathDetailsFor(PathName path)
     {
-        PathDetails details;
+        PathDetails result;
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
-            details = GetPathDetailsForPackagedContext(path);
+            result = GetPathDetailsForPackagedContext(path);
         }
         else
 #endif
         {
-            details = GetPathDetailsForUnpackagedContext(path);
+            result = GetPathDetailsForUnpackagedContext(path);
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -531,9 +612,16 @@ namespace AppInstaller::Runtime
         auto itr = s_Path_TestHook_Overrides.find(path);
         if (itr != s_Path_TestHook_Overrides.end())
         {
-            details.Path = itr->second;
+            result = itr->second;
         }
 #endif
+
+        return result;
+    }
+
+    std::filesystem::path GetPathTo(PathName path)
+    {
+        PathDetails details = GetPathDetailsFor(path);
 
         if (details.Create)
         {
@@ -545,6 +633,14 @@ namespace AppInstaller::Runtime
                 }
 
                 std::filesystem::create_directories(details.Path);
+
+                // Set the ACLs on the directory if needed. We do this after creating the directory because an attacker could
+                // have created the directory beforehand so we must be able to place the correct ACL on any directory or fail
+                // to operate.
+                if (details.ShouldApplyACL())
+                {
+                    details.ApplyACL();
+                }
             }
             else
             {
@@ -630,7 +726,21 @@ namespace AppInstaller::Runtime
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path)
     {
-        s_Path_TestHook_Overrides[target] = path;
+        if (s_Path_TestHook_Overrides.count(target))
+        {
+            s_Path_TestHook_Overrides[target].Path = path;
+        }
+        else
+        {
+            PathDetails details = GetPathDetailsFor(target);
+            details.Path = path;
+            s_Path_TestHook_Overrides[target] = std::move(details);
+        }
+    }
+
+    void TestHook_SetPathOverride(PathName target, const PathDetails& details)
+    {
+        s_Path_TestHook_Overrides[target] = details;
     }
 
     void TestHook_ClearPathOverrides()
