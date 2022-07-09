@@ -140,6 +140,35 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::string DecodeUrl(std::string input)
+    {
+        std::string decoded = input;
+        std::smatch sm;
+        std::string haystack;
+
+        std::size_t dynamicLength = decoded.size() - 2;
+
+        if (decoded.size() < 3) return decoded;
+
+        for (int i = 0; i < dynamicLength; i++)
+        {
+
+            haystack = decoded.substr(i, 3);
+
+            if (std::regex_match(haystack, sm, std::regex("%[0-9A-F]{2}")))
+            {
+                haystack = haystack.replace(0, 1, "0x");
+                std::string rc = { (char)std::stoi(haystack, nullptr, 16) };
+                decoded = decoded.replace(decoded.begin() + i, decoded.begin() + i + 3, rc);
+            }
+
+            dynamicLength = decoded.size() - 2;
+
+        }
+
+        return decoded;
+    }
+
     std::wstring ConvertToUTF16(std::string_view input, UINT codePage)
     {
         if (input.empty())

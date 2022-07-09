@@ -25,7 +25,9 @@
   </Resources>
   <Applications>
     <Application Id="WinGetDev" Executable="AppInstallerCLI\winget.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements DisplayName="WinGet Dev Client" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet dev client." BackgroundColor="#0078d7" AppListEntry="none" />
+      <uap:VisualElements DisplayName="WinGet Dev Client" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet dev client." BackgroundColor="#0078d7" AppListEntry="none" >
+        <uap:DefaultTile/>
+      </uap:VisualElements >
       <Extensions>
         <uap3:Extension Category="windows.appExtensionHost">
           <uap3:AppExtensionHost>
@@ -55,6 +57,11 @@
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
+        <uap:Extension Category="windows.protocol" Executable="AppInstallerCLI/winget.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap:Protocol Name="winget">
+            <uap:DisplayName>Winget</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>

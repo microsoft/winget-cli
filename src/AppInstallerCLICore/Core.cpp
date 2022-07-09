@@ -80,12 +80,30 @@ namespace AppInstaller::CLI
         Logging::BeginLogFileCleanup();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
-
-        // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
-        for (int i = 1; i < argc; ++i)
+
+        if (wcsncmp(argv[1], L"winget:", 7) == 0) {
+            // Called by URI
+            std::wstring argString = argv[1];
+            std::string uriArgs = Utility::DecodeUrl(Utility::ConvertToUTF8(argString.substr(7)));
+            size_t pos = 0;
+            while ((pos = uriArgs.find(" ")) != std::string::npos) 
+            {
+                if (pos != 0)
+                {
+                    utf8Args.emplace_back(uriArgs.substr(0, pos));
+                }
+                uriArgs.erase(0, pos + 1);
+                }
+            utf8Args.emplace_back(uriArgs);
+        }
+        else
         {
-            utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
+            // Convert incoming wide char args to UTF8
+            for (int i = 1; i < argc; ++i)
+            {
+                utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
+            }
         }
 
         AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
