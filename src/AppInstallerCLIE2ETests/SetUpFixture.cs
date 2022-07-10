@@ -218,6 +218,9 @@ namespace AppInstallerCLIE2ETests
                 }
             };
 
+            // Run winget to init settings
+            TestCommon.RunAICLICommand(string.Empty, "-v");
+
             var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
             File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
         }
