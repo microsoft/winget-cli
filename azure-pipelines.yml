@@ -267,7 +267,7 @@ jobs:
     displayName: 'Copy winmd to dotnet directory'
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder:  '$(dotnetDirectory)'
+      TargetFolder:  '$(Agent.ToolsDirectory)/dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
