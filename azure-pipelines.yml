@@ -271,7 +271,7 @@ jobs:
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
-    displayName: Run Out-of-process E2E Tests Packaged
+    displayName: Run Out-of-process E2E Tests Packaged 
     inputs:
       testRunTitle: 'E2E Packaged'
       testSelector: 'testAssemblies'
