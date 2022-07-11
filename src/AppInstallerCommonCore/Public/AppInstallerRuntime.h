@@ -85,7 +85,7 @@ namespace AppInstaller::Runtime
     struct PathDetails
     {
         std::filesystem::path Path;
-        // Default to creating the directory with read/write permissions for the current effective user
+        // Default to creating the directory with inherited permissions
         bool Create = true;
         ACEPermissions CurrentUser = ACEPermissions::None;
         ACEPermissions Admins = ACEPermissions::None;
