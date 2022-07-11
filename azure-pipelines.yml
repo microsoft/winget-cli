@@ -263,7 +263,7 @@ jobs:
         $dotnetDirectory = (Get-Command dotnet.exe | Get-Item).Directory.ToString()
         Write-Host "##vso[task.setvariable variable=dotnetDirectory]$dotnetDirectory"
 
-  - task: CopyFiles
+  - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
