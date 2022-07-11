@@ -3,6 +3,7 @@
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -13,6 +14,21 @@
         public BaseInterop(IInstanceInitializer initializer)
         {
             TestFactory = new(initializer);
+        }
+
+        /// <summary>
+        /// Force garbage collection after each test class execution.
+        /// Note: Connecting to a package catalog reference without calling the
+        ///       garbage collector at the end of the test class, causes subsequent
+        ///       test classes to freeze and timeout when attempting to reset then
+        ///       add the TestSource to winget from the command line during the setup
+        ///       phase.
+        /// </summary>
+        [OneTimeTearDown]
+        public void GarbageCollection()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
         
         /// <summary>
