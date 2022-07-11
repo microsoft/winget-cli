@@ -284,6 +284,11 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallZipWithMsi()
         {
+            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                Assert.Ignore("MSI installer not available");
+            }
+
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

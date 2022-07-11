@@ -15,12 +15,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (SUCCEEDED(hr))
         {
-            AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+            AICLI_LOG(CLI, Info, << "Successfully extracted archive to: " << installerParentPath );
             context.SetFlags(Execution::ContextFlag::InstallerExtractedFromArchive);
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "Failed to extract archive");
+            AICLI_LOG(CLI, Info, << "Failed to extract archive to: " << installerParentPath);
             context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
         }

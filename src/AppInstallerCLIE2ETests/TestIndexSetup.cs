@@ -151,12 +151,12 @@ namespace AppInstallerCLIE2ETests
 
             if (File.Exists(TestCommon.MsiInstallerPath))
             {
-                File.Copy(TestCommon.ExeInstallerPath, msiInstallerSourceDestPath, true);
+                File.Copy(TestCommon.MsiInstallerPath, msiInstallerSourceDestPath, true);
             }
 
             if (File.Exists(TestCommon.MsixInstallerPath))
             {
-                File.Copy(TestCommon.ExeInstallerPath, msixInstallerSourceDestPath, true);
+                File.Copy(TestCommon.MsixInstallerPath, msixInstallerSourceDestPath, true);
             }
 
             string destArchiveFullPath = Path.Combine(zipInstallerDir.FullName, Constants.ZipInstallerFileName); ;
