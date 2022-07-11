@@ -214,7 +214,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             
             // Assert
-            Assert.AreEqual(InstallResultStatus.InstallError, installResult.Status);
+            Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
