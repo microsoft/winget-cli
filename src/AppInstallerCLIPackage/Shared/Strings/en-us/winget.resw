@@ -1284,6 +1284,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>Deletes all files and directories in the package directory (portable)</value>
   </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>Press Enter to continue . . .</value>
+  </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>The value to rename the executable file (portable)</value>
   </data>

@@ -293,6 +293,7 @@ extern "C"
             std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L""));
 
             *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+            *succeeded = true;
         }
         catch (const ManifestException& e)
         {

@@ -23,8 +23,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
 
         V1_4::Interface::CreateTables(connection, options);
 
-        V1_0::ManifestTable::AddColumn(connection, { ArpMinVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::Int64});
-        V1_0::ManifestTable::AddColumn(connection, { ArpMaxVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::Int64 });
+        V1_0::ManifestTable::AddColumn(connection, { ArpMinVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::RowId });
+        V1_0::ManifestTable::AddColumn(connection, { ArpMaxVersionVirtualTable::ManifestColumnName(), SQLite::Builder::Type::RowId });
 
         savepoint.Commit();
     }

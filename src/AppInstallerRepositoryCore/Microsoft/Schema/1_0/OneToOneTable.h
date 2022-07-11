@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes the given row by its rowid if it is no longer referenced.
         void OneToOneTableDeleteById(SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t id);
+
+        // Checks the consistency of the table.
+        bool OneToOneTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log);
     }
 
     // A table that represents a value that is 1:1 with a primary entry.
@@ -131,6 +134,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static bool IsEmpty(SQLite::Connection& connection)
         {
             return details::OneToOneTableIsEmpty(connection, TableInfo::TableName());
+        }
+
+        // Checks the consistency of the table.
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
+        {
+            return details::OneToOneTableCheckConsistency(connection, TableInfo::TableName(), TableInfo::ValueName(), log);
         }
     };
 }

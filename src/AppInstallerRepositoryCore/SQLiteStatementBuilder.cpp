@@ -307,6 +307,20 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::WhereValueContainsEmbeddedNullCharacter(std::string_view column)
+    {
+        OutputColumns(m_stream, " WHERE instr(", column);
+        m_stream << ",char(0))>0";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::WhereValueContainsEmbeddedNullCharacter(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " WHERE instr(", column);
+        m_stream << ",char(0))>0";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Equals(details::unbound_t)
     {
         AppendOpAndBinder(Op::Equals);

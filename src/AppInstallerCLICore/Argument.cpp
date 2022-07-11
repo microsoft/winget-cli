@@ -105,6 +105,7 @@ namespace AppInstaller::CLI
     void Argument::GetCommon(std::vector<Argument>& args)
     {
         args.push_back(ForType(Args::Type::Help));
+        args.push_back(ForType(Args::Type::Wait));
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
@@ -117,6 +118,10 @@ namespace AppInstaller::CLI
         if (m_alias != Argument::NoAlias)
         {
             strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alias << ',';
+        }
+        if (m_alternateName != Argument::NoAlternateName)
+        {
+            strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_alternateName << ',';
         }
         strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << m_name;
         return strstr.str();

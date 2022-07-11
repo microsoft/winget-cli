@@ -355,6 +355,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 result = result && secondaryResult;
             }
 
+            if (!result && !log)
+            {
+                return result;
+            }
+
+            result = OneToOneTableCheckConsistency(connection, tableName, valueName, log) && result;
+
             return result;
         }
 

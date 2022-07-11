@@ -24,22 +24,26 @@ namespace AppInstaller::Utility
     // Normalizes a UTF16 string to the given form.
     std::wstring Normalize(std::wstring_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
 
+    // Replaces any embedded null character found within the string.
+    void ReplaceEmbeddedNullCharacters(std::string& s, char c = ' ');
+
     // Type to hold and force a normalized UTF8 string.
-    template <NORM_FORM Form = NORM_FORM::NormalizationKC>
+    // Also enables further normalization by replacing embedded null characters with spaces.
+    template <NORM_FORM Form = NORM_FORM::NormalizationKC, bool ConvertEmbeddedNullToSpace = false>
     struct NormalizedUTF8 : public std::string
     {
         NormalizedUTF8() = default;
 
         template <size_t Size>
-        NormalizedUTF8(const char(&s)[Size]) : std::string(Normalize(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }, Form)) {}
+        NormalizedUTF8(const char(&s)[Size]) { AssignValue(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }); }
 
-        NormalizedUTF8(std::string_view sv) : std::string(Normalize(sv, Form)) {}
+        NormalizedUTF8(std::string_view sv) { AssignValue(sv); }
 
-        NormalizedUTF8(std::string& s) : std::string(Normalize(s, Form)) {}
-        NormalizedUTF8(const std::string& s) : std::string(Normalize(s, Form)) {}
-        NormalizedUTF8(std::string&& s) : std::string(Normalize(s, Form)) {}
+        NormalizedUTF8(std::string& s) { AssignValue(s); }
+        NormalizedUTF8(const std::string& s) { AssignValue(s); }
+        NormalizedUTF8(std::string&& s) { AssignValue(s); }
 
-        NormalizedUTF8(std::wstring_view sv) : std::string(ConvertToUTF8(Normalize(sv, Form))) {}
+        NormalizedUTF8(std::wstring_view sv) { AssignValue(sv); }
 
         NormalizedUTF8(const NormalizedUTF8& other) = default;
         NormalizedUTF8& operator=(const NormalizedUTF8& other) = default;
@@ -50,30 +54,51 @@ namespace AppInstaller::Utility
         template <size_t Size>
         NormalizedUTF8& operator=(const char(&s)[Size])
         {
-            assign(Normalize(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }, Form));
+            AssignValue(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) });
             return *this;
         }
 
         NormalizedUTF8& operator=(std::string_view sv)
         {
-            assign(Normalize(sv, Form));
+            AssignValue(sv);
             return *this;
         }
 
         NormalizedUTF8& operator=(const std::string& s)
         {
-            assign(Normalize(s, Form));
+            AssignValue(s);
             return *this;
         }
 
         NormalizedUTF8& operator=(std::string&& s)
         {
-            assign(Normalize(s, Form));
+            AssignValue(s);
             return *this;
+        }
+
+    private:
+        void AssignValue(std::string_view sv)
+        {
+            assign(Normalize(sv, Form));
+
+            if constexpr (ConvertEmbeddedNullToSpace)
+            {
+                ReplaceEmbeddedNullCharacters(*this);
+            }
+        }
+
+        void AssignValue(std::wstring_view sv)
+        {
+            assign(ConvertToUTF8(Normalize(sv, Form)));
+
+            if constexpr (ConvertEmbeddedNullToSpace)
+            {
+                ReplaceEmbeddedNullCharacters(*this);
+            }
         }
     };
 
-    using NormalizedString = NormalizedUTF8<>;
+    using NormalizedString = NormalizedUTF8<NORM_FORM::NormalizationKC, true>;
 
     // Compares the two UTF8 strings in a case insensitive manner.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.

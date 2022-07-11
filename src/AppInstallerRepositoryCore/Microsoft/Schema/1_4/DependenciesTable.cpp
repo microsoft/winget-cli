@@ -408,7 +408,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
     
-    bool DependenciesTable::DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log)
+    bool DependenciesTable::CheckConsistency(const SQLite::Connection& connection, bool log)
     {
         StatementBuilder builder;
 
@@ -442,7 +442,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 break;
             }
 
-            AICLI_LOG(Repo, Info, << "  [INVALID] rowid [" << select.GetColumn<SQLite::rowid_t>(0) << "]");
+            AICLI_LOG(Repo, Info, << "  [INVALID] row in [" << s_DependenciesTable_Table_Name << "] rowid [" << select.GetColumn<SQLite::rowid_t>(0) << "]");
         }
 
         return result;

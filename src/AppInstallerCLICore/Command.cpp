@@ -808,6 +808,10 @@ namespace AppInstaller::CLI
         {
             ExecuteInternal(context);
         }
+        if (context.Args.Contains(Execution::Args::Type::Wait))
+        {
+            context.Reporter.PromptForEnter();
+        }
     }
 
     void Command::ValidateArgumentsInternal(Execution::Args&) const

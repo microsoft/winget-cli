@@ -50,8 +50,14 @@ namespace AppInstaller::Repository::SQLite
             THROW_IF_SQLITE_FAILED(sqlite3_bind_null(stmt, index));
         }
 
+        void ThrowIfContainsEmbeddedNullCharacter(std::string_view v)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL, v.find('\0') != std::string_view::npos);
+        }
+
         void ParameterSpecificsImpl<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
         {
+            ThrowIfContainsEmbeddedNullCharacter(v);
             THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
         }
 
@@ -70,6 +76,7 @@ namespace AppInstaller::Repository::SQLite
             }
             else
             {
+                ThrowIfContainsEmbeddedNullCharacter(v);
                 THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
             }
         }
