@@ -219,6 +219,13 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
+  - task: CopyFiles@2
+    displayName: 'Copy winmd to Package Output'
+    inputs:
+      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
+      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      Contents: Microsoft.Management.Deployment.winmd
+
   - task: VSTest@2
     displayName: Run E2E Tests Packaged
     condition: false
@@ -267,7 +274,7 @@ jobs:
     displayName: 'Copy winmd to dotnet directory'
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder:  '$(Agent.ToolsDirectory)/dotnet'
+      TargetFolder: '$(dotnetDirectory)/dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
