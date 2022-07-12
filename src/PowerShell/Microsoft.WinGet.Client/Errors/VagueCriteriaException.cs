@@ -7,7 +7,9 @@
 namespace Microsoft.WinGet.Client.Errors
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// Raised when search criteria for installing or updating a package is too vague.
@@ -18,23 +20,20 @@ namespace Microsoft.WinGet.Client.Errors
         /// <summary>
         /// Initializes a new instance of the <see cref="VagueCriteriaException"/> class.
         /// </summary>
-        /// <param name="one">The first <see cref="CatalogPackage" /> instance.</param>
-        /// <param name="two">The second <see cref="CatalogPackage" /> instance.</param>
-        public VagueCriteriaException(CatalogPackage one, CatalogPackage two)
-            : base($"Both '{one.ToString(null)}' and '{two.ToString(null)}' match the input criteria. Please refine the input.")
+        /// <param name="results">The list of conflicting packages of length at least two.</param>
+        public VagueCriteriaException(IReadOnlyList<MatchResult> results)
+            : base(string.Format(
+                Constants.ResourceManager.GetString("ExceptionMessages_VagueSearch"),
+                (results.Count > 0) ? results[0].CatalogPackage.ToString(null) : null,
+                (results.Count > 1) ? results[1].CatalogPackage.ToString(null) : null,
+                Math.Max(results.Count, 2) - 2))
         {
-            this.PackageOne = one;
-            this.PackageTwo = two;
+            this.MatchResults = results;
         }
 
         /// <summary>
-        /// Gets or sets the first conflicting package.
+        /// Gets or sets the list of conflicting packages.
         /// </summary>
-        public CatalogPackage PackageOne { get; set; }
-
-        /// <summary>
-        /// Gets or sets the second conflicting package.
-        /// </summary>
-        public CatalogPackage PackageTwo { get; set; }
+        public IReadOnlyList<MatchResult> MatchResults { get; set; }
     }
 }

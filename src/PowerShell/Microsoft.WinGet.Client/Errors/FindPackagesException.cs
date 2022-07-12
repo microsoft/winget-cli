@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Errors
 {
     using System;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// Raised when there is an error searching for packages.
@@ -20,7 +21,7 @@ namespace Microsoft.WinGet.Client.Errors
         /// </summary>
         /// <param name="status">A <see cref="FindPackagesResultStatus" /> value.</param>
         public FindPackagesException(FindPackagesResultStatus status)
-            : base(@"There was an error searching for packages.")
+            : base(Constants.ResourceManager.GetString("ExceptionMessages_SearchFailure"))
         {
             this.Status = status;
         }

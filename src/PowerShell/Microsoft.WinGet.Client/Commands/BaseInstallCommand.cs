@@ -45,7 +45,7 @@ namespace Microsoft.WinGet.Client.Commands
                 string prefix = Path.IsPathRooted(value)
                     ? string.Empty
                     : this.SessionState.Path.CurrentFileSystemLocation + @"\";
-                
+
                 this.location = prefix + value;
             }
         }
@@ -121,7 +121,7 @@ namespace Microsoft.WinGet.Client.Commands
                     RecordType = ProgressRecordType.Processing,
                 };
 
-                if (progress.State == PackageInstallProgressState.Downloading)
+                if ((progress.State == PackageInstallProgressState.Downloading) && (progress.BytesRequired != 0))
                 {
                     record.StatusDescription = $"{progress.BytesDownloaded / 1000000.0f:0.0} MB / {progress.BytesRequired / 1000000.0f:0.0} MB";
                     record.PercentComplete = (int)(progress.DownloadProgress * 100);

@@ -9,9 +9,11 @@ namespace Microsoft.WinGet.Client.Commands
     using System;
     using System.Collections.Generic;
     using System.Management.Automation;
+    using System.Runtime.InteropServices;
     using System.Security.Principal;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Factories;
+    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// This is the base class for all commands in this module.
@@ -24,12 +26,10 @@ namespace Microsoft.WinGet.Client.Commands
         public BaseClientCommand()
             : base()
         {
-            var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            var admin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            var admin = CheckIfAdministrator();
             if (admin)
             {
-                throw new Exception(@"This cmdlet is currently not available in an administrator context.");
+                throw new Exception(Constants.ResourceManager.GetString("ExceptionMessages_NoAdmin"));
             }
         }
 
@@ -42,6 +42,8 @@ namespace Microsoft.WinGet.Client.Commands
         /// Gets the instance of the <see cref="PackageManager" /> class.
         /// </summary>
         protected static Lazy<PackageManager> PackageManager { get; } = new Lazy<PackageManager>(() => ComObjectFactory.Value.CreatePackageManager());
+
+        private static bool InitializedUndockedRegFreeWinRT { get; set; } = InitializeUndockedRegFreeWinRT();
 
         /// <summary>
         /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
@@ -60,10 +62,27 @@ namespace Microsoft.WinGet.Client.Commands
                 return new List<PackageCatalogReference>()
                 {
                     PackageManager.Value.GetPackageCatalogByName(source)
-                        ?? throw new ArgumentException("No sources match the given value: " + source),
+                        ?? throw new ArgumentException(Constants.ResourceManager.GetString("ExceptionMessages_SourceNotFound")),
                 };
             }
         }
 
+        [DllImport("winrtact.dll", PreserveSig = false)]
+#pragma warning disable SA1300 // Element should begin with upper-case letter
+        private static extern void winrtact_Initialize();
+#pragma warning restore SA1300 // Element should begin with upper-case letter
+
+        private static bool InitializeUndockedRegFreeWinRT()
+        {
+            winrtact_Initialize();
+            return true;
+        }
+
+        private static bool CheckIfAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
     }
 }

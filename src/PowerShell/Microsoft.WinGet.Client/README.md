@@ -10,7 +10,7 @@ A **PowerShell module** is merely a folder containing a **.psd1** file or a
 file and all of the other necessary bits inside. But, before we do that, we need
 to make sure of the following steps.
 
-1. The project has been built for the **x64**, **x86**, **ARM64**, and **ARM**
+1. The project has been built for the **x64**, **x86**, and **ARM64**
    platforms in **Release** mode.
    - The build script also relies on the exact location and structure of the
      actual build files. That is, the build script will look for a **bin**

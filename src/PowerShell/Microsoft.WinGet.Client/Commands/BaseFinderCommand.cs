@@ -84,14 +84,15 @@ namespace Microsoft.WinGet.Client.Commands
             }
         }
 
-        private PackageFieldMatchOption ExactAsMatchOption
+        /// <summary>
+        /// Returns a <see cref="PackageFieldMatchOption" /> based on a parameter.
+        /// </summary>
+        /// <returns>A <see cref="PackageFieldMatchOption" /> value.</returns>
+        protected virtual PackageFieldMatchOption GetExactAsMatchOption()
         {
-            get
-            {
-                return this.Exact.ToBool()
-                    ? PackageFieldMatchOption.EqualsCaseInsensitive
-                    : PackageFieldMatchOption.ContainsCaseInsensitive;
-            }
+            return this.Exact.ToBool()
+                ? PackageFieldMatchOption.EqualsCaseInsensitive
+                : PackageFieldMatchOption.ContainsCaseInsensitive;
         }
 
         /// <summary>
@@ -156,7 +157,7 @@ namespace Microsoft.WinGet.Client.Commands
             var result = reference.Connect();
             if (result.Status != ConnectResultStatus.Ok)
             {
-                throw new RuntimeException("There was an error connecting to the source.");
+                throw new RuntimeException(Constants.ResourceManager.GetString("ExceptionMessages_CatalogError"));
             }
 
             return result.PackageCatalog;
@@ -178,8 +179,8 @@ namespace Microsoft.WinGet.Client.Commands
         private FindPackagesOptions GetFindPackagesOptions(uint limit)
         {
             var options = ComObjectFactory.Value.CreateFindPackagesOptions();
-            SetQueryInFindPackagesOptions(ref options, this.ExactAsMatchOption, this.QueryAsJoinedString);
-            this.AddAttributedFiltersToFindPackagesOptions(ref options, this.ExactAsMatchOption);
+            SetQueryInFindPackagesOptions(ref options, this.GetExactAsMatchOption(), this.QueryAsJoinedString);
+            this.AddAttributedFiltersToFindPackagesOptions(ref options, this.GetExactAsMatchOption());
             options.ResultLimit = limit;
             return options;
         }

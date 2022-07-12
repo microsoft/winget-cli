@@ -6,6 +6,8 @@
 
 namespace Microsoft.WinGet.Client.Helpers
 {
+    using System.Reflection;
+    using System.Resources;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -42,5 +44,22 @@ namespace Microsoft.WinGet.Client.Helpers
         /// This is the name of the parameter set for when a package was not supplied.
         /// </summary>
         public const string FoundSet = "FoundSet";
+
+        /// <summary>
+        /// This is the path provided to the resource manager to access localized strings.
+        /// </summary>
+        public const string ResourcesPath = "Microsoft.WinGet.Client.Resources.Resources";
+
+        /// <summary>
+        /// Gets the <see cref="ResourceManager" /> instance for the executing assembly.
+        /// </summary>
+        public static ResourceManager ResourceManager
+        {
+            get
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                return new ResourceManager(ResourcesPath, assembly);
+            }
+        }
     }
 }

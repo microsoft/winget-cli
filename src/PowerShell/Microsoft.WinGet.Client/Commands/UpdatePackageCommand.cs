@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
-            this.ExecuteCommand(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
+            this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
                 var options = this.GetInstallOptions(version);
                 var results = this.UpgradePackage(package, options);

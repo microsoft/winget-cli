@@ -72,11 +72,8 @@
     elseif ($env:PROCESSOR_ARCHITECTURE -like 'x86') {
         "x86\$PSEdition\Microsoft.WinGet.Client.dll"
     }
-    elseif ($env:PROCESSOR_ARCHITECTURE -like 'arm64') {
-        "ARM64\$PSEdition\Microsoft.WinGet.Client.dll"
-    }
     else {
-        "ARM\$PSEdition\Microsoft.WinGet.Client.dll"
+        "ARM64\$PSEdition\Microsoft.WinGet.Client.dll"
     }
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.

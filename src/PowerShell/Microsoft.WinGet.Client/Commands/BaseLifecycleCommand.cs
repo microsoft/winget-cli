@@ -9,7 +9,10 @@ namespace Microsoft.WinGet.Client.Commands
     using System;
     using System.IO;
     using System.Management.Automation;
+    using System.Reflection;
+    using System.Resources;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Errors;
     using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
@@ -49,7 +52,7 @@ namespace Microsoft.WinGet.Client.Commands
                 string prefix = Path.IsPathRooted(value)
                     ? string.Empty
                     : this.SessionState.Path.CurrentFileSystemLocation + @"\";
-                
+
                 this.log = prefix + value;
             }
         }
@@ -59,7 +62,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         /// <param name="behavior">The <see cref="CompositeSearchBehavior" /> value.</param>
         /// <param name="callback">The method to call after retrieving the package and version to operate upon.</param>
-        protected void ExecuteCommand(
+        protected void GetPackageAndExecute(
             CompositeSearchBehavior behavior,
             Action<CatalogPackage, PackageVersionId> callback)
         {
@@ -87,13 +90,12 @@ namespace Microsoft.WinGet.Client.Commands
                 }
                 else if (results.Count == 0)
                 {
-                    throw new RuntimeException(@"No package found matching input criteria.");
+                    throw new RuntimeException(Constants.ResourceManager.GetString("ExceptionMessages_NoPackagesFound"));
                 }
                 else
                 {
-                    throw new Errors.VagueCriteriaException(results[0].CatalogPackage, results[1].CatalogPackage);
+                    throw new VagueCriteriaException(results);
                 }
-
             }
         }
 

@@ -33,7 +33,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.ExecuteCommand(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
+            this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
                 var options = this.GetUninstallOptions(version);
                 var results = this.UninstallPackage(package, options);

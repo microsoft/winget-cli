@@ -64,7 +64,7 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
-            this.ExecuteCommand(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
+            this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
             {
                 var options = this.GetInstallOptions(version);
                 var results = this.InstallPackage(package, options);
