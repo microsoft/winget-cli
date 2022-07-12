@@ -47,10 +47,12 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
+        programFiles: "${env:ProgramFiles(x86)}"
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
+        programFiles: "${env:ProgramFiles}"
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
@@ -262,19 +264,11 @@ jobs:
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
 
-  - task: PowerShell@2
-    displayName: Set dotnet directory variable
-    inputs:
-      targetType: 'inline'
-      script: |
-        $dotnetDirectory = (Get-Command dotnet.exe | Get-Item).Directory.ToString()
-        Write-Host "##vso[task.setvariable variable=dotnetDirectory]$dotnetDirectory"
-
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder: '$(dotnetDirectory)/dotnet'
+      TargetFolder: '$(programFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
