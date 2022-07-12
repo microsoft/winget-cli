@@ -195,6 +195,7 @@
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
+    <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="HttpClientHelper.cpp" />
@@ -414,13 +415,13 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>       
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>        
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>        
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-DefaultScope.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

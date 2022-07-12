@@ -18,6 +18,7 @@
 
 #include <wil/resource.h>
 #include <wil/result_macros.h>
+#include <wil/filesystem.h>
 
 #include <atomic>
 #include <filesystem>

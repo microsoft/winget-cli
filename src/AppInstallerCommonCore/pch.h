@@ -55,6 +55,7 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+#include <unordered_set>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6287 6340 6388 )
@@ -64,6 +65,7 @@
 #include <wil/safecast.h>
 #include <wil/token_helpers.h>
 #include <wil/com.h>
+#include <wil/filesystem.h>
 #pragma warning( pop )
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
