@@ -624,9 +624,8 @@ void OverrideForEnsureSupportForPortable(TestContext& context)
 
 void OverrideForArchiveInstall(TestContext& context)
 {
-    context.Override({ ExtractFilesFromArchive, [](TestContext& context)
+    context.Override({ ExtractFilesFromArchive, [](TestContext&)
     {
-        context.SetFlags(Execution::ContextFlag::InstallerExtractedFromArchive);
     } });
 
     context.Override({ VerifyAndSetNestedInstaller, [](TestContext&)
@@ -636,9 +635,8 @@ void OverrideForArchiveInstall(TestContext& context)
 
 void OverrideForExtractInstallerFromArchive(TestContext& context)
 {
-    context.Override({ ExtractFilesFromArchive, [](TestContext& context)
+    context.Override({ ExtractFilesFromArchive, [](TestContext&)
     {
-        context.SetFlags(Execution::ContextFlag::InstallerExtractedFromArchive);
     } });
 }
 

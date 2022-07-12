@@ -318,22 +318,10 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ExecuteInstaller(Execution::Context& context)
+    void ExecuteInstallerForType(Execution::Context& context, InstallerTypeEnum installerType)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-
-        InstallerTypeEnum installerType;
-
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExtractedFromArchive))
-        {
-            installerType = installer.NestedInstallerType;
-        }
-        else
-        {
-            installerType = installer.InstallerType;
-        }
+        UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
 
         switch (installerType)
         {
@@ -343,7 +331,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -368,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -385,12 +373,21 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ExecuteInstaller(Execution::Context& context)
+    {
+        ExecuteInstallerForType(context, context.Get<Execution::Data::Installer>().value().InstallerType);
+    }
+
     void ArchiveInstall(Execution::Context& context)
     {
         context <<
             ExtractFilesFromArchive <<
-            VerifyAndSetNestedInstaller <<
-            ExecuteInstaller;
+            VerifyAndSetNestedInstaller;
+
+        if (!context.IsTerminated())
+        {
+            ExecuteInstallerForType(context, context.Get<Execution::Data::Installer>().value().NestedInstallerType);
+        }
     }
 
     void ShellExecuteInstall(Execution::Context& context)
