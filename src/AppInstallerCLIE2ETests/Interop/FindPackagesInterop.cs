@@ -6,6 +6,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
+    using System.Diagnostics;
 
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
     [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
@@ -19,6 +20,10 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void SetUp()
         {
+            var processFileName = Process.GetCurrentProcess().MainModule.FileName;
+
+            // Print exe path
+            Assert.Fail(processFileName, "Test runner path");
             packageManager = TestFactory.CreatePackageManager();
             testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
         }

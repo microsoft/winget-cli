@@ -84,21 +84,6 @@ jobs:
     inputs:
       restoreSolution: 'src\PackagedTests\PackagedTests.csproj'
 
-  - task: UseDotNet@2
-    displayName: Use .NET Core SDK 6
-    inputs:
-      version: 6.0.x
-      installationPath: C:\Users\VssAdministrator\AppData\Local\Microsoft\dotnet\
-      performMultiLevelLookup: true
-
-  - task: PowerShell@2
-    displayName: Update path
-    inputs:
-      targetType: inline
-      failOnStderr: true
-      script: |
-        Write-Host ##vso[task.setvariable variable=PATH;]${env:LocalAppData}\Microsoft\dotnet;${env:PATH};
-
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
     displayName: DotNet Restore
@@ -283,13 +268,6 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder:  '$(Agent.ToolsDirectory)/dotnet'
-      Contents: Microsoft.Management.Deployment.winmd
-
-  - task: CopyFiles@2
-    displayName: 'Copy winmd to dotnet directory'
-    inputs:
-      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder:  '$(dotnetDirectory)'
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
