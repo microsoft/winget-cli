@@ -5,7 +5,15 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    void ExtractInstallerFromArchive(Execution::Context& context);
+    // Extracts the files from an archive
+    // Required Args: None
+    // Inputs: InstallerPath
+    // Outputs: None
+    void ExtractFilesFromArchive(Execution::Context& context);
 
+    // Verifies that the NestedInstaller exists and sets the InstallerPath
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
     void VerifyAndSetNestedInstaller(Execution::Context& context);
 }

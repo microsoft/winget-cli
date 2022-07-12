@@ -624,7 +624,7 @@ void OverrideForEnsureSupportForPortable(TestContext& context)
 
 void OverrideForArchiveInstall(TestContext& context)
 {
-    context.Override({ ExtractInstallerFromArchive, [](TestContext& context)
+    context.Override({ ExtractFilesFromArchive, [](TestContext& context)
     {
         context.SetFlags(Execution::ContextFlag::InstallerExtractedFromArchive);
     } });
@@ -636,7 +636,7 @@ void OverrideForArchiveInstall(TestContext& context)
 
 void OverrideForExtractInstallerFromArchive(TestContext& context)
 {
-    context.Override({ ExtractInstallerFromArchive, [](TestContext& context)
+    context.Override({ ExtractFilesFromArchive, [](TestContext& context)
     {
         context.SetFlags(Execution::ContextFlag::InstallerExtractedFromArchive);
     } });
@@ -1045,7 +1045,7 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     context.Add<Data::Installer>(manifest.Installers.at(0));
     // Provide an invalid zip file which should be handled appropriately.
     context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-    context << ExtractInstallerFromArchive;
+    context << ExtractFilesFromArchive;
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
 }

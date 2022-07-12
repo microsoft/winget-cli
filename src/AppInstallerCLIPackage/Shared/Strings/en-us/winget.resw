@@ -1370,4 +1370,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="NestedInstallerNotFound" xml:space="preserve">
     <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
   </data>
+  <data name="NestedInstallerFilesNotSpecified" xml:space="preserve">
+    <value>No nested installer files specified; ensure that your manifest includes an entry for NestedInstallerFiles</value>
+    <comment>{Locked="NestedInstallerFiles"}</comment>
+  </data>
 </root>

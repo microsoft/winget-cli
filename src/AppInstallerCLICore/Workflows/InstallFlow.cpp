@@ -388,7 +388,7 @@ namespace AppInstaller::CLI::Workflow
     void ArchiveInstall(Execution::Context& context)
     {
         context <<
-            ExtractInstallerFromArchive <<
+            ExtractFilesFromArchive <<
             VerifyAndSetNestedInstaller <<
             ExecuteInstaller;
     }
