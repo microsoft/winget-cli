@@ -215,7 +215,7 @@ namespace AppInstallerCLIE2ETests.Interop
             
             // Assert
             Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]

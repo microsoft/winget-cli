@@ -152,7 +152,6 @@ jobs:
 
   - task: CmdLine@2
     displayName: Run Unit Tests Unpackaged Under System Context
-    condition: false
     inputs:
       script: |
         $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
@@ -161,7 +160,6 @@ jobs:
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
-    condition: false
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
@@ -221,7 +219,6 @@ jobs:
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged
-    condition: false
     inputs:
       testRunTitle: 'E2E Packaged'
       testSelector: 'testAssemblies'
@@ -240,7 +237,6 @@ jobs:
 
   - task: VSTest@2
     displayName: Run In-process E2E Tests Unpackaged
-    condition: false
     inputs:
       testRunTitle: 'E2E Unpackaged'
       testSelector: 'testAssemblies'
