@@ -235,15 +235,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ProductCodeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptForInstallRoot);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
-        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionNo);
-        WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptOptionYes);
         WINGET_DEFINE_RESOURCE_STRINGID(PromptToProceed);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PurgeInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);

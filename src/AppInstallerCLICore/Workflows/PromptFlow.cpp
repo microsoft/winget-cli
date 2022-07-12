@@ -21,19 +21,19 @@ namespace AppInstaller::CLI::Workflow
 
             if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
             {
-                AICLI_LOG(CLI, Debug, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
                 return false;
             }
 
             if (context.Args.Contains(Execution::Args::Type::DisableInteractivity))
             {
-                AICLI_LOG(CLI, Debug, << "Skipping prompt. Interactivity is disabled by command line argument.");
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled by command line argument.");
                 return false;
             }
 
             if (Settings::User().Get<Settings::Setting::InteractivityDisable>())
             {
-                AICLI_LOG(CLI, Debug, << "Skipping prompt. Interactivity is disabled in settings.");
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled in settings.");
                 return false;
             }
 
@@ -202,7 +202,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (showPrompt)
                 {
-                    AICLI_LOG(CLI, Debug, << "Prompting to accept package agreements");
+                    AICLI_LOG(CLI, Verbose, << "Prompting to accept package agreements");
                     if (IsInteractivityAllowed(context))
                     {
                         bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PackageAgreementsPrompt);
