@@ -91,7 +91,7 @@ namespace Microsoft.WinGet.Client.Commands
         protected virtual PackageFieldMatchOption GetExactAsMatchOption()
         {
             return this.Exact.ToBool()
-                ? PackageFieldMatchOption.EqualsCaseInsensitive
+                ? PackageFieldMatchOption.Equals
                 : PackageFieldMatchOption.ContainsCaseInsensitive;
         }
 

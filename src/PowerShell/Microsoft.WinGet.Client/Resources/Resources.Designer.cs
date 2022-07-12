@@ -113,5 +113,14 @@ namespace Microsoft.WinGet.Client.Resources {
                 return ResourceManager.GetString("ExceptionMessages_VagueSearch", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No version matched the given input criteria..
+        /// </summary>
+        internal static string ExceptionMessages_VersionNotFound {
+            get {
+                return ResourceManager.GetString("ExceptionMessages_VersionNotFound", resourceCulture);
+            }
+        }
     }
 }

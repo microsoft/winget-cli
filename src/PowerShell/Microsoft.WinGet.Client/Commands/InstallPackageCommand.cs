@@ -10,7 +10,6 @@ using Windows.System;
 
 namespace Microsoft.WinGet.Client.Commands
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Helpers;

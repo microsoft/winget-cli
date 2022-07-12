@@ -135,4 +135,7 @@
   <data name="ExceptionMessages_VagueSearch" xml:space="preserve">
     <value>'{0}', '{1}', and {2} other package(s) matched the input criteria. Please refine the input.</value>
   </data>
+  <data name="ExceptionMessages_VersionNotFound" xml:space="preserve">
+    <value>No version matched the given input criteria.</value>
+  </data>
 </root>

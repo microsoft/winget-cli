@@ -9,8 +9,6 @@ namespace Microsoft.WinGet.Client.Commands
     using System;
     using System.IO;
     using System.Management.Automation;
-    using System.Reflection;
-    using System.Resources;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Errors;
     using Microsoft.WinGet.Client.Helpers;
@@ -57,6 +55,14 @@ namespace Microsoft.WinGet.Client.Commands
             }
         }
 
+        /// <inheritdoc />
+        protected override PackageFieldMatchOption GetExactAsMatchOption()
+        {
+            return this.Exact.ToBool()
+                ? PackageFieldMatchOption.Equals
+                : PackageFieldMatchOption.EqualsCaseInsensitive;
+        }
+
         /// <summary>
         /// Executes a command targeting a specific package version.
         /// </summary>
@@ -83,7 +89,7 @@ namespace Microsoft.WinGet.Client.Commands
             }
             else
             {
-                var results = this.FindPackages(behavior, 2);
+                var results = this.FindPackages(behavior, 0);
                 if (results.Count == 1)
                 {
                     return results[0].CatalogPackage;
@@ -107,18 +113,13 @@ namespace Microsoft.WinGet.Client.Commands
 
                 for (var i = 0; i < versions.Count; i++)
                 {
-                    // PackageVersionInfo.DisplayName (?)
-                    bool match = this.Version.Equals(
-                        versions[i].Version,
-                        StringComparison.OrdinalIgnoreCase);
-
-                    if (match)
+                    if (versions[i].Version.CompareTo(this.Version) == 0)
                     {
                         return versions[i];
                     }
                 }
 
-                throw new ArgumentException("No version found matching: " + this.Version);
+                throw new ArgumentException(Constants.ResourceManager.GetString("ExceptionMessages_VersionNotFound"));
             }
             else
             {
