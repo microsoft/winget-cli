@@ -47,12 +47,12 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
-        programFiles: "${env:ProgramFiles(x86)}"
+        programFiles: ${{ env:ProgramFiles(x86) }}
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
-        programFiles: "${env:ProgramFiles}"
+        programFiles: ${{ env:ProgramFiles }}
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
