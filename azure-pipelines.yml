@@ -47,12 +47,10 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
-        programFiles: ${{ env:ProgramFiles(x86) }}
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
-        programFiles: ${{ env:ProgramFiles }}
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
@@ -221,13 +219,6 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
-  - task: CopyFiles@2
-    displayName: 'Copy winmd to Package Output'
-    inputs:
-      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
-      Contents: Microsoft.Management.Deployment.winmd
-
   - task: VSTest@2
     displayName: Run E2E Tests Packaged
     condition: false
@@ -264,11 +255,29 @@ jobs:
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
 
+  - task: PowerShell@2
+    displayName: 'Set program files directory'
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ("$(buildPlatform)" -eq "x86") {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles(x86)}"
+        } else {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
+        }
+
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder: '$(programFiles)\dotnet'
+      TargetFolder: '$(platformProgramFiles)\dotnet'
+      Contents: Microsoft.Management.Deployment.winmd
+
+  - task: CopyFiles@2
+    displayName: 'Copy winmd to Package Output'
+    inputs:
+      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
+      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
 
   - task: VSTest@2
