@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 #include "pch.h"
 
-using unique_pidlist_absolute = wil::unique_any<PIDLIST_ABSOLUTE, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
-using unique_lpitemidlist = wil::unique_any<LPITEMIDLIST, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
-
 namespace AppInstaller::Archive
 {
+    using unique_pidlist_absolute = wil::unique_any<PIDLIST_ABSOLUTE, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
+    using unique_lpitemidlist = wil::unique_any<LPITEMIDLIST, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
+
     HRESULT TryExtractArchive(const std::filesystem::path& archivePath, const std::filesystem::path& destPath)
     {
         wil::com_ptr<IFileOperation> pFileOperation;
