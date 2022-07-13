@@ -37,6 +37,7 @@ ignore$
 ^src/catch2/
 ^src/cpprestsdk/
 ^src/JsonCppLib/
+^src/UndockedRegFreeWinRT/
 ^src/Valijson/
 ^src/YamlCppLib/
 # Because it doesn't handle argument -Words well
