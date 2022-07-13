@@ -337,7 +337,9 @@ namespace AppInstaller::Runtime
 
     void PathDetails::ApplyACL() const
     {
-        ULONG entries = 0;
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), CurrentUser == ACEPermissions::Owner && Admins == ACEPermissions::Owner);
+
+        ULONG entriesCount = 0;
         EXPLICIT_ACCESS_W explicitAccess[2];
 
         decltype(wil::get_token_information<TOKEN_USER>()) userToken;
@@ -353,7 +355,7 @@ namespace AppInstaller::Runtime
                 ownerSID = userToken->User.Sid;
             }
 
-            EXPLICIT_ACCESS_W& entry = explicitAccess[entries++];
+            EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
             entry = {};
 
             entry.grfAccessPermissions = AccessPermissionsFrom(CurrentUser);
@@ -374,7 +376,7 @@ namespace AppInstaller::Runtime
                 ownerSID = adminSID.get();
             }
 
-            EXPLICIT_ACCESS_W& entry = explicitAccess[entries++];
+            EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
             entry = {};
 
             entry.grfAccessPermissions = AccessPermissionsFrom(Admins);
@@ -389,7 +391,7 @@ namespace AppInstaller::Runtime
         }
 
         wil::unique_any<PACL, decltype(&::LocalFree), ::LocalFree> acl;
-        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entries, explicitAccess, nullptr, &acl));
+        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entriesCount, explicitAccess, nullptr, &acl));
 
         std::wstring path = Path.wstring();
         SECURITY_INFORMATION securityInformation = DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION;

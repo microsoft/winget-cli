@@ -69,3 +69,15 @@ TEST_CASE("ApplyACL_AdminOwner", "[runtime]")
         REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_OWNER));
     }
 }
+
+TEST_CASE("ApplyACL_BothOwners", "[runtime]")
+{
+    TempDirectory directory("AdminOwner");
+    PathDetails details;
+    details.Path = directory;
+    details.CurrentUser = ACEPermissions::Owner;
+    details.Admins = ACEPermissions::Owner;
+
+    // Both cannot be owners
+    REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+}
