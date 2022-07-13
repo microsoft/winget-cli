@@ -222,6 +222,8 @@ namespace AppInstaller
                 return "Failed to install package dependencies.";
             case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
                 return "Embedded null characters are disallowed for SQLite";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
+                return "Failed to find the nested installer in the archive.";
             default:
                 return "Unknown Error Code";
             }

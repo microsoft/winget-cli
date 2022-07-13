@@ -460,6 +460,11 @@ namespace AppInstaller::Manifest
             );
     }
 
+    bool IsArchiveType(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Zip);
+    }
+
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
     {
         // Unknown type cannot be compatible with any other

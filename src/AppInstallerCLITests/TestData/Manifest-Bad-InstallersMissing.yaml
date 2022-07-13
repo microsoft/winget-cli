@@ -2,7 +2,7 @@
 Id: microsoft.msixsdk
 Name: MSIX SDK
 Version: 1.7.32
-InstallerType: Zip
+InstallerType: Msi
 Publisher: Microsoft
 License: Test
 ManifestVersion: 0.1.0

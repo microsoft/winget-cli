@@ -156,6 +156,13 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void Reporter::PromptForEnter(Level level)
+    {
+        auto out = GetOutputStream(level);
+        out << std::endl << Resource::String::PressEnterToContinue << std::endl;
+        m_in.get();
+    }
+
     void Reporter::ShowIndefiniteProgress(bool running)
     {
         if (m_spinner)

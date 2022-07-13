@@ -9,11 +9,13 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
 #include "MsiInstallFlow.h"
+#include "ArchiveFlow.h"
 #include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/Archive.h>
 #include <Argument.h>
 #include <Command.h>
 
@@ -316,13 +318,12 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ExecuteInstaller(Execution::Context& context)
+    void ExecuteInstallerForType::operator()(Execution::Context& context) const
     {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
 
-        switch (installer.InstallerType)
+        switch (m_installerType)
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:
@@ -330,14 +331,14 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            if (ShouldUseDirectMSIInstall(installer.InstallerType, context.Args.Contains(Execution::Args::Type::Silent)))
+            if (ShouldUseDirectMSIInstall(m_installerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
                 context << DirectMSIInstall;
             }
@@ -355,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -364,9 +365,25 @@ namespace AppInstaller::CLI::Workflow
             }
             context << PortableInstall;
             break;
+        case InstallerTypeEnum::Zip:
+            context << ArchiveInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+    }
+
+    void ExecuteInstaller(Execution::Context& context)
+    {
+        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().InstallerType);
+    }
+
+    void ArchiveInstall(Execution::Context& context)
+    {
+        context <<
+            ExtractFilesFromArchive <<
+            VerifyAndSetNestedInstaller <<
+            ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
     }
 
     void ShellExecuteInstall(Execution::Context& context)
@@ -524,7 +541,8 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureSupportForPortableInstall;
+            Workflow::EnsureSupportForPortableInstall <<
+            Workflow::EnsureNonPortableTypeForArchiveInstall;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const

@@ -111,6 +111,45 @@
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
+    "NestedInstallerType": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "msix",
+        "msi",
+        "appx",
+        "exe",
+        "inno",
+        "nullsoft",
+        "wix",
+        "burn",
+        "portable"
+      ],
+      "description": "Enumeration of supported nested installer types contained inside an archive file"
+    },
+    "NestedInstallerFiles": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "object",
+        "title": "NestedInstallerFile",
+        "properties": {
+          "RelativeFilePath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "The relative path to the nested installer file"
+          },
+          "PortableCommandAlias": {
+            "type": [ "string", "null" ],
+            "minLength": 1,
+            "maxLength": 40,
+            "description": "The command alias to be used for calling the package. Only applies to the nested portable package"
+          }
+        },
+        "description": "A nested installer file contained inside an archive"
+      },
+      "maxItems": 1024,
+      "description": "List of nested installer files contained inside an archive"
+    },
     "Architecture": {
       "type": "string",
       "enum": [
@@ -533,6 +572,12 @@
         "InstallerType": {
           "$ref": "#/definitions/InstallerType"
         },
+        "NestedInstallerType": {
+          "$ref": "#/definitions/NestedInstallerType"
+        },
+        "NestedInstallerFiles": {
+          "$ref": "#/definitions/NestedInstallerFiles"
+        },
         "Scope": {
           "$ref": "#/definitions/Scope"
         },
@@ -764,6 +809,12 @@
     },
     "InstallerType": {
       "$ref": "#/definitions/InstallerType"
+    },
+    "NestedInstallerType": {
+      "$ref": "#/definitions/NestedInstallerType"
+    },
+    "NestedInstallerFiles": {
+      "$ref": "#/definitions/NestedInstallerFiles"
     },
     "Scope": {
       "$ref": "#/definitions/Scope"
