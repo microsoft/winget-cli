@@ -116,7 +116,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 deleteStmt.Reset();
                 deleteStmt.Bind(1, row.m_packageRowId);
                 deleteStmt.Bind(2, row.m_manifestRowId);
-                deleteStmt.Execute(true);
+                deleteStmt.Execute();
                 tableUpdated = true;
             }
 
@@ -155,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 
                 insert.Bind(3, dep.m_packageRowId);
 
-                insert.Execute(true);
+                insert.Execute();
                 tableUpdated = true;
             }
 
