@@ -1,0 +1,23 @@
+namespace TestComponent
+{
+    [default_interface]
+    runtimeclass ClassBoth
+    {
+        ClassBoth();
+        Int32 Apartment;
+    }
+
+    [default_interface]
+    runtimeclass ClassSta
+    {
+        ClassSta();
+        Int32 Apartment;
+    }
+
+    [default_interface]
+    runtimeclass ClassMta
+    {
+        ClassMta();
+        Int32 Apartment;
+    }
+}
