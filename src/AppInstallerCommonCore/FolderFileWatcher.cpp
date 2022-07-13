@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/FolderFileWatcher.h"
-#include "Public/AppInstallerStrings.h"
 
 namespace AppInstaller::Utility
 {
