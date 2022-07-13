@@ -212,6 +212,9 @@
     <ClCompile Include="Runtime.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="Archive.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -468,6 +471,9 @@
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestZip.zip">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -504,6 +510,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_ZipWithExe.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -543,6 +552,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ZipWithExe.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
