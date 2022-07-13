@@ -22,10 +22,10 @@ namespace AppInstaller::Utility
     void FolderFileWatcher::start()
     {
         m_files.clear();
-        m_changeReader = wil::make_folder_change_reader(m_path.wstring().c_str(),
+        m_changeReader = wil::make_folder_change_reader(m_path.c_str(),
             true,
             wil::FolderChangeEvents::FileName,
-            [this](wil::FolderChangeEvent changeEvent, PCWSTR path)
+            [this](wil::FolderChangeEvent changeEvent, PCWSTR filePath)
             {
                 switch (changeEvent)
                 {
@@ -34,8 +34,8 @@ namespace AppInstaller::Utility
                 // The file was renamed and this is the new name.
                 case wil::FolderChangeEvent::RenameNewName:
                 {
-                    std::filesystem::path fspath = m_path / std::filesystem::path(path);
-                    m_files.emplace(fspath.string());
+                    std::filesystem::path path = m_path / std::filesystem::path(filePath);
+                    m_files.emplace(path.string());
                     break;
                 }
 
@@ -44,8 +44,8 @@ namespace AppInstaller::Utility
                 // The file was renamed and this is the old name.
                 case wil::FolderChangeEvent::RenameOldName:
                 {
-                    std::filesystem::path fspath = m_path / std::filesystem::path(path);
-                    auto it = m_files.find(fspath.string());
+                    std::filesystem::path path = m_path / std::filesystem::path(filePath);
+                    auto it = m_files.find(path.string());
                     if (it != m_files.cend())
                     {
                         m_files.erase(it);
@@ -84,10 +84,10 @@ namespace AppInstaller::Utility
     void FolderFileExtensionWatcher::start()
     {
         m_files.clear();
-        m_changeReader = wil::make_folder_change_reader(m_path.wstring().c_str(),
+        m_changeReader = wil::make_folder_change_reader(m_path.c_str(),
             true,
             wil::FolderChangeEvents::FileName,
-            [this](wil::FolderChangeEvent changeEvent, PCWSTR path)
+            [this](wil::FolderChangeEvent changeEvent, PCWSTR filePath)
             {
                 switch (changeEvent)
                 {
@@ -96,10 +96,10 @@ namespace AppInstaller::Utility
                 // The file was renamed and this is the new name.
                 case wil::FolderChangeEvent::RenameNewName:
                 {
-                    std::filesystem::path fspath = m_path / std::filesystem::path(path);
-                    if (fspath.extension() == m_ext)
+                    std::filesystem::path path = m_path / std::filesystem::path(filePath);
+                    if (path.extension() == m_ext)
                     {
-                        m_files.emplace(fspath.string());
+                        m_files.emplace(path.string());
                     }
                     break;
                 }
@@ -109,10 +109,10 @@ namespace AppInstaller::Utility
                 // The file was renamed and this is the old name.
                 case wil::FolderChangeEvent::RenameOldName:
                 {
-                    std::filesystem::path fspath = m_path / std::filesystem::path(path);
-                    if (fspath.extension() == m_ext)
+                    std::filesystem::path path = m_path / std::filesystem::path(filePath);
+                    if (path.extension() == m_ext)
                     {
-                        auto it = m_files.find(fspath.string());
+                        auto it = m_files.find(path.string());
                         if (it != m_files.cend())
                         {
                             m_files.erase(it);
