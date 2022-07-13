@@ -13,12 +13,6 @@ namespace AppInstallerCLIE2ETests
         private const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
         private const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            ConfigureFeature("portableInstall", true);
-        }
-
         [Test]
         public void UpgradePortable()
         {
