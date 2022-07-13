@@ -485,7 +485,7 @@ TEST_CASE("SQLiteIndex_VersionReferencedByDependenciesClearsUnusedVersionAndKeep
     }
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_4]")
+TEST_CASE("SQLiteIndex_AddUpdateRemoveManifestWithDependencies", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -503,6 +503,8 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies", "[sqliteindex][V1_4]")
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "1.0.0"));
 
     index.AddManifest(manifest, GetPathFromManifest(manifest));
+    index.UpdateManifest(manifest, GetPathFromManifest(manifest));
+    index.RemoveManifest(manifest);
 }
 
 TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteindex][V1_4]")
@@ -525,7 +527,7 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingPackage", "[sqliteinde
     REQUIRE_THROWS_HR(index.AddManifest(manifest, GetPathFromManifest(manifest)), APPINSTALLER_CLI_ERROR_MISSING_PACKAGE);
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteindex][V1_4]")
+TEST_CASE("SQLiteIndex_AddUpdateRemoveManifestWithDependencies_MissingVersion", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -543,9 +545,11 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_MissingVersion", "[sqliteinde
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id, "0.0.2"));
 
     index.AddManifest(manifest, GetPathFromManifest(manifest));
+    index.UpdateManifest(manifest, GetPathFromManifest(manifest));
+    index.RemoveManifest(manifest);
 }
 
-TEST_CASE("SQLiteIndex_AddManifestWithDependencies_EmptyManifestVersion", "[sqliteindex][V1_4]")
+TEST_CASE("SQLiteIndex_AddUpdateRemoveManifestWithDependencies_EmptyManifestVersion", "[sqliteindex][V1_4]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -563,6 +567,8 @@ TEST_CASE("SQLiteIndex_AddManifestWithDependencies_EmptyManifestVersion", "[sqli
     manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest2.Id));
 
     index.AddManifest(manifest, GetPathFromManifest(manifest));
+    index.UpdateManifest(manifest, GetPathFromManifest(manifest));
+    index.RemoveManifest(manifest);
 }
 
 TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_4]")
