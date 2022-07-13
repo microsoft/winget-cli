@@ -32,8 +32,8 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         if (installer.NestedInstallerFiles.empty())
         {
+            // Manifest validation should prevent this from happening
             AICLI_LOG(CLI, Error, << "No entries specified for NestedInstallerFiles");
-            context.Reporter.Error() << Resource::String::NestedInstallerFilesNotSpecified << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 

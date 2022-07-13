@@ -318,12 +318,12 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ExecuteInstallerForType(Execution::Context& context, InstallerTypeEnum installerType)
+    void ExecuteInstallerForType::operator()(Execution::Context& context) const
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
 
-        switch (installerType)
+        switch (m_installerType)
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:
@@ -338,7 +338,7 @@ namespace AppInstaller::CLI::Workflow
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            if (ShouldUseDirectMSIInstall(installerType, context.Args.Contains(Execution::Args::Type::Silent)))
+            if (ShouldUseDirectMSIInstall(m_installerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
                 context << DirectMSIInstall;
             }
@@ -375,19 +375,15 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteInstaller(Execution::Context& context)
     {
-        ExecuteInstallerForType(context, context.Get<Execution::Data::Installer>().value().InstallerType);
+        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().InstallerType);
     }
 
     void ArchiveInstall(Execution::Context& context)
     {
         context <<
             ExtractFilesFromArchive <<
-            VerifyAndSetNestedInstaller;
-
-        if (!context.IsTerminated())
-        {
-            ExecuteInstallerForType(context, context.Get<Execution::Data::Installer>().value().NestedInstallerType);
-        }
+            VerifyAndSetNestedInstaller <<
+            ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
     }
 
     void ShellExecuteInstall(Execution::Context& context)
