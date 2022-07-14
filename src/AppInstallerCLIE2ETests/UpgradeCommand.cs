@@ -8,12 +8,6 @@ namespace AppInstallerCLIE2ETests
 
     public class UpgradeCommand : BaseCommand
     {
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            ConfigureFeature("portableInstall", true);
-        }
-
         [Test]
         public void UpgradePortable()
         {

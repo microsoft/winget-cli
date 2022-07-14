@@ -72,11 +72,25 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context);
 
-    // Composite flow that chooses what to do based on the installer type.
+    // Starts execution of the installer.
     // Required Args: None
     // Inputs: Installer, InstallerPath
     // Outputs: None
     void ExecuteInstaller(Execution::Context& context);
+
+    // Composite flow that chooses what to do based on the installer type.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
+    struct ExecuteInstallerForType : public WorkflowTask
+    {
+        ExecuteInstallerForType(Manifest::InstallerTypeEnum installerType) : WorkflowTask("ExecuteInstallerForType"), m_installerType(installerType) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Manifest::InstallerTypeEnum m_installerType;
+    };
 
     // Runs the installer via ShellExecute.
     // Required Args: None
@@ -101,6 +115,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Installer, InstallerPath
     // Outputs: None
     void PortableInstall(Execution::Context& context);
+
+    // Runs the flow for installing a package from an archive.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath, Manifest
+    // Outputs: None
+    void ArchiveInstall(Execution::Context& context);
 
     // Verifies parameters for install to ensure success.
     // Required Args: None

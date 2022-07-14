@@ -621,4 +621,16 @@ namespace AppInstaller::CLI::Workflow
                 EnsureVolumeSupportsReparsePoints;
         }
     }
+
+    // TODO: remove this check once support for portable in archive has been implemented
+    void EnsureNonPortableTypeForArchiveInstall(Execution::Context& context)
+    {
+        auto nestedInstallerType = context.Get<Execution::Data::Installer>().value().NestedInstallerType;
+
+        if (nestedInstallerType == InstallerTypeEnum::Portable)
+        {
+            context.Reporter.Error() << Resource::String::PortableInstallFromArchiveNotSupported << std::endl;
+            AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+        }
+    }
 }
