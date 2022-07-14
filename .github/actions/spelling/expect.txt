@@ -53,6 +53,7 @@ bomgar
 BOMs
 boundparms
 brk
+Browsable
 Buf
 buildtransitive
 BUILTINS
@@ -70,7 +71,6 @@ cfr
 cgi
 cgmanifest
 chcp
-ci
 cinq
 CLIE
 cloudapp
@@ -107,7 +107,6 @@ Dsc
 Dst
 dustojnikhummer
 dvinns
-dw
 ebug
 ecfr
 ecfrbrowse
@@ -124,7 +123,6 @@ execustom
 EXEHASH
 experimentalfeatures
 fcb
-fd
 fdw
 fedorapeople
 fileinuse
@@ -201,14 +199,12 @@ IZone
 jdk
 jfearn
 JObject
-jp
 jpalardy
 JREs
 jrsoftware
 jsoncpp
 kayone
 Keivan
-KF
 KNOWNFOLDERID
 ktf
 langs
@@ -227,12 +223,10 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
-LPITEMIDLIST
+lpitemidlist
 LPWSTR
 LSTATUS
 LTDA
-lw
-lz
 malware
 maxvalue
 MBH
@@ -257,13 +251,11 @@ MSIXHASH
 msstore
 Multideclaration
 multimap
-mx
 mycustom
 myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
 NESTEDINSTALLER
 NETFX
 netlify
@@ -280,7 +272,6 @@ npp
 nsis
 nuffing
 nullopt
-NX
 objbase
 objidl
 ofile
@@ -290,7 +281,6 @@ PARAMETERMAP
 paramref
 pathparts
 Patil
-pb
 PCs
 pcwsz
 pdp
@@ -299,7 +289,7 @@ pfn
 pfxpath
 Pherson
 pidl
-PIDLIST
+pidlist
 pkgmgr
 pkindex
 PMS
@@ -319,9 +309,6 @@ pvm
 pwabuilder
 PWAs
 PWSTR
-px
-pz
-qb
 qword
 rbegin
 readonly
@@ -407,7 +394,6 @@ ucnv
 uec
 uild
 uintptr
-ul
 uninitialize
 uninstallation
 uninstaller
@@ -435,7 +421,6 @@ virtualization
 vns
 vscode
 vstest
-vy
 wcslen
 webpages
 Webserver
@@ -449,14 +434,15 @@ winerror
 wingetcreate
 wingetdev
 winreg
+winrtact
 withstarts
-wn
 Workflows
 wsl
 wsv
 wto
 wwinmain
 WZDNCRFJ
+XFile
 XPLATSTR
 xsi
 yamlcreateps
@@ -464,4 +450,3 @@ yao
 ype
 Zanollo
 ZIPHASH
-zy
