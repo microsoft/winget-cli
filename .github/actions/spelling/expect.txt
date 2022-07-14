@@ -1,7 +1,8 @@
 abcd
 accepteula
-adjacents
+acl
 activatable
+adjacents
 adml
 admx
 affle
@@ -93,6 +94,7 @@ ctc
 Ctx
 curated
 CYRL
+DACL
 Dbg
 debian
 deigh
@@ -227,6 +229,7 @@ localizationpriority
 LPBYTE
 LPDWORD
 LPITEMIDLIST
+LPWCH
 LPWSTR
 LSTATUS
 LTDA
@@ -287,6 +290,7 @@ ofile
 Outptr
 OSVERSION
 Packagedx
+PACL
 packageinuse
 parametermap
 pathparts
@@ -315,6 +319,7 @@ pscustomobject
 pseudocode
 psm
 psobject
+ptstr
 pvk
 pvm
 pwabuilder
