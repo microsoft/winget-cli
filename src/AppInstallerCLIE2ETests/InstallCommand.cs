@@ -274,7 +274,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
         }
 
         [Test]
@@ -289,7 +289,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -298,46 +298,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsix");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsixInstalledAndCleanup());
-        }
-
-        private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
-        {
-            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrEmpty(expectedContent))
-            {
-                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
-                return content.Contains(expectedContent);
-            }
-
-            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
-            return true;
-        }
-
-        private bool VerifyTestMsiInstalledAndCleanup(string installDir)
-        {
-            if (!File.Exists(Path.Combine(installDir, InstallTestMsiInstalledFile)))
-            {
-                return false;
-            }
-
-            return TestCommon.RunCommand("msiexec.exe", $"/qn /x {InstallTestMsiProductId}");
-        }
-
-        private bool VerifyTestMsixInstalledAndCleanup()
-        {
-            var result = TestCommon.RunCommandWithResult("powershell", $"Get-AppxPackage {InstallTestMsixName}");
-
-            if (!result.StdOut.Contains(InstallTestMsixName))
-            {
-                return false;
-            }
-
-            return TestCommon.RemoveMsix(InstallTestMsixName);
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
     }
 }
