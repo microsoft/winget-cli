@@ -9,6 +9,7 @@ namespace AppInstaller::Certificates
 {
     bool PinningConfiguration::Validate(PCCERT_CONTEXT certContext) const
     {
+        UNREFERENCED_PARAMETER(certContext);
         //  the root cert if fully pinned but leaf & intermediary are only SN+Issuer checks
         THROW_HR(E_NOTIMPL);
     }
